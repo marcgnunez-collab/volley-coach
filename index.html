@@ -341,9 +341,9 @@ function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lu
 
 // ===== VOLLEY COACH CLOUD SYNC (Supabase) =====
 let cloudClient=null, cloudUser=null, cloudSaveTimer=null, cloudApplying=false;
-const CLOUD_URL_KEY='volleyCoachSupabaseUrl';
-const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKey';
-const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnggbxdi.supabase.co';
+const CLOUD_URL_KEY='volleyCoachSupabaseUrlV2';
+const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKeyV2';
+const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
 function estadoLocal(){return {baseDeDatos,sesionActual,meta,historial,planificacion,updatedAt:new Date().toISOString()}}
 function aplicarEstadoCloud(s){
