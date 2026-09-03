@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--text:#172033;--muted:#687386;--blue:#1f4e79;--green:#39715b;--orange:#9a6a2f;--red:#9f3a38;--line:#d8dde5;--navy:#132b44}
 *{box-sizing:border-box} body{margin:0;font-family:Georgia,"Times New Roman",serif;background:var(--bg);color:var(--text)}
@@ -199,9 +200,49 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 .board.half:before{content:none!important;display:none!important;background:transparent!important;}
 @media(display-mode:standalone){body{overscroll-behavior-y:none;-webkit-user-select:none;user-select:none;}input,textarea{-webkit-user-select:text;user-select:text;}}
 </style>
+
+<style id="cloud-sync-style">
+.cloud-btn{background:#fff!important;color:#0b2744!important;border:1px solid #cbd5e1!important}.cloud-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9ca3af;margin-right:6px}.cloud-dot.online{background:#2f855a}.cloud-dot.syncing{background:#d69e2e}.cloud-dot.error{background:#c53030}.cloud-modal{position:fixed;inset:0;background:rgba(7,29,53,.58);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px}.cloud-modal.open{display:flex}.cloud-card{width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border:1px solid #cbd5e1;box-shadow:0 20px 60px rgba(0,0,0,.25);padding:22px}.cloud-card h2{margin-top:0}.cloud-grid{display:grid;gap:10px}.cloud-grid input{width:100%;box-sizing:border-box}.cloud-help{font-size:12px;color:#5b6673;line-height:1.45}.cloud-status-box{background:#f7f9fb;border:1px solid #dde3e9;padding:10px;font-size:13px}.cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.cloud-close{float:right}.cloud-separator{border:0;border-top:1px solid #e5e7eb;margin:18px 0}
+</style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V3.2</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V4 CLOUD</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
+  <div class="cloud-card">
+    <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
+    <h2>☁️ Sincronización entre dispositivos</h2>
+    <div id="cloud-status" class="cloud-status-box">No configurado.</div>
+    <hr class="cloud-separator">
+    <div id="cloud-config" class="cloud-grid">
+      <b>1. Conectar Supabase</b>
+      <input id="cloud-url" placeholder="Project URL (https://xxxxx.supabase.co)">
+      <input id="cloud-key" placeholder="Anon / publishable key">
+      <button class="primary" onclick="guardarConfigCloud()">Guardar conexión</button>
+      <div class="cloud-help">La URL y la clave pública se guardan solo en este dispositivo. No uses nunca la service_role key.</div>
+    </div>
+    <hr class="cloud-separator">
+    <div class="cloud-grid">
+      <b>2. Tu cuenta de Volley Coach</b>
+      <input id="cloud-email" type="email" autocomplete="email" placeholder="Correo electrónico">
+      <input id="cloud-password" type="password" autocomplete="current-password" placeholder="Contraseña (mínimo 6 caracteres)">
+      <div class="cloud-actions">
+        <button class="primary" onclick="cloudLogin()">Entrar</button>
+        <button class="ghost" onclick="cloudSignup()">Crear cuenta</button>
+        <button class="danger" onclick="cloudLogout()">Cerrar sesión</button>
+      </div>
+    </div>
+    <hr class="cloud-separator">
+    <div class="cloud-grid">
+      <b>3. Sincronización</b>
+      <div class="cloud-help">Cuando inicies sesión con la misma cuenta en el portátil y el iPhone, ejercicios, sesión actual, planificación e historial se sincronizarán automáticamente.</div>
+      <div class="cloud-actions">
+        <button class="success" onclick="subirNube(true)">⬆️ Subir este dispositivo</button>
+        <button class="ghost" onclick="bajarNube(true)">⬇️ Descargar de la nube</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <main>
 <div class="tabs"><button class="tab-btn active" onclick="showView('entrenamiento',this)">🏠 Entrenamiento</button><button class="tab-btn" onclick="showView('ejercicios',this)">📚 Ejercicios</button><button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button><button class="tab-btn" onclick="showView('historial',this)">📅 Historial</button><button class="tab-btn" onclick="showView('estadisticas',this)">📊 Estadísticas</button></div>
 
@@ -250,7 +291,7 @@ const defaults=[
 ];
 let baseDeDatos=JSON.parse(localStorage.getItem('misEjerciciosVoleiV2'))||JSON.parse(JSON.stringify(defaults));
 let sesionActual=JSON.parse(localStorage.getItem('sesionActualVoleiV2'))||[]; let planificacion=JSON.parse(localStorage.getItem('planificacionVoleiV3'))||[]; let semanaBase=new Date(); let pizarraParaEjercicio=null; let meta=JSON.parse(localStorage.getItem('sesionMetaVoleiV2'))||{fecha:new Date().toISOString().slice(0,10),equipo:'',jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:''}; let historial=JSON.parse(localStorage.getItem('historialVoleiV2'))||[];
-function save(){localStorage.setItem('misEjerciciosVoleiV2',JSON.stringify(baseDeDatos));localStorage.setItem('sesionActualVoleiV2',JSON.stringify(sesionActual));localStorage.setItem('sesionMetaVoleiV2',JSON.stringify(meta));localStorage.setItem('historialVoleiV2',JSON.stringify(historial));localStorage.setItem('planificacionVoleiV3',JSON.stringify(planificacion));$('save-indicator').textContent='✓ Guardado automáticamente';}
+function save(){localStorage.setItem('misEjerciciosVoleiV2',JSON.stringify(baseDeDatos));localStorage.setItem('sesionActualVoleiV2',JSON.stringify(sesionActual));localStorage.setItem('sesionMetaVoleiV2',JSON.stringify(meta));localStorage.setItem('historialVoleiV2',JSON.stringify(historial));localStorage.setItem('planificacionVoleiV3',JSON.stringify(planificacion));$('save-indicator').textContent='✓ Guardado localmente';programarSubidaCloud();}
 function showView(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();}
 function cargarMeta(){['fecha','equipo','jugadores','intensidad','objetivo','notas'].forEach(k=>{let el=$('sesion-'+k);if(el)el.value=meta[k]||''});$('texto-calentamiento').value=meta.calentamiento||'';}
 function guardarSesionMeta(){meta={fecha:$('sesion-fecha').value,equipo:$('sesion-equipo').value,jugadores:$('sesion-jugadores').value,intensidad:$('sesion-intensidad').value,objetivo:$('sesion-objetivo').value,calentamiento:$('texto-calentamiento').value,notas:$('sesion-notas').value};save();renderizarSesion();}
@@ -296,7 +337,116 @@ function eliminarPlan(id){planificacion=planificacion.filter(x=>x.id!==id);save(
 function usarPlan(id){let p=planificacion.find(x=>x.id===id);if(!p)return;meta.fecha=p.fecha;meta.equipo=p.equipo;meta.objetivo=p.objetivo;meta.intensidad=p.intensidad;save();cargarMeta();document.querySelectorAll('.tab-btn')[0].click()}
 function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>`<div class="plan-item"><b>${esc(p.equipo||'Sesión')}</b><br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad)}</span><div class="actions" style="margin-top:6px"><button class="ghost" onclick="usarPlan(${p.id})">Usar</button><button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('')}
 
-cargarMeta();renderizarSesion();filtrarEjercicios();
+
+
+// ===== VOLLEY COACH CLOUD SYNC (Supabase) =====
+let cloudClient=null, cloudUser=null, cloudSaveTimer=null, cloudApplying=false;
+const CLOUD_URL_KEY='volleyCoachSupabaseUrl';
+const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKey';
+const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnggbxdi.supabase.co';
+const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
+function estadoLocal(){return {baseDeDatos,sesionActual,meta,historial,planificacion,updatedAt:new Date().toISOString()}}
+function aplicarEstadoCloud(s){
+  if(!s)return;
+  cloudApplying=true;
+  if(Array.isArray(s.baseDeDatos))baseDeDatos=s.baseDeDatos;
+  if(Array.isArray(s.sesionActual))sesionActual=s.sesionActual;
+  if(s.meta&&typeof s.meta==='object')meta=s.meta;
+  if(Array.isArray(s.historial))historial=s.historial;
+  if(Array.isArray(s.planificacion))planificacion=s.planificacion;
+  localStorage.setItem('misEjerciciosVoleiV2',JSON.stringify(baseDeDatos));
+  localStorage.setItem('sesionActualVoleiV2',JSON.stringify(sesionActual));
+  localStorage.setItem('sesionMetaVoleiV2',JSON.stringify(meta));
+  localStorage.setItem('historialVoleiV2',JSON.stringify(historial));
+  localStorage.setItem('planificacionVoleiV3',JSON.stringify(planificacion));
+  cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();
+  cloudApplying=false;
+}
+function setCloudUI(kind,text){
+  const dot=$('cloud-dot'),label=$('cloud-label'),box=$('cloud-status');
+  if(dot){dot.className='cloud-dot'+(kind?' '+kind:'')}
+  if(label)label.textContent=text||'Nube';
+  if(box)box.textContent=text||'Nube';
+}
+function abrirCloud(){
+  $('cloud-modal').classList.add('open');
+  $('cloud-url').value=localStorage.getItem(CLOUD_URL_KEY)||DEFAULT_CLOUD_URL;
+  $('cloud-key').value=localStorage.getItem(CLOUD_ANON_KEY)||DEFAULT_CLOUD_KEY;
+  actualizarEstadoCloud();
+}
+function cerrarCloud(){$('cloud-modal').classList.remove('open')}
+function crearCloudClient(){
+  const url=localStorage.getItem(CLOUD_URL_KEY)||DEFAULT_CLOUD_URL,key=localStorage.getItem(CLOUD_ANON_KEY)||DEFAULT_CLOUD_KEY;
+  if(!url||!key||!window.supabase){cloudClient=null;return false}
+  try{cloudClient=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});return true}catch(e){cloudClient=null;return false}
+}
+async function guardarConfigCloud(){
+  const url=$('cloud-url').value.trim(),key=$('cloud-key').value.trim();
+  if(!url||!key){alert('Introduce la Project URL y la anon/publishable key de Supabase.');return}
+  localStorage.setItem(CLOUD_URL_KEY,url);localStorage.setItem(CLOUD_ANON_KEY,key);
+  crearCloudClient();await initCloud();alert('Conexión guardada.');
+}
+async function initCloud(){
+  if(!crearCloudClient()){setCloudUI('', 'Nube sin configurar');return}
+  const {data:{session}}=await cloudClient.auth.getSession();
+  cloudUser=session?.user||null;
+  if(cloudUser){setCloudUI('online','Nube conectada');await bajarNube(false)}else setCloudUI('', 'Nube lista · inicia sesión');
+  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada');if(event==='SIGNED_IN')await bajarNube(false)}else setCloudUI('', 'Nube desconectada')});
+}
+async function cloudSignup(){
+  if(!cloudClient&& !crearCloudClient()){alert('Primero configura Supabase.');return}
+  const email=$('cloud-email').value.trim(),password=$('cloud-password').value;
+  if(!email||password.length<6){alert('Introduce un correo y una contraseña de al menos 6 caracteres.');return}
+  setCloudUI('syncing','Creando cuenta…');
+  const {data,error}=await cloudClient.auth.signUp({email,password});
+  if(error){setCloudUI('error','Error de cuenta');alert(error.message);return}
+  cloudUser=data.user||null;
+  if(data.session){await subirNube(false);setCloudUI('online','Nube conectada');alert('Cuenta creada y sincronización activada.')}else{setCloudUI('', 'Revisa tu correo');alert('Cuenta creada. Si Supabase pide confirmación por correo, confirma el mensaje y después pulsa Entrar.')}
+}
+async function cloudLogin(){
+  if(!cloudClient&& !crearCloudClient()){alert('Primero configura Supabase.');return}
+  const email=$('cloud-email').value.trim(),password=$('cloud-password').value;
+  if(!email||!password){alert('Introduce correo y contraseña.');return}
+  setCloudUI('syncing','Conectando…');
+  const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
+  if(error){setCloudUI('error','Error al entrar');alert(error.message);return}
+  cloudUser=data.user;await bajarNube(false);setCloudUI('online','Nube conectada');alert('Sincronización activada en este dispositivo.')
+}
+async function cloudLogout(){if(cloudClient)await cloudClient.auth.signOut();cloudUser=null;setCloudUI('', 'Nube desconectada')}
+async function actualizarEstadoCloud(){
+  if(!cloudClient)crearCloudClient();
+  if(!cloudClient){setCloudUI('', 'Nube sin configurar');return}
+  const {data:{session}}=await cloudClient.auth.getSession();cloudUser=session?.user||null;
+  setCloudUI(cloudUser?'online':'',cloudUser?('Conectado: '+cloudUser.email):'Nube lista · inicia sesión');
+}
+function programarSubidaCloud(){
+  if(cloudApplying||!cloudUser||!navigator.onLine)return;
+  clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>subirNube(false),900);
+}
+async function subirNube(manual=false){
+  if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
+  setCloudUI('syncing','Sincronizando…');
+  const payload={user_id:cloudUser.id,state:estadoLocal(),updated_at:new Date().toISOString()};
+  const {error}=await cloudClient.from('volley_state').upsert(payload,{onConflict:'user_id'});
+  if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
+  localStorage.setItem('volleyCloudLastSync',payload.updated_at);setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Guardado y sincronizado';
+  if(manual)alert('Datos subidos a la nube.')
+}
+async function bajarNube(manual=false){
+  if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
+  setCloudUI('syncing','Descargando…');
+  const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
+  if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
+  if(!data){await subirNube(false);if(manual)alert('La nube estaba vacía. Se han subido los datos de este dispositivo.');return}
+  aplicarEstadoCloud(data.state);localStorage.setItem('volleyCloudLastSync',data.updated_at||'');setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Datos sincronizados';
+  if(manual)alert('Datos descargados de la nube.')
+}
+window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&cloudUser)bajarNube(false)});
+
+if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
+if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
+cargarMeta();renderizarSesion();filtrarEjercicios();initCloud();
 </script>
 
 <script>
