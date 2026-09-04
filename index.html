@@ -276,10 +276,28 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 .training-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px solid #e5e9ed;font-size:12px}
 .training-detail.open{display:block}
 @media(max-width:800px){.trainings-columns{grid-template-columns:1fr}.exercise-stat-grid{grid-template-columns:1fr 1fr}.exercise-row{padding:9px 10px}.icon-action{width:34px;height:34px}}
+
+/* V5.0 · Ficha de entrenamiento por bloques */
+.training-blocks{display:flex;flex-direction:column;gap:11px;margin-top:12px}
+.training-block{border:1px solid #d9e1e8;border-radius:10px;background:#fff;overflow:hidden}
+.training-block-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;background:#f6f8fa;border-bottom:1px solid #e2e7eb}
+.training-block-title{display:flex;align-items:center;gap:9px;min-width:0}
+.training-block-title strong{display:block;color:#17324d;font-size:14px}
+.training-block-title .small{margin-top:2px}
+.training-block-count{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:25px;padding:0 7px;border-radius:999px;background:#e8eef4;color:#17324d;font-size:11px;font-weight:800}
+.training-block-add{white-space:nowrap;padding:8px 10px!important}
+.training-block-body{padding:8px}
+.training-block-empty{padding:9px 10px;color:#7a8793;font-size:12px;border:1px dashed #d9e1e8;border-radius:7px;background:#fbfcfd}
+.training-block .session-item{margin-bottom:6px}
+.training-block .session-item:last-child{margin-bottom:0}
+.session-section-target{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin-bottom:12px;background:#fff7df;border:1px solid #e9c86d;border-radius:9px}
+.session-section-target strong{color:#5e4500}
+.session-section-target .actions{margin:0}
+@media(max-width:700px){.training-block-head,.session-section-target{align-items:flex-start;flex-direction:column}.training-block-add{width:100%}.session-section-target .actions{width:100%}.session-section-target .actions button{flex:1}}
 </style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V4.9 SIMILARES</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.0 BLOQUES DE ENTRENAMIENTO</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -341,7 +359,7 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
     <button id="team-btn-cadete" class="team-btn" onclick="cambiarEquipo('cadete')">Cadete masc.</button>
   </div>
 </div>
-<div class="tabs"><button class="tab-btn active" onclick="showView('entrenamiento',this)">🏠 Entrenamiento</button><button class="tab-btn" onclick="showView('ejercicios',this)">📚 Ejercicios</button><button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button><button class="tab-btn" onclick="showView('historial',this)">📅 Entrenamientos</button><button class="tab-btn" onclick="showView('estadisticas',this)">📊 Estadísticas</button></div>
+<div class="tabs"><button class="tab-btn active" onclick="showView('entrenamiento',this)">🏠 Entrenamiento</button><button class="tab-btn" onclick="abrirBibliotecaNormal(this)">📚 Ejercicios</button><button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button><button class="tab-btn" onclick="showView('historial',this)">📅 Entrenamientos</button><button class="tab-btn" onclick="showView('estadisticas',this)">📊 Estadísticas</button></div>
 
 <section id="entrenamiento" class="view active">
 <div class="grid2" id="export-area">
@@ -354,7 +372,7 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 <textarea id="sesion-notas" placeholder="📝 Notas del entrenador" oninput="guardarSesionMeta()"></textarea>
 </div>
 <div class="summary"><div class="metric"><span class="small">Duración</span><b id="tiempo-total">0 min</b></div><div class="metric"><span class="small">Ejercicios</span><b id="num-ejercicios">0</b></div><div class="metric"><span class="small">Intensidad</span><b id="intensidad-resumen">Media</b></div></div>
-<div id="lista-sesion" class="session-list"></div>
+<div id="lista-sesion" class="training-blocks"></div>
 <div class="actions" style="margin-top:14px"><button class="primary" onclick="exportarImagen()">🖼️ Exportar imagen</button><button class="success" onclick="finalizarEntrenamiento()">✅ Finalizar y guardar</button></div>
 </div>
 <div class="panel">
@@ -368,6 +386,10 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 </section>
 
 <section id="ejercicios" class="view">
+<div id="session-section-target" class="session-section-target hidden">
+  <div><div class="small">Añadiendo ejercicios a</div><strong id="session-section-target-name">Sección</strong><div id="session-section-target-note" class="small"></div></div>
+  <div class="actions"><button class="ghost" onclick="cancelarDestinoSesion()">Ver biblioteca normal</button><button class="primary" onclick="volverAlEntrenamiento()">← Volver al entrenamiento</button></div>
+</div>
 <div class="panel" style="margin-bottom:12px;background:#eef4f9;border-color:#c9d7e5"><b>📚 Biblioteca compartida</b><div class="small" style="margin-top:4px">Los ejercicios son comunes para Infantil y Cadete. Pulsa <b>☆</b> para guardar un ejercicio en favoritos. La biblioteca empieza vacía y solo muestra ejercicios cuando escribes una búsqueda o eliges un filtro. Usa 📊 para ver su uso por equipo, ℹ️ para consultar la información y ➕ para añadirlo al entrenamiento del equipo activo.</div></div>
 <div class="panel" style="margin-bottom:18px"><h2 id="form-title">➕ Añadir ejercicio a la biblioteca</h2><div class="form-grid">
 <input type="hidden" id="edit-id"><input id="nuevo-nombre" placeholder="Nombre"><input id="nuevo-tiempo" type="number" min="0" placeholder="Minutos"><select id="nueva-escuela"><option>Italia</option><option>España</option><option>Francia</option><option>EEUU</option><option>Brasil</option><option>Propia</option></select><div class="fundamento-multi"><span class="fundamento-label">Grupos / fundamentos <small>(puedes marcar varios)</small></span><div class="fundamento-checks"><label><input type="checkbox" name="nuevo-fundamento" value="Recepción"> Recepción</label><label><input type="checkbox" name="nuevo-fundamento" value="Ataque"> Ataque</label><label><input type="checkbox" name="nuevo-fundamento" value="Colocación"> Colocación</label><label><input type="checkbox" name="nuevo-fundamento" value="Bloqueo"> Bloqueo</label><label><input type="checkbox" name="nuevo-fundamento" value="Defensa"> Defensa</label><label><input type="checkbox" name="nuevo-fundamento" value="Reconstrucción"> Reconstrucción</label><label><input type="checkbox" name="nuevo-fundamento" value="Juegos"> Juegos</label><label><input type="checkbox" name="nuevo-fundamento" value="Saque"> Saque</label></div></div><input id="nuevo-formato" placeholder="Formato (ej. 6v6)"><select id="nuevo-nivel"><option>Iniciación</option><option selected>Intermedio</option><option>Avanzado</option></select><select id="nueva-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select><select id="nuevo-tipo"><option value="" selected>— Tipo de ejercicio —</option><option>Analítico</option><option>Puesta en juego</option><option>Juego reducido</option><option>Juego</option></select><input id="nuevo-jugadores" placeholder="Jugadores (ej. 8-12)"><input id="nuevo-material" placeholder="Material necesario"><input id="nuevo-video" placeholder="Enlace de vídeo (opcional)"><select id="nuevo-fase"><option>Calentamiento</option><option selected>Parte principal</option><option>Vuelta a la calma</option></select><textarea id="nuevo-objetivo" placeholder="Objetivo técnico/táctico"></textarea><textarea id="nueva-descripcion" placeholder="Descripción del ejercicio"></textarea><textarea id="nuevo-variantes" placeholder="Variantes"></textarea><textarea id="nuevo-errores" placeholder="Errores habituales y correcciones"></textarea>
@@ -410,18 +432,26 @@ const EQUIPOS={
   infantil:{nombre:'Infantil Masculino',corto:'Infantil masc.'},
   cadete:{nombre:'Cadete Masculino',corto:'Cadete masc.'}
 };
+const SECCIONES_ENTRENO={
+  analiticos:{titulo:'Analíticos',tipo:'Analítico',icono:'🎯',nota:'Trabajo técnico analítico.'},
+  especificos:{titulo:'Específicos',tipo:null,icono:'🧩',nota:'Aquí eliges tú cualquier ejercicio de la biblioteca.'},
+  desarrollo:{titulo:'Desarrollo con el juego',tipo:'Puesta en juego',icono:'🔄',nota:'Muestra los ejercicios clasificados como Puesta en juego.'},
+  reducidos:{titulo:'Juegos reducidos',tipo:'Juego reducido',icono:'🔹',nota:'Situaciones de juego reducido.'},
+  juego:{titulo:'Juego',tipo:'Juego',icono:'🏐',nota:'Juego global.'}
+};
+let seccionDestinoSesion=null;
 let equipoActivo=localStorage.getItem(ACTIVE_TEAM_KEY)||localStorage.getItem(OLD_ACTIVE_TEAM_KEY)||'infantil';
 if(!EQUIPOS[equipoActivo])equipoActivo='infantil';
 let sesionActual=[],planificacion=[],historial=[];
 let semanaBase=new Date(); let pizarraParaEjercicio=null;
-let meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:''};
+let meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{}};
 let equiposData=null;
 
 function clonar(v){return JSON.parse(JSON.stringify(v))}
 function estadoEquipoVacio(id){
   return {
     sesionActual:[],
-    meta:{fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[id].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:''},
+    meta:{fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[id].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{}},
     historial:[],
     planificacion:[]
   };
@@ -430,7 +460,7 @@ function limpiarEquipo(raw,id){
   raw=raw&&typeof raw==='object'?raw:{};
   return {
     sesionActual:Array.isArray(raw.sesionActual)?clonar(raw.sesionActual):[],
-    meta:{...estadoEquipoVacio(id).meta,...clonar(raw.meta||{}),equipo:EQUIPOS[id].nombre},
+    meta:{...estadoEquipoVacio(id).meta,...clonar(raw.meta||{}),seccionesEjercicios:{...(raw.meta&&raw.meta.seccionesEjercicios&&typeof raw.meta.seccionesEjercicios==='object'?clonar(raw.meta.seccionesEjercicios):{})},equipo:EQUIPOS[id].nombre},
     historial:Array.isArray(raw.historial)?clonar(raw.historial):[],
     planificacion:Array.isArray(raw.planificacion)?clonar(raw.planificacion):[]
   };
@@ -492,7 +522,7 @@ function cargarEstadoLocal(){
   guardarEstadoLocalSinCloud();
 }
 function guardarEstadoLocalSinCloud(){
-  localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:4.5,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)}));
+  localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:5.0,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)}));
   localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo);
 }
 function guardarEquipoEnMemoria(){
@@ -521,6 +551,7 @@ function actualizarSelectorEquipo(){
 }
 function cambiarEquipo(id){
   if(!EQUIPOS[id]||id===equipoActivo)return;
+  seccionDestinoSesion=null;
   guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();
   equipoActivo=id;localStorage.setItem(ACTIVE_TEAM_KEY,id);
   cargarEquipoEnVariables(id);
@@ -532,13 +563,24 @@ cargarEstadoLocal();
 cargarEquipoEnVariables(equipoActivo);
 
 function save(){meta.equipo=EQUIPOS[equipoActivo].nombre;guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();$('save-indicator').textContent='✓ Guardado · '+EQUIPOS[equipoActivo].corto+' · biblioteca compartida';programarSubidaCloud();}
-function showView(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();}
+function showView(id,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();}
+function botonVista(id){const orden=['entrenamiento','ejercicios','planificacion','historial','estadisticas'];return document.querySelectorAll('.tab-btn')[orden.indexOf(id)]||null}
+function abrirBibliotecaNormal(btn){seccionDestinoSesion=null;showView('ejercicios',btn);renderDestinoBiblioteca()}
+function seccionNaturalEjercicio(e){const t=(e&&e.tipo)||'';if(t==='Analítico')return 'analiticos';if(t==='Puesta en juego')return 'desarrollo';if(t==='Juego reducido')return 'reducidos';if(t==='Juego')return 'juego';return 'especificos'}
+function mapaSeccionesSesion(){if(!meta.seccionesEjercicios||typeof meta.seccionesEjercicios!=='object')meta.seccionesEjercicios={};return meta.seccionesEjercicios}
+function seccionEjercicioSesion(id,e){return mapaSeccionesSesion()[String(id)]||seccionNaturalEjercicio(e)}
+function renderDestinoBiblioteca(){const box=$('session-section-target');if(!box)return;if(!seccionDestinoSesion||!SECCIONES_ENTRENO[seccionDestinoSesion]){box.classList.add('hidden');return}const cfg=SECCIONES_ENTRENO[seccionDestinoSesion];$('session-section-target-name').textContent=cfg.icono+' '+cfg.titulo;$('session-section-target-note').textContent=seccionDestinoSesion==='especificos'?'Puedes elegir cualquier ejercicio; se guardará en Específicos dentro de este entrenamiento.':'El filtro se ha aplicado automáticamente. Los ejercicios que añadas irán a esta sección.';box.classList.remove('hidden')}
+function abrirBibliotecaParaSeccion(slug){const cfg=SECCIONES_ENTRENO[slug];if(!cfg)return;seccionDestinoSesion=slug;['buscar','escuela','fundamento','nivel','favoritos'].forEach(id=>{if($(id))$(id).value=''});if($('tipo'))$('tipo').value=slug==='especificos'?'Todos':cfg.tipo;showView('ejercicios',botonVista('ejercicios'));filtrarEjercicios();renderDestinoBiblioteca();window.scrollTo({top:0,behavior:'smooth'})}
+function cancelarDestinoSesion(){seccionDestinoSesion=null;renderDestinoBiblioteca();['buscar','escuela','fundamento','nivel','tipo','favoritos'].forEach(id=>{if($(id))$(id).value=''});filtrarEjercicios()}
+function volverAlEntrenamiento(){seccionDestinoSesion=null;renderDestinoBiblioteca();showView('entrenamiento',botonVista('entrenamiento'));renderizarSesion();window.scrollTo({top:0,behavior:'smooth'})}
 function cargarMeta(){['fecha','equipo','jugadores','intensidad','objetivo','notas'].forEach(k=>{let el=$('sesion-'+k);if(el)el.value=meta[k]||''});$('texto-calentamiento').value=meta.calentamiento||'';}
 function guardarSesionMeta(){meta={...meta,fecha:$('sesion-fecha').value,equipo:EQUIPOS[equipoActivo].nombre,jugadores:$('sesion-jugadores').value,intensidad:$('sesion-intensidad').value,objetivo:$('sesion-objetivo').value,calentamiento:$('texto-calentamiento').value,notas:$('sesion-notas').value};save();renderizarSesion();}
-function añadirASesion(id){if(sesionActual.includes(id)){sesionActual=sesionActual.filter(x=>x!==id);$('save-indicator').textContent='✓ Quitado de '+EQUIPOS[equipoActivo].corto;}else{sesionActual.push(id);$('save-indicator').textContent='✓ Añadido a '+EQUIPOS[equipoActivo].corto;}save();renderizarSesion();filtrarEjercicios();}
-function quitarDeSesion(i){sesionActual.splice(i,1);save();renderizarSesion();}
+function añadirASesion(id){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const mapa=mapaSeccionesSesion(),key=String(id),destino=seccionDestinoSesion||seccionNaturalEjercicio(e);if(sesionActual.includes(id)){const actual=seccionEjercicioSesion(id,e);if(seccionDestinoSesion&&actual!==destino){mapa[key]=destino;$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[destino].titulo;}else{sesionActual=sesionActual.filter(x=>x!==id);delete mapa[key];$('save-indicator').textContent='✓ Quitado de '+EQUIPOS[equipoActivo].corto;}}else{sesionActual.push(id);mapa[key]=destino;$('save-indicator').textContent='✓ Añadido a '+SECCIONES_ENTRENO[destino].titulo;}meta.seccionesEjercicios=mapa;save();renderizarSesion();filtrarEjercicios();}
+function quitarDeSesion(i){const id=sesionActual[i];sesionActual.splice(i,1);if(id!=null)delete mapaSeccionesSesion()[String(id)];save();renderizarSesion();filtrarEjercicios()}
+function quitarDeSesionId(id){const i=sesionActual.indexOf(id);if(i>=0)quitarDeSesion(i)}
 function moverSesion(i,dir){let j=i+dir;if(j<0||j>=sesionActual.length)return;[sesionActual[i],sesionActual[j]]=[sesionActual[j],sesionActual[i]];save();renderizarSesion();}
-function renderizarSesion(){let total=0;let html='';sesionActual.forEach((id,i)=>{let e=baseDeDatos.find(x=>x.id===id);if(!e)return;total+=Number(e.tiempo)||0;html+=`<div class="session-item"><div><b>${i+1}. ${esc(e.nombre)}</b><div class="small">⏱️ ${e.tiempo||0} min · ${esc(fundamentosTexto(e))} · ${esc(e.intensidad||'Media')}</div></div><div class="actions"><button class="ghost" onclick="moverSesion(${i},-1)">↑</button><button class="ghost" onclick="moverSesion(${i},1)">↓</button><button class="danger" onclick="quitarDeSesion(${i})">Quitar</button></div></div>`});$('lista-sesion').innerHTML=html||'<div class="empty">Todavía no has añadido ejercicios.</div>';$('tiempo-total').textContent=total+' min';$('num-ejercicios').textContent=sesionActual.length;$('intensidad-resumen').textContent=meta.intensidad||'Media';}
+function moverSesionEnBloque(id,dir){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const slug=seccionEjercicioSesion(id,e);const ids=sesionActual.filter(x=>{const ex=baseDeDatos.find(z=>z.id===x);return ex&&seccionEjercicioSesion(x,ex)===slug});const pos=ids.indexOf(id),dest=pos+dir;if(pos<0||dest<0||dest>=ids.length)return;const a=sesionActual.indexOf(ids[pos]),b=sesionActual.indexOf(ids[dest]);[sesionActual[a],sesionActual[b]]=[sesionActual[b],sesionActual[a]];save();renderizarSesion()}
+function renderizarSesion(){let total=0;const grupos={analiticos:[],especificos:[],desarrollo:[],reducidos:[],juego:[]};sesionActual.forEach(id=>{const e=baseDeDatos.find(x=>x.id===id);if(!e)return;total+=Number(e.tiempo)||0;const slug=seccionEjercicioSesion(id,e);(grupos[slug]||grupos.especificos).push(e)});const orden=['analiticos','especificos','desarrollo','reducidos','juego'];let html=orden.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0);const body=items.map(e=>{const idx=sesionActual.indexOf(e.id);return `<div class="session-item"><div><b>${idx+1}. ${esc(e.nombre)}</b><div class="small">⏱️ ${e.tiempo||0} min · ${esc(fundamentosTexto(e))} · ${esc(e.intensidad||'Media')}</div></div><div class="actions"><button class="ghost" onclick="moverSesionEnBloque(${e.id},-1)">↑</button><button class="ghost" onclick="moverSesionEnBloque(${e.id},1)">↓</button><button class="danger" onclick="quitarDeSesionId(${e.id})">Quitar</button></div></div>`}).join('')||`<div class="training-block-empty">${slug==='especificos'?'Elige libremente los ejercicios específicos que quieras.':'Todavía no hay ejercicios en esta sección.'}</div>`;return `<div class="training-block"><div class="training-block-head"><div class="training-block-title"><span style="font-size:20px">${cfg.icono}</span><div><strong>${esc(cfg.titulo)}</strong><div class="small">${esc(cfg.nota)}${items.length?' · '+mins+' min':''}</div></div><span class="training-block-count">${items.length}</span></div><button class="ghost training-block-add" onclick="abrirBibliotecaParaSeccion('${slug}')">＋ Elegir ejercicios</button></div><div class="training-block-body">${body}</div></div>`}).join('');$('lista-sesion').innerHTML=html;$('tiempo-total').textContent=total+' min';$('num-ejercicios').textContent=sesionActual.length;$('intensidad-resumen').textContent=meta.intensidad||'Media';}
 function getForm(){const fundamentos=getFundamentosSeleccionados();return {nombre:$('nuevo-nombre').value.trim(),tiempo:+$('nuevo-tiempo').value||0,escuela:$('nueva-escuela').value,fundamentos,fundamento:fundamentos[0]||'',formato:$('nuevo-formato').value.trim(),nivel:$('nuevo-nivel').value,intensidad:$('nueva-intensidad').value,tipo:$('nuevo-tipo').value,jugadores:$('nuevo-jugadores').value.trim(),material:$('nuevo-material').value.trim(),video:$('nuevo-video').value.trim(),objetivo:$('nuevo-objetivo').value.trim(),descripcion:$('nueva-descripcion').value.trim(),variantes:$('nuevo-variantes').value.trim(),errores:$('nuevo-errores').value.trim(),fase:$('nuevo-fase').value,pizarra:pizarraParaEjercicio}}
 function normalizarTextoSimilitud(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()}
 function tokensSimilitud(v){const stop=new Set(['de','la','el','los','las','un','una','unos','unas','y','o','en','con','para','por','del','al','que','se','a','e','es','su','sus','como','cada','entre','desde','hasta','sobre','sin','ejercicio','jugador','jugadores','balon','balones']);return normalizarTextoSimilitud(v).split(' ').filter(x=>x.length>2&&!stop.has(x))}
@@ -566,7 +608,7 @@ function guardarEjercicio(){let d=getForm();if(!d.nombre||!d.descripcion){alert(
 function fillForm(e){$('edit-id').value=e.id;$('nuevo-nombre').value=e.nombre;$('nuevo-tiempo').value=e.tiempo;$('nueva-escuela').value=e.escuela;setFundamentosSeleccionados(normalizarFundamentos(e));$('nuevo-formato').value=e.formato||'';$('nuevo-nivel').value=e.nivel||'Intermedio';$('nueva-intensidad').value=e.intensidad||'Media';$('nuevo-tipo').value=e.tipo||'';$('nuevo-jugadores').value=e.jugadores||'';$('nuevo-material').value=e.material||'';$('nuevo-video').value=e.video||'';$('nuevo-objetivo').value=e.objetivo||'';$('nueva-descripcion').value=e.descripcion||'';$('nuevo-variantes').value=e.variantes||'';$('nuevo-errores').value=e.errores||'';$('nuevo-fase').value=e.fase||'Parte principal';pizarraParaEjercicio=e.pizarra||null;$('form-title').textContent='✏️ Editar ejercicio';$('cancel-edit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
 function cancelarEdicion(){['edit-id','nuevo-nombre','nuevo-tiempo','nuevo-formato','nuevo-jugadores','nuevo-material','nuevo-video','nuevo-objetivo','nueva-descripcion','nuevo-variantes','nuevo-errores'].forEach(id=>$(id).value='');setFundamentosSeleccionados([]);$('nuevo-tipo').value='';$('form-title').textContent='➕ Añadir ejercicio a la biblioteca';$('cancel-edit').classList.add('hidden');pizarraParaEjercicio=null;}
 function duplicarEjercicio(id){let e=baseDeDatos.find(x=>x.id===id);baseDeDatos.push({...e,id:Date.now(),nombre:e.nombre+' (copia)',usos:0,favorito:false});save();filtrarEjercicios();}
-function eliminarEjercicio(id){if(!confirm('¿Borrar este ejercicio de la biblioteca compartida? Se quitará también de las sesiones actuales de ambos equipos.'))return;baseDeDatos=baseDeDatos.filter(e=>e.id!==id);sesionActual=sesionActual.filter(x=>x!==id);Object.keys(EQUIPOS).forEach(k=>{if(k!==equipoActivo&&equiposData[k])equiposData[k].sesionActual=(equiposData[k].sesionActual||[]).filter(x=>x!==id)});save();filtrarEjercicios();renderizarSesion();}
+function eliminarEjercicio(id){if(!confirm('¿Borrar este ejercicio de la biblioteca compartida? Se quitará también de las sesiones actuales de ambos equipos.'))return;baseDeDatos=baseDeDatos.filter(e=>e.id!==id);sesionActual=sesionActual.filter(x=>x!==id);delete mapaSeccionesSesion()[String(id)];Object.keys(EQUIPOS).forEach(k=>{if(k!==equipoActivo&&equiposData[k]){equiposData[k].sesionActual=(equiposData[k].sesionActual||[]).filter(x=>x!==id);if(equiposData[k].meta&&equiposData[k].meta.seccionesEjercicios)delete equiposData[k].meta.seccionesEjercicios[String(id)]}});save();filtrarEjercicios();renderizarSesion();}
 function toggleFav(id){let e=baseDeDatos.find(x=>x.id===id);e.favorito=!e.favorito;save();filtrarEjercicios();}
 function toggleInfo(id){const el=$('detalles-'+id);if(el)el.classList.toggle('open');const st=$('stats-ex-'+id);if(st)st.classList.remove('open')}
 function usoEjercicioGlobal(id,nombre){
@@ -582,14 +624,14 @@ function filtrarEjercicios(){let q=$('buscar').value.trim().toLowerCase(),escuel
 function renderizar(datos){
   $('contenedor-principal').innerHTML=datos.map(e=>{
     const uso=usoEjercicioGlobal(e.id,e.nombre);
-    const enSesion=sesionActual.includes(e.id);
+    const enSesion=sesionActual.includes(e.id);const seccionActualEj=enSesion?seccionEjercicioSesion(e.id,e):null;const moverA=seccionDestinoSesion&&enSesion&&seccionActualEj!==seccionDestinoSesion;
     const chips=(team)=>uso[team].slice().sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))).map(u=>`<span class="usage-chip">${esc(u.fecha)}${u.objetivo?' · '+esc(u.objetivo):''}</span>`).join('')||'<span class="small">Sin usos</span>';
     return `<div class="exercise-row">
       <div class="exercise-row-main"><div class="exercise-name-wrap"><button class="fav-quick ${e.favorito?'is-fav':''}" onclick="toggleFav(${e.id})" title="${e.favorito?'Quitar de favoritos':'Añadir a favoritos'}" aria-label="Favorito">${e.favorito?'★':'☆'}</button><div class="exercise-row-name">${esc(e.nombre)}</div></div>
         <div class="exercise-icon-actions">
           <button class="icon-action" onclick="toggleExerciseStats(${e.id})" title="Estadísticas y uso" aria-label="Estadísticas">📊</button>
           <button class="icon-action" onclick="toggleInfo(${e.id})" title="Información del ejercicio" aria-label="Información">ℹ️</button>
-          <button class="icon-action ${enSesion?'active-session':''}" onclick="añadirASesion(${e.id})" title="${enSesion?'Quitar del entrenamiento de '+esc(EQUIPOS[equipoActivo].corto):'Añadir al entrenamiento de '+esc(EQUIPOS[equipoActivo].corto)}" aria-label="Añadir o quitar del entrenamiento">${enSesion?'✓':'➕'}</button>
+          <button class="icon-action ${enSesion?'active-session':''}" onclick="añadirASesion(${e.id})" title="${moverA?'Mover a '+esc(SECCIONES_ENTRENO[seccionDestinoSesion].titulo):(enSesion?'Quitar del entrenamiento de '+esc(EQUIPOS[equipoActivo].corto):'Añadir al entrenamiento de '+esc(EQUIPOS[equipoActivo].corto))}" aria-label="Añadir, mover o quitar del entrenamiento">${moverA?'↪️':(enSesion?'✓':'➕')}</button>
         </div>
       </div>
       <div id="stats-ex-${e.id}" class="exercise-inline-panel">
@@ -610,7 +652,7 @@ function renderizar(datos){
     </div>`;
   }).join('')||'<div class="empty">No hay ejercicios con estos filtros.</div>'
 }
-function finalizarEntrenamiento(){if(!sesionActual.length&&!meta.calentamiento.trim()){alert('La sesión está vacía.');return}if(!confirm('¿Finalizar y guardar esta sesión en el historial?'))return;let ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);let duracion=ejercicios.reduce((a,e)=>a+(+e.tiempo||0),0);historial.unshift({id:Date.now(),...meta,duracion,pizarra:serializarPizarra(),ejercicios:ejercicios.map(e=>({id:e.id,nombre:e.nombre,tiempo:e.tiempo,tipo:e.tipo||'',fundamentos:normalizarFundamentos(e),fundamento:normalizarFundamentos(e)[0]||''}))});sesionActual=[];meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:''};save();cargarMeta();renderizarSesion();filtrarEjercicios();limpiarPizarra();alert('✅ Entrenamiento guardado en el historial.');}
+function finalizarEntrenamiento(){seccionDestinoSesion=null;if(!sesionActual.length&&!meta.calentamiento.trim()){alert('La sesión está vacía.');return}if(!confirm('¿Finalizar y guardar esta sesión en el historial?'))return;let ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);let duracion=ejercicios.reduce((a,e)=>a+(+e.tiempo||0),0);historial.unshift({id:Date.now(),...meta,duracion,pizarra:serializarPizarra(),ejercicios:ejercicios.map(e=>({id:e.id,nombre:e.nombre,tiempo:e.tiempo,tipo:e.tipo||'',seccionSesion:seccionEjercicioSesion(e.id,e),fundamentos:normalizarFundamentos(e),fundamento:normalizarFundamentos(e)[0]||''}))});sesionActual=[];meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{}};save();cargarMeta();renderizarSesion();filtrarEjercicios();limpiarPizarra();alert('✅ Entrenamiento guardado en el historial.');}
 function fundamentosSesion(h){
   const fs=[];(h.ejercicios||[]).forEach(e=>normalizarFundamentos(e).forEach(f=>{if(!fs.includes(f))fs.push(f)}));return fs;
 }
@@ -618,7 +660,7 @@ function toggleTrainingDetail(team,id){const el=$('training-'+team+'-'+id);if(el
 function repetirSesionEquipo(team,id){
   if(team!==equipoActivo)cambiarEquipo(team);
   let h=historial.find(x=>x.id===id);if(!h)return;
-  sesionActual=h.ejercicios.map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:h.jugadores||'',intensidad:h.intensidad||'Media',objetivo:h.objetivo||'',calentamiento:h.calentamiento||'',notas:''};save();cargarMeta();renderizarSesion();filtrarEjercicios();if(h.pizarra){setTimeout(()=>aplicarPizarra(h.pizarra),100)}document.querySelectorAll('.tab-btn')[0].click();
+  sesionActual=h.ejercicios.map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));const secciones={};(h.ejercicios||[]).forEach(x=>{if(x.id!=null&&sesionActual.includes(x.id))secciones[String(x.id)]=x.seccionSesion||seccionNaturalEjercicio(baseDeDatos.find(e=>e.id===x.id))});meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:h.jugadores||'',intensidad:h.intensidad||'Media',objetivo:h.objetivo||'',calentamiento:h.calentamiento||'',notas:'',seccionesEjercicios:secciones};save();cargarMeta();renderizarSesion();filtrarEjercicios();if(h.pizarra){setTimeout(()=>aplicarPizarra(h.pizarra),100)}document.querySelectorAll('.tab-btn')[0].click();
 }
 function borrarHistorialEquipo(team){
   if(!confirm('¿Borrar todo el historial de '+EQUIPOS[team].nombre+'?'))return;
@@ -681,7 +723,7 @@ function renderStats(){
     }
   }
 }
-function exportarDatos(){guardarEquipoEnMemoria();let payload={version:4.5,equipoActivo,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)};let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Volley_Coach_Copia_V45.json';a.click();URL.revokeObjectURL(a.href)}
+function exportarDatos(){guardarEquipoEnMemoria();let payload={version:5.0,equipoActivo,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)};let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Volley_Coach_Copia_V50.json';a.click();URL.revokeObjectURL(a.href)}
 $('import-file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result),conv=convertirEstadoPersistido(d);if(!conv)throw 0;baseDeDatos=clonar(conv.bibliotecaCompartida);migrarFundamentos();equiposData=conv.equiposData;equipoActivo=EQUIPOS[d.equipoActivo]?d.equipoActivo:equipoActivo;guardarEstadoLocalSinCloud();cargarEquipoEnVariables(equipoActivo);actualizarSelectorEquipo();save();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();alert('✅ Copia restaurada. Biblioteca compartida y equipos cargados.');}catch(err){console.error(err);alert('❌ Archivo no válido.')}};r.readAsText(f)});
 async function exportarImagen(){try{let c=await html2canvas($('export-area'),{backgroundColor:'#eef2f6',scale:2});let a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='Entrenamiento_Volei.png';a.click()}catch{alert('No se pudo generar la imagen.')}}
 
@@ -712,7 +754,7 @@ const CLOUD_URL_KEY='volleyCoachSupabaseUrlV2';
 const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKeyV2';
 const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
-function estadoLocal(){guardarEquipoEnMemoria();return {version:4.5,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}}
+function estadoLocal(){guardarEquipoEnMemoria();return {version:5.0,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}}
 function aplicarEstadoCloud(s){
   if(!s)return;
   cloudApplying=true;
