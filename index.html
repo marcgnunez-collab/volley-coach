@@ -790,7 +790,7 @@ function renderHistorial(){
   guardarEquipoEnMemoria();
   const column=team=>{
     const hs=clonar(equiposData?.[team]?.historial||[]).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
-    const items=hs.map(h=>{const fs=fundamentosSesion(h),trabajo=fs.length?fs.join(' · '):(h.objetivo||'Sin contenido indicado');return `<div class="training-simple-item" onclick="toggleTrainingDetail('${team}',${h.id})"><div class="training-simple-top"><div><div class="training-date">${esc(h.fecha||'Sin fecha')}</div><div class="training-work">${esc(trabajo)}</div></div><span class="small">${h.duracion||0} min</span></div><div id="training-${team}-${h.id}" class="training-detail">${entrenamientoEstructuradoHTML(h)}<div class="actions" style="margin-top:10px"><button class="primary" onclick="event.stopPropagation();repetirSesionEquipo('${team}',${h.id})">Repetir entrenamiento</button></div></div></div>`}).join('')||'<div class="empty">Aún no hay entrenamientos guardados.</div>';
+    const items=hs.map(h=>{const fs=fundamentosSesion(h),trabajo=fs.length?fs.join(' · '):(h.objetivo||'Sin contenido indicado');return `<div class="training-simple-item" onclick="toggleTrainingDetail('${team}',${h.id})"><div class="training-simple-top"><div><div class="training-date">${esc(h.fecha||'Sin fecha')}</div><div class="training-work">${esc(trabajo)}</div></div><span class="small">${h.duracion||0} min</span></div><div id="training-${team}-${h.id}" class="training-detail">${entrenamientoEstructuradoHTML(h)}<div class="actions" style="margin-top:10px"><button class="ghost" onclick="event.stopPropagation();exportarPDFGuardado('${team}',${h.id})">📄 Exportar PDF</button><button class="primary" onclick="event.stopPropagation();repetirSesionEquipo('${team}',${h.id})">Repetir entrenamiento</button></div></div></div>`}).join('')||'<div class="empty">Aún no hay entrenamientos guardados.</div>';
     return `<div class="team-training-column"><div class="team-training-column-head"><h3>${esc(EQUIPOS[team].nombre)}</h3><button class="ghost" style="background:#fff;color:#17324d" onclick="borrarHistorialEquipo('${team}')">Borrar</button></div><div class="training-simple-list">${items}</div></div>`;
   };
   $('historial-list').innerHTML=column('cadete')+column('infantil');
@@ -845,7 +845,81 @@ function renderStats(){
 function exportarDatos(){guardarEquipoEnMemoria();let payload={version:5.5,equipoActivo,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)};let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Volley_Coach_Copia_V55.json';a.click();URL.revokeObjectURL(a.href)}
 $('import-file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result),conv=convertirEstadoPersistido(d);if(!conv)throw 0;baseDeDatos=clonar(conv.bibliotecaCompartida);migrarFundamentos();equiposData=conv.equiposData;equipoActivo=EQUIPOS[d.equipoActivo]?d.equipoActivo:equipoActivo;guardarEstadoLocalSinCloud();cargarEquipoEnVariables(equipoActivo);actualizarSelectorEquipo();save();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();alert('✅ Copia restaurada. Biblioteca compartida y equipos cargados.');}catch(err){console.error(err);alert('❌ Archivo no válido.')}};r.readAsText(f)});
 async function exportarImagen(){try{let c=await html2canvas($('export-area'),{backgroundColor:'#eef2f6',scale:2});let a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='Entrenamiento_Volei.png';a.click()}catch{alert('No se pudo generar la imagen.')}}
-async function exportarPDF(){try{if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF no disponible');const area=$('export-area');const c=await html2canvas(area,{backgroundColor:'#eef2f6',scale:2,useCORS:true});const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});const margen=8,anchoPagina=pdf.internal.pageSize.getWidth(),altoPagina=pdf.internal.pageSize.getHeight(),anchoUtil=anchoPagina-margen*2,altoUtil=altoPagina-margen*2;const pxPorMm=c.width/anchoUtil,altoCortePx=Math.max(1,Math.floor(altoUtil*pxPorMm));let y=0,pagina=0;while(y<c.height){const alto=Math.min(altoCortePx,c.height-y),trozo=document.createElement('canvas');trozo.width=c.width;trozo.height=alto;trozo.getContext('2d').drawImage(c,0,y,c.width,alto,0,0,c.width,alto);if(pagina>0)pdf.addPage();const altoMm=alto/pxPorMm;pdf.addImage(trozo.toDataURL('image/jpeg',0.94),'JPEG',margen,margen,anchoUtil,altoMm,undefined,'FAST');y+=alto;pagina++;}const fecha=$('sesion-fecha').value||new Date().toISOString().slice(0,10);const equipo=(EQUIPOS[equipoActivo]&&EQUIPOS[equipoActivo].corto)||'Equipo';const limpio=String(equipo).replace(/[^a-z0-9áéíóúüñ_-]+/gi,'_');pdf.save('Entrenamiento_'+limpio+'_'+fecha+'.pdf')}catch(err){console.error(err);alert('No se pudo generar el PDF. Comprueba la conexión e inténtalo de nuevo.')}}
+function limpiarTextoPDF(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
+function datosSesionActualParaPDF(){
+  guardarSesionMeta();
+  return construirPlanSesion(Date.now());
+}
+function exportarPDFGuardado(team,id){
+  guardarEquipoEnMemoria();
+  const hs=team===equipoActivo?historial:(equiposData?.[team]?.historial||[]),h=hs.find(x=>x.id===id);
+  if(!h){alert('No se ha encontrado el entrenamiento guardado.');return}
+  generarPDFEntrenamiento(h,EQUIPOS[team]?.nombre||h.equipo||'Equipo');
+}
+function exportarPDF(){
+  const h=datosSesionActualParaPDF();
+  if(!(h.ejercicios||[]).length&&!limpiarTextoPDF(h.calentamiento)&&!Object.values(h.notasBloques||{}).some(v=>limpiarTextoPDF(v))){alert('La sesión está vacía.');return}
+  generarPDFEntrenamiento(h,EQUIPOS[equipoActivo]?.nombre||h.equipo||'Equipo');
+}
+function generarPDFEntrenamiento(h,equipoNombre){
+  try{
+    if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF no disponible');
+    const {jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight(),M=15,FOOT=14,LH=4.6;
+    const navy=[19,43,68],muted=[91,105,120],light=[245,247,249],line=[130,145,160];
+    let y=15;
+    const setNormal=(size=9.6,color=navy)=>{pdf.setFont('helvetica','normal');pdf.setFontSize(size);pdf.setTextColor(...color)};
+    const setBold=(size=9.6,color=navy)=>{pdf.setFont('helvetica','bold');pdf.setFontSize(size);pdf.setTextColor(...color)};
+    const nuevaPagina=()=>{pdf.addPage();y=15};
+    const asegurar=(alto=6)=>{if(y+alto>H-FOOT)nuevaPagina()};
+    const linea=()=>{pdf.setDrawColor(...navy);pdf.setLineWidth(.45);pdf.line(M,y,W-M,y);y+=5};
+    const campo=(etiqueta,valor,op={})=>{
+      const txt=limpiarTextoPDF(valor)||'-',tam=op.size||9.5,indent=op.indent||0;
+      setBold(tam);const lab=etiqueta+':',x=M+indent,labelW=pdf.getTextWidth(lab+' '),valueX=x+labelW,maxW=Math.max(25,W-M-valueX);
+      setNormal(tam);const lines=pdf.splitTextToSize(txt,maxW);
+      for(let i=0;i<lines.length;i++){
+        asegurar(LH+1);
+        if(i===0){setBold(tam);pdf.text(lab,x,y);setNormal(tam);pdf.text(lines[i],valueX,y)}else{setNormal(tam);pdf.text(lines[i],valueX,y)}
+        y+=LH;
+      }
+      y+=op.after==null?1.2:op.after;
+    };
+    const bloqueTitulo=titulo=>{asegurar(11);setBold(13.5);pdf.text(limpiarTextoPDF(titulo),M,y);y+=3.5;pdf.setDrawColor(...line);pdf.setLineWidth(.25);pdf.line(M,y,W-M,y);y+=5.5};
+    const notaBloque=txt=>{if(!limpiarTextoPDF(txt))return;campo('Notas del bloque',txt,{size:9,after:2})};
+    const ejercicio=(e0,n)=>{
+      const e=enriquecerEjercicioGuardado(e0),nombre=limpiarTextoPDF(e.nombre)||'Ejercicio',tiempo=Number(e.tiempo)||0;
+      asegurar(14);
+      pdf.setFillColor(...light);pdf.rect(M,y-4,W-M*2,7,'F');setBold(10.5);pdf.text(`${n}. ${nombre}`,M+2,y);setNormal(9.3);pdf.text(`${tiempo} min`,W-M-2,y,{align:'right'});y+=7;
+      campo('Función',e.objetivo,{size:9.3});
+      campo('Desarrollo',e.descripcion,{size:9.3});
+      const org=[e.formato?`Formato: ${limpiarTextoPDF(e.formato)}`:'',e.jugadores?`Jugadores: ${limpiarTextoPDF(e.jugadores)}`:'',e.material?`Material: ${limpiarTextoPDF(e.material)}`:''].filter(Boolean).join(' · ');
+      campo('Organización',org||'-',{size:9.3});
+      campo('Claves / correcciones',e.errores||'-',{size:9.3});
+      if(limpiarTextoPDF(e.variantes))campo('Variantes',e.variantes,{size:9.3});
+      asegurar(6);setNormal(8.5,muted);const metaEj=[fundamentosTexto(e),e.tipo||'',e.fase||'Parte principal',e.intensidad||'Media'].filter(Boolean).join(' · ');pdf.text(limpiarTextoPDF(metaEj),M,y);y+=7;
+    };
+
+    setBold(18);pdf.text('VOLLEY COACH',M,y);y+=8;
+    setBold(12.5);pdf.text('Ficha de entrenamiento',M,y);y+=8;linea();
+    campo('Equipo',equipoNombre||h.equipo||'Equipo',{size:9.6,after:1});
+    campo('Fecha',h.fecha||'-',{size:9.6,after:1});
+    campo('Duración',`${Number(h.duracion)||0} min`,{size:9.6,after:1});
+    campo('Jugadores',h.jugadores||'-',{size:9.6,after:1});
+    campo('Intensidad',h.intensidad||'Media',{size:9.6,after:1});
+    campo('Objetivo',h.objetivo||'-',{size:9.6,after:1});
+    campo('Calentamiento',h.calentamiento||'-',{size:9.6,after:3});
+
+    const orden=['controles','analiticos','especificos','desarrollo','reducidos','juego'],grupos=ejerciciosPorBloques(h.ejercicios||[]),notas=h.notasBloques&&typeof h.notasBloques==='object'?h.notasBloques:{};
+    let contador=0;
+    orden.forEach(slug=>{const items=grupos[slug]||[],nota=limpiarTextoPDF(notas[slug]);if(!items.length&&!nota)return;bloqueTitulo(SECCIONES_ENTRENO[slug]?.titulo||slug);notaBloque(nota);items.forEach(e=>ejercicio(e,++contador))});
+    if(limpiarTextoPDF(h.notas)){bloqueTitulo('Notas del entrenador');setNormal(9.4);const ls=pdf.splitTextToSize(limpiarTextoPDF(h.notas),W-M*2);ls.forEach(t=>{asegurar(LH);pdf.text(t,M,y);y+=LH})}
+
+    const total=pdf.getNumberOfPages(),fecha=limpiarTextoPDF(h.fecha)||fechaLocalISO();
+    for(let i=1;i<=total;i++){pdf.setPage(i);setNormal(8,muted);pdf.text(`Volley Coach · ${fecha} · Página ${i}/${total}`,M,H-7)}
+    const limpio=String(equipoNombre||h.equipo||'Equipo').replace(/[^a-z0-9áéíóúüñ_-]+/gi,'_');
+    pdf.save(`Entrenamiento_${limpio}_${fecha}.pdf`);
+  }catch(err){console.error(err);alert('No se pudo generar el PDF. Comprueba la conexión e inténtalo de nuevo.')}
+}
 
 const canvas=$('pizarra'),ctx=canvas.getContext('2d',{willReadFrequently:true}),wrapper=$('canvas-wrapper');let drawing=false,startX=0,startY=0,currentTool='pencil',currentColor='#1f2937',snapshot=null,undoStack=[];function resizeCanvas(){let old=document.createElement('canvas');old.width=canvas.width;old.height=canvas.height;if(old.width&&old.height)old.getContext('2d').drawImage(canvas,0,0);canvas.width=wrapper.clientWidth;canvas.height=wrapper.clientHeight;if(old.width&&old.height)ctx.drawImage(old,0,0,canvas.width,canvas.height)}window.addEventListener('resize',resizeCanvas);setTimeout(resizeCanvas,50);
 function pos(e){let r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)}}function pushUndo(){undoStack.push(canvas.toDataURL());if(undoStack.length>20)undoStack.shift()}function restore(url){let im=new Image();im.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(im,0,0,canvas.width,canvas.height)};im.src=url}function setTool(t,b){currentTool=t;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));b.classList.add('active')}function setColor(c,b){currentColor=c;document.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('active'));b.classList.add('active')}function startDraw(e){if(e.button!==undefined&&e.button!==0)return;drawing=true;pushUndo();let p=pos(e);startX=p.x;startY=p.y;snapshot=ctx.getImageData(0,0,canvas.width,canvas.height);ctx.beginPath();ctx.moveTo(p.x,p.y)}function draw(e){if(!drawing)return;let p=pos(e);ctx.lineWidth=currentTool==='eraser'?18:4;ctx.lineCap='round';ctx.strokeStyle=currentTool==='eraser'?'#f3b06a':currentColor;if(currentTool==='pencil'||currentTool==='eraser'){ctx.lineTo(p.x,p.y);ctx.stroke();ctx.beginPath();ctx.moveTo(p.x,p.y)}else if(currentTool==='arrow'){ctx.putImageData(snapshot,0,0);ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(p.x,p.y);let a=Math.atan2(p.y-startY,p.x-startX),h=14;ctx.lineTo(p.x-h*Math.cos(a-Math.PI/6),p.y-h*Math.sin(a-Math.PI/6));ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-h*Math.cos(a+Math.PI/6),p.y-h*Math.sin(a+Math.PI/6));ctx.strokeStyle=currentColor;ctx.stroke()}}function endDraw(){drawing=false}canvas.addEventListener('pointerdown',startDraw);canvas.addEventListener('pointermove',draw);canvas.addEventListener('pointerup',endDraw);canvas.addEventListener('pointerleave',endDraw);function deshacer(){let u=undoStack.pop();if(u)restore(u)}function limpiarPizarra(){ctx.clearRect(0,0,canvas.width,canvas.height);$('object-layer').innerHTML='';undoStack=[]}function togglePista(){wrapper.classList.toggle('full');wrapper.classList.toggle('half');resizeCanvas()}function toggleZoneGrid(){const grid=$('zone-grid'),btn=$('zone-toggle');grid.classList.toggle('hidden-grid');btn.classList.toggle('active',!grid.classList.contains('hidden-grid'))}function toggleSubzones(){const grid=$('zone-grid'),btn=$('subzone-toggle');grid.classList.toggle('hide-subzones');btn.classList.toggle('active',!grid.classList.contains('hide-subzones'))}
