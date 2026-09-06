@@ -128,6 +128,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
 @media(max-width:640px){.similarity-names{grid-template-columns:1fr}.similarity-vs{text-align:center}.similarity-card{padding:15px}}
 
 /* V5.5 · filtro múltiple de fundamentos */
+/* V5.5 · planificación persistente: los entrenamientos realizados permanecen visibles */
 .filter-multi{position:relative;min-width:190px;font-family:Arial,"Helvetica Neue",sans-serif}
 .filter-multi>summary{list-style:none;width:100%;padding:10px 30px 10px 11px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer;font-size:13px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .filter-multi>summary::-webkit-details-marker{display:none}.filter-multi>summary:after{content:"▾";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#687386}.filter-multi[open]>summary:after{content:"▴"}
@@ -335,12 +336,13 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 .today-plan-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
 .today-plan-item{background:#fff;border:1px solid #cfdae3;border-radius:7px;padding:8px 9px;min-width:180px;flex:1}
 .plan-current-badge{display:inline-block;padding:2px 6px;border-radius:999px;background:#e8f2ea;color:#315e41;font-size:10px;font-weight:800}
+.plan-done-badge{display:inline-block;padding:2px 6px;border-radius:999px;background:#e8f2ea;color:#315e41;font-size:10px;font-weight:800}.plan-item.plan-done{border-left-color:#4c8b61;background:#f5faf6}.plan-exercise-list{margin-top:7px;padding-top:6px;border-top:1px dashed #d8dee4;font-size:11px;line-height:1.45;color:#425466}.plan-exercise-list div{white-space:normal}.plan-exercise-list b{color:#17324d}
 @media(max-width:650px){.exercise-explain-grid{grid-template-columns:1fr}.exercise-explain-section.wide{grid-column:auto}.exercise-explain-head{flex-direction:column}.exercise-explain-actions{justify-content:flex-start;width:100%}}
 
 </style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.5 RECEPCIÓN + COLOCACIÓN + ATAQUE + DEFENSA + BLOQUEO DEPURADOS · 528</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.5 · 528 · PLANIFICACIÓN PERSISTENTE</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -848,7 +850,7 @@ function entrenamientoEstructuradoHTML(h){
   return `<div class="saved-training-sheet"><div class="saved-training-summary"><div><b>Objetivo</b><br>${esc(h.objetivo||'-')}</div><div><b>Jugadores</b><br>${esc(h.jugadores||'-')}</div><div><b>Intensidad</b><br>${esc(h.intensidad||'Media')}</div><div><b>Duración</b><br>${Number(h.duracion)||0} min</div></div>${h.calentamiento?`<div class="saved-training-block"><div class="saved-training-block-head"><span>🔥</span><b>Calentamiento</b></div><div class="saved-training-block-body"><div class="exercise-explain-text">${esc(h.calentamiento)}</div></div></div>`:''}${bloques||'<div class="empty">No hay ejercicios guardados.</div>'}${h.notas?`<div class="saved-training-block"><div class="saved-training-block-head"><span>📝</span><b>Notas del entrenador</b></div><div class="saved-training-block-body"><div class="exercise-explain-text">${esc(h.notas)}</div></div></div>`:''}</div>`;
 }
 function renderAvisoPlanHoy(){
-  const box=$('plan-hoy-aviso');if(!box)return;const hoy=fechaLocalISO(),items=(planificacion||[]).filter(p=>p.fecha===hoy&&p.id!==meta.planificacionId);
+  const box=$('plan-hoy-aviso');if(!box)return;const hoy=fechaLocalISO(),items=(planificacion||[]).filter(p=>p.fecha===hoy&&!p.realizado&&p.id!==meta.planificacionId);
   if(!items.length){box.innerHTML='';return}
   box.innerHTML=`<div class="today-plan-box"><div class="today-plan-head"><div><b>📅 Entrenamiento planificado para hoy</b><div class="small">Ábrelo para recuperar la sesión completa tal como la preparaste.</div></div></div><div class="today-plan-list">${items.map(p=>`<div class="today-plan-item"><b>${esc(p.objetivo||'Entrenamiento')}</b><div class="small">${(p.ejercicios||[]).length} ejercicios · ${Number(p.duracion)||0} min</div><button class="primary" style="margin-top:7px" onclick="usarPlan(${p.id})">Abrir entrenamiento</button></div>`).join('')}</div></div>`;
 }
@@ -946,8 +948,8 @@ function construirPlanSesion(id){
 function guardarSesionEnPlanificacion(limpiar=false){
   guardarSesionMeta();const tieneNotas=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotas){alert('La sesión está vacía.');return false}
   if(!meta.fecha){alert('Selecciona una fecha para el entrenamiento.');return false}
-  let id=Number(meta.planificacionId)||Date.now();const plan=construirPlanSesion(id),pos=planificacion.findIndex(p=>p.id===id);
-  if(pos>=0)planificacion[pos]=plan;else planificacion.push(plan);meta.planificacionId=id;save();renderPlanificacion();renderAvisoPlanHoy();
+  let id=Number(meta.planificacionId)||Date.now();const plan={...construirPlanSesion(id),realizado:false,historialId:null},pos=planificacion.findIndex(p=>p.id===id);
+  if(pos>=0)planificacion[pos]={...planificacion[pos],...plan};else planificacion.push(plan);meta.planificacionId=id;save();renderPlanificacion();renderAvisoPlanHoy();
   if(limpiar){reiniciarSesionActual()}else{$('save-indicator').textContent='✓ Entrenamiento guardado en planificación'}
   return true;
 }
@@ -956,10 +958,10 @@ function finalizarEntrenamiento(){
   const hoy=fechaLocalISO(),fecha=meta.fecha||hoy;
   if(fecha>hoy){if(!confirm(`Este entrenamiento está fechado para ${fecha}. Se guardará completo en Planificación y no en el historial hasta que llegue ese día. ¿Continuar?`))return;if(guardarSesionEnPlanificacion(true))alert('📅 Entrenamiento guardado en Planificación. Cuando llegue el día podrás abrirlo normalmente.');return}
   if(!confirm('¿Finalizar y guardar esta sesión en el historial?'))return;
-  const ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);const duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0),planId=meta.planificacionId;
-  historial.unshift({id:Date.now(),...clonar(meta),planificacionId:null,duracion,pizarra:serializarPizarra(),ejercicios:ejercicios.map(snapshotEjercicioCompleto)});
-  if(planId)planificacion=planificacion.filter(p=>p.id!==planId);
-  reiniciarSesionActual();renderHistorial();renderStats();alert('✅ Entrenamiento guardado en el historial.');
+  const ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);const duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0),planId=meta.planificacionId,historialId=Date.now();
+  historial.unshift({id:historialId,...clonar(meta),planificacionId:null,duracion,pizarra:serializarPizarra(),ejercicios:ejercicios.map(snapshotEjercicioCompleto)});
+  if(planId){const posPlan=planificacion.findIndex(p=>p.id===planId);if(posPlan>=0){planificacion[posPlan]={...planificacion[posPlan],realizado:true,realizadoEn:new Date().toISOString(),historialId};}}
+  reiniciarSesionActual();renderHistorial();renderStats();alert('✅ Entrenamiento guardado en el historial. La planificación se mantiene marcada como realizada.');
 }
 function fundamentosSesion(h){
   const fs=[];(h.ejercicios||[]).forEach(e=>normalizarFundamentos(e).forEach(f=>{if(!fs.includes(f))fs.push(f)}));return fs;
@@ -1124,19 +1126,19 @@ function marcarPizarraParaEjercicio(){pizarraParaEjercicio=serializarPizarra();a
 function cargarPizarraEjercicio(id){let e=baseDeDatos.find(x=>x.id===id);if(!e||!e.pizarra)return;aplicarPizarra(e.pizarra);document.querySelectorAll('.tab-btn')[0].click()}
 function lunesDeSemana(d){let x=new Date(d);let day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}
 function isoDate(d){return fechaLocalISO(d)}
-function guardarPlan(){let fecha=$('plan-fecha').value;if(!fecha){alert('Selecciona una fecha.');return}planificacion.push({id:Date.now(),fecha,equipo:EQUIPOS[equipoActivo].nombre,objetivo:$('plan-objetivo').value.trim(),duracion:+$('plan-duracion').value||0,intensidad:$('plan-intensidad').value,ejercicios:[],notasBloques:{},seccionesEjercicios:{}});save();renderPlanificacion();renderAvisoPlanHoy();['plan-objetivo','plan-duracion'].forEach(id=>$(id).value='');$('plan-equipo').value=EQUIPOS[equipoActivo].nombre}
+function guardarPlan(){let fecha=$('plan-fecha').value;if(!fecha){alert('Selecciona una fecha.');return}planificacion.push({id:Date.now(),fecha,equipo:EQUIPOS[equipoActivo].nombre,objetivo:$('plan-objetivo').value.trim(),duracion:+$('plan-duracion').value||0,intensidad:$('plan-intensidad').value,ejercicios:[],notasBloques:{},seccionesEjercicios:{},realizado:false,historialId:null});save();renderPlanificacion();renderAvisoPlanHoy();['plan-objetivo','plan-duracion'].forEach(id=>$(id).value='');$('plan-equipo').value=EQUIPOS[equipoActivo].nombre}
 function cambiarSemana(n){semanaBase.setDate(semanaBase.getDate()+n);renderPlanificacion()}
 function eliminarPlan(id){if(meta.planificacionId===id)meta.planificacionId=null;planificacion=planificacion.filter(x=>x.id!==id);save();renderPlanificacion();renderAvisoPlanHoy()}
 function usarPlan(id){
-  const p=planificacion.find(x=>x.id===id);if(!p)return;
+  const p=planificacion.find(x=>x.id===id);if(!p)return;const esRealizado=!!p.realizado;
   const ids=(p.ejercicios||[]).map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));
   if((p.ejercicios||[]).length&&ids.length<(p.ejercicios||[]).length)alert('Algún ejercicio de esta planificación ya no existe en la biblioteca y no se ha podido cargar.');
   sesionActual=ids;
   const secciones=clonar(p.seccionesEjercicios||{});(p.ejercicios||[]).forEach(x=>{if(x.id!=null&&ids.includes(x.id)&&!secciones[String(x.id)])secciones[String(x.id)]=x.seccionSesion||seccionNaturalEjercicio(enriquecerEjercicioGuardado(x))});
-  meta={fecha:p.fecha||fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:clonar(p.notasBloques||{}),planificacionId:p.id,pizarra:p.pizarra||null};
-  save();cargarMeta();renderizarSesion();filtrarEjercicios();showView('entrenamiento',botonVista('entrenamiento'));if(p.pizarra)setTimeout(()=>aplicarPizarra(p.pizarra),100);window.scrollTo({top:0,behavior:'smooth'});
+  meta={fecha:esRealizado?fechaLocalISO():(p.fecha||fechaLocalISO()),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:clonar(p.notasBloques||{}),planificacionId:esRealizado?null:p.id,pizarra:p.pizarra||null};
+  save();cargarMeta();renderizarSesion();filtrarEjercicios();showView('entrenamiento',botonVista('entrenamiento'));if(p.pizarra)setTimeout(()=>aplicarPizarra(p.pizarra),100);window.scrollTo({top:0,behavior:'smooth'});if(esRealizado)setTimeout(()=>alert('Este entrenamiento ya estaba realizado. Se ha abierto como una copia nueva y la planificación original seguirá guardada.'),80);
 }
-function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>{const n=(p.ejercicios||[]).length,actual=meta.planificacionId===p.id;return `<div class="plan-item"><b>${esc(p.equipo||'Sesión')}</b>${actual?' <span class="plan-current-badge">Abierto</span>':''}<br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad||'Media')}${n?' · '+n+' ejercicios':''}</span><div class="actions" style="margin-top:6px"><button class="ghost" onclick="usarPlan(${p.id})">Abrir entrenamiento</button><button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`}).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('');renderAvisoPlanHoy()}
+function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>{const n=(p.ejercicios||[]).length,actual=meta.planificacionId===p.id,realizado=!!p.realizado,lista=n?`<div class="plan-exercise-list"><b>Ejercicios:</b>${(p.ejercicios||[]).map((e,j)=>`<div>${j+1}. ${esc(e.nombre||'Ejercicio')}</div>`).join('')}</div>`:'';return `<div class="plan-item${realizado?' plan-done':''}"><b>${esc(p.equipo||'Sesión')}</b>${realizado?' <span class="plan-done-badge">✓ Realizado</span>':(actual?' <span class="plan-current-badge">Abierto</span>':'')}<br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad||'Media')}${n?' · '+n+' ejercicios':''}</span>${lista}<div class="actions" style="margin-top:6px"><button class="ghost" onclick="usarPlan(${p.id})">${realizado?'Reutilizar':'Abrir entrenamiento'}</button><button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`}).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('');renderAvisoPlanHoy()}
 
 
 // ===== VOLLEY COACH CLOUD SYNC (Supabase) =====
