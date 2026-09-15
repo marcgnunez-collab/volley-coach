@@ -231,6 +231,26 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
 .pdf-cover-note{display:none}
 @media(max-width:1000px){.planning-week{grid-template-columns:repeat(7,minmax(180px,1fr))}.planning-toolbar{grid-template-columns:auto 1fr}.planning-quick-create{grid-column:1/-1;justify-self:end}.library-view-switch{float:none;margin:10px 0}.library-pro-main{grid-template-columns:1fr}.library-pro-actions{justify-content:flex-start}.smart-session-summary{align-items:flex-start;flex-direction:column}.smart-session-meta{justify-content:flex-start}}
 @media(max-width:650px){.session-head-actions{justify-content:flex-start;margin-top:8px}.planning-header{align-items:flex-start;flex-direction:column}.planning-toolbar{grid-template-columns:1fr}.planning-toolbar>strong{text-align:left}.planning-quick-create{justify-self:stretch}.planning-quick-create>summary{text-align:center}.planning-month{grid-template-columns:repeat(7,minmax(85px,1fr));overflow-x:auto}.library-title-line{align-items:flex-start;flex-direction:column}.library-detail-copy{grid-template-columns:1fr}.template-save-area{flex-direction:column}.template-card{grid-template-columns:1fr}}
+
+/* ===== V5.8.2 · MENÚS DE EJERCICIO VISIBLES ===== */
+.session-panel,.training-stage,.training-stage-body,.session-exercise-card{overflow:visible!important}
+.training-stage,.session-exercise-card{position:relative}
+.exercise-menu[open]{position:relative;z-index:99998}
+.exercise-menu-pop{
+  position:fixed!important;
+  top:0;left:0;right:auto!important;
+  z-index:99999!important;
+  width:min(220px,calc(100vw - 20px))!important;
+  max-height:min(360px,calc(100vh - 20px));
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  box-shadow:0 18px 45px rgba(16,34,50,.24)!important;
+}
+@media(max-width:650px){
+  .exercise-menu-pop{width:min(240px,calc(100vw - 16px))!important;max-height:calc(100vh - 16px)}
+}
+
 </style>
 
 <style id="executive-theme">
@@ -454,7 +474,7 @@ main{max-width:1460px!important;padding-bottom:60px!important}.app-toolbar{displ
 
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8 · 528 · PROFESSIONAL+</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.2 · 528 · PROFESSIONAL+</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -1861,6 +1881,50 @@ const _abrirCrearEjercicioV58=abrirCrearEjercicioParaSeccion;
 abrirCrearEjercicioParaSeccion=function(slug){_abrirCrearEjercicioV58(slug);const d=document.querySelector('.library-create-panel');if(d)d.setAttribute('open','');if($('form-title'))$('form-title').textContent='Crear ejercicio para '+SECCIONES_ENTRENO[normalizarSeccionEntreno(slug)].numero+' · '+SECCIONES_ENTRENO[normalizarSeccionEntreno(slug)].titulo};
 const _guardarPlanV58=guardarPlan;
 guardarPlan=function(){_guardarPlanV58();document.querySelector('.planning-quick-create')?.removeAttribute('open')};
+
+
+// ===== V5.8.2 · posicionamiento seguro del menú de acciones de ejercicios =====
+function posicionarMenuEjercicio(details){
+  if(!details || !details.open)return;
+  const boton=details.querySelector(':scope > summary');
+  const menu=details.querySelector('.exercise-menu-pop');
+  if(!boton || !menu)return;
+  const margen=10, separacion=6;
+  menu.style.visibility='hidden';
+  menu.style.left='0px';
+  menu.style.top='0px';
+  const r=boton.getBoundingClientRect();
+  const ancho=menu.offsetWidth;
+  const alto=menu.offsetHeight;
+  let left=r.right-ancho;
+  left=Math.max(margen,Math.min(left,window.innerWidth-ancho-margen));
+  let top=r.bottom+separacion;
+  if(top+alto>window.innerHeight-margen){
+    const arriba=r.top-alto-separacion;
+    top=arriba>=margen?arriba:Math.max(margen,window.innerHeight-alto-margen);
+  }
+  menu.style.left=Math.round(left)+'px';
+  menu.style.top=Math.round(top)+'px';
+  menu.style.visibility='visible';
+}
+function recolocarMenusEjercicio(){
+  document.querySelectorAll('.exercise-menu[open]').forEach(posicionarMenuEjercicio);
+}
+document.addEventListener('toggle',event=>{
+  const details=event.target;
+  if(!(details instanceof HTMLDetailsElement) || !details.classList.contains('exercise-menu'))return;
+  if(details.open){
+    document.querySelectorAll('.exercise-menu[open]').forEach(other=>{if(other!==details)other.removeAttribute('open')});
+    requestAnimationFrame(()=>posicionarMenuEjercicio(details));
+  }
+},true);
+window.addEventListener('resize',()=>requestAnimationFrame(recolocarMenusEjercicio));
+window.addEventListener('scroll',()=>requestAnimationFrame(recolocarMenusEjercicio),true);
+document.addEventListener('pointerdown',event=>{
+  document.querySelectorAll('.exercise-menu[open]').forEach(details=>{
+    if(!details.contains(event.target))details.removeAttribute('open');
+  });
+},true);
 
 if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
 if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
