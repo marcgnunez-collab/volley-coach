@@ -127,7 +127,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
 .similarity-help{margin-top:8px;padding:9px 11px;border-left:3px solid #9a6a2f;background:#fffaf2;color:#5f5140;font-size:12px;line-height:1.45}
 @media(max-width:640px){.similarity-names{grid-template-columns:1fr}.similarity-vs{text-align:center}.similarity-card{padding:15px}}
 
-/* V5.5 · filtro múltiple de fundamentos */
+/* V5.5 · SIN PIZARRA · filtro múltiple de fundamentos */
 /* V5.5 · planificación + historial vinculados + archivado automático al finalizar el día */
 .filter-multi{position:relative;min-width:190px;font-family:Arial,"Helvetica Neue",sans-serif}
 .filter-multi>summary{list-style:none;width:100%;padding:10px 30px 10px 11px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer;font-size:13px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -135,6 +135,90 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
 .filter-multi-menu{position:absolute;z-index:1000;top:calc(100% + 5px);left:0;width:290px;max-width:min(90vw,290px);padding:12px;background:#fff;border:1px solid #cfd7df;box-shadow:0 10px 28px rgba(7,29,53,.16);border-radius:5px}
 .filter-multi-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}.filter-multi-checks label{display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;padding:4px 2px}.filter-multi-checks input{width:auto;margin:0}.filter-clear{width:100%;margin-top:10px;padding:7px 9px!important;font-size:11px!important}
 @media(max-width:650px){.filter-multi{width:100%}.filter-multi-menu{width:100%;max-width:100%}}
+
+/* Entrenamiento sin pizarra: una sola columna, más limpia y aprovechable */
+#entrenamiento #export-area{grid-template-columns:minmax(0,1fr)!important;}
+#entrenamiento #export-area>.panel{max-width:none;width:100%;}
+
+/* ===== V5.6 · SESIÓN EN 5 FASES ===== */
+.session-panel{padding:0;overflow:hidden}
+.session-top{padding:18px 18px 14px;background:linear-gradient(180deg,#ffffff 0%,#f7f9fb 100%);border-bottom:1px solid #e2e7eb}
+.session-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.session-eyebrow{font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#7b8794;margin-bottom:4px}
+.session-title-row h2{margin:0;color:#17324d;font-size:1.25rem}
+.session-meta-grid{display:grid;grid-template-columns:1.05fr 1.35fr .8fr .9fr .9fr;gap:9px}
+.session-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.session-field>span{font-size:10px;text-transform:uppercase;letter-spacing:.055em;font-weight:850;color:#687786}
+.session-field input,.session-field select,.session-objective textarea,.session-general-notes textarea{width:100%;box-sizing:border-box}
+.session-objective{margin-top:10px}
+.session-objective textarea{min-height:66px;resize:vertical;font-size:14px;line-height:1.45}
+.session-summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.session-summary-card{background:#fff;border:1px solid #dfe5ea;border-radius:9px;padding:9px 11px;min-width:0}
+.session-summary-card span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#788591;font-weight:800}
+.session-summary-card b{display:block;margin-top:3px;color:#17324d;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-progress-wrap{margin-top:10px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.session-progress{height:7px;border-radius:999px;background:#e7ecf0;overflow:hidden}
+.session-progress>span{display:block;height:100%;width:0;background:#2f628e;border-radius:inherit;transition:width .2s ease}
+.session-progress-label{font-size:10.5px;color:#697785;font-weight:700;white-space:nowrap}
+.session-workspace{padding:14px 16px 92px}
+.stage-rail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:12px}
+.stage-rail-item{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid #dfe5ea;background:#fff;border-radius:9px;text-decoration:none;color:#17324d;min-width:0;transition:.15s}
+.stage-rail-item:hover{border-color:#9eb4c7;background:#f7fafc}
+.stage-rail-num{font-size:10px;font-weight:900;color:#87929c;flex:0 0 auto}
+.stage-rail-text{min-width:0;line-height:1.15}
+.stage-rail-text b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage-rail-text small{display:block;font-size:9.5px;color:#7b8792;margin-top:2px}
+.training-stage{border:1px solid #dbe2e8;border-radius:12px;background:#fff;overflow:hidden;margin:10px 0;scroll-margin-top:12px}
+.training-stage-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;background:#f7f9fb;border-bottom:1px solid #e4e9ed}
+.training-stage-title{display:flex;align-items:center;gap:10px;min-width:0}
+.training-stage-index{display:flex;align-items:center;justify-content:center;width:33px;height:33px;border-radius:9px;background:#17324d;color:#fff;font-size:10px;font-weight:900;flex:0 0 auto}
+.training-stage-name{min-width:0}
+.training-stage-name strong{display:block;color:#17324d;font-size:14px}
+.training-stage-name .small{margin-top:2px;white-space:normal}
+.training-stage-stats{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.stage-stat{font-size:9.5px;font-weight:800;color:#5e6d7b;background:#eaf0f5;border-radius:999px;padding:3px 7px}
+.training-stage-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.training-stage-actions button{padding:7px 9px!important;font-size:11px}
+.training-stage-body{padding:8px}
+.session-exercise-card{border:1px solid #e0e6eb;border-radius:9px;background:#fff;margin-bottom:7px;overflow:hidden}
+.session-exercise-main{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px 10px}
+.session-exercise-number{width:28px;height:28px;border-radius:8px;background:#eef3f7;color:#17324d;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.session-exercise-copy{min-width:0}
+.session-exercise-name{font-size:13px;font-weight:850;color:#17324d;line-height:1.25}
+.session-exercise-function{font-size:11px;color:#647482;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-exercise-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.session-mini-chip{font-size:9.5px;font-weight:750;background:#f2f5f7;border:1px solid #e2e7eb;border-radius:5px;padding:2px 5px;color:#5b6976}
+.session-exercise-controls{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.session-exercise-controls button{padding:5px 7px!important;min-width:30px}
+.session-stage-select{max-width:132px;padding:6px 7px!important;font-size:10.5px!important;height:auto!important}
+.session-exercise-details{border-top:1px solid #edf0f2;background:#fbfcfd}
+.session-exercise-details>summary{cursor:pointer;list-style:none;padding:7px 10px;color:#566675;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.session-exercise-details>summary::-webkit-details-marker{display:none}
+.session-exercise-details>summary:after{content:'Ver ficha ▾';font-weight:800}
+.session-exercise-details[open]>summary:after{content:'Ocultar ficha ▴'}
+.session-exercise-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 10px 10px}
+.session-exercise-detail{border-left:3px solid #c9d7e5;background:#fff;padding:7px 8px;min-width:0}
+.session-exercise-detail.wide{grid-column:1/-1}
+.session-exercise-detail b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.045em;color:#6c7986;margin-bottom:2px}
+.session-exercise-detail span{font-size:11px;line-height:1.4;color:#33485b;white-space:pre-wrap}
+.stage-notes{margin-top:7px;border-top:1px solid #edf0f2}
+.stage-notes>summary{cursor:pointer;padding:8px 10px;font-size:10.5px;font-weight:850;color:#5d6d7a;list-style:none}
+.stage-notes>summary::-webkit-details-marker{display:none}
+.stage-notes>summary:after{content:' +';float:right;color:#7c8995}
+.stage-notes[open]>summary:after{content:' −'}
+.stage-notes.has-content>summary:before{content:'•';color:#2f855a;margin-right:6px;font-size:14px;vertical-align:-1px}
+.stage-notes textarea{width:100%;min-height:62px;box-sizing:border-box;border:0;border-top:1px solid #edf0f2;border-radius:0;padding:9px 10px;background:#fff;font:inherit;font-size:11.5px;line-height:1.45;resize:vertical}
+.session-general-notes{margin-top:11px;border:1px solid #e0e6eb;border-radius:9px;background:#fff;overflow:hidden}
+.session-general-notes>summary{cursor:pointer;padding:10px 12px;list-style:none;font-size:11px;font-weight:850;color:#41586d}
+.session-general-notes>summary::-webkit-details-marker{display:none}
+.session-general-notes textarea{border:0;border-top:1px solid #e8edf0;border-radius:0;min-height:70px;padding:10px 12px;resize:vertical}
+.session-action-bar{position:sticky;bottom:10px;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:9px 10px;border:1px solid #d6dfe6;border-radius:12px;background:rgba(255,255,255,.94);box-shadow:0 10px 28px rgba(23,50,77,.12);backdrop-filter:blur(8px)}
+.session-action-primary{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.session-action-bar button{white-space:nowrap}
+.stage-empty{padding:12px;border:1px dashed #d9e1e7;border-radius:8px;background:#fbfcfd;color:#7a8793;font-size:11px;text-align:center}
+@media(max-width:900px){.session-meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stage-rail{grid-template-columns:repeat(5,minmax(110px,1fr));overflow-x:auto;padding-bottom:3px}.stage-rail-item{min-width:110px}.session-summary-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.session-top{padding:14px 12px 12px}.session-workspace{padding:10px 10px 100px}.session-meta-grid{grid-template-columns:1fr 1fr}.session-meta-grid .session-field:nth-child(2){grid-column:1/-1}.training-stage-head{align-items:flex-start;flex-direction:column}.training-stage-actions{width:100%;justify-content:stretch}.training-stage-actions button{flex:1}.session-exercise-main{grid-template-columns:28px minmax(0,1fr);align-items:start}.session-exercise-controls{grid-column:1/-1;padding-left:37px;justify-content:flex-start}.session-stage-select{max-width:none;flex:1}.session-exercise-detail-grid{grid-template-columns:1fr}.session-exercise-detail.wide{grid-column:auto}.session-action-bar{align-items:stretch;flex-direction:column}.session-action-primary{width:100%;margin-left:0}.session-action-primary button{flex:1}.session-summary-strip{grid-template-columns:1fr 1fr}}
+
 </style>
 
 <style id="executive-theme">
@@ -342,7 +426,7 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 </style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.5 · 528 · PDF CON CAMPO</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.6 · 528 · SESIÓN 5 FASES</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -407,27 +491,38 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 <div class="tabs"><button class="tab-btn active" onclick="showView('entrenamiento',this)">🏠 Entrenamiento</button><button class="tab-btn" onclick="abrirBibliotecaNormal(this)">📚 Ejercicios</button><button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button><button class="tab-btn" onclick="showView('historial',this)">📅 Entrenamientos</button><button class="tab-btn" onclick="showView('estadisticas',this)">📊 Estadísticas</button></div>
 
 <section id="entrenamiento" class="view active">
-<div class="grid2" id="export-area">
-<div class="panel">
-<h2>📋 Sesión actual</h2>
-<div id="plan-hoy-aviso" class="today-plan-wrap"></div>
-<div class="form-grid">
-<input id="sesion-fecha" type="date" oninput="guardarSesionMeta()"><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"><input id="sesion-jugadores" type="number" min="1" placeholder="Nº jugadores" oninput="guardarSesionMeta()"><select id="sesion-intensidad" oninput="guardarSesionMeta()"><option value="Baja">🟢 Baja</option><option value="Media" selected>🟡 Media</option><option value="Alta">🔴 Alta</option></select>
-<textarea id="sesion-objetivo" placeholder="🎯 Objetivo principal de la sesión" oninput="guardarSesionMeta()"></textarea>
-<textarea id="texto-calentamiento" placeholder="🔥 Calentamiento: contenido y duración" oninput="guardarSesionMeta()"></textarea>
-<textarea id="sesion-notas" placeholder="📝 Notas del entrenador" oninput="guardarSesionMeta()"></textarea>
-</div>
-<div class="summary"><div class="metric"><span class="small">Duración</span><b id="tiempo-total">0 min</b></div><div class="metric"><span class="small">Ejercicios</span><b id="num-ejercicios">0</b></div><div class="metric"><span class="small">Intensidad</span><b id="intensidad-resumen">Media</b></div></div>
-<div id="lista-sesion" class="training-blocks"></div>
-<div class="actions" style="margin-top:14px"><button class="primary" onclick="exportarImagen()">🖼️ Exportar imagen</button><button class="primary" onclick="exportarPDF()">📄 Exportar PDF</button><button class="ghost" onclick="guardarSesionEnPlanificacion(false)">📅 Guardar en planificación</button><button class="success" onclick="finalizarEntrenamiento()">✅ Finalizar y guardar</button></div>
-</div>
-<div class="panel">
-<h2>🖍️ Pizarra táctica</h2>
-<div class="board-controls"><button class="tool active" onclick="setTool('pencil',this)">✏️</button><button class="tool" onclick="setTool('arrow',this)">↗️</button><button class="tool" onclick="setTool('eraser',this)">🧽</button><button class="ghost" onclick="deshacer()">↩️</button><button class="ghost" onclick="togglePista()">🏐 Pista</button><button id="zone-toggle" class="ghost zone-toggle active" onclick="toggleZoneGrid()" title="Mostrar u ocultar las zonas reglamentarias 1–9">Zonas 1–9</button><button id="subzone-toggle" class="ghost zone-toggle active" onclick="toggleSubzones()" title="Mostrar u ocultar las subdivisiones A–D">Subzonas A–D</button><button class="danger" onclick="limpiarPizarra()">🗑️</button></div>
-<div class="inline"><button class="color-dot active" style="background:#1f2937" onclick="setColor('#1f2937',this)"></button><button class="color-dot" style="background:#dc2626" onclick="setColor('#dc2626',this)"></button><button class="color-dot" style="background:#2563eb" onclick="setColor('#2563eb',this)"></button><button class="color-dot" style="background:#fff" onclick="setColor('#ffffff',this)"></button></div>
-<div class="player-palette"><span class="small">Añadir:</span><button class="ghost" onclick="addObject('player')">🔵 Jugador</button><button class="ghost" onclick="addObject('ball')">🏐 Balón</button><button class="ghost" onclick="addObject('cone')">🔺 Cono</button><button class="ghost" onclick="addTextObject()">T Texto</button></div>
-<div id="canvas-wrapper" class="board full"><div id="zone-grid" class="zone-grid" aria-hidden="true"><div class="zone-half zone-half-top" data-side="top"><div class="zone-cell" data-zone="5"><span class="zone-label">5</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="6"><span class="zone-label">6</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="1"><span class="zone-label">1</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="7"><span class="zone-label">7</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="8"><span class="zone-label">8</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="9"><span class="zone-label">9</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="4"><span class="zone-label">4</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="3"><span class="zone-label">3</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="2"><span class="zone-label">2</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div></div><div class="zone-half zone-half-bottom" data-side="bottom"><div class="zone-cell" data-zone="4"><span class="zone-label">4</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="3"><span class="zone-label">3</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="2"><span class="zone-label">2</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="7"><span class="zone-label">7</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="8"><span class="zone-label">8</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="9"><span class="zone-label">9</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="5"><span class="zone-label">5</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="6"><span class="zone-label">6</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="1"><span class="zone-label">1</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div></div></div><canvas id="pizarra"></canvas><div id="object-layer"></div></div><div class="board-save-row"><button class="ghost" onclick="guardarPizarraSesion()">Guardar pizarra de sesión</button><button class="ghost" onclick="cargarPizarraSesion()">Recuperar pizarra de sesión</button></div>
-</div>
+<div id="export-area" class="panel session-panel">
+  <div class="session-top">
+    <div class="session-title-row">
+      <div><div class="session-eyebrow">Plan de entrenamiento</div><h2>🏐 Sesión actual</h2></div>
+      <div class="small">Se guarda automáticamente</div>
+    </div>
+    <div id="plan-hoy-aviso" class="today-plan-wrap"></div>
+    <div class="session-meta-grid">
+      <label class="session-field"><span>Fecha</span><input id="sesion-fecha" type="date" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Equipo</span><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"></label>
+      <label class="session-field"><span>Jugadores</span><input id="sesion-jugadores" type="number" min="1" placeholder="Nº" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Objetivo de tiempo</span><input id="sesion-duracion-objetivo" type="number" min="0" step="5" placeholder="Ej. 90 min" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Intensidad</span><select id="sesion-intensidad" oninput="guardarSesionMeta()"><option value="Baja">🟢 Baja</option><option value="Media" selected>🟡 Media</option><option value="Alta">🔴 Alta</option></select></label>
+    </div>
+    <label class="session-field session-objective"><span>Objetivo principal</span><textarea id="sesion-objetivo" placeholder="¿Qué quieres conseguir en esta sesión?" oninput="guardarSesionMeta()"></textarea></label>
+    <div class="session-summary-strip">
+      <div class="session-summary-card"><span>Preparado</span><b id="tiempo-total">0 min</b></div>
+      <div class="session-summary-card"><span>Ejercicios</span><b id="num-ejercicios">0</b></div>
+      <div class="session-summary-card"><span>Objetivo</span><b id="duracion-objetivo-resumen">—</b></div>
+      <div class="session-summary-card"><span>Intensidad</span><b id="intensidad-resumen">Media</b></div>
+    </div>
+    <div class="session-progress-wrap"><div class="session-progress"><span id="session-progress-bar"></span></div><div id="session-progress-label" class="session-progress-label">Define una duración objetivo</div></div>
+  </div>
+  <div class="session-workspace">
+    <div id="stage-rail" class="stage-rail"></div>
+    <div id="lista-sesion" class="training-blocks"></div>
+    <details class="session-general-notes"><summary>📝 Notas generales del entrenador</summary><textarea id="sesion-notas" placeholder="Observaciones generales, consignas o recordatorios..." oninput="guardarSesionMeta()"></textarea></details>
+    <div class="session-action-bar">
+      <div class="small">PDF, planificación e historial conservan las 5 fases.</div>
+      <div class="session-action-primary"><button class="primary" onclick="exportarPDF()">📄 PDF</button><button class="ghost" onclick="guardarSesionEnPlanificacion(false)">📅 Guardar en planificación</button><button class="success" onclick="finalizarEntrenamiento()">✅ Finalizar entrenamiento</button></div>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -439,7 +534,7 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 <div class="panel" style="margin-bottom:12px;background:#eef4f9;border-color:#c9d7e5"><b>📚 Biblioteca compartida</b><div class="small" style="margin-top:4px">Los ejercicios son comunes para Infantil y Cadete. Pulsa <b>☆</b> para guardar un ejercicio en favoritos. La biblioteca empieza vacía y solo muestra ejercicios cuando escribes una búsqueda o eliges un filtro. Usa 📊 para ver su uso por equipo, ℹ️ para consultar la información y ➕ para añadirlo al entrenamiento del equipo activo.</div></div><div class="panel" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>📊 Ejercicios por fundamento</b><span class="small">Un ejercicio con varios fundamentos cuenta en cada grupo correspondiente.</span></div><div id="conteo-biblioteca" class="summary" style="margin-bottom:0"></div></div>
 <div class="panel" style="margin-bottom:18px"><h2 id="form-title">➕ Añadir ejercicio a la biblioteca</h2><div class="form-grid">
 <input type="hidden" id="edit-id"><input id="nuevo-nombre" placeholder="Nombre"><input id="nuevo-tiempo" type="number" min="0" placeholder="Minutos"><select id="nueva-escuela"><option>Italia</option><option>España</option><option>Francia</option><option>EEUU</option><option>Brasil</option><option>Propia</option></select><div class="fundamento-multi"><span class="fundamento-label">Grupos / fundamentos <small>(puedes marcar varios)</small></span><div class="fundamento-checks"><label><input type="checkbox" name="nuevo-fundamento" value="Control"> Control</label><label><input type="checkbox" name="nuevo-fundamento" value="Recepción"> Recepción</label><label><input type="checkbox" name="nuevo-fundamento" value="Ataque"> Ataque</label><label><input type="checkbox" name="nuevo-fundamento" value="Colocación"> Colocación</label><label><input type="checkbox" name="nuevo-fundamento" value="Bloqueo"> Bloqueo</label><label><input type="checkbox" name="nuevo-fundamento" value="Defensa"> Defensa</label><label><input type="checkbox" name="nuevo-fundamento" value="Reconstrucción"> Reconstrucción</label><label><input type="checkbox" name="nuevo-fundamento" value="Juegos"> Juegos</label><label><input type="checkbox" name="nuevo-fundamento" value="Saque"> Saque</label></div></div><input id="nuevo-formato" placeholder="Formato (ej. 6v6)"><select id="nuevo-nivel"><option>Iniciación</option><option selected>Intermedio</option><option>Avanzado</option></select><select id="nueva-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select><select id="nuevo-tipo"><option value="" selected>— Tipo de ejercicio —</option><option>Analítico</option><option>Puesta en juego</option><option>Juego reducido</option><option>Juego</option></select><input id="nuevo-jugadores" placeholder="Jugadores (ej. 8-12)"><input id="nuevo-material" placeholder="Material necesario"><input id="nuevo-video" placeholder="Enlace de vídeo (opcional)"><select id="nuevo-fase"><option>Calentamiento</option><option selected>Parte principal</option><option>Vuelta a la calma</option></select><textarea id="nuevo-objetivo" placeholder="Función del ejercicio / objetivo técnico-táctico"></textarea><textarea id="nueva-descripcion" placeholder="Descripción del ejercicio"></textarea><textarea id="nuevo-variantes" placeholder="Variantes"></textarea><textarea id="nuevo-errores" placeholder="Errores habituales y correcciones"></textarea>
-</div><div class="muted-box" style="margin-bottom:10px">La pizarra táctica actual puede asociarse al ejercicio al guardarlo. Úsala para conservar la disposición de jugadores, trayectorias y material.</div><div class="actions"><button class="success" onclick="guardarEjercicio()">💾 Guardar ejercicio</button><button class="ghost" onclick="marcarPizarraParaEjercicio()">Asociar pizarra actual</button><button id="cancel-edit" class="ghost hidden" onclick="cancelarEdicion()">Cancelar edición</button></div></div>
+</div><div class="actions"><button class="success" onclick="guardarEjercicio()">💾 Guardar ejercicio</button><button id="cancel-edit" class="ghost hidden" onclick="cancelarEdicion()">Cancelar edición</button></div></div>
 <div class="panel"><div class="filters"><input id="buscar" placeholder="🔎 Buscar por nombre..." oninput="filtrarEjercicios()"><select id="escuela" onchange="filtrarEjercicios()"><option value="" selected>— Escuela —</option><option value="Todas">Todas las escuelas</option><option>Italia</option><option>España</option><option>Francia</option><option>EEUU</option><option>Brasil</option><option>Propia</option></select><details id="fundamento-filtro" class="filter-multi"><summary id="fundamento-filtro-label">— Fundamentos —</summary><div class="filter-multi-menu"><div class="small" style="margin-bottom:7px">Marca uno o varios. Si eliges varios, se mostrarán ejercicios que contengan todos.</div><div class="filter-multi-checks"><label><input type="checkbox" name="filtro-fundamento" value="Control" onchange="filtrarEjercicios()"> Control</label><label><input type="checkbox" name="filtro-fundamento" value="Recepción" onchange="filtrarEjercicios()"> Recepción</label><label><input type="checkbox" name="filtro-fundamento" value="Ataque" onchange="filtrarEjercicios()"> Ataque</label><label><input type="checkbox" name="filtro-fundamento" value="Colocación" onchange="filtrarEjercicios()"> Colocación</label><label><input type="checkbox" name="filtro-fundamento" value="Bloqueo" onchange="filtrarEjercicios()"> Bloqueo</label><label><input type="checkbox" name="filtro-fundamento" value="Defensa" onchange="filtrarEjercicios()"> Defensa</label><label><input type="checkbox" name="filtro-fundamento" value="Reconstrucción" onchange="filtrarEjercicios()"> Reconstrucción</label><label><input type="checkbox" name="filtro-fundamento" value="Juegos" onchange="filtrarEjercicios()"> Juegos</label><label><input type="checkbox" name="filtro-fundamento" value="Saque" onchange="filtrarEjercicios()"> Saque</label></div><button type="button" class="ghost filter-clear" onclick="limpiarFundamentosFiltro();event.preventDefault()">Limpiar fundamentos</button></div></details><select id="nivel" onchange="filtrarEjercicios()"><option value="" selected>— Nivel —</option><option value="Todos">Todos los niveles</option><option>Iniciación</option><option>Intermedio</option><option>Avanzado</option></select><select id="tipo" onchange="filtrarEjercicios()"><option value="" selected>— Tipo de ejercicio —</option><option value="Todos">Todos los tipos</option><option>Analítico</option><option>Puesta en juego</option><option>Juego reducido</option><option>Juego</option></select><select id="favoritos" onchange="filtrarEjercicios()"><option value="" selected>— Favoritos —</option><option value="Todos">Todos</option><option value="Fav">⭐ Solo favoritos</option></select></div><div class="similarity-toolbar"><button class="ghost" onclick="revisarBibliotecaSimilares()">🧩 Revisar ejercicios similares</button></div><div id="contenedor-principal" class="exercise-list compact-library"><div class="empty">Selecciona un filtro o escribe el nombre de un ejercicio.</div></div></div>
 </section>
 
@@ -622,13 +717,14 @@ const EQUIPOS={
   cadete:{nombre:'Cadete Masculino',corto:'Cadete masc.'}
 };
 const SECCIONES_ENTRENO={
-  controles:{titulo:'Control',tipo:null,fundamento:'Control',icono:'🎛️',nota:'Ejercicios con el fundamento Control al inicio del trabajo técnico.'},
-  analiticos:{titulo:'Analíticos',tipo:'Analítico',icono:'🎯',nota:'Trabajo técnico analítico.'},
-  especificos:{titulo:'Específicos',tipo:null,icono:'🧩',nota:'Aquí eliges tú cualquier ejercicio de la biblioteca.'},
-  desarrollo:{titulo:'Desarrollo con el juego',tipo:'Puesta en juego',icono:'🔄',nota:'Muestra los ejercicios clasificados como Puesta en juego.'},
-  reducidos:{titulo:'Juegos reducidos',tipo:'Juego reducido',icono:'🔹',nota:'Situaciones de juego reducido.'},
-  juego:{titulo:'Juego',tipo:'Juego',icono:'🏐',nota:'Juego global.'}
+  activacion:{numero:'01',titulo:'Activación',icono:'🔥',nota:'Movilidad, activación, balón y ritmo de entrada.',filtro:'activacion',tipoDefault:'',faseDefault:'Calentamiento'},
+  tecnica:{numero:'02',titulo:'Técnica',icono:'🎯',nota:'Control y trabajo técnico analítico.',filtro:'tecnica',tipoDefault:'Analítico',faseDefault:'Parte principal'},
+  especifico:{numero:'03',titulo:'Específico',icono:'🧩',nota:'Trabajo técnico-táctico centrado en el objetivo del día.',filtro:'todos',tipoDefault:'',faseDefault:'Parte principal'},
+  aplicado:{numero:'04',titulo:'Juego aplicado',icono:'🔁',nota:'Puesta en juego y situaciones reducidas con intención.',filtro:'aplicado',tipoDefault:'Puesta en juego',faseDefault:'Parte principal'},
+  juego:{numero:'05',titulo:'Juego real',icono:'🏐',nota:'Juego global y transferencia al 6x6.',filtro:'juego',tipoDefault:'Juego',faseDefault:'Parte principal'}
 };
+const ORDEN_SECCIONES_ENTRENO=['activacion','tecnica','especifico','aplicado','juego'];
+const MAPA_SECCIONES_LEGACY={controles:'tecnica',analiticos:'tecnica',especificos:'especifico',desarrollo:'aplicado',reducidos:'aplicado',juego:'juego',activacion:'activacion',tecnica:'tecnica',especifico:'especifico',aplicado:'aplicado'};
 let seccionDestinoSesion=null;
 let crearEjercicioDestinoSesion=null;
 function fechaLocalISO(d=new Date()){const x=new Date(d),y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),dia=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${dia}`}
@@ -636,14 +732,14 @@ let equipoActivo=localStorage.getItem(ACTIVE_TEAM_KEY)||localStorage.getItem(OLD
 if(!EQUIPOS[equipoActivo])equipoActivo='infantil';
 let sesionActual=[],planificacion=[],historial=[];
 let semanaBase=new Date(); let pizarraParaEjercicio=null;
-let meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}};
+let meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}};
 let equiposData=null;
 
 function clonar(v){return JSON.parse(JSON.stringify(v))}
 function estadoEquipoVacio(id){
   return {
     sesionActual:[],
-    meta:{fecha:fechaLocalISO(),equipo:EQUIPOS[id].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}},
+    meta:{fecha:fechaLocalISO(),equipo:EQUIPOS[id].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}},
     historial:[],
     planificacion:[]
   };
@@ -772,9 +868,9 @@ function cargarEquipoEnVariables(id){
   const s=limpiarEquipo(equiposData[id],id);
   equiposData[id]=s;
   sesionActual=clonar(s.sesionActual||[]);
-  meta=clonar(s.meta||estadoEquipoVacio(id).meta);meta.equipo=EQUIPOS[id].nombre;
-  historial=clonar(s.historial||[]);
-  planificacion=clonar(s.planificacion||[]);
+  meta=clonar(s.meta||estadoEquipoVacio(id).meta);meta.equipo=EQUIPOS[id].nombre;meta.seccionesEjercicios=normalizarMapaSecciones(meta.seccionesEjercicios||{});meta.notasBloques=normalizarNotasEntreno(meta.notasBloques||{},meta.calentamiento||'');meta.calentamiento=meta.notasBloques.activacion||meta.calentamiento||'';
+  historial=clonar(s.historial||[]);historial.forEach(h=>{h.notasBloques=normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||'');h.calentamiento=h.notasBloques.activacion||h.calentamiento||'';(h.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
+  planificacion=clonar(s.planificacion||[]);planificacion.forEach(p=>{p.seccionesEjercicios=normalizarMapaSecciones(p.seccionesEjercicios||{});p.notasBloques=normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||'');p.calentamiento=p.notasBloques.activacion||p.calentamiento||'';(p.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
   if(typeof sincronizarPlanesConHistorial==='function'&&sincronizarPlanesConHistorial()>0){
     equiposData[id]={...s,sesionActual:clonar(sesionActual),meta:clonar(meta),historial:clonar(historial),planificacion:clonar(planificacion)};
     guardarEstadoLocalSinCloud();
@@ -794,7 +890,6 @@ function cambiarEquipo(id){
   equipoActivo=id;localStorage.setItem(ACTIVE_TEAM_KEY,id);
   cargarEquipoEnVariables(id);
   actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();
-  limpiarPizarra();if(meta.pizarra)setTimeout(()=>aplicarPizarra(meta.pizarra),60);
   $('save-indicator').textContent='✓ '+EQUIPOS[id].nombre+' cargado · biblioteca compartida';
 }
 cargarEstadoLocal();
@@ -804,28 +899,61 @@ function save(){meta.equipo=EQUIPOS[equipoActivo].nombre;guardarEquipoEnMemoria(
 function showView(id,btn){if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();}
 function botonVista(id){const orden=['entrenamiento','ejercicios','planificacion','historial','estadisticas'];return document.querySelectorAll('.tab-btn')[orden.indexOf(id)]||null}
 function abrirBibliotecaNormal(btn){renderConteoBiblioteca();const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();showView('ejercicios',btn);renderDestinoBiblioteca()}
-function seccionNaturalEjercicio(e){const fs=normalizarFundamentos(e);if(fs.includes('Control'))return 'controles';const t=(e&&e.tipo)||'';if(t==='Analítico')return 'analiticos';if(t==='Puesta en juego')return 'desarrollo';if(t==='Juego reducido')return 'reducidos';if(t==='Juego')return 'juego';return 'especificos'}
-function mapaSeccionesSesion(){if(!meta.seccionesEjercicios||typeof meta.seccionesEjercicios!=='object')meta.seccionesEjercicios={};return meta.seccionesEjercicios}
-function mapaNotasBloques(){if(!meta.notasBloques||typeof meta.notasBloques!=='object')meta.notasBloques={};return meta.notasBloques}
-function guardarNotaBloque(slug,valor){if(!SECCIONES_ENTRENO[slug])return;mapaNotasBloques()[slug]=valor;save()}
-function seccionEjercicioSesion(id,e){return mapaSeccionesSesion()[String(id)]||seccionNaturalEjercicio(e)}
-function renderDestinoBiblioteca(){const box=$('session-section-target');if(!box)return;if(!seccionDestinoSesion||!SECCIONES_ENTRENO[seccionDestinoSesion]){box.classList.add('hidden');return}const cfg=SECCIONES_ENTRENO[seccionDestinoSesion];$('session-section-target-name').textContent=cfg.icono+' '+cfg.titulo;if(crearEjercicioDestinoSesion===seccionDestinoSesion){$('session-section-target-note').textContent='Crea el ejercicio. Al guardarlo se añadirá automáticamente a esta sección y volverás al entrenamiento.'}else{$('session-section-target-note').textContent=seccionDestinoSesion==='especificos'?'Puedes elegir cualquier ejercicio; se guardará en Específicos dentro de este entrenamiento.':'El filtro se ha aplicado automáticamente. Los ejercicios que añadas irán a esta sección.'}box.classList.remove('hidden')}
+function normalizarSeccionEntreno(slug,e){
+  const limpio=MAPA_SECCIONES_LEGACY[String(slug||'')]||'';
+  if(limpio&&SECCIONES_ENTRENO[limpio])return limpio;
+  return seccionNaturalEjercicio(e||{});
+}
+function seccionNaturalEjercicio(e){
+  const fs=normalizarFundamentos(e),t=(e&&e.tipo)||'',fase=String((e&&e.fase)||'');
+  if(fase==='Calentamiento')return 'activacion';
+  if(t==='Analítico'||fs.includes('Control'))return 'tecnica';
+  if(t==='Puesta en juego'||t==='Juego reducido')return 'aplicado';
+  if(t==='Juego')return 'juego';
+  return 'especifico';
+}
+function normalizarMapaSecciones(mapa){const out={};Object.entries(mapa&&typeof mapa==='object'?mapa:{}).forEach(([id,slug])=>out[id]=normalizarSeccionEntreno(slug));return out}
+function combinarNotasEntreno(...partes){return partes.map(x=>String(x||'').trim()).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join('\n')}
+function normalizarNotasEntreno(notas,calentamiento=''){
+  notas=notas&&typeof notas==='object'?notas:{};
+  return {
+    activacion:combinarNotasEntreno(notas.activacion,calentamiento),
+    tecnica:combinarNotasEntreno(notas.tecnica,notas.controles,notas.analiticos),
+    especifico:combinarNotasEntreno(notas.especifico,notas.especificos),
+    aplicado:combinarNotasEntreno(notas.aplicado,notas.desarrollo,notas.reducidos),
+    juego:combinarNotasEntreno(notas.juego)
+  };
+}
+function mapaSeccionesSesion(){if(!meta.seccionesEjercicios||typeof meta.seccionesEjercicios!=='object')meta.seccionesEjercicios={};meta.seccionesEjercicios=normalizarMapaSecciones(meta.seccionesEjercicios);return meta.seccionesEjercicios}
+function mapaNotasBloques(){meta.notasBloques=normalizarNotasEntreno(meta.notasBloques,meta.calentamiento||'');return meta.notasBloques}
+function guardarNotaBloque(slug,valor){slug=normalizarSeccionEntreno(slug);if(!SECCIONES_ENTRENO[slug])return;mapaNotasBloques()[slug]=valor;if(slug==='activacion')meta.calentamiento=valor;save()}
+function seccionEjercicioSesion(id,e){return normalizarSeccionEntreno(mapaSeccionesSesion()[String(id)],e)}
+function coincideFiltroSeccionDestino(e){
+  if(!seccionDestinoSesion)return true;const slug=normalizarSeccionEntreno(seccionDestinoSesion,e),t=(e&&e.tipo)||'',fs=normalizarFundamentos(e),fase=String((e&&e.fase)||'');
+  if(slug==='activacion')return fase==='Calentamiento'||fs.includes('Control');
+  if(slug==='tecnica')return t==='Analítico'||fs.includes('Control');
+  if(slug==='aplicado')return t==='Puesta en juego'||t==='Juego reducido';
+  if(slug==='juego')return t==='Juego';
+  return true;
+}
+function renderDestinoBiblioteca(){const box=$('session-section-target');if(!box)return;if(!seccionDestinoSesion||!SECCIONES_ENTRENO[seccionDestinoSesion]){box.classList.add('hidden');return}const cfg=SECCIONES_ENTRENO[seccionDestinoSesion];$('session-section-target-name').textContent=cfg.numero+' · '+cfg.icono+' '+cfg.titulo;if(crearEjercicioDestinoSesion===seccionDestinoSesion){$('session-section-target-note').textContent='Crea el ejercicio. Al guardarlo se añadirá directamente a esta fase.'}else{$('session-section-target-note').textContent=seccionDestinoSesion==='especifico'?'Puedes elegir libremente cualquier ejercicio para esta fase.':'La biblioteca muestra primero los ejercicios más adecuados para esta fase. Puedes combinarlo con los filtros normales.'}box.classList.remove('hidden')}
 function getFundamentosFiltro(){return [...document.querySelectorAll('input[name="filtro-fundamento"]:checked')].map(x=>x.value)}
 function setFundamentosFiltro(valores){const fs=Array.isArray(valores)?valores:[];document.querySelectorAll('input[name="filtro-fundamento"]').forEach(x=>x.checked=fs.includes(x.value));actualizarEtiquetaFundamentosFiltro()}
 function actualizarEtiquetaFundamentosFiltro(){const fs=getFundamentosFiltro(),el=$('fundamento-filtro-label');if(!el)return;el.textContent=!fs.length?'— Fundamentos —':(fs.length===1?fs[0]:`Fundamentos (${fs.length})`)}
 function limpiarFundamentosFiltro(){setFundamentosFiltro([]);filtrarEjercicios()}
 function limpiarFiltrosBiblioteca(){['buscar','escuela','nivel','tipo','favoritos'].forEach(id=>{if($(id))$(id).value=''});setFundamentosFiltro([])}
-function abrirBibliotecaParaSeccion(slug){const cfg=SECCIONES_ENTRENO[slug];if(!cfg)return;crearEjercicioDestinoSesion=null;seccionDestinoSesion=slug;limpiarFiltrosBiblioteca();if(slug==='especificos'){if($('tipo'))$('tipo').value='Todos'}else if(cfg.fundamento){setFundamentosFiltro([cfg.fundamento])}else if(cfg.tipo){if($('tipo'))$('tipo').value=cfg.tipo}showView('ejercicios',botonVista('ejercicios'));filtrarEjercicios();renderDestinoBiblioteca();window.scrollTo({top:0,behavior:'smooth'})}
-function abrirCrearEjercicioParaSeccion(slug){const cfg=SECCIONES_ENTRENO[slug];if(!cfg)return;cancelarEdicion();seccionDestinoSesion=slug;crearEjercicioDestinoSesion=slug;['buscar','escuela','nivel','tipo','favoritos'].forEach(id=>{if($(id))$(id).value=''});setFundamentosSeleccionados([]);if($('nuevo-tipo'))$('nuevo-tipo').value='';if(cfg.fundamento)setFundamentosSeleccionados([cfg.fundamento]);if(cfg.tipo&&$('nuevo-tipo'))$('nuevo-tipo').value=cfg.tipo;$('form-title').textContent='➕ Crear ejercicio para '+cfg.titulo;showView('ejercicios',botonVista('ejercicios'));renderDestinoBiblioteca();filtrarEjercicios();setTimeout(()=>{const el=$('form-title');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},40)}
+function abrirBibliotecaParaSeccion(slug){slug=normalizarSeccionEntreno(slug);const cfg=SECCIONES_ENTRENO[slug];if(!cfg)return;crearEjercicioDestinoSesion=null;seccionDestinoSesion=slug;limpiarFiltrosBiblioteca();showView('ejercicios',botonVista('ejercicios'));filtrarEjercicios();renderDestinoBiblioteca();window.scrollTo({top:0,behavior:'smooth'})}
+function abrirCrearEjercicioParaSeccion(slug){slug=normalizarSeccionEntreno(slug);const cfg=SECCIONES_ENTRENO[slug];if(!cfg)return;cancelarEdicion();seccionDestinoSesion=slug;crearEjercicioDestinoSesion=slug;['buscar','escuela','nivel','tipo','favoritos'].forEach(id=>{if($(id))$(id).value=''});setFundamentosSeleccionados([]);if($('nuevo-tipo'))$('nuevo-tipo').value=cfg.tipoDefault||'';if($('nuevo-fase'))$('nuevo-fase').value=cfg.faseDefault||'Parte principal';$('form-title').textContent='➕ Crear ejercicio para '+cfg.numero+' · '+cfg.titulo;showView('ejercicios',botonVista('ejercicios'));renderDestinoBiblioteca();filtrarEjercicios();setTimeout(()=>{const el=$('form-title');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},40)}
 function cancelarDestinoSesion(){const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();renderDestinoBiblioteca();limpiarFiltrosBiblioteca();filtrarEjercicios()}
 function volverAlEntrenamiento(){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;renderDestinoBiblioteca();showView('entrenamiento',botonVista('entrenamiento'));renderizarSesion();window.scrollTo({top:0,behavior:'smooth'})}
-function cargarMeta(){['fecha','equipo','jugadores','intensidad','objetivo','notas'].forEach(k=>{let el=$('sesion-'+k);if(el)el.value=meta[k]||''});$('texto-calentamiento').value=meta.calentamiento||'';}
-function guardarSesionMeta(){meta={...meta,fecha:$('sesion-fecha').value,equipo:EQUIPOS[equipoActivo].nombre,jugadores:$('sesion-jugadores').value,intensidad:$('sesion-intensidad').value,objetivo:$('sesion-objetivo').value,calentamiento:$('texto-calentamiento').value,notas:$('sesion-notas').value};save();renderizarSesion();}
+function cargarMeta(){['fecha','equipo','jugadores','duracionObjetivo','intensidad','objetivo','notas'].forEach(k=>{let id=k==='duracionObjetivo'?'sesion-duracion-objetivo':'sesion-'+k,el=$(id);if(el)el.value=meta[k]||''});mapaNotasBloques();}
+function guardarSesionMeta(){meta={...meta,fecha:$('sesion-fecha')?.value||meta.fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:$('sesion-jugadores')?.value||'',duracionObjetivo:$('sesion-duracion-objetivo')?.value||'',intensidad:$('sesion-intensidad')?.value||'Media',objetivo:$('sesion-objetivo')?.value||'',notas:$('sesion-notas')?.value||''};mapaNotasBloques();save();renderizarSesion();}
 function añadirASesion(id){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const mapa=mapaSeccionesSesion(),key=String(id),destino=seccionDestinoSesion||seccionNaturalEjercicio(e);if(sesionActual.includes(id)){const actual=seccionEjercicioSesion(id,e);if(seccionDestinoSesion&&actual!==destino){mapa[key]=destino;$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[destino].titulo;}else{sesionActual=sesionActual.filter(x=>x!==id);delete mapa[key];$('save-indicator').textContent='✓ Quitado de '+EQUIPOS[equipoActivo].corto;}}else{sesionActual.push(id);mapa[key]=destino;$('save-indicator').textContent='✓ Añadido a '+SECCIONES_ENTRENO[destino].titulo;}meta.seccionesEjercicios=mapa;save();renderizarSesion();filtrarEjercicios();}
 function quitarDeSesion(i){const id=sesionActual[i];sesionActual.splice(i,1);if(id!=null)delete mapaSeccionesSesion()[String(id)];save();renderizarSesion();filtrarEjercicios()}
 function quitarDeSesionId(id){const i=sesionActual.indexOf(id);if(i>=0)quitarDeSesion(i)}
 function moverSesion(i,dir){let j=i+dir;if(j<0||j>=sesionActual.length)return;[sesionActual[i],sesionActual[j]]=[sesionActual[j],sesionActual[i]];save();renderizarSesion();}
 function moverSesionEnBloque(id,dir){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const slug=seccionEjercicioSesion(id,e);const ids=sesionActual.filter(x=>{const ex=baseDeDatos.find(z=>z.id===x);return ex&&seccionEjercicioSesion(x,ex)===slug});const pos=ids.indexOf(id),dest=pos+dir;if(pos<0||dest<0||dest>=ids.length)return;const a=sesionActual.indexOf(ids[pos]),b=sesionActual.indexOf(ids[dest]);[sesionActual[a],sesionActual[b]]=[sesionActual[b],sesionActual[a]];save();renderizarSesion()}
+function moverEjercicioAFase(id,slug){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;slug=normalizarSeccionEntreno(slug,e);mapaSeccionesSesion()[String(id)]=slug;save();renderizarSesion();$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[slug].titulo}
 function snapshotEjercicioCompleto(e){
   if(!e)return null;
   const fs=normalizarFundamentos(e);
@@ -844,29 +972,39 @@ function fichaEjercicioHTML(origen,numero,acciones=''){
   return `<div class="exercise-explain-card"><div class="exercise-explain-head"><div><div class="exercise-explain-title">${numero?numero+'. ':''}${esc(e.nombre||'Ejercicio')}</div><div class="exercise-explain-meta">${chips}</div></div>${acciones?`<div class="exercise-explain-actions">${acciones}</div>`:''}</div><div class="exercise-explain-grid"><div class="exercise-explain-section"><div class="exercise-explain-label">Función / objetivo</div><div class="exercise-explain-text">${esc(e.objetivo||'Sin función definida')}</div></div><div class="exercise-explain-section"><div class="exercise-explain-label">Organización</div><div class="exercise-explain-text">${esc(organizacion||'Sin organización especificada')}</div></div><div class="exercise-explain-section wide"><div class="exercise-explain-label">Desarrollo</div><div class="exercise-explain-text">${esc(e.descripcion||'Sin desarrollo descrito')}</div></div>${e.errores?`<div class="exercise-explain-section"><div class="exercise-explain-label">Claves / correcciones</div><div class="exercise-explain-text">${esc(e.errores)}</div></div>`:''}${e.variantes?`<div class="exercise-explain-section"><div class="exercise-explain-label">Variantes</div><div class="exercise-explain-text">${esc(e.variantes)}</div></div>`:''}</div></div>`;
 }
 function ejerciciosPorBloques(lista){
-  const grupos={controles:[],analiticos:[],especificos:[],desarrollo:[],reducidos:[],juego:[]};
-  (lista||[]).forEach(e0=>{const e=enriquecerEjercicioGuardado(e0),slug=e0.seccionSesion||e.seccionSesion||seccionNaturalEjercicio(e);(grupos[slug]||grupos.especificos).push(e0)});
+  const grupos={activacion:[],tecnica:[],especifico:[],aplicado:[],juego:[]};
+  (lista||[]).forEach(e0=>{const e=enriquecerEjercicioGuardado(e0),slug=normalizarSeccionEntreno(e0.seccionSesion||e.seccionSesion,e);(grupos[slug]||grupos.especifico).push(e0)});
   return grupos;
 }
 function entrenamientoEstructuradoHTML(h){
-  const orden=['controles','analiticos','especificos','desarrollo','reducidos','juego'],grupos=ejerciciosPorBloques(h.ejercicios||[]),notas=h.notasBloques&&typeof h.notasBloques==='object'?h.notasBloques:{};
+  const orden=ORDEN_SECCIONES_ENTRENO,grupos=ejerciciosPorBloques(h.ejercicios||[]),notas=normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||'');
   let contador=0;
-  const bloques=orden.map(slug=>{const items=grupos[slug]||[],nota=String(notas[slug]||'').trim();if(!items.length&&!nota)return '';const cfg=SECCIONES_ENTRENO[slug];const body=items.map(e=>fichaEjercicioHTML(e,++contador)).join('')||'<div class="training-block-empty">Sin ejercicios guardados en este bloque.</div>';return `<div class="saved-training-block"><div class="saved-training-block-head"><span>${cfg.icono}</span><b>${esc(cfg.titulo)}</b><span class="small">${items.length} ejercicio${items.length===1?'':'s'}</span></div><div class="saved-training-block-body">${nota?`<div class="saved-training-note"><b>Notas del bloque:</b> ${esc(nota)}</div>`:''}${body}</div></div>`}).join('');
-  return `<div class="saved-training-sheet"><div class="saved-training-summary"><div><b>Objetivo</b><br>${esc(h.objetivo||'-')}</div><div><b>Jugadores</b><br>${esc(h.jugadores||'-')}</div><div><b>Intensidad</b><br>${esc(h.intensidad||'Media')}</div><div><b>Duración</b><br>${Number(h.duracion)||0} min</div></div>${h.calentamiento?`<div class="saved-training-block"><div class="saved-training-block-head"><span>🔥</span><b>Calentamiento</b></div><div class="saved-training-block-body"><div class="exercise-explain-text">${esc(h.calentamiento)}</div></div></div>`:''}${bloques||'<div class="empty">No hay ejercicios guardados.</div>'}${h.notas?`<div class="saved-training-block"><div class="saved-training-block-head"><span>📝</span><b>Notas del entrenador</b></div><div class="saved-training-block-body"><div class="exercise-explain-text">${esc(h.notas)}</div></div></div>`:''}</div>`;
+  const bloques=orden.map(slug=>{const items=grupos[slug]||[],nota=String(notas[slug]||'').trim();if(!items.length&&!nota)return '';const cfg=SECCIONES_ENTRENO[slug];const mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0);const body=items.map(e=>fichaEjercicioHTML(e,++contador)).join('')||'<div class="training-block-empty">Sin ejercicios guardados en esta fase.</div>';return `<div class="saved-training-block"><div class="saved-training-block-head"><span>${cfg.numero}</span><span>${cfg.icono}</span><b>${esc(cfg.titulo)}</b><span class="small">${items.length} ejercicio${items.length===1?'':'s'} · ${mins} min</span></div><div class="saved-training-block-body">${nota?`<div class="saved-training-note"><b>Notas de la fase:</b> ${esc(nota)}</div>`:''}${body}</div></div>`}).join('');
+  const objetivoTiempo=Number(h.duracionObjetivo)||0;
+  return `<div class="saved-training-sheet"><div class="saved-training-summary"><div><b>Objetivo</b><br>${esc(h.objetivo||'-')}</div><div><b>Jugadores</b><br>${esc(h.jugadores||'-')}</div><div><b>Intensidad</b><br>${esc(h.intensidad||'Media')}</div><div><b>Duración</b><br>${Number(h.duracion)||0} min${objetivoTiempo?' / '+objetivoTiempo+' min':''}</div></div>${bloques||'<div class="empty">No hay ejercicios guardados.</div>'}${h.notas?`<div class="saved-training-block"><div class="saved-training-block-head"><span>📝</span><b>Notas del entrenador</b></div><div class="saved-training-block-body"><div class="exercise-explain-text">${esc(h.notas)}</div></div></div>`:''}</div>`;
 }
 function renderAvisoPlanHoy(){
   const box=$('plan-hoy-aviso');if(!box)return;const hoy=fechaLocalISO(),items=(planificacion||[]).filter(p=>p.fecha===hoy&&!p.realizado&&p.id!==meta.planificacionId);
   if(!items.length){box.innerHTML='';return}
   box.innerHTML=`<div class="today-plan-box"><div class="today-plan-head"><div><b>📅 Entrenamiento planificado para hoy</b><div class="small">Ábrelo para recuperar la sesión completa tal como la preparaste.</div></div></div><div class="today-plan-list">${items.map(p=>`<div class="today-plan-item"><b>${esc(p.objetivo||'Entrenamiento')}</b><div class="small">${(p.ejercicios||[]).length} ejercicios · ${Number(p.duracion)||0} min</div><button class="primary" style="margin-top:7px" onclick="usarPlan(${p.id})">Abrir entrenamiento</button></div>`).join('')}</div></div>`;
 }
-function renderizarSesion(){
-  let total=0;const grupos={controles:[],analiticos:[],especificos:[],desarrollo:[],reducidos:[],juego:[]};
-  sesionActual.forEach(id=>{const e=baseDeDatos.find(x=>x.id===id);if(!e)return;total+=Number(e.tiempo)||0;const slug=seccionEjercicioSesion(id,e);(grupos[slug]||grupos.especificos).push(e)});
-  const orden=['controles','analiticos','especificos','desarrollo','reducidos','juego'],notas=mapaNotasBloques();let numeroGlobal=0;
-  let html=orden.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0);const body=items.map(e=>{const acciones=`<button class="ghost" onclick="moverSesionEnBloque(${e.id},-1)">↑</button><button class="ghost" onclick="moverSesionEnBloque(${e.id},1)">↓</button><button class="danger" onclick="quitarDeSesionId(${e.id})">Quitar</button>`;return fichaEjercicioHTML(e,++numeroGlobal,acciones)}).join('')||`<div class="training-block-empty">${slug==='especificos'?'Elige libremente los ejercicios específicos que quieras.':'Todavía no hay ejercicios en esta sección.'}</div>`;const nota=esc(notas[slug]||'');return `<div class="training-block"><div class="training-block-head"><div class="training-block-title"><span style="font-size:20px">${cfg.icono}</span><div><strong>${esc(cfg.titulo)}</strong><div class="small">${esc(cfg.nota)}${items.length?' · '+mins+' min':''}</div></div><span class="training-block-count">${items.length}</span></div><div class="training-block-actions"><button class="ghost training-block-add" onclick="abrirBibliotecaParaSeccion('${slug}')">＋ Elegir ejercicios</button><button class="primary training-block-create" onclick="abrirCrearEjercicioParaSeccion('${slug}')">＋ Crear ejercicio</button></div></div><div class="training-block-body">${body}<div class="training-block-note-wrap"><label class="training-block-note-label">✍️ Notas / contenido del bloque</label><textarea class="training-block-note" placeholder="Escribe aquí indicaciones, objetivos, progresiones o contenido libre para este bloque..." oninput="guardarNotaBloque('${slug}',this.value)">${nota}</textarea></div></div></div>`}).join('');
-  $('lista-sesion').innerHTML=html;$('tiempo-total').textContent=total+' min';$('num-ejercicios').textContent=sesionActual.length;$('intensidad-resumen').textContent=meta.intensidad||'Media';renderAvisoPlanHoy();
+function tarjetaSesionCompactaHTML(e,numero,slug){
+  const fs=normalizarFundamentos(e),chips=[`${Number(e.tiempo)||0} min`,...fs.slice(0,3),e.tipo||''].filter(Boolean).map(x=>`<span class="session-mini-chip">${esc(x)}</span>`).join('');
+  const organizacion=[e.formato?`Formato: ${e.formato}`:'',e.jugadores?`Jugadores: ${e.jugadores}`:'',e.material?`Material: ${e.material}`:''].filter(Boolean).join(' · ');
+  const opciones=ORDEN_SECCIONES_ENTRENO.map(k=>`<option value="${k}"${k===slug?' selected':''}>${SECCIONES_ENTRENO[k].numero} · ${SECCIONES_ENTRENO[k].titulo}</option>`).join('');
+  return `<div class="session-exercise-card"><div class="session-exercise-main"><div class="session-exercise-number">${String(numero).padStart(2,'0')}</div><div class="session-exercise-copy"><div class="session-exercise-name">${esc(e.nombre||'Ejercicio')}</div><div class="session-exercise-function">${esc(e.objetivo||e.descripcion||'Sin función definida')}</div><div class="session-exercise-meta">${chips}</div></div><div class="session-exercise-controls"><select class="session-stage-select" onchange="moverEjercicioAFase(${e.id},this.value)" title="Mover de fase">${opciones}</select><button class="ghost" onclick="moverSesionEnBloque(${e.id},-1)" title="Subir">↑</button><button class="ghost" onclick="moverSesionEnBloque(${e.id},1)" title="Bajar">↓</button><button class="danger" onclick="quitarDeSesionId(${e.id})" title="Quitar">×</button></div></div><details class="session-exercise-details"><summary>Detalles del ejercicio</summary><div class="session-exercise-detail-grid"><div class="session-exercise-detail"><b>Función</b><span>${esc(e.objetivo||'Sin función definida')}</span></div><div class="session-exercise-detail"><b>Organización</b><span>${esc(organizacion||'Sin organización especificada')}</span></div><div class="session-exercise-detail wide"><b>Desarrollo</b><span>${esc(e.descripcion||'Sin desarrollo descrito')}</span></div>${e.errores?`<div class="session-exercise-detail"><b>Claves / correcciones</b><span>${esc(e.errores)}</span></div>`:''}${e.variantes?`<div class="session-exercise-detail"><b>Variantes</b><span>${esc(e.variantes)}</span></div>`:''}</div></details></div>`;
 }
-function getForm(){const fundamentos=getFundamentosSeleccionados();return {nombre:$('nuevo-nombre').value.trim(),tiempo:+$('nuevo-tiempo').value||0,escuela:$('nueva-escuela').value,fundamentos,fundamento:fundamentos[0]||'',formato:$('nuevo-formato').value.trim(),nivel:$('nuevo-nivel').value,intensidad:$('nueva-intensidad').value,tipo:$('nuevo-tipo').value,jugadores:$('nuevo-jugadores').value.trim(),material:$('nuevo-material').value.trim(),video:$('nuevo-video').value.trim(),objetivo:$('nuevo-objetivo').value.trim(),descripcion:$('nueva-descripcion').value.trim(),variantes:$('nuevo-variantes').value.trim(),errores:$('nuevo-errores').value.trim(),fase:$('nuevo-fase').value,pizarra:pizarraParaEjercicio}}
+function renderizarSesion(){
+  let total=0;const grupos={activacion:[],tecnica:[],especifico:[],aplicado:[],juego:[]};
+  sesionActual.forEach(id=>{const e=baseDeDatos.find(x=>x.id===id);if(!e)return;total+=Number(e.tiempo)||0;const slug=seccionEjercicioSesion(id,e);(grupos[slug]||grupos.especifico).push(e)});
+  const notas=mapaNotasBloques();let numeroGlobal=0;
+  const rail=ORDEN_SECCIONES_ENTRENO.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug]||[],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0);return `<a class="stage-rail-item" href="#stage-${slug}"><span class="stage-rail-num">${cfg.numero}</span><span class="stage-rail-text"><b>${cfg.icono} ${esc(cfg.titulo)}</b><small>${items.length} ej. · ${mins} min</small></span></a>`}).join('');
+  if($('stage-rail'))$('stage-rail').innerHTML=rail;
+  $('lista-sesion').innerHTML=ORDEN_SECCIONES_ENTRENO.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug]||[],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0),nota=String(notas[slug]||'');const body=items.map(e=>tarjetaSesionCompactaHTML(e,++numeroGlobal,slug)).join('')||`<div class="stage-empty">${slug==='especifico'?'Añade aquí el trabajo principal específico del objetivo del día.':'Aún no hay ejercicios en esta fase.'}</div>`;return `<section class="training-stage" id="stage-${slug}"><div class="training-stage-head"><div class="training-stage-title"><span class="training-stage-index">${cfg.numero}</span><div class="training-stage-name"><strong>${cfg.icono} ${esc(cfg.titulo)}</strong><div class="small">${esc(cfg.nota)}</div><div class="training-stage-stats"><span class="stage-stat">${items.length} ejercicio${items.length===1?'':'s'}</span><span class="stage-stat">${mins} min</span></div></div></div><div class="training-stage-actions"><button class="ghost" onclick="abrirBibliotecaParaSeccion('${slug}')">＋ Biblioteca</button><button class="primary" onclick="abrirCrearEjercicioParaSeccion('${slug}')">＋ Crear</button></div></div><div class="training-stage-body">${body}<details class="stage-notes${nota.trim()?' has-content':''}"><summary>📝 Notas / contenido de la fase</summary><textarea placeholder="Indicaciones, progresiones, consignas o contenido libre..." oninput="guardarNotaBloque('${slug}',this.value)">${esc(nota)}</textarea></details></div></section>`}).join('');
+  const objetivo=Number(meta.duracionObjetivo)||0,porcentaje=objetivo?Math.min(100,Math.round(total/objetivo*100)):0;
+  $('tiempo-total').textContent=total+' min';$('num-ejercicios').textContent=sesionActual.length;$('intensidad-resumen').textContent=meta.intensidad||'Media';if($('duracion-objetivo-resumen'))$('duracion-objetivo-resumen').textContent=objetivo?objetivo+' min':'—';if($('session-progress-bar'))$('session-progress-bar').style.width=porcentaje+'%';if($('session-progress-label'))$('session-progress-label').textContent=objetivo?`${total} / ${objetivo} min · ${porcentaje}%`:'Define una duración objetivo';renderAvisoPlanHoy();
+}
+function getForm(){const fundamentos=getFundamentosSeleccionados();return {nombre:$('nuevo-nombre').value.trim(),tiempo:+$('nuevo-tiempo').value||0,escuela:$('nueva-escuela').value,fundamentos,fundamento:fundamentos[0]||'',formato:$('nuevo-formato').value.trim(),nivel:$('nuevo-nivel').value,intensidad:$('nueva-intensidad').value,tipo:$('nuevo-tipo').value,jugadores:$('nuevo-jugadores').value.trim(),material:$('nuevo-material').value.trim(),video:$('nuevo-video').value.trim(),objetivo:$('nuevo-objetivo').value.trim(),descripcion:$('nueva-descripcion').value.trim(),variantes:$('nuevo-variantes').value.trim(),errores:$('nuevo-errores').value.trim(),fase:$('nuevo-fase').value}}
 function normalizarTextoSimilitud(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()}
 function tokensSimilitud(v){const stop=new Set(['de','la','el','los','las','un','una','unos','unas','y','o','en','con','para','por','del','al','que','se','a','e','es','su','sus','como','cada','entre','desde','hasta','sobre','sin','ejercicio','jugador','jugadores','balon','balones']);return normalizarTextoSimilitud(v).split(' ').filter(x=>x.length>2&&!stop.has(x))}
 function jaccardSimilitud(a,b){const A=new Set(tokensSimilitud(a)),B=new Set(tokensSimilitud(b));if(!A.size&&!B.size)return 0;let inter=0;A.forEach(x=>{if(B.has(x))inter++});return inter/(A.size+B.size-inter||1)}
@@ -890,8 +1028,8 @@ function cerrarSimilares(){$('similarity-modal').classList.remove('open')}
 function editarDesdeSimilares(id){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;cerrarSimilares();fillForm(e)}
 function revisarBibliotecaSimilares(){const pares=[];for(let i=0;i<baseDeDatos.length;i++)for(let j=i+1;j<baseDeDatos.length;j++){const score=similitudEjercicios(baseDeDatos[i],baseDeDatos[j]);if(score>=.70)pares.push({a:baseDeDatos[i],b:baseDeDatos[j],score})}pares.sort((x,y)=>y.score-x.score);const box=$('similarity-results');if(!pares.length){box.innerHTML='<div class="empty">✅ No se han detectado ejercicios suficientemente parecidos como para revisarlos.</div>'}else{box.innerHTML=pares.slice(0,40).map(p=>`<div class="similarity-pair"><span class="similarity-score">${Math.round(p.score*100)}% similar</span><div class="similarity-names"><div class="similarity-ex-name">${esc(p.a.nombre)}</div><div class="similarity-vs">↔</div><div class="similarity-ex-name">${esc(p.b.nombre)}</div></div><div class="similarity-reason">${esc(motivoSimilitud(p.a,p.b))}</div><div class="actions" style="margin-top:9px"><button class="ghost" onclick="editarDesdeSimilares(${p.a.id})">✏️ Revisar primero</button><button class="ghost" onclick="editarDesdeSimilares(${p.b.id})">✏️ Revisar segundo</button></div></div>`).join('');if(pares.length>40)box.innerHTML+=`<div class="small">Se muestran las 40 coincidencias más altas de ${pares.length}.</div>`}$('similarity-modal').classList.add('open')}
 function guardarEjercicio(){let d=getForm();if(!d.nombre||!d.descripcion){alert('Añade al menos nombre y descripción.');return}if(!d.fundamentos.length){alert('Selecciona al menos un grupo / fundamento.');return}let id=+$('edit-id').value;const parecidos=similaresDeEjercicio(d,id||null);if(parecidos.length){const txt=parecidos.slice(0,3).map(x=>'• '+x.e.nombre+' ('+Math.round(x.score*100)+'%)').join('\n');if(!confirm('⚠️ Puede que este ejercicio ya exista o sea muy parecido a otro:\n\n'+txt+'\n\n¿Quieres guardarlo igualmente?'))return}let nuevoId=null;if(id){let idx=baseDeDatos.findIndex(e=>e.id===id);baseDeDatos[idx]={...baseDeDatos[idx],...d}}else{nuevoId=Date.now();baseDeDatos.push({id:nuevoId,...d,favorito:false,usos:0})}save();const destinoCreado=(!id&&nuevoId&&crearEjercicioDestinoSesion)?crearEjercicioDestinoSesion:null;cancelarEdicion();if(destinoCreado){const mapa=mapaSeccionesSesion();if(!sesionActual.includes(nuevoId))sesionActual.push(nuevoId);mapa[String(nuevoId)]=destinoCreado;meta.seccionesEjercicios=mapa;crearEjercicioDestinoSesion=null;save();volverAlEntrenamiento();$('save-indicator').textContent='✓ Ejercicio creado y añadido a '+SECCIONES_ENTRENO[destinoCreado].titulo;return}filtrarEjercicios();}
-function fillForm(e){crearEjercicioDestinoSesion=null;$('edit-id').value=e.id;$('nuevo-nombre').value=e.nombre;$('nuevo-tiempo').value=e.tiempo;$('nueva-escuela').value=e.escuela;setFundamentosSeleccionados(normalizarFundamentos(e));$('nuevo-formato').value=e.formato||'';$('nuevo-nivel').value=e.nivel||'Intermedio';$('nueva-intensidad').value=e.intensidad||'Media';$('nuevo-tipo').value=e.tipo||'';$('nuevo-jugadores').value=e.jugadores||'';$('nuevo-material').value=e.material||'';$('nuevo-video').value=e.video||'';$('nuevo-objetivo').value=e.objetivo||'';$('nueva-descripcion').value=e.descripcion||'';$('nuevo-variantes').value=e.variantes||'';$('nuevo-errores').value=e.errores||'';$('nuevo-fase').value=e.fase||'Parte principal';pizarraParaEjercicio=e.pizarra||null;$('form-title').textContent='✏️ Editar ejercicio';$('cancel-edit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
-function cancelarEdicion(){['edit-id','nuevo-nombre','nuevo-tiempo','nuevo-formato','nuevo-jugadores','nuevo-material','nuevo-video','nuevo-objetivo','nueva-descripcion','nuevo-variantes','nuevo-errores'].forEach(id=>$(id).value='');setFundamentosSeleccionados([]);$('nuevo-tipo').value='';$('form-title').textContent='➕ Añadir ejercicio a la biblioteca';$('cancel-edit').classList.add('hidden');pizarraParaEjercicio=null;}
+function fillForm(e){crearEjercicioDestinoSesion=null;$('edit-id').value=e.id;$('nuevo-nombre').value=e.nombre;$('nuevo-tiempo').value=e.tiempo;$('nueva-escuela').value=e.escuela;setFundamentosSeleccionados(normalizarFundamentos(e));$('nuevo-formato').value=e.formato||'';$('nuevo-nivel').value=e.nivel||'Intermedio';$('nueva-intensidad').value=e.intensidad||'Media';$('nuevo-tipo').value=e.tipo||'';$('nuevo-jugadores').value=e.jugadores||'';$('nuevo-material').value=e.material||'';$('nuevo-video').value=e.video||'';$('nuevo-objetivo').value=e.objetivo||'';$('nueva-descripcion').value=e.descripcion||'';$('nuevo-variantes').value=e.variantes||'';$('nuevo-errores').value=e.errores||'';$('nuevo-fase').value=e.fase||'Parte principal';$('form-title').textContent='✏️ Editar ejercicio';$('cancel-edit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+function cancelarEdicion(){['edit-id','nuevo-nombre','nuevo-tiempo','nuevo-formato','nuevo-jugadores','nuevo-material','nuevo-video','nuevo-objetivo','nueva-descripcion','nuevo-variantes','nuevo-errores'].forEach(id=>$(id).value='');setFundamentosSeleccionados([]);$('nuevo-tipo').value='';$('form-title').textContent='➕ Añadir ejercicio a la biblioteca';$('cancel-edit').classList.add('hidden');}
 function duplicarEjercicio(id){let e=baseDeDatos.find(x=>x.id===id);baseDeDatos.push({...e,id:Date.now(),nombre:e.nombre+' (copia)',usos:0,favorito:false});save();filtrarEjercicios();}
 function eliminarEjercicio(id){if(!confirm('¿Borrar este ejercicio de la biblioteca compartida? Se quitará también de las sesiones actuales de ambos equipos.'))return;baseDeDatos=baseDeDatos.filter(e=>e.id!==id);sesionActual=sesionActual.filter(x=>x!==id);delete mapaSeccionesSesion()[String(id)];Object.keys(EQUIPOS).forEach(k=>{if(k!==equipoActivo&&equiposData[k]){equiposData[k].sesionActual=(equiposData[k].sesionActual||[]).filter(x=>x!==id);if(equiposData[k].meta&&equiposData[k].meta.seccionesEjercicios)delete equiposData[k].meta.seccionesEjercicios[String(id)]}});save();filtrarEjercicios();renderizarSesion();}
 function toggleFav(id){let e=baseDeDatos.find(x=>x.id===id);e.favorito=!e.favorito;save();filtrarEjercicios();}
@@ -906,7 +1044,7 @@ function usoEjercicioGlobal(id,nombre){
 }
 function toggleExerciseStats(id){const panel=$('stats-ex-'+id);if(!panel)return;const info=$('detalles-'+id);if(info)info.classList.remove('open');panel.classList.toggle('open')}
 function renderConteoBiblioteca(){const box=$('conteo-biblioteca');if(!box)return;const grupos=['Recepción','Ataque','Colocación','Bloqueo','Defensa','Reconstrucción','Juegos','Saque','Control'];const datos=[['Total',baseDeDatos.length],...grupos.map(g=>[g,baseDeDatos.filter(e=>normalizarFundamentos(e).includes(g)).length])];box.innerHTML=datos.map(([g,n])=>`<div class="metric"><span class="small">${g}</span><b>${n}</b></div>`).join('')}
-function filtrarEjercicios(){renderConteoBiblioteca();actualizarEtiquetaFundamentosFiltro();let q=$('buscar').value.trim().toLowerCase(),escuela=$('escuela').value,funs=getFundamentosFiltro(),nivel=$('nivel').value,tipo=$('tipo').value,fav=$('favoritos').value;const hayCriterio=!!(q||escuela||funs.length||nivel||tipo||fav);if(!hayCriterio){$('contenedor-principal').innerHTML='<div class="empty">Selecciona un filtro o escribe el nombre de un ejercicio.</div>';return}let d=baseDeDatos.filter(e=>{const fs=normalizarFundamentos(e);return (!escuela||escuela==='Todas'||e.escuela===escuela)&&(!funs.length||funs.every(f=>fs.includes(f)))&&(!nivel||nivel==='Todos'||(e.nivel||'Intermedio')===nivel)&&(!tipo||tipo==='Todos'||(e.tipo||'')===tipo)&&(!fav||fav==='Todos'||e.favorito)&&(!q||[e.nombre,e.descripcion,e.objetivo,fs.join(' '),e.material,e.tipo||''].join(' ').toLowerCase().includes(q))});renderizar(d)}
+function filtrarEjercicios(){renderConteoBiblioteca();actualizarEtiquetaFundamentosFiltro();let q=$('buscar').value.trim().toLowerCase(),escuela=$('escuela').value,funs=getFundamentosFiltro(),nivel=$('nivel').value,tipo=$('tipo').value,fav=$('favoritos').value;const hayCriterio=!!(q||escuela||funs.length||nivel||tipo||fav||seccionDestinoSesion);if(!hayCriterio){$('contenedor-principal').innerHTML='<div class="empty">Selecciona un filtro o escribe el nombre de un ejercicio.</div>';return}let d=baseDeDatos.filter(e=>{const fs=normalizarFundamentos(e);return (!seccionDestinoSesion||q||coincideFiltroSeccionDestino(e))&&(!escuela||escuela==='Todas'||e.escuela===escuela)&&(!funs.length||funs.every(f=>fs.includes(f)))&&(!nivel||nivel==='Todos'||(e.nivel||'Intermedio')===nivel)&&(!tipo||tipo==='Todos'||(e.tipo||'')===tipo)&&(!fav||fav==='Todos'||e.favorito)&&(!q||[e.nombre,e.descripcion,e.objetivo,fs.join(' '),e.material,e.tipo||''].join(' ').toLowerCase().includes(q))});renderizar(d)}
 function renderizar(datos){
   $('contenedor-principal').innerHTML=datos.map(e=>{
     const uso=usoEjercicioGlobal(e.id,e.nombre);
@@ -937,18 +1075,18 @@ function renderizar(datos){
       <div id="detalles-${e.id}" class="exercise-inline-panel">
         <div class="tags" style="margin-bottom:9px">${normalizarFundamentos(e).map(f=>`<span class="tag">${esc(f)}</span>`).join('')}${e.tipo?`<span class="tag">${esc(e.tipo)}</span>`:''}<span class="tag">⏱️ ${e.tiempo||0} min</span><span class="tag">${esc(e.nivel||'Intermedio')}</span><span class="tag">${esc(e.intensidad||'Media')}</span></div>
         <p><b>Función:</b> ${esc(e.objetivo||'-')}</p><p>${esc(e.descripcion)}</p><p><b>Fase:</b> ${esc(e.fase||'Parte principal')} · <b>Material:</b> ${esc(e.material||'-')} · <b>Jugadores:</b> ${esc(e.jugadores||'-')}</p><p><b>Variantes:</b> ${esc(e.variantes||'-')}</p><p><b>Errores/correcciones:</b> ${esc(e.errores||'-')}</p>${e.video?`<p><a href="${esc(e.video)}" target="_blank" rel="noopener">🎥 Ver vídeo</a></p>`:''}
-        <div class="actions"><button class="ghost" onclick="toggleFav(${e.id})">${e.favorito?'★ Quitar favorito':'☆ Favorito'}</button><button class="ghost" onclick='fillForm(${JSON.stringify(e).replace(/'/g,"&#39;")})'>✏️ Editar</button>${e.pizarra?`<button class="ghost" onclick="cargarPizarraEjercicio(${e.id})">Ver pizarra</button>`:''}<button class="ghost" onclick="duplicarEjercicio(${e.id})">📋 Duplicar</button><button class="danger" onclick="eliminarEjercicio(${e.id})">🗑️ Borrar</button></div>
+        <div class="actions"><button class="ghost" onclick="toggleFav(${e.id})">${e.favorito?'★ Quitar favorito':'☆ Favorito'}</button><button class="ghost" onclick='fillForm(${JSON.stringify(e).replace(/'/g,"&#39;")})'>✏️ Editar</button><button class="ghost" onclick="duplicarEjercicio(${e.id})">📋 Duplicar</button><button class="danger" onclick="eliminarEjercicio(${e.id})">🗑️ Borrar</button></div>
       </div>
     </div>`;
   }).join('')||'<div class="empty">No hay ejercicios con estos filtros.</div>'
 }
 function reiniciarSesionActual(){
-  sesionActual=[];meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},planificacionId:null};
-  save();cargarMeta();renderizarSesion();filtrarEjercicios();limpiarPizarra();renderPlanificacion();
+  sesionActual=[];meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},planificacionId:null};
+  save();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();
 }
 function construirPlanSesion(id){
   const ejercicios=sesionActual.map(x=>baseDeDatos.find(e=>e.id===x)).filter(Boolean),duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
-  return {id,fecha:meta.fecha||fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:meta.jugadores||'',intensidad:meta.intensidad||'Media',objetivo:meta.objetivo||'',calentamiento:meta.calentamiento||'',notas:meta.notas||'',notasBloques:clonar(mapaNotasBloques()),seccionesEjercicios:clonar(mapaSeccionesSesion()),duracion,pizarra:serializarPizarra(),ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
+  return {id,fecha:meta.fecha||fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:meta.jugadores||'',duracionObjetivo:meta.duracionObjetivo||'',intensidad:meta.intensidad||'Media',objetivo:meta.objetivo||'',calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notas:meta.notas||'',notasBloques:clonar(mapaNotasBloques()),seccionesEjercicios:clonar(mapaSeccionesSesion()),duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
 }
 function guardarSesionEnPlanificacion(limpiar=false){
   guardarSesionMeta();const tieneNotas=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotas){alert('La sesión está vacía.');return false}
@@ -1011,8 +1149,8 @@ function finalizarEntrenamiento(){
   const hoy=fechaLocalISO(),fecha=meta.fecha||hoy;
   if(fecha>hoy){if(!confirm(`Este entrenamiento está fechado para ${fecha}. Se guardará completo en Planificación y no en el historial hasta que llegue ese día. ¿Continuar?`))return;if(guardarSesionEnPlanificacion(true))alert('📅 Entrenamiento guardado en Planificación. Cuando llegue el día podrás abrirlo normalmente.');return}
   if(!confirm('¿Finalizar este entrenamiento? Se marcará como realizado en Planificación y se guardará en Entrenamientos.'))return;
-  const ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);const duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0),planVinculado=buscarPlanCompatibleSesion(fecha,meta.planificacionId),planId=planVinculado?planVinculado.id:null,historialId=Date.now(),pizarra=serializarPizarra();
-  historial.unshift({id:historialId,...clonar(meta),planificacionId:planId,duracion,pizarra,ejercicios:ejercicios.map(snapshotEjercicioCompleto)});
+  const ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);const duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0),planVinculado=buscarPlanCompatibleSesion(fecha,meta.planificacionId),planId=planVinculado?planVinculado.id:null,historialId=Date.now();
+  historial.unshift({id:historialId,...clonar(meta),calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notasBloques:clonar(mapaNotasBloques()),planificacionId:planId,duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)});
   if(planId){const posPlan=planificacion.findIndex(p=>p.id===planId);if(posPlan>=0){const sesionRealizada=construirPlanSesion(planId);planificacion[posPlan]={...planificacion[posPlan],...sesionRealizada,realizado:true,realizadoEn:new Date().toISOString(),historialId};}}
   reiniciarSesionActual();renderHistorial();renderStats();renderPlanificacion();
   alert(planId?'✅ Entrenamiento guardado en Entrenamientos y marcado como realizado en Planificación.':'✅ Entrenamiento guardado en Entrenamientos. No había una planificación de ese día que pudiera vincularse con seguridad.');
@@ -1020,12 +1158,12 @@ function finalizarEntrenamiento(){
 function fundamentosSesion(h){
   const fs=[];(h.ejercicios||[]).forEach(e=>normalizarFundamentos(e).forEach(f=>{if(!fs.includes(f))fs.push(f)}));return fs;
 }
-function notasBloquesHistorial(h){const notas=h&&h.notasBloques&&typeof h.notasBloques==='object'?h.notasBloques:{};return Object.keys(SECCIONES_ENTRENO).map(slug=>{const txt=String(notas[slug]||'').trim();return txt?`<p><b>${esc(SECCIONES_ENTRENO[slug].titulo)}:</b> ${esc(txt)}</p>`:''}).join('')}
+function notasBloquesHistorial(h){const notas=normalizarNotasEntreno(h?.notasBloques||{},h?.calentamiento||'');return ORDEN_SECCIONES_ENTRENO.map(slug=>{const txt=String(notas[slug]||'').trim();return txt?`<p><b>${esc(SECCIONES_ENTRENO[slug].titulo)}:</b> ${esc(txt)}</p>`:''}).join('')}
 function toggleTrainingDetail(team,id){const el=$('training-'+team+'-'+id);if(el)el.classList.toggle('open')}
 function repetirSesionEquipo(team,id){
   if(team!==equipoActivo)cambiarEquipo(team);
   let h=historial.find(x=>x.id===id);if(!h)return;
-  sesionActual=h.ejercicios.map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));const secciones={};(h.ejercicios||[]).forEach(x=>{if(x.id!=null&&sesionActual.includes(x.id))secciones[String(x.id)]=x.seccionSesion||seccionNaturalEjercicio(baseDeDatos.find(e=>e.id===x.id))});meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:h.jugadores||'',intensidad:h.intensidad||'Media',objetivo:h.objetivo||'',calentamiento:h.calentamiento||'',notas:'',seccionesEjercicios:secciones,notasBloques:clonar(h.notasBloques||{}),planificacionId:null};save();cargarMeta();renderizarSesion();filtrarEjercicios();if(h.pizarra){setTimeout(()=>aplicarPizarra(h.pizarra),100)}document.querySelectorAll('.tab-btn')[0].click();
+  sesionActual=h.ejercicios.map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));const secciones={};(h.ejercicios||[]).forEach(x=>{if(x.id!=null&&sesionActual.includes(x.id))secciones[String(x.id)]=normalizarSeccionEntreno(x.seccionSesion,baseDeDatos.find(e=>e.id===x.id))});meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:h.jugadores||'',duracionObjetivo:h.duracionObjetivo||'',intensidad:h.intensidad||'Media',objetivo:h.objetivo||'',calentamiento:h.calentamiento||'',notas:'',seccionesEjercicios:secciones,notasBloques:normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||''),planificacionId:null};save();cargarMeta();renderizarSesion();filtrarEjercicios();document.querySelectorAll('.tab-btn')[0].click();
 }
 function borrarHistorialEquipo(team){
   if(!confirm('¿Borrar todo el historial de '+EQUIPOS[team].nombre+'?'))return;
@@ -1168,11 +1306,11 @@ function generarPDFEntrenamiento(h,equipoNombre){
     campo('Jugadores',h.jugadores||'-',{size:9.6,after:1});
     campo('Intensidad',h.intensidad||'Media',{size:9.6,after:1});
     campo('Objetivo',h.objetivo||'-',{size:9.6,after:1});
-    campo('Calentamiento',h.calentamiento||'-',{size:9.6,after:3});
+    if(Number(h.duracionObjetivo)||0)campo('Objetivo de tiempo',`${Number(h.duracionObjetivo)} min`,{size:9.6,after:3});
 
-    const orden=['controles','analiticos','especificos','desarrollo','reducidos','juego'],grupos=ejerciciosPorBloques(h.ejercicios||[]),notas=h.notasBloques&&typeof h.notasBloques==='object'?h.notasBloques:{};
+    const orden=ORDEN_SECCIONES_ENTRENO,grupos=ejerciciosPorBloques(h.ejercicios||[]),notas=normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||'');
     let contador=0;
-    orden.forEach(slug=>{const items=grupos[slug]||[],nota=limpiarTextoPDF(notas[slug]);if(!items.length&&!nota)return;bloqueTitulo(SECCIONES_ENTRENO[slug]?.titulo||slug);notaBloque(nota);items.forEach(e=>ejercicio(e,++contador))});
+    orden.forEach(slug=>{const items=grupos[slug]||[],nota=limpiarTextoPDF(notas[slug]);if(!items.length&&!nota)return;bloqueTitulo(`${SECCIONES_ENTRENO[slug]?.numero||''} ${SECCIONES_ENTRENO[slug]?.titulo||slug}`.trim());notaBloque(nota);items.forEach(e=>ejercicio(e,++contador))});
     if(limpiarTextoPDF(h.notas)){bloqueTitulo('Notas del entrenador');setNormal(9.4);const ls=pdf.splitTextToSize(limpiarTextoPDF(h.notas),W-M*2);ls.forEach(t=>{asegurar(LH);pdf.text(t,M,y);y+=LH})}
 
     const total=pdf.getNumberOfPages(),fecha=limpiarTextoPDF(h.fecha)||fechaLocalISO();
@@ -1182,20 +1320,18 @@ function generarPDFEntrenamiento(h,equipoNombre){
   }catch(err){console.error(err);alert('No se pudo generar el PDF. Comprueba la conexión e inténtalo de nuevo.')}
 }
 
-const canvas=$('pizarra'),ctx=canvas.getContext('2d',{willReadFrequently:true}),wrapper=$('canvas-wrapper');let drawing=false,startX=0,startY=0,currentTool='pencil',currentColor='#1f2937',snapshot=null,undoStack=[];function resizeCanvas(){let old=document.createElement('canvas');old.width=canvas.width;old.height=canvas.height;if(old.width&&old.height)old.getContext('2d').drawImage(canvas,0,0);canvas.width=wrapper.clientWidth;canvas.height=wrapper.clientHeight;if(old.width&&old.height)ctx.drawImage(old,0,0,canvas.width,canvas.height)}window.addEventListener('resize',resizeCanvas);setTimeout(resizeCanvas,50);
-function pos(e){let r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)}}function pushUndo(){undoStack.push(canvas.toDataURL());if(undoStack.length>20)undoStack.shift()}function restore(url){let im=new Image();im.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(im,0,0,canvas.width,canvas.height)};im.src=url}function setTool(t,b){currentTool=t;document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));b.classList.add('active')}function setColor(c,b){currentColor=c;document.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('active'));b.classList.add('active')}function startDraw(e){if(e.button!==undefined&&e.button!==0)return;drawing=true;pushUndo();let p=pos(e);startX=p.x;startY=p.y;snapshot=ctx.getImageData(0,0,canvas.width,canvas.height);ctx.beginPath();ctx.moveTo(p.x,p.y)}function draw(e){if(!drawing)return;let p=pos(e);ctx.lineWidth=currentTool==='eraser'?18:4;ctx.lineCap='round';ctx.strokeStyle=currentTool==='eraser'?'#f3b06a':currentColor;if(currentTool==='pencil'||currentTool==='eraser'){ctx.lineTo(p.x,p.y);ctx.stroke();ctx.beginPath();ctx.moveTo(p.x,p.y)}else if(currentTool==='arrow'){ctx.putImageData(snapshot,0,0);ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(p.x,p.y);let a=Math.atan2(p.y-startY,p.x-startX),h=14;ctx.lineTo(p.x-h*Math.cos(a-Math.PI/6),p.y-h*Math.sin(a-Math.PI/6));ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-h*Math.cos(a+Math.PI/6),p.y-h*Math.sin(a+Math.PI/6));ctx.strokeStyle=currentColor;ctx.stroke()}}function endDraw(){drawing=false}canvas.addEventListener('pointerdown',startDraw);canvas.addEventListener('pointermove',draw);canvas.addEventListener('pointerup',endDraw);canvas.addEventListener('pointerleave',endDraw);function deshacer(){let u=undoStack.pop();if(u)restore(u)}function limpiarPizarra(){ctx.clearRect(0,0,canvas.width,canvas.height);$('object-layer').innerHTML='';undoStack=[]}function togglePista(){wrapper.classList.toggle('full');wrapper.classList.toggle('half');resizeCanvas()}function toggleZoneGrid(){const grid=$('zone-grid'),btn=$('zone-toggle');grid.classList.toggle('hidden-grid');btn.classList.toggle('active',!grid.classList.contains('hidden-grid'))}function toggleSubzones(){const grid=$('zone-grid'),btn=$('subzone-toggle');grid.classList.toggle('hide-subzones');btn.classList.toggle('active',!grid.classList.contains('hide-subzones'))}
-let playerNum=1;function addObject(type){let el=document.createElement('div');el.className='board-object '+type;if(type==='player')el.textContent=playerNum++>6?playerNum=1:playerNum-1;if(type==='ball')el.textContent='🏐';if(type==='cone')el.textContent='🔺';el.style.left='50%';el.style.top='50%';makeDraggable(el);$('object-layer').appendChild(el)}function addTextObject(){let t=prompt('Texto:');if(!t)return;let el=document.createElement('div');el.className='board-object text';el.textContent=t;el.style.left='50%';el.style.top='50%';makeDraggable(el);$('object-layer').appendChild(el)}function makeDraggable(el){let active=false,ox=0,oy=0;el.onpointerdown=e=>{active=true;let r=wrapper.getBoundingClientRect();ox=e.clientX-r.left-parseFloat(el.style.left)/100*r.width;oy=e.clientY-r.top-parseFloat(el.style.top)/100*r.height;el.setPointerCapture(e.pointerId)};el.onpointermove=e=>{if(!active)return;let r=wrapper.getBoundingClientRect(),x=(e.clientX-r.left-ox)/r.width*100,y=(e.clientY-r.top-oy)/r.height*100;el.style.left=Math.max(0,Math.min(100,x))+'%';el.style.top=Math.max(0,Math.min(100,y))+'%'};el.onpointerup=()=>active=false;el.ondblclick=()=>el.remove()}
-
-
-function serializarPizarra(){return {canvas:canvas.toDataURL(),pista:wrapper.classList.contains('half')?'half':'full',objetos:[...$('object-layer').children].map(el=>({type:[...el.classList].find(c=>['player','ball','cone','text'].includes(c))||'text',text:el.textContent,left:el.style.left,top:el.style.top}))}}
-function aplicarPizarra(data){if(!data)return;wrapper.classList.remove('full','half');wrapper.classList.add(data.pista||'full');$('object-layer').innerHTML='';(data.objetos||[]).forEach(o=>{let el=document.createElement('div');el.className='board-object '+o.type;el.textContent=o.text;el.style.left=o.left;el.style.top=o.top;makeDraggable(el);$('object-layer').appendChild(el)});if(data.canvas)restore(data.canvas)}
-function guardarPizarraSesion(){meta.pizarra=serializarPizarra();save();alert('Pizarra de la sesión guardada.')}
-function cargarPizarraSesion(){if(meta.pizarra)aplicarPizarra(meta.pizarra);else alert('Esta sesión todavía no tiene una pizarra guardada.')}
-function marcarPizarraParaEjercicio(){pizarraParaEjercicio=serializarPizarra();alert('La pizarra actual se asociará al ejercicio al guardarlo.')}
-function cargarPizarraEjercicio(id){let e=baseDeDatos.find(x=>x.id===id);if(!e||!e.pizarra)return;aplicarPizarra(e.pizarra);document.querySelectorAll('.tab-btn')[0].click()}
+// Pizarra táctica eliminada de la interfaz.
+// Se mantienen estas funciones vacías para compatibilidad con sesiones antiguas guardadas en local/Supabase.
+function serializarPizarra(){return null}
+function aplicarPizarra(){return}
+function limpiarPizarra(){return}
+function guardarPizarraSesion(){return}
+function cargarPizarraSesion(){return}
+function marcarPizarraParaEjercicio(){return}
+function cargarPizarraEjercicio(){return}
 function lunesDeSemana(d){let x=new Date(d);let day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}
 function isoDate(d){return fechaLocalISO(d)}
-function guardarPlan(){let fecha=$('plan-fecha').value;if(!fecha){alert('Selecciona una fecha.');return}planificacion.push({id:Date.now(),fecha,equipo:EQUIPOS[equipoActivo].nombre,objetivo:$('plan-objetivo').value.trim(),duracion:+$('plan-duracion').value||0,intensidad:$('plan-intensidad').value,ejercicios:[],notasBloques:{},seccionesEjercicios:{},realizado:false,historialId:null});save();renderPlanificacion();renderAvisoPlanHoy();['plan-objetivo','plan-duracion'].forEach(id=>$(id).value='');$('plan-equipo').value=EQUIPOS[equipoActivo].nombre}
+function guardarPlan(){let fecha=$('plan-fecha').value;if(!fecha){alert('Selecciona una fecha.');return}planificacion.push({id:Date.now(),fecha,equipo:EQUIPOS[equipoActivo].nombre,objetivo:$('plan-objetivo').value.trim(),duracion:+$('plan-duracion').value||0,duracionObjetivo:+$('plan-duracion').value||0,intensidad:$('plan-intensidad').value,ejercicios:[],notasBloques:{},seccionesEjercicios:{},realizado:false,historialId:null});save();renderPlanificacion();renderAvisoPlanHoy();['plan-objetivo','plan-duracion'].forEach(id=>$(id).value='');$('plan-equipo').value=EQUIPOS[equipoActivo].nombre}
 function cambiarSemana(n){semanaBase.setDate(semanaBase.getDate()+n);renderPlanificacion()}
 function eliminarPlan(id){if(meta.planificacionId===id)meta.planificacionId=null;planificacion=planificacion.filter(x=>x.id!==id);save();renderPlanificacion();renderAvisoPlanHoy()}
 function usarPlan(id){
@@ -1203,9 +1339,9 @@ function usarPlan(id){
   const ids=(p.ejercicios||[]).map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));
   if((p.ejercicios||[]).length&&ids.length<(p.ejercicios||[]).length)alert('Algún ejercicio de esta planificación ya no existe en la biblioteca y no se ha podido cargar.');
   sesionActual=ids;
-  const secciones=clonar(p.seccionesEjercicios||{});(p.ejercicios||[]).forEach(x=>{if(x.id!=null&&ids.includes(x.id)&&!secciones[String(x.id)])secciones[String(x.id)]=x.seccionSesion||seccionNaturalEjercicio(enriquecerEjercicioGuardado(x))});
-  meta={fecha:esRealizado?fechaLocalISO():(p.fecha||fechaLocalISO()),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:clonar(p.notasBloques||{}),planificacionId:esRealizado?null:p.id,pizarra:p.pizarra||null};
-  save();cargarMeta();renderizarSesion();filtrarEjercicios();showView('entrenamiento',botonVista('entrenamiento'));if(p.pizarra)setTimeout(()=>aplicarPizarra(p.pizarra),100);window.scrollTo({top:0,behavior:'smooth'});if(esRealizado)setTimeout(()=>alert('Este entrenamiento ya estaba realizado. Se ha abierto como una copia nueva y la planificación original seguirá guardada.'),80);
+  const secciones=normalizarMapaSecciones(clonar(p.seccionesEjercicios||{}));(p.ejercicios||[]).forEach(x=>{if(x.id!=null&&ids.includes(x.id)&&!secciones[String(x.id)])secciones[String(x.id)]=normalizarSeccionEntreno(x.seccionSesion,enriquecerEjercicioGuardado(x))});
+  meta={fecha:esRealizado?fechaLocalISO():(p.fecha||fechaLocalISO()),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',duracionObjetivo:p.duracionObjetivo||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||''),planificacionId:esRealizado?null:p.id,pizarra:null};
+  save();cargarMeta();renderizarSesion();filtrarEjercicios();showView('entrenamiento',botonVista('entrenamiento'));window.scrollTo({top:0,behavior:'smooth'});if(esRealizado)setTimeout(()=>alert('Este entrenamiento ya estaba realizado. Se ha abierto como una copia nueva y la planificación original seguirá guardada.'),80);
 }
 function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],hoy=fechaLocalISO();$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>{const n=(p.ejercicios||[]).length,actual=meta.planificacionId===p.id,realizado=!!p.realizado,pasado=fecha<hoy,lista=n?`<div class="plan-exercise-list"><b>Ejercicios:</b>${(p.ejercicios||[]).map((e,j)=>`<div>${j+1}. ${esc(e.nombre||'Ejercicio')}</div>`).join('')}</div>`:'',estado=realizado?` <span class="plan-done-badge">✓ Realizado${p.archivadoAutomaticamente?' · archivado automáticamente':''}</span>`:(actual?' <span class="plan-current-badge">Abierto</span>':(pasado?' <span class="plan-pending-badge">Pendiente de confirmar</span>':'')),acciones=realizado?`<button class="primary" onclick="verPlanEnEntrenamientos(${p.id})">Ver en Entrenamientos</button><button class="ghost" onclick="usarPlan(${p.id})">Reutilizar</button>`:`<button class="ghost" onclick="usarPlan(${p.id})">Abrir entrenamiento</button>${fecha<=hoy?`<button class="success" onclick="marcarPlanRealizado(${p.id})">✓ Marcar realizado</button>`:''}`;return `<div class="plan-item${realizado?' plan-done':(pasado?' plan-pending':'')}"><b>${esc(p.equipo||'Sesión')}</b>${estado}<br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad||'Media')}${n?' · '+n+' ejercicios':''}</span>${lista}<div class="actions" style="margin-top:6px">${acciones}<button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`}).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('');renderAvisoPlanHoy()}
 
@@ -1266,6 +1402,7 @@ function archivarPlanificacionesPasadasEnEquipo(datos,teamId){
       fecha:p.fecha,
       equipo:p.equipo||(EQUIPOS[teamId]?EQUIPOS[teamId].nombre:'Equipo'),
       jugadores:p.jugadores||'',
+      duracionObjetivo:p.duracionObjetivo||'',
       intensidad:p.intensidad||'Media',
       objetivo:p.objetivo||'',
       calentamiento:p.calentamiento||'',
