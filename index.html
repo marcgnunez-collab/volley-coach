@@ -483,7 +483,7 @@ main{max-width:1460px!important;padding-bottom:60px!important}.app-toolbar{displ
 
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.5 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.6 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -1438,39 +1438,60 @@ function repetirSesionEquipo(team,id){
   sesionActual=h.ejercicios.map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));const secciones={};(h.ejercicios||[]).forEach(x=>{if(x.id!=null&&sesionActual.includes(x.id))secciones[String(x.id)]=normalizarSeccionEntreno(x.seccionSesion,baseDeDatos.find(e=>e.id===x.id))});meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:h.jugadores||'',duracionObjetivo:h.duracionObjetivo||'',intensidad:h.intensidad||'Media',objetivo:h.objetivo||'',calentamiento:h.calentamiento||'',notas:'',seccionesEjercicios:secciones,notasBloques:normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||''),planificacionId:null};save();cargarMeta();renderizarSesion();filtrarEjercicios();document.querySelectorAll('.tab-btn')[0].click();
 }
 function borrarHistorialEquipo(team){
+  // Compatibilidad interna: el historial completo ya no se borra desde la interfaz.
   if(!confirm('¿Borrar todo el historial de '+EQUIPOS[team].nombre+'?'))return;
   if(team===equipoActivo){historial=[];save();}else{equiposData[team].historial=[];guardarEstadoLocalSinCloud();programarSubidaCloud();}
-  renderHistorial();renderStats();
+  renderHistorial();renderStats();renderDashboard();
 }
-function borrarEjercicioHistorialEquipo(team,entrenamientoId,indiceEjercicio){
+function borrarEntrenamientoHistorialEquipo(team,entrenamientoId){
   if(!EQUIPOS[team])return;
   guardarEquipoEnMemoria();
-  const hs=team===equipoActivo?historial:(equiposData?.[team]?.historial||[]);
-  const h=hs.find(x=>Number(x.id)===Number(entrenamientoId));
-  if(!h||!Array.isArray(h.ejercicios))return;
-  const indice=Number(indiceEjercicio),e=h.ejercicios[indice];
-  if(!e)return;
-  const nombre=e.nombre||'Ejercicio';
-  if(!confirm(`¿Eliminar "${nombre}" solo de este entrenamiento del historial?\n\nNo se borrará de la biblioteca ni del resto de entrenamientos.`))return;
-  h.ejercicios.splice(indice,1);
-  h.duracion=h.ejercicios.reduce((a,x)=>a+(Number(x.tiempo)||0),0);
-  if(e.id!=null){
+  const datos=equiposData?.[team];
+  if(!datos)return;
+  const hs=Array.isArray(datos.historial)?datos.historial:[];
+  const idx=hs.findIndex(x=>Number(x.id)===Number(entrenamientoId));
+  if(idx<0)return;
+  const h=hs[idx];
+  const fecha=h.fecha||'sin fecha';
+  const objetivo=String(h.objetivo||'').trim();
+  const descripcion=objetivo?`\n${objetivo}`:'';
+  if(!confirm(`¿Eliminar el entrenamiento del ${fecha} del historial?${descripcion}\n\nSe eliminará solo este entrenamiento. Los ejercicios seguirán en la Biblioteca y el resto del historial no se modificará.`))return;
+
+  // Si estaba vinculado a una planificación, mantenemos esa planificación visible como realizada,
+  // pero registramos que su entrada del historial fue eliminada para que el archivado automático
+  // no vuelva a crearla al abrir la aplicación otro día.
+  const planes=Array.isArray(datos.planificacion)?datos.planificacion:[];
+  planes.forEach(p=>{
+    const vinculado=Number(p.historialId)===Number(h.id)||Number(p.id)===Number(h.planificacionId);
+    if(vinculado){
+      p.historialId=null;
+      p.historialEliminado=true;
+      if(p.realizado!==true)p.realizado=true;
+    }
+  });
+
+  // Ajusta el contador de usos únicamente si este historial representaba una sesión real guardada.
+  (h.ejercicios||[]).forEach(e=>{
+    if(e?.id==null)return;
     const vivo=baseDeDatos.find(x=>Number(x.id)===Number(e.id));
     if(vivo&&Number(vivo.usos)>0)vivo.usos=Math.max(0,Number(vivo.usos)-1);
-  }
+  });
+
+  hs.splice(idx,1);
+  datos.historial=hs;
+  datos.planificacion=planes;
   if(team===equipoActivo){
-    historial=hs;
-    guardarEquipoEnMemoria();
-  }else if(equiposData?.[team]){
-    equiposData[team].historial=hs;
+    historial=clonar(hs);
+    planificacion=clonar(planes);
   }
   guardarEstadoLocalSinCloud();
-  if($('biblioteca-total-big'))renderConteoBiblioteca();
   programarSubidaCloud();
   renderHistorial();
+  renderPlanificacion();
   renderStats();
   renderDashboard();
-  if($('save-indicator'))$('save-indicator').textContent='✓ Ejercicio eliminado solo de ese entrenamiento';
+  renderAvisoPlanHoy();
+  if($('save-indicator'))$('save-indicator').textContent='✓ Entrenamiento eliminado del historial';
 }
 function renderHistorial(){
   guardarEquipoEnMemoria();
@@ -1478,8 +1499,8 @@ function renderHistorial(){
     const hs=clonar(equiposData?.[team]?.historial||[]).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
     const items=hs.map(h=>{
       const fs=fundamentosSesion(h),trabajo=fs.length?fs.join(' · '):(h.objetivo||'Sin contenido indicado');
-      const detalle=entrenamientoEstructuradoHTML(h,(e,indice)=>`<button class="history-exercise-delete" onclick="event.stopPropagation();borrarEjercicioHistorialEquipo('${team}',${h.id},${indice})">Eliminar de este entrenamiento</button>`);
-      return `<div class="training-simple-item" onclick="toggleTrainingDetail('${team}',${h.id})"><div class="training-simple-top"><div><div class="training-date">${esc(h.fecha||'Sin fecha')}</div><div class="training-work">${esc(trabajo)}</div></div><span class="small">${h.duracion||0} min</span></div><div id="training-${team}-${h.id}" class="training-detail">${detalle}<div class="actions" style="margin-top:10px"><button class="ghost" onclick="event.stopPropagation();exportarPDFGuardado('${team}',${h.id})">📄 Exportar PDF</button><button class="primary" onclick="event.stopPropagation();repetirSesionEquipo('${team}',${h.id})">Repetir entrenamiento</button></div></div></div>`;
+      const detalle=entrenamientoEstructuradoHTML(h);
+      return `<div class="training-simple-item" onclick="toggleTrainingDetail('${team}',${h.id})"><div class="training-simple-top"><div><div class="training-date">${esc(h.fecha||'Sin fecha')}</div><div class="training-work">${esc(trabajo)}</div></div><span class="small">${h.duracion||0} min</span></div><div id="training-${team}-${h.id}" class="training-detail">${detalle}<div class="actions" style="margin-top:10px"><button class="ghost" onclick="event.stopPropagation();exportarPDFGuardado('${team}',${h.id})">📄 Exportar PDF</button><button class="primary" onclick="event.stopPropagation();repetirSesionEquipo('${team}',${h.id})">Repetir entrenamiento</button><button class="danger" onclick="event.stopPropagation();borrarEntrenamientoHistorialEquipo('${team}',${h.id})">Eliminar entrenamiento</button></div></div></div>`;
     }).join('')||'<div class="empty">Aún no hay entrenamientos guardados.</div>';
     const totalEjercicios=hs.reduce((a,h)=>a+(Array.isArray(h.ejercicios)?h.ejercicios.length:0),0);
     return `<div class="team-training-column"><div class="team-training-column-head"><h3>${esc(EQUIPOS[team].nombre)}</h3><span class="history-team-count">${hs.length} entrenamientos · ${totalEjercicios} ejercicios</span></div><div class="training-simple-list">${items}</div></div>`;
@@ -1699,6 +1720,7 @@ function archivarPlanificacionesPasadasEnEquipo(datos,teamId){
   const nuevoHistorialId=()=>{while(idsHist.has(nextId))nextId++;idsHist.add(nextId);return nextId++};
   planes.forEach(p=>{
     if(!p||!p.fecha||String(p.fecha)>=hoy)return;
+    if(p.historialEliminado===true)return;
     let h=p.historialId?hs.find(x=>Number(x.id)===Number(p.historialId)):null;
     if(!h)h=hs.find(x=>Number(x.planificacionId)===Number(p.id));
     if(!h){
@@ -1903,7 +1925,7 @@ window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)bajarNube(false)}});
 
 
-// ===== V5.8.5 CLOUD LIBRARY : biblioteca independiente del código =====
+// ===== V5.8.6 CLOUD LIBRARY : biblioteca independiente del código + borrado individual de entrenamientos =====
 // ===== V5.8 PROFESSIONAL+ : resumen, planificación, biblioteca, plantillas y PDF =====
 let vistaPlanificacion='semana';
 let vistaBiblioteca='compacta';
@@ -2093,7 +2115,7 @@ document.addEventListener('pointerdown',event=>{
 if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
 if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
 actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderDashboard();programarArchivadoAlCambiarDia();actualizarEstadoBibliotecaUI();initCloud();
-renderConteoBiblioteca(); // V5.8.5 conteo real de la biblioteca persistente
+renderConteoBiblioteca(); // V5.8.6 conteo real de la biblioteca persistente
 
 </script>
 
