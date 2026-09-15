@@ -483,7 +483,7 @@ main{max-width:1460px!important;padding-bottom:60px!important}.app-toolbar{displ
 
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.6 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.7 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -1925,7 +1925,7 @@ window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)bajarNube(false)}});
 
 
-// ===== V5.8.6 CLOUD LIBRARY : biblioteca independiente del código + borrado individual de entrenamientos =====
+// ===== V5.8.7 CLOUD LIBRARY : biblioteca independiente + PDF con porcentajes robustos =====
 // ===== V5.8 PROFESSIONAL+ : resumen, planificación, biblioteca, plantillas y PDF =====
 let vistaPlanificacion='semana';
 let vistaBiblioteca='compacta';
@@ -2036,15 +2036,44 @@ function generarPDFEntrenamiento(h,equipoNombre){
     const txt=(v)=>limpiarTextoPDF(v);
     const campo=(lab,val,op={})=>{const t=txt(val)||'-',sz=op.size||9.2,x=op.x||M,right=op.right||W-M;bold(sz);const lw=pdf.getTextWidth(lab+': '),vx=x+lw,max=Math.max(24,right-vx);normal(sz);const ls=pdf.splitTextToSize(t,max);ls.forEach((l,i)=>{aseg(LH+1);if(i===0){bold(sz);pdf.text(lab+':',x,y);normal(sz);pdf.text(l,vx,y)}else pdf.text(l,vx,y);y+=LH});y+=op.after??1.2};
     const footer=(page,total)=>{pdf.setPage(page);normal(7.7,muted);pdf.text(`Volley Coach · ${txt(equipoNombre||h.equipo||'Equipo')} · ${txt(h.fecha)||fechaLocalISO()} · ${page}/${total}`,M,H-6)};
-    const lista=h.ejercicios||[],fund=fundamentosConMinutos(lista),vals=Object.entries(fund).sort((a,b)=>b[1]-a[1]),sum=vals.reduce((a,x)=>a+x[1],0)||1;
+    // Resumen robusto: recupera los fundamentos desde la biblioteca si el historial es antiguo
+    // y, si los ejercicios no tienen minutos asignados, calcula el reparto por peso de ejercicios.
+    const lista=(h.ejercicios||[]).map(e=>{
+      if(e!=null&&(typeof e==='number'||typeof e==='string')){
+        return baseDeDatos.find(x=>Number(x.id)===Number(e))||{id:Number(e)};
+      }
+      return enriquecerEjercicioGuardado(e);
+    });
+    let fund=fundamentosConMinutos(lista);
+    let vals=Object.entries(fund).filter(([,v])=>Number(v)>0).sort((a,b)=>b[1]-a[1]);
+    let sum=vals.reduce((a,x)=>a+Number(x[1]||0),0);
+    if(!(sum>0)){
+      fund={};
+      lista.forEach(e=>{
+        const fs=normalizarFundamentos(e);
+        if(!fs.length)return;
+        const peso=1/fs.length;
+        fs.forEach(f=>fund[f]=(fund[f]||0)+peso);
+      });
+      vals=Object.entries(fund).filter(([,v])=>Number(v)>0).sort((a,b)=>b[1]-a[1]);
+      sum=vals.reduce((a,x)=>a+Number(x[1]||0),0);
+    }
+    if(!(sum>0))sum=1;
     // Portada
     pdf.setFillColor(...navy);pdf.rect(0,0,W,43,'F');bold(8,[210,221,230]);pdf.text('VOLLEY COACH · DOSSIER DE ENTRENAMIENTO',M,14);bold(23,[255,255,255]);pdf.text(txt(equipoNombre||h.equipo||'Equipo'),M,25);normal(10,[210,221,230]);pdf.text(txt(h.fecha)||fechaLocalISO(),M,33);y=55;
     bold(9,muted);pdf.text('OBJETIVO PRINCIPAL',M,y);y+=6;bold(15,navy);const obj=pdf.splitTextToSize(txt(h.objetivo)||'Sesión de entrenamiento',W-M*2);pdf.text(obj,M,y);y+=obj.length*6+7;
     const metrics=[['Duración',`${Number(h.duracion)||minutosListaEjercicios(lista)} min`],['Asistentes',txt(h.jugadores)||'—'],['Intensidad',txt(h.intensidad)||'Media'],['Ejercicios',String(lista.length)]];
     const gap=3,cw=(W-M*2-gap*3)/4;metrics.forEach(([a,b],i)=>{const x=M+i*(cw+gap);pdf.setFillColor(...light);pdf.roundedRect(x,y,cw,20,2,2,'F');normal(7.5,muted);pdf.text(a.toUpperCase(),x+4,y+6);bold(12,navy);pdf.text(b,x+4,y+14)});y+=29;
     bold(9,muted);pdf.text('RESUMEN DE CONTENIDOS',M,y);y+=7;
-    const visual=[...vals.slice(0,4)];const other=vals.slice(4).reduce((a,x)=>a+x[1],0);if(other)visual.push(['Otros',other]);
-    visual.forEach(([f,m],i)=>{const pct=Math.round(m/sum*100);normal(9,navy);pdf.text(`${f} · ${pct}%`,M,y);const bx=M+47,bw=W-M-bx;pdf.setFillColor(233,237,240);pdf.roundedRect(bx,y-3,bw,4,2,2,'F');pdf.setFillColor(...(i===0?navy2:i===1?orange:i===2?green:[132,151,166]));pdf.roundedRect(bx,y-3,Math.max(2,bw*pct/100),4,2,2,'F');y+=8});
+    const visual=[...vals.slice(0,4)];const other=vals.slice(4).reduce((a,x)=>a+Number(x[1]||0),0);if(other>0)visual.push(['Otros',other]);
+    if(!visual.length){
+      normal(9,muted);pdf.text('Sin fundamentos registrados en los ejercicios de esta sesión.',M,y);y+=8;
+    }else{
+      const raw=visual.map(([,m])=>Number(m||0)/sum*100),pct=raw.map(Math.floor);
+      let faltan=100-pct.reduce((a,b)=>a+b,0);
+      raw.map((v,i)=>[i,v-Math.floor(v)]).sort((a,b)=>b[1]-a[1]).forEach(([i])=>{if(faltan>0){pct[i]++;faltan--}});
+      visual.forEach(([f,m],i)=>{const p=pct[i]||0;normal(9,navy);pdf.text(`${f} · ${p}%`,M,y);const bx=M+47,bw=W-M-bx;pdf.setFillColor(233,237,240);pdf.roundedRect(bx,y-3,bw,4,2,2,'F');pdf.setFillColor(...(i===0?navy2:i===1?orange:i===2?green:[132,151,166]));pdf.roundedRect(bx,y-3,Math.max(2,bw*p/100),4,2,2,'F');y+=8});
+    }
     y+=4;bold(9,muted);pdf.text('ESTRUCTURA',M,y);y+=7;const grupos=ejerciciosPorBloques(lista);ORDEN_SECCIONES_ENTRENO.forEach(slug=>{const items=grupos[slug]||[],mins=minutosListaEjercicios(items);if(!items.length&&!txt((h.notasBloques||{})[slug]))return;normal(9.2,navy);pdf.text(`${SECCIONES_ENTRENO[slug].numero}  ${SECCIONES_ENTRENO[slug].titulo}`,M,y);bold(9.2,navy);pdf.text(`${items.length} ej. · ${mins} min`,W-M,y,{align:'right'});y+=7});
     normal(8,muted);pdf.text('Documento generado desde Volley Coach',M,H-15);
     // Cuerpo
@@ -2115,7 +2144,7 @@ document.addEventListener('pointerdown',event=>{
 if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
 if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
 actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderDashboard();programarArchivadoAlCambiarDia();actualizarEstadoBibliotecaUI();initCloud();
-renderConteoBiblioteca(); // V5.8.6 conteo real de la biblioteca persistente
+renderConteoBiblioteca(); // V5.8.7 conteo real de la biblioteca persistente
 
 </script>
 
