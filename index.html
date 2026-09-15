@@ -128,7 +128,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
 @media(max-width:640px){.similarity-names{grid-template-columns:1fr}.similarity-vs{text-align:center}.similarity-card{padding:15px}}
 
 /* V5.5 · filtro múltiple de fundamentos */
-/* V5.5 · planificación + historial vinculados: al completar una sesión, la planificación queda realizada y se archiva en Entrenamientos */
+/* V5.5 · planificación + historial vinculados + archivado automático al finalizar el día */
 .filter-multi{position:relative;min-width:190px;font-family:Arial,"Helvetica Neue",sans-serif}
 .filter-multi>summary{list-style:none;width:100%;padding:10px 30px 10px 11px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer;font-size:13px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .filter-multi>summary::-webkit-details-marker{display:none}.filter-multi>summary:after{content:"▾";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#687386}.filter-multi[open]>summary:after{content:"▴"}
@@ -342,7 +342,7 @@ header{padding-top:max(17px,env(safe-area-inset-top))!important;}
 </style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.5 · 528 · PLANIFICACIÓN + HISTORIAL</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.5 · 528 · PDF CON CAMPO</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -752,6 +752,7 @@ function cargarEstadoLocal(){
   aplicarLimpiezaRecepcionV1();
   aplicarLimpiezaColocacionV1();
   aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();
+  archivarPlanificacionesPasadasEnEquiposData();
   guardarEstadoLocalSinCloud();
 }
 function guardarEstadoLocalSinCloud(){
@@ -1120,7 +1121,7 @@ function generarPDFEntrenamiento(h,equipoNombre){
     const linea=()=>{pdf.setDrawColor(...navy);pdf.setLineWidth(.45);pdf.line(M,y,W-M,y);y+=5};
     const campo=(etiqueta,valor,op={})=>{
       const txt=limpiarTextoPDF(valor)||'-',tam=op.size||9.5,indent=op.indent||0;
-      setBold(tam);const lab=etiqueta+':',x=M+indent,labelW=pdf.getTextWidth(lab+' '),valueX=x+labelW,maxW=Math.max(25,W-M-valueX);
+      setBold(tam);const lab=etiqueta+':',x=M+indent,labelW=pdf.getTextWidth(lab+' '),valueX=x+labelW,right=Number.isFinite(op.right)?op.right:(W-M),maxW=Math.max(25,right-valueX);
       setNormal(tam);const lines=pdf.splitTextToSize(txt,maxW);
       for(let i=0;i<lines.length;i++){
         asegurar(LH+1);
@@ -1131,16 +1132,31 @@ function generarPDFEntrenamiento(h,equipoNombre){
     };
     const bloqueTitulo=titulo=>{asegurar(11);setBold(13.5);pdf.text(limpiarTextoPDF(titulo),M,y);y+=3.5;pdf.setDrawColor(...line);pdf.setLineWidth(.25);pdf.line(M,y,W-M,y);y+=5.5};
     const notaBloque=txt=>{if(!limpiarTextoPDF(txt))return;campo('Notas del bloque',txt,{size:9,after:2})};
+    const dibujarPistaMini=(x,yy,w=40,h=20)=>{
+      pdf.setDrawColor(125,139,153);pdf.setLineWidth(.28);
+      pdf.rect(x,yy,w,h);
+      const centro=x+w/2,ataque=w/6;
+      pdf.setLineWidth(.48);pdf.line(centro,yy,centro,yy+h);
+      pdf.setLineWidth(.22);pdf.line(centro-ataque,yy,centro-ataque,yy+h);pdf.line(centro+ataque,yy,centro+ataque,yy+h);
+      pdf.setDrawColor(185,194,203);pdf.setLineWidth(.18);
+      pdf.line(x,yy+h/2,x+w,yy+h/2);
+      pdf.setTextColor(...muted);pdf.setFont('helvetica','normal');pdf.setFontSize(5.8);
+      pdf.text('CAMPO',x+w/2,yy+h+3,{align:'center'});
+    };
     const ejercicio=(e0,n)=>{
       const e=enriquecerEjercicioGuardado(e0),nombre=limpiarTextoPDF(e.nombre)||'Ejercicio',tiempo=Number(e.tiempo)||0;
-      asegurar(14);
+      const pistaW=40,pistaH=20,pistaGap=5;
+      asegurar(36);
       pdf.setFillColor(...light);pdf.rect(M,y-4,W-M*2,7,'F');setBold(10.5);pdf.text(`${n}. ${nombre}`,M+2,y);setNormal(9.3);pdf.text(`${tiempo} min`,W-M-2,y,{align:'right'});y+=7;
-      campo('Función',e.objetivo,{size:9.3});
-      campo('Desarrollo',e.descripcion,{size:9.3});
+      const pistaX=W-M-pistaW,pistaY=y+1,textoRight=pistaX-pistaGap,paginaPista=pdf.getCurrentPageInfo().pageNumber;
+      dibujarPistaMini(pistaX,pistaY,pistaW,pistaH);
+      campo('Función',e.objetivo,{size:9.3,right:textoRight});
+      campo('Desarrollo',e.descripcion,{size:9.3,right:textoRight});
       const org=[e.formato?`Formato: ${limpiarTextoPDF(e.formato)}`:'',e.jugadores?`Jugadores: ${limpiarTextoPDF(e.jugadores)}`:'',e.material?`Material: ${limpiarTextoPDF(e.material)}`:''].filter(Boolean).join(' · ');
-      campo('Organización',org||'-',{size:9.3});
-      campo('Claves / correcciones',e.errores||'-',{size:9.3});
-      if(limpiarTextoPDF(e.variantes))campo('Variantes',e.variantes,{size:9.3});
+      campo('Organización',org||'-',{size:9.3,right:textoRight});
+      campo('Claves / correcciones',e.errores||'-',{size:9.3,right:textoRight});
+      if(limpiarTextoPDF(e.variantes))campo('Variantes',e.variantes,{size:9.3,right:textoRight});
+      if(pdf.getCurrentPageInfo().pageNumber===paginaPista)y=Math.max(y,pistaY+pistaH+5);
       asegurar(6);setNormal(8.5,muted);const metaEj=[fundamentosTexto(e),e.tipo||'',e.fase||'Parte principal',e.intensidad||'Media'].filter(Boolean).join(' · ');pdf.text(limpiarTextoPDF(metaEj),M,y);y+=7;
     };
 
@@ -1191,7 +1207,7 @@ function usarPlan(id){
   meta={fecha:esRealizado?fechaLocalISO():(p.fecha||fechaLocalISO()),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:clonar(p.notasBloques||{}),planificacionId:esRealizado?null:p.id,pizarra:p.pizarra||null};
   save();cargarMeta();renderizarSesion();filtrarEjercicios();showView('entrenamiento',botonVista('entrenamiento'));if(p.pizarra)setTimeout(()=>aplicarPizarra(p.pizarra),100);window.scrollTo({top:0,behavior:'smooth'});if(esRealizado)setTimeout(()=>alert('Este entrenamiento ya estaba realizado. Se ha abierto como una copia nueva y la planificación original seguirá guardada.'),80);
 }
-function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],hoy=fechaLocalISO();$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>{const n=(p.ejercicios||[]).length,actual=meta.planificacionId===p.id,realizado=!!p.realizado,pasado=fecha<hoy,lista=n?`<div class="plan-exercise-list"><b>Ejercicios:</b>${(p.ejercicios||[]).map((e,j)=>`<div>${j+1}. ${esc(e.nombre||'Ejercicio')}</div>`).join('')}</div>`:'',estado=realizado?' <span class="plan-done-badge">✓ Realizado</span>':(actual?' <span class="plan-current-badge">Abierto</span>':(pasado?' <span class="plan-pending-badge">Pendiente de confirmar</span>':'')),acciones=realizado?`<button class="primary" onclick="verPlanEnEntrenamientos(${p.id})">Ver en Entrenamientos</button><button class="ghost" onclick="usarPlan(${p.id})">Reutilizar</button>`:`<button class="ghost" onclick="usarPlan(${p.id})">Abrir entrenamiento</button>${fecha<=hoy?`<button class="success" onclick="marcarPlanRealizado(${p.id})">✓ Marcar realizado</button>`:''}`;return `<div class="plan-item${realizado?' plan-done':(pasado?' plan-pending':'')}"><b>${esc(p.equipo||'Sesión')}</b>${estado}<br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad||'Media')}${n?' · '+n+' ejercicios':''}</span>${lista}<div class="actions" style="margin-top:6px">${acciones}<button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`}).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('');renderAvisoPlanHoy()}
+function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],hoy=fechaLocalISO();$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>{const n=(p.ejercicios||[]).length,actual=meta.planificacionId===p.id,realizado=!!p.realizado,pasado=fecha<hoy,lista=n?`<div class="plan-exercise-list"><b>Ejercicios:</b>${(p.ejercicios||[]).map((e,j)=>`<div>${j+1}. ${esc(e.nombre||'Ejercicio')}</div>`).join('')}</div>`:'',estado=realizado?` <span class="plan-done-badge">✓ Realizado${p.archivadoAutomaticamente?' · archivado automáticamente':''}</span>`:(actual?' <span class="plan-current-badge">Abierto</span>':(pasado?' <span class="plan-pending-badge">Pendiente de confirmar</span>':'')),acciones=realizado?`<button class="primary" onclick="verPlanEnEntrenamientos(${p.id})">Ver en Entrenamientos</button><button class="ghost" onclick="usarPlan(${p.id})">Reutilizar</button>`:`<button class="ghost" onclick="usarPlan(${p.id})">Abrir entrenamiento</button>${fecha<=hoy?`<button class="success" onclick="marcarPlanRealizado(${p.id})">✓ Marcar realizado</button>`:''}`;return `<div class="plan-item${realizado?' plan-done':(pasado?' plan-pending':'')}"><b>${esc(p.equipo||'Sesión')}</b>${estado}<br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad||'Media')}${n?' · '+n+' ejercicios':''}</span>${lista}<div class="actions" style="margin-top:6px">${acciones}<button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`}).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('');renderAvisoPlanHoy()}
 
 
 function sincronizarPlanesConHistorial(){
@@ -1208,6 +1224,106 @@ function sincronizarPlanesConHistorial(){
     if(h){if(!p.realizado){p.realizado=true;cambios++}if(p.historialId!==h.id){p.historialId=h.id;cambios++}if(Number(h.planificacionId)!==Number(p.id)){h.planificacionId=p.id;cambios++}usados.add(Number(p.id));}
   });
   return cambios;
+}
+
+
+// Archiva automáticamente las planificaciones cuyo día ya ha terminado.
+// Si la app estaba cerrada, se procesa al volver a abrirla; si sigue abierta,
+// se vuelve a comprobar justo después de medianoche.
+function archivarPlanificacionesPasadasEnEquipo(datos,teamId){
+  if(!datos)return 0;
+  const planes=Array.isArray(datos.planificacion)?datos.planificacion:[];
+  const hs=Array.isArray(datos.historial)?datos.historial:[];
+  const hoy=fechaLocalISO();
+  let cambios=0,nextId=Date.now();
+  const idsHist=new Set(hs.map(h=>Number(h.id)).filter(Number.isFinite));
+  const nuevoHistorialId=()=>{while(idsHist.has(nextId))nextId++;idsHist.add(nextId);return nextId++};
+  planes.forEach(p=>{
+    if(!p||!p.fecha||String(p.fecha)>=hoy)return;
+    let h=p.historialId?hs.find(x=>Number(x.id)===Number(p.historialId)):null;
+    if(!h)h=hs.find(x=>Number(x.planificacionId)===Number(p.id));
+    if(!h){
+      const candidatos=hs.filter(x=>x.fecha===p.fecha&&!x.planificacionId);
+      const obj=normalizarTextoPlan(p.objetivo);
+      const exactos=candidatos.filter(x=>obj&&normalizarTextoPlan(x.objetivo)===obj);
+      const planesMismoDia=planes.filter(q=>q&&q.fecha===p.fecha&&!q.historialId);
+      if(exactos.length===1)h=exactos[0];
+      else if(candidatos.length===1&&planesMismoDia.length===1)h=candidatos[0];
+    }
+    if(h){
+      if(!p.realizado){p.realizado=true;cambios++}
+      if(Number(p.historialId)!==Number(h.id)){p.historialId=h.id;cambios++}
+      if(Number(h.planificacionId)!==Number(p.id)){h.planificacionId=p.id;cambios++}
+      if(!p.realizadoEn){p.realizadoEn=new Date().toISOString();cambios++}
+      return;
+    }
+    const ejercicios=ejerciciosHistorialDesdePlan(p);
+    ejercicios.forEach(s=>{const vivo=baseDeDatos.find(e=>e.id===s.id);if(vivo)vivo.usos=(vivo.usos||0)+1});
+    const historialId=nuevoHistorialId();
+    const duracion=Number(p.duracion)||ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
+    hs.unshift({
+      id:historialId,
+      fecha:p.fecha,
+      equipo:p.equipo||(EQUIPOS[teamId]?EQUIPOS[teamId].nombre:'Equipo'),
+      jugadores:p.jugadores||'',
+      intensidad:p.intensidad||'Media',
+      objetivo:p.objetivo||'',
+      calentamiento:p.calentamiento||'',
+      notas:p.notas||'',
+      notasBloques:clonar(p.notasBloques||{}),
+      seccionesEjercicios:clonar(p.seccionesEjercicios||{}),
+      planificacionId:p.id,
+      duracion,
+      pizarra:p.pizarra||null,
+      ejercicios,
+      archivadoAutomaticamente:true
+    });
+    p.realizado=true;
+    p.realizadoEn=new Date().toISOString();
+    p.historialId=historialId;
+    p.archivadoAutomaticamente=true;
+    cambios++;
+  });
+  datos.planificacion=planes;datos.historial=hs;
+  return cambios;
+}
+function archivarPlanificacionesPasadasEnEquiposData(){
+  if(!equiposData)return 0;
+  let cambios=0;
+  Object.keys(EQUIPOS).forEach(team=>{
+    if(!equiposData[team])equiposData[team]=estadoEquipoVacio(team);
+    cambios+=archivarPlanificacionesPasadasEnEquipo(equiposData[team],team);
+  });
+  return cambios;
+}
+function procesarArchivadoAutomaticoPlanificaciones(){
+  guardarEquipoEnMemoria();
+  const cambios=archivarPlanificacionesPasadasEnEquiposData();
+  if(!cambios)return 0;
+  const s=limpiarEquipo(equiposData[equipoActivo],equipoActivo);
+  equiposData[equipoActivo]=s;
+  sesionActual=clonar(s.sesionActual||[]);
+  meta=clonar(s.meta||estadoEquipoVacio(equipoActivo).meta);meta.equipo=EQUIPOS[equipoActivo].nombre;
+  historial=clonar(s.historial||[]);
+  planificacion=clonar(s.planificacion||[]);
+  guardarEstadoLocalSinCloud();
+  if(typeof programarSubidaCloud==='function')programarSubidaCloud();
+  if($('planificacion'))renderPlanificacion();
+  if($('historial-list'))renderHistorial();
+  if($('stat-sesiones'))renderStats();
+  renderAvisoPlanHoy();
+  if($('save-indicator'))$('save-indicator').textContent='✓ Planificación pasada archivada automáticamente';
+  return cambios;
+}
+let timerArchivadoCambioDia=null;
+function programarArchivadoAlCambiarDia(){
+  if(timerArchivadoCambioDia)clearTimeout(timerArchivadoCambioDia);
+  const ahora=new Date(),proximo=new Date(ahora);
+  proximo.setHours(24,0,3,0);
+  timerArchivadoCambioDia=setTimeout(()=>{
+    procesarArchivadoAutomaticoPlanificaciones();
+    programarArchivadoAlCambiarDia();
+  },Math.max(1000,proximo.getTime()-ahora.getTime()));
 }
 
 
@@ -1231,12 +1347,13 @@ function aplicarEstadoCloud(s){
   const cambiosRecepcion=aplicarLimpiezaRecepcionV1();
   const cambiosColocacion=aplicarLimpiezaColocacionV1();
   const cambiosAtaque=aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();
+  const cambiosArchivado=archivarPlanificacionesPasadasEnEquiposData();
   guardarEstadoLocalSinCloud();
   cargarEquipoEnVariables(equipoActivo);
   actualizarSelectorEquipo();
   cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();
   cloudApplying=false;
-  if((eraAnterior||agregadosPropios>0||cambiosRecepcion>0||cambiosColocacion>0||cambiosAtaque>0)&&cloudUser)setTimeout(()=>subirNube(false),350);
+  if((eraAnterior||agregadosPropios>0||cambiosRecepcion>0||cambiosColocacion>0||cambiosAtaque>0||cambiosArchivado>0)&&cloudUser)setTimeout(()=>subirNube(false),350);
 }
 function setCloudUI(kind,text){
   const dot=$('cloud-dot'),label=$('cloud-label'),box=$('cloud-status');
@@ -1318,11 +1435,11 @@ async function bajarNube(manual=false){
   if(manual)alert('Datos descargados de la nube.')
 }
 window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&cloudUser)bajarNube(false)});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)bajarNube(false)}});
 
 if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
 if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
-actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();initCloud();
+actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();programarArchivadoAlCambiarDia();initCloud();
 </script>
 
 <script>
