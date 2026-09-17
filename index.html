@@ -481,9 +481,19 @@ main{max-width:1460px!important;padding-bottom:60px!important}.app-toolbar{displ
 @media(max-width:650px){.dashboard-hero{align-items:flex-start;flex-direction:column;padding:21px 19px}.dashboard-hero h2{font-size:23px!important}.dashboard-primary-actions{width:100%}.dashboard-primary-actions button{flex:1}.dashboard-kpis{grid-template-columns:1fr 1fr}.dashboard-kpi{padding:12px}.dashboard-kpi b{font-size:20px}.app-tabs .tab-btn{padding:12px 10px 10px!important}.compact-team-switcher{justify-content:space-between!important}.session-meta-grid{grid-template-columns:1fr 1fr!important}.session-summary-strip{grid-template-columns:1fr 1fr!important}.session-workspace{padding:10px 10px 105px!important}.session-exercise-main{grid-template-columns:26px minmax(0,1fr) 34px!important}.session-exercise-controls{grid-column:auto!important;padding-left:0!important}.exercise-menu-pop{right:0}.session-focus-head{align-items:flex-start;flex-direction:column;gap:2px}.session-action-context{display:none}}
 </style>
 
+
+<style id="v589-scroll-header-fix">
+/* V5.8.9: cabecera y navegación dejan de ocupar espacio fijo al hacer scroll. */
+header{position:static!important;top:auto!important;}
+.tabs,.app-toolbar{position:static!important;top:auto!important;}
+@media(max-width:650px){
+  header{position:static!important;top:auto!important;}
+  .app-toolbar,.tabs{position:static!important;top:auto!important;}
+}
+</style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.8 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.9 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -1942,7 +1952,7 @@ window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)bajarNube(false)}});
 
 
-// ===== V5.8.8 CLOUD LIBRARY : biblioteca independiente + PDF con porcentajes robustos =====
+// ===== V5.8.9 CLOUD LIBRARY : biblioteca independiente + PDF con porcentajes robustos =====
 // ===== V5.8 PROFESSIONAL+ : resumen, planificación, biblioteca, plantillas y PDF =====
 let vistaPlanificacion='semana';
 let vistaBiblioteca='compacta';
@@ -2161,7 +2171,7 @@ document.addEventListener('pointerdown',event=>{
 if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
 if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
 actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderDashboard();programarArchivadoAlCambiarDia();actualizarEstadoBibliotecaUI();initCloud();
-renderConteoBiblioteca(); // V5.8.8 conteo real de la biblioteca persistente
+renderConteoBiblioteca(); // V5.8.9 conteo real de la biblioteca persistente
 
 </script>
 
