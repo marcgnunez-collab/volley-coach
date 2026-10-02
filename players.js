@@ -190,3 +190,10 @@ function reconcilePlayerState(){
   players=Array.isArray(players)?players:[];playerEvaluations=Array.isArray(playerEvaluations)?playerEvaluations:[];playerGoals=Array.isArray(playerGoals)?playerGoals:[];
   ensureSessionRoster();
 }
+
+
+// Integración con la base profesional V5.8.5
+(function(){
+  const boot=()=>{try{reconcilePlayerState();renderPlayers();renderSessionRoster();}catch(e){console.error('Rendimiento:',e)}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,0));else setTimeout(boot,0);
+})();
