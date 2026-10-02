@@ -17,10 +17,22 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.9 RENDIMIENTO</small></h1><div class="brand-subtitle">DOSSIER TÁCTICO PROFESIONAL</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">📂 Cargar copia</button><button class="ghost" onclick="exportarDatos()">💾 Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.5 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -69,47 +81,97 @@
 </div>
 
 <main>
-<div class="team-switcher" id="team-switcher">
-  <div class="team-switcher-left">
-    <div>
-      <div class="team-kicker">Equipo activo</div>
-      <div class="team-name" id="team-active-name">Infantil Masculino</div>
-      <div class="team-scope-note">La sesión, planificación, historial y estadísticas son propias de cada equipo. La biblioteca es compartida.</div>
+<div class="app-toolbar">
+  <div class="tabs app-tabs">
+    <button class="tab-btn active" onclick="showView('dashboard',this)">Inicio</button>
+    <button class="tab-btn" onclick="showView('entrenamiento',this)">Entrenamiento</button>
+    <button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button>
+    <button class="tab-btn" onclick="abrirBibliotecaNormal(this)">Biblioteca</button>
+    <button class="tab-btn" onclick="showView('historial',this)">Historial</button>
+    <button class="tab-btn" onclick="showView('estadisticas',this)">Estadísticas</button>
+    <button class="tab-btn" onclick="showView('jugadores',this);renderPlayers()">Rendimiento</button>
+  </div>
+  <div class="team-switcher compact-team-switcher" id="team-switcher">
+    <div class="team-switcher-left"><div><div class="team-kicker">Equipo activo</div><div class="team-name" id="team-active-name">Infantil Masculino</div></div></div>
+    <div class="team-buttons">
+      <button id="team-btn-infantil" class="team-btn active" onclick="cambiarEquipo('infantil')">Infantil</button>
+      <button id="team-btn-cadete" class="team-btn" onclick="cambiarEquipo('cadete')">Cadete</button>
     </div>
   </div>
-  <div class="team-buttons">
-    <button id="team-btn-infantil" class="team-btn active" onclick="cambiarEquipo('infantil')">Infantil masc.</button>
-    <button id="team-btn-cadete" class="team-btn" onclick="cambiarEquipo('cadete')">Cadete masc.</button>
-  </div>
 </div>
-<div class="tabs"><button class="tab-btn active" onclick="showView('entrenamiento',this)">🏠 Entrenamiento</button><button class="tab-btn" onclick="abrirBibliotecaNormal(this)">📚 Ejercicios</button><button class="tab-btn" onclick="showView('jugadores',this)">👥 Rendimiento</button><button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button><button class="tab-btn" onclick="showView('historial',this)">📅 Entrenamientos</button><button class="tab-btn" onclick="showView('estadisticas',this)">📊 Estadísticas</button></div>
 
-<section id="entrenamiento" class="view active">
-<div class="grid2" id="export-area">
-<div class="panel">
-<h2>📋 Sesión actual</h2>
-<div class="form-grid">
-<input id="sesion-fecha" type="date" oninput="guardarSesionMeta()"><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"><input id="sesion-jugadores" type="number" min="1" placeholder="Nº jugadores" oninput="guardarSesionMeta()"><select id="sesion-intensidad" oninput="guardarSesionMeta()"><option value="Baja">🟢 Baja</option><option value="Media" selected>🟡 Media</option><option value="Alta">🔴 Alta</option></select>
-<textarea id="sesion-objetivo" placeholder="🎯 Objetivo principal de la sesión" oninput="guardarSesionMeta()"></textarea>
-<textarea id="texto-calentamiento" placeholder="🔥 Calentamiento: contenido y duración" oninput="guardarSesionMeta()"></textarea>
-<textarea id="sesion-notas" placeholder="📝 Notas del entrenador" oninput="guardarSesionMeta()"></textarea>
-</div>
-<div class="summary"><div class="metric"><span class="small">Duración</span><b id="tiempo-total">0 min</b></div><div class="metric"><span class="small">Ejercicios</span><b id="num-ejercicios">0</b></div><div class="metric"><span class="small">Intensidad</span><b id="intensidad-resumen">Media</b></div></div>
-<div class="session-roster-box">
-  <div class="session-roster-head"><div><b>👥 Jugadores de la sesión</b><div class="small">Se seleccionan automáticamente los disponibles. Puedes ajustar el grupo y asignar jugadores diferentes a cada ejercicio.</div></div><span id="session-player-count" class="training-block-count">0/0</span></div>
+<section id="dashboard" class="view active">
+  <div class="dashboard-hero">
+    <div>
+      <div class="dashboard-kicker">Centro de trabajo</div>
+      <h2 id="dashboard-title">Planificación del equipo</h2>
+      <p id="dashboard-subtitle">Una vista rápida de la semana, la sesión actual y el último entrenamiento.</p>
+    </div>
+    <div class="dashboard-primary-actions">
+      <button class="primary dashboard-main-btn" onclick="abrirSesionDesdeDashboard()">＋ Crear / continuar sesión</button>
+      <button class="ghost" onclick="showView('planificacion',botonVista('planificacion'))">Ver planificación</button>
+    </div>
+  </div>
+  <div class="dashboard-grid dashboard-kpis">
+    <div class="dashboard-kpi"><span>Biblioteca</span><b id="dash-library">—</b><small>ejercicios disponibles</small></div>
+    <div class="dashboard-kpi"><span>Sesión actual</span><b id="dash-current-count">0</b><small id="dash-current-time">0 min preparados</small></div>
+    <div class="dashboard-kpi"><span>Esta semana</span><b id="dash-week-count">0</b><small id="dash-week-time">0 min planificados</small></div>
+    <div class="dashboard-kpi"><span>Historial</span><b id="dash-history-count">0</b><small>entrenamientos realizados</small></div>
+  </div>
+  <div class="dashboard-main-grid">
+    <section class="dashboard-panel dashboard-next"><div class="dashboard-panel-head"><div><span class="dashboard-label">PRÓXIMO ENTRENAMIENTO</span><h3>Plan inmediato</h3></div><button class="text-btn" onclick="showView('planificacion',botonVista('planificacion'))">Abrir planificación →</button></div><div id="dash-next-plan"></div></section>
+    <section class="dashboard-panel dashboard-current"><div class="dashboard-panel-head"><div><span class="dashboard-label">SESIÓN ACTUAL</span><h3>Preparación en curso</h3></div><button class="text-btn" onclick="abrirSesionDesdeDashboard()">Abrir sesión →</button></div><div id="dash-current-session"></div></section>
+  </div>
+  <div class="dashboard-main-grid dashboard-secondary-grid">
+    <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">ÚLTIMO ENTRENAMIENTO</span><h3>Trabajo realizado</h3></div><button class="text-btn" onclick="showView('historial',botonVista('historial'))">Ver historial →</button></div><div id="dash-last-session"></div></section>
+    <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">FOCO DE LA SEMANA</span><h3>Distribución del trabajo</h3></div></div><div id="dash-week-focus"></div></section>
+  </div>
+</section>
+
+<section id="entrenamiento" class="view">
+<div id="export-area" class="panel session-panel">
+  <div class="session-top">
+    <div class="session-title-row">
+      <div><div class="session-eyebrow">WORKSPACE DE ENTRENAMIENTO</div><h2>Sesión actual</h2></div>
+      <div class="session-head-actions"><div class="session-live-status"><span></span> Guardado automático</div><button class="ghost compact-action" onclick="nuevaSesionVacia()">Nueva sesión</button><button class="ghost compact-action" onclick="abrirModalPlantillas('usar')">Desde plantilla</button><button class="primary compact-action" onclick="abrirModalPlantillas('guardar')">Guardar plantilla</button></div>
+    </div>
+    <div id="plan-hoy-aviso" class="today-plan-wrap"></div>
+    <div class="session-meta-grid">
+      <label class="session-field"><span>Fecha</span><input id="sesion-fecha" type="date" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Equipo</span><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"></label>
+      <label class="session-field"><span>Asistentes</span><input id="sesion-jugadores" type="number" min="1" placeholder="Nº" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Objetivo de tiempo</span><input id="sesion-duracion-objetivo" type="number" min="0" step="5" placeholder="Ej. 90 min" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Intensidad</span><select id="sesion-intensidad" oninput="guardarSesionMeta()"><option value="Baja">Baja</option><option value="Media" selected>Media</option><option value="Alta">Alta</option></select></label>
+    </div>
+    <label class="session-field session-objective"><span>Objetivo principal</span><textarea id="sesion-objetivo" placeholder="¿Qué quieres conseguir en esta sesión?" oninput="guardarSesionMeta()"></textarea></label>
+    <div class="smart-session-summary">
+      <div class="smart-session-primary">
+        <span class="smart-session-kicker">RESUMEN DE SESIÓN</span>
+        <strong><span id="tiempo-total">0 min</span> · <span id="num-ejercicios">0</span> ejercicios · <span id="num-fundamentos">0</span> fundamentos</strong>
+      </div>
+      <div class="smart-session-meta">
+        <span>Objetivo <b id="duracion-objetivo-resumen">—</b></span>
+        <span>Intensidad <b id="intensidad-resumen">Media</b></span>
+      </div>
+    </div>
+    <div class="session-progress-wrap"><div class="session-progress"><span id="session-progress-bar"></span></div><div id="session-progress-label" class="session-progress-label">Define una duración objetivo</div></div>
+    <div class="session-focus-card"><div class="session-focus-head"><span>Reparto del trabajo</span><small id="session-focus-copy">Añade ejercicios para ver el reparto</small></div><div id="session-focus-bar" class="session-focus-bar"></div><div id="session-focus-legend" class="session-focus-legend"></div></div>
+  </div>
+  <div class="session-workspace">
+    <div id="stage-rail" class="stage-rail"></div>
+    
+<div class="panel session-roster-panel" id="session-roster-panel" style="margin-bottom:12px">
+  <div class="session-roster-head"><div><b>Plantilla de la sesión</b><div class="small">Se seleccionan automáticamente los jugadores disponibles. Desmarca ausencias antes de finalizar.</div></div><span id="session-player-count" class="training-block-count">0/0</span></div>
+  <div class="actions" style="margin:10px 0"><button class="ghost" onclick="selectAllSessionPlayers()">Todos disponibles</button><button class="ghost" onclick="clearSessionPlayers()">Limpiar</button></div>
   <div id="session-player-list" class="session-player-list"></div>
-  <div class="actions roster-actions"><button class="ghost" onclick="selectAllSessionPlayers()">Todos disponibles</button><button class="ghost" onclick="clearSessionPlayers()">Ninguno</button><button class="ghost" onclick="goPlayers()">Gestionar plantilla →</button></div>
 </div>
 <div id="lista-sesion" class="training-blocks"></div>
-<div class="actions" style="margin-top:14px"><button class="primary" onclick="exportarImagen()">🖼️ Exportar imagen</button><button class="primary" onclick="exportarEntrenamientoPDFActual()">📄 Exportar PDF</button><button class="success" onclick="finalizarEntrenamiento()">✅ Finalizar y guardar</button></div>
-</div>
-<div class="panel">
-<h2>🖍️ Pizarra táctica</h2>
-<div class="board-controls"><button class="tool active" onclick="setTool('pencil',this)">✏️</button><button class="tool" onclick="setTool('arrow',this)">↗️</button><button class="tool" onclick="setTool('eraser',this)">🧽</button><button class="ghost" onclick="deshacer()">↩️</button><button class="ghost" onclick="togglePista()">🏐 Pista</button><button id="zone-toggle" class="ghost zone-toggle active" onclick="toggleZoneGrid()" title="Mostrar u ocultar las zonas reglamentarias 1–9">Zonas 1–9</button><button id="subzone-toggle" class="ghost zone-toggle active" onclick="toggleSubzones()" title="Mostrar u ocultar las subdivisiones A–D">Subzonas A–D</button><button class="danger" onclick="limpiarPizarra()">🗑️</button></div>
-<div class="inline"><button class="color-dot active" style="background:#1f2937" onclick="setColor('#1f2937',this)"></button><button class="color-dot" style="background:#dc2626" onclick="setColor('#dc2626',this)"></button><button class="color-dot" style="background:#2563eb" onclick="setColor('#2563eb',this)"></button><button class="color-dot" style="background:#fff" onclick="setColor('#ffffff',this)"></button></div>
-<div class="player-palette"><span class="small">Añadir:</span><button class="ghost" onclick="addObject('player')">🔵 Jugador</button><button class="ghost" onclick="addObject('ball')">🏐 Balón</button><button class="ghost" onclick="addObject('cone')">🔺 Cono</button><button class="ghost" onclick="addTextObject()">T Texto</button></div>
-<div id="canvas-wrapper" class="board full"><div id="zone-grid" class="zone-grid" aria-hidden="true"><div class="zone-half zone-half-top" data-side="top"><div class="zone-cell" data-zone="5"><span class="zone-label">5</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="6"><span class="zone-label">6</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="1"><span class="zone-label">1</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="7"><span class="zone-label">7</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="8"><span class="zone-label">8</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="9"><span class="zone-label">9</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="4"><span class="zone-label">4</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="3"><span class="zone-label">3</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="2"><span class="zone-label">2</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div></div><div class="zone-half zone-half-bottom" data-side="bottom"><div class="zone-cell" data-zone="4"><span class="zone-label">4</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="3"><span class="zone-label">3</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="2"><span class="zone-label">2</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="7"><span class="zone-label">7</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="8"><span class="zone-label">8</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="9"><span class="zone-label">9</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="5"><span class="zone-label">5</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="6"><span class="zone-label">6</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div><div class="zone-cell" data-zone="1"><span class="zone-label">1</span><div class="subzones" aria-hidden="true"><span>C</span><span>B</span><span>D</span><span>A</span></div></div></div></div><canvas id="pizarra"></canvas><div id="object-layer"></div></div><div class="board-save-row"><button class="ghost" onclick="guardarPizarraSesion()">Guardar pizarra de sesión</button><button class="ghost" onclick="cargarPizarraSesion()">Recuperar pizarra de sesión</button></div>
-</div>
+    <details class="session-general-notes"><summary>Notas generales del entrenador</summary><textarea id="sesion-notas" placeholder="Observaciones generales, consignas o recordatorios..." oninput="guardarSesionMeta()"></textarea></details>
+    <div class="session-action-bar">
+      <div class="session-action-context"><b id="action-session-summary">0 ejercicios · 0 min</b><span>La sesión se guarda automáticamente</span></div>
+      <div class="session-action-primary"><button class="primary" onclick="exportarPDF()">Exportar PDF</button><button class="ghost" onclick="guardarSesionEnPlanificacion(false)">Guardar en planificación</button><button class="success" onclick="finalizarEntrenamiento()">Finalizar entrenamiento</button></div>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -118,11 +180,23 @@
   <div><div class="small">Añadiendo ejercicios a</div><strong id="session-section-target-name">Sección</strong><div id="session-section-target-note" class="small"></div></div>
   <div class="actions"><button class="ghost" onclick="cancelarDestinoSesion()">Ver biblioteca normal</button><button class="primary" onclick="volverAlEntrenamiento()">← Volver al entrenamiento</button></div>
 </div>
-<div class="panel" style="margin-bottom:12px;background:#eef4f9;border-color:#c9d7e5"><b>📚 Biblioteca compartida</b><div class="small" style="margin-top:4px">Los ejercicios son comunes para Infantil y Cadete. Pulsa <b>☆</b> para guardar un ejercicio en favoritos. La biblioteca empieza vacía y solo muestra ejercicios cuando escribes una búsqueda o eliges un filtro. Usa 📊 para ver su uso por equipo, ℹ️ para consultar la información y ➕ para añadirlo al entrenamiento del equipo activo.</div></div>
-<div class="panel" style="margin-bottom:18px"><h2 id="form-title">➕ Añadir ejercicio a la biblioteca</h2><div class="form-grid">
+<div class="library-pro-header">
+  <div class="library-pro-title"><span class="pro-kicker">BASE DE DATOS DEPORTIVA</span><div class="library-title-line"><h2>Biblioteca de ejercicios</h2><strong><span id="biblioteca-total-big">—</span> ejercicios</strong></div><p>La biblioteca se conserva aparte del código de la web y se sincroniza con tu cuenta de Supabase.</p></div>
+  <div class="library-header-tools">
+    <div id="library-storage-state" class="library-storage-state"><span class="library-storage-dot"></span><span id="library-storage-text">Biblioteca protegida localmente</span></div>
+    <div class="library-tool-actions">
+      <div class="library-view-switch"><button id="lib-view-compact" class="active" onclick="setVistaBiblioteca('compacta')">Compacta</button><button id="lib-view-detail" onclick="setVistaBiblioteca('detallada')">Detallada</button></div>
+      <button class="ghost" onclick="exportarBiblioteca()">Exportar biblioteca</button>
+      <button class="ghost" onclick="document.getElementById('import-library-file').click()">Importar biblioteca</button>
+      <input type="file" id="import-library-file" accept=".json" class="hidden">
+    </div>
+  </div>
+  <div id="conteo-biblioteca" class="library-count-chips"></div>
+</div>
+<details class="library-create-panel"><summary><span id="form-title">Nuevo ejercicio</span><small>Crear o editar una ficha de la biblioteca</small></summary><div class="library-create-body"><div class="form-grid">
 <input type="hidden" id="edit-id"><input id="nuevo-nombre" placeholder="Nombre"><input id="nuevo-tiempo" type="number" min="0" placeholder="Minutos"><select id="nueva-escuela"><option>Italia</option><option>España</option><option>Francia</option><option>EEUU</option><option>Brasil</option><option>Propia</option></select><div class="fundamento-multi"><span class="fundamento-label">Grupos / fundamentos <small>(puedes marcar varios)</small></span><div class="fundamento-checks"><label><input type="checkbox" name="nuevo-fundamento" value="Control"> Control</label><label><input type="checkbox" name="nuevo-fundamento" value="Recepción"> Recepción</label><label><input type="checkbox" name="nuevo-fundamento" value="Ataque"> Ataque</label><label><input type="checkbox" name="nuevo-fundamento" value="Colocación"> Colocación</label><label><input type="checkbox" name="nuevo-fundamento" value="Bloqueo"> Bloqueo</label><label><input type="checkbox" name="nuevo-fundamento" value="Defensa"> Defensa</label><label><input type="checkbox" name="nuevo-fundamento" value="Reconstrucción"> Reconstrucción</label><label><input type="checkbox" name="nuevo-fundamento" value="Juegos"> Juegos</label><label><input type="checkbox" name="nuevo-fundamento" value="Saque"> Saque</label></div></div><input id="nuevo-formato" placeholder="Formato (ej. 6v6)"><select id="nuevo-nivel"><option>Iniciación</option><option selected>Intermedio</option><option>Avanzado</option></select><select id="nueva-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select><select id="nuevo-tipo"><option value="" selected>— Tipo de ejercicio —</option><option>Analítico</option><option>Puesta en juego</option><option>Juego reducido</option><option>Juego</option></select><input id="nuevo-jugadores" placeholder="Jugadores (ej. 8-12)"><input id="nuevo-material" placeholder="Material necesario"><input id="nuevo-video" placeholder="Enlace de vídeo (opcional)"><select id="nuevo-fase"><option>Calentamiento</option><option selected>Parte principal</option><option>Vuelta a la calma</option></select><textarea id="nuevo-objetivo" placeholder="Función del ejercicio / objetivo técnico-táctico"></textarea><textarea id="nueva-descripcion" placeholder="Descripción del ejercicio"></textarea><textarea id="nuevo-variantes" placeholder="Variantes"></textarea><textarea id="nuevo-errores" placeholder="Errores habituales y correcciones"></textarea>
-</div><div class="muted-box" style="margin-bottom:10px">La pizarra táctica actual puede asociarse al ejercicio al guardarlo. Úsala para conservar la disposición de jugadores, trayectorias y material.</div><div class="actions"><button class="success" onclick="guardarEjercicio()">💾 Guardar ejercicio</button><button class="ghost" onclick="marcarPizarraParaEjercicio()">Asociar pizarra actual</button><button id="cancel-edit" class="ghost hidden" onclick="cancelarEdicion()">Cancelar edición</button></div></div>
-<div class="panel"><div class="filters"><input id="buscar" placeholder="🔎 Buscar por nombre..." oninput="filtrarEjercicios()"><select id="escuela" onchange="filtrarEjercicios()"><option value="" selected>— Escuela —</option><option value="Todas">Todas las escuelas</option><option>Italia</option><option>España</option><option>Francia</option><option>EEUU</option><option>Brasil</option><option>Propia</option></select><select id="fundamento" onchange="filtrarEjercicios()"><option value="" selected>— Fundamento —</option><option value="Todos">Todos los fundamentos</option><option>Control</option><option>Recepción</option><option>Ataque</option><option>Colocación</option><option>Bloqueo</option><option>Defensa</option><option>Reconstrucción</option><option>Juegos</option><option>Saque</option></select><select id="nivel" onchange="filtrarEjercicios()"><option value="" selected>— Nivel —</option><option value="Todos">Todos los niveles</option><option>Iniciación</option><option>Intermedio</option><option>Avanzado</option></select><select id="tipo" onchange="filtrarEjercicios()"><option value="" selected>— Tipo de ejercicio —</option><option value="Todos">Todos los tipos</option><option>Analítico</option><option>Puesta en juego</option><option>Juego reducido</option><option>Juego</option></select><select id="favoritos" onchange="filtrarEjercicios()"><option value="" selected>— Favoritos —</option><option value="Todos">Todos</option><option value="Fav">⭐ Solo favoritos</option></select></div><div class="similarity-toolbar"><button class="ghost" onclick="revisarBibliotecaSimilares()">🧩 Revisar ejercicios similares</button></div><div id="contenedor-principal" class="exercise-list compact-library"><div class="empty">Selecciona un filtro o escribe el nombre de un ejercicio.</div></div></div>
+</div><div class="actions"><button class="success" onclick="guardarEjercicio()">💾 Guardar ejercicio</button><button id="cancel-edit" class="ghost hidden" onclick="cancelarEdicion()">Cancelar edición</button></div></div></details>
+<div class="panel library-filter-panel"><div class="library-filter-head"><div><span class="pro-kicker">BUSCADOR</span><h3>Encontrar ejercicios</h3></div><span class="small">Combina filtros para afinar la búsqueda.</span></div><div class="filters"><input id="buscar" placeholder="🔎 Buscar por nombre..." oninput="filtrarEjercicios()"><select id="escuela" onchange="filtrarEjercicios()"><option value="" selected>— Escuela —</option><option value="Todas">Todas las escuelas</option><option>Italia</option><option>España</option><option>Francia</option><option>EEUU</option><option>Brasil</option><option>Propia</option></select><details id="fundamento-filtro" class="filter-multi"><summary id="fundamento-filtro-label">— Fundamentos —</summary><div class="filter-multi-menu"><div class="small" style="margin-bottom:7px">Marca uno o varios. Si eliges varios, se mostrarán ejercicios que contengan todos.</div><div class="filter-multi-checks"><label><input type="checkbox" name="filtro-fundamento" value="Control" onchange="filtrarEjercicios()"> Control</label><label><input type="checkbox" name="filtro-fundamento" value="Recepción" onchange="filtrarEjercicios()"> Recepción</label><label><input type="checkbox" name="filtro-fundamento" value="Ataque" onchange="filtrarEjercicios()"> Ataque</label><label><input type="checkbox" name="filtro-fundamento" value="Colocación" onchange="filtrarEjercicios()"> Colocación</label><label><input type="checkbox" name="filtro-fundamento" value="Bloqueo" onchange="filtrarEjercicios()"> Bloqueo</label><label><input type="checkbox" name="filtro-fundamento" value="Defensa" onchange="filtrarEjercicios()"> Defensa</label><label><input type="checkbox" name="filtro-fundamento" value="Reconstrucción" onchange="filtrarEjercicios()"> Reconstrucción</label><label><input type="checkbox" name="filtro-fundamento" value="Juegos" onchange="filtrarEjercicios()"> Juegos</label><label><input type="checkbox" name="filtro-fundamento" value="Saque" onchange="filtrarEjercicios()"> Saque</label></div><button type="button" class="ghost filter-clear" onclick="limpiarFundamentosFiltro();event.preventDefault()">Limpiar fundamentos</button></div></details><select id="nivel" onchange="filtrarEjercicios()"><option value="" selected>— Nivel —</option><option value="Todos">Todos los niveles</option><option>Iniciación</option><option>Intermedio</option><option>Avanzado</option></select><select id="tipo" onchange="filtrarEjercicios()"><option value="" selected>— Tipo de ejercicio —</option><option value="Todos">Todos los tipos</option><option>Analítico</option><option>Puesta en juego</option><option>Juego reducido</option><option>Juego</option></select><select id="favoritos" onchange="filtrarEjercicios()"><option value="" selected>— Favoritos —</option><option value="Todos">Todos</option><option value="Fav">⭐ Solo favoritos</option></select></div><div class="similarity-toolbar"><button class="ghost" onclick="revisarBibliotecaSimilares()">🧩 Revisar ejercicios similares</button></div><div id="contenedor-principal" class="exercise-list compact-library"><div class="empty">Selecciona un filtro o escribe el nombre de un ejercicio.</div></div></div>
 </section>
 
 
@@ -135,10 +209,23 @@
   <div class="panel"><div class="section-title-row player-list-toolbar"><div><h3>Plantilla</h3><div class="small">Nivel y tendencia se calculan con las evaluaciones; los minutos y la asistencia salen del historial real.</div></div><div class="filters"><input id="players-search" placeholder="🔎 Buscar jugador" oninput="filterPlayers()"><select id="players-position-filter" onchange="filterPlayers()"><option>Todos</option><option>Colocador</option><option>Receptor</option><option>Central</option><option>Opuesto</option><option>Líbero</option><option>Universal</option></select></div></div><div id="players-list" class="players-list"></div></div>
 </section>
 
-<section id="planificacion" class="view"><div class="panel" style="margin-bottom:18px"><h2>Planificación semanal</h2><div class="form-grid"><input id="plan-fecha" type="date"><input id="plan-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"><input id="plan-objetivo" placeholder="Objetivo de la sesión"><input id="plan-duracion" type="number" min="0" placeholder="Duración prevista (min)"><select id="plan-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select></div><div class="actions"><button class="success" onclick="guardarPlan()">Añadir a planificación</button></div></div><div class="panel"><div class="actions" style="justify-content:space-between"><h2 style="margin:0">Semana</h2><div><button class="ghost" onclick="cambiarSemana(-7)">← Semana anterior</button><button class="ghost" onclick="cambiarSemana(7)">Semana siguiente →</button></div></div><div id="week-label" class="small" style="margin:8px 0 14px"></div><div id="week-grid" class="week-grid"></div></div></section>
-<section id="historial" class="view"><div class="panel"><h2>📅 Entrenamientos realizados</h2><div class="small" style="margin-bottom:14px">Historial separado por equipo. En la lista se muestra la fecha y el contenido trabajado; pulsa un entrenamiento para ver todos los detalles.</div><div id="historial-list" class="trainings-columns"></div></div></section>
-<section id="estadisticas" class="view"><div class="panel"><div class="stats-team-title"><h2 style="margin:0">📊 Estadísticas del equipo</h2><span id="stat-team-name" class="stats-team-badge">Equipo</span></div><div class="summary"><div class="metric"><span class="small">Sesiones completadas</span><b id="stat-sesiones">0</b></div><div class="metric"><span class="small">Ejercicios en biblioteca compartida</span><b id="stat-ejercicios">0</b></div><div class="metric"><span class="small">Minutos históricos</span><b id="stat-minutos">0</b></div></div><h3>Trabajo por fundamento</h3><div id="stat-bars" class="stat-bars"></div><h3 style="margin-top:22px">Distribución de intensidad</h3><div id="stat-intensidad" class="technical-grid"></div><h3 style="margin-top:22px">Equilibrio de contenidos</h3><div id="stat-balance" class="muted-box"></div><h3 style="margin-top:22px">Ejercicios más usados</h3><div id="stat-top"></div><h3 style="margin-top:24px">Dónde se ha utilizado cada ejercicio</h3><div class="small" style="margin-bottom:10px">Solo se muestran los usos del equipo seleccionado. La biblioteca sigue siendo compartida entre Infantil y Cadete.</div><div id="stat-usage-detail"></div></div></section>
-
+<section id="planificacion" class="view">
+  <div class="planning-shell">
+    <div class="planning-header">
+      <div><span class="pro-kicker">PLANIFICACIÓN</span><h2>Calendario de entrenamientos</h2><p>Organiza la carga semanal y mensual del equipo sin perder el estado de cada sesión.</p></div>
+      <div class="planning-view-switch"><button id="plan-view-week" class="active" onclick="setVistaPlanificacion('semana')">Semana</button><button id="plan-view-month" onclick="setVistaPlanificacion('mes')">Mes</button></div>
+    </div>
+    <div class="planning-toolbar">
+      <div class="planning-nav"><button class="ghost" onclick="cambiarPeriodoPlan(-1)">←</button><button class="ghost" onclick="irHoyPlanificacion()">Hoy</button><button class="ghost" onclick="cambiarPeriodoPlan(1)">→</button></div>
+      <strong id="week-label"></strong>
+      <details class="planning-quick-create"><summary>+ Programar sesión</summary><div class="planning-quick-body"><div class="form-grid"><input id="plan-fecha" type="date"><input id="plan-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"><input id="plan-objetivo" placeholder="Objetivo de la sesión"><input id="plan-duracion" type="number" min="0" placeholder="Duración prevista (min)"><select id="plan-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select></div><div class="actions"><button class="primary" onclick="guardarPlan()">Crear entrenamiento</button></div></div></details>
+    </div>
+    <div id="week-grid" class="planning-week"></div>
+    <div id="month-grid" class="planning-month hidden"></div>
+  </div>
+</section>
+<section id="historial" class="view"><div class="panel"><h2>Entrenamientos realizados</h2><div class="small" style="margin-bottom:14px">Historial separado por equipo. En la lista se muestra la fecha y el contenido trabajado; pulsa un entrenamiento para ver todos los detalles.</div><div id="historial-list" class="trainings-columns"></div></div></section>
+<section id="estadisticas" class="view"><div class="panel"><div class="stats-team-title"><h2 style="margin:0">Estadísticas del equipo</h2><span id="stat-team-name" class="stats-team-badge">Equipo</span></div><div class="summary"><div class="metric"><span class="small">Sesiones completadas</span><b id="stat-sesiones">0</b></div><div class="metric"><span class="small">Ejercicios en biblioteca compartida</span><b id="stat-ejercicios">0</b></div><div class="metric"><span class="small">Minutos históricos</span><b id="stat-minutos">0</b></div></div><h3>Trabajo por fundamento</h3><div id="stat-bars" class="stat-bars"></div><h3 style="margin-top:22px">Distribución de intensidad</h3><div id="stat-intensidad" class="technical-grid"></div><h3 style="margin-top:22px">Equilibrio de contenidos</h3><div id="stat-balance" class="muted-box"></div><h3 style="margin-top:22px">Ejercicios más usados</h3><div id="stat-top"></div><h3 style="margin-top:24px">Dónde se ha utilizado cada ejercicio</h3><div class="small" style="margin-bottom:10px">Solo se muestran los usos del equipo seleccionado. La biblioteca sigue siendo compartida entre Infantil y Cadete.</div><div id="stat-usage-detail"></div></div></section>
 <div id="player-modal" class="performance-modal" onclick="if(event.target===this)closePlayerModal()"><div class="performance-dialog"><button class="ghost modal-close" onclick="closePlayerModal()">✕</button><h2 id="player-form-title">Nuevo jugador</h2><input type="hidden" id="player-form-id"><div class="form-grid"><input id="player-name" placeholder="Nombre y apellidos"><input id="player-number" type="number" min="0" max="99" placeholder="Dorsal"><select id="player-position"><option>Colocador</option><option selected>Receptor</option><option>Central</option><option>Opuesto</option><option>Líbero</option><option>Universal</option></select><select id="player-secondary-position"><option value="">Sin posición secundaria</option><option>Colocador</option><option>Receptor</option><option>Central</option><option>Opuesto</option><option>Líbero</option><option>Universal</option></select><input id="player-birth-year" type="number" min="1990" max="2030" placeholder="Año de nacimiento"><input id="player-height" type="number" min="100" max="250" placeholder="Altura (cm)"><select id="player-hand"><option>Diestro</option><option>Zurdo</option><option>Ambidiestro</option></select><select id="player-status"><option>Disponible</option><option>Recuperación</option><option>Lesionado</option><option>Baja</option></select><textarea id="player-notes" class="span-2" placeholder="Notas del entrenador: contexto, limitaciones, aspectos a vigilar..."></textarea></div><div class="modal-actions"><button id="player-delete-btn" class="danger hidden" onclick="deletePlayer()">Dar de baja</button><div class="actions"><button class="ghost" onclick="closePlayerModal()">Cancelar</button><button class="success" onclick="savePlayer()">Guardar jugador</button></div></div></div></div>
 
 <div id="evaluation-modal" class="performance-modal" onclick="if(event.target===this)closeEvaluationModal()"><div class="performance-dialog medium"><button class="ghost modal-close" onclick="closeEvaluationModal()">✕</button><div class="team-kicker dark">Evaluación periódica</div><h2 id="evaluation-player-name">Jugador</h2><div class="evaluation-top"><label>Fecha<input id="evaluation-date" type="date"></label><div class="small">Escala técnica 1–10. Solo se muestran los aspectos relevantes para su posición.</div></div><div id="evaluation-metrics" class="evaluation-metrics"></div><textarea id="evaluation-notes" placeholder="Observaciones de la evaluación"></textarea><div class="modal-actions end"><button class="ghost" onclick="closeEvaluationModal()">Cancelar</button><button class="success" onclick="saveEvaluation()">Guardar evaluación</button></div></div></div>
@@ -147,19 +234,19 @@
 
 <div id="player-profile-modal" class="performance-modal profile-modal" onclick="if(event.target===this)closePlayerProfile()"><div class="performance-dialog wide"><button class="ghost modal-close" onclick="closePlayerProfile()">✕</button><div id="player-profile-content"></div></div></div>
 
-<div id="exercise-players-modal" class="performance-modal" onclick="if(event.target===this)closeExercisePlayers()"><div class="performance-dialog small-dialog"><button class="ghost modal-close" onclick="closeExercisePlayers()">✕</button><h2>Jugadores del ejercicio</h2><div class="small" style="margin-bottom:12px">Por defecto participa todo el grupo convocado. Desmarca jugadores para ejercicios específicos por posición o grupos.</div><div id="exercise-player-options" class="exercise-player-options"></div><div class="modal-actions end"><button class="ghost" onclick="closeExercisePlayers()">Cancelar</button><button class="success" onclick="saveExercisePlayers()">Guardar asignación</button></div></div></div>
-
-<div id="training-close-modal" class="performance-modal" onclick="if(event.target===this)closeTrainingClose()"><div class="performance-dialog wide"><button class="ghost modal-close" onclick="closeTrainingClose()">✕</button><div class="team-kicker dark">Cierre de sesión</div><h2>Asistencia y check-in rápido</h2><div class="small" style="margin-bottom:14px">Un último registro breve permite calcular asistencia y conservar incidencias sin hacer una evaluación técnica completa cada día.</div><div class="close-player-head"><span>Jugador</span><span>Asistencia</span><span>Sesión</span><span>Nota rápida</span></div><div id="training-close-players" class="training-close-players"></div><div class="modal-actions end"><button class="ghost" onclick="closeTrainingClose()">Volver</button><button class="success" onclick="confirmarFinalEntrenamiento()">✅ Guardar entrenamiento</button></div></div></div>
 
 </main>
+<div id="templates-modal" class="pro-modal" onclick="if(event.target===this)cerrarModalPlantillas()">
+  <div class="pro-modal-card templates-card">
+    <div class="pro-modal-head"><div><span class="pro-kicker">PLANTILLAS</span><h2>Sesiones reutilizables</h2><p>Guarda estructuras de entrenamiento y reutilízalas sin alterar el original.</p></div><button class="modal-close" onclick="cerrarModalPlantillas()">×</button></div>
+    <div id="template-save-area" class="template-save-area"><input id="template-name" placeholder="Nombre de la plantilla, p. ej. Recepción + K1"><button class="primary" onclick="guardarPlantillaActualDesdeModal()">Guardar sesión actual</button></div>
+    <div id="templates-list" class="templates-list"></div>
+  </div>
+</div>
+
+
 
 
 <script src="./app.js"></script>
-<script src="./training.js"></script>
 <script src="./players.js"></script>
-<script src="./library.js"></script>
-<script src="./planning.js"></script>
-<script src="./history.js"></script>
-<script src="./stats.js"></script>
-<script src="./pdf.js"></script>
 </body></html>
