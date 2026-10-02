@@ -42,17 +42,21 @@ let crearEjercicioDestinoSesion=null;
 let equipoActivo=localStorage.getItem(ACTIVE_TEAM_KEY)||localStorage.getItem(OLD_ACTIVE_TEAM_KEY)||'infantil';
 if(!EQUIPOS[equipoActivo])equipoActivo='infantil';
 let sesionActual=[],planificacion=[],historial=[];
+let players=[],playerEvaluations=[],playerGoals=[];
 let semanaBase=new Date(); let pizarraParaEjercicio=null;
-let meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}};
+let meta={fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[],exercisePlayers:{},rosterInitialized:false};
 let equiposData=null;
 
 function clonar(v){return JSON.parse(JSON.stringify(v))}
 function estadoEquipoVacio(id){
   return {
     sesionActual:[],
-    meta:{fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[id].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}},
+    meta:{fecha:new Date().toISOString().slice(0,10),equipo:EQUIPOS[id].nombre,jugadores:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[],exercisePlayers:{},rosterInitialized:false},
     historial:[],
-    planificacion:[]
+    planificacion:[],
+    players:[],
+    playerEvaluations:[],
+    playerGoals:[]
   };
 }
 function migrarControlHistorial(lista){
@@ -69,7 +73,10 @@ function limpiarEquipo(raw,id){
     sesionActual:Array.isArray(raw.sesionActual)?clonar(raw.sesionActual):[],
     meta:{...estadoEquipoVacio(id).meta,...clonar(raw.meta||{}),seccionesEjercicios:{...(raw.meta&&raw.meta.seccionesEjercicios&&typeof raw.meta.seccionesEjercicios==='object'?clonar(raw.meta.seccionesEjercicios):{})},notasBloques:{...(raw.meta&&raw.meta.notasBloques&&typeof raw.meta.notasBloques==='object'?clonar(raw.meta.notasBloques):{})},equipo:EQUIPOS[id].nombre},
     historial:migrarControlHistorial(Array.isArray(raw.historial)?clonar(raw.historial):[]),
-    planificacion:Array.isArray(raw.planificacion)?clonar(raw.planificacion):[]
+    planificacion:Array.isArray(raw.planificacion)?clonar(raw.planificacion):[],
+    players:Array.isArray(raw.players)?clonar(raw.players):[],
+    playerEvaluations:Array.isArray(raw.playerEvaluations)?clonar(raw.playerEvaluations):[],
+    playerGoals:Array.isArray(raw.playerGoals)?clonar(raw.playerGoals):[]
   };
 }
 function fusionarBibliotecas(...listas){
@@ -129,7 +136,7 @@ function cargarEstadoLocal(){
   guardarEstadoLocalSinCloud();
 }
 function guardarEstadoLocalSinCloud(){
-  localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:5.4,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)}));
+  localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:5.9,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)}));
   localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo);
 }
 function guardarEquipoEnMemoria(){
@@ -138,7 +145,10 @@ function guardarEquipoEnMemoria(){
     sesionActual:clonar(sesionActual),
     meta:clonar({...meta,equipo:EQUIPOS[equipoActivo].nombre}),
     historial:clonar(historial),
-    planificacion:clonar(planificacion)
+    planificacion:clonar(planificacion),
+    players:clonar(players),
+    playerEvaluations:clonar(playerEvaluations),
+    playerGoals:clonar(playerGoals)
   };
 }
 function cargarEquipoEnVariables(id){
@@ -148,6 +158,10 @@ function cargarEquipoEnVariables(id){
   meta=clonar(s.meta||estadoEquipoVacio(id).meta);meta.equipo=EQUIPOS[id].nombre;
   historial=clonar(s.historial||[]);
   planificacion=clonar(s.planificacion||[]);
+  players=clonar(s.players||[]);
+  playerEvaluations=clonar(s.playerEvaluations||[]);
+  playerGoals=clonar(s.playerGoals||[]);
+  if(typeof reconcilePlayerState==='function')reconcilePlayerState();
 }
 function actualizarSelectorEquipo(){
   const info=EQUIPOS[equipoActivo];
@@ -162,7 +176,7 @@ function cambiarEquipo(id){
   guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();
   equipoActivo=id;localStorage.setItem(ACTIVE_TEAM_KEY,id);
   cargarEquipoEnVariables(id);
-  actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();
+  actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();if(typeof renderPlayers==='function')renderPlayers();
   limpiarPizarra();if(meta.pizarra)setTimeout(()=>aplicarPizarra(meta.pizarra),60);
   $('save-indicator').textContent='✓ '+EQUIPOS[id].nombre+' cargado · biblioteca compartida';
 }
@@ -170,8 +184,8 @@ cargarEstadoLocal();
 cargarEquipoEnVariables(equipoActivo);
 
 function save(){meta.equipo=EQUIPOS[equipoActivo].nombre;guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();$('save-indicator').textContent='✓ Guardado · '+EQUIPOS[equipoActivo].corto+' · biblioteca compartida';programarSubidaCloud();}
-function showView(id,btn){if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();}
-function botonVista(id){const orden=['entrenamiento','ejercicios','planificacion','historial','estadisticas'];return document.querySelectorAll('.tab-btn')[orden.indexOf(id)]||null}
+function showView(id,btn){if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();if(id==='jugadores'&&typeof renderPlayers==='function')renderPlayers();}
+function botonVista(id){const orden=['entrenamiento','ejercicios','jugadores','planificacion','historial','estadisticas'];return document.querySelectorAll('.tab-btn')[orden.indexOf(id)]||null}
 function abrirBibliotecaNormal(btn){const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();showView('ejercicios',btn);renderDestinoBiblioteca()}
 // ===== VOLLEY COACH CLOUD SYNC (Supabase) =====
 let cloudClient=null, cloudUser=null, cloudSaveTimer=null, cloudApplying=false;
@@ -179,7 +193,7 @@ const CLOUD_URL_KEY='volleyCoachSupabaseUrlV2';
 const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKeyV2';
 const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
-function estadoLocal(){guardarEquipoEnMemoria();return {version:5.4,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}}
+function estadoLocal(){guardarEquipoEnMemoria();return {version:5.9,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}}
 function aplicarEstadoCloud(s){
   if(!s)return;
   cloudApplying=true;
@@ -192,7 +206,7 @@ function aplicarEstadoCloud(s){
   guardarEstadoLocalSinCloud();
   cargarEquipoEnVariables(equipoActivo);
   actualizarSelectorEquipo();
-  cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();
+  cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();if(typeof renderPlayers==='function')renderPlayers();
   cloudApplying=false;
   if(eraAnterior&&cloudUser)setTimeout(()=>subirNube(false),350);
 }
@@ -287,6 +301,7 @@ function iniciarVolleyCoach(){
   renderizarSesion();
   filtrarEjercicios();
   renderPlanificacion();
+  if(typeof renderPlayers==='function')renderPlayers();
   initCloud();
 }
 
