@@ -527,6 +527,38 @@ header{position:static!important;top:auto!important;}
 @media(max-width:650px){.players-pro-hero{align-items:flex-start;flex-direction:column;padding:20px}.players-pro-hero-actions{width:100%}.players-pro-hero-actions button{flex:1}.players-pro-kpis{grid-template-columns:1fr 1fr}.players-pro-toolbar{grid-template-columns:1fr}.player-form-grid{grid-template-columns:1fr}.player-form-grid .wide{grid-column:auto}.pp-profile-top{grid-template-columns:auto 1fr}.pp-profile-actions{grid-column:1/-1;justify-content:flex-start}.eval-subgrid{grid-template-columns:1fr}.dashboard-team-state{grid-template-columns:1fr 1fr}}
 </style>
 
+
+<style id="dashboard-command-center-v591">
+/* ===== V5.9.1 · CENTRO DE MANDO ===== */
+.dashboard-command-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:12px}
+.dashboard-command-card{background:#fff;border:1px solid var(--pro-border,#dce2e7);border-radius:14px;padding:17px 18px;box-shadow:0 2px 10px rgba(22,38,52,.035)}
+.dashboard-command-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding-bottom:11px;border-bottom:1px solid #edf0f2;margin-bottom:12px}
+.dashboard-command-head h3{font-family:inherit!important;border:0!important;padding:0!important;margin:3px 0 0!important;font-size:16px!important}
+.dashboard-command-badge{font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:#eef3f7;color:#355b78;white-space:nowrap}
+.dashboard-command-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:13px}
+.dashboard-command-metric{background:#f8fafb;border:1px solid #e5e9ec;border-radius:10px;padding:10px}
+.dashboard-command-metric span{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#7d8994;font-weight:900}
+.dashboard-command-metric b{display:block;margin-top:4px;font-size:19px;color:#102b43;letter-spacing:-.035em}
+.dashboard-compare-row{display:grid;grid-template-columns:105px 1fr 72px;gap:9px;align-items:center;margin:9px 0}
+.dashboard-compare-row>span{font-size:10px;color:#60717f;font-weight:750}
+.dashboard-compare-track{height:8px;border-radius:999px;background:#edf0f2;overflow:hidden;position:relative}
+.dashboard-compare-track i{display:block;height:100%;border-radius:999px;background:#315f84}
+.dashboard-compare-track i.real{background:#e49a3a}
+.dashboard-compare-row b{text-align:right;font-size:10px;color:#304b61}
+.dashboard-alert-list{display:grid;gap:7px}
+.dashboard-plan-alert{display:grid;grid-template-columns:8px 1fr auto;gap:9px;align-items:start;padding:9px 10px;border:1px solid #e7ebee;border-radius:9px;background:#fbfcfd}
+.dashboard-plan-alert .dot{width:8px;height:8px;border-radius:50%;background:#7f94a6;margin-top:4px}
+.dashboard-plan-alert.warn .dot{background:#d59532}.dashboard-plan-alert.good .dot{background:#3f7c63}
+.dashboard-plan-alert strong{display:block;font-size:10.5px;color:#29445a}
+.dashboard-plan-alert span{display:block;font-size:9.5px;color:#7b8792;margin-top:2px;line-height:1.35}
+.dashboard-plan-alert button{padding:4px 6px!important;font-size:8px!important;background:transparent!important;color:#315f84!important;border:0!important}
+.dashboard-week-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.dashboard-week-pill{font-size:9px;font-weight:800;padding:4px 7px;border-radius:999px;background:#f2f5f7;color:#61717f}
+.dashboard-week-pill.good{background:#edf7f1;color:#2f6b4d}.dashboard-week-pill.warn{background:#fff6e8;color:#8a651f}
+@media(max-width:1000px){.dashboard-command-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.dashboard-command-metrics{grid-template-columns:1fr 1fr}.dashboard-compare-row{grid-template-columns:82px 1fr 58px}}
+</style>
+
 </head>
 <body>
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.9 · PLAYER DEVELOPMENT</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
@@ -622,6 +654,25 @@ header{position:static!important;top:auto!important;}
   <div class="dashboard-main-grid dashboard-secondary-grid">
     <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">ÚLTIMO ENTRENAMIENTO</span><h3>Trabajo realizado</h3></div><button class="text-btn" onclick="showView('historial',botonVista('historial'))">Ver historial →</button></div><div id="dash-last-session"></div></section>
     <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">FOCO DE LA SEMANA</span><h3>Distribución del trabajo</h3></div></div><div id="dash-week-focus"></div></section>
+  </div>
+
+
+  <div class="dashboard-command-grid" id="dashboard-command-center">
+    <section class="dashboard-command-card">
+      <div class="dashboard-command-head"><div><span class="dashboard-label">CONTROL SEMANAL</span><h3>Planificado vs realizado</h3></div><span id="dash-week-status-badge" class="dashboard-command-badge">Semana actual</span></div>
+      <div class="dashboard-command-metrics">
+        <div class="dashboard-command-metric"><span>Sesiones previstas</span><b id="dash-pro-planned-sessions">0</b></div>
+        <div class="dashboard-command-metric"><span>Completadas</span><b id="dash-pro-done-sessions">0</b></div>
+        <div class="dashboard-command-metric"><span>Min planificados</span><b id="dash-pro-planned-min">0</b></div>
+        <div class="dashboard-command-metric"><span>Min realizados</span><b id="dash-pro-done-min">0</b></div>
+      </div>
+      <div id="dash-pro-compare"></div>
+      <div id="dash-pro-week-pills" class="dashboard-week-status"></div>
+    </section>
+    <section class="dashboard-command-card">
+      <div class="dashboard-command-head"><div><span class="dashboard-label">LECTURA DEL STAFF</span><h3>Alertas de planificación</h3></div><button class="text-btn" onclick="showView('planificacion',botonVista('planificacion'))">Planificación →</button></div>
+      <div id="dash-pro-alerts" class="dashboard-alert-list"></div>
+    </section>
   </div>
 
   <div class="dashboard-main-grid dashboard-secondary-grid" id="dashboard-player-row">
@@ -2463,7 +2514,16 @@ function guardarJugador(){
   const i=jugadoresEquipo.findIndex(x=>Number(x.id)===Number(id));if(i>=0)jugadoresEquipo[i]=p;else jugadoresEquipo.push(p);ppSave();cerrarPlayerModal('player-form-modal');renderPlayers();renderDashboardPlayers();renderSessionRoster();
 }
 function eliminarJugador(id){
-  const p=ppPlayer(id);if(!p||!confirm(`¿Eliminar a ${p.name}? Se borrarán sus evaluaciones, objetivos y observaciones.`))return;jugadoresEquipo=jugadoresEquipo.filter(x=>Number(x.id)!==Number(id));meta.playerIds=(meta.playerIds||[]).filter(x=>Number(x)!==Number(id));ppSave();cerrarPlayerModal('player-profile-modal');renderPlayers();renderDashboardPlayers();renderSessionRoster();
+  const p=ppPlayer(id);if(!p)return;
+  if(!confirm(`¿Quieres eliminar a ${p.name}?\n\nTambién se borrarán sus evaluaciones, objetivos y observaciones.`))return;
+  const confirmacion=prompt(`Para confirmar el borrado definitivo, escribe el nombre del jugador:\n${p.name}`);
+  if(String(confirmacion||'').trim().toLowerCase()!==String(p.name||'').trim().toLowerCase()){
+    if(confirmacion!==null)alert('El nombre no coincide. No se ha eliminado ningún dato.');
+    return;
+  }
+  jugadoresEquipo=jugadoresEquipo.filter(x=>Number(x.id)!==Number(id));
+  meta.playerIds=(meta.playerIds||[]).filter(x=>Number(x)!==Number(id));
+  ppSave();cerrarPlayerModal('player-profile-modal');renderPlayers();renderDashboardPlayers();renderSessionRoster();
 }
 function cerrarPlayerModal(id){$(id)?.classList.remove('open')}
 
@@ -2576,6 +2636,78 @@ function renderDashboardPlayers(){
   const att=[];pending.slice(0,3).forEach(p=>att.push({p,text:ppLatest(p)?`Evaluación hace ${ppDays(ppLatest(p).date)} días`:'Sin evaluación inicial'}));all.forEach(p=>{const g=ppActiveGoal(p);if(g&&ppGoalProgress(p,g)<35)att.push({p,text:`Objetivo ${g.area} · ${Math.round(ppGoalProgress(p,g))}%`})});
   alerts.innerHTML=att.length?att.slice(0,5).map(x=>`<div class="dashboard-player-alert"><b>${ppSafe(x.p.name)}</b><span>${ppSafe(x.text)}</span></div>`).join(''):'<div class="dashboard-empty">Sin seguimientos urgentes.</div>';
 }
+</script>
+
+
+
+<script id="dashboard-command-center-script">
+function dashProFundamentosSesiones(sesiones){
+  const c={};
+  (sesiones||[]).forEach(s=>{
+    (s.ejercicios||[]).forEach(e=>{
+      const ex=enriquecerEjercicioGuardado(e),fs=normalizarFundamentos(ex);
+      if(!fs.length)return;
+      const m=(Number(ex.tiempo)||0)/fs.length;fs.forEach(f=>c[f]=(c[f]||0)+m);
+    });
+  });
+  return c;
+}
+function dashProPct(a,b){return b>0?Math.round(a/b*100):0}
+function renderDashboardCommandCenter(){
+  if(!$('dashboard-command-center'))return;
+  const lunes=lunesDeSemana(new Date()),domingo=new Date(lunes);domingo.setDate(lunes.getDate()+6);
+  const ini=isoDate(lunes),fin=isoDate(domingo);
+  const planes=planificacion.filter(p=>p.fecha>=ini&&p.fecha<=fin);
+  const hechos=historial.filter(h=>h.fecha>=ini&&h.fecha<=fin);
+  const planMin=planes.reduce((a,p)=>a+(Number(p.duracion)||minutosListaEjercicios(p.ejercicios||[])),0);
+  const doneMin=hechos.reduce((a,h)=>a+(Number(h.duracion)||minutosListaEjercicios((h.ejercicios||[]).map(enriquecerEjercicioGuardado))),0);
+  const doneSessions=hechos.length;
+  $('dash-pro-planned-sessions').textContent=planes.length;
+  $('dash-pro-done-sessions').textContent=doneSessions;
+  $('dash-pro-planned-min').textContent=planMin;
+  $('dash-pro-done-min').textContent=doneMin;
+  const maxMin=Math.max(planMin,doneMin,1),maxSes=Math.max(planes.length,doneSessions,1);
+  $('dash-pro-compare').innerHTML=`
+    <div class="dashboard-compare-row"><span>Sesiones</span><div><div class="dashboard-compare-track"><i style="width:${planes.length/maxSes*100}%"></i></div><div class="dashboard-compare-track" style="margin-top:4px"><i class="real" style="width:${doneSessions/maxSes*100}%"></i></div></div><b>${doneSessions}/${planes.length||0}</b></div>
+    <div class="dashboard-compare-row"><span>Minutos</span><div><div class="dashboard-compare-track"><i style="width:${planMin/maxMin*100}%"></i></div><div class="dashboard-compare-track" style="margin-top:4px"><i class="real" style="width:${doneMin/maxMin*100}%"></i></div></div><b>${doneMin}/${planMin||0}</b></div>`;
+  const completion=planes.length?dashProPct(doneSessions,planes.length):(doneSessions?100:0);
+  const minuteCompletion=planMin?dashProPct(doneMin,planMin):(doneMin?100:0);
+  const pills=[];
+  pills.push(`<span class="dashboard-week-pill ${completion>=75?'good':completion<40&&planes.length?'warn':''}">${completion}% sesiones completadas</span>`);
+  pills.push(`<span class="dashboard-week-pill ${minuteCompletion>=75?'good':minuteCompletion<40&&planMin?'warn':''}">${minuteCompletion}% carga realizada</span>`);
+  const foc=dashProFundamentosSesiones(hechos.length?hechos:planes),funds=Object.keys(foc);
+  pills.push(`<span class="dashboard-week-pill">${funds.length} fundamentos trabajados</span>`);
+  $('dash-pro-week-pills').innerHTML=pills.join('');
+  const badge=$('dash-week-status-badge');
+  if(badge){badge.textContent=planes.length?`${doneSessions}/${planes.length} sesiones`:(doneSessions?`${doneSessions} realizadas`:'Sin planificación');}
+
+  const alerts=[];
+  if(!planes.length) alerts.push({t:'warn',title:'Semana sin planificación',text:'No hay sesiones programadas esta semana.',action:'Planificar'});
+  if(planes.length&&doneSessions===0&&new Date().getDay()>=4) alerts.push({t:'warn',title:'Sin sesiones completadas',text:'La semana avanza y todavía no consta ningún entrenamiento realizado.',action:'Revisar'});
+  const vals=Object.entries(foc).sort((a,b)=>a[1]-b[1]);
+  if(vals.length>=4){
+    const total=vals.reduce((a,x)=>a+x[1],0)||1;
+    const [lowF,lowM]=vals[0];
+    if(lowM/total<.10) alerts.push({t:'warn',title:`${lowF} con poco peso`,text:`Representa aproximadamente el ${Math.round(lowM/total*100)}% del trabajo de la semana.`,action:'Biblioteca',fundamento:lowF});
+  }
+  const futuros=planes.filter(p=>!p.realizado&&p.fecha>=fechaLocalISO()).length;
+  if(futuros===0&&planes.length&&doneSessions>=planes.length) alerts.push({t:'good',title:'Semana al día',text:'Las sesiones previstas de la semana ya están completadas.'});
+  if(!alerts.length) alerts.push({t:'good',title:'Planificación equilibrada',text:'No hay desviaciones importantes detectadas en la semana actual.'});
+  $('dash-pro-alerts').innerHTML=alerts.slice(0,4).map((a,i)=>`<div class="dashboard-plan-alert ${a.t}"><span class="dot"></span><div><strong>${esc(a.title)}</strong><span>${esc(a.text)}</span></div>${a.action?`<button onclick="dashProAlertAction(${i})">${esc(a.action)} →</button>`:''}</div>`).join('');
+  window.__dashProAlerts=alerts;
+}
+function dashProAlertAction(i){
+  const a=(window.__dashProAlerts||[])[i];if(!a)return;
+  if(a.action==='Biblioteca'&&a.fundamento){
+    abrirBibliotecaNormal(botonVista('ejercicios'));
+    document.querySelectorAll('input[name="filtro-fundamento"]').forEach(x=>x.checked=x.value===a.fundamento);
+    filtrarEjercicios();return;
+  }
+  showView('planificacion',botonVista('planificacion'));
+}
+const _renderDashboardCommandBase=renderDashboard;
+renderDashboard=function(){_renderDashboardCommandBase();renderDashboardCommandCenter();};
+if($('dashboard')?.classList.contains('active'))renderDashboardCommandCenter();
 </script>
 
 
