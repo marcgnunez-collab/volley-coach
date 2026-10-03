@@ -491,9 +491,45 @@ header{position:static!important;top:auto!important;}
   .app-toolbar,.tabs{position:static!important;top:auto!important;}
 }
 </style>
+
+<style id="players-pro-v2-style">
+/* ===== JUGADORES PRO V2 ===== */
+.players-pro-shell{display:grid;gap:12px}
+.players-pro-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;background:linear-gradient(135deg,#0b2239,#173b5a);color:#fff;border-radius:18px;padding:24px 26px;box-shadow:0 12px 30px rgba(11,34,57,.12)}
+.players-pro-hero h2{color:#fff!important;margin:3px 0 5px!important;font-size:26px!important}.players-pro-hero p{margin:0;color:#c8d4de;font-size:11.5px}
+.players-pro-hero .pro-kicker{color:#9fb2c4}.players-pro-hero-actions{display:flex;gap:7px;flex-wrap:wrap}.players-pro-hero .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important}
+.players-pro-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.players-pro-kpi{background:#fff;border:1px solid #e0e5e9;border-radius:14px;padding:14px 16px}.players-pro-kpi span{display:block;font-size:8.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#7e8a95}.players-pro-kpi b{display:block;font-size:23px;color:#102b43;margin-top:4px;letter-spacing:-.035em}.players-pro-kpi small{font-size:9.5px;color:#89949d}
+.players-pro-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 180px 160px auto;gap:8px;align-items:center;background:#fff;border:1px solid #e0e5e9;border-radius:12px;padding:10px}
+.players-pro-table-wrap{overflow:auto;background:#fff;border:1px solid #e0e5e9;border-radius:14px}.players-pro-table{width:100%;border-collapse:collapse;min-width:980px}.players-pro-table th,.players-pro-table td{padding:11px 12px;border-bottom:1px solid #edf0f2;text-align:left;vertical-align:middle}.players-pro-table th{font-size:8px;text-transform:uppercase;letter-spacing:.09em;color:#7b8792;background:#fafbfc}.players-pro-table tr:last-child td{border-bottom:0}.players-pro-table tbody tr:hover td{background:#fbfcfd}
+.pp-identity{display:flex;align-items:center;gap:10px;min-width:205px}.pp-avatar{width:38px;height:38px;border-radius:11px;background:#102b43;color:#fff;display:grid;place-items:center;font-weight:900;font-size:11px;flex:0 0 auto}.pp-name{font-size:12.5px;font-weight:850;color:#1c3850}.pp-sub{font-size:9.5px;color:#84909a;margin-top:2px}.pp-pos{font-size:11px;font-weight:800;color:#36546b}
+.pp-status{display:inline-flex;border:1px solid #dfe5e9;border-radius:999px;padding:4px 7px;font-size:8.5px;font-weight:850;color:#60707d;background:#f5f7f8}.pp-status.available{background:#edf7f1;border-color:#cce5d6;color:#2f6b4d}.pp-status.recovery{background:#fff8e9;border-color:#ecd8ab;color:#8a651f}.pp-status.injured{background:#fff1f0;border-color:#edcfcc;color:#8e403d}
+.pp-score{display:flex;align-items:center;gap:7px}.pp-score b{font-size:13px;color:#17324d}.pp-score-track{width:65px;height:6px;background:#edf0f2;border-radius:99px;overflow:hidden}.pp-score-track span{display:block;height:100%;background:#e49a3a;border-radius:99px}.pp-trend{font-weight:900;font-size:10.5px}.pp-trend.up{color:#2f7650}.pp-trend.down{color:#9b4744}.pp-trend.flat{color:#7b8791}.pp-actions{display:flex;gap:5px;justify-content:flex-end}.pp-actions button{padding:6px 8px!important;font-size:8px!important;border-radius:7px!important}
+.players-empty{padding:42px 18px;text-align:center;color:#7c8994}.players-empty strong{display:block;color:#31495e;margin-bottom:5px}
+.player-modal{position:fixed;inset:0;z-index:12000;background:rgba(8,24,38,.58);display:none;align-items:center;justify-content:center;padding:18px}.player-modal.open{display:flex}.player-modal-card{width:min(980px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:17px;box-shadow:0 30px 75px rgba(5,20,33,.3);padding:20px}.player-modal-card.compact{width:min(700px,96vw)}
+.player-modal-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #edf0f2;padding-bottom:12px;margin-bottom:14px}.player-modal-head h2{margin:0!important;font-size:20px!important}.player-modal-head p{margin:4px 0 0;color:#7d8993;font-size:10.5px}.player-modal-close{background:transparent!important;border:0!important;font-size:23px!important;color:#7c8792!important;padding:0 5px!important}
+.player-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.player-form-grid .wide{grid-column:1/-1}.player-form-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:14px}
+.pp-profile-top{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;margin-bottom:13px}.pp-profile-avatar{width:66px;height:66px;border-radius:17px;background:#102b43;color:#fff;display:grid;place-items:center;font-size:20px;font-weight:900}.pp-profile-name h2{margin:0!important;font-size:23px!important}.pp-profile-name p{margin:4px 0 0;color:#74818c;font-size:11px}.pp-profile-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pp-profile-nav{display:flex;gap:3px;border-bottom:1px solid #e7ebee;margin-bottom:12px;overflow:auto}.pp-profile-nav button{background:transparent!important;color:#687682!important;border:0!important;border-bottom:3px solid transparent!important;border-radius:0!important;padding:9px 11px!important;font-size:9px!important;white-space:nowrap}.pp-profile-nav button.active{color:#102b43!important;border-bottom-color:#e49a3a!important}
+.pp-tab{display:none}.pp-tab.active{display:block}.pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.pp-card{border:1px solid #e2e7eb;border-radius:12px;padding:13px;background:#fff}.pp-card h3{font-family:inherit!important;border:0!important;padding:0!important;margin:0 0 10px!important;font-size:13px!important}.pp-card.wide{grid-column:1/-1}
+.pp-summary-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.pp-mini-kpi{background:#f8fafb;border:1px solid #e6eaed;border-radius:9px;padding:9px}.pp-mini-kpi span{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:#86919a;font-weight:850}.pp-mini-kpi b{display:block;font-size:18px;color:#17324d;margin-top:3px}
+.pp-metric-row{display:grid;grid-template-columns:140px 1fr 43px;gap:8px;align-items:center;margin:7px 0}.pp-metric-row span{font-size:10px;color:#5f707d}.pp-metric-track{height:7px;border-radius:99px;background:#edf0f2;overflow:hidden}.pp-metric-track i{display:block;height:100%;background:#315f84;border-radius:99px}.pp-metric-row b{text-align:right;font-size:10.5px;color:#17324d}
+.pp-insight{padding:9px 10px;border-radius:8px;background:#f2f6f9;border-left:3px solid #315f84;color:#486072;font-size:10.5px;line-height:1.45;margin:6px 0}.pp-insight.warn{background:#fff8ed;border-left-color:#d59532;color:#72571f}.pp-insight.good{background:#f1f8f4;border-left-color:#3f7c63;color:#35624f}
+.pp-goal{border:1px solid #e4e8eb;border-left:3px solid #e49a3a;border-radius:8px;padding:10px 11px;margin:7px 0;background:#fff}.pp-goal.done{border-left-color:#3f7c63;background:#f7fbf9}.pp-goal-head{display:flex;justify-content:space-between;gap:10px}.pp-goal-title{font-size:11.5px;font-weight:850;color:#274259}.pp-goal-meta{font-size:9px;color:#81909c;margin-top:3px}.pp-goal-progress{height:6px;background:#edf0f2;border-radius:99px;overflow:hidden;margin:8px 0 4px}.pp-goal-progress span{display:block;height:100%;background:#e49a3a;border-radius:99px}.pp-goal.done .pp-goal-progress span{background:#3f7c63}.pp-goal-actions{display:flex;gap:4px;flex-wrap:wrap}.pp-goal-actions button{padding:5px 7px!important;font-size:7.8px!important}
+.pp-history{display:grid;gap:7px}.pp-history-item{display:grid;grid-template-columns:95px minmax(0,1fr) auto;gap:9px;align-items:center;border:1px solid #e7ebee;border-radius:8px;background:#fafbfc;padding:8px 9px}.pp-history-item strong{font-size:10px;color:#31495e}.pp-history-item small{font-size:9px;color:#7b8792}.pp-history-item b{font-size:11px;color:#17324d}
+.pp-observation-tags{display:flex;gap:5px;flex-wrap:wrap}.pp-observation-tags button{padding:6px 8px!important;font-size:8px!important;border-radius:999px!important}.pp-observation-list{display:grid;gap:6px;margin-top:10px}.pp-observation{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #edf0f2;padding:7px 0}.pp-observation:last-child{border-bottom:0}.pp-observation b{font-size:10px;color:#31495e}.pp-observation small{font-size:9px;color:#84909a}
+.pp-chart-controls{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.pp-chart-controls select{max-width:190px}.pp-chart-box{border:1px solid #e5e9ec;border-radius:10px;background:#fbfcfd;padding:10px;min-height:230px}.pp-chart-box svg{width:100%;height:210px;display:block}.pp-chart-empty{height:210px;display:grid;place-items:center;color:#8a949d;font-size:11px}
+.pp-workload-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px}.pp-load-card{border:1px solid #e4e8eb;border-radius:9px;padding:9px;background:#fafbfc}.pp-load-card span{font-size:8.5px;color:#7d8994;text-transform:uppercase;font-weight:850}.pp-load-card b{display:block;font-size:17px;color:#17324d;margin-top:3px}
+.eval-category{border:1px solid #e1e6ea;border-radius:10px;padding:10px;background:#fbfcfd;margin-bottom:9px}.eval-category-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}.eval-category-head strong{font-size:11px;color:#2f4c63}.eval-category-score{font-size:10px;font-weight:900;color:#17324d}.eval-subgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.eval-submetric{background:#fff;border:1px solid #e7ebee;border-radius:8px;padding:8px}.eval-submetric label{display:flex;justify-content:space-between;gap:8px;font-size:9.5px;color:#4e6273;font-weight:750;margin-bottom:5px}.eval-submetric input[type=range]{width:100%}
+.session-roster{margin-top:11px;border:1px solid #e0e6eb;border-radius:9px;background:#fff;overflow:hidden}.session-roster>summary{cursor:pointer;list-style:none;padding:10px 12px;font-size:10.5px;font-weight:850;color:#41586d}.session-roster>summary::-webkit-details-marker{display:none}.session-roster-body{border-top:1px solid #edf0f2;padding:10px 12px}.session-roster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px}.session-roster-item{display:flex;align-items:center;gap:7px;padding:7px 8px;border:1px solid #e4e8eb;border-radius:8px;background:#fbfcfd;font-size:10px}.session-roster-item input{width:auto}.session-roster-empty{font-size:10px;color:#87929c}.session-roster-actions{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}.session-roster-actions button{padding:5px 7px!important;font-size:8px!important}
+.dashboard-team-state{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}.dashboard-team-state div{background:#f8fafb;border:1px solid #e8ecef;border-radius:9px;padding:9px}.dashboard-team-state span{display:block;font-size:8px;text-transform:uppercase;color:#83909a;font-weight:850}.dashboard-team-state b{display:block;font-size:17px;color:#17324d;margin-top:2px}.dashboard-alert-list{display:grid;gap:6px}.dashboard-player-alert{display:flex;justify-content:space-between;gap:10px;padding:7px 8px;border:1px solid #e7ebee;border-radius:8px;background:#fbfcfd;font-size:10px}.dashboard-player-alert b{color:#2b465d}.dashboard-player-alert span{color:#75828e}
+@media(max-width:1000px){.players-pro-kpis{grid-template-columns:repeat(3,1fr)}.players-pro-toolbar{grid-template-columns:1fr 1fr}.pp-grid{grid-template-columns:1fr}.pp-card.wide{grid-column:auto}.pp-summary-kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.players-pro-hero{align-items:flex-start;flex-direction:column;padding:20px}.players-pro-hero-actions{width:100%}.players-pro-hero-actions button{flex:1}.players-pro-kpis{grid-template-columns:1fr 1fr}.players-pro-toolbar{grid-template-columns:1fr}.player-form-grid{grid-template-columns:1fr}.player-form-grid .wide{grid-column:auto}.pp-profile-top{grid-template-columns:auto 1fr}.pp-profile-actions{grid-column:1/-1;justify-content:flex-start}.eval-subgrid{grid-template-columns:1fr}.dashboard-team-state{grid-template-columns:1fr 1fr}}
+</style>
+
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.8.9 · CLOUD LIBRARY</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.9 · PLAYER DEVELOPMENT</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -548,6 +584,7 @@ header{position:static!important;top:auto!important;}
     <button class="tab-btn" onclick="showView('entrenamiento',this)">Entrenamiento</button>
     <button class="tab-btn" onclick="showView('planificacion',this)">Planificación</button>
     <button class="tab-btn" onclick="abrirBibliotecaNormal(this)">Biblioteca</button>
+    <button class="tab-btn" onclick="showPlayersView(this)">Jugadores</button>
     <button class="tab-btn" onclick="showView('historial',this)">Historial</button>
     <button class="tab-btn" onclick="showView('estadisticas',this)">Estadísticas</button>
   </div>
@@ -586,7 +623,43 @@ header{position:static!important;top:auto!important;}
     <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">ÚLTIMO ENTRENAMIENTO</span><h3>Trabajo realizado</h3></div><button class="text-btn" onclick="showView('historial',botonVista('historial'))">Ver historial →</button></div><div id="dash-last-session"></div></section>
     <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">FOCO DE LA SEMANA</span><h3>Distribución del trabajo</h3></div></div><div id="dash-week-focus"></div></section>
   </div>
+
+  <div class="dashboard-main-grid dashboard-secondary-grid" id="dashboard-player-row">
+    <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">ESTADO DEL EQUIPO</span><h3>Plantilla y disponibilidad</h3></div><button class="text-btn" onclick="showView('jugadores',botonVista('jugadores'))">Abrir jugadores →</button></div><div id="dash-player-state"></div></section>
+    <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">ATENCIÓN DEL STAFF</span><h3>Seguimientos pendientes</h3></div></div><div id="dash-player-alerts"></div></section>
+  </div>
 </section>
+
+
+<section id="jugadores" class="view">
+  <div class="players-pro-shell">
+    <div class="players-pro-hero">
+      <div><span class="pro-kicker">PLAYER DEVELOPMENT</span><h2>Rendimiento individual</h2><p>Plantilla, desarrollo técnico, objetivos, carga y seguimiento del equipo activo.</p></div>
+      <div class="players-pro-hero-actions"><button class="ghost" onclick="exportarInformeEquipoJugadores()">Informe plantilla</button><button class="primary dashboard-main-btn" onclick="abrirNuevoJugador()">+ Añadir jugador</button></div>
+    </div>
+    <div class="players-pro-kpis">
+      <div class="players-pro-kpi"><span>Plantilla</span><b id="pp-kpi-total">0</b><small>jugadores</small></div>
+      <div class="players-pro-kpi"><span>Disponibles</span><b id="pp-kpi-available">0</b><small>para entrenar</small></div>
+      <div class="players-pro-kpi"><span>Evaluación pendiente</span><b id="pp-kpi-pending">0</b><small>&gt; 30 días</small></div>
+      <div class="players-pro-kpi"><span>Objetivos activos</span><b id="pp-kpi-goals">0</b><small>en seguimiento</small></div>
+      <div class="players-pro-kpi"><span>Seguimiento reciente</span><b id="pp-kpi-recent">0</b><small>evaluados en 30 días</small></div>
+    </div>
+    <div class="players-pro-toolbar">
+      <input id="pp-search" placeholder="Buscar jugador..." oninput="renderPlayers()">
+      <select id="pp-position-filter" onchange="renderPlayers()"><option value="">Todas las posiciones</option><option>Colocador</option><option>Receptor</option><option>Central</option><option>Opuesto</option><option>Líbero</option><option>Universal</option></select>
+      <select id="pp-status-filter" onchange="renderPlayers()"><option value="">Todos los estados</option><option>Disponible</option><option>Recuperación</option><option>Lesionado</option><option>Baja</option></select>
+      <button class="ghost" onclick="renderPlayers()">Actualizar</button>
+    </div>
+    <div class="players-pro-table-wrap">
+      <table class="players-pro-table">
+        <thead><tr><th>Jugador</th><th>Posición</th><th>Estado</th><th>Nivel actual</th><th>Tendencia</th><th>30 días</th><th>Prioridad</th><th></th></tr></thead>
+        <tbody id="pp-table-body"></tbody>
+      </table>
+      <div id="pp-empty" class="players-empty hidden"><strong>No hay jugadores registrados.</strong>Añade la plantilla para empezar a medir el desarrollo individual.</div>
+    </div>
+  </div>
+</section>
+
 
 <section id="entrenamiento" class="view">
 <div id="export-area" class="panel session-panel">
@@ -616,6 +689,14 @@ header{position:static!important;top:auto!important;}
     </div>
     <div class="session-progress-wrap"><div class="session-progress"><span id="session-progress-bar"></span></div><div id="session-progress-label" class="session-progress-label">Define una duración objetivo</div></div>
     <div class="session-focus-card"><div class="session-focus-head"><span>Reparto del trabajo</span><small id="session-focus-copy">Añade ejercicios para ver el reparto</small></div><div id="session-focus-bar" class="session-focus-bar"></div><div id="session-focus-legend" class="session-focus-legend"></div></div>
+
+    <details class="session-roster">
+      <summary id="session-roster-summary">Plantilla de la sesión · sin selección</summary>
+      <div class="session-roster-body">
+        <div class="session-roster-actions"><button type="button" class="ghost" onclick="seleccionarRosterSesion(true)">Todos disponibles</button><button type="button" class="ghost" onclick="seleccionarRosterSesion(false)">Limpiar</button></div>
+        <div id="session-roster-grid" class="session-roster-grid"></div>
+      </div>
+    </details>
   </div>
   <div class="session-workspace">
     <div id="stage-rail" class="stage-rail"></div>
@@ -679,6 +760,56 @@ header{position:static!important;top:auto!important;}
     <div id="templates-list" class="templates-list"></div>
   </div>
 </div>
+
+
+<div id="player-form-modal" class="player-modal" onclick="if(event.target===this)cerrarPlayerModal('player-form-modal')">
+  <div class="player-modal-card compact">
+    <div class="player-modal-head"><div><span class="pro-kicker">PLANTILLA</span><h2 id="player-form-title">Nuevo jugador</h2><p>Datos básicos del jugador.</p></div><button class="player-modal-close" onclick="cerrarPlayerModal('player-form-modal')">×</button></div>
+    <input type="hidden" id="player-id">
+    <div class="player-form-grid">
+      <label class="session-field wide"><span>Nombre y apellidos</span><input id="player-name" placeholder="Nombre completo"></label>
+      <label class="session-field"><span>Dorsal</span><input id="player-number" type="number" min="0" max="99"></label>
+      <label class="session-field"><span>Posición principal</span><select id="player-position"><option>Colocador</option><option>Receptor</option><option>Central</option><option>Opuesto</option><option>Líbero</option><option>Universal</option></select></label>
+      <label class="session-field"><span>Posición secundaria</span><select id="player-position2"><option value="">—</option><option>Colocador</option><option>Receptor</option><option>Central</option><option>Opuesto</option><option>Líbero</option><option>Universal</option></select></label>
+      <label class="session-field"><span>Año nacimiento</span><input id="player-birth" type="number" min="1990" max="2030"></label>
+      <label class="session-field"><span>Altura (cm)</span><input id="player-height" type="number" min="100" max="230"></label>
+      <label class="session-field"><span>Lateralidad</span><select id="player-hand"><option>Diestro</option><option>Zurdo</option><option>Ambidiestro</option></select></label>
+      <label class="session-field"><span>Estado</span><select id="player-status"><option>Disponible</option><option>Recuperación</option><option>Lesionado</option><option>Baja</option></select></label>
+      <label class="session-field"><span>Alta</span><input id="player-start" type="date"></label>
+      <label class="session-field wide"><span>Notas</span><textarea id="player-notes" placeholder="Observaciones técnicas, físicas o de contexto..."></textarea></label>
+    </div>
+    <div class="player-form-actions"><button class="ghost" onclick="cerrarPlayerModal('player-form-modal')">Cancelar</button><button class="primary" onclick="guardarJugador()">Guardar jugador</button></div>
+  </div>
+</div>
+
+<div id="player-profile-modal" class="player-modal" onclick="if(event.target===this)cerrarPlayerModal('player-profile-modal')"><div class="player-modal-card" id="player-profile-content"></div></div>
+
+<div id="player-eval-modal" class="player-modal" onclick="if(event.target===this)cerrarPlayerModal('player-eval-modal')">
+  <div class="player-modal-card">
+    <div class="player-modal-head"><div><span class="pro-kicker">EVALUACIÓN TÉCNICA</span><h2 id="player-eval-title">Nueva evaluación</h2><p>Subcriterios específicos de la posición · escala 1–10.</p></div><button class="player-modal-close" onclick="cerrarPlayerModal('player-eval-modal')">×</button></div>
+    <input type="hidden" id="player-eval-id">
+    <div class="player-form-grid" style="margin-bottom:12px"><label class="session-field"><span>Fecha</span><input id="player-eval-date" type="date"></label><label class="session-field wide"><span>Observación global</span><textarea id="player-eval-note" placeholder="Contexto, evolución, aspectos a reforzar..."></textarea></label></div>
+    <div id="player-eval-categories"></div>
+    <div class="player-form-actions"><button class="ghost" onclick="cerrarPlayerModal('player-eval-modal')">Cancelar</button><button class="primary" onclick="guardarEvaluacionJugador()">Guardar evaluación</button></div>
+  </div>
+</div>
+
+<div id="player-goal-modal" class="player-modal" onclick="if(event.target===this)cerrarPlayerModal('player-goal-modal')">
+  <div class="player-modal-card compact">
+    <div class="player-modal-head"><div><span class="pro-kicker">OBJETIVO INDIVIDUAL</span><h2>Objetivo medible</h2><p>Define punto de partida, objetivo y fecha de revisión.</p></div><button class="player-modal-close" onclick="cerrarPlayerModal('player-goal-modal')">×</button></div>
+    <input type="hidden" id="player-goal-player-id">
+    <div class="player-form-grid">
+      <label class="session-field wide"><span>Objetivo</span><input id="player-goal-title" placeholder="Ej. Mejorar recepción lateral"></label>
+      <label class="session-field"><span>Área</span><select id="player-goal-area" onchange="ppGoalAreaChanged()"></select></label>
+      <label class="session-field"><span>Nivel inicial</span><input id="player-goal-start" type="number" min="0" max="10" step=".1"></label>
+      <label class="session-field"><span>Nivel objetivo</span><input id="player-goal-target" type="number" min="0" max="10" step=".1"></label>
+      <label class="session-field"><span>Fecha objetivo</span><input id="player-goal-deadline" type="date"></label>
+      <label class="session-field"><span>Nota</span><input id="player-goal-note" placeholder="Criterio o contexto"></label>
+    </div>
+    <div class="player-form-actions"><button class="ghost" onclick="cerrarPlayerModal('player-goal-modal')">Cancelar</button><button class="primary" onclick="guardarObjetivoJugador()">Guardar objetivo</button></div>
+  </div>
+</div>
+
 
 <script>
 // Catálogo depurado: conserva las escuelas originales y fusiona progresiones redundantes sin perder sus variantes.
@@ -869,19 +1000,20 @@ let crearEjercicioDestinoSesion=null;
 function fechaLocalISO(d=new Date()){const x=new Date(d),y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),dia=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${dia}`}
 let equipoActivo=localStorage.getItem(ACTIVE_TEAM_KEY)||localStorage.getItem(OLD_ACTIVE_TEAM_KEY)||'infantil';
 if(!EQUIPOS[equipoActivo])equipoActivo='infantil';
-let sesionActual=[],planificacion=[],historial=[],plantillas=[];
+let sesionActual=[],planificacion=[],historial=[],plantillas=[],jugadoresEquipo=[];
 let semanaBase=new Date(); let pizarraParaEjercicio=null;
-let meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}};
+let meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[]};
 let equiposData=null;
 
 function clonar(v){return JSON.parse(JSON.stringify(v))}
 function estadoEquipoVacio(id){
   return {
     sesionActual:[],
-    meta:{fecha:fechaLocalISO(),equipo:EQUIPOS[id].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{}},
+    meta:{fecha:fechaLocalISO(),equipo:EQUIPOS[id].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[]},
     historial:[],
     planificacion:[],
-    plantillas:[]
+    plantillas:[],
+    jugadores:[]
   };
 }
 function migrarControlHistorial(lista){
@@ -899,7 +1031,8 @@ function limpiarEquipo(raw,id){
     meta:{...estadoEquipoVacio(id).meta,...clonar(raw.meta||{}),seccionesEjercicios:{...(raw.meta&&raw.meta.seccionesEjercicios&&typeof raw.meta.seccionesEjercicios==='object'?clonar(raw.meta.seccionesEjercicios):{})},notasBloques:{...(raw.meta&&raw.meta.notasBloques&&typeof raw.meta.notasBloques==='object'?clonar(raw.meta.notasBloques):{})},equipo:EQUIPOS[id].nombre},
     historial:migrarControlHistorial(Array.isArray(raw.historial)?clonar(raw.historial):[]),
     planificacion:Array.isArray(raw.planificacion)?clonar(raw.planificacion):[],
-    plantillas:Array.isArray(raw.plantillas)?clonar(raw.plantillas):[]
+    plantillas:Array.isArray(raw.plantillas)?clonar(raw.plantillas):[],
+    jugadores:Array.isArray(raw.jugadores)?clonar(raw.jugadores):[]
   };
 }
 function fusionarBibliotecas(...listas){
@@ -1093,7 +1226,8 @@ function guardarEquipoEnMemoria(){
     meta:clonar({...meta,equipo:EQUIPOS[equipoActivo].nombre}),
     historial:clonar(historial),
     planificacion:clonar(planificacion),
-    plantillas:clonar(plantillas)
+    plantillas:clonar(plantillas),
+    jugadores:clonar(jugadoresEquipo)
   };
 }
 function cargarEquipoEnVariables(id){
@@ -1104,8 +1238,9 @@ function cargarEquipoEnVariables(id){
   historial=clonar(s.historial||[]);historial.forEach(h=>{h.notasBloques=normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||'');h.calentamiento=h.notasBloques.activacion||h.calentamiento||'';(h.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
   planificacion=clonar(s.planificacion||[]);planificacion.forEach(p=>{p.seccionesEjercicios=normalizarMapaSecciones(p.seccionesEjercicios||{});p.notasBloques=normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||'');p.calentamiento=p.notasBloques.activacion||p.calentamiento||'';(p.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
   plantillas=clonar(s.plantillas||[]);
+  jugadoresEquipo=clonar(s.jugadores||[]);
   if(typeof sincronizarPlanesConHistorial==='function'&&sincronizarPlanesConHistorial()>0){
-    equiposData[id]={...s,sesionActual:clonar(sesionActual),meta:clonar(meta),historial:clonar(historial),planificacion:clonar(planificacion),plantillas:clonar(plantillas)};
+    equiposData[id]={...s,sesionActual:clonar(sesionActual),meta:clonar(meta),historial:clonar(historial),planificacion:clonar(planificacion),plantillas:clonar(plantillas),jugadores:clonar(jugadoresEquipo)};
     guardarEstadoLocalSinCloud();
   }
 }
@@ -1122,7 +1257,7 @@ function cambiarEquipo(id){
   guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();
   equipoActivo=id;localStorage.setItem(ACTIVE_TEAM_KEY,id);
   cargarEquipoEnVariables(id);
-  actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();renderDashboard();
+  actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();renderDashboard();if(typeof renderPlayers==='function')renderPlayers();if(typeof renderDashboardPlayers==='function')renderDashboardPlayers();if(typeof renderSessionRoster==='function')renderSessionRoster();
   $('save-indicator').textContent='✓ '+EQUIPOS[id].nombre+' cargado · biblioteca compartida';
 }
 
@@ -1168,8 +1303,8 @@ function sincronizarSesionConPlanVinculado(){
   return true;
 }
 function save(){meta.equipo=EQUIPOS[equipoActivo].nombre;const vinculado=sincronizarSesionConPlanVinculado();guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();$('save-indicator').textContent=vinculado?'✓ Guardado automáticamente en Planificación':'✓ Guardado · '+EQUIPOS[equipoActivo].corto+' · biblioteca compartida';programarSubidaCloud();}
-function showView(id,btn){if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));if($(id))$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='dashboard')renderDashboard();if(id==='entrenamiento')renderizarSesion();if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();window.scrollTo({top:0,behavior:'smooth'});}
-function botonVista(id){const mapa={dashboard:0,entrenamiento:1,planificacion:2,ejercicios:3,historial:4,estadisticas:5};return document.querySelectorAll('.tab-btn')[mapa[id]]||null}
+function showView(id,btn){if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));if($(id))$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='dashboard'){renderDashboard();if(typeof renderDashboardPlayers==='function')renderDashboardPlayers()}if(id==='entrenamiento'){renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster()}if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='jugadores'&&typeof renderPlayers==='function')renderPlayers();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();window.scrollTo({top:0,behavior:'smooth'});}
+function botonVista(id){const mapa={dashboard:0,entrenamiento:1,planificacion:2,ejercicios:3,jugadores:4,historial:5,estadisticas:6};return document.querySelectorAll('.tab-btn')[mapa[id]]||null}
 function abrirBibliotecaNormal(btn){renderConteoBiblioteca();const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();showView('ejercicios',btn);renderDestinoBiblioteca()}
 function normalizarSeccionEntreno(slug,e){
   const limpio=MAPA_SECCIONES_LEGACY[String(slug||'')]||'';
@@ -1218,8 +1353,8 @@ function abrirBibliotecaParaSeccion(slug){slug=normalizarSeccionEntreno(slug);co
 function abrirCrearEjercicioParaSeccion(slug){slug=normalizarSeccionEntreno(slug);const cfg=SECCIONES_ENTRENO[slug];if(!cfg)return;cancelarEdicion();seccionDestinoSesion=slug;crearEjercicioDestinoSesion=slug;['buscar','escuela','nivel','tipo','favoritos'].forEach(id=>{if($(id))$(id).value=''});setFundamentosSeleccionados([]);if($('nuevo-tipo'))$('nuevo-tipo').value=cfg.tipoDefault||'';if($('nuevo-fase'))$('nuevo-fase').value=cfg.faseDefault||'Parte principal';$('form-title').textContent='➕ Crear ejercicio para '+cfg.numero+' · '+cfg.titulo;showView('ejercicios',botonVista('ejercicios'));renderDestinoBiblioteca();filtrarEjercicios();setTimeout(()=>{const el=$('form-title');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},40)}
 function cancelarDestinoSesion(){const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();renderDestinoBiblioteca();limpiarFiltrosBiblioteca();filtrarEjercicios()}
 function volverAlEntrenamiento(){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;renderDestinoBiblioteca();showView('entrenamiento',botonVista('entrenamiento'));renderizarSesion();window.scrollTo({top:0,behavior:'smooth'})}
-function cargarMeta(){['fecha','equipo','jugadores','duracionObjetivo','intensidad','objetivo','notas'].forEach(k=>{let id=k==='duracionObjetivo'?'sesion-duracion-objetivo':'sesion-'+k,el=$(id);if(el)el.value=meta[k]||''});mapaNotasBloques();}
-function guardarSesionMeta(){meta={...meta,fecha:$('sesion-fecha')?.value||meta.fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:$('sesion-jugadores')?.value||'',duracionObjetivo:$('sesion-duracion-objetivo')?.value||'',intensidad:$('sesion-intensidad')?.value||'Media',objetivo:$('sesion-objetivo')?.value||'',notas:$('sesion-notas')?.value||''};mapaNotasBloques();save();renderizarSesion();}
+function cargarMeta(){['fecha','equipo','jugadores','duracionObjetivo','intensidad','objetivo','notas'].forEach(k=>{let id=k==='duracionObjetivo'?'sesion-duracion-objetivo':'sesion-'+k,el=$(id);if(el)el.value=meta[k]||''});mapaNotasBloques();if(typeof renderSessionRoster==='function')renderSessionRoster();}
+function guardarSesionMeta(){const roster=(typeof rosterSeleccionados==='function'&&$('session-roster-grid'))?rosterSeleccionados():(meta.playerIds||[]);meta={...meta,fecha:$('sesion-fecha')?.value||meta.fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:$('sesion-jugadores')?.value||'',duracionObjetivo:$('sesion-duracion-objetivo')?.value||'',intensidad:$('sesion-intensidad')?.value||'Media',objetivo:$('sesion-objetivo')?.value||'',notas:$('sesion-notas')?.value||'',playerIds:roster};mapaNotasBloques();save();renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster();}
 function añadirASesion(id){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const mapa=mapaSeccionesSesion(),key=String(id),destino=seccionDestinoSesion||seccionNaturalEjercicio(e);if(sesionActual.includes(id)){const actual=seccionEjercicioSesion(id,e);if(seccionDestinoSesion&&actual!==destino){mapa[key]=destino;$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[destino].titulo;}else{sesionActual=sesionActual.filter(x=>x!==id);delete mapa[key];$('save-indicator').textContent='✓ Quitado de '+EQUIPOS[equipoActivo].corto;}}else{sesionActual.push(id);mapa[key]=destino;$('save-indicator').textContent='✓ Añadido a '+SECCIONES_ENTRENO[destino].titulo;}meta.seccionesEjercicios=mapa;save();renderizarSesion();filtrarEjercicios();}
 function quitarDeSesion(i){const id=sesionActual[i];sesionActual.splice(i,1);if(id!=null)delete mapaSeccionesSesion()[String(id)];save();renderizarSesion();filtrarEjercicios()}
 function quitarDeSesionId(id){const i=sesionActual.indexOf(id);if(i>=0)quitarDeSesion(i)}
@@ -1363,12 +1498,12 @@ function renderizar(datos){
   }).join('')||'<div class="empty">No hay ejercicios con estos filtros.</div>'
 }
 function reiniciarSesionActual(){
-  sesionActual=[];meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},planificacionId:null};
+  sesionActual=[];meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[],planificacionId:null};
   save();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();
 }
 function construirPlanSesion(id){
   const ejercicios=sesionActual.map(x=>baseDeDatos.find(e=>e.id===x)).filter(Boolean),duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
-  return {id,fecha:meta.fecha||fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:meta.jugadores||'',duracionObjetivo:meta.duracionObjetivo||'',intensidad:meta.intensidad||'Media',objetivo:meta.objetivo||'',calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notas:meta.notas||'',notasBloques:clonar(mapaNotasBloques()),seccionesEjercicios:clonar(mapaSeccionesSesion()),duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
+  return {id,fecha:meta.fecha||fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:meta.jugadores||'',playerIds:clonar(meta.playerIds||[]),duracionObjetivo:meta.duracionObjetivo||'',intensidad:meta.intensidad||'Media',objetivo:meta.objetivo||'',calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notas:meta.notas||'',notasBloques:clonar(mapaNotasBloques()),seccionesEjercicios:clonar(mapaSeccionesSesion()),duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
 }
 function guardarSesionEnPlanificacion(limpiar=false){
   guardarSesionMeta();const tieneNotas=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotas){alert('La sesión está vacía.');return false}
@@ -1416,7 +1551,7 @@ function marcarPlanRealizado(id){
   const ejercicios=ejerciciosHistorialDesdePlan(p),historialId=Date.now();
   ejercicios.forEach(s=>{const vivo=baseDeDatos.find(e=>e.id===s.id);if(vivo)vivo.usos=(vivo.usos||0)+1});
   const duracion=Number(p.duracion)||ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
-  historial.unshift({id:historialId,fecha:p.fecha||hoy,equipo:p.equipo||EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',notasBloques:clonar(p.notasBloques||{}),seccionesEjercicios:clonar(p.seccionesEjercicios||{}),planificacionId:p.id,duracion,pizarra:p.pizarra||null,ejercicios});
+  historial.unshift({id:historialId,fecha:p.fecha||hoy,equipo:p.equipo||EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',playerIds:clonar(p.playerIds||[]),intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',notasBloques:clonar(p.notasBloques||{}),seccionesEjercicios:clonar(p.seccionesEjercicios||{}),planificacionId:p.id,duracion,pizarra:p.pizarra||null,ejercicios});
   p.realizado=true;p.realizadoEn=new Date().toISOString();p.historialId=historialId;
   save();renderPlanificacion();renderHistorial();renderStats();renderAvisoPlanHoy();
   alert('✅ Entrenamiento marcado como realizado y guardado en Entrenamientos.');
@@ -1711,7 +1846,7 @@ function usarPlan(id){
   if((p.ejercicios||[]).length&&ids.length<(p.ejercicios||[]).length)alert('Algún ejercicio de esta planificación ya no existe en la biblioteca y no se ha podido cargar.');
   sesionActual=ids;
   const secciones=normalizarMapaSecciones(clonar(p.seccionesEjercicios||{}));(p.ejercicios||[]).forEach(x=>{if(x.id!=null&&ids.includes(x.id)&&!secciones[String(x.id)])secciones[String(x.id)]=normalizarSeccionEntreno(x.seccionSesion,enriquecerEjercicioGuardado(x))});
-  meta={fecha:esRealizado?fechaLocalISO():(p.fecha||fechaLocalISO()),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',duracionObjetivo:p.duracionObjetivo||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||''),planificacionId:esRealizado?null:p.id,pizarra:null};
+  meta={fecha:esRealizado?fechaLocalISO():(p.fecha||fechaLocalISO()),equipo:EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',playerIds:clonar(p.playerIds||[]),duracionObjetivo:p.duracionObjetivo||'',intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',seccionesEjercicios:secciones,notasBloques:normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||''),planificacionId:esRealizado?null:p.id,pizarra:null};
   save();cargarMeta();renderizarSesion();filtrarEjercicios();showView('entrenamiento',botonVista('entrenamiento'));window.scrollTo({top:0,behavior:'smooth'});if(esRealizado)setTimeout(()=>alert('Este entrenamiento ya estaba realizado. Se ha abierto como una copia nueva y la planificación original seguirá guardada.'),80);
 }
 function renderPlanificacion(){let lunes=lunesDeSemana(semanaBase);let dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],hoy=fechaLocalISO();$('week-label').textContent=`${lunes.toLocaleDateString('es-ES')} – ${new Date(lunes.getTime()+6*86400000).toLocaleDateString('es-ES')}`;$('week-grid').innerHTML=dias.map((nom,i)=>{let d=new Date(lunes);d.setDate(lunes.getDate()+i);let fecha=isoDate(d),items=planificacion.filter(p=>p.fecha===fecha);return `<div class="day-card"><h4>${nom}<br><span class="small">${d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})}</span></h4>${items.map(p=>{const n=(p.ejercicios||[]).length,actual=meta.planificacionId===p.id,realizado=!!p.realizado,pasado=fecha<hoy,lista=n?`<div class="plan-exercise-list"><b>Ejercicios:</b>${(p.ejercicios||[]).map((e,j)=>`<div>${j+1}. ${esc(e.nombre||'Ejercicio')}</div>`).join('')}</div>`:'',estado=realizado?` <span class="plan-done-badge">✓ Realizado${p.archivadoAutomaticamente?' · archivado automáticamente':''}</span>`:(actual?' <span class="plan-current-badge">Abierto</span>':(pasado?' <span class="plan-pending-badge">Pendiente de confirmar</span>':'')),acciones=realizado?`<button class="primary" onclick="verPlanEnEntrenamientos(${p.id})">Ver en Entrenamientos</button><button class="ghost" onclick="usarPlan(${p.id})">Reutilizar</button>`:`<button class="ghost" onclick="usarPlan(${p.id})">Abrir entrenamiento</button>${fecha<=hoy?`<button class="success" onclick="marcarPlanRealizado(${p.id})">✓ Marcar realizado</button>`:''}`;return `<div class="plan-item${realizado?' plan-done':(pasado?' plan-pending':'')}"><b>${esc(p.equipo||'Sesión')}</b>${estado}<br>${esc(p.objetivo||'Sin objetivo')}<br><span class="small">${p.duracion||0} min · ${esc(p.intensidad||'Media')}${n?' · '+n+' ejercicios':''}</span>${lista}<div class="actions" style="margin-top:6px">${acciones}<button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></div>`}).join('')||'<span class="small">Sin sesión</span>'}</div>`}).join('');renderAvisoPlanHoy()}
@@ -2174,6 +2309,275 @@ actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();r
 renderConteoBiblioteca(); // V5.8.9 conteo real de la biblioteca persistente
 
 </script>
+
+
+<script id="players-pro-v2-script">
+/* ===== JUGADORES PRO V2 ===== */
+const PLAYER_EVAL_SCHEMA={
+  'Colocador':{
+    'Colocación':['Precisión','Altura y tempo','Orientación corporal'],
+    'Toma de decisiones':['Lectura del bloqueo','Distribución','Gestión fuera de sistema'],
+    'Defensa':['Posicionamiento','Control del primer contacto','Transición'],
+    'Bloqueo':['Lectura','Desplazamiento','Cierre'],
+    'Saque':['Control','Riesgo','Regularidad']
+  },
+  'Receptor':{
+    'Recepción':['Posicionamiento inicial','Plataforma','Dirección del pase'],
+    'Ataque':['Carrera y batida','Contacto','Decisión'],
+    'Defensa':['Lectura','Desplazamiento','Control'],
+    'Saque':['Control','Agresividad','Regularidad'],
+    'Bloqueo':['Lectura','Desplazamiento','Cierre']
+  },
+  'Central':{
+    'Bloqueo':['Lectura','Desplazamiento lateral','Penetración y cierre'],
+    'Ataque':['Tempo','Batida','Dirección'],
+    'Saque':['Control','Riesgo','Regularidad'],
+    'Desplazamiento':['Velocidad','Frenada','Transición'],
+    'Lectura táctica':['Colocador rival','Prioridades','Adaptación']
+  },
+  'Opuesto':{
+    'Ataque':['Balón alto','Dirección','Resolución bajo presión'],
+    'Bloqueo':['Lectura','Desplazamiento','Cierre'],
+    'Saque':['Control','Agresividad','Regularidad'],
+    'Defensa':['Posicionamiento','Lectura','Control'],
+    'Transición':['Salida de red','Carrera','Disponibilidad ofensiva']
+  },
+  'Líbero':{
+    'Recepción':['Posicionamiento','Plataforma','Dirección del pase'],
+    'Defensa':['Lectura','Desplazamiento','Control'],
+    'Cobertura':['Posicionamiento','Reacción','Continuidad'],
+    'Colocación de emergencia':['Precisión','Decisión','Control'],
+    'Comunicación':['Información','Liderazgo','Coordinación']
+  },
+  'Universal':{
+    'Recepción':['Posicionamiento','Plataforma','Dirección'],
+    'Saque':['Control','Riesgo','Regularidad'],
+    'Ataque':['Carrera','Contacto','Decisión'],
+    'Bloqueo':['Lectura','Desplazamiento','Cierre'],
+    'Defensa':['Lectura','Desplazamiento','Control'],
+    'Colocación':['Precisión','Decisión','Control']
+  }
+};
+const PLAYER_OBS_TAGS=['Buen entrenamiento','Mejora técnica','Fatiga','Molestia','Concentración','Buena comunicación','Competitivo','A revisar'];
+
+function ppSchema(p){return PLAYER_EVAL_SCHEMA[p?.position]||PLAYER_EVAL_SCHEMA.Universal}
+function ppPlayer(id){return jugadoresEquipo.find(p=>Number(p.id)===Number(id))}
+function ppSafe(v){return esc(String(v??''))}
+function ppInitials(name){return String(name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'?'}
+function ppAge(y){y=Number(y);return y?new Date().getFullYear()-y:null}
+function ppStatusClass(s){return s==='Disponible'?'available':s==='Recuperación'?'recovery':s==='Lesionado'?'injured':''}
+function ppDays(iso){if(!iso)return Infinity;return Math.max(0,Math.floor((new Date()-new Date(iso+'T12:00:00'))/86400000))}
+function ppEvaluations(p){return [...(p?.evaluations||[])].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))}
+function ppLatest(p){return ppEvaluations(p)[0]||null}
+function ppPrev(p){return ppEvaluations(p)[1]||null}
+function ppAverage(vals){vals=(vals||[]).map(Number).filter(Number.isFinite);return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null}
+function ppCategoryScore(ev,cat){
+  if(!ev)return null;
+  if(ev.categoryScores&&Number.isFinite(Number(ev.categoryScores[cat])))return Number(ev.categoryScores[cat]);
+  const sub=ev.metrics?.[cat];
+  if(sub&&typeof sub==='object')return ppAverage(Object.values(sub));
+  if(Number.isFinite(Number(sub)))return Number(sub);
+  return null;
+}
+function ppOverall(ev){
+  if(!ev)return null;
+  const cats=Object.keys(ev.categoryScores||{});
+  if(cats.length)return ppAverage(cats.map(c=>ev.categoryScores[c]));
+  const vals=[];
+  Object.entries(ev.metrics||{}).forEach(([k,v])=>{if(v&&typeof v==='object')vals.push(ppAverage(Object.values(v)));else if(Number.isFinite(Number(v)))vals.push(Number(v))});
+  return ppAverage(vals.filter(Number.isFinite));
+}
+function ppTrend(p){
+  const a=ppOverall(ppLatest(p)),b=ppOverall(ppPrev(p));
+  if(a==null||b==null)return {key:'flat',symbol:'—',text:'Sin tendencia',delta:null};
+  const d=a-b;if(d>.2)return {key:'up',symbol:'↑',text:`+${d.toFixed(1)}`,delta:d};if(d<-.2)return {key:'down',symbol:'↓',text:d.toFixed(1),delta:d};return {key:'flat',symbol:'→',text:'Estable',delta:d};
+}
+function ppActiveGoal(p){return (p?.goals||[]).find(g=>g.status!=='done')||null}
+function ppCurrentAreaScore(p,area){return ppCategoryScore(ppLatest(p),area)}
+function ppGoalProgress(p,g){
+  if(g.status==='done')return 100;
+  const start=Number(g.start),target=Number(g.target),current=ppCurrentAreaScore(p,g.area);
+  if(!Number.isFinite(start)||!Number.isFinite(target)||target===start||!Number.isFinite(current))return Number(g.progress)||0;
+  return Math.max(0,Math.min(100,((current-start)/(target-start))*100));
+}
+function ppSessionsForPlayer(p){return (historial||[]).filter(h=>Array.isArray(h.playerIds)&&h.playerIds.map(Number).includes(Number(p.id)))}
+function ppWorkload(p,days=30){
+  const cutoff=days?new Date(Date.now()-days*86400000):null,c={};let total=0,sessions=0;
+  ppSessionsForPlayer(p).forEach(h=>{
+    const d=h.fecha?new Date(h.fecha+'T12:00:00'):null;if(cutoff&&d&&d<cutoff)return;sessions++;
+    (h.ejercicios||[]).forEach(e=>{const fs=normalizarFundamentos(e),m=Number(e.tiempo)||0;if(!fs.length)return;fs.forEach(f=>c[f]=(c[f]||0)+m/fs.length);total+=m});
+  });
+  return {byFoundation:c,total,sessions};
+}
+function ppInsights(p){
+  const out=[],last=ppLatest(p),prev=ppPrev(p),score=ppOverall(last),trend=ppTrend(p),load=ppWorkload(p,30),goal=ppActiveGoal(p);
+  if(!last)out.push({type:'warn',text:'Falta la evaluación inicial. Sin ella no se puede medir evolución.'});
+  else if(ppDays(last.date)>30)out.push({type:'warn',text:`Última evaluación hace ${ppDays(last.date)} días. Conviene actualizarla.`});
+  if(prev&&trend.key==='up')out.push({type:'good',text:`Evolución positiva: +${trend.delta.toFixed(1)} puntos respecto a la evaluación anterior.`});
+  if(prev&&trend.key==='down')out.push({type:'warn',text:`Descenso de ${Math.abs(trend.delta).toFixed(1)} puntos. Revisa contexto, carga y observaciones antes de interpretarlo.`});
+  if(goal){const gp=ppGoalProgress(p,goal);out.push({type:gp>=75?'good':'',text:`Objetivo prioritario "${goal.title}" al ${Math.round(gp)}% del recorrido estimado.`})}
+  if(load.sessions===0)out.push({type:'',text:'Sin sesiones individuales registradas en los últimos 30 días.'});
+  else{
+    const entries=Object.entries(load.byFoundation).sort((a,b)=>a[1]-b[1]);if(entries.length&&load.total>0){const [f,m]=entries[0];if(m/load.total<.1)out.push({type:'warn',text:`${f} representa solo el ${Math.round(m/load.total*100)}% de su trabajo registrado en 30 días.`})}
+  }
+  return out.slice(0,4);
+}
+function ppSave(){
+  if(!equiposData)equiposData={};
+  if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+  equiposData[equipoActivo].jugadores=clonar(jugadoresEquipo);
+  guardarEstadoLocalSinCloud();programarSubidaCloud();
+  const ind=$('save-indicator');if(ind)ind.textContent='✓ Jugadores guardados y sincronizables';
+}
+function showPlayersView(btn){showView('jugadores',btn)}
+function renderPlayers(){
+  const body=$('pp-table-body');if(!body)return;
+  const q=String($('pp-search')?.value||'').trim().toLowerCase(),pos=$('pp-position-filter')?.value||'',status=$('pp-status-filter')?.value||'';
+  const all=jugadoresEquipo||[],list=all.filter(p=>(!q||String(p.name||'').toLowerCase().includes(q)||String(p.number||'').includes(q))&&(!pos||p.position===pos)&&(!status||p.status===status));
+  const pending=all.filter(p=>!ppLatest(p)||ppDays(ppLatest(p).date)>30).length,recent=all.filter(p=>ppLatest(p)&&ppDays(ppLatest(p).date)<=30).length,goals=all.reduce((n,p)=>n+(p.goals||[]).filter(g=>g.status!=='done').length,0);
+  if($('pp-kpi-total'))$('pp-kpi-total').textContent=all.length;if($('pp-kpi-available'))$('pp-kpi-available').textContent=all.filter(p=>p.status==='Disponible').length;if($('pp-kpi-pending'))$('pp-kpi-pending').textContent=pending;if($('pp-kpi-goals'))$('pp-kpi-goals').textContent=goals;if($('pp-kpi-recent'))$('pp-kpi-recent').textContent=recent;
+  body.innerHTML=list.map(p=>{
+    const score=ppOverall(ppLatest(p)),trend=ppTrend(p),goal=ppActiveGoal(p),load=ppWorkload(p,30);
+    return `<tr>
+      <td><div class="pp-identity"><div class="pp-avatar">${ppSafe(ppInitials(p.name))}</div><div><div class="pp-name">${p.number!==''&&p.number!=null?`#${ppSafe(p.number)} · `:''}${ppSafe(p.name)}</div><div class="pp-sub">${p.birth?`${ppAge(p.birth)} años`:''}${p.height?`${p.birth?' · ':''}${ppSafe(p.height)} cm`:''}</div></div></div></td>
+      <td><div class="pp-pos">${ppSafe(p.position)}${p.position2?` · ${ppSafe(p.position2)}`:''}</div></td>
+      <td><span class="pp-status ${ppStatusClass(p.status)}">${ppSafe(p.status||'Disponible')}</span></td>
+      <td>${score==null?'<span class="small">Sin evaluar</span>':`<div class="pp-score"><b>${score.toFixed(1)}</b><div class="pp-score-track"><span style="width:${score*10}%"></span></div></div>`}</td>
+      <td><span class="pp-trend ${trend.key}">${trend.symbol} ${trend.text}</span></td>
+      <td><div class="pp-name">${Math.round(load.total)} min</div><div class="pp-sub">${load.sessions} sesiones</div></td>
+      <td>${goal?`<div class="pp-name">${ppSafe(goal.title)}</div><div class="pp-sub">${Math.round(ppGoalProgress(p,goal))}% · ${ppSafe(goal.area)}</div>`:'<span class="small">Sin objetivo</span>'}</td>
+      <td><div class="pp-actions"><button class="ghost" onclick="abrirPerfilJugador(${p.id})">Ficha</button><button class="ghost" onclick="abrirEvaluacionJugador(${p.id})">Evaluar</button></div></td>
+    </tr>`;
+  }).join('');
+  $('pp-empty')?.classList.toggle('hidden',list.length>0);
+}
+function abrirNuevoJugador(){
+  $('player-id').value='';$('player-form-title').textContent='Nuevo jugador';['player-name','player-number','player-birth','player-height','player-notes'].forEach(id=>$(id).value='');$('player-position').value='Receptor';$('player-position2').value='';$('player-hand').value='Diestro';$('player-status').value='Disponible';$('player-start').value=fechaLocalISO();$('player-form-modal').classList.add('open');
+}
+function editarJugador(id){
+  const p=ppPlayer(id);if(!p)return;$('player-id').value=p.id;$('player-form-title').textContent='Editar jugador';$('player-name').value=p.name||'';$('player-number').value=p.number??'';$('player-position').value=p.position||'Receptor';$('player-position2').value=p.position2||'';$('player-birth').value=p.birth||'';$('player-height').value=p.height||'';$('player-hand').value=p.hand||'Diestro';$('player-status').value=p.status||'Disponible';$('player-start').value=p.startDate||'';$('player-notes').value=p.notes||'';cerrarPlayerModal('player-profile-modal');$('player-form-modal').classList.add('open');
+}
+function guardarJugador(){
+  const name=String($('player-name').value||'').trim();if(!name){alert('Escribe el nombre del jugador.');return}
+  const id=Number($('player-id').value)||Date.now(),old=ppPlayer(id),p={...(old||{}),id,name,number:$('player-number').value,position:$('player-position').value,position2:$('player-position2').value,birth:$('player-birth').value,height:$('player-height').value,hand:$('player-hand').value,status:$('player-status').value,startDate:$('player-start').value,notes:String($('player-notes').value||'').trim(),evaluations:old?.evaluations||[],goals:old?.goals||[],observations:old?.observations||[],createdAt:old?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+  const i=jugadoresEquipo.findIndex(x=>Number(x.id)===Number(id));if(i>=0)jugadoresEquipo[i]=p;else jugadoresEquipo.push(p);ppSave();cerrarPlayerModal('player-form-modal');renderPlayers();renderDashboardPlayers();renderSessionRoster();
+}
+function eliminarJugador(id){
+  const p=ppPlayer(id);if(!p||!confirm(`¿Eliminar a ${p.name}? Se borrarán sus evaluaciones, objetivos y observaciones.`))return;jugadoresEquipo=jugadoresEquipo.filter(x=>Number(x.id)!==Number(id));meta.playerIds=(meta.playerIds||[]).filter(x=>Number(x)!==Number(id));ppSave();cerrarPlayerModal('player-profile-modal');renderPlayers();renderDashboardPlayers();renderSessionRoster();
+}
+function cerrarPlayerModal(id){$(id)?.classList.remove('open')}
+
+function abrirEvaluacionJugador(id){
+  const p=ppPlayer(id);if(!p)return;$('player-eval-id').value=p.id;$('player-eval-title').textContent=`Evaluar · ${p.name}`;$('player-eval-date').value=fechaLocalISO();$('player-eval-note').value='';
+  const prev=ppLatest(p),schema=ppSchema(p);
+  $('player-eval-categories').innerHTML=Object.entries(schema).map(([cat,subs])=>`<div class="eval-category" data-cat="${ppSafe(cat)}"><div class="eval-category-head"><strong>${ppSafe(cat)}</strong><span class="eval-category-score" id="eval-cat-${ppCss(cat)}">—</span></div><div class="eval-subgrid">${subs.map(sub=>{let v=prev?.metrics?.[cat]?.[sub];if(!Number.isFinite(Number(v)))v=5;return `<div class="eval-submetric"><label><span>${ppSafe(sub)}</span><b id="eval-val-${ppCss(cat)}-${ppCss(sub)}">${Number(v).toFixed(1)}</b></label><input type="range" min="1" max="10" step=".5" value="${Number(v)}" data-cat="${ppSafe(cat)}" data-sub="${ppSafe(sub)}" oninput="ppUpdateEval(this)"></div>`}).join('')}</div></div>`).join('');
+  document.querySelectorAll('#player-eval-categories input[type=range]').forEach(ppUpdateEval);
+  cerrarPlayerModal('player-profile-modal');$('player-eval-modal').classList.add('open');
+}
+function ppCss(s){return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]/g,'-')}
+function ppUpdateEval(input){
+  const v=$(`eval-val-${ppCss(input.dataset.cat)}-${ppCss(input.dataset.sub)}`);if(v)v.textContent=Number(input.value).toFixed(1);
+  const vals=[...document.querySelectorAll(`#player-eval-categories input[data-cat="${CSS.escape(input.dataset.cat)}"]`)].map(x=>Number(x.value));const e=$('eval-cat-'+ppCss(input.dataset.cat));if(e)e.textContent=ppAverage(vals).toFixed(1);
+}
+function guardarEvaluacionJugador(){
+  const p=ppPlayer(Number($('player-eval-id').value));if(!p)return;const metrics={},categoryScores={};
+  document.querySelectorAll('#player-eval-categories input[type=range]').forEach(x=>{if(!metrics[x.dataset.cat])metrics[x.dataset.cat]={};metrics[x.dataset.cat][x.dataset.sub]=Number(x.value)});
+  Object.keys(metrics).forEach(cat=>categoryScores[cat]=ppAverage(Object.values(metrics[cat])));
+  if(!p.evaluations)p.evaluations=[];p.evaluations.push({id:Date.now(),date:$('player-eval-date').value||fechaLocalISO(),metrics,categoryScores,note:String($('player-eval-note').value||'').trim(),createdAt:new Date().toISOString()});
+  ppSave();cerrarPlayerModal('player-eval-modal');renderPlayers();renderDashboardPlayers();abrirPerfilJugador(p.id);
+}
+
+function abrirObjetivoJugador(id){
+  const p=ppPlayer(id);if(!p)return;$('player-goal-player-id').value=p.id;$('player-goal-title').value='';const areas=Object.keys(ppSchema(p));$('player-goal-area').innerHTML=areas.map(a=>`<option>${ppSafe(a)}</option>`).join('');const first=areas[0],cur=ppCurrentAreaScore(p,first);$('player-goal-start').value=Number.isFinite(cur)?cur.toFixed(1):'';$('player-goal-target').value=Number.isFinite(cur)?Math.min(10,cur+1).toFixed(1):'';$('player-goal-deadline').value='';$('player-goal-note').value='';cerrarPlayerModal('player-profile-modal');$('player-goal-modal').classList.add('open');
+}
+function ppGoalAreaChanged(){const p=ppPlayer(Number($('player-goal-player-id').value));if(!p)return;const cur=ppCurrentAreaScore(p,$('player-goal-area').value);if(Number.isFinite(cur)){$('player-goal-start').value=cur.toFixed(1);$('player-goal-target').value=Math.min(10,cur+1).toFixed(1)}}
+function guardarObjetivoJugador(){
+  const p=ppPlayer(Number($('player-goal-player-id').value)),title=String($('player-goal-title').value||'').trim();if(!p||!title){alert('Escribe el objetivo.');return}
+  const start=Number($('player-goal-start').value),target=Number($('player-goal-target').value);if(!Number.isFinite(start)||!Number.isFinite(target)){alert('Indica nivel inicial y nivel objetivo.');return}
+  if(!p.goals)p.goals=[];p.goals.push({id:Date.now(),title,area:$('player-goal-area').value,start,target,deadline:$('player-goal-deadline').value,note:String($('player-goal-note').value||'').trim(),status:'active',createdAt:new Date().toISOString()});ppSave();cerrarPlayerModal('player-goal-modal');renderPlayers();renderDashboardPlayers();abrirPerfilJugador(p.id);
+}
+function ppToggleGoal(pid,gid){const p=ppPlayer(pid),g=p?.goals?.find(x=>Number(x.id)===Number(gid));if(!g)return;g.status=g.status==='done'?'active':'done';ppSave();abrirPerfilJugador(pid);renderPlayers();renderDashboardPlayers()}
+function ppDeleteGoal(pid,gid){const p=ppPlayer(pid);if(!p)return;p.goals=(p.goals||[]).filter(g=>Number(g.id)!==Number(gid));ppSave();abrirPerfilJugador(pid);renderPlayers();renderDashboardPlayers()}
+function ppAddObservation(pid,tag){
+  const p=ppPlayer(pid);if(!p)return;if(!p.observations)p.observations=[];p.observations.unshift({id:Date.now(),date:fechaLocalISO(),tag,note:'',createdAt:new Date().toISOString()});ppSave();abrirPerfilJugador(pid);renderDashboardPlayers();
+}
+function ppDeleteObservation(pid,oid){const p=ppPlayer(pid);if(!p)return;p.observations=(p.observations||[]).filter(o=>Number(o.id)!==Number(oid));ppSave();abrirPerfilJugador(pid)}
+
+function ppSwitchProfileTab(pid,tab,btn){
+  document.querySelectorAll('#player-profile-content .pp-tab').forEach(x=>x.classList.remove('active'));$(`pp-tab-${tab}`)?.classList.add('active');document.querySelectorAll('#player-profile-content .pp-profile-nav button').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');if(tab==='development')ppRenderChart(pid);
+}
+function ppMetricRows(p,ev){return Object.keys(ppSchema(p)).map(cat=>{const v=ppCategoryScore(ev,cat);return `<div class="pp-metric-row"><span>${ppSafe(cat)}</span><div class="pp-metric-track"><i style="width:${Number.isFinite(v)?v*10:0}%"></i></div><b>${Number.isFinite(v)?v.toFixed(1):'—'}</b></div>`}).join('')}
+function ppWorkloadHtml(p){
+  const w=ppWorkload(p,30),entries=Object.entries(w.byFoundation).sort((a,b)=>b[1]-a[1]);if(!entries.length)return '<div class="small">Todavía no hay sesiones con participación individual registrada.</div>';
+  return `<div class="pp-workload-grid">${entries.map(([f,m])=>`<div class="pp-load-card"><span>${ppSafe(f)}</span><b>${Math.round(m)} min</b></div>`).join('')}</div><div class="small" style="margin-top:8px">${w.sessions} sesiones · ${Math.round(w.total)} min registrados en los últimos 30 días.</div>`;
+}
+function abrirPerfilJugador(id){
+  const p=ppPlayer(id),box=$('player-profile-content');if(!p||!box)return;const evs=ppEvaluations(p),last=evs[0],score=ppOverall(last),trend=ppTrend(p),goals=p.goals||[],obs=(p.observations||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))),ins=ppInsights(p),load=ppWorkload(p,30);
+  const goalHtml=goals.length?goals.map(g=>{const prog=ppGoalProgress(p,g),cur=ppCurrentAreaScore(p,g.area);return `<div class="pp-goal ${g.status==='done'?'done':''}"><div class="pp-goal-head"><div><div class="pp-goal-title">${ppSafe(g.title)}</div><div class="pp-goal-meta">${ppSafe(g.area)} · ${Number(g.start).toFixed(1)} → ${Number(g.target).toFixed(1)}${Number.isFinite(cur)?` · actual ${cur.toFixed(1)}`:''}${g.deadline?` · ${ppSafe(g.deadline)}`:''}</div></div><div class="pp-goal-actions"><button class="ghost" onclick="verEjerciciosObjetivo('${String(g.area).replace(/'/g,"\\'")}')">Ver ejercicios</button><button class="ghost" onclick="ppToggleGoal(${p.id},${g.id})">${g.status==='done'?'Reabrir':'Completar'}</button><button class="ghost" onclick="ppDeleteGoal(${p.id},${g.id})">×</button></div></div><div class="pp-goal-progress"><span style="width:${prog}%"></span></div><div class="pp-goal-meta">${Math.round(prog)}% del recorrido estimado${g.note?` · ${ppSafe(g.note)}`:''}</div></div>`}).join(''):'<div class="small">Sin objetivos definidos.</div>';
+  const histHtml=evs.length?evs.map(e=>`<div class="pp-history-item"><strong>${ppSafe(e.date||'')}</strong><div><small>${ppSafe(e.note||'Sin observación global')}</small></div><b>${ppOverall(e)?.toFixed(1)||'—'}</b></div>`).join(''):'<div class="small">Sin evaluaciones todavía.</div>';
+  const obsHtml=obs.length?obs.slice(0,20).map(o=>`<div class="pp-observation"><div><b>${ppSafe(o.tag)}</b><div><small>${ppSafe(o.date)}</small></div></div><button class="ghost" style="padding:3px 5px!important;font-size:8px!important" onclick="ppDeleteObservation(${p.id},${o.id})">×</button></div>`).join(''):'<div class="small">Sin observaciones rápidas.</div>';
+  const areas=Object.keys(ppSchema(p));
+  box.innerHTML=`<div class="player-modal-head"><div><span class="pro-kicker">PLAYER PROFILE</span><h2>Ficha de desarrollo</h2></div><button class="player-modal-close" onclick="cerrarPlayerModal('player-profile-modal')">×</button></div>
+  <div class="pp-profile-top"><div class="pp-profile-avatar">${ppSafe(ppInitials(p.name))}</div><div class="pp-profile-name"><h2>${p.number!==''&&p.number!=null?`#${ppSafe(p.number)} · `:''}${ppSafe(p.name)}</h2><p>${ppSafe(p.position)}${p.position2?` · ${ppSafe(p.position2)}`:''}${p.height?` · ${ppSafe(p.height)} cm`:''}${p.birth?` · ${ppAge(p.birth)} años`:''} · ${ppSafe(p.status||'Disponible')}</p></div><div class="pp-profile-actions"><button class="ghost" onclick="editarJugador(${p.id})">Editar</button><button class="primary" onclick="abrirEvaluacionJugador(${p.id})">Nueva evaluación</button><button class="ghost" onclick="abrirObjetivoJugador(${p.id})">+ Objetivo</button><button class="ghost" onclick="exportarInformeJugador(${p.id})">PDF</button></div></div>
+  <div class="pp-profile-nav"><button class="active" onclick="ppSwitchProfileTab(${p.id},'summary',this)">Resumen</button><button onclick="ppSwitchProfileTab(${p.id},'development',this)">Desarrollo</button><button onclick="ppSwitchProfileTab(${p.id},'goals',this)">Objetivos</button><button onclick="ppSwitchProfileTab(${p.id},'history',this)">Historial</button></div>
+  <div id="pp-tab-summary" class="pp-tab active"><div class="pp-grid">
+    <div class="pp-card wide"><div class="pp-summary-kpis"><div class="pp-mini-kpi"><span>Nivel técnico</span><b>${score==null?'—':score.toFixed(1)}</b></div><div class="pp-mini-kpi"><span>Tendencia</span><b class="pp-trend ${trend.key}">${trend.symbol} ${trend.delta==null?'—':Math.abs(trend.delta).toFixed(1)}</b></div><div class="pp-mini-kpi"><span>30 días</span><b>${Math.round(load.total)}m</b></div><div class="pp-mini-kpi"><span>Objetivos</span><b>${goals.filter(g=>g.status!=='done').length}</b></div></div></div>
+    <div class="pp-card"><h3>Perfil técnico actual</h3>${last?ppMetricRows(p,last):'<div class="small">Haz una primera evaluación para crear el perfil.</div>'}</div>
+    <div class="pp-card"><h3>Lectura automática</h3>${ins.map(x=>`<div class="pp-insight ${x.type}">${ppSafe(x.text)}</div>`).join('')||'<div class="small">Sin alertas.</div>'}</div>
+    <div class="pp-card wide"><h3>Carga individual · 30 días</h3>${ppWorkloadHtml(p)}</div>
+    <div class="pp-card"><h3>Observación rápida</h3><div class="pp-observation-tags">${PLAYER_OBS_TAGS.map(t=>`<button class="ghost" onclick="ppAddObservation(${p.id},'${t.replace(/'/g,"\\'")}')">${ppSafe(t)}</button>`).join('')}</div></div>
+    <div class="pp-card"><h3>Últimas observaciones</h3><div class="pp-observation-list">${obsHtml}</div></div>
+  </div></div>
+  <div id="pp-tab-development" class="pp-tab"><div class="pp-grid"><div class="pp-card wide"><h3>Evolución</h3><div class="pp-chart-controls"><select id="pp-chart-area" onchange="ppRenderChart(${p.id})">${['General',...areas].map(a=>`<option>${ppSafe(a)}</option>`).join('')}</select><select id="pp-chart-period" onchange="ppRenderChart(${p.id})"><option value="30">30 días</option><option value="90" selected>90 días</option><option value="0">Temporada</option></select></div><div id="pp-chart-box" class="pp-chart-box"></div></div><div class="pp-card"><h3>Perfil actual</h3>${last?ppMetricRows(p,last):'<div class="small">Sin datos.</div>'}</div><div class="pp-card"><h3>Carga reciente</h3>${ppWorkloadHtml(p)}</div></div></div>
+  <div id="pp-tab-goals" class="pp-tab"><div class="pp-card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h3 style="margin:0!important">Objetivos individuales</h3><button class="primary" onclick="abrirObjetivoJugador(${p.id})">+ Nuevo objetivo</button></div><div style="margin-top:10px">${goalHtml}</div></div></div>
+  <div id="pp-tab-history" class="pp-tab"><div class="pp-grid"><div class="pp-card"><h3>Evaluaciones</h3><div class="pp-history">${histHtml}</div></div><div class="pp-card"><h3>Observaciones</h3><div class="pp-observation-list">${obsHtml}</div></div><div class="pp-card wide"><h3>Notas del jugador</h3><div class="small" style="white-space:pre-wrap">${ppSafe(p.notes||'Sin notas generales.')}</div></div></div></div>
+  <div class="player-form-actions"><button class="danger" onclick="eliminarJugador(${p.id})">Eliminar jugador</button><button class="ghost" onclick="cerrarPlayerModal('player-profile-modal')">Cerrar</button></div>`;
+  $('player-profile-modal').classList.add('open');
+}
+function ppRenderChart(pid){
+  const p=ppPlayer(pid),box=$('pp-chart-box');if(!p||!box)return;const area=$('pp-chart-area')?.value||'General',days=Number($('pp-chart-period')?.value||90),cutoff=days?new Date(Date.now()-days*86400000):null;
+  const pts=ppEvaluations(p).slice().reverse().filter(e=>{if(!cutoff)return true;const d=new Date((e.date||'')+'T12:00:00');return d>=cutoff}).map(e=>({date:e.date,value:area==='General'?ppOverall(e):ppCategoryScore(e,area)})).filter(x=>Number.isFinite(x.value));
+  if(pts.length<2){box.innerHTML='<div class="pp-chart-empty">Se necesitan al menos dos evaluaciones en este periodo para dibujar la evolución.</div>';return}
+  const W=760,H=210,padL=38,padR=18,padT=16,padB=32,iw=W-padL-padR,ih=H-padT-padB,min=1,max=10;
+  const xy=pts.map((p,i)=>({x:padL+(pts.length===1?iw/2:i*iw/(pts.length-1)),y:padT+(max-p.value)/(max-min)*ih,...p}));
+  const lines=[2,4,6,8,10].map(v=>{const y=padT+(max-v)/(max-min)*ih;return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e5e9ec" stroke-width="1"/><text x="${padL-8}" y="${y+3}" text-anchor="end" font-size="9" fill="#85919b">${v}</text>`}).join('');
+  const path=xy.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const dots=xy.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="#e49a3a"/><text x="${p.x}" y="${p.y-8}" text-anchor="middle" font-size="9" font-weight="700" fill="#17324d">${p.value.toFixed(1)}</text><text x="${p.x}" y="${H-10}" text-anchor="middle" font-size="8" fill="#84909a">${ppSafe(String(p.date||'').slice(5))}</text>`).join('');
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución ${ppSafe(area)}">${lines}<path d="${path}" fill="none" stroke="#315f84" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg>`;
+}
+function verEjerciciosObjetivo(area){
+  cerrarPlayerModal('player-profile-modal');const btn=botonVista('ejercicios');abrirBibliotecaNormal(btn);
+  document.querySelectorAll('input[name="filtro-fundamento"]').forEach(x=>x.checked=false);
+  const target=[...document.querySelectorAll('input[name="filtro-fundamento"]')].find(x=>x.value===area);if(target){target.checked=true;filtrarEjercicios();const lab=$('fundamento-filtro-label');if(lab)lab.textContent=area}
+}
+function exportarInformeJugador(pid){
+  const p=ppPlayer(pid);if(!p)return;const jsPDF=window.jspdf?.jsPDF;if(!jsPDF){alert('No se ha cargado jsPDF.');return}const doc=new jsPDF(),last=ppLatest(p),trend=ppTrend(p),load=ppWorkload(p,30);let y=20;
+  const line=(t,size=10,bold=false)=>{doc.setFontSize(size);doc.setFont('helvetica',bold?'bold':'normal');const parts=doc.splitTextToSize(String(t),175);doc.text(parts,18,y);y+=parts.length*(size*.45+2);if(y>275){doc.addPage();y=20}};
+  line('VOLLEY COACH · INFORME DE DESARROLLO',15,true);line(`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`,13,true);line(`${p.position}${p.position2?' / '+p.position2:''} · ${p.status||'Disponible'}`,10);y+=3;line('Resumen',11,true);line(`Nivel técnico: ${ppOverall(last)?.toFixed(1)||'—'} · Tendencia: ${trend.text} · Carga 30 días: ${Math.round(load.total)} min`,10);y+=2;line('Perfil técnico',11,true);Object.keys(ppSchema(p)).forEach(cat=>line(`${cat}: ${ppCategoryScore(last,cat)?.toFixed(1)||'—'}`,10));y+=2;line('Objetivos activos',11,true);const gs=(p.goals||[]).filter(g=>g.status!=='done');if(!gs.length)line('Sin objetivos activos.',10);else gs.forEach(g=>line(`• ${g.title} · ${g.area} · ${Math.round(ppGoalProgress(p,g))}%`,10));y+=2;line('Observaciones recientes',11,true);(p.observations||[]).slice(0,8).forEach(o=>line(`• ${o.date}: ${o.tag}`,10));if(!(p.observations||[]).length)line('Sin observaciones.',10);doc.save(`Jugador_${String(p.name).replace(/[^\wáéíóúñü]+/gi,'_')}.pdf`);
+}
+function exportarInformeEquipoJugadores(){
+  const jsPDF=window.jspdf?.jsPDF;if(!jsPDF){alert('No se ha cargado jsPDF.');return}const doc=new jsPDF(),team=EQUIPOS[equipoActivo].nombre;doc.setFontSize(16);doc.text(`Volley Coach · ${team}`,18,20);doc.setFontSize(10);doc.text(`Plantilla · ${jugadoresEquipo.length} jugadores`,18,28);let y=38;
+  jugadoresEquipo.forEach(p=>{if(y>275){doc.addPage();y=20}const sc=ppOverall(ppLatest(p)),tr=ppTrend(p),g=ppActiveGoal(p);doc.setFont('helvetica','bold');doc.text(`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`,18,y);doc.setFont('helvetica','normal');doc.text(`${p.position} · ${p.status||'Disponible'} · nivel ${sc?.toFixed(1)||'—'} · ${tr.symbol} ${tr.text}${g?' · '+g.title:''}`,18,y+6);y+=15});doc.save(`Plantilla_${team.replace(/[^\w]+/g,'_')}.pdf`);
+}
+
+function rosterSeleccionados(){return [...document.querySelectorAll('#session-roster-grid input[type=checkbox]:checked')].map(x=>Number(x.value))}
+function renderSessionRoster(){
+  const grid=$('session-roster-grid'),sum=$('session-roster-summary');if(!grid||!sum)return;const selected=new Set((meta.playerIds||[]).map(Number)),available=jugadoresEquipo.filter(p=>p.status!=='Baja');
+  if(!available.length){grid.innerHTML='<div class="session-roster-empty">Añade jugadores en la pestaña Jugadores para registrar participación individual.</div>';sum.textContent='Plantilla de la sesión · sin plantilla';return}
+  grid.innerHTML=available.map(p=>`<label class="session-roster-item"><input type="checkbox" value="${p.id}" ${selected.has(Number(p.id))?'checked':''} onchange="guardarRosterSesion()"><span>${p.number!==''&&p.number!=null?`#${ppSafe(p.number)} · `:''}${ppSafe(p.name)} <small>· ${ppSafe(p.position)}</small></span></label>`).join('');
+  const n=available.filter(p=>selected.has(Number(p.id))).length;sum.textContent=`Plantilla de la sesión · ${n}/${available.length} seleccionados`;
+}
+function seleccionarRosterSesion(all){const ids=all?jugadoresEquipo.filter(p=>p.status==='Disponible'||p.status==='Recuperación').map(p=>p.id):[];meta.playerIds=ids;meta.jugadores=ids.length?String(ids.length):meta.jugadores;const inp=$('sesion-jugadores');if(inp&&ids.length)inp.value=ids.length;save();renderSessionRoster()}
+function guardarRosterSesion(){meta.playerIds=rosterSeleccionados();if(meta.playerIds.length){meta.jugadores=String(meta.playerIds.length);const inp=$('sesion-jugadores');if(inp)inp.value=meta.playerIds.length}save();renderSessionRoster()}
+
+function renderDashboardPlayers(){
+  const state=$('dash-player-state'),alerts=$('dash-player-alerts');if(!state||!alerts)return;const all=jugadoresEquipo||[],available=all.filter(p=>p.status==='Disponible').length,recovery=all.filter(p=>p.status==='Recuperación').length,inj=all.filter(p=>p.status==='Lesionado').length,pending=all.filter(p=>!ppLatest(p)||ppDays(ppLatest(p).date)>30);
+  state.innerHTML=all.length?`<div class="dashboard-team-state"><div><span>Plantilla</span><b>${all.length}</b></div><div><span>Disponibles</span><b>${available}</b></div><div><span>Recuperación</span><b>${recovery}</b></div><div><span>Lesionados</span><b>${inj}</b></div></div>`:'<div class="dashboard-empty">Añade jugadores para activar el seguimiento individual.</div>';
+  const att=[];pending.slice(0,3).forEach(p=>att.push({p,text:ppLatest(p)?`Evaluación hace ${ppDays(ppLatest(p).date)} días`:'Sin evaluación inicial'}));all.forEach(p=>{const g=ppActiveGoal(p);if(g&&ppGoalProgress(p,g)<35)att.push({p,text:`Objetivo ${g.area} · ${Math.round(ppGoalProgress(p,g))}%`})});
+  alerts.innerHTML=att.length?att.slice(0,5).map(x=>`<div class="dashboard-player-alert"><b>${ppSafe(x.p.name)}</b><span>${ppSafe(x.text)}</span></div>`).join(''):'<div class="dashboard-empty">Sin seguimientos urgentes.</div>';
+}
+</script>
+
 
 <script>
 /* Actualización automática de Volley Coach PWA */
