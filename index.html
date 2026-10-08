@@ -590,9 +590,14 @@ header{position:static!important;top:auto!important;}
 @media(max-width:650px){.competition-toolbar{grid-template-columns:1fr}.competition-kpis,.stats-v2-kpis{grid-template-columns:1fr 1fr}.competition-header,.stats-v2-header{padding:17px 15px 13px}.competition-grid,.stats-v2-grid{padding:10px}.library-smart-summary{grid-template-columns:1fr 1fr}.library-smart-sort{width:100%;flex-direction:column;align-items:stretch}.match-form-grid,.rating-form{grid-template-columns:1fr}.match-form-grid .wide,.rating-form .wide{grid-column:auto}.match-result-fields{grid-template-columns:1fr 1fr}.match-roster-list{grid-template-columns:1fr}.stats-period-controls{width:100%;flex-direction:column;align-items:stretch}.stats-custom{width:100%}.stats-custom input{min-width:0}.global-quick-actions{right:14px;bottom:max(14px,env(safe-area-inset-bottom))}.quick-actions-menu{width:min(280px,calc(100vw - 28px))}}
 </style>
 
+
+<style id="planning-match-v5112-style">
+.planning-type-row{display:grid;grid-template-columns:160px 170px minmax(180px,1fr);gap:9px;margin-bottom:10px}.planning-type-field{display:flex;flex-direction:column;gap:5px}.planning-type-field>span{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#6f7d89}.planning-specific-fields{margin-top:3px}.planning-create-hint{margin-top:9px;padding:8px 10px;border-left:3px solid #b9c7d3;background:#f7f9fb;color:#667581;font-size:10px;line-height:1.4}.plan-pro-card.match{border-left:3px solid #7c5e32;background:#fffaf2}.plan-pro-card.match .plan-pro-status{color:#805c2c}.plan-pro-card.match.played{border-left-color:#52687a;background:#f7f9fb}.plan-pro-card.match.played .plan-pro-status{color:#52687a}.plan-pro-match-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.plan-pro-match-chip{font-size:8.5px;padding:2px 6px;border-radius:999px;background:#f1e8d8;color:#745328;font-weight:800}.month-plan.match{background:#f7ead7;color:#765426;border-left:3px solid #9a7440}.month-plan.match.played{background:#edf1f4;color:#4f6474;border-left-color:#687f90}.planning-day-events{display:flex;flex-direction:column;gap:7px}.planning-add-caption{display:block;font-size:8px;color:#86929d;margin-top:2px}.planning-day-head .plan-day-add,.month-day-add{font-size:14px}.planning-day-head .plan-day-add[title*="evento"],.month-day-add[title*="evento"]{background:#fff}.planning-event-empty{color:#a0a9b1;padding:8px 0;font-size:10px}.planning-match-count{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;background:#f5ead9;color:#78572e;font-size:8.5px;font-weight:850;margin-top:5px}
+@media(max-width:700px){.planning-type-row{grid-template-columns:1fr 1fr}.planning-type-field:last-child{grid-column:1/-1}.planning-quick-body{width:min(94vw,720px)!important}}
+</style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.10 · SEASON + PLAYER LOAD</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.2 · PLANIFICACIÓN + COMPETICIÓN</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -832,7 +837,17 @@ header{position:static!important;top:auto!important;}
     <div class="planning-toolbar">
       <div class="planning-nav"><button class="ghost" onclick="cambiarPeriodoPlan(-1)">←</button><button class="ghost" onclick="irHoyPlanificacion()">Hoy</button><button class="ghost" onclick="cambiarPeriodoPlan(1)">→</button></div>
       <strong id="week-label"></strong>
-      <details class="planning-quick-create"><summary>+ Programar sesión</summary><div class="planning-quick-body"><div class="form-grid"><input id="plan-fecha" type="date"><input id="plan-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"><input id="plan-objetivo" placeholder="Objetivo de la sesión"><input id="plan-duracion" type="number" min="0" placeholder="Duración prevista (min)"><select id="plan-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select></div><div class="actions"><button class="primary" onclick="guardarPlan()">Crear entrenamiento</button></div></div></details>
+      <details class="planning-quick-create"><summary>+ Programar</summary><div class="planning-quick-body">
+  <div class="planning-type-row">
+    <label class="planning-type-field"><span>Tipo</span><select id="plan-item-type" onchange="actualizarFormularioPlanificacionTipo()"><option value="training" selected>Entrenamiento</option><option value="match">Partido</option></select></label>
+    <label class="planning-type-field"><span>Fecha</span><input id="plan-fecha" type="date"></label>
+    <label class="planning-type-field"><span>Equipo</span><input id="plan-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"></label>
+  </div>
+  <div id="plan-training-fields" class="form-grid planning-specific-fields"><input id="plan-objetivo" placeholder="Objetivo de la sesión"><input id="plan-duracion" type="number" min="0" placeholder="Duración prevista (min)"><select id="plan-intensidad"><option>Baja</option><option selected>Media</option><option>Alta</option></select></div>
+  <div id="plan-match-fields" class="form-grid planning-specific-fields hidden"><input id="plan-match-time" type="time"><input id="plan-match-opponent" placeholder="Rival"><input id="plan-match-competition" placeholder="Competición"><input id="plan-match-round" placeholder="Jornada / fase"><select id="plan-match-venue"><option value="Casa">Casa</option><option value="Fuera">Fuera</option><option value="Neutral">Neutral</option></select></div>
+  <div class="planning-create-hint" id="plan-create-hint">Crea un entrenamiento y continúa preparándolo en el workspace.</div>
+  <div class="actions"><button id="plan-create-btn" class="primary" onclick="guardarItemPlanificacion()">Crear entrenamiento</button></div>
+</div></details>
     </div>
     <div id="week-grid" class="planning-week"></div>
     <div id="month-grid" class="planning-month hidden"></div>
@@ -2015,6 +2030,8 @@ function generarPDFEntrenamiento(h,equipoNombre){
       campo('Desarrollo',e.descripcion,{size:9.3,right:textoRight});
       const org=[e.formato?`Formato: ${limpiarTextoPDF(e.formato)}`:'',e.jugadores?`Jugadores: ${limpiarTextoPDF(e.jugadores)}`:'',e.material?`Material: ${limpiarTextoPDF(e.material)}`:''].filter(Boolean).join(' · ');
       campo('Organización',org||'-',{size:9.3,right:textoRight});
+      const participantes=vcExerciseParticipantLabels(e0,h,vcTeamIdFromName(equipoNombre));
+      campo('Participantes',participantes.length?participantes.join(' · '):(Array.isArray(e0?.playerIds)?'Sin jugadores asignados':'No registrado'),{size:9.3,right:textoRight});
       campo('Claves / correcciones',e.errores||'-',{size:9.3,right:textoRight});
       if(limpiarTextoPDF(e.variantes))campo('Variantes',e.variantes,{size:9.3,right:textoRight});
       if(pdf.getCurrentPageInfo().pageNumber===paginaPista)y=Math.max(y,pistaY+pistaH+5);
@@ -2026,7 +2043,8 @@ function generarPDFEntrenamiento(h,equipoNombre){
     campo('Equipo',equipoNombre||h.equipo||'Equipo',{size:9.6,after:1});
     campo('Fecha',h.fecha||'-',{size:9.6,after:1});
     campo('Duración',`${Number(h.duracion)||0} min`,{size:9.6,after:1});
-    campo('Jugadores',h.jugadores||'-',{size:9.6,after:1});
+    const rosterPDF=vcSessionParticipantLabels(h,vcTeamIdFromName(equipoNombre));
+    campo('Jugadores',rosterPDF.length?rosterPDF.join(' · '):(h.jugadores||'-'),{size:9.6,after:1});
     campo('Intensidad',h.intensidad||'Media',{size:9.6,after:1});
     campo('Objetivo',h.objetivo||'-',{size:9.6,after:1});
     if(Number(h.duracionObjetivo)||0)campo('Objetivo de tiempo',`${Number(h.duracionObjetivo)} min`,{size:9.6,after:3});
@@ -2974,7 +2992,7 @@ function renderTemporada(){
   const stats=weeks.map(seasonWeekStats),defined=stats.filter(s=>s.rec&&(s.rec.objective||s.rec.fundamentals?.length||s.rec.targetSessions||s.rec.targetMinutes)).length;
   const targetSessions=stats.reduce((a,s)=>a+s.targetSessions,0),realSessions=stats.reduce((a,s)=>a+s.realSessions,0),targetMinutes=stats.reduce((a,s)=>a+s.targetMinutes,0),realMinutes=stats.reduce((a,s)=>a+s.realMinutes,0),comp=targetMinutes?Math.min(100,Math.round(realMinutes/targetMinutes*100)):(targetSessions?Math.min(100,Math.round(realSessions/targetSessions*100)):0);
   $('season-kpi-weeks').textContent=defined;$('season-kpi-total-weeks').textContent=`de ${weeks.length} semanas`;$('season-kpi-target-sessions').textContent=targetSessions;$('season-kpi-real-sessions').textContent=`${realSessions} realizadas`;$('season-kpi-target-min').textContent=targetMinutes;$('season-kpi-real-min').textContent=`${realMinutes} realizados`;$('season-kpi-compliance').textContent=comp+'%';$('season-progress-bar').style.width=Math.min(100,comp)+'%';$('season-progress-label').textContent=comp+'%';$('season-range-label').textContent=`${c.name}${seasonViewOffset?` · ${new Date(r.start+'T12:00:00').getFullYear()}`:''} · ${new Date(r.start+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})} — ${new Date(r.end+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}`;
-  let lastMonth='';let html='';stats.forEach(s=>{const ws=s.rec?.weekStart||weeks[stats.indexOf(s)],month=seasonMonthLabel(ws);if(month!==lastMonth){html+=`<div class="season-month-label">${esc(month)}</div>`;lastMonth=month}const rec=s.rec||{},focus=(rec.fundamentals||[]).map(f=>`<span class="season-focus-chip">${esc(f)}</span>`).join(''),klass=ws===current?' current':'';const status=s.compliance>=80&&s.realSessions?' good':(s.targetSessions&&ws<current&&s.compliance<60?' warn':'');html+=`<article class="season-week-row${klass}${status}"><div class="season-week-date"><strong>${esc(seasonHumanRange(ws))}</strong><span>${ws===current?'Semana actual':(rec.match?`Partido: ${esc(rec.match)}`:'')}</span></div><div class="season-week-objective"><strong>${esc(rec.objective||'Sin objetivo semanal')}</strong><small>${rec.intensity?`Intensidad ${esc(rec.intensity)}`:'Define el microciclo para orientar el trabajo.'}</small><div class="season-focus-chips">${focus}</div></div><div class="season-week-stat"><span>Objetivo</span><b>${s.targetSessions} ses. · ${s.targetMinutes} min</b></div><div class="season-week-stat calendar"><span>En calendario</span><b>${s.calendarSessions} ses. · ${s.calendarMinutes} min</b></div><div class="season-week-stat"><span>Realizado</span><b>${s.realSessions} ses. · ${s.realMinutes} min</b></div><div class="season-week-compliance"><div class="season-week-compliance-track"><i style="width:${Math.min(100,s.compliance)}%"></i></div><b>${s.compliance}%</b></div><div class="season-week-actions"><button class="ghost" onclick="abrirSemanaTemporada('${ws}')">${s.rec?'Editar':'Definir'}</button></div></article>`});
+  let lastMonth='';let html='';stats.forEach(s=>{const ws=s.rec?.weekStart||weeks[stats.indexOf(s)],month=seasonMonthLabel(ws);if(month!==lastMonth){html+=`<div class="season-month-label">${esc(month)}</div>`;lastMonth=month}const rec=s.rec||{},focus=(rec.fundamentals||[]).map(f=>`<span class="season-focus-chip">${esc(f)}</span>`).join(''),klass=ws===current?' current':'';const status=s.compliance>=80&&s.realSessions?' good':(s.targetSessions&&ws<current&&s.compliance<60?' warn':'');html+=`<article class="season-week-row${klass}${status}"><div class="season-week-date"><strong>${esc(seasonHumanRange(ws))}</strong><span>${ws===current?'Semana actual':seasonMatchesLabel(ws,rec)}</span></div><div class="season-week-objective"><strong>${esc(rec.objective||'Sin objetivo semanal')}</strong><small>${rec.intensity?`Intensidad ${esc(rec.intensity)}`:'Define el microciclo para orientar el trabajo.'}</small><div class="season-focus-chips">${focus}</div></div><div class="season-week-stat"><span>Objetivo</span><b>${s.targetSessions} ses. · ${s.targetMinutes} min</b></div><div class="season-week-stat calendar"><span>En calendario</span><b>${s.calendarSessions} ses. · ${s.calendarMinutes} min</b></div><div class="season-week-stat"><span>Realizado</span><b>${s.realSessions} ses. · ${s.realMinutes} min</b></div><div class="season-week-compliance"><div class="season-week-compliance-track"><i style="width:${Math.min(100,s.compliance)}%"></i></div><b>${s.compliance}%</b></div><div class="season-week-actions"><button class="ghost" onclick="abrirSemanaTemporada('${ws}')">${s.rec?'Editar':'Definir'}</button></div></article>`});
   list.innerHTML=html||'<div class="dashboard-empty">No hay semanas en el rango de temporada.</div>';
 }
 function abrirSemanaTemporada(ws){
@@ -3136,6 +3154,135 @@ renderCompetition();renderLibrarySmartSummary();renderDashboardCompetition();ren
 </script>
 
 
+
+<style id="v5111-participants-style">
+.vc-plan-participants-modal{display:none;position:fixed;inset:0;z-index:12050;background:rgba(11,29,44,.52);padding:22px;align-items:center;justify-content:center}.vc-plan-participants-modal.open{display:flex}.vc-plan-participants-card{width:min(760px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 30px 70px rgba(5,22,36,.28);padding:20px}.vc-plan-participants-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #edf0f2;padding-bottom:13px;margin-bottom:14px}.vc-plan-participants-head h2{margin:0!important;font-size:20px!important}.vc-plan-participants-head p{margin:4px 0 0;color:#75828d;font-size:11px}.vc-roster-summary{padding:11px 12px;border:1px solid #dfe5e9;background:#f8fafb;border-radius:10px;margin-bottom:12px}.vc-roster-summary b{display:block;color:#17324d;font-size:11px;margin-bottom:6px}.vc-participant-chips{display:flex;gap:5px;flex-wrap:wrap}.vc-participant-chip{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:#eef3f6;border:1px solid #dce5eb;color:#385168;font-size:9.5px;font-weight:750}.vc-plan-exercise-roster{border:1px solid #e1e6ea;border-radius:10px;padding:11px 12px;margin:8px 0;background:#fff}.vc-plan-exercise-roster-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.vc-plan-exercise-roster-head strong{font-size:12px;color:#17324d}.vc-plan-exercise-roster-head span{font-size:9.5px;color:#7b8791;white-space:nowrap}.vc-plan-exercise-roster .vc-participant-chips{margin-top:8px}.vc-participant-section details{margin-top:5px}.vc-participant-section summary{cursor:pointer;list-style:none;color:#315f84;font-size:10.5px;font-weight:800}.vc-participant-section summary::-webkit-details-marker{display:none}.vc-participant-section summary:after{content:' ▾'}.vc-participant-section details[open] summary:after{content:' ▴'}.vc-participant-section .vc-participant-chips{margin-top:8px}.vc-plan-roster-btn{white-space:nowrap}.vc-plan-player-count{margin-left:4px;color:#778590}
+@media(max-width:650px){.vc-plan-participants-modal{padding:10px}.vc-plan-participants-card{padding:15px}.vc-plan-exercise-roster-head{flex-direction:column;gap:3px}}
+</style>
+
+<div id="vc-plan-participants-modal" class="vc-plan-participants-modal" onclick="if(event.target===this)vcClosePlanParticipants()">
+  <div class="vc-plan-participants-card">
+    <div class="vc-plan-participants-head">
+      <div><span class="pro-kicker">PLANIFICACIÓN · PARTICIPACIÓN</span><h2 id="vc-plan-participants-title">Jugadores por ejercicio</h2><p id="vc-plan-participants-subtitle">Consulta quién está asignado a cada tarea antes o después de la sesión.</p></div>
+      <button class="modal-close" onclick="vcClosePlanParticipants()">×</button>
+    </div>
+    <div id="vc-plan-participants-content"></div>
+  </div>
+</div>
+
+<script id="v5111-participants-script">
+/* ===== V5.11.1 · PARTICIPANTES VISIBLES EN PLANIFICACIÓN / HISTORIAL / PDF ===== */
+function vcTeamIdFromName(name){
+  const s=String(name||'').toLowerCase();
+  if(s.includes('cadete'))return 'cadete';
+  if(s.includes('infantil'))return 'infantil';
+  return equipoActivo;
+}
+function vcTeamPlayers(teamId){
+  if(teamId===equipoActivo)return Array.isArray(jugadoresEquipo)?jugadoresEquipo:[];
+  return Array.isArray(equiposData?.[teamId]?.jugadores)?equiposData[teamId].jugadores:[];
+}
+function vcParticipantSnapshot(ids,teamId=equipoActivo){
+  const set=new Set((ids||[]).map(Number)),players=vcTeamPlayers(teamId);
+  return players.filter(p=>set.has(Number(p.id))).map(p=>({id:Number(p.id),name:String(p.name||''),number:p.number??'',positions:typeof ppPositions==='function'?ppPositions(p):[p.position,p.secondaryPosition].filter(Boolean)}));
+}
+function vcSnapshotLabel(p){return `${p?.number!==''&&p?.number!=null?'#'+p.number+' · ':''}${String(p?.name||'Jugador')}`}
+function vcSessionParticipantIds(h){return Array.isArray(h?.playerIds)?h.playerIds.map(Number):[]}
+function vcSessionParticipantLabels(h,teamId=equipoActivo){
+  if(Array.isArray(h?.participantSnapshot)&&h.participantSnapshot.length)return h.participantSnapshot.map(vcSnapshotLabel);
+  const ids=vcSessionParticipantIds(h),set=new Set(ids),players=vcTeamPlayers(teamId),found=players.filter(p=>set.has(Number(p.id))).map(p=>`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`),foundIds=new Set(players.filter(p=>set.has(Number(p.id))).map(p=>Number(p.id)));
+  ids.filter(id=>!foundIds.has(Number(id))).forEach(id=>found.push(`Jugador ${id}`));
+  return found;
+}
+function vcExerciseParticipantIds(e,h){
+  if(Array.isArray(e?.playerIds))return e.playerIds.map(Number);
+  return vcSessionParticipantIds(h);
+}
+function vcExerciseParticipantLabels(e,h={},teamId=equipoActivo){
+  if(Array.isArray(e?.participantSnapshot)&&e.participantSnapshot.length)return e.participantSnapshot.map(vcSnapshotLabel);
+  const ids=vcExerciseParticipantIds(e,h),set=new Set(ids),players=vcTeamPlayers(teamId),foundPlayers=players.filter(p=>set.has(Number(p.id))),labels=foundPlayers.map(p=>`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`),foundIds=new Set(foundPlayers.map(p=>Number(p.id)));
+  ids.filter(id=>!foundIds.has(Number(id))).forEach(id=>labels.push(`Jugador ${id}`));
+  return labels;
+}
+function vcParticipantChips(labels,empty='No registrado'){
+  return labels.length?`<div class="vc-participant-chips">${labels.map(n=>`<span class="vc-participant-chip">${esc(n)}</span>`).join('')}</div>`:`<div class="small">${esc(empty)}</div>`;
+}
+
+/* Al guardar, cada ejercicio conserva SIEMPRE la asignación resuelta y una copia de nombres. */
+const _snapshotEjercicioV5111=snapshotEjercicioCompleto;
+snapshotEjercicioCompleto=function(e){
+  if(!e)return _snapshotEjercicioV5111(e);
+  let source=e;
+  if(!Array.isArray(e.playerIds)){
+    const ids=(typeof exerciseAssignedIds==='function')?exerciseAssignedIds(e.id):(meta.playerIds||[]).map(Number);
+    source={...e,playerIds:clonar(ids)};
+  }
+  const snap=_snapshotEjercicioV5111(source);if(!snap)return snap;
+  const ids=Array.isArray(snap.playerIds)?snap.playerIds.map(Number):[];
+  snap.playerIds=ids;
+  snap.participantSnapshot=Array.isArray(e.participantSnapshot)&&e.participantSnapshot.length?clonar(e.participantSnapshot):vcParticipantSnapshot(ids,equipoActivo);
+  return snap;
+};
+
+/* Si una planificación antigua solo tenía la plantilla general, la hereda al pasar a historial. */
+const _ejerciciosHistorialV5111=ejerciciosHistorialDesdePlan;
+ejerciciosHistorialDesdePlan=function(p){
+  const teamId=vcTeamIdFromName(p?.equipo),sessionIds=Array.isArray(p?.playerIds)?p.playerIds.map(Number):[];
+  const copy={...p,ejercicios:(p?.ejercicios||[]).map(e=>{
+    if(Array.isArray(e.playerIds))return e;
+    return {...e,playerIds:clonar(sessionIds),participantSnapshot:vcParticipantSnapshot(sessionIds,teamId)};
+  })};
+  return _ejerciciosHistorialV5111(copy);
+};
+
+/* Modal profesional para ver participantes desde Planificación. */
+function vcOpenPlanParticipants(id){
+  const p=planificacion.find(x=>Number(x.id)===Number(id));if(!p)return;
+  const teamId=vcTeamIdFromName(p.equipo),sessionLabels=vcSessionParticipantLabels(p,teamId),items=(p.ejercicios||[]);
+  $('vc-plan-participants-title').textContent=p.objetivo||'Jugadores por ejercicio';
+  $('vc-plan-participants-subtitle').textContent=`${p.fecha||'Sin fecha'} · ${p.equipo||EQUIPOS[teamId]?.nombre||'Equipo'} · ${items.length} ejercicio${items.length===1?'':'s'}`;
+  const roster=`<div class="vc-roster-summary"><b>Plantilla de la sesión · ${sessionLabels.length||Number(p.jugadores)||0} jugador${(sessionLabels.length||Number(p.jugadores)||0)===1?'':'es'}</b>${vcParticipantChips(sessionLabels,'No se registró una plantilla nominal en esta sesión.')}</div>`;
+  const exercises=items.length?items.map((e,i)=>{const labels=vcExerciseParticipantLabels(e,p,teamId),explicit=Array.isArray(e.playerIds);return `<div class="vc-plan-exercise-roster"><div class="vc-plan-exercise-roster-head"><strong>${i+1}. ${esc(e.nombre||'Ejercicio')}</strong><span>${Number(e.tiempo)||0} min · ${labels.length} jugador${labels.length===1?'':'es'}${explicit?'':' · plantilla general'}</span></div>${vcParticipantChips(labels,explicit?'Sin jugadores asignados':'No registrado')}</div>`}).join(''):'<div class="empty">Esta planificación todavía no tiene ejercicios guardados.</div>';
+  $('vc-plan-participants-content').innerHTML=roster+exercises;
+  $('vc-plan-participants-modal').classList.add('open');
+}
+function vcClosePlanParticipants(){$('vc-plan-participants-modal')?.classList.remove('open')}
+
+const _tarjetaPlanProV5111=tarjetaPlanProHTML;
+tarjetaPlanProHTML=function(p,hoy){
+  let h=_tarjetaPlanProV5111(p,hoy),count=Array.isArray(p.playerIds)?p.playerIds.length:(Number(p.jugadores)||0);
+  h=h.replace(/(<div class="plan-pro-meta">)(.*?)(<\/div>)/,(_,a,b,c)=>`${a}${b}${count?` <span class="vc-plan-player-count">· ${count} jug.</span>`:''}${c}`);
+  h=h.replace('<button class="danger" onclick="eliminarPlan',`<button class="ghost vc-plan-roster-btn" onclick="event.stopPropagation();vcOpenPlanParticipants(${p.id})">👥 Jugadores</button><button class="danger" onclick="eliminarPlan`);
+  return h;
+};
+
+/* Historial: muestra participantes por ejercicio sin depender del equipo actualmente seleccionado. */
+const _entrenamientoEstructuradoV5111=entrenamientoEstructuradoHTML;
+entrenamientoEstructuradoHTML=function(h,accionesPorEjercicio=null){
+  const teamId=vcTeamIdFromName(h?.equipo),sessionIds=Array.isArray(h?.playerIds)?h.playerIds.map(Number):[];
+  const copy={...h,ejercicios:(h?.ejercicios||[]).map(e=>({...e,__vcTeamId:teamId,__vcSessionPlayerIds:sessionIds}))};
+  return _entrenamientoEstructuradoV5111(copy,accionesPorEjercicio);
+};
+const _fichaEjercicioV5111=fichaEjercicioHTML;
+fichaEjercicioHTML=function(origen,numero,acciones=''){
+  let h=_fichaEjercicioV5111(origen,numero,acciones);
+  h=h.replace(/<div class="session-exercise-detail wide history-player-assignment">[\s\S]*?<\/div>/,'');
+  const hasContext=Array.isArray(origen?.playerIds)||Array.isArray(origen?.__vcSessionPlayerIds)||Array.isArray(origen?.participantSnapshot);
+  if(!hasContext)return h;
+  const session={playerIds:Array.isArray(origen?.__vcSessionPlayerIds)?origen.__vcSessionPlayerIds:[]},teamId=origen?.__vcTeamId||equipoActivo,labels=vcExerciseParticipantLabels(origen,session,teamId),empty=Array.isArray(origen?.playerIds)?'Sin jugadores asignados':'No registrado';
+  const extra=`<div class="exercise-explain-section wide vc-participant-section"><div class="exercise-explain-label">Jugadores del ejercicio · ${labels.length}</div><details><summary>Ver jugadores</summary>${vcParticipantChips(labels,empty)}</details></div>`;
+  const pos=h.lastIndexOf('</div></div>');if(pos>=0)h=h.slice(0,pos)+extra+h.slice(pos);
+  return h;
+};
+
+/* Añade snapshot nominal de la plantilla general a nuevas planificaciones e historiales. */
+const _construirPlanSesionV5111=construirPlanSesion;
+construirPlanSesion=function(id){const p=_construirPlanSesionV5111(id);p.participantSnapshot=vcParticipantSnapshot(p.playerIds||[],equipoActivo);return p};
+
+renderPlanificacion();renderHistorial();
+</script>
+
+
 <script>
 /* Actualización automática de Volley Coach PWA */
 if ('serviceWorker' in navigator) {
@@ -3194,4 +3341,80 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-</body></html>
+\n<script id="planning-match-v5112-script">
+/* ===== V5.11.2 · PARTIDOS DENTRO DE PLANIFICACIÓN ===== */
+function actualizarFormularioPlanificacionTipo(){
+  const tipo=$('plan-item-type')?.value||'training',match=tipo==='match';
+  $('plan-training-fields')?.classList.toggle('hidden',match);
+  $('plan-match-fields')?.classList.toggle('hidden',!match);
+  if($('plan-create-btn'))$('plan-create-btn').textContent=match?'Crear partido':'Crear entrenamiento';
+  if($('plan-create-hint'))$('plan-create-hint').textContent=match?'El partido aparecerá aquí y también en Competición, usando un único registro.':'Crea un entrenamiento y continúa preparándolo en el workspace.';
+}
+function limpiarFormularioPartidoPlan(){
+  ['plan-match-time','plan-match-opponent','plan-match-competition','plan-match-round'].forEach(id=>{if($(id))$(id).value=''});
+  if($('plan-match-venue'))$('plan-match-venue').value='Casa';
+}
+function abrirCreadorPlanificacion(fecha='',tipo='training'){
+  const d=document.querySelector('.planning-quick-create');if(!d)return;d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});
+  if($('plan-fecha')&&fecha)$('plan-fecha').value=fecha;
+  if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo].nombre;
+  if($('plan-item-type'))$('plan-item-type').value=tipo;
+  actualizarFormularioPlanificacionTipo();
+  setTimeout(()=>{if(tipo==='match')$('plan-match-opponent')?.focus();else $('plan-objetivo')?.focus()},30);
+}
+function crearPartidoDesdePlanificacion(){
+  const date=$('plan-fecha')?.value||'',opponent=String($('plan-match-opponent')?.value||'').trim();
+  if(!date){alert('Selecciona una fecha.');return false}
+  if(!opponent){alert('Escribe el rival.');$('plan-match-opponent')?.focus();return false}
+  const rec={id:Date.now(),date,time:$('plan-match-time')?.value||'',competition:String($('plan-match-competition')?.value||'').trim(),round:String($('plan-match-round')?.value||'').trim(),opponent,venue:$('plan-match-venue')?.value||'Casa',status:'Programado',setsFor:'',setsAgainst:'',setDetail:'',notes:'',focus:[],playerIds:[]};
+  partidosEquipo.push(rec);guardarPartidos();
+  limpiarFormularioPartidoPlan();if($('plan-fecha'))$('plan-fecha').value='';
+  document.querySelector('.planning-quick-create')?.removeAttribute('open');
+  renderPlanificacion();renderCompetition();renderDashboardCompetition();renderStats();
+  if($('save-indicator'))$('save-indicator').textContent='✓ Partido añadido a Planificación y Competición';
+  return true;
+}
+function guardarItemPlanificacion(){return ($('plan-item-type')?.value||'training')==='match'?crearPartidoDesdePlanificacion():crearSesionDesdePlanificacion('')}
+crearSesionDiaPlanificacion=function(fecha){abrirCreadorPlanificacion(fecha,'training')};
+function abrirEventoDiaPlanificacion(fecha){abrirCreadorPlanificacion(fecha,'training')}
+function planMatchStatus(m,hoy){if(m.status==='Jugado')return {clase:'played',texto:'Partido · Jugado'};if(m.date<hoy)return {clase:'played',texto:'Partido · Pendiente de resultado'};return {clase:'',texto:'Partido · Programado'}}
+function tarjetaPartidoPlanHTML(m,hoy){
+  const st=planMatchStatus(m,hoy),meta=[m.time||'',m.competition||'',m.round||'',m.venue||''].filter(Boolean);
+  const score=m.status==='Jugado'?` · ${Number(m.setsFor)||0}-${Number(m.setsAgainst)||0}`:'';
+  return `<article class="plan-pro-card match ${st.clase}" onclick="abrirPartidoModal(${m.id})"><div class="plan-pro-status">${st.texto}${score}</div><div class="plan-pro-title">vs ${esc(m.opponent||'Rival')}</div><div class="plan-pro-match-meta">${meta.map(x=>`<span class="plan-pro-match-chip">${esc(x)}</span>`).join('')}</div><div class="plan-pro-actions" onclick="event.stopPropagation()"><button class="ghost" onclick="abrirPartidoModal(${m.id})">Abrir partido</button><button class="danger" onclick="eliminarPartidoDesdePlanificacion(${m.id})">×</button></div></article>`
+}
+function monthMatchHTML(m){const played=m.status==='Jugado';return `<button class="month-plan match ${played?'played':''}" onclick="abrirPartidoModal(${m.id})" title="Partido vs ${esc(m.opponent||'Rival')}">🏐 ${esc(m.opponent||'Rival')}${m.time?' · '+esc(m.time):''}</button>`}
+function eliminarPartidoDesdePlanificacion(id){
+  const m=partidosEquipo.find(x=>Number(x.id)===Number(id));if(!m)return;
+  if(!confirm(`¿Eliminar de la planificación el partido contra ${m.opponent}? También se eliminará de Competición.`))return;
+  partidosEquipo=partidosEquipo.filter(x=>Number(x.id)!==Number(id));guardarPartidos();renderPlanificacion();renderCompetition();renderDashboardCompetition();renderStats();
+}
+function seasonMatchesLabel(ws,rec={}){
+  const a=new Date(ws+'T12:00:00'),b=new Date(a);b.setDate(a.getDate()+6);const end=fechaLocalISO(b);
+  const matches=partidosEquipo.filter(m=>m.date>=ws&&m.date<=end).sort((x,y)=>String(x.date+x.time).localeCompare(String(y.date+y.time)));
+  if(matches.length){const names=matches.map(m=>m.opponent).filter(Boolean).join(' · ');return `Partido${matches.length>1?'s':''}: ${esc(names)}`}
+  return rec.match?`Partido: ${esc(rec.match)}`:'';
+}
+const _renderPlanificacionV5112Base=renderPlanificacion;
+renderPlanificacion=function(){
+  if(vistaPlanificacion==='temporada'){_renderPlanificacionV5112Base();return}
+  const hoy=fechaLocalISO(),week=$('week-grid'),month=$('month-grid');if(!week||!month)return;
+  $('plan-view-week')?.classList.toggle('active',vistaPlanificacion==='semana');$('plan-view-month')?.classList.toggle('active',vistaPlanificacion==='mes');$('plan-view-season')?.classList.remove('active');$('season-grid')?.classList.add('hidden');
+  if(vistaPlanificacion==='semana'){
+    const lunes=lunesDeSemana(semanaBase),fin=new Date(lunes);fin.setDate(lunes.getDate()+6);
+    $('week-label').textContent=`${lunes.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} — ${fin.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}`;week.classList.remove('hidden');month.classList.add('hidden');
+    const dias=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    week.innerHTML=dias.map((nom,i)=>{const d=new Date(lunes);d.setDate(lunes.getDate()+i);const fecha=isoDate(d),trainings=planificacion.filter(p=>p.fecha===fecha).sort((a,b)=>a.id-b.id),matches=partidosEquipo.filter(m=>m.date===fecha).sort((a,b)=>String(a.time).localeCompare(String(b.time))),has=trainings.length||matches.length;return `<div class="planning-day${fecha===hoy?' is-today':''}"><div class="planning-day-head"><strong>${nom}</strong><div class="planning-day-date"><b>${d.getDate()}</b><button class="plan-day-add" onclick="event.stopPropagation();abrirEventoDiaPlanificacion('${fecha}')" title="Añadir evento este día">+</button></div></div><div class="planning-day-events">${matches.map(m=>tarjetaPartidoPlanHTML(m,hoy)).join('')}${trainings.map(p=>tarjetaPlanProHTML(p,hoy)).join('')}${!has?'<div class="planning-event-empty">Sin eventos</div>':''}</div></div>`}).join('');
+  }else{
+    const base=new Date(semanaBase.getFullYear(),semanaBase.getMonth(),1),year=base.getFullYear(),mon=base.getMonth();$('week-label').textContent=base.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());week.classList.add('hidden');month.classList.remove('hidden');
+    const lunesCab=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="month-weekday">${x}</div>`).join(''),first=lunesDeSemana(base),last=new Date(year,mon+1,0),end=lunesDeSemana(last);end.setDate(end.getDate()+6);let cells='';
+    for(let d=new Date(first);d<=end;d.setDate(d.getDate()+1)){const fecha=isoDate(d),outside=d.getMonth()!==mon,trainings=planificacion.filter(p=>p.fecha===fecha),matches=partidosEquipo.filter(m=>m.date===fecha).sort((a,b)=>String(a.time).localeCompare(String(b.time)));cells+=`<div class="month-cell${outside?' outside':''}${fecha===hoy?' today':''}"><div class="month-day-head"><div class="month-day-num">${d.getDate()}</div><button class="month-day-add" onclick="event.stopPropagation();abrirEventoDiaPlanificacion('${fecha}')" title="Añadir evento este día">+</button></div>${matches.map(monthMatchHTML).join('')}${trainings.map(p=>{const st=estadoPlanificacion(p,hoy);return `<button class="month-plan ${st.clase}" onclick="usarPlan(${p.id})" title="${esc(p.objetivo||'Sesión')}">${esc(p.objetivo||'Sesión')} · ${Number(p.duracion)||0}m</button>`}).join('')}</div>`}
+    month.innerHTML=lunesCab+cells;
+  }
+  renderAvisoPlanHoy();
+};
+const _guardarPartidoV5112=guardarPartido;guardarPartido=function(){const r=_guardarPartidoV5112();renderPlanificacion();return r};
+const _eliminarPartidoActualV5112=eliminarPartidoActual;eliminarPartidoActual=function(){const r=_eliminarPartidoActualV5112();renderPlanificacion();return r};
+quickPlanificar=function(){toggleQuickActions(false);showView('planificacion',botonVista('planificacion'));setTimeout(()=>abrirCreadorPlanificacion('','training'),30)};
+setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo].nombre;actualizarFormularioPlanificacionTipo()},0);
+</script>\n</body></html>
