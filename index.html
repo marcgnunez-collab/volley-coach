@@ -595,6 +595,22 @@ header{position:static!important;top:auto!important;}
 .planning-type-row{display:grid;grid-template-columns:160px 170px minmax(180px,1fr);gap:9px;margin-bottom:10px}.planning-type-field{display:flex;flex-direction:column;gap:5px}.planning-type-field>span{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#6f7d89}.planning-specific-fields{margin-top:3px}.planning-create-hint{margin-top:9px;padding:8px 10px;border-left:3px solid #b9c7d3;background:#f7f9fb;color:#667581;font-size:10px;line-height:1.4}.plan-pro-card.match{border-left:3px solid #7c5e32;background:#fffaf2}.plan-pro-card.match .plan-pro-status{color:#805c2c}.plan-pro-card.match.played{border-left-color:#52687a;background:#f7f9fb}.plan-pro-card.match.played .plan-pro-status{color:#52687a}.plan-pro-match-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.plan-pro-match-chip{font-size:8.5px;padding:2px 6px;border-radius:999px;background:#f1e8d8;color:#745328;font-weight:800}.month-plan.match{background:#f7ead7;color:#765426;border-left:3px solid #9a7440}.month-plan.match.played{background:#edf1f4;color:#4f6474;border-left-color:#687f90}.planning-day-events{display:flex;flex-direction:column;gap:7px}.planning-add-caption{display:block;font-size:8px;color:#86929d;margin-top:2px}.planning-day-head .plan-day-add,.month-day-add{font-size:14px}.planning-day-head .plan-day-add[title*="evento"],.month-day-add[title*="evento"]{background:#fff}.planning-event-empty{color:#a0a9b1;padding:8px 0;font-size:10px}.planning-match-count{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;background:#f5ead9;color:#78572e;font-size:8.5px;font-weight:850;margin-top:5px}
 @media(max-width:700px){.planning-type-row{grid-template-columns:1fr 1fr}.planning-type-field:last-child{grid-column:1/-1}.planning-quick-body{width:min(94vw,720px)!important}}
 </style>
+
+<style id="planning-manual-v5113-style">
+/* V5.11.3 · Planificación manual y contención visual */
+.planning-week{align-items:stretch}
+.planning-day,.month-cell{min-width:0!important;overflow:hidden!important}
+.planning-day-events,.plan-pro-card,.plan-pro-title,.plan-pro-meta,.plan-pro-actions{min-width:0;max-width:100%}
+.plan-pro-card{width:100%;overflow:hidden;box-sizing:border-box}
+.plan-pro-title,.plan-pro-meta{white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.plan-pro-actions{display:flex;flex-wrap:wrap;overflow:hidden}
+.plan-pro-actions button{min-width:0;max-width:100%;white-space:normal}
+.plan-pro-match-meta{min-width:0;max-width:100%;overflow:hidden}
+.plan-pro-match-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.month-plan{max-width:100%;box-sizing:border-box;overflow:hidden;text-overflow:ellipsis}
+.month-cell>*{max-width:100%}
+.plan-manual-note{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:3px 6px;border-radius:999px;background:#fff3df;color:#8a5b16;font-size:8.5px;font-weight:850}
+</style>
 </head>
 <body>
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.2 · PLANIFICACIÓN + COMPETICIÓN</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
@@ -1753,11 +1769,28 @@ function construirPlanSesion(id){
   return {id,fecha:meta.fecha||fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:meta.jugadores||'',playerIds:clonar(meta.playerIds||[]),duracionObjetivo:meta.duracionObjetivo||'',intensidad:meta.intensidad||'Media',objetivo:meta.objetivo||'',calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notas:meta.notas||'',notasBloques:clonar(mapaNotasBloques()),seccionesEjercicios:clonar(mapaSeccionesSesion()),duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
 }
 function guardarSesionEnPlanificacion(limpiar=false){
-  guardarSesionMeta();const tieneNotas=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotas){alert('La sesión está vacía.');return false}
+  guardarSesionMeta();
+  const tieneNotas=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());
+  if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotas){alert('La sesión está vacía.');return false}
   if(!meta.fecha){alert('Selecciona una fecha para el entrenamiento.');return false}
-  let id=Number(meta.planificacionId)||Date.now();const plan={...construirPlanSesion(id),realizado:false,historialId:null},pos=planificacion.findIndex(p=>p.id===id);
-  if(pos>=0)planificacion[pos]={...planificacion[pos],...plan};else planificacion.push(plan);meta.planificacionId=id;save();renderPlanificacion();renderAvisoPlanHoy();
-  if(limpiar){reiniciarSesionActual()}else{$('save-indicator').textContent='✓ Entrenamiento guardado en planificación'}
+  const id=Number(meta.planificacionId)||Date.now();
+  const pos=planificacion.findIndex(p=>Number(p.id)===Number(id));
+  const anterior=pos>=0?planificacion[pos]:null;
+  const plan={
+    ...construirPlanSesion(id),
+    realizado:anterior?.realizado===true,
+    realizadoEn:anterior?.realizadoEn||null,
+    historialId:anterior?.historialId||null,
+    historialEliminado:anterior?.historialEliminado===true,
+    guardadoPlanificacionEn:new Date().toISOString()
+  };
+  if(pos>=0)planificacion[pos]={...anterior,...plan};else planificacion.push(plan);
+  meta.planificacionId=id;
+  save();renderPlanificacion();renderAvisoPlanHoy();
+  if(limpiar){reiniciarSesionActual()}else{
+    if($('save-indicator'))$('save-indicator').textContent=pos>=0?'✓ Cambios guardados en Planificación':'✓ Entrenamiento guardado en Planificación';
+    alert(pos>=0?'✅ Cambios guardados en Planificación. El entrenamiento seguirá pendiente hasta que marques «Realizado».':'✅ Entrenamiento guardado en Planificación. No se marcará como realizado hasta que pulses el botón «Realizado».');
+  }
   return true;
 }
 function normalizarTextoPlan(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,' ')}
@@ -1790,18 +1823,32 @@ function ejerciciosHistorialDesdePlan(p){
   }).filter(Boolean);
 }
 function marcarPlanRealizado(id){
-  const p=planificacion.find(x=>x.id===id);if(!p)return;
-  if(p.realizado){verPlanEnEntrenamientos(id);return}
+  const p=planificacion.find(x=>Number(x.id)===Number(id));if(!p)return;
+  if(p.realizado){if(p.historialId)verPlanEnEntrenamientos(id);return}
   const hoy=fechaLocalISO();
   if((p.fecha||hoy)>hoy){alert('Este entrenamiento todavía está planificado para una fecha futura.');return}
-  if(!confirm('¿Marcar este entrenamiento como realizado y guardarlo en Entrenamientos?'))return;
-  const ejercicios=ejerciciosHistorialDesdePlan(p),historialId=Date.now();
-  ejercicios.forEach(s=>{const vivo=baseDeDatos.find(e=>e.id===s.id);if(vivo)vivo.usos=(vivo.usos||0)+1});
-  const duracion=Number(p.duracion)||ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
-  historial.unshift({id:historialId,fecha:p.fecha||hoy,equipo:p.equipo||EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',playerIds:clonar(p.playerIds||[]),intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',notasBloques:clonar(p.notasBloques||{}),seccionesEjercicios:clonar(p.seccionesEjercicios||{}),planificacionId:p.id,duracion,pizarra:p.pizarra||null,ejercicios});
-  p.realizado=true;p.realizadoEn=new Date().toISOString();p.historialId=historialId;
+  if(!confirm('¿Marcar este entrenamiento como realizado?'))return;
+
+  let h=p.historialId?historial.find(x=>Number(x.id)===Number(p.historialId)):null;
+  if(!h)h=historial.find(x=>Number(x.planificacionId)===Number(p.id));
+
+  if(!h){
+    const ejercicios=ejerciciosHistorialDesdePlan(p),historialId=Date.now();
+    ejercicios.forEach(s=>{const vivo=baseDeDatos.find(e=>Number(e.id)===Number(s.id));if(vivo)vivo.usos=(vivo.usos||0)+1});
+    const duracion=Number(p.duracion)||ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
+    h={id:historialId,fecha:p.fecha||hoy,equipo:p.equipo||EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',playerIds:clonar(p.playerIds||[]),intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',notasBloques:clonar(p.notasBloques||{}),seccionesEjercicios:clonar(p.seccionesEjercicios||{}),planificacionId:p.id,duracion,pizarra:p.pizarra||null,ejercicios};
+    historial.unshift(h);
+    p.historialId=historialId;
+  }else{
+    p.historialId=h.id;
+    h.planificacionId=p.id;
+  }
+  p.realizado=true;
+  p.realizadoEn=new Date().toISOString();
+  p.archivadoAutomaticamente=false;
+  p.pendienteConfirmacionManual=false;
   save();renderPlanificacion();renderHistorial();renderStats();renderAvisoPlanHoy();
-  alert('✅ Entrenamiento marcado como realizado y guardado en Entrenamientos.');
+  alert('✅ Entrenamiento marcado como realizado.');
 }
 function verPlanEnEntrenamientos(id){
   const p=planificacion.find(x=>x.id===id);if(!p||!p.historialId)return;
@@ -1809,15 +1856,38 @@ function verPlanEnEntrenamientos(id){
   setTimeout(()=>{const el=$('training-'+equipoActivo+'-'+p.historialId);if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'})}},60);
 }
 function finalizarEntrenamiento(){
-  seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;guardarSesionMeta();const tieneNotasBloques=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotasBloques){alert('La sesión está vacía.');return}
+  seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;guardarSesionMeta();
+  const tieneNotasBloques=Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());
+  if(!sesionActual.length&&!String(meta.calentamiento||'').trim()&&!tieneNotasBloques){alert('La sesión está vacía.');return}
   const hoy=fechaLocalISO(),fecha=meta.fecha||hoy;
-  if(fecha>hoy){if(!confirm(`Este entrenamiento está fechado para ${fecha}. Se guardará completo en Planificación y no en el historial hasta que llegue ese día. ¿Continuar?`))return;if(guardarSesionEnPlanificacion(true))alert('📅 Entrenamiento guardado en Planificación. Cuando llegue el día podrás abrirlo normalmente.');return}
-  if(!confirm('¿Finalizar este entrenamiento? Se marcará como realizado en Planificación y se guardará en Entrenamientos.'))return;
-  const ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);ejercicios.forEach(e=>e.usos=(e.usos||0)+1);const duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0),planVinculado=buscarPlanCompatibleSesion(fecha,meta.planificacionId),planId=planVinculado?planVinculado.id:null,historialId=Date.now();
-  historial.unshift({id:historialId,...clonar(meta),calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notasBloques:clonar(mapaNotasBloques()),planificacionId:planId,duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)});
-  if(planId){const posPlan=planificacion.findIndex(p=>p.id===planId);if(posPlan>=0){const sesionRealizada=construirPlanSesion(planId);planificacion[posPlan]={...planificacion[posPlan],...sesionRealizada,realizado:true,realizadoEn:new Date().toISOString(),historialId};}}
+  if(fecha>hoy){
+    if(!confirm(`Este entrenamiento está fechado para ${fecha}. Se guardará en Planificación, pero no se marcará como realizado. ¿Continuar?`))return;
+    if(guardarSesionEnPlanificacion(true))alert('📅 Entrenamiento guardado en Planificación. Seguirá pendiente hasta que marques «Realizado».');
+    return;
+  }
+  if(!confirm('¿Finalizar este entrenamiento? Se guardará en Historial, pero la Planificación seguirá pendiente hasta que pulses «Realizado».'))return;
+
+  const ejercicios=sesionActual.map(id=>baseDeDatos.find(e=>e.id===id)).filter(Boolean);
+  const duracion=ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
+  const planVinculado=buscarPlanCompatibleSesion(fecha,meta.planificacionId),planId=planVinculado?planVinculado.id:null;
+  let hExistente=planVinculado?.historialId?historial.find(x=>Number(x.id)===Number(planVinculado.historialId)):null;
+  if(!hExistente&&planId)hExistente=historial.find(x=>Number(x.planificacionId)===Number(planId));
+  const historialId=hExistente?.id||Date.now();
+  const registro={id:historialId,...clonar(meta),calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notasBloques:clonar(mapaNotasBloques()),planificacionId:planId,duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
+  if(hExistente){Object.assign(hExistente,registro)}else{
+    ejercicios.forEach(e=>e.usos=(e.usos||0)+1);
+    historial.unshift(registro);
+  }
+  if(planId){
+    const posPlan=planificacion.findIndex(p=>Number(p.id)===Number(planId));
+    if(posPlan>=0){
+      const anterior=planificacion[posPlan];
+      const sesionGuardada=construirPlanSesion(planId);
+      planificacion[posPlan]={...anterior,...sesionGuardada,realizado:anterior.realizado===true,realizadoEn:anterior.realizadoEn||null,historialId,historialGuardadoEn:new Date().toISOString(),archivadoAutomaticamente:false};
+    }
+  }
   reiniciarSesionActual();renderHistorial();renderStats();renderPlanificacion();
-  alert(planId?'✅ Entrenamiento guardado en Entrenamientos y marcado como realizado en Planificación.':'✅ Entrenamiento guardado en Entrenamientos. No había una planificación de ese día que pudiera vincularse con seguridad.');
+  alert(planId?'✅ Entrenamiento guardado en Historial. En Planificación sigue pendiente hasta que pulses «Realizado».':'✅ Entrenamiento guardado en Historial.');
 }
 function fundamentosSesion(h){
   const fs=[];(h.ejercicios||[]).forEach(e=>normalizarFundamentos(e).forEach(f=>{if(!fs.includes(f))fs.push(f)}));return fs;
@@ -1849,16 +1919,14 @@ function borrarEntrenamientoHistorialEquipo(team,entrenamientoId){
   const descripcion=objetivo?`\n${objetivo}`:'';
   if(!confirm(`¿Eliminar el entrenamiento del ${fecha} del historial?${descripcion}\n\nSe eliminará solo este entrenamiento. Los ejercicios seguirán en la Biblioteca y el resto del historial no se modificará.`))return;
 
-  // Si estaba vinculado a una planificación, mantenemos esa planificación visible como realizada,
-  // pero registramos que su entrada del historial fue eliminada para que el archivado automático
-  // no vuelva a crearla al abrir la aplicación otro día.
+  // Si estaba vinculado a una planificación, solo quitamos el enlace al Historial.
+  // El estado Realizado nunca cambia automáticamente: depende exclusivamente del botón de Planificación.
   const planes=Array.isArray(datos.planificacion)?datos.planificacion:[];
   planes.forEach(p=>{
     const vinculado=Number(p.historialId)===Number(h.id)||Number(p.id)===Number(h.planificacionId);
     if(vinculado){
       p.historialId=null;
       p.historialEliminado=true;
-      if(p.realizado!==true)p.realizado=true;
     }
   });
 
@@ -2106,80 +2174,33 @@ function sincronizarPlanesConHistorial(){
   let cambios=0;const usados=new Set();
   historial.forEach(h=>{if(h.planificacionId)usados.add(Number(h.planificacionId))});
   planificacion.forEach(p=>{
-    let h=p.historialId?historial.find(x=>x.id===p.historialId):null;
+    // Migración V5.11.3: lo que se había marcado automáticamente vuelve a quedar pendiente.
+    if(p.archivadoAutomaticamente===true){
+      if(p.realizado===true){p.realizado=false;cambios++}
+      p.realizadoEn=null;p.archivadoAutomaticamente=false;p.pendienteConfirmacionManual=true;cambios++;
+    }
+    let h=p.historialId?historial.find(x=>Number(x.id)===Number(p.historialId)):null;
     if(!h)h=historial.find(x=>Number(x.planificacionId)===Number(p.id));
-    if(!h&&!p.realizado&&p.fecha){
+    if(!h&&p.fecha){
       const candidatos=historial.filter(x=>x.fecha===p.fecha&&!x.planificacionId&&!usados.has(Number(p.id)));
       const obj=normalizarTextoPlan(p.objetivo),exactos=candidatos.filter(x=>obj&&normalizarTextoPlan(x.objetivo)===obj);
-      if(exactos.length===1)h=exactos[0];else if(candidatos.length===1&&planificacion.filter(q=>q.fecha===p.fecha&&!q.realizado).length===1)h=candidatos[0];
+      if(exactos.length===1)h=exactos[0];
     }
-    if(h){if(!p.realizado){p.realizado=true;cambios++}if(p.historialId!==h.id){p.historialId=h.id;cambios++}if(Number(h.planificacionId)!==Number(p.id)){h.planificacionId=p.id;cambios++}usados.add(Number(p.id));}
+    if(h){
+      if(Number(p.historialId)!==Number(h.id)){p.historialId=h.id;cambios++}
+      if(Number(h.planificacionId)!==Number(p.id)){h.planificacionId=p.id;cambios++}
+      usados.add(Number(p.id));
+    }
   });
   return cambios;
 }
-
-
 // Archiva automáticamente las planificaciones cuyo día ya ha terminado.
 // Si la app estaba cerrada, se procesa al volver a abrirla; si sigue abierta,
 // se vuelve a comprobar justo después de medianoche.
 function archivarPlanificacionesPasadasEnEquipo(datos,teamId){
-  if(!datos)return 0;
-  const planes=Array.isArray(datos.planificacion)?datos.planificacion:[];
-  const hs=Array.isArray(datos.historial)?datos.historial:[];
-  const hoy=fechaLocalISO();
-  let cambios=0,nextId=Date.now();
-  const idsHist=new Set(hs.map(h=>Number(h.id)).filter(Number.isFinite));
-  const nuevoHistorialId=()=>{while(idsHist.has(nextId))nextId++;idsHist.add(nextId);return nextId++};
-  planes.forEach(p=>{
-    if(!p||!p.fecha||String(p.fecha)>=hoy)return;
-    if(p.historialEliminado===true)return;
-    let h=p.historialId?hs.find(x=>Number(x.id)===Number(p.historialId)):null;
-    if(!h)h=hs.find(x=>Number(x.planificacionId)===Number(p.id));
-    if(!h){
-      const candidatos=hs.filter(x=>x.fecha===p.fecha&&!x.planificacionId);
-      const obj=normalizarTextoPlan(p.objetivo);
-      const exactos=candidatos.filter(x=>obj&&normalizarTextoPlan(x.objetivo)===obj);
-      const planesMismoDia=planes.filter(q=>q&&q.fecha===p.fecha&&!q.historialId);
-      if(exactos.length===1)h=exactos[0];
-      else if(candidatos.length===1&&planesMismoDia.length===1)h=candidatos[0];
-    }
-    if(h){
-      if(!p.realizado){p.realizado=true;cambios++}
-      if(Number(p.historialId)!==Number(h.id)){p.historialId=h.id;cambios++}
-      if(Number(h.planificacionId)!==Number(p.id)){h.planificacionId=p.id;cambios++}
-      if(!p.realizadoEn){p.realizadoEn=new Date().toISOString();cambios++}
-      return;
-    }
-    const ejercicios=ejerciciosHistorialDesdePlan(p);
-    ejercicios.forEach(s=>{const vivo=baseDeDatos.find(e=>e.id===s.id);if(vivo)vivo.usos=(vivo.usos||0)+1});
-    const historialId=nuevoHistorialId();
-    const duracion=Number(p.duracion)||ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
-    hs.unshift({
-      id:historialId,
-      fecha:p.fecha,
-      equipo:p.equipo||(EQUIPOS[teamId]?EQUIPOS[teamId].nombre:'Equipo'),
-      jugadores:p.jugadores||'',
-      duracionObjetivo:p.duracionObjetivo||'',
-      intensidad:p.intensidad||'Media',
-      objetivo:p.objetivo||'',
-      calentamiento:p.calentamiento||'',
-      notas:p.notas||'',
-      notasBloques:clonar(p.notasBloques||{}),
-      seccionesEjercicios:clonar(p.seccionesEjercicios||{}),
-      planificacionId:p.id,
-      duracion,
-      pizarra:p.pizarra||null,
-      ejercicios,
-      archivadoAutomaticamente:true
-    });
-    p.realizado=true;
-    p.realizadoEn=new Date().toISOString();
-    p.historialId=historialId;
-    p.archivadoAutomaticamente=true;
-    cambios++;
-  });
-  datos.planificacion=planes;datos.historial=hs;
-  return cambios;
+  // V5.11.3: nunca se marca ni se archiva una planificación automáticamente.
+  // Los entrenamientos pasados permanecen pendientes hasta que el entrenador pulse «Realizado».
+  return 0;
 }
 function archivarPlanificacionesPasadasEnEquiposData(){
   if(!equiposData)return 0;
@@ -2368,10 +2389,16 @@ function setVistaPlanificacion(v){vistaPlanificacion=v==='mes'?'mes':'semana';$(
 function cambiarPeriodoPlan(dir){if(vistaPlanificacion==='mes')semanaBase.setMonth(semanaBase.getMonth()+dir,1);else semanaBase.setDate(semanaBase.getDate()+dir*7);renderPlanificacion()}
 function irHoyPlanificacion(){semanaBase=new Date();renderPlanificacion()}
 function cambiarSemana(n){semanaBase.setDate(semanaBase.getDate()+n);renderPlanificacion()}
-function estadoPlanificacion(p,hoy){if(p.realizado)return {clase:'done',texto:'Realizado'};if(Number(meta.planificacionId)===Number(p.id))return {clase:'editing',texto:'En edición · guardado automático'};if(p.fecha<hoy)return {clase:'pending',texto:'Pendiente'};return {clase:'future',texto:'Planificado'}}
+function estadoPlanificacion(p,hoy){if(p.realizado)return {clase:'done',texto:'Realizado'};if(Number(meta.planificacionId)===Number(p.id))return {clase:'editing',texto:'En edición'};if(p.historialId)return {clase:'pending',texto:'En Historial · pendiente de marcar'};if(p.fecha<=hoy)return {clase:'pending',texto:'Pendiente'};return {clase:'future',texto:'Planificado'}}
+function editarEntrenamientoPlanificacion(id){
+  const p=planificacion.find(x=>Number(x.id)===Number(id));if(!p)return;
+  if(p.realizado){alert('Este entrenamiento ya está marcado como realizado. Puedes reutilizarlo, pero no editar el registro completado desde Planificación.');return}
+  usarPlan(id);
+  setTimeout(()=>{if($('save-indicator'))$('save-indicator').textContent='✎ Editando entrenamiento de Planificación · usa «Guardar en planificación» para conservar los cambios'},50);
+}
 function tarjetaPlanProHTML(p,hoy){
   const st=estadoPlanificacion(p,hoy),n=(p.ejercicios||[]).length,min=Number(p.duracion)||minutosListaEjercicios(p.ejercicios||[])||0;
-  return `<article class="plan-pro-card ${st.clase}" onclick="usarPlan(${p.id})"><div class="plan-pro-status">${st.texto}${p.archivadoAutomaticamente?' · archivado':''}</div><div class="plan-pro-title">${esc(p.objetivo||'Sesión sin objetivo')}</div><div class="plan-pro-meta">${min} min · ${n} ejercicio${n===1?'':'s'} · ${esc(p.intensidad||'Media')}</div><div class="plan-pro-actions" onclick="event.stopPropagation()">${p.realizado?`<button class="ghost" onclick="verPlanEnEntrenamientos(${p.id})">Historial</button><button class="ghost" onclick="usarPlan(${p.id})">Reutilizar</button>`:`<button class="ghost" onclick="usarPlan(${p.id})">Abrir</button>${p.fecha<=hoy?`<button class="success" onclick="marcarPlanRealizado(${p.id})">Realizado</button>`:''}`}<button class="danger" onclick="eliminarPlan(${p.id})">×</button></div></article>`
+  return `<article class="plan-pro-card ${st.clase}"><div class="plan-pro-status">${st.texto}</div><div class="plan-pro-title">${esc(p.objetivo||'Sesión sin objetivo')}</div><div class="plan-pro-meta">${min} min · ${n} ejercicio${n===1?'':'s'} · ${esc(p.intensidad||'Media')}</div>${p.historialId&&!p.realizado?'<div class="plan-manual-note">Historial guardado · falta confirmar realizado</div>':''}<div class="plan-pro-actions">${p.realizado?`<button class="ghost" onclick="verPlanEnEntrenamientos(${p.id})">Historial</button><button class="ghost" onclick="usarPlan(${p.id})">Reutilizar</button>`:`<button class="ghost" onclick="editarEntrenamientoPlanificacion(${p.id})">✎ Editar</button>${p.historialId?`<button class="ghost" onclick="verPlanEnEntrenamientos(${p.id})">Historial</button>`:''}${p.fecha<=hoy?`<button class="success" onclick="marcarPlanRealizado(${p.id})">✓ Realizado</button>`:''}`}<button class="danger" onclick="eliminarPlan(${p.id})" title="Eliminar de Planificación">×</button></div></article>`
 }
 function renderPlanificacion(){
   const hoy=fechaLocalISO(),week=$('week-grid'),month=$('month-grid');if(!week||!month)return;
@@ -2387,7 +2414,7 @@ function renderPlanificacion(){
     $('week-label').textContent=base.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());week.classList.add('hidden');month.classList.remove('hidden');
     const lunesCab=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="month-weekday">${x}</div>`).join('');
     const first=lunesDeSemana(base),last=new Date(year,mon+1,0),end=lunesDeSemana(last);end.setDate(end.getDate()+6);let cells='';
-    for(let d=new Date(first);d<=end;d.setDate(d.getDate()+1)){const fecha=isoDate(d),outside=d.getMonth()!==mon,items=planificacion.filter(p=>p.fecha===fecha);cells+=`<div class="month-cell${outside?' outside':''}${fecha===hoy?' today':''}"><div class="month-day-head"><div class="month-day-num">${d.getDate()}</div><button class="month-day-add" onclick="event.stopPropagation();crearSesionDiaPlanificacion('${fecha}')" title="Crear entrenamiento este día">+</button></div>${items.map(p=>{const st=estadoPlanificacion(p,hoy);return `<button class="month-plan ${st.clase}" onclick="usarPlan(${p.id})" title="${esc(p.objetivo||'Sesión')}">${esc(p.objetivo||'Sesión')} · ${Number(p.duracion)||0}m</button>`}).join('')}</div>`}
+    for(let d=new Date(first);d<=end;d.setDate(d.getDate()+1)){const fecha=isoDate(d),outside=d.getMonth()!==mon,items=planificacion.filter(p=>p.fecha===fecha);cells+=`<div class="month-cell${outside?' outside':''}${fecha===hoy?' today':''}"><div class="month-day-head"><div class="month-day-num">${d.getDate()}</div><button class="month-day-add" onclick="event.stopPropagation();crearSesionDiaPlanificacion('${fecha}')" title="Crear entrenamiento este día">+</button></div>${items.map(p=>{const st=estadoPlanificacion(p,hoy);return `<button class="month-plan ${st.clase}" onclick="editarEntrenamientoPlanificacion(${p.id})" title="Editar: ${esc(p.objetivo||'Sesión')}">${esc(p.objetivo||'Sesión')} · ${Number(p.duracion)||0}m</button>`}).join('')}</div>`}
     month.innerHTML=lunesCab+cells;
   }
   renderAvisoPlanHoy();
@@ -3408,7 +3435,7 @@ renderPlanificacion=function(){
   }else{
     const base=new Date(semanaBase.getFullYear(),semanaBase.getMonth(),1),year=base.getFullYear(),mon=base.getMonth();$('week-label').textContent=base.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());week.classList.add('hidden');month.classList.remove('hidden');
     const lunesCab=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="month-weekday">${x}</div>`).join(''),first=lunesDeSemana(base),last=new Date(year,mon+1,0),end=lunesDeSemana(last);end.setDate(end.getDate()+6);let cells='';
-    for(let d=new Date(first);d<=end;d.setDate(d.getDate()+1)){const fecha=isoDate(d),outside=d.getMonth()!==mon,trainings=planificacion.filter(p=>p.fecha===fecha),matches=partidosEquipo.filter(m=>m.date===fecha).sort((a,b)=>String(a.time).localeCompare(String(b.time)));cells+=`<div class="month-cell${outside?' outside':''}${fecha===hoy?' today':''}"><div class="month-day-head"><div class="month-day-num">${d.getDate()}</div><button class="month-day-add" onclick="event.stopPropagation();abrirEventoDiaPlanificacion('${fecha}')" title="Añadir evento este día">+</button></div>${matches.map(monthMatchHTML).join('')}${trainings.map(p=>{const st=estadoPlanificacion(p,hoy);return `<button class="month-plan ${st.clase}" onclick="usarPlan(${p.id})" title="${esc(p.objetivo||'Sesión')}">${esc(p.objetivo||'Sesión')} · ${Number(p.duracion)||0}m</button>`}).join('')}</div>`}
+    for(let d=new Date(first);d<=end;d.setDate(d.getDate()+1)){const fecha=isoDate(d),outside=d.getMonth()!==mon,trainings=planificacion.filter(p=>p.fecha===fecha),matches=partidosEquipo.filter(m=>m.date===fecha).sort((a,b)=>String(a.time).localeCompare(String(b.time)));cells+=`<div class="month-cell${outside?' outside':''}${fecha===hoy?' today':''}"><div class="month-day-head"><div class="month-day-num">${d.getDate()}</div><button class="month-day-add" onclick="event.stopPropagation();abrirEventoDiaPlanificacion('${fecha}')" title="Añadir evento este día">+</button></div>${matches.map(monthMatchHTML).join('')}${trainings.map(p=>{const st=estadoPlanificacion(p,hoy);return `<button class="month-plan ${st.clase}" onclick="editarEntrenamientoPlanificacion(${p.id})" title="Editar: ${esc(p.objetivo||'Sesión')}">${esc(p.objetivo||'Sesión')} · ${Number(p.duracion)||0}m</button>`}).join('')}</div>`}
     month.innerHTML=lunesCab+cells;
   }
   renderAvisoPlanHoy();
