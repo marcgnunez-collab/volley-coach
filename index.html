@@ -4150,4 +4150,521 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
 })();
 </script>
 
+
+<style id="v5117-postmatch-style">
+.match-post-card{width:min(1040px,96vw)!important}
+.postmatch-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.postmatch-result-grid .wide{grid-column:1/-1}
+.postmatch-section{margin-top:16px;padding-top:14px;border-top:1px solid #e6ebef}
+.postmatch-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.postmatch-section-head h3{margin:0!important;border:0!important;padding:0!important;font-size:15px!important;color:var(--pro-navy)!important}
+.postmatch-section-head p{margin:3px 0 0;color:#7c8994;font-size:10.5px}
+.postmatch-collective{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.postmatch-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.postmatch-field>span{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#6e7b87}
+.postmatch-field textarea{min-height:72px;resize:vertical}
+.postmatch-player-list{display:grid;gap:7px}
+.postmatch-player-row{display:grid;grid-template-columns:minmax(190px,1.2fr) minmax(110px,.45fr) minmax(120px,.45fr) minmax(220px,1fr);gap:8px;align-items:center;border:1px solid #e1e6ea;border-radius:9px;padding:9px 10px;background:#fbfcfd}
+.postmatch-player-copy{min-width:0}.postmatch-player-copy b{display:block;font-size:11px;color:#243f55}.postmatch-player-copy small{display:block;font-size:9px;color:#7d8993;margin-top:2px}
+.postmatch-player-row select,.postmatch-player-row input{min-width:0;width:100%;font-size:11px!important;padding:8px 9px!important;border-radius:7px!important}
+.match-rating-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 7px;border-radius:999px;background:#eef4f8;border:1px solid #d9e4ec;color:#315f84;font-size:9px;font-weight:850}
+.match-result-primary{background:#173f68!important;color:#fff!important}
+@media(max-width:900px){.postmatch-collective{grid-template-columns:1fr 1fr}.postmatch-player-row{grid-template-columns:1fr 1fr}.postmatch-player-copy{grid-column:1/-1}.postmatch-player-note{grid-column:1/-1}}
+@media(max-width:650px){.postmatch-result-grid,.postmatch-collective,.postmatch-player-row{grid-template-columns:1fr}.postmatch-player-copy,.postmatch-player-note{grid-column:auto}.postmatch-player-row select,.postmatch-player-row input,.postmatch-field select,.postmatch-field input,.postmatch-field textarea{font-size:16px!important}}
+</style>
+
+<div id="postmatch-modal" class="pro-modal" onclick="if(event.target===this)cerrarResultadoPartido()">
+  <div class="pro-modal-card match-post-card">
+    <div class="pro-modal-head">
+      <div><span class="pro-kicker">POSTPARTIDO</span><h2 id="postmatch-title">Resultado y valoración</h2><p id="postmatch-subtitle">Registra el resultado y cómo ha ido el partido a nivel colectivo e individual.</p></div>
+      <button class="modal-close" onclick="cerrarResultadoPartido()">×</button>
+    </div>
+    <input id="postmatch-id" type="hidden">
+
+    <div class="postmatch-result-grid">
+      <label class="postmatch-field"><span>Sets a favor</span><input id="postmatch-sets-for" type="number" min="0" max="9"></label>
+      <label class="postmatch-field"><span>Sets en contra</span><input id="postmatch-sets-against" type="number" min="0" max="9"></label>
+      <label class="postmatch-field wide"><span>Marcadores de sets</span><input id="postmatch-set-detail" placeholder="25-20, 22-25, 25-18…"></label>
+    </div>
+
+    <section class="postmatch-section">
+      <div class="postmatch-section-head"><div><span class="pro-kicker">EQUIPO</span><h3>Valoración colectiva</h3><p>Escala interna del entrenador: 1 muy bajo · 3 correcto · 5 excelente.</p></div></div>
+      <div class="postmatch-collective">
+        <label class="postmatch-field"><span>Valoración global</span><select id="postmatch-team-overall"></select></label>
+        <label class="postmatch-field"><span>Rendimiento técnico</span><select id="postmatch-team-technique"></select></label>
+        <label class="postmatch-field"><span>Rendimiento táctico</span><select id="postmatch-team-tactics"></select></label>
+        <label class="postmatch-field"><span>Actitud competitiva</span><select id="postmatch-team-attitude"></select></label>
+      </div>
+      <label class="postmatch-field" style="margin-top:9px"><span>Lectura colectiva</span><textarea id="postmatch-team-notes" placeholder="Qué ha funcionado, qué ha costado, respuesta del equipo, aspectos a mantener o corregir…"></textarea></label>
+    </section>
+
+    <section class="postmatch-section">
+      <div class="postmatch-section-head"><div><span class="pro-kicker">JUGADORES</span><h3>Valoración individual</h3><p>Solo aparecen los jugadores convocados. Puedes indicar si finalmente no jugaron.</p></div></div>
+      <div id="postmatch-player-list" class="postmatch-player-list"></div>
+    </section>
+
+    <div class="player-form-actions" style="margin-top:16px">
+      <button class="ghost" onclick="cerrarResultadoPartido()">Cancelar</button>
+      <button class="primary" onclick="guardarResultadoPartido()">Guardar resultado y valoración</button>
+    </div>
+  </div>
+</div>
+
+<script id="v5117-postmatch-script">
+(function(){
+  const scoreLabels={1:'1 · Muy bajo',2:'2 · Bajo',3:'3 · Correcto',4:'4 · Bueno',5:'5 · Excelente'};
+  const scoreOptions=value=>`<option value="">Sin valorar</option>`+[1,2,3,4,5].map(n=>`<option value="${n}" ${Number(value)===n?'selected':''}>${scoreLabels[n]}</option>`).join('');
+
+  function cloneSafe(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
+  function normalizeTeamEval(v){
+    v=v&&typeof v==='object'?v:{};
+    return {
+      overall:v.overall===''?'':Number(v.overall||0)||'',
+      technique:v.technique===''?'':Number(v.technique||0)||'',
+      tactics:v.tactics===''?'':Number(v.tactics||0)||'',
+      attitude:v.attitude===''?'':Number(v.attitude||0)||'',
+      notes:String(v.notes||'')
+    };
+  }
+  function normalizePlayerEvals(list){
+    return Array.isArray(list)?list.filter(Boolean).map(r=>({
+      id:Number(r.id)||0,
+      played:r.played!==false,
+      rating:r.rating===''?'':Number(r.rating||0)||'',
+      note:String(r.note||''),
+      name:String(r.name||''),
+      number:r.number??'',
+      positions:Array.isArray(r.positions)?r.positions:[]
+    })):[];
+  }
+
+  const previousNormalizer=normalizarPartidos;
+  normalizarPartidos=function(list){
+    const rawById=new Map((Array.isArray(list)?list:[]).filter(Boolean).map(m=>[Number(m.id),m]));
+    return previousNormalizer(list).map(m=>{
+      const raw=rawById.get(Number(m.id))||{};
+      return {
+        ...m,
+        matchEvaluation:normalizeTeamEval(raw.matchEvaluation||m.matchEvaluation),
+        playerEvaluations:normalizePlayerEvals(raw.playerEvaluations||m.playerEvaluations)
+      };
+    });
+  };
+
+  if(typeof vcBuildMatchRecord==='function'){
+    const previousBuild=vcBuildMatchRecord;
+    vcBuildMatchRecord=function(existing=null){
+      const rec=previousBuild(existing);
+      rec.matchEvaluation=normalizeTeamEval(existing?.matchEvaluation);
+      rec.playerEvaluations=normalizePlayerEvals(existing?.playerEvaluations);
+      return rec;
+    };
+  }
+
+  function collectiveAverage(m){
+    const e=normalizeTeamEval(m?.matchEvaluation);
+    const vals=[e.overall,e.technique,e.tactics,e.attitude].map(Number).filter(n=>n>0);
+    return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+  }
+
+  window.abrirResultadoPartido=function(id){
+    const m=partidosEquipo.find(x=>Number(x.id)===Number(id));
+    if(!m){alert('No se ha encontrado el partido.');return}
+    $('postmatch-id').value=m.id;
+    $('postmatch-title').textContent=`${m.status==='Jugado'?'Resultado / valoración':'Añadir resultado'} · ${m.opponent||'Rival'}`;
+    $('postmatch-subtitle').textContent=[m.date?matchDateLabel(m.date):'',m.competition,m.round].filter(Boolean).join(' · ');
+    $('postmatch-sets-for').value=m.setsFor!==''&&m.setsFor!=null?m.setsFor:'';
+    $('postmatch-sets-against').value=m.setsAgainst!==''&&m.setsAgainst!=null?m.setsAgainst:'';
+    $('postmatch-set-detail').value=m.setDetail||'';
+
+    const ev=normalizeTeamEval(m.matchEvaluation);
+    ['overall','technique','tactics','attitude'].forEach(k=>{
+      const el=$(`postmatch-team-${k}`);
+      if(el)el.innerHTML=scoreOptions(ev[k]);
+    });
+    $('postmatch-team-notes').value=ev.notes||'';
+
+    const previous=new Map(normalizePlayerEvals(m.playerEvaluations).map(r=>[Number(r.id),r]));
+    const roster=(typeof vcMatchRosterForPDF==='function'?vcMatchRosterForPDF(m,equipoActivo):[]).filter(r=>r.status==='Convocado');
+    const box=$('postmatch-player-list');
+    box.innerHTML=roster.length?roster.map(r=>{
+      const old=previous.get(Number(r.id))||{},played=old.played!==false,positions=(r.positions||[]).filter(Boolean).join(' · ')||'Sin posición';
+      return `<div class="postmatch-player-row" data-player-id="${r.id}">
+        <div class="postmatch-player-copy"><b>${r.number!==''&&r.number!=null?`#${esc(r.number)} · `:''}${esc(r.name||'Jugador')}</b><small>${esc(positions)}</small></div>
+        <select class="postmatch-player-played" onchange="vcPostmatchPlayerToggle(this)"><option ${played?'selected':''}>Jugó</option><option ${!played?'selected':''}>No jugó</option></select>
+        <select class="postmatch-player-rating" ${played?'':'disabled'}>${scoreOptions(old.rating)}</select>
+        <input class="postmatch-player-note" value="${esc(old.note||'')}" placeholder="${played?'Observación individual':'Motivo / observación'}">
+      </div>`;
+    }).join(''):'<div class="match-empty">No hay jugadores convocados registrados para este partido.</div>';
+
+    $('postmatch-modal').classList.add('open');
+  };
+
+  window.cerrarResultadoPartido=function(){$('postmatch-modal')?.classList.remove('open')};
+
+  window.vcPostmatchPlayerToggle=function(sel){
+    const row=sel.closest('.postmatch-player-row'),rating=row?.querySelector('.postmatch-player-rating'),played=sel.value==='Jugó';
+    if(rating){rating.disabled=!played;if(!played)rating.value=''}
+  };
+
+  window.guardarResultadoPartido=function(){
+    const id=Number($('postmatch-id')?.value),m=partidosEquipo.find(x=>Number(x.id)===id);
+    if(!m){alert('No se ha encontrado el partido.');return}
+    const sf=$('postmatch-sets-for')?.value,sa=$('postmatch-sets-against')?.value;
+    if(sf===''||sa===''){alert('Introduce los sets a favor y en contra.');return}
+    m.status='Jugado';
+    m.setsFor=Number(sf);
+    m.setsAgainst=Number(sa);
+    m.setDetail=String($('postmatch-set-detail')?.value||'').trim();
+    m.matchEvaluation={
+      overall:$('postmatch-team-overall')?.value===''?'':Number($('postmatch-team-overall')?.value),
+      technique:$('postmatch-team-technique')?.value===''?'':Number($('postmatch-team-technique')?.value),
+      tactics:$('postmatch-team-tactics')?.value===''?'':Number($('postmatch-team-tactics')?.value),
+      attitude:$('postmatch-team-attitude')?.value===''?'':Number($('postmatch-team-attitude')?.value),
+      notes:String($('postmatch-team-notes')?.value||'').trim()
+    };
+    const roster=(typeof vcMatchRosterForPDF==='function'?vcMatchRosterForPDF(m,equipoActivo):[]);
+    const rosterById=new Map(roster.map(r=>[Number(r.id),r]));
+    m.playerEvaluations=[...document.querySelectorAll('#postmatch-player-list .postmatch-player-row')].map(row=>{
+      const pid=Number(row.dataset.playerId),r=rosterById.get(pid)||{},played=row.querySelector('.postmatch-player-played')?.value!=='No jugó';
+      const rating=row.querySelector('.postmatch-player-rating')?.value;
+      return {
+        id:pid,played,
+        rating:played&&rating!==''?Number(rating):'',
+        note:String(row.querySelector('.postmatch-player-note')?.value||'').trim(),
+        name:String(r.name||''),number:r.number??'',positions:Array.isArray(r.positions)?cloneSafe(r.positions):[]
+      };
+    });
+    guardarPartidos();
+    cerrarResultadoPartido();
+    renderCompetition();
+    renderStats();
+    renderDashboardCompetition();
+    renderPlanificacion();
+  };
+
+  matchCard=function(m){
+    const r=matchResult(m),score=m.status==='Jugado'?`${Number(m.setsFor)||0}–${Number(m.setsAgainst)||0}`:'—';
+    const statusClass=r==='won'?'won':r==='lost'?'lost':'';
+    const roster=(typeof vcMatchRosterForPDF==='function'?vcMatchRosterForPDF(m,equipoActivo):[]).filter(x=>x.status==='Convocado');
+    const unavailable=(typeof vcMatchRosterForPDF==='function'?vcMatchRosterForPDF(m,equipoActivo):[]).filter(x=>x.status==='No disponible');
+    const avg=collectiveAverage(m);
+    return `<article class="match-card">
+      <div class="match-card-top"><div>
+        <div class="match-date">${esc(matchDateLabel(m.date))}${m.time?' · '+esc(m.time):''}</div>
+        <div class="match-opponent">${m.venue==='Casa'?'vs':'@'} ${esc(m.opponent)}</div>
+        <div class="match-meta">${esc([m.competition,m.round,m.venue].filter(Boolean).join(' · ')||'Partido')}</div>
+        ${m.callTime?`<div class="match-meta">Convocatoria: ${esc(m.callTime)}</div>`:''}
+        ${m.focus?.length?`<div class="match-meta"><b>Prioridades:</b> ${m.focus.map(esc).join(' · ')}</div>`:''}
+        ${roster.length?`<div class="match-meta">Convocados: ${roster.length}${unavailable.length?` · ${unavailable.length} no disponible${unavailable.length===1?'':'s'}`:''}</div>`:''}
+        ${avg?`<span class="match-rating-badge">Valoración colectiva · ${avg.toFixed(1)}/5</span>`:''}
+      </div><div style="text-align:right"><div class="match-score">${score}</div><span class="match-status ${statusClass}">${esc(m.status)}</span></div></div>
+      <div class="match-actions">
+        <button class="ghost" onclick="exportarPDFPartido(${m.id})">PDF</button>
+        <button class="ghost" onclick="abrirPartidoModal(${m.id})">Editar</button>
+        <button class="${m.status==='Jugado'?'ghost':'match-result-primary'}" onclick="abrirResultadoPartido(${m.id})">${m.status==='Jugado'?'Resultado / valoración':'Añadir resultado'}</button>
+        ${m.focus?.length?`<button class="ghost" onclick="matchToSeasonFocus(${m.id})">Llevar a semana</button>`:''}
+      </div>
+    </article>`;
+  };
+
+  /* PDF de partido: solo portada-resumen, sin segunda página. */
+  generarPDFPartido=function(m,teamId=equipoActivo){
+    try{
+      if(!window.jspdf||!window.jspdf.jsPDF)throw new Error('jsPDF no disponible');
+      const {jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+      const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight(),M=15;
+      const navy=[16,43,67],muted=[102,116,128],light=[245,247,249],navy2=[28,66,96],orange=[233,154,50],green=[63,124,99];
+      const normal=(s=9.5,c=navy)=>{pdf.setFont('helvetica','normal');pdf.setFontSize(s);pdf.setTextColor(...c)};
+      const bold=(s=9.5,c=navy)=>{pdf.setFont('helvetica','bold');pdf.setFontSize(s);pdf.setTextColor(...c)};
+      const txt=v=>(typeof limpiarTextoPDF==='function'?limpiarTextoPDF(v):String(v==null?'':v).replace(/\s+/g,' ').trim());
+      let y=55;
+
+      const roster=(typeof vcMatchRosterForPDF==='function'?vcMatchRosterForPDF(m,teamId):[]);
+      const called=roster.filter(r=>r.status==='Convocado');
+      const unavailable=roster.filter(r=>r.status==='No disponible');
+      const playerLine=r=>typeof vcMatchPlayerLine==='function'?vcMatchPlayerLine(r):`${r.number!==''&&r.number!=null?'#'+r.number+' · ':''}${r.name||'Jugador'}`;
+
+      const twoColumns=(labels,startY)=>{
+        const gap=6,colW=(W-M*2-gap)/2,rowH=5;
+        let yy=startY;
+        labels.forEach((label,i)=>{
+          const col=i%2,row=Math.floor(i/2),x=M+col*(colW+gap),ry=yy+row*rowH;
+          pdf.setFillColor(...light);pdf.roundedRect(x,ry-3.2,colW,4.2,1.2,1.2,'F');
+          normal(8.3,navy);const line=pdf.splitTextToSize(txt(label),colW-3);pdf.text(line,x+1.5,ry);
+        });
+        return yy+Math.ceil(labels.length/2)*rowH;
+      };
+
+      pdf.setFillColor(...navy);pdf.rect(0,0,W,43,'F');
+      bold(8,[210,221,230]);pdf.text('VOLLEY COACH · DOSSIER DE PARTIDO',M,14);
+      bold(23,[255,255,255]);pdf.text(txt(EQUIPOS[teamId]?.nombre||'Equipo'),M,25);
+      normal(10,[210,221,230]);pdf.text(txt(m.date)||fechaLocalISO(),M,33);
+
+      bold(9,muted);pdf.text('PARTIDO',M,y);y+=6;
+      bold(15,navy);const rival=pdf.splitTextToSize(`vs ${txt(m.opponent)||'Rival'}`,W-M*2);pdf.text(rival,M,y);y+=rival.length*6+7;
+
+      const metrics=[['Convocatoria',txt(m.callTime)||'—'],['Hora partido',txt(m.time)||'—'],['Estado',txt(m.status)||'Programado'],['Convocados',String(called.length)]];
+      const gap=3,cw=(W-M*2-gap*3)/4;
+      metrics.forEach(([a,b],i)=>{const x=M+i*(cw+gap);pdf.setFillColor(...light);pdf.roundedRect(x,y,cw,20,2,2,'F');normal(7.5,muted);pdf.text(a.toUpperCase(),x+4,y+6);bold(12,navy);pdf.text(String(b),x+4,y+14)});
+      y+=28;
+
+      bold(9,muted);pdf.text('RESUMEN DEL PARTIDO',M,y);y+=7;
+      const rows=[
+        ['Competición',txt(m.competition)||'—'],
+        ['Jornada / fase',txt(m.round)||'—'],
+        ['Condición',txt(m.venue)||'—'],
+        ['Resultado',m.status==='Jugado'?`${Number(m.setsFor)||0} - ${Number(m.setsAgainst)||0}`:'Pendiente']
+      ];
+      rows.forEach(([lab,val])=>{normal(9,navy);pdf.text(lab,M,y);bold(9,navy);pdf.text(String(val),W-M,y,{align:'right'});y+=6.2});
+      if(m.status==='Jugado'&&txt(m.setDetail)){normal(8.3,muted);pdf.text(`Sets: ${txt(m.setDetail)}`,M,y);y+=5.5}
+
+      const ev=normalizeTeamEval(m.matchEvaluation),evVals=[ev.overall,ev.technique,ev.tactics,ev.attitude].map(Number).filter(n=>n>0);
+      if(evVals.length){
+        y+=1;bold(9,muted);pdf.text('VALORACIÓN COLECTIVA',M,y);y+=6;
+        const vals=[['Global',ev.overall],['Técnica',ev.technique],['Táctica',ev.tactics],['Actitud',ev.attitude]];
+        const cg=3,ccw=(W-M*2-cg*3)/4;
+        vals.forEach(([lab,val],i)=>{const x=M+i*(ccw+cg);pdf.setFillColor(...light);pdf.roundedRect(x,y,ccw,13,1.5,1.5,'F');normal(7,muted);pdf.text(lab.toUpperCase(),x+3,y+4.5);bold(10.5,navy2);pdf.text(val?`${val}/5`:'—',x+3,y+10)});
+        y+=18;
+      }
+
+      bold(9,muted);pdf.text(`CONVOCATORIA · ${called.length}`,M,y);y+=7;
+      if(called.length)y=twoColumns(called.map(playerLine),y);
+      else{normal(9,muted);pdf.text('No hay convocados registrados.',M,y);y+=7}
+
+      if(unavailable.length&&y<250){
+        y+=3;bold(9,muted);pdf.text('NO DISPONIBLES',M,y);y+=6;
+        unavailable.forEach((r,i)=>{
+          if(y>265)return;
+          normal(8.5,navy);const line=`${i+1}. ${playerLine(r)}${r.reason?` · ${r.reason}`:''}`;
+          const ls=pdf.splitTextToSize(line,W-M*2);pdf.text(ls,M,y);y+=ls.length*4.3;
+        });
+      }
+
+      if(Array.isArray(m.focus)&&m.focus.length&&y<266){
+        y+=2;bold(8.5,muted);pdf.text('PRIORIDADES',M,y);y+=5;normal(8.4,navy);const ls=pdf.splitTextToSize(m.focus.join(' · '),W-M*2);pdf.text(ls,M,y);y+=ls.length*4.2;
+      }
+
+      normal(7.7,muted);pdf.text(`Volley Coach · ${txt(EQUIPOS[teamId]?.nombre||'Equipo')} · ${txt(m.date)||fechaLocalISO()}`,M,H-7);
+      const clean=String(m.opponent||'Rival').replace(/[^a-z0-9áéíóúüñ_-]+/gi,'_');
+      pdf.save(`Partido_${clean}_${txt(m.date)||fechaLocalISO()}.pdf`);
+    }catch(err){console.error(err);alert('No se pudo generar el PDF del partido. Comprueba la conexión e inténtalo de nuevo.')}
+  };
+
+  partidosEquipo=normalizarPartidos(partidosEquipo||[]);
+  if(equiposData?.[equipoActivo])equiposData[equipoActivo].partidos=cloneSafe(partidosEquipo);
+  try{guardarEstadoLocalSinCloud()}catch(_){}
+  renderCompetition();
+})();
+</script>
+
+
+<script id="v5118-player-number-order">
+(function(){
+  function vcNumOrderValue(v){
+    if(v===null || v===undefined || String(v).trim()==='') return Number.POSITIVE_INFINITY;
+    const n=Number(v);
+    return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+  }
+  function vcPlayerNumberCompare(a,b){
+    const an=vcNumOrderValue(a?.number), bn=vcNumOrderValue(b?.number);
+    if(an!==bn) return an-bn;
+    const aHas=Number.isFinite(an), bHas=Number.isFinite(bn);
+    if(aHas!==bHas) return aHas ? -1 : 1;
+    return String(a?.name||'').localeCompare(String(b?.name||''),'es',{sensitivity:'base',numeric:true});
+  }
+  function vcSortPlayersByNumber(list){
+    return (Array.isArray(list)?list:[]).slice().sort(vcPlayerNumberCompare);
+  }
+  function vcSortActivePlayersInPlace(){
+    if(Array.isArray(jugadoresEquipo)) jugadoresEquipo.sort(vcPlayerNumberCompare);
+    if(equiposData?.[equipoActivo] && Array.isArray(equiposData[equipoActivo].jugadores)){
+      equiposData[equipoActivo].jugadores.sort(vcPlayerNumberCompare);
+    }
+  }
+  function vcSnapshotNumberCompare(a,b){
+    return vcPlayerNumberCompare(
+      {number:a?.number,name:a?.name},
+      {number:b?.number,name:b?.name}
+    );
+  }
+  function vcSortSnapshot(list){
+    return (Array.isArray(list)?list:[]).slice().sort(vcSnapshotNumberCompare);
+  }
+
+  window.vcSortPlayersByNumber=vcSortPlayersByNumber;
+  window.vcPlayerNumberCompare=vcPlayerNumberCompare;
+
+  /* Mantiene la plantilla activa ordenada cada vez que se carga o guarda. */
+  vcSortActivePlayersInPlace();
+
+  if(typeof cargarEquipoEnVariables==='function'){
+    const prevLoadTeam=cargarEquipoEnVariables;
+    cargarEquipoEnVariables=function(id){
+      const result=prevLoadTeam(id);
+      vcSortActivePlayersInPlace();
+      return result;
+    };
+  }
+  if(typeof ppSave==='function'){
+    const prevPpSave=ppSave;
+    ppSave=function(){
+      vcSortActivePlayersInPlace();
+      return prevPpSave();
+    };
+  }
+  if(typeof renderPlayers==='function'){
+    const prevRenderPlayers=renderPlayers;
+    renderPlayers=function(){
+      vcSortActivePlayersInPlace();
+      return prevRenderPlayers();
+    };
+  }
+  if(typeof renderSessionRoster==='function'){
+    const prevRenderSessionRoster=renderSessionRoster;
+    renderSessionRoster=function(){
+      vcSortActivePlayersInPlace();
+      return prevRenderSessionRoster();
+    };
+  }
+  if(typeof abrirRosterEjercicio==='function'){
+    const prevAbrirRosterEjercicio=abrirRosterEjercicio;
+    abrirRosterEjercicio=function(id){
+      vcSortActivePlayersInPlace();
+      return prevAbrirRosterEjercicio(id);
+    };
+  }
+  if(typeof exportarInformeEquipoJugadores==='function'){
+    const prevInformePlantilla=exportarInformeEquipoJugadores;
+    exportarInformeEquipoJugadores=function(){
+      vcSortActivePlayersInPlace();
+      return prevInformePlantilla();
+    };
+  }
+
+  /* Cualquier acceso de solo lectura a la plantilla devuelve dorsal ascendente. */
+  if(typeof vcTeamPlayers==='function'){
+    const prevTeamPlayers=vcTeamPlayers;
+    vcTeamPlayers=function(teamId){
+      return vcSortPlayersByNumber(prevTeamPlayers(teamId));
+    };
+  }
+
+  /* Los snapshots nuevos también se guardan ya ordenados. */
+  if(typeof vcParticipantSnapshot==='function'){
+    const prevParticipantSnapshot=vcParticipantSnapshot;
+    vcParticipantSnapshot=function(ids,teamId=equipoActivo){
+      return vcSortSnapshot(prevParticipantSnapshot(ids,teamId));
+    };
+  }
+  if(typeof vcMatchParticipantSnapshot==='function'){
+    const prevMatchSnapshot=vcMatchParticipantSnapshot;
+    vcMatchParticipantSnapshot=function(ids,teamId=equipoActivo){
+      return vcSortSnapshot(prevMatchSnapshot(ids,teamId));
+    };
+  }
+
+  /* Entrenamientos e históricos: orden nominal por dorsal incluso si usan snapshots antiguos. */
+  if(typeof vcSessionParticipantLabels==='function'){
+    vcSessionParticipantLabels=function(h,teamId=equipoActivo){
+      if(Array.isArray(h?.participantSnapshot) && h.participantSnapshot.length){
+        return vcSortSnapshot(h.participantSnapshot).map(vcSnapshotLabel);
+      }
+      const ids=Array.isArray(h?.playerIds)?h.playerIds.map(Number):[];
+      const idSet=new Set(ids);
+      const players=vcSortPlayersByNumber(vcTeamPlayers(teamId).filter(p=>idSet.has(Number(p.id))));
+      const foundIds=new Set(players.map(p=>Number(p.id)));
+      const labels=players.map(p=>`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`);
+      ids.filter(id=>!foundIds.has(Number(id))).sort((a,b)=>a-b).forEach(id=>labels.push(`Jugador ${id}`));
+      return labels;
+    };
+  }
+  if(typeof vcExerciseParticipantLabels==='function'){
+    vcExerciseParticipantLabels=function(e,h={},teamId=equipoActivo){
+      if(Array.isArray(e?.participantSnapshot) && e.participantSnapshot.length){
+        return vcSortSnapshot(e.participantSnapshot).map(vcSnapshotLabel);
+      }
+      const ids=typeof vcExerciseParticipantIds==='function'
+        ? vcExerciseParticipantIds(e,h)
+        : (Array.isArray(e?.playerIds)?e.playerIds:(Array.isArray(h?.playerIds)?h.playerIds:[]));
+      const idSet=new Set((ids||[]).map(Number));
+      const players=vcSortPlayersByNumber(vcTeamPlayers(teamId).filter(p=>idSet.has(Number(p.id))));
+      const foundIds=new Set(players.map(p=>Number(p.id)));
+      const labels=players.map(p=>`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`);
+      (ids||[]).map(Number).filter(id=>!foundIds.has(id)).sort((a,b)=>a-b).forEach(id=>labels.push(`Jugador ${id}`));
+      return labels;
+    };
+  }
+
+  /* Convocatorias / resultados / PDF de partido. */
+  if(typeof vcMatchRosterForPDF==='function'){
+    const prevMatchRosterForPDF=vcMatchRosterForPDF;
+    vcMatchRosterForPDF=function(m,teamId=equipoActivo){
+      return (prevMatchRosterForPDF(m,teamId)||[]).slice().sort(vcPlayerNumberCompare);
+    };
+  }
+
+  if(typeof matchRosterOptions==='function'){
+    matchRosterOptions=function(selected=[],rosterStatus=[]){
+      const box=$('match-roster-list'); if(!box)return;
+      const selectedSet=new Set((selected||[]).map(Number));
+      const state=new Map((Array.isArray(rosterStatus)?rosterStatus:[]).map(r=>[Number(r.id),r]));
+      box.innerHTML=vcSortPlayersByNumber(jugadoresEquipo||[]).map(p=>{
+        const old=state.get(Number(p.id));
+        const status=old?.status||(selectedSet.has(Number(p.id))?'Convocado':'No convocado');
+        const reason=old?.reason||'';
+        const pos=ppPositions(p).join(' · ')||'Sin posición';
+        return `<div class="match-roster-pro-row" data-player-id="${p.id}">
+          <div class="match-roster-pro-player"><b>${p.number!==''&&p.number!=null?`#${esc(p.number)} · `:''}${esc(p.name)}</b><small>${esc(pos)}</small></div>
+          <select class="match-player-status" onchange="vcMatchRosterStatusChange(this)">
+            <option ${status==='Convocado'?'selected':''}>Convocado</option>
+            <option ${status==='No disponible'?'selected':''}>No disponible</option>
+            <option ${status==='No convocado'?'selected':''}>No convocado</option>
+          </select>
+          <input class="match-roster-reason ${status==='No disponible'?'':'hidden'}" value="${esc(reason)}" placeholder="Motivo de la ausencia">
+        </div>`;
+      }).join('')||'<div class="match-empty">Primero añade jugadores a este equipo.</div>';
+    };
+  }
+
+  /* Nombres de ejercicios y chips individuales respetan el mismo orden. */
+  if(typeof exerciseRosterNames==='function'){
+    exerciseRosterNames=function(ids){
+      const set=new Set((ids||[]).map(Number));
+      return vcSortPlayersByNumber((jugadoresEquipo||[]).filter(p=>set.has(Number(p.id))))
+        .map(p=>`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name}`);
+    };
+  }
+
+  /* Ordena cualquier snapshot histórico ya cargado en memoria sin cambiar sus dorsales. */
+  try{
+    ['infantil','cadete'].forEach(team=>{
+      const data=equiposData?.[team];
+      if(!data)return;
+      if(Array.isArray(data.jugadores)) data.jugadores.sort(vcPlayerNumberCompare);
+      (data.historial||[]).forEach(h=>{
+        if(Array.isArray(h.participantSnapshot)) h.participantSnapshot=vcSortSnapshot(h.participantSnapshot);
+        (h.ejercicios||[]).forEach(e=>{if(Array.isArray(e?.participantSnapshot))e.participantSnapshot=vcSortSnapshot(e.participantSnapshot)});
+      });
+      (data.planificacion||[]).forEach(h=>{
+        if(Array.isArray(h.participantSnapshot)) h.participantSnapshot=vcSortSnapshot(h.participantSnapshot);
+        (h.ejercicios||[]).forEach(e=>{if(Array.isArray(e?.participantSnapshot))e.participantSnapshot=vcSortSnapshot(e.participantSnapshot)});
+      });
+      (data.partidos||[]).forEach(m=>{
+        if(Array.isArray(m.participantSnapshot))m.participantSnapshot=vcSortSnapshot(m.participantSnapshot);
+        if(Array.isArray(m.rosterStatus))m.rosterStatus.sort(vcPlayerNumberCompare);
+        if(Array.isArray(m.playerEvaluations))m.playerEvaluations.sort(vcPlayerNumberCompare);
+      });
+    });
+  }catch(err){console.warn('No se pudo ordenar algún histórico por dorsal',err)}
+
+  /* Refresca las vistas visibles con el nuevo criterio. */
+  try{
+    renderPlayers();
+    renderSessionRoster();
+    renderCompetition();
+  }catch(_){}
+})();
+</script>
+
 </body></html>
