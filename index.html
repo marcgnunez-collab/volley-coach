@@ -613,7 +613,7 @@ header{position:static!important;top:auto!important;}
 </style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.10 · PDF PARTIDO COMPLETO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.11 · DATOS DE CONVOCATORIA</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -979,6 +979,9 @@ header{position:static!important;top:auto!important;}
       <label><span>Competición</span><input id="match-competition" placeholder="Liga, torneo…"></label>
       <label><span>Jornada / fase</span><input id="match-round" placeholder="Jornada 4, semifinal…"></label>
       <label class="wide"><span>Rival</span><input id="match-opponent" placeholder="Nombre del rival"></label>
+      <label><span>Equipación</span><input id="match-kit" placeholder="Ej. Azul / Blanca"></label>
+      <label><span>Pabellón</span><input id="match-pavilion" placeholder="Nombre del pabellón"></label>
+      <label><span>Camiseta de calentamiento</span><input id="match-warmup-shirt" placeholder="Ej. Negra"></label>
       <label><span>Condición</span><select id="match-venue"><option>Casa</option><option>Fuera</option><option>Neutral</option></select></label>
       <label><span>Estado</span><select id="match-status" onchange="matchToggleResult()"><option>Programado</option><option>Jugado</option><option>Aplazado</option><option>Cancelado</option></select></label>
       <div id="match-result-fields" class="match-result-fields wide hidden"><label><span>Sets a favor</span><input id="match-sets-for" type="number" min="0" max="9"></label><label><span>Sets en contra</span><input id="match-sets-against" type="number" min="0" max="9"></label><label class="wide"><span>Marcadores de sets</span><input id="match-set-detail" placeholder="25-20, 22-25, 25-18…"></label></div>
@@ -4970,8 +4973,10 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
       y=sectionTitle('Datos del partido',y);
       const dataRows=[
         ['Competición',valueOrDash(m.competition),'Jornada / fase',valueOrDash(m.round)],
-        ['Condición',valueOrDash(m.venue),'Convocados',String(called.length)],
-        ['Marcadores de sets',m.status==='Jugado'?valueOrDash(m.setDetail):'—','No disponibles',String(unavailable.length)]
+        ['Pabellón',valueOrDash(m.pavilion),'Condición',valueOrDash(m.venue)],
+        ['Equipación',valueOrDash(m.kit),'Camiseta calentamiento',valueOrDash(m.warmupShirt)],
+        ['Convocados',String(called.length),'No disponibles',String(unavailable.length)],
+        ['Marcadores de sets',m.status==='Jugado'?valueOrDash(m.setDetail):'—','Estado',valueOrDash(m.status||'Programado')]
       ];
       const colGap=10, colW=(W-M*2-colGap)/2;
       dataRows.forEach(row=>{
@@ -5087,6 +5092,62 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
       alert('No se pudo generar el PDF del partido. Comprueba la conexión e inténtalo de nuevo.');
     }
   };
+})();
+</script>
+
+
+<script id="v51111-match-extra-data">
+(function(){
+  function vcExtraMatchData(m){
+    return {
+      kit:String(m?.kit||''),
+      pavilion:String(m?.pavilion||''),
+      warmupShirt:String(m?.warmupShirt||'')
+    };
+  }
+
+  const previousNormalizer=normalizarPartidos;
+  normalizarPartidos=function(list){
+    const rawById=new Map((Array.isArray(list)?list:[]).filter(Boolean).map(m=>[Number(m.id),m]));
+    return previousNormalizer(list).map(m=>{
+      const raw=rawById.get(Number(m.id))||m||{};
+      const extra=vcExtraMatchData(raw);
+      return {...m,...extra};
+    });
+  };
+
+  const previousOpenMatch=abrirPartidoModal;
+  abrirPartidoModal=function(id=null){
+    const result=previousOpenMatch(id);
+    const m=id?partidosEquipo.find(x=>Number(x.id)===Number(id)):null;
+    if($('match-kit'))$('match-kit').value=m?.kit||'';
+    if($('match-pavilion'))$('match-pavilion').value=m?.pavilion||'';
+    if($('match-warmup-shirt'))$('match-warmup-shirt').value=m?.warmupShirt||'';
+    return result;
+  };
+
+  const previousBuildMatch=vcBuildMatchRecord;
+  vcBuildMatchRecord=function(existing=null){
+    const rec=previousBuildMatch(existing);
+    rec.kit=String($('match-kit')?.value||'').trim();
+    rec.pavilion=String($('match-pavilion')?.value||'').trim();
+    rec.warmupShirt=String($('match-warmup-shirt')?.value||'').trim();
+    return rec;
+  };
+
+  /* Normaliza también los partidos ya cargados para que los nuevos campos entren en nube/copia. */
+  try{
+    ['infantil','cadete'].forEach(team=>{
+      if(equiposData?.[team]){
+        equiposData[team].partidos=normalizarPartidos(equiposData[team].partidos||[]);
+      }
+    });
+    partidosEquipo=normalizarPartidos(equiposData?.[equipoActivo]?.partidos||partidosEquipo||[]);
+    if(equiposData?.[equipoActivo])equiposData[equipoActivo].partidos=partidosEquipo;
+    guardarEstadoLocalSinCloud();
+  }catch(err){
+    console.warn('No se pudieron normalizar los nuevos datos de partido',err);
+  }
 })();
 </script>
 
