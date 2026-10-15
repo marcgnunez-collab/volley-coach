@@ -613,7 +613,7 @@ header{position:static!important;top:auto!important;}
 </style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.11 · DATOS DE CONVOCATORIA</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.12 · ESTADÍSTICAS DE ENTRENAMIENTO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -930,10 +930,10 @@ header{position:static!important;top:auto!important;}
   <div id="stats-v2-insights" class="stats-v2-insights"></div>
   <div class="stats-v2-grid">
     <section class="stats-v2-panel wide"><div class="stats-v2-panel-head"><div><span class="pro-kicker">TENDENCIA</span><h3>Volumen de entrenamiento</h3></div><span class="small">Minutos realizados</span></div><div id="stats-v2-trend" class="stats-trend"></div></section>
-    <section class="stats-v2-panel"><div class="stats-v2-panel-head"><div><span class="pro-kicker">CONTENIDOS</span><h3>Trabajo por fundamento</h3></div><span class="small">vs. periodo anterior</span></div><div id="stats-v2-foundations"></div></section>
+    <section class="stats-v2-panel"><div class="stats-v2-panel-head"><div><span class="pro-kicker">CONTENIDOS</span><h3>Trabajo por fundamento</h3></div><select id="stats-foundation-scope" class="stats-inline-select" onchange="vcRenderTrainingStatsDetail()"><option value="all" selected>Histórico completo</option><option value="period">Periodo seleccionado</option></select></div><div id="stats-v2-foundations"></div></section>
     <section class="stats-v2-panel"><div class="stats-v2-panel-head"><div><span class="pro-kicker">PLANIFICACIÓN</span><h3>Planificado vs realizado</h3></div></div><div id="stats-v2-plan"></div></section>
     <section class="stats-v2-panel"><div class="stats-v2-panel-head"><div><span class="pro-kicker">EJERCICIOS</span><h3>Más utilizados y efectivos</h3></div></div><div id="stats-v2-top"></div></section>
-    <section class="stats-v2-panel"><div class="stats-v2-panel-head"><div><span class="pro-kicker">PLANTILLA</span><h3>Carga individual</h3></div></div><div id="stats-v2-players"></div></section>
+    <section class="stats-v2-panel wide"><div class="stats-v2-panel-head"><div><span class="pro-kicker">PLANTILLA</span><h3>Trabajo individual por jugador</h3></div><select id="stats-player-scope" class="stats-inline-select" onchange="vcRenderTrainingStatsDetail()"><option value="all" selected>Histórico completo</option><option value="period">Periodo seleccionado</option></select></div><div id="stats-v2-players"></div></section>
     <section class="stats-v2-panel"><div class="stats-v2-panel-head"><div><span class="pro-kicker">COMPETICIÓN</span><h3>Balance de partidos</h3></div></div><div id="stats-v2-competition"></div></section>
   </div>
 </div>
@@ -5148,6 +5148,291 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
   }catch(err){
     console.warn('No se pudieron normalizar los nuevos datos de partido',err);
   }
+})();
+</script>
+
+
+<style id="v51112-training-stats-style">
+.stats-inline-select{
+  min-width:150px!important;
+  width:auto!important;
+  padding:7px 28px 7px 9px!important;
+  font-size:10px!important;
+  border-radius:8px!important;
+  background-color:#fff!important
+}
+.vc-stats-scope-note{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+  margin-bottom:10px;padding:8px 10px;border-radius:8px;background:#f7f9fb;
+  border:1px solid #e4e9ed;color:#657482;font-size:9.5px
+}
+.vc-stats-scope-note b{color:#29485f}
+.vc-foundation-row{
+  display:grid;grid-template-columns:minmax(90px,130px) 1fr minmax(86px,auto);
+  gap:9px;align-items:center;padding:7px 0;border-bottom:1px solid #edf0f2
+}
+.vc-foundation-row:last-child{border-bottom:0}
+.vc-foundation-name{font-size:10px;font-weight:850;color:#29465d;min-width:0}
+.vc-foundation-track{height:9px;border-radius:999px;background:#edf1f4;overflow:hidden}
+.vc-foundation-track i{display:block;height:100%;border-radius:999px;background:#315f84}
+.vc-foundation-value{text-align:right;white-space:nowrap;color:#334f65;font-size:9.5px}
+.vc-foundation-value b{font-size:11px}
+.vc-foundation-sub{font-size:8.5px;color:#8a96a0;margin-top:2px}
+.vc-player-stats-list{display:grid;gap:7px}
+.vc-player-stat{
+  border:1px solid #e0e6ea;border-radius:10px;background:#fff;overflow:hidden
+}
+.vc-player-stat summary{
+  list-style:none;cursor:pointer;display:grid;
+  grid-template-columns:minmax(180px,1.1fr) repeat(3,minmax(90px,.45fr)) 22px;
+  gap:10px;align-items:center;padding:11px 12px
+}
+.vc-player-stat summary::-webkit-details-marker{display:none}
+.vc-player-stat summary:hover{background:#fafbfd}
+.vc-player-main{min-width:0}
+.vc-player-main b{display:block;color:#203f57;font-size:11px}
+.vc-player-main small{display:block;color:#7f8b95;font-size:9px;margin-top:2px}
+.vc-player-metric span{display:block;color:#85919b;font-size:8px;text-transform:uppercase;letter-spacing:.055em}
+.vc-player-metric b{display:block;color:#2d485d;font-size:11px;margin-top:2px}
+.vc-player-chevron{color:#8b98a2;font-size:12px;text-align:center}
+.vc-player-stat[open] .vc-player-chevron{transform:rotate(180deg)}
+.vc-player-detail{border-top:1px solid #edf0f2;background:#fbfcfd;padding:11px 12px}
+.vc-player-foundations{display:grid;gap:6px}
+.vc-player-foundation{
+  display:grid;grid-template-columns:minmax(95px,140px) 1fr 88px;
+  gap:8px;align-items:center
+}
+.vc-player-foundation span{font-size:9.5px;color:#39536a}
+.vc-player-foundation .track{height:7px;border-radius:999px;background:#e9eef2;overflow:hidden}
+.vc-player-foundation .track i{display:block;height:100%;background:#5a7f9d;border-radius:999px}
+.vc-player-foundation strong{text-align:right;font-size:9px;color:#425e73;white-space:nowrap}
+.vc-player-empty{font-size:9.5px;color:#87939c}
+.vc-stats-warning{
+  margin-top:9px;padding:8px 10px;border-left:3px solid #d39445;background:#fff9f1;
+  color:#6c5840;font-size:9px;line-height:1.45
+}
+@media(max-width:760px){
+  .stats-inline-select{width:100%!important}
+  .stats-v2-panel-head{flex-direction:column}
+  .vc-player-stat summary{grid-template-columns:1fr 1fr;gap:7px}
+  .vc-player-main{grid-column:1/-1}
+  .vc-player-chevron{position:absolute;right:20px}
+  .vc-player-foundation{grid-template-columns:95px 1fr 72px}
+}
+</style>
+
+<script id="v51112-training-stats-script">
+(function(){
+  function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
+  function uniqueNums(list){
+    const s=new Set(),out=[];
+    (Array.isArray(list)?list:[]).forEach(v=>{const n=Number(v);if(Number.isFinite(n)&&!s.has(n)){s.add(n);out.push(n)}});
+    return out;
+  }
+  function enrichExercise(e){
+    try{
+      if(e!=null && (typeof e==='number'||typeof e==='string')){
+        return baseDeDatos.find(x=>Number(x.id)===Number(e)) || {id:Number(e)};
+      }
+      return typeof enriquecerEjercicioGuardado==='function' ? enriquecerEjercicioGuardado(e) : (e||{});
+    }catch(_){return e||{}}
+  }
+  function foundationsOf(e){
+    const ex=enrichExercise(e);
+    try{
+      const fs=typeof normalizarFundamentos==='function' ? normalizarFundamentos(ex) : [];
+      return [...new Set((fs||[]).map(x=>String(x||'').trim()).filter(Boolean))];
+    }catch(_){
+      if(Array.isArray(ex.fundamentos))return [...new Set(ex.fundamentos.filter(Boolean))];
+      return ex.fundamento?[String(ex.fundamento)]:[];
+    }
+  }
+  function exerciseMinutes(e){
+    const ex=enrichExercise(e);
+    return Math.max(0,num(ex.tiempo));
+  }
+  function sessionRosterIds(h){
+    let ids=[];
+    if(Array.isArray(h?.playerIds))ids=h.playerIds;
+    if(!ids.length && Array.isArray(h?.participantSnapshot))ids=h.participantSnapshot.map(x=>x.id);
+    return uniqueNums(ids);
+  }
+  function exerciseRosterIds(e,h){
+    if(Array.isArray(e?.playerIds))return uniqueNums(e.playerIds);
+    if(Array.isArray(e?.participantSnapshot)&&e.participantSnapshot.length)return uniqueNums(e.participantSnapshot.map(x=>x.id));
+    return sessionRosterIds(h);
+  }
+  function scopeSessions(which){
+    const all=(historial||[]).filter(Boolean);
+    if(which==='all')return all;
+    const r=statsRange();
+    return statsFilter(all,r.start,r.end);
+  }
+  function sessionLabelForScope(which,list){
+    if(which==='all'){
+      if(!list.length)return 'Histórico completo · sin sesiones';
+      const dates=list.map(h=>h.fecha).filter(Boolean).sort();
+      const first=dates[0],last=dates[dates.length-1];
+      const range=first&&last
+        ? `${new Date(first+'T12:00:00').toLocaleDateString('es-ES')} — ${new Date(last+'T12:00:00').toLocaleDateString('es-ES')}`
+        : 'Histórico completo';
+      return `${range} · ${list.length} sesiones`;
+    }
+    const r=statsRange();
+    return `${new Date(r.start+'T12:00:00').toLocaleDateString('es-ES')} — ${new Date(r.end+'T12:00:00').toLocaleDateString('es-ES')} · ${list.length} sesiones`;
+  }
+
+  function foundationStats(list){
+    const by={},sessionsBy={},exerciseCountBy={};
+    let classifiedMinutes=0,unclassifiedMinutes=0,totalExerciseMinutes=0;
+    (list||[]).forEach(h=>{
+      (h.ejercicios||[]).forEach(raw=>{
+        const m=exerciseMinutes(raw);
+        if(!(m>0))return;
+        totalExerciseMinutes+=m;
+        const fs=foundationsOf(raw);
+        if(!fs.length){unclassifiedMinutes+=m;return}
+        classifiedMinutes+=m;
+        const share=m/fs.length;
+        fs.forEach(f=>{
+          by[f]=(by[f]||0)+share;
+          if(!sessionsBy[f])sessionsBy[f]=new Set();
+          sessionsBy[f].add(h.id);
+          exerciseCountBy[f]=(exerciseCountBy[f]||0)+1;
+        });
+      });
+    });
+    const totalFoundationMinutes=Object.values(by).reduce((a,b)=>a+num(b),0);
+    return {by,sessionsBy,exerciseCountBy,totalFoundationMinutes,classifiedMinutes,unclassifiedMinutes,totalExerciseMinutes};
+  }
+
+  function currentPlayersSorted(){
+    let players=Array.isArray(jugadoresEquipo)?jugadoresEquipo.slice():[];
+    if(typeof vcSortPlayersByNumber==='function')players=vcSortPlayersByNumber(players);
+    return players;
+  }
+  function playerStats(list){
+    const players=currentPlayersSorted();
+    const map={};
+    players.forEach(p=>map[Number(p.id)]={
+      p,total:0,by:{},workedSessions:new Set(),attendedSessions:new Set(),exerciseCount:0
+    });
+
+    (list||[]).forEach(h=>{
+      const sessionIds=sessionRosterIds(h);
+      sessionIds.forEach(id=>{if(map[id])map[id].attendedSessions.add(h.id)});
+      (h.ejercicios||[]).forEach(raw=>{
+        const m=exerciseMinutes(raw);
+        if(!(m>0))return;
+        const ids=exerciseRosterIds(raw,h);
+        if(!ids.length)return;
+        const fs=foundationsOf(raw);
+        ids.forEach(id=>{
+          const rec=map[id];if(!rec)return;
+          rec.total+=m;
+          rec.workedSessions.add(h.id);
+          rec.exerciseCount++;
+          if(fs.length){
+            const share=m/fs.length;
+            fs.forEach(f=>rec.by[f]=(rec.by[f]||0)+share);
+          }
+        });
+      });
+    });
+    return Object.values(map);
+  }
+
+  function renderFoundations(){
+    const box=$('stats-v2-foundations');if(!box)return;
+    const scope=$('stats-foundation-scope')?.value||'all';
+    const list=scopeSessions(scope),stats=foundationStats(list);
+    const entries=Object.entries(stats.by).sort((a,b)=>b[1]-a[1]);
+    const denom=stats.totalFoundationMinutes||1;
+
+    let html=`<div class="vc-stats-scope-note"><span><b>${esc(scope==='all'?'Acumulado histórico':'Periodo seleccionado')}</b><br>${esc(sessionLabelForScope(scope,list))}</span><span>${Math.round(stats.totalFoundationMinutes)} min clasificados</span></div>`;
+    if(!entries.length){
+      html+='<div class="match-empty">Todavía no hay minutos de ejercicios con fundamentos registrados.</div>';
+    }else{
+      html+=entries.map(([f,m])=>{
+        const pct=m/denom*100;
+        const sessionCount=stats.sessionsBy[f]?.size||0;
+        const exCount=stats.exerciseCountBy[f]||0;
+        return `<div class="vc-foundation-row">
+          <div><div class="vc-foundation-name">${esc(f)}</div><div class="vc-foundation-sub">${sessionCount} ses. · ${exCount} ejercicios</div></div>
+          <div class="vc-foundation-track"><i style="width:${Math.max(1,Math.min(100,pct))}%"></i></div>
+          <div class="vc-foundation-value"><b>${pct.toFixed(1)}%</b><br>${Math.round(m)} min</div>
+        </div>`;
+      }).join('');
+    }
+    if(stats.unclassifiedMinutes>0){
+      html+=`<div class="vc-stats-warning"><b>${Math.round(stats.unclassifiedMinutes)} min sin fundamento definido.</b> Estos minutos no entran en el cálculo porcentual. Edita esos ejercicios en la Biblioteca si quieres que el reparto llegue a reflejar todo el trabajo.</div>`;
+    }
+    box.innerHTML=html;
+  }
+
+  function playerFoundationRows(rec){
+    const entries=Object.entries(rec.by).sort((a,b)=>b[1]-a[1]);
+    if(!entries.length)return '<div class="vc-player-empty">No hay fundamentos registrados en los ejercicios asignados a este jugador.</div>';
+    const total=entries.reduce((a,x)=>a+num(x[1]),0)||1;
+    return `<div class="vc-player-foundations">${entries.map(([f,m])=>{
+      const pct=m/total*100;
+      return `<div class="vc-player-foundation">
+        <span>${esc(f)}</span>
+        <div class="track"><i style="width:${Math.max(1,Math.min(100,pct))}%"></i></div>
+        <strong>${Math.round(m)} min · ${pct.toFixed(1)}%</strong>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  function renderPlayers(){
+    const box=$('stats-v2-players');if(!box)return;
+    const scope=$('stats-player-scope')?.value||'all';
+    const list=scopeSessions(scope),rows=playerStats(list);
+
+    let html=`<div class="vc-stats-scope-note"><span><b>${esc(scope==='all'?'Acumulado histórico':'Periodo seleccionado')}</b><br>${esc(sessionLabelForScope(scope,list))}</span><span>${rows.filter(x=>x.total>0).length} jugadores con trabajo registrado</span></div>`;
+    html+=`<div class="vc-player-stats-list">${rows.map(rec=>{
+      const p=rec.p,positions=typeof ppPositions==='function'?ppPositions(p).join(' · '):'';
+      const name=`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`;
+      return `<details class="vc-player-stat">
+        <summary>
+          <div class="vc-player-main"><b>${esc(name)}</b><small>${esc(positions||'Sin posición')}</small></div>
+          <div class="vc-player-metric"><span>Minutos</span><b>${Math.round(rec.total)}</b></div>
+          <div class="vc-player-metric"><span>Sesiones trabajadas</span><b>${rec.workedSessions.size}</b></div>
+          <div class="vc-player-metric"><span>Asistencias registradas</span><b>${rec.attendedSessions.size}</b></div>
+          <div class="vc-player-chevron">⌄</div>
+        </summary>
+        <div class="vc-player-detail">
+          ${rec.total>0?playerFoundationRows(rec):'<div class="vc-player-empty">Este jugador todavía no tiene minutos asignados en ejercicios guardados en Historial.</div>'}
+        </div>
+      </details>`;
+    }).join('')}</div>`;
+    if(!rows.length)html+='<div class="match-empty">No hay jugadores en este equipo.</div>';
+    box.innerHTML=html;
+  }
+
+  window.vcRenderTrainingStatsDetail=function(){
+    renderFoundations();
+    renderPlayers();
+  };
+
+  /* Mantiene el resto de Estadísticas V2 y sustituye únicamente estos cálculos por los robustos. */
+  const previousStatsV2=renderStatsV2;
+  renderStatsV2=function(){
+    previousStatsV2();
+    vcRenderTrainingStatsDetail();
+  };
+
+  /* Recalcula cuando cambia de equipo o se guarda una sesión. */
+  if(typeof cambiarEquipo==='function'){
+    const previousChangeTeam=cambiarEquipo;
+    cambiarEquipo=function(id){
+      const out=previousChangeTeam(id);
+      setTimeout(()=>{if($('stats-v2-foundations'))vcRenderTrainingStatsDetail()},0);
+      return out;
+    };
+  }
+
+  try{vcRenderTrainingStatsDetail()}catch(err){console.warn('No se pudieron renderizar las nuevas estadísticas',err)}
 })();
 </script>
 
