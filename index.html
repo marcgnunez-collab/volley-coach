@@ -595,30 +595,9 @@ header{position:static!important;top:auto!important;}
 .planning-type-row{display:grid;grid-template-columns:160px 170px minmax(180px,1fr);gap:9px;margin-bottom:10px}.planning-type-field{display:flex;flex-direction:column;gap:5px}.planning-type-field>span{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#6f7d89}.planning-specific-fields{margin-top:3px}.planning-create-hint{margin-top:9px;padding:8px 10px;border-left:3px solid #b9c7d3;background:#f7f9fb;color:#667581;font-size:10px;line-height:1.4}.plan-pro-card.match{border-left:3px solid #7c5e32;background:#fffaf2}.plan-pro-card.match .plan-pro-status{color:#805c2c}.plan-pro-card.match.played{border-left-color:#52687a;background:#f7f9fb}.plan-pro-card.match.played .plan-pro-status{color:#52687a}.plan-pro-match-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.plan-pro-match-chip{font-size:8.5px;padding:2px 6px;border-radius:999px;background:#f1e8d8;color:#745328;font-weight:800}.month-plan.match{background:#f7ead7;color:#765426;border-left:3px solid #9a7440}.month-plan.match.played{background:#edf1f4;color:#4f6474;border-left-color:#687f90}.planning-day-events{display:flex;flex-direction:column;gap:7px}.planning-add-caption{display:block;font-size:8px;color:#86929d;margin-top:2px}.planning-day-head .plan-day-add,.month-day-add{font-size:14px}.planning-day-head .plan-day-add[title*="evento"],.month-day-add[title*="evento"]{background:#fff}.planning-event-empty{color:#a0a9b1;padding:8px 0;font-size:10px}.planning-match-count{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;background:#f5ead9;color:#78572e;font-size:8.5px;font-weight:850;margin-top:5px}
 @media(max-width:700px){.planning-type-row{grid-template-columns:1fr 1fr}.planning-type-field:last-child{grid-column:1/-1}.planning-quick-body{width:min(94vw,720px)!important}}
 </style>
-
-<style id="v5113-set-participation-style">
-/* ===== V5.11.3 · PARTICIPACIÓN DE JUGADORES POR SET ===== */
-.match-set-participation{margin-top:2px;padding-top:10px;border-top:1px solid #e5eaee}
-.match-set-participation-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
-.match-set-participation-head p{margin:4px 0 0;color:#71808d;font-size:10px;line-height:1.45}
-.match-set-list{display:flex;flex-direction:column;gap:9px}
-.match-set-row{border:1px solid #dde4e9;border-radius:10px;background:#fbfcfd;overflow:hidden}
-.match-set-row-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;background:#f3f6f8;border-bottom:1px solid #e3e8ec}
-.match-set-row-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900;color:#263d50}
-.match-set-count{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:25px;padding:0 7px;border-radius:999px;background:#fff;border:1px solid #d9e0e5;font-size:10px;color:#566a7a}
-.match-set-tools{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
-.match-set-tools button{padding:5px 7px;font-size:9px;border-radius:7px}
-.match-set-players{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px}
-.match-set-player{display:flex!important;flex-direction:row!important;align-items:center;gap:7px;padding:7px 8px;border:1px solid #e2e7eb;border-radius:8px;background:#fff;font-size:10px;color:#334d61;cursor:pointer}
-.match-set-player input{width:auto!important;margin:0}
-.match-set-player span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.match-set-empty{padding:11px;border:1px dashed #d7dfe5;border-radius:9px;background:#fafcfd;color:#70808d;font-size:10px;line-height:1.45}
-@media(max-width:900px){.match-set-players{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:650px){.match-set-row-head{align-items:flex-start;flex-direction:column}.match-set-tools{justify-content:flex-start}.match-set-players{grid-template-columns:1fr}}
-</style>
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.3 · PARTICIPACIÓN POR SET</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V5.11.2 · PLANIFICACIÓN + COMPETICIÓN</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -976,7 +955,7 @@ header{position:static!important;top:auto!important;}
 
 <div id="match-modal" class="pro-modal" onclick="if(event.target===this)cerrarPartidoModal()">
   <div class="pro-modal-card match-modal-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">PARTIDO</span><h2 id="match-modal-title">Nuevo partido</h2><p>Registra convocatoria, resultado, participación por set y prioridades posteriores.</p></div><button class="modal-close" onclick="cerrarPartidoModal()">×</button></div>
+    <div class="pro-modal-head"><div><span class="pro-kicker">PARTIDO</span><h2 id="match-modal-title">Nuevo partido</h2><p>Registra convocatoria, competición, resultado y prioridades posteriores.</p></div><button class="modal-close" onclick="cerrarPartidoModal()">×</button></div>
     <input id="match-id" type="hidden">
     <div class="match-form-grid">
       <label><span>Fecha</span><input id="match-date" type="date"></label>
@@ -986,10 +965,10 @@ header{position:static!important;top:auto!important;}
       <label class="wide"><span>Rival</span><input id="match-opponent" placeholder="Nombre del rival"></label>
       <label><span>Condición</span><select id="match-venue"><option>Casa</option><option>Fuera</option><option>Neutral</option></select></label>
       <label><span>Estado</span><select id="match-status" onchange="matchToggleResult()"><option>Programado</option><option>Jugado</option><option>Aplazado</option><option>Cancelado</option></select></label>
-      <div id="match-result-fields" class="match-result-fields wide hidden"><label><span>Sets a favor</span><input id="match-sets-for" type="number" min="0" max="9" oninput="renderMatchSetPlayers(true)"></label><label><span>Sets en contra</span><input id="match-sets-against" type="number" min="0" max="9" oninput="renderMatchSetPlayers(true)"></label><label class="wide"><span>Marcadores de sets</span><input id="match-set-detail" placeholder="25-20, 22-25, 25-18…"></label></div>
+      <div id="match-result-fields" class="match-result-fields wide hidden"><label><span>Sets a favor</span><input id="match-sets-for" type="number" min="0" max="9"></label><label><span>Sets en contra</span><input id="match-sets-against" type="number" min="0" max="9"></label><label class="wide"><span>Marcadores de sets</span><input id="match-set-detail" placeholder="25-20, 22-25, 25-18…"></label></div>
       <label class="wide"><span>Notas / lectura del partido</span><textarea id="match-notes" placeholder="Qué funcionó, qué costó, contexto del partido…"></textarea></label>
       <div class="wide"><span class="match-field-label">Prioridades detectadas para entrenar</span><div id="match-focus-list" class="match-focus-list"></div></div>
-      <div class="wide"><span class="match-field-label">Convocatoria</span><div id="match-roster-list" class="match-roster-list"></div></div><div id="match-set-participation-wrap" class="match-set-participation wide hidden"><div class="match-set-participation-head"><div><span class="match-field-label">Participación por set</span><p>Marca qué jugadores participaron en cada set. Se muestran únicamente los jugadores incluidos en la convocatoria.</p></div></div><div id="match-set-participation"></div></div>
+      <div class="wide"><span class="match-field-label">Convocatoria</span><div id="match-roster-list" class="match-roster-list"></div></div>
     </div>
     <div class="player-form-actions"><button id="match-delete-btn" class="danger hidden" onclick="eliminarPartidoActual()">Eliminar partido</button><span style="flex:1"></span><button class="ghost" onclick="cerrarPartidoModal()">Cancelar</button><button class="primary" onclick="guardarPartido()">Guardar partido</button></div>
   </div>
@@ -3085,7 +3064,7 @@ renderPlanificacion();
 /* ===== V5.11 · STATS V2 + SMART LIBRARY + COMPETITION + QUICK ACTIONS ===== */
 let partidosEquipo=Array.isArray(equiposData?.[equipoActivo]?.partidos)?clonar(equiposData[equipoActivo].partidos):[];
 
-function normalizarPartidos(list){return Array.isArray(list)?list.filter(Boolean).map(m=>({id:Number(m.id)||Date.now(),date:String(m.date||''),time:String(m.time||''),competition:String(m.competition||''),round:String(m.round||''),opponent:String(m.opponent||''),venue:String(m.venue||'Casa'),status:String(m.status||'Programado'),setsFor:m.setsFor===''?'':Number(m.setsFor||0),setsAgainst:m.setsAgainst===''?'':Number(m.setsAgainst||0),setDetail:String(m.setDetail||''),notes:String(m.notes||''),focus:Array.isArray(m.focus)?m.focus:[],playerIds:Array.isArray(m.playerIds)?m.playerIds.map(Number):[],setPlayers:Array.isArray(m.setPlayers)?m.setPlayers.map((s,i)=>({set:Number(s?.set)||i+1,playerIds:Array.isArray(s?.playerIds)?s.playerIds.map(Number):[]})):[]})):[]}
+function normalizarPartidos(list){return Array.isArray(list)?list.filter(Boolean).map(m=>({id:Number(m.id)||Date.now(),date:String(m.date||''),time:String(m.time||''),competition:String(m.competition||''),round:String(m.round||''),opponent:String(m.opponent||''),venue:String(m.venue||'Casa'),status:String(m.status||'Programado'),setsFor:m.setsFor===''?'':Number(m.setsFor||0),setsAgainst:m.setsAgainst===''?'':Number(m.setsAgainst||0),setDetail:String(m.setDetail||''),notes:String(m.notes||''),focus:Array.isArray(m.focus)?m.focus:[],playerIds:Array.isArray(m.playerIds)?m.playerIds.map(Number):[]})):[]}
 const _estadoEquipoV511=estadoEquipoVacio;
 estadoEquipoVacio=function(id){const s=_estadoEquipoV511(id);s.partidos=[];return s};
 const _limpiarEquipoV511=limpiarEquipo;
@@ -3387,7 +3366,7 @@ function crearPartidoDesdePlanificacion(){
   const date=$('plan-fecha')?.value||'',opponent=String($('plan-match-opponent')?.value||'').trim();
   if(!date){alert('Selecciona una fecha.');return false}
   if(!opponent){alert('Escribe el rival.');$('plan-match-opponent')?.focus();return false}
-  const rec={id:Date.now(),date,time:$('plan-match-time')?.value||'',competition:String($('plan-match-competition')?.value||'').trim(),round:String($('plan-match-round')?.value||'').trim(),opponent,venue:$('plan-match-venue')?.value||'Casa',status:'Programado',setsFor:'',setsAgainst:'',setDetail:'',notes:'',focus:[],playerIds:[],setPlayers:[]};
+  const rec={id:Date.now(),date,time:$('plan-match-time')?.value||'',competition:String($('plan-match-competition')?.value||'').trim(),round:String($('plan-match-round')?.value||'').trim(),opponent,venue:$('plan-match-venue')?.value||'Casa',status:'Programado',setsFor:'',setsAgainst:'',setDetail:'',notes:'',focus:[],playerIds:[]};
   partidosEquipo.push(rec);guardarPartidos();
   limpiarFormularioPartidoPlan();if($('plan-fecha'))$('plan-fecha').value='';
   document.querySelector('.planning-quick-create')?.removeAttribute('open');
@@ -3438,108 +3417,4 @@ const _guardarPartidoV5112=guardarPartido;guardarPartido=function(){const r=_gua
 const _eliminarPartidoActualV5112=eliminarPartidoActual;eliminarPartidoActual=function(){const r=_eliminarPartidoActualV5112();renderPlanificacion();return r};
 quickPlanificar=function(){toggleQuickActions(false);showView('planificacion',botonVista('planificacion'));setTimeout(()=>abrirCreadorPlanificacion('','training'),30)};
 setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo].nombre;actualizarFormularioPlanificacionTipo()},0);
-</script>\n\n<script id="match-set-participation-v5113-script">
-/* ===== V5.11.3 · JUGADORES PARTICIPANTES POR SET ===== */
-let matchSetPlayersDraft=[];
-let matchSetOpening=false;
-
-function normalizarSetPlayers(list){
-  return Array.isArray(list)?list.map((s,i)=>({set:Number(s?.set)||i+1,playerIds:Array.isArray(s?.playerIds)?[...new Set(s.playerIds.map(Number).filter(Number.isFinite))]:[]})):[];
-}
-function matchTotalSets(){
-  if($('match-status')?.value!=='Jugado')return 0;
-  return Math.max(0,(Number($('match-sets-for')?.value)||0)+(Number($('match-sets-against')?.value)||0));
-}
-function leerSetPlayersDesdeDOM(){
-  const rows=[...document.querySelectorAll('[data-match-set-row]')];
-  if(!rows.length)return;
-  rows.forEach(row=>{
-    const idx=Math.max(0,Number(row.dataset.matchSetRow)-1);
-    const ids=[...row.querySelectorAll('input[data-match-set-player]:checked')].map(x=>Number(x.value)).filter(Number.isFinite);
-    matchSetPlayersDraft[idx]={set:idx+1,playerIds:[...new Set(ids)]};
-  });
-}
-function convocatoriaSeleccionadaPartido(){
-  return [...document.querySelectorAll('input[name="match-player"]:checked')].map(x=>Number(x.value)).filter(Number.isFinite);
-}
-function jugadorPartidoPorId(id){return (jugadoresEquipo||[]).find(p=>Number(p.id)===Number(id))}
-function setPlayerDisplay(p){return `${p?.number!==''&&p?.number!=null?'#'+esc(p.number)+' · ':''}${esc(p?.name||'Jugador')}`}
-function renderMatchSetPlayers(preserve=true){
-  const box=$('match-set-participation');if(!box)return;
-  if(preserve)leerSetPlayersDesdeDOM();
-  const total=matchTotalSets();
-  if(!total){box.innerHTML='<div class="match-set-empty">Introduce el resultado en sets para registrar la participación de cada set.</div>';return}
-  const roster=convocatoriaSeleccionadaPartido();
-  if(!roster.length){box.innerHTML='<div class="match-set-empty">Selecciona primero la convocatoria del partido. Después podrás indicar quién participó en cada set.</div>';return}
-  matchSetPlayersDraft=normalizarSetPlayers(matchSetPlayersDraft);
-  while(matchSetPlayersDraft.length<total)matchSetPlayersDraft.push({set:matchSetPlayersDraft.length+1,playerIds:[]});
-  if(matchSetPlayersDraft.length>total)matchSetPlayersDraft=matchSetPlayersDraft.slice(0,total);
-  const allowed=new Set(roster);
-  matchSetPlayersDraft.forEach(s=>s.playerIds=(s.playerIds||[]).map(Number).filter(id=>allowed.has(id)));
-  const players=roster.map(jugadorPartidoPorId).filter(Boolean).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
-  box.innerHTML=`<div class="match-set-list">${matchSetPlayersDraft.map((s,i)=>{
-    const selected=new Set(s.playerIds||[]);
-    const checks=players.map(p=>`<label class="match-set-player"><input type="checkbox" data-match-set-player value="${p.id}" ${selected.has(Number(p.id))?'checked':''} onchange="actualizarContadorSetPartido(${i+1})"><span>${setPlayerDisplay(p)}</span></label>`).join('');
-    return `<div class="match-set-row" data-match-set-row="${i+1}"><div class="match-set-row-head"><div class="match-set-row-title">Set ${i+1}<span id="match-set-count-${i+1}" class="match-set-count">${selected.size}</span></div><div class="match-set-tools"><button type="button" class="ghost" onclick="marcarJugadoresSetPartido(${i+1},true)">Todos</button><button type="button" class="ghost" onclick="marcarJugadoresSetPartido(${i+1},false)">Ninguno</button>${i?`<button type="button" class="ghost" onclick="copiarSetAnteriorPartido(${i+1})">Copiar set anterior</button>`:''}</div></div><div class="match-set-players">${checks}</div></div>`;
-  }).join('')}</div>`;
-}
-function actualizarContadorSetPartido(setNum){
-  const row=document.querySelector(`[data-match-set-row="${setNum}"]`),counter=$(`match-set-count-${setNum}`);
-  if(counter&&row)counter.textContent=row.querySelectorAll('input[data-match-set-player]:checked').length;
-  leerSetPlayersDesdeDOM();
-}
-function marcarJugadoresSetPartido(setNum,value){
-  const row=document.querySelector(`[data-match-set-row="${setNum}"]`);if(!row)return;
-  row.querySelectorAll('input[data-match-set-player]').forEach(x=>x.checked=!!value);actualizarContadorSetPartido(setNum);
-}
-function copiarSetAnteriorPartido(setNum){
-  if(setNum<=1)return;leerSetPlayersDesdeDOM();
-  const prev=new Set(matchSetPlayersDraft[setNum-2]?.playerIds||[]),row=document.querySelector(`[data-match-set-row="${setNum}"]`);if(!row)return;
-  row.querySelectorAll('input[data-match-set-player]').forEach(x=>x.checked=prev.has(Number(x.value)));actualizarContadorSetPartido(setNum);
-}
-function obtenerSetPlayersPartido(){
-  leerSetPlayersDesdeDOM();const total=matchTotalSets(),allowed=new Set(convocatoriaSeleccionadaPartido());
-  return normalizarSetPlayers(matchSetPlayersDraft).slice(0,total).map((s,i)=>({set:i+1,playerIds:(s.playerIds||[]).map(Number).filter(id=>allowed.has(id))}));
-}
-
-const _matchRosterOptionsV5113=matchRosterOptions;
-matchRosterOptions=function(selected=[]){
-  _matchRosterOptionsV5113(selected);
-  document.querySelectorAll('input[name="match-player"]').forEach(x=>x.addEventListener('change',()=>renderMatchSetPlayers(true)));
-};
-const _matchToggleResultV5113=matchToggleResult;
-matchToggleResult=function(){const played=$('match-status')?.value==='Jugado';_matchToggleResultV5113();$('match-set-participation-wrap')?.classList.toggle('hidden',!played);if(played)renderMatchSetPlayers(!matchSetOpening)};
-const _abrirPartidoModalV5113=abrirPartidoModal;
-abrirPartidoModal=function(id=null){
-  const m=id?partidosEquipo.find(x=>Number(x.id)===Number(id)):null;
-  matchSetPlayersDraft=normalizarSetPlayers(m?.setPlayers||[]);
-  matchSetOpening=true;
-  _abrirPartidoModalV5113(id);
-  matchSetOpening=false;
-  const played=$('match-status')?.value==='Jugado';
-  $('match-set-participation-wrap')?.classList.toggle('hidden',!played);
-  if(played)renderMatchSetPlayers(false);else if($('match-set-participation'))$('match-set-participation').innerHTML='';
-};
-
-// Guardado final del partido: conserva todas las funciones V5.11/V5.11.2 y añade setPlayers.
-guardarPartido=function(){
-  const id=Number($('match-id').value)||Date.now(),date=$('match-date').value,opponent=String($('match-opponent').value||'').trim(),status=$('match-status').value;
-  if(!date||!opponent){alert('Añade al menos la fecha y el rival.');return}
-  const playerIds=[...document.querySelectorAll('input[name="match-player"]:checked')].map(x=>Number(x.value));
-  const rec={id,date,time:$('match-time').value||'',competition:String($('match-competition').value||'').trim(),round:String($('match-round').value||'').trim(),opponent,venue:$('match-venue').value,status,setsFor:status==='Jugado'?Number($('match-sets-for').value||0):'',setsAgainst:status==='Jugado'?Number($('match-sets-against').value||0):'',setDetail:String($('match-set-detail').value||'').trim(),notes:String($('match-notes').value||'').trim(),focus:[...document.querySelectorAll('input[name="match-focus"]:checked')].map(x=>x.value),playerIds,setPlayers:status==='Jugado'?obtenerSetPlayersPartido():[]};
-  const i=partidosEquipo.findIndex(x=>Number(x.id)===id);if(i>=0)partidosEquipo[i]=rec;else partidosEquipo.push(rec);
-  guardarPartidos();cerrarPartidoModal();renderCompetition();renderStats();renderDashboardCompetition();renderPlanificacion();
-};
-
-// Si se elimina un jugador del equipo, se depuran también sus participaciones por set.
-const _eliminarJugadorV5113=eliminarJugador;
-eliminarJugador=function(id){
-  _eliminarJugadorV5113(id);if(ppPlayer(id))return;
-  partidosEquipo.forEach(m=>{m.setPlayers=normalizarSetPlayers(m.setPlayers).map(s=>({...s,playerIds:(s.playerIds||[]).map(Number).filter(x=>x!==Number(id))}))});
-  guardarPartidos();
-};
-
-// Re-normaliza los partidos ya cargados con el nuevo esquema.
-partidosEquipo=normalizarPartidos(partidosEquipo);
-</script>
-</body></html>
+</script>\n</body></html>
