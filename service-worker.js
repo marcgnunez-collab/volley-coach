@@ -1,5 +1,18 @@
-const CACHE_NAME = 'volley-coach-v6.11.0-core-refactor-v1';
-const APP_SHELL = ["./","./index.html","./assets/styles.css","./manifest.webmanifest","./apple-touch-icon.png","./icon-192.png","./icon-512.png","./js/core/bootstrap.js","./js/video/video-core.js","./js/data/exercise-catalogs.js","./js/legacy/app-core.js","./js/players/player-development.js","./js/dashboard/command-center.js","./js/planning/season-workload.js","./js/analytics/performance-suite.js","./js/planning/participants.js","./js/competition/match-participants-pdf.js","./js/core/pwa-register.js","./js/planning/matches-calendar.js","./js/pdf/training-match-pdf.js","./js/pdf/match-pdf-layout.js","./js/competition/match-evaluation.js","./js/players/player-ordering.js","./js/players/multiposition.js","./js/pdf/match-pdf-professional.js","./js/competition/match-extra-data.js","./js/analytics/training-stats.js","./js/analytics/exercise-stats.js","./js/training/attendance-goals.js","./js/scouting/scouting-engine.js","./js/scouting/workspace-router.js","./js/scouting/handler-health.js","./js/core/runtime.js"];
-self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(async cache=>{await Promise.all(APP_SHELL.map(async url=>{try{const response=await fetch(url,{cache:'no-store'});if(response&&response.ok)await cache.put(url,response.clone())}catch(_){}}))}))});
+const CACHE_NAME = 'volley-coach-v6.10.0-scouting-input-pro-v1';
+const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET')return;if(request.mode==='navigate'){event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put('./index.html',copy)).catch(()=>{});return response}).catch(()=>caches.match('./index.html')));return}const url=new URL(request.url);if(url.origin===self.location.origin){event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{if(response&&response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy)).catch(()=>{})}return response})));return}event.respondWith(fetch(request).catch(()=>caches.match(request))) });
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+  if(request.mode==='navigate'){
+    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
+      const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put('./index.html',copy));return response;
+    }).catch(()=>caches.match('./index.html')));
+    return;
+  }
+  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
+    if(response&&(response.ok||response.type==='opaque')){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy)).catch(()=>{});}
+    return response;
+  }).catch(()=>cached)));
+});
