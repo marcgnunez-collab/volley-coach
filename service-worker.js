@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v7.5.0-professional-reports-v1';
+const CACHE_NAME = 'volley-coach-v7.5.1-native-pdf-fix-v1';
 
 const APP_SHELL = [
   './',
