@@ -1122,7 +1122,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.1</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV751ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV751ExportAnalysisPDF()">PDF análisis Pro</button></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -1131,8 +1131,8 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
     </div>
     <section class="scout-v750-pro-panel">
       <div class="scout-v750-pro-head">
-        <div><span class="pro-kicker">PRO MATCH INTELLIGENCE · V7.5.1</span><h3>Lectura profesional del partido</h3><p>Comparativa, tendencias por set, rotaciones, fuentes de punto y conclusiones descriptivas con control de muestra.</p></div>
-        <button class="primary" type="button" onclick="return scoutV751ExportAnalysisPDF()">Descargar análisis Pro</button>
+        <div><span class="pro-kicker">PRO MATCH INTELLIGENCE · V7.5.2</span><h3>Lectura profesional del partido</h3><p>Comparativa, tendencias por set, rotaciones, fuentes de punto y conclusiones descriptivas con control de muestra.</p></div>
+        <button class="primary" type="button" onclick="return scoutV752ExportAnalysisPDF()">Descargar análisis Pro</button>
       </div>
       <div id="scout-v750-pro-analysis"></div>
     </section>
@@ -1224,7 +1224,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="pro-modal-card scout-v6100-post-card">
     <div class="pro-modal-head"><div><span class="pro-kicker">POST-MATCH REPORT</span><h2 id="scout-v6100-post-title">Partido completado</h2><p id="scout-v6100-post-subtitle">Resumen automático del registro.</p></div><button class="modal-close" onclick="scoutV6100ClosePostMatch()">×</button></div>
     <div id="scout-v6100-post-kpis" class="scout-v6100-post-kpis"></div><div id="scout-v6100-post-body" class="scout-v6100-post-grid"></div>
-    <div class="player-form-actions"><button class="ghost" onclick="scoutV690OpenReview()">Revisar scout</button><button class="ghost" onclick="return scoutV751ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="scoutV6100ClosePostMatch()">Cerrar</button></div>
+    <div class="player-form-actions"><button class="ghost" onclick="scoutV690OpenReview()">Revisar scout</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="scoutV6100ClosePostMatch()">Cerrar</button></div>
   </div>
 </div>
 
@@ -1288,7 +1288,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="return scoutV751ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -4257,7 +4257,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.2', {
         updateViaCache: 'none'
       });
 
@@ -6866,7 +6866,7 @@ function scoutRenderCurrentActions(m){const box=$('scout-current-actions'),s=sco
 function scoutRenderRallies(m){const s=scoutSet(m),box=$('scout-rally-list');if(!box)return;const rallies=scoutArr(s?.rallies).slice().reverse();box.innerHTML=rallies.length?rallies.map(r=>`<div class="scout-rally-item"><div class="scout-rally-score">${r.scoreAfter.us}–${r.scoreAfter.opponent}</div><div class="scout-rally-copy"><strong>R${r.rotationBefore} · ${r.actions.length} acciones</strong><small>${r.servingBefore==='ours'?'Saque nuestro':'Saque rival'}${r.actions.length?' · '+r.actions.map(a=>a.code).join('  '):''}</small></div><span class="scout-rally-winner ${r.winner==='ours'?'ours':''}">${r.winner==='ours'?'Punto nuestro':'Punto rival'}</span></div>`).join(''):'<div class="scout-action-empty">Aún no hay rallies cerrados en este set.</div>';if($('scout-rally-count'))$('scout-rally-count').textContent=`${rallies.length} rallies`}
 function scoutRenderSets(m){const box=$('scout-set-list');if(!box)return;box.innerHTML=scoutArr(m.sets).map(s=>`<div class="scout-set-row"><strong>Set ${s.number}</strong><span>${s.finished?(s.winner==='ours'?'Ganado':s.winner==='opponent'?'Perdido':'Cerrado'):'En juego'} · ${s.rallies.length} rallies</span><b>${s.scoreUs}–${s.scoreOpponent}</b></div>`).join('')}
 function scoutRenderEnded(m){const s=scoutSet(m),box=$('scout-set-ended');if(!box)return;if(m.status==='finished'){box.classList.remove('hidden');const score=scoutSetsScore(m);box.innerHTML=`<strong>Partido finalizado · ${score.us}–${score.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutUndoRally()">Reabrir último rally</button></div>`;return}if(s?.finished){box.classList.remove('hidden');box.innerHTML=`<strong>Set ${s.number} cerrado · ${s.scoreUs}–${s.scoreOpponent}. ¿Quién realiza el primer saque del siguiente set?</strong><div class="scout-set-ended-actions"><button class="primary" onclick="scoutNextSet('ours')">Sacamos nosotros</button><button class="ghost" onclick="scoutNextSet('opponent')">Saca el rival</button></div>`}else box.classList.add('hidden')}
-function scoutRenderSaved(){const box=$('scout-saved-list');if(!box)return;const arr=scoutingMatches.slice().sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));box.innerHTML=arr.length?arr.map(m=>{const sc=scoutSetsScore(m),active=Number(m.id)===Number(scoutingActiveId);return `<div class="scout-saved-item"><div><strong>${esc(m.opponent)} · ${sc.us}–${sc.opponent} sets ${active?'· ACTIVO':''}</strong><small>${esc(m.date)}${m.competition?' · '+esc(m.competition):''} · ${m.status==='finished'?'Finalizado':(m.manualSavedAt?'Guardado · editable':'En curso')} · ${scoutActionCount(m)} acciones</small></div><div class="scout-saved-actions"><button class="ghost" onclick="scoutOpenSaved(${m.id})">Abrir</button><button class="ghost download" onclick="return scoutV751ExportOfficialPDF(${m.id})" title="Hoja estadística oficial">PDF hoja</button><button class="ghost download" onclick="scoutExportCSV(${m.id})">CSV</button><button class="danger" onclick="scoutDeleteSaved(${m.id})">Eliminar</button></div></div>`}).join(''):'<div class="scout-action-empty">No hay partidos de scouting guardados.</div>'}
+function scoutRenderSaved(){const box=$('scout-saved-list');if(!box)return;const arr=scoutingMatches.slice().sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));box.innerHTML=arr.length?arr.map(m=>{const sc=scoutSetsScore(m),active=Number(m.id)===Number(scoutingActiveId);return `<div class="scout-saved-item"><div><strong>${esc(m.opponent)} · ${sc.us}–${sc.opponent} sets ${active?'· ACTIVO':''}</strong><small>${esc(m.date)}${m.competition?' · '+esc(m.competition):''} · ${m.status==='finished'?'Finalizado':(m.manualSavedAt?'Guardado · editable':'En curso')} · ${scoutActionCount(m)} acciones</small></div><div class="scout-saved-actions"><button class="ghost" onclick="scoutOpenSaved(${m.id})">Abrir</button><button class="ghost download" onclick="return scoutV752ExportOfficialPDF(${m.id})" title="Hoja estadística oficial">PDF hoja</button><button class="ghost download" onclick="scoutExportCSV(${m.id})">CSV</button><button class="danger" onclick="scoutDeleteSaved(${m.id})">Eliminar</button></div></div>`}).join(''):'<div class="scout-action-empty">No hay partidos de scouting guardados.</div>'}
 window.scoutRender=function(){const m=scoutActive(),empty=$('scout-no-match'),live=$('scout-live');scoutRenderSaved();if(!m){empty?.classList.remove('hidden');live?.classList.add('hidden');return}empty?.classList.add('hidden');live?.classList.remove('hidden');const s=scoutSet(m),sets=scoutSetsScore(m);if($('scout-match-title'))$('scout-match-title').textContent=`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent}`;if($('scout-match-meta'))$('scout-match-meta').textContent=[m.date,m.competition,m.linkedMatchId?'Vinculado a Competición':'Scouting independiente'].filter(Boolean).join(' · ');const badge=$('scout-status-badge');if(badge){badge.textContent=m.status==='finished'?'FINALIZADO':'EN DIRECTO';badge.className='scout-status-badge '+(m.status==='finished'?'finished':'live')}if($('scout-kpi-set'))$('scout-kpi-set').textContent=String(m.currentSet);if($('scout-kpi-sets'))$('scout-kpi-sets').textContent=`${sets.us}–${sets.opponent} sets`;if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;if($('scout-kpi-rallies'))$('scout-kpi-rallies').textContent=`${s?.rallies?.length||0} rallies`;if($('scout-kpi-rotation'))$('scout-kpi-rotation').textContent=`R${m.rotationNo}`;if($('scout-kpi-serve'))$('scout-kpi-serve').textContent=`Saque: ${m.servingTeam==='ours'?'nuestro':'rival'}`;if($('scout-kpi-actions'))$('scout-kpi-actions').textContent=scoutActionCount(m);scoutRenderCourt(m);scoutRenderCurrentActions(m);scoutRenderRallies(m);scoutRenderSets(m);scoutRenderEnded(m);scoutRefreshActionPlayers()};
 
 /* V6.1 · Sustituciones, líbero, análisis y timestamps */
@@ -8502,6 +8502,65 @@ const v700SaveBase=scoutSave;scoutSave=function(render=true){const m=scoutActive
 
 window.scoutV700Diagnostics=function(){const m=v700Match()||scoutActive(),meta=m?v700Meta(m):null;return {version:V700_VERSION,match:m?.id||null,videoSource:meta?.source||'',syncOffset:meta?.syncOffset??null,rallies:scoutArr(m?.sets).reduce((n,s)=>n+scoutArr(s.rallies).length,0),mappedRallies:scoutArr(m?.sets).reduce((n,s)=>n+scoutArr(s.rallies).filter(r=>r.videoStart!=null).length,0)}};
 })();
+
+
+/* V7.5.2 · stable public bridge for professional reports/PDFs.
+   This is intentionally created inside the scouting closure, where all
+   statistical helpers and private match state are actually accessible. */
+window.VC_SCOUT_REPORT_BRIDGE={
+  getMatches:()=>scoutingMatches,
+  getActiveId:()=>scoutingActiveId,
+  getActive:()=>scoutActive(),
+  getMatchForAnalysis:()=>scoutMatchForAnalysis(),
+  getExportMatch:(id)=>scoutExportMatch(id),
+  setsScore:(m)=>scoutSetsScore(m),
+  actionRows:(m,includeLive=true)=>scoutActionRows(m,includeLive),
+  distributionRows:(m,team,evalFilter='')=>scoutDistributionRows(m,team,evalFilter),
+  stats630:(m,team)=>scoutV630Stats(m,team),
+  fullStats:(m,team,includeLive=false)=>scoutV61010FullStats(m,team,includeLive),
+  skill:(st,skill)=>scoutV61010Skill(st,skill),
+  reception:(st)=>scoutV61010Reception(st),
+  attack:(st)=>scoutV61010Attack(st),
+  pointMetrics:(m,team,key='team',rows=null)=>scoutV61010PointMetrics(m,team,key,rows),
+  initialPos:(m,team,st,setNo)=>scoutV6109InitialPos(m,team,st,setNo),
+  setStat:(m,team,setNo)=>scoutV61010SetStat(m,team,setNo),
+  officialName:(st,isTeam=false)=>scoutV61010OfficialName(st,isTeam),
+  breakdown:(rallies,team)=>scoutV61010Breakdown(rallies,team),
+  performance:(m,team,applyFilters=false)=>scoutV61010Performance(m,team,applyFilters),
+  rallies:(m,team,applyFilters=false)=>scoutV61010Rallies(m,team,applyFilters),
+  linkedMatch:(m)=>scoutV61010LinkedMatch(m),
+  safeFilename:(v)=>scoutSafeFilename(v),
+  exportNotice:(show,text='Preparando informe…')=>scoutExportNotice(show,text),
+  teamName:()=>EQUIPOS?.[equipoActivo]?.nombre||'Equipo',
+  comboLabel:(key)=>V620_COMBO_LABELS?.[key]||key||'',
+  skillLabel:(key)=>SCOUT_SKILLS?.[key]||key||''
+};
+
+/* Compatibility exports for the V7.5 report module. These functions used to
+   be private to this IIFE, which was the reason both PDF buttons failed. */
+Object.assign(window,{
+  scoutExportMatch,
+  scoutMatchForAnalysis,
+  scoutSetsScore,
+  scoutActionRows,
+  scoutDistributionRows,
+  scoutV630Stats,
+  scoutV61010FullStats,
+  scoutV61010Skill,
+  scoutV61010Reception,
+  scoutV61010Attack,
+  scoutV61010PointMetrics,
+  scoutV6109InitialPos,
+  scoutV61010SetStat,
+  scoutV61010OfficialName,
+  scoutV61010Breakdown,
+  scoutV61010Performance,
+  scoutV61010Rallies,
+  scoutV61010LinkedMatch,
+  scoutSafeFilename,
+  scoutExportNotice
+});
+window.V620_COMBO_LABELS=V620_COMBO_LABELS;
 
 })();
 </script>
@@ -10861,7 +10920,7 @@ loadPrefs();setTimeout(render,0);
 <script id="v750-professional-reports-module">
 (()=>{
 'use strict';
-const V750_VERSION='7.5.0';
+const V750_VERSION='7.5.2';
 const V750_DOT='·';
 const v750Arr=v=>Array.isArray(v)?v:[];
 const v750Pct=(n,d)=>d?Math.round((Number(n)||0)*100/(Number(d)||0)):null;
@@ -10976,7 +11035,7 @@ function v750Distribution(m,team){
   const rows=scoutDistributionRows(m,team,'');
   const map=new Map();
   rows.forEach(x=>{const k=String(x.target||'Sin destino');if(!map.has(k))map.set(k,[]);map.get(k).push(x)});
-  return [...map.entries()].map(([key,a])=>({key,label:V620_COMBO_LABELS?.[key]||key,total:a.length,pct:v750Pct(a.length,rows.length)})).sort((a,b)=>b.total-a.total);
+  return [...map.entries()].map(([key,a])=>({key,label:window.VC_SCOUT_REPORT_BRIDGE?.comboLabel?.(key)||key,total:a.length,pct:v750Pct(a.length,rows.length)})).sort((a,b)=>b.total-a.total);
 }
 function v750PlayerRows(m,team){
   const data=v750Stats(m,team);
@@ -11280,23 +11339,24 @@ setTimeout(()=>{try{window.scoutV750RenderProfessionalAnalysis()}catch(_){}},0);
 
 
 
-<script id="v751-native-pdf-fix">
+<script id="v752-native-pdf-fix">
 (()=>{
 'use strict';
 
-const VERSION='7.5.1';
+const VERSION='7.5.2';
 const A4={portrait:[595.28,841.89],landscape:[841.89,595.28]};
+const B=()=>window.VC_SCOUT_REPORT_BRIDGE||null;
 const R=()=>window.VC_V750_REPORTS||null;
 const arr=v=>Array.isArray(v)?v:[];
-const safeName=v=>(typeof scoutSafeFilename==='function'?scoutSafeFilename(v):String(v||'reporte').replace(/[\\/:*?"<>|]+/g,'_'));
-const teamName=()=>window.EQUIPOS?.[window.equipoActivo]?.nombre||'Equipo';
+const safeName=v=>(B()?.safeFilename?.(v)||String(v||'reporte').replace(/[\\/:*?"<>|]+/g,'_'));
+const teamName=()=>B()?.teamName?.()||'Equipo';
 const num=v=>Number.isFinite(Number(v))?Number(v):0;
 const pct=(n,d)=>d?Math.round((Number(n)||0)*100/(Number(d)||0)):null;
 const gp=v=>{v=Number(v)||0;return v>0?`+${v}`:`${v}`};
 
 function notify(on,text=''){
   try{
-    if(typeof scoutExportNotice==='function'){scoutExportNotice(on,text);return}
+    if(B()?.exportNotice){B().exportNotice(on,text);return}
   }catch(_){}
   let el=document.getElementById('v751-pdf-status');
   if(!el){
@@ -11430,7 +11490,7 @@ class NativePDF{
 function header(pdf,title,subtitle,pageNo,total){
   const p=pdf.page,W=p.w,M=28;
   pdf.rect(M,24,W-M*2,46,{fill:'#102b43',stroke:'#102b43'});
-  pdf.text('VOLLEY COACH · PROFESSIONAL REPORTS · V7.5.1',M+12,35,{size:7,font:'F2',color:'#B9CBD8'});
+  pdf.text('VOLLEY COACH · PROFESSIONAL REPORTS · V7.5.2',M+12,35,{size:7,font:'F2',color:'#B9CBD8'});
   pdf.text(title,M+12,48,{size:17,font:'F2',color:'#FFFFFF'});
   pdf.text(subtitle,M+12,62,{size:7.5,color:'#D6E1E8'});
   pdf.text(`${pageNo}/${total}`,W-M-12,48,{size:8,font:'F2',color:'#FFFFFF',align:'right'});
@@ -11438,7 +11498,7 @@ function header(pdf,title,subtitle,pageNo,total){
 function footer(pdf,text=''){
   const p=pdf.page,M=28,y=p.h-24;
   pdf.line(M,y,p.w-M,y,{color:'#D5DEE4',width:.5});
-  pdf.text(text||'Volley Coach V7.5.1',M,y+7,{size:6.5,color:'#72818D'});
+  pdf.text(text||'Volley Coach V7.5.2',M,y+7,{size:6.5,color:'#72818D'});
   pdf.text('Datos calculados solo a partir de acciones registradas.',p.w-M,y+7,{size:6.5,color:'#72818D',align:'right'});
 }
 function card(pdf,x,y,w,h,label,value,note=''){
@@ -11481,16 +11541,14 @@ function sectionTitle(pdf,text,x,y,w){
   return y+18;
 }
 function selectedMatch(id){
-  const rr=R();
-  if(rr?.selectedMatch)return rr.selectedMatch(id);
-  const selected=Number(id)||Number(document.getElementById('scout-analysis-match')?.value)||Number(window.scoutingActiveId);
-  return window.scoutingMatches?.find?.(x=>Number(x.id)===selected)||window.scoutActive?.()||null;
+  const b=B();
+  return b?.getExportMatch?.(id)||b?.getMatchForAnalysis?.()||R()?.selectedMatch?.(id)||null;
 }
 function score(m){
-  try{return scoutSetsScore(m)}catch(_){
-    const sets=arr(m?.sets),us=sets.filter(s=>s.winner==='ours').length,opponent=sets.filter(s=>s.winner==='opponent').length;
-    return {us,opponent};
-  }
+  const b=B();
+  if(b?.setsScore)return b.setsScore(m);
+  const sets=arr(m?.sets),us=sets.filter(s=>s.finished&&s.winner==='ours').length,opponent=sets.filter(s=>s.finished&&s.winner==='opponent').length;
+  return {us,opponent};
 }
 
 /* ---------- OFFICIAL SHEET ---------- */
@@ -11503,18 +11561,18 @@ function teamOfficial(pdf,m,team,y){
   const headers=['Jugador','S1','S2','S3','S4','S5','Tot','FP','G-P','Saq','Err','Ace','Rec','Err','Pos%','Exc%','Atq','Err','Blq','Pts','Pts%','BLQ'];
   const widths=[122,13,13,13,13,13,18,18,20,18,17,17,18,17,20,20,18,17,17,17,21,18];
   const rows=data.players.map(st=>{
-    const s=scoutV61010Skill(st,'S'),r=scoutV61010Reception(st),a=scoutV61010Attack(st),b=scoutV61010Skill(st,'B'),
-      p=scoutV61010PointMetrics(m,team,st.key,data.rows),
-      forms=[1,2,3,4,5].map(n=>scoutV6109InitialPos(m,team,st,n)||'');
+    const s=B().skill(st,'S'),r=B().reception(st),a=B().attack(st),b=B().skill(st,'B'),
+      p=B().pointMetrics(m,team,st.key,data.rows),
+      forms=[1,2,3,4,5].map(n=>B().initialPos(m,team,st,n)||'');
     const label=String(st.label||'Jugador').replace(/^#(\d+)\s*·\s*/,(_,n)=>`${n} `);
     return [label,...forms,p.won||'.',p.fp||'.',gp(p.gp),s.total||'.',s.total?(s.error||'.'):'.',s.total?(s.perfect||'.'):'.',r.total||'.',r.total?(r.error||'.'):'.',r.total?`${r.posPct}%`:'.',r.total?`${r.excPct}%`:'.',a.total||'.',a.total?(a.error||'.'):'.',a.total?(a.blocked||'.'):'.',a.total?(a.perfect||'.'):'.',a.total?`${a.ptsPct}%`:'.',b.total?(b.perfect||'.'):'.'];
   });
-  const st=data.teamStat,s=scoutV61010Skill(st,'S'),rec=scoutV61010Reception(st),att=scoutV61010Attack(st),bl=scoutV61010Skill(st,'B'),pm=scoutV61010PointMetrics(m,team,'team',data.rows);
+  const st=data.teamStat,s=B().skill(st,'S'),rec=B().reception(st),att=B().attack(st),bl=B().skill(st,'B'),pm=B().pointMetrics(m,team,'team',data.rows);
   rows.push(['TOTALES','','','','','',pm.won,pm.fp,gp(pm.gp),s.total,s.error,s.perfect,rec.total,rec.error,rec.total?`${rec.posPct}%`:'.',rec.total?`${rec.excPct}%`:'.',att.total,att.error,att.blocked,att.perfect,att.total?`${att.ptsPct}%`:'.',bl.perfect]);
   y=table(pdf,M,y,W,headers,rows,widths,{headH:12,rowH:7.4,size:4.45,boldFirst:true});
 
   const setRows=arr(m.sets).slice(0,5).map(set=>{
-    const x=scoutV61010SetStat(m,team,set.number);
+    const x=B().setStat(m,team,set.number);
     return [`Set ${set.number}`,x.bd.serve,x.bd.attack,x.bd.block,x.bd.oppErr,x.s.total,x.s.error,x.s.perfect,x.r.total,x.r.error,x.r.total?`${x.r.posPct}%`:'.',x.r.total?`${x.r.excPct}%`:'.',x.a.total,x.a.error,x.a.blocked,x.a.perfect,x.a.total?`${x.a.ptsPct}%`:'.',x.b.perfect];
   });
   y+=3;
@@ -11566,7 +11624,7 @@ function drawOfficial(pdf,m){
   ];
   table(pdf,M,y,W,['Indicador',teamName(),m.opponent||'Rival'],phaseRows,[190,175,175],{headH:11,rowH:8,size:5.1,boldFirst:true});
   pdf.text('FP = fase punto · G-P = ganados - perdidos · Pos% = recepción +/# · Exc% = recepción # · Pts% = ataques # / total',M,pdf.page.h-25,{size:5.2,color:'#555555'});
-  pdf.text('Volley Coach V7.5.1 · Hoja estadística',M,pdf.page.h-15,{size:5,color:'#777777'});
+  pdf.text('Volley Coach V7.5.2 · Hoja estadística',M,pdf.page.h-15,{size:5,color:'#777777'});
 }
 
 /* ---------- PROFESSIONAL ANALYSIS ---------- */
@@ -11582,7 +11640,7 @@ function insightBox(pdf,x,y,w,tag,text,kind='info'){
 function analysisPage1(pdf,m,total){
   pdf.addPage('portrait');header(pdf,'Informe técnico del partido',`${teamName()} vs ${m.opponent||'Rival'} · ${m.date||''}`,1,total);
   const rr=R(),po=rr.perf(m,'ours'),pr=rr.perf(m,'opponent'),ok1=po.rallies.filter(x=>x.phase==='K1'),ok2=po.rallies.filter(x=>x.phase==='K2'),rk1=pr.rallies.filter(x=>x.phase==='K1'),rk2=pr.rallies.filter(x=>x.phase==='K2'),
-    os=rr.stats(m,'ours'),ors=scoutV61010Reception(os.teamStat),oas=scoutV61010Attack(os.teamStat),bd=rr.terminalBreakdown(m,'ours'),sc=score(m);
+    os=rr.stats(m,'ours'),ors=B().reception(os.teamStat),oas=B().attack(os.teamStat),bd=rr.terminalBreakdown(m,'ours'),sc=score(m);
   const M=28,g=7,w=(pdf.page.w-M*2-g*3)/4,y=88;
   [
     ['Resultado',`${sc.us}-${sc.opponent}`,arr(m.sets).map(s=>`${s.scoreUs}-${s.scoreOpponent}`).join(' · ')],
@@ -11694,64 +11752,67 @@ function analysisPage5(pdf,m,total){
 }
 
 /* ---------- Public exports ---------- */
-window.scoutV751ExportOfficialPDF=function(id){
+window.scoutV752ExportOfficialPDF=function(id){
   const m=selectedMatch(id);
   if(!m){alert('No hay scouting seleccionado para exportar.');return false}
+  if(!B()){alert('El núcleo de scouting no está disponible para el PDF. Recarga la aplicación con Ctrl+F5.');return false}
   if(!R()){alert('El módulo estadístico V7.5 no está disponible. Recarga la aplicación con Ctrl+F5.');return false}
   notify(true,'Generando PDF hoja oficial…');
   try{
     const pdf=new NativePDF();drawOfficial(pdf,m);
-    pdf.save(`${safeName((m.date||'partido')+'_'+(m.opponent||'rival'))}_Hoja_Oficial_V751.pdf`);
+    pdf.save(`${safeName((m.date||'partido')+'_'+(m.opponent||'rival'))}_Hoja_Oficial_V752.pdf`);
   }catch(err){alertErr('No se ha podido generar la hoja oficial.',err)}
   finally{notify(false)}
   return false;
 };
-window.scoutV751ExportAnalysisPDF=function(id){
+window.scoutV752ExportAnalysisPDF=function(id){
   const m=selectedMatch(id);
   if(!m){alert('No hay scouting seleccionado para exportar.');return false}
+  if(!B()){alert('El núcleo de scouting no está disponible para el PDF. Recarga la aplicación con Ctrl+F5.');return false}
   if(!R()){alert('El módulo estadístico V7.5 no está disponible. Recarga la aplicación con Ctrl+F5.');return false}
   notify(true,'Generando PDF análisis Pro…');
   try{
     const pdf=new NativePDF(),total=5;
     analysisPage1(pdf,m,total);analysisPage2(pdf,m,total);analysisPage3(pdf,m,total);analysisPage4(pdf,m,total);analysisPage5(pdf,m,total);
-    pdf.save(`${safeName((m.date||'partido')+'_'+(m.opponent||'rival'))}_Analisis_Pro_V751.pdf`);
+    pdf.save(`${safeName((m.date||'partido')+'_'+(m.opponent||'rival'))}_Analisis_Pro_V752.pdf`);
   }catch(err){alertErr('No se ha podido generar el análisis Pro.',err)}
   finally{notify(false)}
   return false;
 };
 
 /* Compatibility aliases so old places in the app also use the repaired exporter. */
-window.scoutExportPDF=window.scoutV751ExportOfficialPDF;
-window.scoutExportAnalysisPDF=window.scoutV751ExportAnalysisPDF;
+window.scoutExportPDF=window.scoutV752ExportOfficialPDF;
+window.scoutExportAnalysisPDF=window.scoutV752ExportAnalysisPDF;
 
 /* Repair any buttons generated later by old render functions. */
 function repairButtons(root=document){
   root.querySelectorAll?.('button').forEach(b=>{
     const txt=(b.textContent||'').trim().toLowerCase(),oc=b.getAttribute('onclick')||'';
     if(txt.includes('pdf hoja')||txt==='pdf'){
-      if(/scoutV751ExportOfficialPDF/.test(oc)){
+      if(/scoutV752ExportOfficialPDF/.test(oc)){
         // Ya usa el exportador reparado; conserva un posible id de partido.
       }else if(/scoutExportPDF/.test(oc)){
         const arg=(oc.match(/scoutExportPDF\(([^)]*)\)/)||[])[1]||'';
-        b.setAttribute('onclick',`return scoutV751ExportOfficialPDF(${arg})`);
+        b.setAttribute('onclick',`return scoutV752ExportOfficialPDF(${arg})`);
       }
     }
     if(txt.includes('pdf análisis pro')||txt.includes('descargar análisis pro')){
-      b.setAttribute('onclick','return scoutV751ExportAnalysisPDF()');
+      b.setAttribute('onclick','return scoutV752ExportAnalysisPDF()');
     }
   });
 }
 repairButtons();
 new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)repairButtons(n)}))).observe(document.body,{childList:true,subtree:true});
 
-window.scoutV751PDFDiagnostics=function(){
+window.scoutV752PDFDiagnostics=function(){
   return {
     version:VERSION,
-    officialFunction:typeof window.scoutV751ExportOfficialPDF,
-    analysisFunction:typeof window.scoutV751ExportAnalysisPDF,
+    officialFunction:typeof window.scoutV752ExportOfficialPDF,
+    analysisFunction:typeof window.scoutV752ExportAnalysisPDF,
     nativeEngine:true,
     html2canvasRequired:false,
     jsPDFRequired:false,
+    reportBridge:!!B(),
     reportHelpers:!!R(),
     officialButtons:[...document.querySelectorAll('button')].filter(b=>(b.textContent||'').toLowerCase().includes('pdf hoja')).length,
     analysisButtons:[...document.querySelectorAll('button')].filter(b=>(b.textContent||'').toLowerCase().includes('análisis pro')).length
