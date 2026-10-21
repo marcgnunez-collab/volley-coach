@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v7.5.2-report-bridge-fix-v1';
+const CACHE_NAME = 'volley-coach-v7.5.3-report-bridge-fix-v1';
 
 const APP_SHELL = [
   './',
