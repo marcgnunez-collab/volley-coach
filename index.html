@@ -1122,7 +1122,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.3 ✓</span></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.4 ✓</span></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -4257,7 +4257,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.3', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.4', {
         updateViaCache: 'none'
       });
 
@@ -11979,7 +11979,7 @@ window.scoutExportAnalysisPDF=(id)=>window.scoutV753ExportAnalysisPDF(null,id);
 function markReady(){
   const toolbar=document.querySelector('#scout-analysis .scout-analysis-toolbar');
   if(toolbar&&!document.getElementById('scout-v753-pdf-ready')){
-    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.3 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
+    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.4 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
   }
 }
 markReady();
@@ -11995,6 +11995,216 @@ window.scoutV753PDFDiagnostics=function(){
     helpers:!!window.VC_V750_REPORTS,
     delivery:typeof window.scoutV753DeliverPDF,
     readyBadge:!!document.getElementById('scout-v753-pdf-ready')
+  };
+};
+})();
+</script>
+
+
+
+<script id="v754-report-bridge-fix">
+(()=>{
+'use strict';
+
+const VERSION='7.5.4';
+const B=()=>window.VC_SCOUT_REPORT_BRIDGE||null;
+const arr=v=>Array.isArray(v)?v:[];
+const pct=(n,d)=>d?Math.round((Number(n)||0)*100/(Number(d)||0)):null;
+const gp=n=>{n=Number(n)||0;return `${n>0?'+':''}${n}`};
+const num=v=>Number.isFinite(Number(v))?Number(v):0;
+const teamName=team=>team==='ours'?(B()?.teamName?.()||'Nuestro equipo'):'Rival';
+
+function selectedMatch(id){
+  const b=B();
+  if(!b)return null;
+  return b.getExportMatch?.(id) || b.getMatchForAnalysis?.() || b.getActive?.() || null;
+}
+function rallies(m,team){
+  const b=B(); return b?.rallies?.(m,team,false)||[];
+}
+function stats(m,team){
+  const b=B();
+  return b?.fullStats?.(m,team,false) || b?.stats630?.(m,team) || {rows:[],players:[],teamStat:{skills:{},total:0}};
+}
+function perf(m,team){
+  const b=B(); return b?.performance?.(m,team,false)||{
+    rallies:[],sideOut:0,breakPoint:0,receptionTotal:0,serveTotal:0,recPerPoint:null,servePerPoint:null,
+    positive:{total:0,pts:0,err:0,blq:0,pct:null},negative:{total:0,pts:0,err:0,blq:0,pct:null},
+    counter:{total:0,pts:0,err:0,blq:0,pct:null},rot:[]
+  };
+}
+function setDurSeconds(s){
+  const a=Date.parse(s?.startedAt||''),b=Date.parse(s?.endedAt||'');
+  return Number.isFinite(a)&&Number.isFinite(b)&&b>=a?(b-a)/1000:null;
+}
+function checkpoints(set){
+  const thresholds=Number(set?.number)===5?[5,10,12]:[8,16,21];
+  const rs=arr(set?.rallies);
+  return thresholds.map(t=>{
+    const r=rs.find(x=>Math.max(num(x?.scoreAfter?.us),num(x?.scoreAfter?.opponent))>=t);
+    return r?`${num(r.scoreAfter.us)}-${num(r.scoreAfter.opponent)}`:'·';
+  });
+}
+function linkedMatch(m){return B()?.linkedMatch?.(m)||null}
+function meta(m){
+  const linked=linkedMatch(m);
+  return {
+    competition:linked?.competition||m?.competition||'Partido',
+    round:linked?.round||linked?.jornada||'',
+    matchCode:linked?.code||linked?.matchCode||m?.matchCode||`VC-${m?.id||''}`,
+    date:m?.date||linked?.date||'',
+    time:linked?.time||m?.time||'',
+    pavilion:linked?.pavilion||linked?.venueName||m?.pavilion||'',
+    city:linked?.city||m?.city||'',
+    venue:linked?.venue||m?.venue||'',
+    referees:linked?.referees||m?.referees||''
+  };
+}
+function terminalBreakdown(m,team){
+  const rr=rallies(m,team),bd=B()?.breakdown?.(rr,team)||{serve:0,attack:0,block:0,oppErr:0,total:0};
+  return {...bd,rallies:rr.length,won:rr.filter(x=>x.win).length,lost:rr.filter(x=>!x.win).length};
+}
+function rotationStats(m,team){
+  const rr=rallies(m,team);
+  return Array.from({length:6},(_,i)=>{
+    const no=i+1,rows=rr.filter(x=>Number(x.rotation)===no),
+      k1=rows.filter(x=>x.phase==='K1'),k2=rows.filter(x=>x.phase==='K2'),
+      k1w=k1.filter(x=>x.win).length,k2w=k2.filter(x=>x.win).length,won=rows.filter(x=>x.win).length;
+    return {no,total:rows.length,won,lost:rows.length-won,gp:won-(rows.length-won),
+      k1Total:k1.length,k1Won:k1w,k1Pct:pct(k1w,k1.length),
+      k2Total:k2.length,k2Won:k2w,k2Pct:pct(k2w,k2.length)};
+  });
+}
+function setTrend(m,team){
+  return arr(m?.sets).map(s=>{
+    const x=B()?.setStat?.(m,team,s.number) || {r:{total:0,posPct:null,excPct:null},a:{total:0,ptsPct:null},s:{perfect:0,error:0},b:{perfect:0}},
+      rr=rallies(m,team).filter(r=>Number(r.set)===Number(s.number)),
+      k1=rr.filter(r=>r.phase==='K1'),k2=rr.filter(r=>r.phase==='K2'),
+      k1w=k1.filter(r=>r.win).length,k2w=k2.filter(r=>r.win).length;
+    return {set:s.number,score:`${num(s.scoreUs)}-${num(s.scoreOpponent)}`,
+      k1:pct(k1w,k1.length),k1n:k1.length,k2:pct(k2w,k2.length),k2n:k2.length,
+      recPos:x.r.posPct,recExc:x.r.excPct,recN:x.r.total,att:x.a.ptsPct,attN:x.a.total,
+      ace:x.s.perfect,serveErr:x.s.error,block:x.b.perfect};
+  });
+}
+function contactZone(a){return String(a?.contactZone||a?.endZone||a?.startZone||'').replace(/^Z/i,'')}
+function receptionZones(m,team){
+  const rows=(B()?.actionRows?.(m,false)||[]).filter(a=>a.team===team&&a.skill==='R'&&contactZone(a));
+  return [...new Set(rows.map(contactZone))].map(zone=>{
+    const a=rows.filter(x=>contactZone(x)===zone),pos=a.filter(x=>['#','+'].includes(x.evaluation)).length,
+      exc=a.filter(x=>x.evaluation==='#').length,err=a.filter(x=>x.evaluation==='=').length;
+    return {zone,total:a.length,pos,exc,err,posPct:pct(pos,a.length),excPct:pct(exc,a.length),errPct:pct(err,a.length)}
+  }).sort((a,b)=>b.total-a.total);
+}
+function serveZones(m,team){
+  const rows=(B()?.actionRows?.(m,false)||[]).filter(a=>a.team===team&&a.skill==='S'&&String(a.endZone||''));
+  return [...new Set(rows.map(a=>String(a.endZone)))].map(zone=>{
+    const a=rows.filter(x=>String(x.endZone)===zone),ace=a.filter(x=>x.evaluation==='#').length,
+      err=a.filter(x=>x.evaluation==='=').length,pressure=a.filter(x=>['#','+'].includes(x.evaluation)).length;
+    return {zone,total:a.length,ace,err,pressure,acePct:pct(ace,a.length),pressurePct:pct(pressure,a.length)}
+  }).sort((a,b)=>b.total-a.total);
+}
+function attackDirections(m,team){
+  const rows=(B()?.actionRows?.(m,false)||[]).filter(a=>a.team===team&&a.skill==='A'&&(a.endZone||a.startZone));
+  const key=a=>a.startZone&&a.endZone?`Z${a.startZone} > Z${a.endZone}`:(a.endZone?`> Z${a.endZone}`:`Z${a.startZone}`);
+  return [...new Set(rows.map(key))].map(k=>{
+    const a=rows.filter(x=>key(x)===k),pts=a.filter(x=>x.evaluation==='#').length,
+      err=a.filter(x=>x.evaluation==='=').length,blq=a.filter(x=>x.evaluation==='/').length;
+    return {direction:k,total:a.length,pts,err,blq,ptsPct:pct(pts,a.length),effPct:a.length?Math.round((pts-err-blq)*100/a.length):null}
+  }).sort((a,b)=>b.total-a.total);
+}
+function distribution(m,team){
+  const rows=B()?.distributionRows?.(m,team,'')||[],map=new Map();
+  rows.forEach(x=>{const k=String(x.target||'Sin destino');if(!map.has(k))map.set(k,[]);map.get(k).push(x)});
+  return [...map.entries()].map(([key,a])=>({key,label:B()?.comboLabel?.(key)||key,total:a.length,pct:pct(a.length,rows.length)})).sort((a,b)=>b.total-a.total);
+}
+function playerRows(m,team){
+  const data=stats(m,team),b=B();
+  return arr(data.players).map(st=>{
+    const s=b?.skill?.(st,'S')||{},r=b?.reception?.(st)||{},a=b?.attack?.(st)||{},bl=b?.skill?.(st,'B')||{},
+      p=b?.pointMetrics?.(m,team,st.key,data.rows)||{won:0,fp:0,gp:0};
+    return {label:st.label,total:st.total,pts:p.won,fp:p.fp,gp:p.gp,serveTotal:s.total||0,ace:s.perfect||0,serveErr:s.error||0,
+      recTotal:r.total||0,recErr:r.error||0,recPos:r.posPct,recExc:r.excPct,
+      attTotal:a.total||0,kill:a.perfect||0,attErr:a.error||0,blocked:a.blocked||0,attPct:a.ptsPct,attGp:a.gp||0,block:bl.perfect||0};
+  });
+}
+function dataQuality(m){
+  const rs=arr(m?.sets).flatMap(s=>arr(s.rallies)),actions=rs.flatMap(r=>arr(r.actions)),coded=rs.filter(r=>arr(r.actions).length).length,issues=[];
+  if(rs.length&&coded/rs.length<.7)issues.push(`Solo ${pct(coded,rs.length)}% de los rallies tienen acciones codificadas.`);
+  ['ours','opponent'].forEach(team=>{
+    const k1=rallies(m,team).filter(x=>x.phase==='K1'),
+      withRec=k1.filter(x=>arr(x.r?.actions).some(a=>a.team===team&&a.skill==='R')).length;
+    if(k1.length&&withRec/k1.length<.65)issues.push(`${teamName(team)}: recepción registrada en ${pct(withRec,k1.length)}% de los rallies K1.`);
+  });
+  return {rallies:rs.length,actions:actions.length,codedRallies:coded,codedPct:pct(coded,rs.length)||0,issues};
+}
+function bestRotation(rot,key,min=3,dir='max'){
+  const rows=rot.filter(x=>Number(x[key+'Total'])>=min&&x[key+'Pct']!=null);
+  if(!rows.length)return null;
+  return rows.slice().sort((a,b)=>dir==='max'?b[key+'Pct']-a[key+'Pct']:a[key+'Pct']-b[key+'Pct'])[0];
+}
+function insights(m){
+  const b=B(),ours=perf(m,'ours'),opp=perf(m,'opponent'),
+    ok1=ours.rallies.filter(x=>x.phase==='K1'),ok2=ours.rallies.filter(x=>x.phase==='K2'),
+    rk1=opp.rallies.filter(x=>x.phase==='K1'),rk2=opp.rallies.filter(x=>x.phase==='K2'),
+    so=pct(ours.sideOut,ok1.length),bp=pct(ours.breakPoint,ok2.length),rso=pct(opp.sideOut,rk1.length),rbp=pct(opp.breakPoint,rk2.length),
+    os=stats(m,'ours'),rs=stats(m,'opponent'),or=b?.reception?.(os.teamStat)||{},rr=b?.reception?.(rs.teamStat)||{},
+    oa=b?.attack?.(os.teamStat)||{},ra=b?.attack?.(rs.teamStat)||{},rot=rotationStats(m,'ours'),
+    bestK1=bestRotation(rot,'k1'),worstK1=bestRotation(rot,'k1',3,'min'),bestK2=bestRotation(rot,'k2'),
+    players=playerRows(m,'ours'),gpLeader=players.filter(x=>x.total>=3).sort((a,b)=>b.gp-a.gp)[0],
+    killLeader=players.filter(x=>x.attTotal>=3).sort((a,b)=>b.kill-a.kill)[0],
+    recLeader=players.filter(x=>x.recTotal>=5).sort((a,b)=>(b.recPos||0)-(a.recPos||0))[0],
+    q=dataQuality(m),out=[];
+  if(so!=null&&rso!=null)out.push({kind:so>=rso?'good':'warn',tag:'K1',text:`Side-out: ${so}% (${ours.sideOut}/${ok1.length}) frente a ${rso}% del rival (${opp.sideOut}/${rk1.length}). Diferencia ${so-rso>0?'+':''}${so-rso} pp.`});
+  if(bp!=null&&rbp!=null)out.push({kind:bp>=rbp?'good':'warn',tag:'K2',text:`Break point: ${bp}% (${ours.breakPoint}/${ok2.length}) frente a ${rbp}% del rival (${opp.breakPoint}/${rk2.length}). Diferencia ${bp-rbp>0?'+':''}${bp-rbp} pp.`});
+  if(or.total||rr.total)out.push({kind:(or.posPct||0)>=(rr.posPct||0)?'good':'info',tag:'Recepción',text:`Recepción positiva ${or.total?or.posPct+'% ('+or.positive+'/'+or.total+')':'—'}; excelente ${or.total?or.excPct+'%':'—'}. Rival: ${rr.total?rr.posPct+'% positiva y '+rr.excPct+'% excelente':'sin muestra suficiente'}.`});
+  if(oa.total||ra.total)out.push({kind:(oa.ptsPct||0)>=(ra.ptsPct||0)?'good':'warn',tag:'Ataque',text:`Ataque: ${oa.total?oa.ptsPct+'% de punto ('+oa.perfect+'/'+oa.total+')':'—'}, G-P ${oa.total?gp(oa.gp):'—'}. Rival: ${ra.total?ra.ptsPct+'%, G-P '+gp(ra.gp):'—'}.`});
+  if(bestK1)out.push({kind:'good',tag:'Rotación',text:`Mejor K1 con muestra >=3: R${bestK1.no}, ${bestK1.k1Pct}% (${bestK1.k1Won}/${bestK1.k1Total}).${worstK1&&worstK1.no!==bestK1.no?` La más exigida fue R${worstK1.no}: ${worstK1.k1Pct}% (${worstK1.k1Won}/${worstK1.k1Total}).`:''}`});
+  if(bestK2)out.push({kind:'info',tag:'Break',text:`Rotación con mayor conversión K2 (muestra >=3): R${bestK2.no}, ${bestK2.k2Pct}% (${bestK2.k2Won}/${bestK2.k2Total}).`});
+  if(gpLeader)out.push({kind:'info',tag:'Impacto',text:`Mayor G-P individual: ${gpLeader.label}, ${gp(gpLeader.gp)}.${killLeader?` Ataque: ${killLeader.label}, ${killLeader.kill}/${killLeader.attTotal} puntos (${killLeader.attPct}%).`:''}`});
+  if(recLeader)out.push({kind:'info',tag:'Recepción',text:`Mejor recepción positiva con al menos 5 intentos: ${recLeader.label}, ${recLeader.recPos}% (${recLeader.recTotal} recepciones).`});
+  if(ours.positive?.total||ours.negative?.total||ours.counter?.total)out.push({kind:'info',tag:'Fases',text:`Ataque: tras recepción +/# ${ours.positive.total?ours.positive.pct+'% ('+ours.positive.pts+'/'+ours.positive.total+')':'—'}; tras recepción !/-/ ${ours.negative.total?ours.negative.pct+'% ('+ours.negative.pts+'/'+ours.negative.total+')':'—'}; contraataque ${ours.counter.total?ours.counter.pct+'% ('+ours.counter.pts+'/'+ours.counter.total+')':'—'}.`});
+  out.push(q.issues.length?{kind:'warn',tag:'Muestra',text:q.issues.join(' ')}:{kind:'good',tag:'Muestra',text:`Cobertura: ${q.codedPct}% de ${q.rallies} rallies con acciones (${q.actions} acciones).`});
+  return out;
+}
+
+window.VC_V750_REPORTS={
+  version:VERSION,
+  selectedMatch,stats,perf,meta,setDurSeconds,checkpoints,terminalBreakdown,rotationStats,setTrend,
+  receptionZones,serveZones,attackDirections,distribution,playerRows,dataQuality,insights
+};
+
+/* Make the PDF buttons resolve a match through the bridge before doing anything else. */
+const oldOfficial=window.scoutV752ExportOfficialPDF;
+const oldAnalysis=window.scoutV752ExportAnalysisPDF;
+window.scoutV754ExportOfficialPDF=function(id){
+  const m=selectedMatch(id);
+  if(!m){window.scoutV753ShowPDFError?.('No se ha podido crear el PDF',new Error('No hay ningún scouting seleccionado.'));return false}
+  return oldOfficial?.(m.id);
+};
+window.scoutV754ExportAnalysisPDF=function(id){
+  const m=selectedMatch(id);
+  if(!m){window.scoutV753ShowPDFError?.('No se ha podido crear el PDF',new Error('No hay ningún scouting seleccionado.'));return false}
+  return oldAnalysis?.(m.id);
+};
+
+/* Final aliases. */
+window.scoutV752ExportOfficialPDF=window.scoutV754ExportOfficialPDF;
+window.scoutV752ExportAnalysisPDF=window.scoutV754ExportAnalysisPDF;
+window.scoutExportPDF=window.scoutV754ExportOfficialPDF;
+window.scoutExportAnalysisPDF=window.scoutV754ExportAnalysisPDF;
+
+const badge=document.getElementById('scout-v753-pdf-ready');
+if(badge){badge.id='scout-v754-pdf-ready';badge.textContent='PDF 7.5.4 ✓';badge.title='PDF V7.5.4 cargado y conectado al puente del scouting'}
+
+window.scoutV754PDFDiagnostics=function(){
+  return {
+    version:VERSION,
+    bridge:!!B(),
+    match: selectedMatch()?.id||null,
+    reportHelpers:!!window.VC_V750_REPORTS,
+    official:typeof window.scoutV754ExportOfficialPDF,
+    analysis:typeof window.scoutV754ExportAnalysisPDF
   };
 };
 })();
