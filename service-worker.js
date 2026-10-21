@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v7.0.2-video-storage-fix-v1';
+const CACHE_NAME = 'volley-coach-v7.4.0-live-scout-video-v1';
 
 const APP_SHELL = [
   './',
