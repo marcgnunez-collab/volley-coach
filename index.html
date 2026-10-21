@@ -1122,7 +1122,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.5 ✓</span></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.6 ✓</span></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -4257,7 +4257,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.5', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.6', {
         updateViaCache: 'none'
       });
 
@@ -11785,6 +11785,46 @@ window.scoutV752ExportAnalysisPDF=function(id){
   return false;
 };
 
+
+/* V7.5.6 · Direct PDF core.
+   Receives an already-resolved match object. It never searches for the match. */
+window.VC_V752_PDF_CORE={
+  exportOfficialMatch:function(m){
+    if(!m)throw new Error('VC_V752_PDF_CORE: falta el objeto de partido.');
+    if(!B())throw new Error('VC_V752_PDF_CORE: el puente del scouting no está disponible.');
+    if(!R())throw new Error('VC_V752_PDF_CORE: el módulo estadístico no está disponible.');
+    notify(true,'Generando PDF hoja oficial…');
+    try{
+      const pdf=new NativePDF();
+      drawOfficial(pdf,m);
+      const filename=`${safeName((m.date||'partido')+'_'+(m.opponent||'rival'))}_Hoja_Oficial_V756.pdf`;
+      pdf.save(filename);
+      return {ok:true,filename};
+    }finally{
+      notify(false);
+    }
+  },
+  exportAnalysisMatch:function(m){
+    if(!m)throw new Error('VC_V752_PDF_CORE: falta el objeto de partido.');
+    if(!B())throw new Error('VC_V752_PDF_CORE: el puente del scouting no está disponible.');
+    if(!R())throw new Error('VC_V752_PDF_CORE: el módulo estadístico no está disponible.');
+    notify(true,'Generando PDF análisis Pro…');
+    try{
+      const pdf=new NativePDF(),total=5;
+      analysisPage1(pdf,m,total);
+      analysisPage2(pdf,m,total);
+      analysisPage3(pdf,m,total);
+      analysisPage4(pdf,m,total);
+      analysisPage5(pdf,m,total);
+      const filename=`${safeName((m.date||'partido')+'_'+(m.opponent||'rival'))}_Analisis_Pro_V756.pdf`;
+      pdf.save(filename);
+      return {ok:true,filename};
+    }finally{
+      notify(false);
+    }
+  }
+};
+
 /* Compatibility aliases so old places in the app also use the repaired exporter. */
 window.scoutExportPDF=window.scoutV752ExportOfficialPDF;
 window.scoutExportAnalysisPDF=window.scoutV752ExportAnalysisPDF;
@@ -11979,7 +12019,7 @@ window.scoutExportAnalysisPDF=(id)=>window.scoutV753ExportAnalysisPDF(null,id);
 function markReady(){
   const toolbar=document.querySelector('#scout-analysis .scout-analysis-toolbar');
   if(toolbar&&!document.getElementById('scout-v753-pdf-ready')){
-    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.5 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
+    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.6 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
   }
 }
 markReady();
@@ -12195,7 +12235,7 @@ window.scoutExportPDF=window.scoutV754ExportOfficialPDF;
 window.scoutExportAnalysisPDF=window.scoutV754ExportAnalysisPDF;
 
 const badge=document.getElementById('scout-v753-pdf-ready');
-if(badge){badge.id='scout-v754-pdf-ready';badge.textContent='PDF 7.5.5 ✓';badge.title='PDF V7.5.5 cargado y conectado al puente del scouting'}
+if(badge){badge.id='scout-v754-pdf-ready';badge.textContent='PDF 7.5.6 ✓';badge.title='PDF V7.5.6 cargado y conectado al puente del scouting'}
 
 window.scoutV754PDFDiagnostics=function(){
   return {
@@ -12316,8 +12356,8 @@ window.scoutExportAnalysisPDF=window.scoutV755ExportAnalysisPDF;
 const oldBadge=document.getElementById('scout-v754-pdf-ready')||document.getElementById('scout-v753-pdf-ready');
 if(oldBadge){
   oldBadge.id='scout-v755-pdf-ready';
-  oldBadge.textContent='PDF 7.5.5 ✓';
-  oldBadge.title='PDF V7.5.5: selección directa desde la lista de scoutings';
+  oldBadge.textContent='PDF 7.5.6 ✓';
+  oldBadge.title='PDF V7.5.6: selección directa desde la lista de scoutings';
 }
 
 window.scoutV755PDFDiagnostics=function(){
@@ -12332,6 +12372,226 @@ window.scoutV755PDFDiagnostics=function(){
     reportBridge:!!window.VC_SCOUT_REPORT_BRIDGE,
     videoBridge:!!window.VC_SCOUT_VIDEO_BRIDGE,
     reports:!!window.VC_V750_REPORTS
+  };
+};
+})();
+</script>
+
+
+
+<script id="v756-direct-pdf-route">
+(()=>{
+'use strict';
+
+const VERSION='7.5.6';
+const reportBridge=()=>window.VC_SCOUT_REPORT_BRIDGE||null;
+const videoBridge=()=>window.VC_SCOUT_VIDEO_BRIDGE||null;
+
+function asArray(v){return Array.isArray(v)?v:[]}
+function idEq(a,b){return String(a??'')===String(b??'')}
+
+function collectMatches(){
+  const out=[];
+  const add=list=>asArray(list).forEach(m=>{
+    if(!m||m.id==null)return;
+    if(!out.some(x=>idEq(x.id,m.id)))out.push(m);
+  });
+
+  try{add(reportBridge()?.getMatches?.())}catch(err){console.warn('V756 report getMatches',err)}
+  try{add(videoBridge()?.getMatches?.())}catch(err){console.warn('V756 video getMatches',err)}
+
+  /* These are exported by the scouting module itself. They are fallback
+     access paths, not wrappers from previous PDF versions. */
+  try{
+    const m=window.scoutMatchForAnalysis?.();
+    if(m)add([m]);
+  }catch(err){console.warn('V756 scoutMatchForAnalysis',err)}
+  try{
+    const m=videoBridge()?.getActive?.();
+    if(m)add([m]);
+  }catch(_){}
+
+  return out;
+}
+
+function selectorId(){
+  const sel=document.getElementById('scout-analysis-match');
+  return sel?.value!=null&&String(sel.value)!==''?String(sel.value):'';
+}
+function activeId(){
+  try{
+    const x=reportBridge()?.getActiveId?.();
+    if(x!=null&&String(x)!=='')return String(x);
+  }catch(_){}
+  try{
+    const x=videoBridge()?.getActiveId?.();
+    if(x!=null&&String(x)!=='')return String(x);
+  }catch(_){}
+  return '';
+}
+
+function directLookupById(id){
+  if(id==null||String(id)==='')return null;
+
+  /* First: direct list lookup. */
+  const list=collectMatches();
+  let hit=list.find(m=>idEq(m.id,id));
+  if(hit)return hit;
+
+  /* Second: the scouting module's exported lookup, with an EXPLICIT id. */
+  try{
+    hit=window.scoutExportMatch?.(id);
+    if(hit&&idEq(hit.id,id))return hit;
+  }catch(err){console.warn('V756 scoutExportMatch',err)}
+
+  /* Third: bridge lookup, again with an explicit id. */
+  try{
+    hit=reportBridge()?.getExportMatch?.(id);
+    if(hit&&idEq(hit.id,id))return hit;
+  }catch(err){console.warn('V756 bridge getExportMatch',err)}
+
+  return null;
+}
+
+function resolveMatch(explicitId){
+  /* Priority 1: id explicitly provided by a saved-match button. */
+  if(explicitId!=null&&String(explicitId)!==''){
+    const m=directLookupById(explicitId);
+    if(m)return m;
+  }
+
+  /* Priority 2: exact party visible in the Analysis dropdown. */
+  const sid=selectorId();
+  if(sid){
+    const m=directLookupById(sid);
+    if(m)return m;
+  }
+
+  /* Priority 3: active scouting. */
+  const aid=activeId();
+  if(aid){
+    const m=directLookupById(aid);
+    if(m)return m;
+  }
+
+  /* Priority 4: the analysis helper itself. */
+  try{
+    const m=window.scoutMatchForAnalysis?.();
+    if(m)return m;
+  }catch(_){}
+
+  /* Priority 5: most recently updated saved scouting. */
+  const list=collectMatches();
+  if(list.length){
+    return list.slice().sort((a,b)=>
+      String(b?.updatedAt||b?.date||'').localeCompare(String(a?.updatedAt||a?.date||''))
+      || Number(b?.id||0)-Number(a?.id||0)
+    )[0];
+  }
+  return null;
+}
+
+function noMatchError(explicitId){
+  const list=collectMatches();
+  const sel=document.getElementById('scout-analysis-match');
+  return new Error(
+`No se ha encontrado un scouting para el PDF.
+ID del botón: ${explicitId??'—'}
+ID del selector de Análisis: ${selectorId()||'—'}
+ID activo: ${activeId()||'—'}
+Scoutings accesibles: ${list.length}
+Opciones del selector: ${sel?.options?.length||0}
+
+Si ves partidos en el desplegable pero "Scoutings accesibles" es 0, el navegador está ejecutando módulos de versiones distintas.`
+  );
+}
+
+function core(){
+  return window.VC_V752_PDF_CORE||null;
+}
+
+function run(kind,explicitId){
+  try{
+    const m=resolveMatch(explicitId);
+    if(!m)throw noMatchError(explicitId);
+
+    const c=core();
+    if(!c)throw new Error('El núcleo directo del PDF (VC_V752_PDF_CORE) no está cargado.');
+
+    if(kind==='analysis'){
+      if(typeof c.exportAnalysisMatch!=='function')throw new Error('Falta exportAnalysisMatch en el núcleo PDF.');
+      return c.exportAnalysisMatch(m);
+    }
+
+    if(typeof c.exportOfficialMatch!=='function')throw new Error('Falta exportOfficialMatch en el núcleo PDF.');
+    return c.exportOfficialMatch(m);
+  }catch(err){
+    console.error(`V7.5.6 ${kind} PDF`,err);
+    if(typeof window.scoutV753ShowPDFError==='function'){
+      window.scoutV753ShowPDFError('No se ha podido crear el PDF',err);
+    }else{
+      alert(`No se ha podido crear el PDF.\n\n${err?.message||err}`);
+    }
+    return false;
+  }
+}
+
+window.scoutV756ExportOfficialPDF=id=>run('official',id);
+window.scoutV756ExportAnalysisPDF=id=>run('analysis',id);
+
+/* Final aliases: every legacy/capture/inline route ends here. */
+window.scoutV752ExportOfficialPDF=window.scoutV756ExportOfficialPDF;
+window.scoutV752ExportAnalysisPDF=window.scoutV756ExportAnalysisPDF;
+window.scoutV753ExportOfficialPDF=window.scoutV756ExportOfficialPDF;
+window.scoutV753ExportAnalysisPDF=window.scoutV756ExportAnalysisPDF;
+window.scoutV754ExportOfficialPDF=window.scoutV756ExportOfficialPDF;
+window.scoutV754ExportAnalysisPDF=window.scoutV756ExportAnalysisPDF;
+window.scoutV755ExportOfficialPDF=window.scoutV756ExportOfficialPDF;
+window.scoutV755ExportAnalysisPDF=window.scoutV756ExportAnalysisPDF;
+window.scoutExportPDF=window.scoutV756ExportOfficialPDF;
+window.scoutExportAnalysisPDF=window.scoutV756ExportAnalysisPDF;
+
+/* The V7.5.3 capture listener dynamically invokes scoutV752..., so the
+   aliases above are sufficient. Rewire inline handlers too for clarity. */
+function rewire(root=document){
+  root.querySelectorAll?.('button').forEach(btn=>{
+    const text=String(btn.textContent||'').toLowerCase();
+    const oc=String(btn.getAttribute('onclick')||'');
+    if(text.includes('pdf análisis pro')||text.includes('descargar análisis pro')){
+      btn.setAttribute('onclick','return scoutV756ExportAnalysisPDF()');
+      return;
+    }
+    if(text.includes('pdf hoja')||text==='pdf'){
+      const m=oc.match(/\((\d+)\)/);
+      btn.setAttribute('onclick',m?`return scoutV756ExportOfficialPDF(${m[1]})`:'return scoutV756ExportOfficialPDF()');
+    }
+  });
+}
+rewire();
+new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)rewire(n)}))).observe(document.body,{childList:true,subtree:true});
+
+const badge=document.getElementById('scout-v755-pdf-ready')
+  ||document.getElementById('scout-v754-pdf-ready')
+  ||document.getElementById('scout-v753-pdf-ready');
+if(badge){
+  badge.id='scout-v756-pdf-ready';
+  badge.textContent='PDF 7.5.6 ✓';
+  badge.title='Ruta PDF directa: selector → partido → núcleo PDF';
+}
+
+window.scoutV756PDFDiagnostics=function(){
+  const list=collectMatches(),m=resolveMatch();
+  return {
+    version:VERSION,
+    selectorId:selectorId()||null,
+    activeId:activeId()||null,
+    accessibleMatches:list.map(x=>({id:x.id,date:x.date,opponent:x.opponent})),
+    resolvedMatch:m?{id:m.id,date:m.date,opponent:m.opponent}:null,
+    coreLoaded:!!core(),
+    reportBridge:!!reportBridge(),
+    videoBridge:!!videoBridge(),
+    officialFunction:typeof window.scoutV756ExportOfficialPDF,
+    analysisFunction:typeof window.scoutV756ExportAnalysisPDF
   };
 };
 })();
