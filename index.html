@@ -1122,7 +1122,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.3 ✓</span></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -4257,7 +4257,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.3', {
         updateViaCache: 'none'
       });
 
@@ -11480,9 +11480,14 @@ class NativePDF{
     pdf+=`xref\n0 ${max+1}\n0000000000 65535 f \n`;
     for(let i=1;i<=max;i++)pdf+=`${String(offsets[i]).padStart(10,'0')} 00000 n \n`;
     pdf+=`trailer\n<< /Size ${max+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-    const blob=new Blob([pdf],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    const blob=new Blob([pdf],{type:'application/pdf'});
+    if(typeof window.scoutV753DeliverPDF==='function'){
+      window.scoutV753DeliverPDF(blob,filename);
+      return;
+    }
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
   }
 }
 
@@ -11816,6 +11821,180 @@ window.scoutV752PDFDiagnostics=function(){
     reportHelpers:!!R(),
     officialButtons:[...document.querySelectorAll('button')].filter(b=>(b.textContent||'').toLowerCase().includes('pdf hoja')).length,
     analysisButtons:[...document.querySelectorAll('button')].filter(b=>(b.textContent||'').toLowerCase().includes('análisis pro')).length
+  };
+};
+})();
+</script>
+
+
+
+<style id="v753-pdf-delivery-style">
+#scout-v753-pdf-ready{display:inline-flex;align-items:center;padding:6px 8px;border-radius:7px;background:#e9f4ee;color:#28613f;border:1px solid #cfe6d8;font:900 7px/1 Arial,sans-serif;letter-spacing:.04em;white-space:nowrap}
+.v753-pdf-modal{position:fixed;inset:0;z-index:70000;background:rgba(7,23,37,.68);display:flex;align-items:center;justify-content:center;padding:18px}
+.v753-pdf-card{width:min(520px,96vw);background:#fff;border-radius:14px;border:1px solid #dce4e9;box-shadow:0 22px 70px rgba(0,0,0,.28);padding:18px;color:#29475f;font-family:Arial,Helvetica,sans-serif}
+.v753-pdf-card h3{margin:0 0 5px!important;padding:0!important;border:0!important;color:#17324d;font-size:18px!important}
+.v753-pdf-card p{margin:0;color:#6f7f8b;font-size:10px;line-height:1.45}
+.v753-pdf-file{margin:12px 0;padding:9px 10px;border-radius:8px;background:#f6f8fa;border:1px solid #e1e7eb;font:800 9px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#40596c;word-break:break-all}
+.v753-pdf-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.v753-pdf-actions a,.v753-pdf-actions button{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px 10px;border-radius:8px;text-decoration:none;font:850 9px Arial,sans-serif;cursor:pointer;box-sizing:border-box}
+.v753-pdf-download{background:#17324d;color:#fff;border:1px solid #17324d}.v753-pdf-open{background:#fff;color:#17324d;border:1px solid #b9c7d1}.v753-pdf-close{grid-column:1/-1;background:#f4f6f7;color:#607281;border:1px solid #dce3e8}
+.v753-pdf-note{margin-top:9px!important;font-size:8px!important;color:#7d8a94!important}.v753-pdf-error{border-left:4px solid #a34c49;background:#fff7f6;padding:8px 9px;margin-top:10px;color:#7a3f3c;font-size:9px;line-height:1.4}
+@media(max-width:520px){.v753-pdf-actions{grid-template-columns:1fr}.v753-pdf-close{grid-column:auto}}
+</style>
+
+
+<script id="v753-pdf-delivery-fix">
+(()=>{
+'use strict';
+
+const VERSION='7.5.3';
+let currentUrl=null;
+
+function cleanupUrl(){
+  if(currentUrl){try{URL.revokeObjectURL(currentUrl)}catch(_){} currentUrl=null}
+}
+function removeModal(){
+  const el=document.getElementById('v753-pdf-modal');
+  if(el)el.remove();
+  cleanupUrl();
+}
+function esc753(v){
+  return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function modalBase(){
+  let el=document.getElementById('v753-pdf-modal');
+  if(el)el.remove();
+  el=document.createElement('div');
+  el.id='v753-pdf-modal';
+  el.className='v753-pdf-modal';
+  el.addEventListener('click',e=>{if(e.target===el)removeModal()});
+  document.body.appendChild(el);
+  return el;
+}
+
+window.scoutV753DeliverPDF=function(blob,filename){
+  cleanupUrl();
+  const url=URL.createObjectURL(blob);
+  currentUrl=url;
+
+  const modal=modalBase();
+  modal.innerHTML=`<div class="v753-pdf-card">
+    <h3>PDF listo</h3>
+    <p>El informe se ha generado correctamente. Si el navegador bloquea la descarga automática, utiliza uno de los dos botones siguientes.</p>
+    <div class="v753-pdf-file">${esc753(filename)} · ${Math.max(1,Math.round(blob.size/1024))} KB</div>
+    <div class="v753-pdf-actions">
+      <a id="v753-pdf-download" class="v753-pdf-download" href="${url}" download="${esc753(filename)}">Descargar PDF</a>
+      <a id="v753-pdf-open" class="v753-pdf-open" href="${url}" target="_blank" rel="noopener">Abrir PDF</a>
+      <button id="v753-pdf-close" class="v753-pdf-close" type="button">Cerrar</button>
+    </div>
+    <p class="v753-pdf-note">El archivo permanece disponible mientras esta ventana esté abierta. Esto evita que Safari, una PWA o el navegador bloqueen silenciosamente la descarga.</p>
+  </div>`;
+
+  document.getElementById('v753-pdf-close')?.addEventListener('click',removeModal);
+
+  // Intento automático. Si el navegador lo bloquea, los enlaces manuales siguen activos.
+  try{
+    const a=document.getElementById('v753-pdf-download');
+    if(a){
+      setTimeout(()=>{try{a.click()}catch(_){}},0);
+    }
+  }catch(_){}
+  return {url,filename,size:blob.size};
+};
+
+window.scoutV753ShowPDFError=function(title,error){
+  const modal=modalBase();
+  modal.innerHTML=`<div class="v753-pdf-card">
+    <h3>${esc753(title||'Error al generar PDF')}</h3>
+    <p>El botón sí se ha ejecutado, pero el informe ha encontrado un error.</p>
+    <div class="v753-pdf-error">${esc753(error?.message||error||'Error desconocido')}</div>
+    <div class="v753-pdf-actions"><button id="v753-pdf-close" class="v753-pdf-close" type="button">Cerrar</button></div>
+  </div>`;
+  document.getElementById('v753-pdf-close')?.addEventListener('click',removeModal);
+};
+
+function matchIdFromButton(btn){
+  const oc=btn?.getAttribute?.('onclick')||'';
+  const m=oc.match(/(?:scoutV752ExportOfficialPDF|scoutV753ExportOfficialPDF|scoutExportPDF)\((\d+)\)/);
+  return m?Number(m[1]):undefined;
+}
+function roleOfButton(btn){
+  if(!btn)return '';
+  const txt=String(btn.textContent||'').trim().toLowerCase();
+  const oc=String(btn.getAttribute?.('onclick')||'');
+  if(txt.includes('pdf análisis pro')||txt.includes('descargar análisis pro')||/scoutV752ExportAnalysisPDF|scoutExportAnalysisPDF/.test(oc))return 'analysis';
+  if((txt.includes('pdf hoja')||txt==='pdf')&&/scoutV752ExportOfficialPDF|scoutExportPDF/.test(oc))return 'official';
+  return '';
+}
+
+/* Capture-phase delegation: executes before old inline onclick handlers and before
+   any legacy PDF handler can swallow the click. */
+document.addEventListener('click',function(e){
+  const btn=e.target?.closest?.('button');
+  const role=roleOfButton(btn);
+  if(!role)return;
+
+  e.preventDefault();
+  e.stopPropagation();
+  if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
+
+  try{
+    if(role==='analysis'){
+      if(typeof window.scoutV752ExportAnalysisPDF!=='function')throw new Error('No se ha cargado scoutV752ExportAnalysisPDF.');
+      window.scoutV752ExportAnalysisPDF();
+    }else{
+      if(typeof window.scoutV752ExportOfficialPDF!=='function')throw new Error('No se ha cargado scoutV752ExportOfficialPDF.');
+      window.scoutV752ExportOfficialPDF(matchIdFromButton(btn));
+    }
+  }catch(err){
+    console.error('V7.5.3 PDF click',err);
+    window.scoutV753ShowPDFError('No se ha podido crear el PDF',err);
+  }
+},true);
+
+/* Wrap both existing exporters so runtime errors always become visible. */
+const baseOfficial=window.scoutV752ExportOfficialPDF;
+const baseAnalysis=window.scoutV752ExportAnalysisPDF;
+
+window.scoutV753ExportOfficialPDF=function(event,id){
+  try{
+    if(event){event.preventDefault?.();event.stopPropagation?.()}
+    if(typeof baseOfficial!=='function')throw new Error('El exportador de hoja oficial no está disponible.');
+    return baseOfficial(id);
+  }catch(err){window.scoutV753ShowPDFError('Error en PDF hoja oficial',err);return false}
+};
+window.scoutV753ExportAnalysisPDF=function(event,id){
+  try{
+    if(event){event.preventDefault?.();event.stopPropagation?.()}
+    if(typeof baseAnalysis!=='function')throw new Error('El exportador de análisis Pro no está disponible.');
+    return baseAnalysis(id);
+  }catch(err){window.scoutV753ShowPDFError('Error en PDF análisis Pro',err);return false}
+};
+
+/* Legacy aliases point to the same fixed path. */
+window.scoutExportPDF=(id)=>window.scoutV753ExportOfficialPDF(null,id);
+window.scoutExportAnalysisPDF=(id)=>window.scoutV753ExportAnalysisPDF(null,id);
+
+/* Add a visual loaded marker even if an old render replaces the toolbar. */
+function markReady(){
+  const toolbar=document.querySelector('#scout-analysis .scout-analysis-toolbar');
+  if(toolbar&&!document.getElementById('scout-v753-pdf-ready')){
+    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.3 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
+  }
+}
+markReady();
+new MutationObserver(markReady).observe(document.body,{childList:true,subtree:true});
+
+window.scoutV753PDFDiagnostics=function(){
+  return {
+    version:VERSION,
+    loaded:true,
+    official:typeof window.scoutV752ExportOfficialPDF,
+    analysis:typeof window.scoutV752ExportAnalysisPDF,
+    bridge:!!window.VC_SCOUT_REPORT_BRIDGE,
+    helpers:!!window.VC_V750_REPORTS,
+    delivery:typeof window.scoutV753DeliverPDF,
+    readyBadge:!!document.getElementById('scout-v753-pdf-ready')
   };
 };
 })();
