@@ -753,7 +753,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V6.10.5 · BUTTON AUDIT FIX</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V6.10.6 · ACTIVE STATE FIX</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -7063,7 +7063,7 @@ scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutingMatches.forEach
 setTimeout(()=>{scoutV690ApplyCompactDefault();scoutV690RenderWorkflow()},450);
 
 /* ===== V6.10.5 · BUTTON AUDIT FIX ===== */
-const V6102_VERSION='6.10.5';
+const V6102_VERSION='6.10.6';
 
 function scoutV6102ExitToArchive(){
   document.body.classList.remove('scout-live-compact');
@@ -7303,11 +7303,143 @@ scoutNormalizeMatch=function(m){
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
 scoutingMatches.forEach(m=>{if(m.status!=='finished'){m.status='live';m.endedAt=null}m.dataVersion=V6102_VERSION;});
 
+/* ===== V6.10.6 · ACTIVE STATE FIX =====
+   Mantiene una sesión de scouting anclada durante la edición y evita que una
+   descarga de nube o un wrapper posterior deje la UI visible sin match activo. */
+const V6106_PIN_PREFIX='volleyScoutPinnedV6106:';
+let v6106SuppressActiveRecovery=false;
+function scoutV6106PinKey(){return V6106_PIN_PREFIX+String(equipoActivo||'equipo')}
+function scoutV6106PinnedId(){try{return Number(localStorage.getItem(scoutV6106PinKey()))||null}catch(_){return null}}
+function scoutV6106Pin(id){try{if(id)localStorage.setItem(scoutV6106PinKey(),String(id));else localStorage.removeItem(scoutV6106PinKey())}catch(_){}}
+function scoutV6106Unpin(){try{localStorage.removeItem(scoutV6106PinKey())}catch(_){}}
+
+const v6106ScoutActiveBase=scoutActive;
+scoutActive=function(){
+  const direct=v6106ScoutActiveBase();
+  if(direct){if(!v6106SuppressActiveRecovery&&direct.status!=='finished')scoutV6106Pin(direct.id);return direct}
+  if(v6106SuppressActiveRecovery)return null;
+  const candidates=[
+    Number(scoutingActiveId)||null,
+    Number(equiposData?.[equipoActivo]?.scoutingActiveId)||null,
+    scoutV6106PinnedId()
+  ].filter(Boolean);
+  for(const id of candidates){
+    const found=scoutingMatches.find(x=>Number(x.id)===Number(id));
+    if(found&&found.status!=='finished'){
+      scoutingActiveId=found.id;
+      if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+      equiposData[equipoActivo].scoutingActiveId=found.id;
+      scoutV6106Pin(found.id);
+      return found;
+    }
+  }
+  return null;
+};
+
+function scoutV6106ResolveLineupMatch(){
+  let m=scoutActive();
+  if(m)return m;
+  const modalId=Number(document.getElementById('scout-lineup-modal')?.dataset?.matchId)||null;
+  if(modalId){
+    m=scoutingMatches.find(x=>Number(x.id)===modalId)||null;
+    if(m&&m.status!=='finished'){
+      scoutingActiveId=m.id;
+      if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+      equiposData[equipoActivo].scoutingActiveId=m.id;
+      scoutV6106Pin(m.id);
+      return m;
+    }
+  }
+  return null;
+}
+
+const v6106OpenLineupBase=window.scoutOpenLineup;
+window.scoutOpenLineup=function(){
+  const before=scoutActive();
+  const out=v6106OpenLineupBase();
+  const m=scoutActive()||before;
+  const modal=document.getElementById('scout-lineup-modal');
+  if(modal&&m&&modal.classList.contains('open'))modal.dataset.matchId=String(m.id);
+  return out;
+};
+
+const v6106CreateBase=window.scoutCreateMatch;
+window.scoutCreateMatch=function(){
+  const out=v6106CreateBase();
+  const m=scoutActive();
+  if(m){scoutV6106Pin(m.id);const modal=document.getElementById('scout-lineup-modal');if(modal)modal.dataset.matchId=String(m.id)}
+  return out;
+};
+
+const v6106OpenSavedBase=window.scoutOpenSaved;
+window.scoutOpenSaved=function(id){
+  const out=v6106OpenSavedBase(id);
+  const m=scoutActive();
+  if(m)scoutV6106Pin(m.id);
+  return out;
+};
+
+const v6106SaveExitBase=window.scoutV6102SaveAndExit;
+window.scoutV6102SaveAndExit=async function(){
+  const recovered=scoutActive();
+  if(!recovered){alert('No hay un scouting activo para guardar.');return}
+  v6106SuppressActiveRecovery=true;
+  try{return await v6106SaveExitBase()}
+  finally{scoutV6106Unpin();v6106SuppressActiveRecovery=false}
+};
+
+const v6106FinalizeBase=window.scoutV6102FinalizeAndExit;
+window.scoutV6102FinalizeAndExit=async function(){
+  const recovered=scoutActive();
+  if(!recovered){alert('No hay un scouting activo para finalizar.');return}
+  v6106SuppressActiveRecovery=true;
+  try{return await v6106FinalizeBase()}
+  finally{
+    if(!scoutingActiveId)scoutV6106Unpin();
+    else scoutV6106Pin(scoutingActiveId);
+    v6106SuppressActiveRecovery=false;
+  }
+};
+window.scoutFinishMatch=window.scoutV6102FinalizeAndExit;
+
+// Una descarga de Supabase nunca debe borrar una sesión que el usuario está
+// editando en ese momento. Conservamos el match local y lo reinyectamos después.
+const v6106ApplyCloudBase=window.aplicarEstadoCloud;
+if(typeof v6106ApplyCloudBase==='function')window.aplicarEstadoCloud=function(state){
+  const active=scoutActive();
+  const snapshot=active&&active.status!=='finished'?scoutClone(active):null;
+  const activeId=snapshot?.id||null;
+  const out=v6106ApplyCloudBase(state);
+  if(snapshot&&activeId&&!v6106SuppressActiveRecovery){
+    const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(activeId));
+    if(idx>=0){
+      const remote=scoutingMatches[idx];
+      const localTs=Date.parse(snapshot.updatedAt||snapshot.createdAt||0)||0;
+      const remoteTs=Date.parse(remote?.updatedAt||remote?.createdAt||0)||0;
+      if(localTs>=remoteTs)scoutingMatches[idx]=snapshot;
+    }else scoutingMatches.push(snapshot);
+    scoutingActiveId=activeId;
+    if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+    equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);
+    equiposData[equipoActivo].scoutingActiveId=activeId;
+    scoutV6106Pin(activeId);
+    guardarEquipoEnMemoria();
+    guardarEstadoLocalSinCloud();
+    if(typeof scoutRender==='function')scoutRender();
+    if(typeof programarSubidaCloud==='function')programarSubidaCloud();
+  }
+  return out;
+};
+
+// Si ya había una sesión válida al cargar esta versión, la dejamos anclada.
+{const m=scoutActive();if(m)scoutV6106Pin(m.id)}
+
 /* ===== V6.10.5 · BUTTON AUDIT FIX =====
    Guardado final unificado: evita depender de la cadena de wrappers histórica. */
 window.scoutSaveLineup=function(){
-  const m=scoutActive();
-  if(!m){alert('No hay ningún scouting abierto.');return false}
+  const m=scoutV6106ResolveLineupMatch();
+  if(!m){alert('No se ha podido recuperar la sesión de scouting activa. Vuelve a abrir el partido desde Partidos guardados.');return false}
+  scoutingActiveId=m.id;scoutV6106Pin(m.id);
   if(m.status==='finished'){alert('Este scouting está finalizado y no se puede modificar.');return false}
   vcEnsureProMatch(m);
 
@@ -7394,10 +7526,10 @@ window.scoutSaveLineup=function(){
         if(player&&!player.role)player.role=role;
       });
     }
-  }catch(err){console.warn('V6.10.5 rival lineup profile sync',err)}
+  }catch(err){console.warn('V6.10.6 rival lineup profile sync',err)}
 
   m.updatedAt=scoutNow();
-  m.dataVersion='6.10.5';
+  m.dataVersion='6.10.6';
   scoutCloseLineup();
   scoutRefreshActionPlayers();
   scoutSave(false);
@@ -7434,8 +7566,8 @@ if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.sco
 'use strict';
 const REQUIRED=['scoutOpenNewMatch','scoutOpenLineup','scoutOpenSubstitution','scoutAwardPoint','scoutUndoRally','scoutRotate','scoutRotateOpponent','scoutAddCode','scoutAddManualAction','scoutDeleteLastAction','scoutOpenCodeReference','scoutExportPDF','scoutExportCSV','scoutExportJSON','scoutRenderAnalysis','scoutRenderPlayerAnalytics','scoutFinishMatch','scoutUpdateAdvancedFields','scoutRenderPerformanceAnalytics','scoutExportStatsCSV','scoutV630OpenDrill','scoutV630CloseDrill','scoutV630ResetFilters','scoutV640RenderTendencies','scoutV640SetMode','scoutV640ResetFilters','scoutV640OpenDrill','scoutV640CloseDrill'];
 const missing=REQUIRED.filter(name=>typeof window[name]!=='function');
-if(missing.length)console.error('Volley Coach V6.10.5 · funciones de scouting no disponibles:',missing);
-else console.info('Volley Coach V6.10.5 · scouting handlers OK');
+if(missing.length)console.error('Volley Coach V6.10.6 · funciones de scouting no disponibles:',missing);
+else console.info('Volley Coach V6.10.6 · scouting handlers OK');
 })();
 </script>
 
