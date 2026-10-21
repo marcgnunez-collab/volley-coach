@@ -753,7 +753,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 </head>
 <body>
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V6.10.7 · ROTATION + RIVAL LINEUP FIX</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V6.10.8 · CONTACT ZONES</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -1165,7 +1165,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <div id="scout-v6100-court-modal" class="pro-modal" onclick="if(event.target===this)scoutV6100CloseCourt()">
   <div class="pro-modal-card scout-v6100-court-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">SCOUTING INPUT PRO</span><h2>Pista interactiva</h2><p>Toca origen y destino. Volley Coach construye la trayectoria sin escribir zonas.</p></div><button class="modal-close" onclick="scoutV6100CloseCourt()">×</button></div>
+    <div class="pro-modal-head"><div><span class="pro-kicker">SCOUTING INPUT PRO</span><h2>Pista interactiva</h2><p>En saque/ataque marca origen y destino. En recepción/defensa basta con una sola zona de contacto.</p></div><button class="modal-close" onclick="scoutV6100CloseCourt()">×</button></div>
     <div class="scout-v6100-court-form"><label><span>Fundamento</span><select id="scout-v6100-court-skill"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A" selected>Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label><label><span>Valoración</span><select id="scout-v6100-court-eval"><option>#</option><option>+</option><option selected>!</option><option>-</option><option>/</option><option>=</option></select></label><label><span>Acción</span><div class="actions"><button class="ghost" onclick="scoutV6100CourtClear()">Limpiar zonas</button><button class="ghost" onclick="scoutV6100CourtApply(false)">Aplicar al formulario</button><button class="primary" onclick="scoutV6100CourtApply(true)">Registrar ahora</button></div></label></div>
     <div class="scout-v6100-zone-layout"><section class="scout-v6100-zone-panel"><h3>Zona de origen</h3><div id="scout-v6100-origin-grid" class="scout-v6100-zone-grid"></div></section><section class="scout-v6100-zone-panel"><h3>Zona de destino</h3><div id="scout-v6100-dest-grid" class="scout-v6100-zone-grid"></div></section><div id="scout-v6100-path" class="scout-v6100-path">Origen — → Destino —</div></div>
   </div>
@@ -1293,16 +1293,16 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         </section>
         <section class="scout-panel scout-console-panel">
           <div class="scout-panel-head"><div><span class="pro-kicker">CONSOLA DE SCOUT</span><h3>Registrar acción</h3></div><div class="scout-console-tools"><span class="scout-hint">Enter para guardar</span><button class="ghost" onclick="scoutV6100OpenCourt()">⌖ Pista</button><button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button></div></div>
-          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 4S+.1&gt;5 o R7R-"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
-          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración + trayectoria. Los sufijos tácticos <b>~ : ^ @</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
-          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>4S+.1&gt;5</code> saque positivo #4 de zona 1 a 5 · <code>12A#</code> ataque máximo/punto #12 · <code>R7R-</code> recepción negativa del rival #7.</div></details>
+          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 7R#.6 · 6D+.5 · 4S+.1&gt;5"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
+          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. En recepción/defensa puedes añadir solo la zona: <b>7R#.6</b> / <b>6D+.5</b>. Para trayectoria completa usa <b>.origen&gt;destino</b>. Los sufijos <b>~ : ^ @</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
+          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6</code> recepción perfecta #7 en Z6 · <code>6D+.5</code> defensa positiva #6 en Z5 · <code>4S+.1&gt;5</code> saque positivo #4 de Z1 a Z5 · <code>12A#.4&gt;5</code> ataque punto de Z4 a Z5 · <code>R7R-.5</code> recepción negativa del rival #7 en Z5.</div></details>
           <div class="scout-action-grid">
             <label><span>Equipo</span><select id="scout-action-team" onchange="scoutRefreshActionPlayers()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
             <label><span>Jugador</span><select id="scout-action-player"></select></label>
             <label><span>Fundamento</span><select id="scout-action-skill" onchange="scoutUpdateAdvancedFields()"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label>
             <label><span>Valoración</span><select id="scout-action-eval"><option>#</option><option>+</option><option selected>!</option><option>-</option><option>/</option><option>=</option></select></label>
-            <label><span>Zona origen</span><select id="scout-action-start"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
-            <label><span>Zona destino</span><select id="scout-action-end"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
+            <label id="scout-action-start-wrap"><span id="scout-action-start-label">Zona origen</span><select id="scout-action-start"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
+            <label id="scout-action-end-wrap"><span id="scout-action-end-label">Zona destino</span><select id="scout-action-end"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
           </div>
           <div id="scout-advanced-fields" class="scout-advanced-fields">
             <div class="scout-advanced-head"><div><span class="pro-kicker">DETALLE TÁCTICO</span><strong id="scout-advanced-title">Saque</strong></div><span id="scout-advanced-context" class="scout-advanced-context">Completa solo lo que conozcas</span></div>
@@ -6482,7 +6482,7 @@ function scoutSet(m){return m?.sets?.find(s=>Number(s.number)===Number(m.current
 function scoutPlayer(id){return (jugadoresEquipo||[]).find(p=>Number(p.id)===Number(id))||null}
 function scoutPlayerName(id){const p=scoutPlayer(id);if(!p)return 'Sin asignar';const num=p.number!==''&&p.number!=null?`#${p.number} · `:'';return num+(p.name||'Jugador')}
 function scoutOpponentLabel(v,pos=''){return String(v||'').trim()||`Rival ${pos.toUpperCase()}`}
-function scoutSave(render=true){const m=scoutActive();if(m){m.updatedAt=scoutNow();m.dataVersion='6.10.5'}if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);equiposData[equipoActivo].scoutingActiveId=scoutingActiveId||null;guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();if(typeof window.scoutV680Backup==='function')window.scoutV680Backup('autosave');programarSubidaCloud();if(render)scoutRender();const b=$('scout-save-badge');if(b)b.textContent='Sesión abierta · auto-protección'}
+function scoutSave(render=true){const m=scoutActive();if(m){m.updatedAt=scoutNow();m.dataVersion='6.10.8'}if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);equiposData[equipoActivo].scoutingActiveId=scoutingActiveId||null;guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();if(typeof window.scoutV680Backup==='function')window.scoutV680Backup('autosave');programarSubidaCloud();if(render)scoutRender();const b=$('scout-save-badge');if(b)b.textContent='Sesión abierta · auto-protección'}
 /* Estado por equipo / Supabase */
 const scoutPrevEmpty=estadoEquipoVacio;estadoEquipoVacio=function(id){const s=scoutPrevEmpty(id);if(!Array.isArray(s.scoutingMatches))s.scoutingMatches=[];if(s.scoutingActiveId===undefined)s.scoutingActiveId=null;return s};
 const scoutPrevClean=limpiarEquipo;limpiarEquipo=function(raw,id){const s=scoutPrevClean(raw,id);s.scoutingMatches=scoutArr(raw?.scoutingMatches||s.scoutingMatches).map(scoutNormalizeMatch);s.scoutingActiveId=raw?.scoutingActiveId?Number(raw.scoutingActiveId):null;return s};
@@ -6577,7 +6577,7 @@ window.scoutRenderPlayerAnalytics=function(){const box=$('scout-analysis-players
 window.scoutOpenCodeReference=function(){$('scout-code-reference-modal')?.classList.add('open')};window.scoutCloseCodeReference=function(){$('scout-code-reference-modal')?.classList.remove('open')};
 window.scoutOpenPlayerAnalysis=function(team,encodedKey){const m=scoutMatchForAnalysis();if(!m)return;const key=decodeURIComponent(encodedKey),st=scoutBuildPlayerStats(m,team).find(x=>x.key===key);if(!st)return;scoutPlayerDetailContext={matchId:m.id,team,key};$('scout-player-detail-title').textContent=st.label;$('scout-player-detail-subtitle').textContent=`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent} · ${m.date}`;$('scout-player-detail-skill').value='';$('scout-player-detail-eval').value='';const pos=(st.evals['#']||0)+(st.evals['+']||0),err=st.evals['=']||0;$('scout-player-detail-kpis').innerHTML=`<div class="scout-player-detail-kpi"><span>Acciones</span><b>${st.total}</b></div><div class="scout-player-detail-kpi"><span>Positivas #/+</span><b>${scoutPct(pos,st.total)}%</b></div><div class="scout-player-detail-kpi"><span>Perfectas #</span><b>${scoutPct(st.evals['#']||0,st.total)}%</b></div><div class="scout-player-detail-kpi"><span>Errores =</span><b>${err}</b></div>`;$('scout-player-detail-skills').innerHTML=Object.entries(SCOUT_SKILLS).map(([k,name])=>{const x=scoutSkillMetric(st,k);return `<div class="scout-player-skill-card"><strong>${esc(name)}</strong><div><span>${x.total} acc.</span><span># ${x.perfect}</span><span>+/# ${x.posPct}%</span><span>= ${x.error}</span></div></div>`}).join('');scoutRenderPlayerDetailActions();$('scout-player-detail-modal')?.classList.add('open')};
 window.scoutClosePlayerAnalysis=function(){$('scout-player-detail-modal')?.classList.remove('open')};
-window.scoutRenderPlayerDetailActions=function(){const box=$('scout-player-detail-actions'),ctx=scoutPlayerDetailContext;if(!box||!ctx)return;const m=scoutingMatches.find(x=>Number(x.id)===Number(ctx.matchId));if(!m)return;const st=scoutBuildPlayerStats(m,ctx.team).find(x=>x.key===ctx.key);if(!st)return;const skill=$('scout-player-detail-skill')?.value||'',ev=$('scout-player-detail-eval')?.value||'';const rows=st.actions.filter(a=>(!skill||a.skill===skill)&&(!ev||a.evaluation===ev));box.innerHTML=rows.length?`<table class="scout-action-detail-table"><thead><tr><th>Set</th><th>Marcador</th><th>Rot.</th><th>Fase</th><th>Código</th><th>Fundamento</th><th>Eval.</th><th>Zonas</th><th>Tiempo</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${a.set}</td><td>${esc(a.scoreBefore)} → ${esc(a.scoreAfter)}</td><td>R${ctx.team==='ours'?a.rotation:a.opponentRotation}</td><td>${ctx.team==='ours'?(a.servingBefore==='ours'?'Break':'Side-out'):(a.servingBefore==='opponent'?'Break':'Side-out')}</td><td><code>${esc(a.code||'')}</code></td><td>${esc(SCOUT_SKILLS[a.skill]||a.skill)}</td><td><b>${esc(a.evaluation)}</b></td><td>${a.startZone&&a.endZone?esc(a.startZone+'→'+a.endZone):'—'}</td><td class="scout-timecode">${scoutFormatTime(a.scoutMs)}</td></tr>`).join('')}</tbody></table>`:'<div class="match-empty">No hay acciones con estos filtros.</div>'};
+window.scoutRenderPlayerDetailActions=function(){const box=$('scout-player-detail-actions'),ctx=scoutPlayerDetailContext;if(!box||!ctx)return;const m=scoutingMatches.find(x=>Number(x.id)===Number(ctx.matchId));if(!m)return;const st=scoutBuildPlayerStats(m,ctx.team).find(x=>x.key===ctx.key);if(!st)return;const skill=$('scout-player-detail-skill')?.value||'',ev=$('scout-player-detail-eval')?.value||'';const rows=st.actions.filter(a=>(!skill||a.skill===skill)&&(!ev||a.evaluation===ev));box.innerHTML=rows.length?`<table class="scout-action-detail-table"><thead><tr><th>Set</th><th>Marcador</th><th>Rot.</th><th>Fase</th><th>Código</th><th>Fundamento</th><th>Eval.</th><th>Zonas</th><th>Tiempo</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${a.set}</td><td>${esc(a.scoreBefore)} → ${esc(a.scoreAfter)}</td><td>R${ctx.team==='ours'?a.rotation:a.opponentRotation}</td><td>${ctx.team==='ours'?(a.servingBefore==='ours'?'Break':'Side-out'):(a.servingBefore==='opponent'?'Break':'Side-out')}</td><td><code>${esc(a.code||'')}</code></td><td>${esc(SCOUT_SKILLS[a.skill]||a.skill)}</td><td><b>${esc(a.evaluation)}</b></td><td>${esc(scoutV6108ZoneText(a))}</td><td class="scout-timecode">${scoutFormatTime(a.scoutMs)}</td></tr>`).join('')}</tbody></table>`:'<div class="match-empty">No hay acciones con estos filtros.</div>'};
 function scoutFormatTime(ms){const t=Math.max(0,Math.floor((Number(ms)||0)/1000)),h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=t%60;return `${h?String(h).padStart(2,'0')+':':''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
 function scoutSafeFilename(v){return String(v||'scouting').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,80)||'scouting'}
 function scoutExportMatch(id){const selected=Number(id)||Number($('scout-analysis-match')?.value)||Number(scoutingActiveId);return scoutingMatches.find(x=>Number(x.id)===selected)||scoutActive()||null}
@@ -6666,7 +6666,7 @@ window.scoutV630ResetFilters=function(){['scout-v630-set','scout-v630-rotation',
 window.scoutRenderPlayerAnalytics=function(){const box=$('scout-analysis-players');if(!box)return;const m=scoutMatchForAnalysis(),team=$('scout-player-team-scope')?.value||'ours';if(!m){box.innerHTML='<div class="match-empty">Selecciona un scouting.</div>';return}scoutV630PopulateSetFilter(m);const data=scoutV630Stats(m,team);scoutV630RenderSummary(m,team,data);if(!data.players.length&&!data.rows.length){box.innerHTML='<div class="match-empty">No hay jugadores ni acciones registradas para este filtro.</div>';return}box.innerHTML=`<div class="scout-dv-table-wrap"><table class="scout-dv-table scout-v630-table"><thead><tr class="group"><th rowspan="2">Jugador</th><th rowspan="2">ACC</th><th colspan="4" class="g-serve">SAQUE</th><th colspan="4" class="g-receive">RECEPCIÓN</th><th colspan="5" class="g-attack">ATAQUE</th><th colspan="3" class="g-other">OTROS</th><th colspan="2" class="g-phase">FASES</th><th rowspan="2"></th></tr><tr class="cols"><th class="scout-v630-divider">TOT</th><th>ACE</th><th>POS%</th><th>ERR</th><th class="scout-v630-divider">TOT</th><th>PERF%</th><th>POS%</th><th>ERR</th><th class="scout-v630-divider">TOT</th><th>KILL</th><th>ERR</th><th>BLK</th><th>EFF%</th><th class="scout-v630-divider">BLQ#</th><th>DEF%</th><th>COL%</th><th class="scout-v630-divider">K1%</th><th>K2%</th></tr></thead><tbody>${scoutV630Row(m,team,data.teamStat,true)}${data.players.map(st=>scoutV630Row(m,team,st,false)).join('')}</tbody></table></div>`};
 function scoutV630ActionMetricRows(m,team,key,metric){const rows=scoutV630FilteredActions(m,team).filter(a=>key==='team'||scoutPlayerKey(a)===key);return scoutV630MetricActions(rows,metric)}
 function scoutV630SequenceMetricRows(m,team,key,metric){const phase=metric==='K1'?'K1':'K2',skill=phase==='K1'?'R':'S';return scoutV630FilteredSequences(m,team).filter(x=>x.phase===phase&&(key==='team'||x.actions.some(a=>a.skill===skill&&scoutPlayerKey(a)===key)))}
-window.scoutV630OpenDrill=function(team,encodedKey,metric){const m=scoutMatchForAnalysis();if(!m)return;const key=decodeURIComponent(encodedKey),titleKey=key==='team'?(team==='ours'?EQUIPOS[equipoActivo].nombre:'Rival'):(scoutV630Stats(m,team).players.find(x=>x.key===key)?.label||'Jugador'),label=scoutV630MetricLabel(metric);$('scout-v630-drill-title').textContent=`${titleKey} · ${label}`;const f=scoutV630Filters(),filterText=[f.set?'Set '+f.set:'Todos los sets',f.rotation?'R'+f.rotation:'Todas las rotaciones',f.phase||'K1 + K2'].join(' · ');$('scout-v630-drill-subtitle').textContent=`${m.date} · ${EQUIPOS[equipoActivo].nombre} vs ${m.opponent} · ${filterText}`;const body=$('scout-v630-drill-body'),kpis=$('scout-v630-drill-kpis');if(metric==='K1'||metric==='K2'){const seq=scoutV630SequenceMetricRows(m,team,key,metric),won=seq.filter(x=>x.win).length,pct=seq.length?scoutPercent(won,seq.length):0;kpis.innerHTML=`<div><span>Rallies</span><b>${seq.length}</b></div><div><span>Ganados</span><b>${won}</b></div><div><span>Rendimiento</span><b>${seq.length?pct+'%':'—'}</b></div><div><span>Fase</span><b>${metric}</b></div>`;body.innerHTML=seq.length?`<table class="scout-v630-drill-table"><thead><tr><th>Set</th><th>Rally</th><th>Rot.</th><th>Recepción</th><th>Distribución</th><th>Ataque</th><th>Resultado</th></tr></thead><tbody>${seq.map(x=>`<tr><td>${x.set}</td><td>${x.rally}</td><td>R${x.rotation}</td><td>${esc(x.receptionEval||'—')}</td><td>${esc(V620_COMBO_LABELS[x.target]||x.target||'—')}</td><td>${esc(x.attackEval||'—')}</td><td class="${x.win?'scout-v630-result-win':'scout-v630-result-loss'}">${x.win?'GANADO':'PERDIDO'}</td></tr>`).join('')}</tbody></table>`:'<div class="match-empty">No hay secuencias para esta cifra.</div>'}else{const rows=scoutV630ActionMetricRows(m,team,key,metric),pos=rows.filter(a=>a.evaluation==='#'||a.evaluation==='+').length,err=rows.filter(a=>a.evaluation==='=').length;kpis.innerHTML=`<div><span>Acciones</span><b>${rows.length}</b></div><div><span>Positivas</span><b>${rows.length?scoutPercent(pos,rows.length)+'%':'—'}</b></div><div><span>#</span><b>${rows.filter(a=>a.evaluation==='#').length}</b></div><div><span>Errores</span><b>${err}</b></div>`;body.innerHTML=rows.length?`<table class="scout-v630-drill-table"><thead><tr><th>Set</th><th>Rally</th><th>Marcador</th><th>Rot.</th><th>Fase</th><th>Jugador</th><th>Código</th><th>Eval.</th><th>Zonas</th><th>Detalle</th><th>Tiempo</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${a.set}</td><td>${a.rallyIndex}</td><td>${esc(a.scoreBefore)} → ${esc(a.scoreAfter)}</td><td>R${scoutV630RotationForAction(a,team)}</td><td>${scoutV630PhaseForAction(a,team)}</td><td>${esc(scoutActionPlayerLabel(a))}</td><td><code>${esc(a.code||'')}</code></td><td><b>${esc(a.evaluation)}</b></td><td>${a.startZone&&a.endZone?esc(a.startZone+'→'+a.endZone):'—'}</td><td>${esc(scoutAdvancedMetaText(a)||'—')}</td><td>${scoutFormatTime(a.scoutMs)}</td></tr>`).join('')}</tbody></table>`:'<div class="match-empty">No hay acciones para esta cifra.</div>'}$('scout-v630-drill-modal')?.classList.add('open')};
+window.scoutV630OpenDrill=function(team,encodedKey,metric){const m=scoutMatchForAnalysis();if(!m)return;const key=decodeURIComponent(encodedKey),titleKey=key==='team'?(team==='ours'?EQUIPOS[equipoActivo].nombre:'Rival'):(scoutV630Stats(m,team).players.find(x=>x.key===key)?.label||'Jugador'),label=scoutV630MetricLabel(metric);$('scout-v630-drill-title').textContent=`${titleKey} · ${label}`;const f=scoutV630Filters(),filterText=[f.set?'Set '+f.set:'Todos los sets',f.rotation?'R'+f.rotation:'Todas las rotaciones',f.phase||'K1 + K2'].join(' · ');$('scout-v630-drill-subtitle').textContent=`${m.date} · ${EQUIPOS[equipoActivo].nombre} vs ${m.opponent} · ${filterText}`;const body=$('scout-v630-drill-body'),kpis=$('scout-v630-drill-kpis');if(metric==='K1'||metric==='K2'){const seq=scoutV630SequenceMetricRows(m,team,key,metric),won=seq.filter(x=>x.win).length,pct=seq.length?scoutPercent(won,seq.length):0;kpis.innerHTML=`<div><span>Rallies</span><b>${seq.length}</b></div><div><span>Ganados</span><b>${won}</b></div><div><span>Rendimiento</span><b>${seq.length?pct+'%':'—'}</b></div><div><span>Fase</span><b>${metric}</b></div>`;body.innerHTML=seq.length?`<table class="scout-v630-drill-table"><thead><tr><th>Set</th><th>Rally</th><th>Rot.</th><th>Recepción</th><th>Distribución</th><th>Ataque</th><th>Resultado</th></tr></thead><tbody>${seq.map(x=>`<tr><td>${x.set}</td><td>${x.rally}</td><td>R${x.rotation}</td><td>${esc(x.receptionEval||'—')}</td><td>${esc(V620_COMBO_LABELS[x.target]||x.target||'—')}</td><td>${esc(x.attackEval||'—')}</td><td class="${x.win?'scout-v630-result-win':'scout-v630-result-loss'}">${x.win?'GANADO':'PERDIDO'}</td></tr>`).join('')}</tbody></table>`:'<div class="match-empty">No hay secuencias para esta cifra.</div>'}else{const rows=scoutV630ActionMetricRows(m,team,key,metric),pos=rows.filter(a=>a.evaluation==='#'||a.evaluation==='+').length,err=rows.filter(a=>a.evaluation==='=').length;kpis.innerHTML=`<div><span>Acciones</span><b>${rows.length}</b></div><div><span>Positivas</span><b>${rows.length?scoutPercent(pos,rows.length)+'%':'—'}</b></div><div><span>#</span><b>${rows.filter(a=>a.evaluation==='#').length}</b></div><div><span>Errores</span><b>${err}</b></div>`;body.innerHTML=rows.length?`<table class="scout-v630-drill-table"><thead><tr><th>Set</th><th>Rally</th><th>Marcador</th><th>Rot.</th><th>Fase</th><th>Jugador</th><th>Código</th><th>Eval.</th><th>Zonas</th><th>Detalle</th><th>Tiempo</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${a.set}</td><td>${a.rallyIndex}</td><td>${esc(a.scoreBefore)} → ${esc(a.scoreAfter)}</td><td>R${scoutV630RotationForAction(a,team)}</td><td>${scoutV630PhaseForAction(a,team)}</td><td>${esc(scoutActionPlayerLabel(a))}</td><td><code>${esc(a.code||'')}</code></td><td><b>${esc(a.evaluation)}</b></td><td>${esc(scoutV6108ZoneText(a))}</td><td>${esc(scoutAdvancedMetaText(a)||'—')}</td><td>${scoutFormatTime(a.scoutMs)}</td></tr>`).join('')}</tbody></table>`:'<div class="match-empty">No hay acciones para esta cifra.</div>'}$('scout-v630-drill-modal')?.classList.add('open')};
 window.scoutV630CloseDrill=function(){$('scout-v630-drill-modal')?.classList.remove('open')};
 function scoutV630CSVRow(m,team,st,isTeam=false){const s=scoutSkillMetric(st,'S'),r=scoutSkillMetric(st,'R'),a=scoutSkillMetric(st,'A'),b=scoutSkillMetric(st,'B'),d=scoutSkillMetric(st,'D'),e=scoutSkillMetric(st,'E'),k1=scoutV630PlayerSequenceRate(m,team,st.key,'K1'),k2=scoutV630PlayerSequenceRate(m,team,st.key,'K2');return [isTeam?'TOTAL EQUIPO':st.label,st.total,s.total,s.perfect,s.posPct,s.error,r.total,r.perfPct,r.posPct,r.error,a.total,a.perfect,a.error,a.veryNegative,a.effPct,b.perfect,d.posPct,e.posPct,k1.total?k1.pct:'',k2.total?k2.pct:'']}
 window.scoutExportStatsCSV=function(){const m=scoutMatchForAnalysis();if(!m){alert('No hay scouting seleccionado.');return}const team=$('scout-player-team-scope')?.value||'ours',data=scoutV630Stats(m,team),f=scoutV630Filters(),headers=['jugador','acciones','saque_total','saque_aces','saque_pos_pct','saque_errores','recepcion_total','recepcion_perf_pct','recepcion_pos_pct','recepcion_errores','ataque_total','ataque_kill','ataque_errores','ataque_bloqueado','ataque_eff_pct','bloqueo_puntos','defensa_pos_pct','colocacion_pos_pct','k1_sideout_pct','k2_break_pct'],rows=[scoutV630CSVRow(m,team,data.teamStat,true),...data.players.map(st=>scoutV630CSVRow(m,team,st))],meta=[['partido',`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent}`],['fecha',m.date],['equipo_analizado',team==='ours'?EQUIPOS[equipoActivo].nombre:'Rival'],['set',f.set||'todos'],['rotacion',f.rotation?`R${f.rotation}`:'todas'],['fase',f.phase||'K1+K2'],[]],csv='\uFEFF'+[...meta,headers,...rows].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_estadistica_v630.csv`)};
@@ -6701,7 +6701,7 @@ window.scoutV640FiltersChanged=function(force=false){scoutV640PopulatePlayers(fo
 window.scoutV640ResetFilters=function(){if($('scout-v640-team'))$('scout-v640-team').value='ours';if($('scout-v640-reception'))$('scout-v640-reception').value=scoutV640Mode==='setter'?'#':'';if($('scout-v640-rotation'))$('scout-v640-rotation').value='';if($('scout-v640-phase'))$('scout-v640-phase').value=scoutV640Mode==='setter'?'K1':'';if($('scout-v640-set'))$('scout-v640-set').value='';scoutV640PopulatePlayers(true);scoutV640RenderTendencies()}
 window.scoutV640RenderTendencies=function(){const box=$('scout-v640-tendencies'),m=scoutV640Match();if(!box)return;if(!m){box.innerHTML='<div class="scout-v640-empty">Selecciona un scouting para analizar las tendencias tácticas.</div>';return}scoutV640PopulateSets(m);if(!$('scout-v640-player')?.options?.length)scoutV640PopulatePlayers(true);const f=scoutV640Filters();box.innerHTML=scoutV640Mode==='setter'?scoutV640SetterView(m,f):scoutV640AttackerView(m,f)}
 function scoutV640DrillRows(kind,value){const m=scoutV640Match(),f=scoutV640Filters();if(!m)return[];if(kind.startsWith('setter')){const rows=scoutV640FilterDistribution(m,f);if(kind==='setterTarget')return rows.filter(x=>scoutV640LabelTarget(x.target)===value);if(kind==='setterRecipient')return rows.filter(x=>x.recipientLabel===value)}else{const rows=scoutV640FilterAttacks(m,f);if(kind==='attackDirection')return rows.filter(x=>{const a=x.action,k=a.startZone&&a.endZone?`Z${a.startZone} → Z${a.endZone}`:(a.endZone?`→ Z${a.endZone}`:'Sin dirección');return k===value});if(kind==='attackCombo')return rows.filter(x=>scoutV640LabelTarget(x.target||x.action.attackCombo)===value);if(kind==='attackBlockers')return rows.filter(x=>((x.action.blockers!==''&&x.action.blockers!=null?String(x.action.blockers)+' bloqueadores':'Sin dato')===value))}return[]}
-window.scoutV640OpenDrill=function(kind,encoded){const val=decodeURIComponent(encoded),rows=scoutV640DrillRows(kind,val),isSetter=kind.startsWith('setter'),title=(isSetter?'Colocador · ':'Atacante · ')+val;$('scout-v640-drill-title').textContent=title;const f=scoutV640Filters();$('scout-v640-drill-subtitle').textContent=[f.reception?'Recepción '+f.reception:'Recepción libre',f.rotation?'R'+f.rotation:'R1–R6',f.phase||'K1+K2',f.set?'Set '+f.set:'Todos los sets'].join(' · ');const attacks=rows.map(x=>isSetter?x.attack:x.action).filter(Boolean),kills=attacks.filter(a=>a.evaluation==='#').length;$('scout-v640-drill-kpis').innerHTML=`<div><span>Muestra</span><b>${rows.length}</b></div><div><span>Ataques asociados</span><b>${attacks.length}</b></div><div><span>Kill</span><b>${attacks.length?scoutV640Pct(kills,attacks.length)+'%':'—'}</b></div><div><span>Eficiencia</span><b>${attacks.length?scoutV640Eff(attacks)+'%':'—'}</b></div>`;$('scout-v640-drill-body').innerHTML=rows.length?`<table class="scout-v640-drill-table"><thead><tr><th>Set</th><th>Rally</th><th>Rot.</th><th>Fase</th><th>${isSetter?'Colocador':'Atacante'}</th><th>Recep.</th><th>Destino</th><th>Atacante</th><th>Eval.</th><th>Dirección</th><th>Resultado</th></tr></thead><tbody>${rows.map(x=>{const a=isSetter?x.attack:x.action;return `<tr><td>${x.set}</td><td>${x.rally}</td><td>R${x.rotation}</td><td>${x.phase}</td><td>${esc(isSetter?x.setterLabel:scoutActionPlayerLabel(x.action))}</td><td>${esc(x.receptionEval||'—')}</td><td>${esc(scoutV640LabelTarget(isSetter?x.target:(x.target||x.action.attackCombo)))}</td><td>${esc(isSetter?x.recipientLabel:scoutActionPlayerLabel(x.action))}</td><td><b>${esc(a?.evaluation||'—')}</b></td><td>${a?.startZone&&a?.endZone?`Z${esc(a.startZone)} → Z${esc(a.endZone)}`:'—'}</td><td>${x.win?'Punto':'Sin punto'}</td></tr>`}).join('')}</tbody></table>`:'<div class="scout-v640-empty">No hay acciones para este patrón.</div>';$('scout-v640-drill-modal')?.classList.add('open')}
+window.scoutV640OpenDrill=function(kind,encoded){const val=decodeURIComponent(encoded),rows=scoutV640DrillRows(kind,val),isSetter=kind.startsWith('setter'),title=(isSetter?'Colocador · ':'Atacante · ')+val;$('scout-v640-drill-title').textContent=title;const f=scoutV640Filters();$('scout-v640-drill-subtitle').textContent=[f.reception?'Recepción '+f.reception:'Recepción libre',f.rotation?'R'+f.rotation:'R1–R6',f.phase||'K1+K2',f.set?'Set '+f.set:'Todos los sets'].join(' · ');const attacks=rows.map(x=>isSetter?x.attack:x.action).filter(Boolean),kills=attacks.filter(a=>a.evaluation==='#').length;$('scout-v640-drill-kpis').innerHTML=`<div><span>Muestra</span><b>${rows.length}</b></div><div><span>Ataques asociados</span><b>${attacks.length}</b></div><div><span>Kill</span><b>${attacks.length?scoutV640Pct(kills,attacks.length)+'%':'—'}</b></div><div><span>Eficiencia</span><b>${attacks.length?scoutV640Eff(attacks)+'%':'—'}</b></div>`;$('scout-v640-drill-body').innerHTML=rows.length?`<table class="scout-v640-drill-table"><thead><tr><th>Set</th><th>Rally</th><th>Rot.</th><th>Fase</th><th>${isSetter?'Colocador':'Atacante'}</th><th>Recep.</th><th>Destino</th><th>Atacante</th><th>Eval.</th><th>Dirección</th><th>Resultado</th></tr></thead><tbody>${rows.map(x=>{const a=isSetter?x.attack:x.action;return `<tr><td>${x.set}</td><td>${x.rally}</td><td>R${x.rotation}</td><td>${x.phase}</td><td>${esc(isSetter?x.setterLabel:scoutActionPlayerLabel(x.action))}</td><td>${esc(x.receptionEval||'—')}</td><td>${esc(scoutV640LabelTarget(isSetter?x.target:(x.target||x.action.attackCombo)))}</td><td>${esc(isSetter?x.recipientLabel:scoutActionPlayerLabel(x.action))}</td><td><b>${esc(a?.evaluation||'—')}</b></td><td>${esc(scoutV6108ZoneText(a))}</td><td>${x.win?'Punto':'Sin punto'}</td></tr>`}).join('')}</tbody></table>`:'<div class="scout-v640-empty">No hay acciones para este patrón.</div>';$('scout-v640-drill-modal')?.classList.add('open')}
 window.scoutV640CloseDrill=function(){$('scout-v640-drill-modal')?.classList.remove('open')}
 
 
@@ -6738,7 +6738,7 @@ window.scoutV650SetMode=function(mode){scoutV650Mode=mode==='attacker'?'attacker
 window.scoutV650Render=function(){const box=$('scout-v650-body');if(!box)return;scoutV650PopulateRivals(false);const group=scoutV650SelectedGroup(),matches=scoutV650Matches();if(!group||!matches.length){box.innerHTML='<div class="scout-v650-empty">Todavía no hay suficientes scoutings de rivales para construir una ficha histórica.</div>';return}if(!$('scout-v650-player')?.options?.length)scoutV650PopulatePlayers(true);const actions=scoutV650AllActions(matches),rallies=scoutV650RallyCount(matches),last=matches[0],first=matches[matches.length-1],roster=scoutV650Roster(matches),modeRows=scoutV650Mode==='setter'?scoutV650FilterSetter(matches):scoutV650FilterAttacker(matches);box.innerHTML=`<div class="scout-v650-rival-header"><div><span class="pro-kicker" style="color:#9fb2c4">DOSSIER HISTÓRICO</span><h4>${esc(group.name)}</h4><p>${esc(first?.date||'—')} → ${esc(last?.date||'—')} · ${matches.length} partido${matches.length===1?'':'s'} incluidos</p></div><span class="scout-v650-rival-badge">${scoutV650Mode==='setter'?'Distribución rival':'Ataque rival'}</span></div><div class="scout-v650-kpis"><div class="scout-v650-kpi"><span>Partidos</span><b>${matches.length}</b><small>${group.matches.length} disponibles</small></div><div class="scout-v650-kpi"><span>Rallies</span><b>${rallies}</b><small>muestra acumulada</small></div><div class="scout-v650-kpi"><span>Acciones rival</span><b>${actions.length}</b><small>acciones codificadas</small></div><div class="scout-v650-kpi"><span>Jugadores observados</span><b>${roster.length}</b><small>identidades detectadas</small></div><div class="scout-v650-kpi"><span>Muestra filtro</span><b>${modeRows.length}</b><small>${modeRows.length<10?'todavía reducida':'patrón analizable'}</small></div></div><div class="scout-v650-grid"><div class="scout-v650-card wide"><div class="scout-v650-card-head"><div><h4>Partidos incluidos</h4><small>Abre cualquiera para volver al Data Sheet individual del encuentro</small></div></div>${scoutV650MatchTable(matches)}</div>${scoutV650Mode==='setter'?scoutV650SetterHTML(matches):scoutV650AttackerHTML(matches)}<div class="scout-v650-card wide"><div class="scout-v650-card-head"><div><h4>Perfil de rotaciones del rival</h4><small>Side-out, break point y preferencia de distribución acumulados por R1–R6</small></div></div>${scoutV650RotationHTML(matches)}</div><div class="scout-v650-card wide"><div class="scout-v650-card-head"><div><h4>Plantilla observada</h4><small>Jugadores rivales identificados en los scoutings incluidos</small></div></div><div class="scout-v650-roster">${roster.slice(0,30).map(p=>`<span class="scout-v650-player-chip"><b>${esc(p.label)}</b>${p.count} acc.</span>`).join('')||'<span class="muted">Sin jugadores identificados</span>'}</div></div></div>`}
 window.scoutV650OpenMatch=function(id){const sel=$('scout-analysis-match');if(sel)sel.value=String(id);scoutRenderAnalysis();document.querySelector('.scout-player-analysis-panel')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function scoutV650DrillRows(kind,val){const matches=scoutV650Matches();if(kind.startsWith('setter')){const rows=scoutV650FilterSetter(matches);if(kind==='setterTarget')return rows.filter(x=>scoutV640LabelTarget(x.target)===val);if(kind==='setterRecipient')return rows.filter(x=>x.recipientLabel===val)}else{const rows=scoutV650FilterAttacker(matches);if(kind==='attackDirection')return rows.filter(x=>{const a=x.action,k=a.startZone&&a.endZone?`Z${a.startZone} → Z${a.endZone}`:(a.endZone?`→ Z${a.endZone}`:'Sin dirección');return k===val});if(kind==='attackCombo')return rows.filter(x=>scoutV640LabelTarget(x.target||x.action.attackCombo)===val)}return[]}
-window.scoutV650OpenDrill=function(kind,encoded){const val=decodeURIComponent(encoded),rows=scoutV650DrillRows(kind,val),setter=kind.startsWith('setter'),attacks=rows.map(x=>setter?x.attack:x.action).filter(Boolean),kills=attacks.filter(a=>a.evaluation==='#').length;$('scout-v650-drill-title').textContent=(setter?'Distribución · ':'Ataque · ')+val;$('scout-v650-drill-subtitle').textContent=`Histórico ${scoutV650SelectedGroup()?.name||'rival'} · ${rows.length} registros`;const unique=new Set(rows.map(x=>Number(x.match?.id))).size;$('scout-v650-drill-kpis').innerHTML=`<div><span>Muestra</span><b>${rows.length}</b></div><div><span>Partidos</span><b>${unique}</b></div><div><span>Kill posterior</span><b>${attacks.length?scoutV640Pct(kills,attacks.length)+'%':'—'}</b></div><div><span>Eficiencia</span><b>${attacks.length?scoutV640Eff(attacks)+'%':'—'}</b></div>`;$('scout-v650-drill-body').innerHTML=rows.length?`<table class="scout-v650-table"><thead><tr><th>Fecha</th><th>Set</th><th>Rally</th><th>Rot.</th><th>Fase</th><th>Recep.</th><th>Colocador</th><th>Destino</th><th>Atacante</th><th>Eval.</th><th>Dirección</th><th>Resultado</th></tr></thead><tbody>${rows.map(x=>{const a=setter?x.attack:x.action;return `<tr><td>${esc(x.match?.date||'—')}</td><td>${x.set}</td><td>${x.rally}</td><td>R${x.rotation}</td><td>${esc(x.phase)}</td><td>${esc(x.receptionEval||'—')}</td><td>${esc(setter?x.setterLabel:(x.setterLabel||'—'))}</td><td>${esc(scoutV640LabelTarget(setter?x.target:(x.target||x.action.attackCombo)))}</td><td>${esc(setter?x.recipientLabel:scoutActionPlayerLabel(x.action))}</td><td><b>${esc(a?.evaluation||'—')}</b></td><td>${a?.startZone&&a?.endZone?`Z${esc(a.startZone)} → Z${esc(a.endZone)}`:'—'}</td><td>${x.win?'Punto rival':'Sin punto'}</td></tr>`}).join('')}</tbody></table>`:'<div class="scout-v650-empty">Sin acciones para este patrón.</div>';$('scout-v650-drill-modal')?.classList.add('open')}
+window.scoutV650OpenDrill=function(kind,encoded){const val=decodeURIComponent(encoded),rows=scoutV650DrillRows(kind,val),setter=kind.startsWith('setter'),attacks=rows.map(x=>setter?x.attack:x.action).filter(Boolean),kills=attacks.filter(a=>a.evaluation==='#').length;$('scout-v650-drill-title').textContent=(setter?'Distribución · ':'Ataque · ')+val;$('scout-v650-drill-subtitle').textContent=`Histórico ${scoutV650SelectedGroup()?.name||'rival'} · ${rows.length} registros`;const unique=new Set(rows.map(x=>Number(x.match?.id))).size;$('scout-v650-drill-kpis').innerHTML=`<div><span>Muestra</span><b>${rows.length}</b></div><div><span>Partidos</span><b>${unique}</b></div><div><span>Kill posterior</span><b>${attacks.length?scoutV640Pct(kills,attacks.length)+'%':'—'}</b></div><div><span>Eficiencia</span><b>${attacks.length?scoutV640Eff(attacks)+'%':'—'}</b></div>`;$('scout-v650-drill-body').innerHTML=rows.length?`<table class="scout-v650-table"><thead><tr><th>Fecha</th><th>Set</th><th>Rally</th><th>Rot.</th><th>Fase</th><th>Recep.</th><th>Colocador</th><th>Destino</th><th>Atacante</th><th>Eval.</th><th>Dirección</th><th>Resultado</th></tr></thead><tbody>${rows.map(x=>{const a=setter?x.attack:x.action;return `<tr><td>${esc(x.match?.date||'—')}</td><td>${x.set}</td><td>${x.rally}</td><td>R${x.rotation}</td><td>${esc(x.phase)}</td><td>${esc(x.receptionEval||'—')}</td><td>${esc(setter?x.setterLabel:(x.setterLabel||'—'))}</td><td>${esc(scoutV640LabelTarget(setter?x.target:(x.target||x.action.attackCombo)))}</td><td>${esc(setter?x.recipientLabel:scoutActionPlayerLabel(x.action))}</td><td><b>${esc(a?.evaluation||'—')}</b></td><td>${esc(scoutV6108ZoneText(a))}</td><td>${x.win?'Punto rival':'Sin punto'}</td></tr>`}).join('')}</tbody></table>`:'<div class="scout-v650-empty">Sin acciones para este patrón.</div>';$('scout-v650-drill-modal')?.classList.add('open')}
 window.scoutV650CloseDrill=function(){$('scout-v650-drill-modal')?.classList.remove('open')}
 window.scoutV650ExportPDF=async function(){const group=scoutV650SelectedGroup(),matches=scoutV650Matches();if(!group||!matches.length){alert('No hay un rival seleccionado.');return}if(!window.html2canvas||!window.jspdf?.jsPDF){alert('No se ha podido cargar el motor PDF.');return}const body=$('scout-v650-body');if(!body)return;scoutExportNotice(true,'Preparando dossier del rival…');try{const report=document.createElement('div');report.style.cssText='position:fixed;left:-20000px;top:0;width:1180px;background:#fff;color:#17324d;padding:42px;font-family:Arial,Helvetica,sans-serif;z-index:-1';report.innerHTML=`<div style="border-bottom:4px solid #102b43;padding-bottom:18px;margin-bottom:18px"><div style="font-size:11px;font-weight:900;letter-spacing:.16em;color:#718394">VOLLEY COACH · OPPONENT DOSSIER</div><h1 style="font-size:30px;margin:7px 0;color:#102b43">${esc(group.name)}</h1><div style="font-size:13px;color:#6f7f8c">${matches.length} partidos analizados · ${scoutV650RallyCount(matches)} rallies · ${scoutV650AllActions(matches).length} acciones rivales</div></div>${body.innerHTML}<div style="margin-top:24px;border-top:1px solid #dfe6eb;padding-top:10px;color:#84919b;font-size:9px">Generado por Volley Coach · V6.5.0 · Los patrones dependen de la calidad y cantidad del scouting registrado.</div>`;report.querySelectorAll('button,select').forEach(x=>x.remove());document.body.appendChild(report);const canvas=await html2canvas(report,{scale:1.35,backgroundColor:'#ffffff',logging:false,useCORS:true});report.remove();const {jsPDF}=window.jspdf,pdf=new jsPDF('p','mm','a4'),margin=8,pageW=210-margin*2,pageH=297-margin*2,imgW=pageW,imgH=canvas.height*imgW/canvas.width,img=canvas.toDataURL('image/jpeg',.92);let y=margin,remaining=imgH;pdf.addImage(img,'JPEG',margin,y,imgW,imgH);remaining-=pageH;while(remaining>0){pdf.addPage();y=margin-(imgH-remaining);pdf.addImage(img,'JPEG',margin,y,imgW,imgH);remaining-=pageH}pdf.save(`${scoutSafeFilename(group.name)}_dossier_rival_v650.pdf`)}catch(err){console.error(err);alert('No se ha podido generar el dossier PDF.')}finally{scoutExportNotice(false)}}
 
@@ -7303,7 +7303,7 @@ scoutNormalizeMatch=function(m){
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
 scoutingMatches.forEach(m=>{if(m.status!=='finished'){m.status='live';m.endedAt=null}m.dataVersion=V6102_VERSION;});
 
-/* ===== V6.10.7 · ROTATION + RIVAL LINEUP FIX =====
+/* ===== V6.10.8 · CONTACT ZONES =====
    Mantiene una sesión de scouting anclada durante la edición y evita que una
    descarga de nube o un wrapper posterior deje la UI visible sin match activo. */
 const V6106_PIN_PREFIX='volleyScoutPinnedV6106:';
@@ -7543,7 +7543,7 @@ window.scoutSaveLineup=function(){
 };
 
 
-/* ===== V6.10.7 · ROTATION + RIVAL LINEUP FIX =====
+/* ===== V6.10.8 · CONTACT ZONES =====
    - Rotación reglamentaria: R1 → R6 → R5 → R4 → R3 → R2 → R1 al recuperar saque.
    - Mantiene sincronizadas baseLineup.opponent y lineup.opponent para que la
      alineación rival persista, se vea en pista y al reabrir el modal.
@@ -7695,6 +7695,231 @@ if(scoutActive()){scoutV6107SyncOpponentLineup(scoutActive(),true);scoutV6107Rep
 // Persistir la migración sin forzar un cambio de pantalla.
 try{if(scoutingMatches.length)scoutSave(false)}catch(_){}
 
+
+/* ===== V6.10.8 · CONTACT ZONES =====
+   Permite codificar Recepción y Defensa con una sola zona de contacto:
+   7R#.6 / 6D+.5. Mantiene .1>6 para trayectoria completa y conserva
+   compatibilidad con todos los códigos anteriores.
+*/
+const V6108_VERSION='6.10.8';
+function scoutV6108IsContactSkill(skill){return skill==='R'||skill==='D'}
+function scoutV6108ContactZone(a){return String(a?.contactZone||((scoutV6108IsContactSkill(a?.skill))?(a?.endZone||a?.startZone||''):'')||'')}
+function scoutV6108ZoneText(a){
+  if(a?.startZone&&a?.endZone)return `Z${a.startZone} → Z${a.endZone}`;
+  const z=scoutV6108ContactZone(a);return z?`Z${z}`:'—';
+}
+function scoutV6108NormalizeZoneInput(skill,start,end){
+  start=String(start||'');end=String(end||'');
+  if(scoutV6108IsContactSkill(skill)){
+    if(start&&end)return {startZone:start,endZone:end,contactZone:end,sourceZone:start,zoneInferred:false};
+    const z=end||start;
+    return {startZone:'',endZone:z,contactZone:z,sourceZone:'',zoneInferred:false};
+  }
+  return {startZone:start,endZone:end,contactZone:'',sourceZone:'',zoneInferred:false};
+}
+function scoutV6108InferSource(action,m=scoutActive()){
+  if(!action||!m||!scoutV6108IsContactSkill(action.skill)||!action.contactZone||action.sourceZone)return action;
+  const wanted=action.skill==='R'?'S':'A';
+  const other=action.team==='ours'?'opponent':'ours';
+  const prev=[...scoutArr(m.liveRally?.actions)].reverse().find(a=>a.team===other&&a.skill===wanted&&a.startZone&&(a.endZone?String(a.endZone)===String(action.contactZone):true));
+  if(prev){action.sourceZone=String(prev.startZone||'');action.zoneInferred=!!action.sourceZone;action.sourceActionId=Number(prev.id)||null}
+  return action;
+}
+
+// Preserve the new zone metadata through normalization / persistence.
+const v6108NormalizeActionBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v6108NormalizeActionBase(a);
+  const contact=String(a?.contactZone||((scoutV6108IsContactSkill(x.skill))?(x.endZone||x.startZone||''):'')||'');
+  x.contactZone=contact;
+  x.sourceZone=String(a?.sourceZone||((scoutV6108IsContactSkill(x.skill)&&x.startZone&&x.endZone)?x.startZone:'')||'');
+  x.zoneInferred=!!a?.zoneInferred;
+  x.sourceActionId=a?.sourceActionId!=null?Number(a.sourceActionId):null;
+  // Old reception/defense records with a single start zone are migrated to contact zone.
+  if(scoutV6108IsContactSkill(x.skill)&&contact&&!x.endZone&&!x.startZone)x.endZone=contact;
+  return x;
+};
+
+// Code builder: R/D can use .6; detailed trajectories remain .1>6.
+scoutBuildCode=function(a){
+  let token='';
+  if(a.team==='opponent'){
+    const n=String(a.playerLabel||'').match(/\d+/)?.[0]||String(a.playerNumberSnapshot||'').match(/\d+/)?.[0]||String(a.playerLabel||'').replace(/\s+/g,'').slice(0,4)||'?';
+    token='R'+n;
+  }else{
+    const p=scoutPlayer(a.playerId);token=p?.number!==''&&p?.number!=null?String(p.number):(a.playerNumberSnapshot!==''&&a.playerNumberSnapshot!=null?String(a.playerNumberSnapshot):'P');
+  }
+  token+=a.skill+(a.evaluation||'!');
+  if(a.startZone&&a.endZone)token+=`.${a.startZone}>${a.endZone}`;
+  else if(scoutV6108IsContactSkill(a.skill)&&scoutV6108ContactZone(a))token+=`.${scoutV6108ContactZone(a)}`;
+  if(a.serveType)token+=`~${a.serveType}`;
+  const combo=a.setTarget||a.attackCombo;if(combo)token+=`:${combo}`;
+  if(a.phase)token+=`^${a.phase}`;
+  if(a.blockers!==''&&a.blockers!=null)token+=`@${a.blockers}`;
+  return token;
+};
+
+// Enrich R/D with the source action already typed in the same rally, without
+// forcing that inferred information into the visible short code.
+const v6108PushActionBase=scoutPushAction;
+scoutPushAction=function(action){
+  if(action&&scoutV6108IsContactSkill(action.skill)){
+    const z=scoutV6108NormalizeZoneInput(action.skill,action.startZone,action.endZone||action.contactZone);
+    action={...action,...z,contactZone:action.contactZone||z.contactZone,sourceZone:action.sourceZone||z.sourceZone};
+    scoutV6108InferSource(action);
+  }
+  return v6108PushActionBase(action);
+};
+
+function scoutV6108ParseRaw(raw,m,oldAction=null){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  // One zone is accepted syntactically; below it is restricted to R/D.
+  const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])(?:>([1-9]))?)?(.*)$/);
+  if(!mt)return {error:'Código no reconocido.'};
+  let rest=mt[7]||'';
+  const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');
+  const combo=rest.match(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/,'');
+  const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');
+  const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');
+  if(rest)return {error:'Parte avanzada no reconocida: '+rest};
+  const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',z1=mt[5]||'',z2=mt[6]||'';
+  if(z1&&!z2&&!scoutV6108IsContactSkill(skill))return {error:'La zona única (.6) solo se usa en recepción o defensa. Para saque/ataque usa origen>destino, por ejemplo .1>6.'};
+  const zones=scoutV6108NormalizeZoneInput(skill,z1,z2);
+  const base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,...zones,serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};
+  if(rival){
+    base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'');
+  }else{
+    let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};
+    if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};
+    base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num;
+  }
+  scoutV6108InferSource(base,m);
+  const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a};
+}
+
+// Quick-code console, now accepting 7R#.6 / 6D+.5 / R7R-.5.
+window.scoutAddCode=function(){
+  const input=$('scout-code-input');let raw=String(input?.value||'');
+  if(typeof scoutV690PreprocessCode==='function')raw=scoutV690PreprocessCode(raw);
+  if(!String(raw).trim())return;
+  const m=scoutActive();if(!m){alert('No hay un scouting activo.');return}
+  const parsed=scoutV6108ParseRaw(raw,m,null);
+  if(parsed.error){alert(parsed.error+'\n\nEjemplos: 7R#.6 · 6D+.5 · 4S+.1>5 · 12A#.4>5');return}
+  scoutPushAction(parsed.action);
+  if(input){input.value='';if(!scoutV690Settings||scoutV690Settings().autoFocus!==false)input.focus()}
+};
+
+// Rally editor uses exactly the same grammar as the live console.
+v680ParseCode=function(raw,m,oldAction=null){return scoutV6108ParseRaw(raw,m,oldAction)};
+
+// Manual form: in R/D, one selected zone becomes the contact zone.
+window.scoutAddManualAction=function(){
+  const team=$('scout-action-team')?.value||'ours',pv=$('scout-action-player')?.value||'',skill=$('scout-action-skill')?.value||'S',combo=$('scout-action-combo')?.value||'';
+  const zones=scoutV6108NormalizeZoneInput(skill,$('scout-action-start')?.value||'',$('scout-action-end')?.value||'');
+  scoutPushAction({team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',skill,evaluation:$('scout-action-eval')?.value||'!',...zones,serveType:$('scout-action-serve-type')?.value||'',phase:$('scout-action-phase')?.value||'',setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',attackTempo:skill==='A'?($('scout-action-tempo')?.value||''):'',blockers:skill==='A'?($('scout-action-blockers')?.value||''):''});
+};
+
+window.scoutUpdateAdvancedCodePreview=function(){
+  const skill=$('scout-action-skill')?.value||'S',ev=$('scout-action-eval')?.value||'!',start=$('scout-action-start')?.value||'',end=$('scout-action-end')?.value||'',serve=$('scout-action-serve-type')?.value||'',phase=$('scout-action-phase')?.value||'',combo=$('scout-action-combo')?.value||'',blockers=$('scout-action-blockers')?.value??'';
+  let c='N'+skill+ev;
+  if(start&&end)c+=`.${start}>${end}`;
+  else if(scoutV6108IsContactSkill(skill)&&(end||start))c+=`.`+(end||start);
+  if(serve)c+=`~${serve}`;if((skill==='E'||skill==='A')&&combo)c+=`:${combo}`;if(phase)c+=`^${phase}`;if(skill==='A'&&blockers!=='')c+=`@${blockers}`;
+  if($('scout-advanced-code-preview'))$('scout-advanced-code-preview').textContent='Código: '+c;
+};
+
+const v6108AdvancedFieldsBase=window.scoutUpdateAdvancedFields;
+window.scoutUpdateAdvancedFields=function(){
+  const out=v6108AdvancedFieldsBase();
+  const skill=$('scout-action-skill')?.value||'S',contact=scoutV6108IsContactSkill(skill);
+  const sl=$('scout-action-start-label'),el=$('scout-action-end-label');
+  if(sl)sl.textContent=contact?'Origen (opcional)':'Zona origen';
+  if(el)el.textContent=contact?(skill==='R'?'Zona de recepción':'Zona de defensa'):'Zona destino';
+  scoutUpdateAdvancedCodePreview();return out;
+};
+['scout-action-start','scout-action-end','scout-action-skill'].forEach(id=>$(id)?.addEventListener('change',()=>scoutUpdateAdvancedCodePreview()));
+
+// Interactive court: a single zone in R/D is treated as contact. Both zones keep
+// the detailed trajectory. The visible explanation changes according to skill.
+function scoutV6108CourtSkill(){return $('scout-v6100-court-skill')?.value||$('scout-action-skill')?.value||'A'}
+const v6108CourtRenderBase=scoutV6100RenderPath;
+scoutV6100RenderPath=function(){
+  v6108CourtRenderBase();
+  const skill=scoutV6108CourtSkill(),contact=scoutV6108IsContactSkill(skill),path=$('scout-v6100-path');
+  const panels=document.querySelectorAll('#scout-v6100-court-modal .scout-v6100-zone-panel h3');
+  if(panels[0])panels[0].textContent=contact?'Origen opcional':'Zona de origen';
+  if(panels[1])panels[1].textContent=contact?(skill==='R'?'Zona de recepción':'Zona de defensa'):'Zona de destino';
+  if(contact&&path){const z=(v6100Origin&&v6100Dest)?'':(v6100Dest||v6100Origin);path.textContent=z?`${skill==='R'?'Recepción':'Defensa'} en Z${z}`:`${v6100Origin&&v6100Dest?`Origen ${v6100Origin} → Destino ${v6100Dest}`:'Selecciona una zona; para trayectoria completa marca origen y destino'}`}
+};
+const v6108CourtApplyBase=window.scoutV6100CourtApply;
+window.scoutV6100CourtApply=function(register){
+  const skill=scoutV6108CourtSkill();
+  if(scoutV6108IsContactSkill(skill)&&!(v6100Origin&&v6100Dest)){
+    const z=v6100Dest||v6100Origin;v6100Origin='';v6100Dest=z;
+  }
+  return v6108CourtApplyBase(register);
+};
+$('scout-v6100-court-skill')?.addEventListener('change',()=>scoutV6100RenderPath());
+
+// Show contact zones in the live rally instead of hiding them when no origin exists.
+const v6108CurrentActionsBase=scoutRenderCurrentActions;
+scoutRenderCurrentActions=function(m){
+  v6108CurrentActionsBase(m);
+  document.querySelectorAll('#scout-current-actions .scout-action-item').forEach((row,i)=>{
+    const a=m?.liveRally?.actions?.[i];if(!a)return;
+    const small=row.querySelector('.scout-action-copy small'),z=scoutV6108ZoneText(a);
+    if(small&&z!=='—'&&!small.textContent.includes(z))small.textContent+=(small.textContent?' · ':'')+z;
+  });
+};
+
+// Rival-plan reception zones now use the real contact zone (destination for a
+// detailed R .1>6, or the single zone in R#.6).
+scoutV660ReceptionZones=function(matches){
+  const rows=scoutV650AllActions(matches).filter(a=>a.skill==='R'&&scoutV6108ContactZone(a));
+  return scoutV660GroupRows(rows,a=>'Z'+scoutV6108ContactZone(a)).map(([zone,zrows])=>({zone,total:zrows.length,negative:zrows.filter(a=>['-','/','='].includes(a.evaluation)).length,negativePct:scoutV660Pct(zrows.filter(a=>['-','/','='].includes(a.evaluation)).length,zrows.length),perfectPct:scoutV660Pct(zrows.filter(a=>a.evaluation==='#').length,zrows.length)})).sort((a,b)=>b.negativePct-a.negativePct||b.total-a.total);
+};
+
+// Better code-reference help.
+const v6108CodeRefBase=window.scoutOpenCodeReference;
+window.scoutOpenCodeReference=function(){
+  const modal=$('scout-code-reference-modal');
+  if(modal){
+    const examples=modal.querySelector('.scout-example-list');
+    if(examples&&!modal.dataset.contactZoneHelp){
+      examples.insertAdjacentHTML('afterbegin',`<div class="scout-example"><code>7R#.6</code>Recepción perfecta del #7 realizada en Z6. No necesitas indicar de dónde venía el saque.</div><div class="scout-example"><code>6D+.5</code>Defensa positiva del #6 realizada en Z5.</div><div class="scout-example"><code>7R#.1&gt;6</code>Formato detallado: recepción en Z6 de un balón procedente de Z1.</div>`);
+      modal.dataset.contactZoneHelp='1';
+    }
+  }
+  return v6108CodeRefBase();
+};
+
+// Migrate old R/D actions and rebuild their code without changing rallies/scores.
+function scoutV6108MigrateAction(a){
+  if(!a||!scoutV6108IsContactSkill(a.skill))return false;
+  let changed=false;
+  if(!a.contactZone){a.contactZone=String(a.endZone||a.startZone||'');changed=!!a.contactZone}
+  if(a.startZone&&a.endZone&&!a.sourceZone){a.sourceZone=String(a.startZone);changed=true}
+  const rebuilt=scoutBuildCode(a);if(rebuilt&&a.code!==rebuilt){a.code=rebuilt;changed=true}
+  return changed;
+}
+let v6108Migrated=false;
+scoutingMatches.forEach(m=>{
+  let changed=false;
+  scoutArr(m.sets).forEach(s=>scoutArr(s.rallies).forEach(r=>scoutArr(r.actions).forEach(a=>{if(scoutV6108MigrateAction(a))changed=true})));
+  scoutArr(m.liveRally?.actions).forEach(a=>{if(scoutV6108MigrateAction(a))changed=true});
+  if(changed){m.dataVersion=V6108_VERSION;m.updatedAt=scoutNow();v6108Migrated=true}
+});
+if(v6108Migrated){try{scoutSave(false)}catch(_){}}
+const v6108Active=scoutActive();if(v6108Active)v6108Active.dataVersion=V6108_VERSION;
+const v6108HelpBase=scoutV690UpdateCodeHelp;
+scoutV690UpdateCodeHelp=function(){
+  v6108HelpBase();
+  const h=document.querySelector('#scouting .scout-code-help');
+  if(h)h.innerHTML='<b>Formato rápido:</b> dorsal + fundamento + valoración. <b>R/D:</b> usa una sola zona de contacto (<b>7R#.6</b>, <b>6D+.5</b>) o trayectoria completa (<b>7R#.1&gt;6</b>). <b>S/A:</b> trayectoria <b>.origen&gt;destino</b>. Sufijos <b>~ : ^ @</b> opcionales. Usa <b>R</b> delante del dorsal para el rival.';
+};
+scoutV690UpdateCodeHelp();scoutUpdateAdvancedFields();
+
+
 })();
 </script>
 
@@ -7719,8 +7944,8 @@ if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.sco
 'use strict';
 const REQUIRED=['scoutOpenNewMatch','scoutOpenLineup','scoutOpenSubstitution','scoutAwardPoint','scoutUndoRally','scoutRotate','scoutRotateOpponent','scoutAddCode','scoutAddManualAction','scoutDeleteLastAction','scoutOpenCodeReference','scoutExportPDF','scoutExportCSV','scoutExportJSON','scoutRenderAnalysis','scoutRenderPlayerAnalytics','scoutFinishMatch','scoutUpdateAdvancedFields','scoutRenderPerformanceAnalytics','scoutExportStatsCSV','scoutV630OpenDrill','scoutV630CloseDrill','scoutV630ResetFilters','scoutV640RenderTendencies','scoutV640SetMode','scoutV640ResetFilters','scoutV640OpenDrill','scoutV640CloseDrill'];
 const missing=REQUIRED.filter(name=>typeof window[name]!=='function');
-if(missing.length)console.error('Volley Coach V6.10.7 · funciones de scouting no disponibles:',missing);
-else console.info('Volley Coach V6.10.7 · scouting handlers OK');
+if(missing.length)console.error('Volley Coach V6.10.8 · funciones de scouting no disponibles:',missing);
+else console.info('Volley Coach V6.10.8 · scouting handlers OK');
 })();
 </script>
 
