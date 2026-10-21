@@ -957,7 +957,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="session-top">
     <div class="session-title-row">
       <div><div class="session-eyebrow">WORKSPACE DE ENTRENAMIENTO</div><h2>Sesión actual</h2></div>
-      <div class="session-head-actions"><div class="session-live-status"><span></span> Guardado automático</div><button class="ghost compact-action" onclick="nuevaSesionVacia()">Nueva sesión</button><button class="ghost compact-action" onclick="abrirModalPlantillas('usar')">Desde plantilla</button><button class="primary compact-action" onclick="abrirModalPlantillas('guardar')">Guardar plantilla</button></div>
+      <div class="session-head-actions"><div class="session-live-status"><span></span> Guardado automático</div><button class="ghost compact-action live-delay-entry" onclick="openLiveDelay('training')">⏱ Live Delay</button><button class="ghost compact-action" onclick="nuevaSesionVacia()">Nueva sesión</button><button class="ghost compact-action" onclick="abrirModalPlantillas('usar')">Desde plantilla</button><button class="primary compact-action" onclick="abrirModalPlantillas('guardar')">Guardar plantilla</button></div>
     </div>
     <div id="plan-hoy-aviso" class="today-plan-wrap"></div>
     <div class="session-meta-grid">
@@ -1281,14 +1281,14 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('live')">🎥 Vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="scoutExportPDF()">Informe PDF</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="scoutExportPDF()">Informe PDF</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
     <div id="scout-live" class="hidden">
       <div class="scout-match-strip">
         <div><span class="pro-kicker">PARTIDO ACTIVO</span><h3 id="scout-match-title">—</h3><p id="scout-match-meta">—</p></div>
-        <div class="scout-live-badges"><span id="scout-status-badge" class="scout-status-badge live">EN DIRECTO</span><span id="scout-save-badge" class="scout-save-badge">Sesión abierta · auto-protección</span></div>
+        <div class="scout-live-badges"><span id="scout-status-badge" class="scout-status-badge live">EN DIRECTO</span><span id="scout-v740-video-badge" class="scout-save-badge scout-v740-video-badge">VÍDEO OFF</span><span id="scout-save-badge" class="scout-save-badge">Sesión abierta · auto-protección</span></div>
       </div>
       <div id="scout-v680-healthbar" class="scout-v680-healthbar">
         <div><div class="scout-v680-healthcopy"><strong>PARTIDO SEGURO</strong><span id="scout-v680-local" class="scout-v680-chip ok">Local protegido</span><span id="scout-v680-network" class="scout-v680-chip">Red</span><span id="scout-v680-backup" class="scout-v680-chip">Backup —</span><span id="scout-v680-integrity" class="scout-v680-chip">Integridad —</span></div><div id="scout-v680-last-warning" class="scout-v680-offline-note">Sin incidencias detectadas.</div></div>
@@ -1299,6 +1299,61 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="scout-v690-toolbar-right"><button class="ghost" onclick="scoutV690FocusCode()">⌨ Código</button><button class="ghost" onclick="scoutV690OpenReview()">Revisar scout</button><button class="ghost" onclick="scoutV690OpenEvent()">Registrar evento</button></div>
         <div id="scout-v690-event-strip" class="scout-v690-event-strip" style="flex-basis:100%"></div>
       </div>
+
+      <section id="scout-v740-dock" class="scout-v740-dock hidden" aria-label="Live Scouting con vídeo">
+        <div class="scout-v740-dock-head">
+          <div>
+            <span class="pro-kicker">V7.4 · LIVE SCOUTING + VIDEO</span>
+            <h3>Vídeo integrado en el scouting</h3>
+            <p>Las acciones y rallies se vinculan automáticamente al reloj de la cámara mientras Live Delay está activo.</p>
+          </div>
+          <div class="scout-v740-dock-actions">
+            <label class="scout-v740-auto">
+              <input id="scout-v740-auto-replay" type="checkbox" onchange="scoutV740SavePrefs()">
+              <span>Auto-replay tras punto</span>
+            </label>
+            <select id="scout-v740-auto-return" onchange="scoutV740SavePrefs()" title="Tiempo antes de volver al retraso automático">
+              <option value="0">Quedarse en replay</option>
+              <option value="1.2" selected>Volver en 1,2 s</option>
+              <option value="2">Volver en 2 s</option>
+              <option value="3">Volver en 3 s</option>
+            </select>
+            <button class="ghost" type="button" onclick="scoutV740ToggleCompactVideo()">Vista compacta</button>
+            <button class="ghost" type="button" onclick="scoutV700OpenVideo('live')">Abrir V7.2</button>
+            <button class="ghost" type="button" onclick="scoutV740CloseDock()">Cerrar vídeo</button>
+          </div>
+        </div>
+
+        <div class="scout-v740-status-grid">
+          <div><span>Sesión de vídeo</span><b id="scout-v740-session">—</b><small id="scout-v740-session-note">Cámara detenida</small></div>
+          <div><span>Acciones vinculadas</span><b id="scout-v740-linked-actions">0</b><small>en la sesión actual</small></div>
+          <div><span>Rallies vinculados</span><b id="scout-v740-linked-rallies">0</b><small>en la sesión actual</small></div>
+          <div><span>Replay disponible</span><b id="scout-v740-buffer">0 s</b><small>según el búfer actual</small></div>
+        </div>
+
+        <div class="scout-v740-replay-bar">
+          <div class="scout-v740-replay-copy">
+            <span class="pro-kicker">REPLAY LIGADO AL SCOUT</span>
+            <strong id="scout-v740-last-title">Todavía no hay una jugada vinculada.</strong>
+            <small id="scout-v740-last-note">Inicia la cámara y registra acciones normalmente.</small>
+          </div>
+          <div class="scout-v740-replay-actions">
+            <button class="ghost" type="button" onclick="scoutV740ReplayLastAction()">Última acción</button>
+            <button class="primary" type="button" onclick="scoutV740ReplayLastRally()">▶ Último rally</button>
+            <button class="ghost" type="button" onclick="scoutV740BookmarkLastRally()">Guardar marcador</button>
+            <button class="ghost" type="button" onclick="scoutV740ExportLastRally()">Exportar rally</button>
+            <button class="ghost" type="button" onclick="liveDelayReturn()">Volver al delay</button>
+          </div>
+        </div>
+
+        <div id="scout-v740-inline-host" class="scout-v740-inline-host"></div>
+
+        <details class="scout-v740-bookmarks">
+          <summary>Marcadores de vídeo guardados <span id="scout-v740-bookmark-count">0</span></summary>
+          <div id="scout-v740-bookmark-list" class="scout-v740-bookmark-list"></div>
+        </details>
+      </section>
+
       <div class="scout-kpis">
         <div class="scout-kpi"><span>Set</span><b id="scout-kpi-set">1</b><small id="scout-kpi-sets">0–0 sets</small></div>
         <div class="scout-kpi"><span>Marcador</span><b id="scout-kpi-score">0–0</b><small id="scout-kpi-rallies">0 rallies</small></div>
@@ -1394,17 +1449,19 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 
 <div id="scout-v700-video-modal" class="pro-modal" onclick="if(event.target===this)scoutV700CloseVideo()">
   <div class="pro-modal-card scout-v700-modal-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">V7.0 · VIDEO SCOUTING</span><h2>Vídeo sincronizado</h2><p id="scout-v700-subtitle">Carga el archivo del partido, sincronízalo una vez y salta desde cada rally o acción al momento exacto.</p></div><button class="modal-close" onclick="scoutV700CloseVideo()">×</button></div>
+    <div class="pro-modal-head"><div><span class="pro-kicker">V7.2 · VIDEO ANALYSIS + CLIP STUDIO</span><h2>Vídeo, análisis y clips</h2><p id="scout-v700-subtitle">Analiza el partido sincronizado y crea clips de rallies, acciones o intervalos manuales sin salir del scouting.</p></div><button class="modal-close" onclick="scoutV700CloseVideo()">×</button></div>
     <div class="scout-v700-toolbar">
       <label><span>Scouting</span><select id="scout-v700-match" onchange="scoutV700MatchChanged()"></select></label>
       <label style="flex:1"><span>Archivo de vídeo local</span><input id="scout-v700-file" type="file" accept="video/*" onchange="scoutV700LoadFile(event)"></label>
       <button class="ghost" onclick="document.getElementById('scout-v700-file').click()">Seleccionar vídeo</button>
+      <button class="ghost live-delay-entry" onclick="openLiveDelay('scouting')">⏱ Live Delay</button>
       <button class="ghost scout-v700-danger" onclick="scoutV700DetachFile()">Quitar vídeo cargado</button>
     </div>
     <div class="scout-v700-body">
       <div class="scout-v700-player-side">
         <div class="scout-v700-video-wrap">
           <video id="scout-v700-player" controls playsinline preload="metadata"></video>
+          <div id="scout-v710-overlay" class="scout-v710-overlay"><b>V7.1</b><span>Sin segmento activo</span></div>
           <div id="scout-v700-video-empty" class="scout-v700-video-empty"><b>Sin vídeo cargado</b><span>Selecciona el archivo grabado del partido. El vídeo permanece en tu dispositivo; Volley Coach guarda solo la referencia y la sincronización.</span></div>
         </div>
         <div class="scout-v700-current"><span id="scout-v700-current-label">Sin segmento seleccionado</span><b id="scout-v700-current-time">00:00.0</b></div>
@@ -1414,6 +1471,65 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <div><span>Sincronización</span><b id="scout-v700-meta-sync">—</b></div>
           <div><span>Rallies con tiempo</span><b id="scout-v700-meta-rallies">0</b></div>
         </div>
+        <div class="scout-v710-playback">
+          <button class="ghost" onclick="scoutV710Seek(-5)">−5 s</button>
+          <button class="ghost" onclick="scoutV710Seek(-1)">−1 s</button>
+          <button class="ghost" onclick="scoutV710TogglePlay()">▶ / ❚❚</button>
+          <button class="ghost" onclick="scoutV710Seek(1)">+1 s</button>
+          <button class="ghost" onclick="scoutV710Seek(5)">+5 s</button>
+          <button class="ghost" onclick="scoutV710Previous()">← Anterior</button>
+          <button class="ghost" onclick="scoutV710Next()">Siguiente →</button>
+          <label><span>Velocidad</span><select id="scout-v710-speed" onchange="scoutV710SetSpeed(this.value)"><option value="0.5">0,5×</option><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+        </div>
+        <div class="scout-v710-analysis">
+          <div class="scout-v710-analysis-head"><div><span class="pro-kicker">ANÁLISIS DEL FILTRO ACTUAL</span><strong id="scout-v710-filter-summary">Todas las acciones</strong></div><button class="ghost" onclick="scoutV710ResetFilters()">Restablecer filtros</button></div>
+          <div id="scout-v710-kpis" class="scout-v710-kpis"></div>
+          <div id="scout-v710-skill-breakdown" class="scout-v710-skill-breakdown"></div>
+        </div>
+        <section id="scout-v720-studio" class="scout-v720-studio">
+          <div class="scout-v720-head">
+            <div>
+              <span class="pro-kicker">V7.2 · CLIP STUDIO</span>
+              <strong>Crear y organizar clips</strong>
+              <small>Los tiempos y la biblioteca de clips se guardan dentro de este scouting.</small>
+            </div>
+            <div class="scout-v720-head-actions">
+              <button class="ghost" type="button" onclick="scoutV720PlayPlaylist()">▶ Ver montaje</button>
+              <button class="ghost" type="button" onclick="scoutV720ExportCSV()">CSV</button>
+              <button class="ghost" type="button" onclick="scoutV720ExportJSON()">JSON</button>
+            </div>
+          </div>
+
+          <div class="scout-v720-markers">
+            <div class="scout-v720-marker"><span>IN</span><b id="scout-v720-in">—</b><button class="ghost" type="button" onclick="scoutV720MarkIn()">Marcar I</button></div>
+            <div class="scout-v720-marker"><span>OUT</span><b id="scout-v720-out">—</b><button class="ghost" type="button" onclick="scoutV720MarkOut()">Marcar O</button></div>
+            <div class="scout-v720-marker duration"><span>Duración</span><b id="scout-v720-duration">—</b><button class="ghost" type="button" onclick="scoutV720ClearMarkers()">Limpiar</button></div>
+          </div>
+
+          <div class="scout-v720-form">
+            <input id="scout-v720-name" type="text" maxlength="90" placeholder="Nombre del clip">
+            <select id="scout-v720-tag">
+              <option value="general">General</option>
+              <option value="highlights">Highlights</option>
+              <option value="technical">Técnico</option>
+              <option value="tactical">Táctico</option>
+              <option value="player">Jugador</option>
+              <option value="opponent">Rival</option>
+              <option value="error">Corrección / error</option>
+            </select>
+            <input id="scout-v720-note" type="text" maxlength="180" placeholder="Nota opcional">
+            <button class="primary" type="button" onclick="scoutV720CreateManual()">Guardar clip IN–OUT</button>
+          </div>
+
+          <div class="scout-v720-batch">
+            <span>Creación rápida</span>
+            <button class="ghost" type="button" onclick="scoutV720CreateSelected()">Clip de la fila seleccionada</button>
+            <button class="ghost" type="button" onclick="scoutV720CreateVisible()">Crear clips de las filas visibles</button>
+            <span id="scout-v720-status" class="scout-v720-status"></span>
+          </div>
+
+          <div id="scout-v720-clips" class="scout-v720-clips"></div>
+        </section>
         <div class="scout-v700-syncbar">
           <button class="ghost" onclick="scoutV700Nudge(-1)">Sync −1 s</button><button class="ghost" onclick="scoutV700Nudge(-0.25)">−0,25</button><button class="ghost" onclick="scoutV700Nudge(0.25)">+0,25</button><button class="ghost" onclick="scoutV700Nudge(1)">Sync +1 s</button>
           <button class="ghost" onclick="scoutV700ClearSync()">Quitar sincronización</button>
@@ -1426,10 +1542,128 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         </div>
       </div>
       <div class="scout-v700-list-side">
-        <div class="scout-v700-list-head"><select id="scout-v700-kind" onchange="scoutV700RenderTimeline()"><option value="all">Rallies + acciones + eventos</option><option value="rally">Solo rallies</option><option value="action">Solo acciones</option><option value="event">Solo eventos</option></select><select id="scout-v700-skill" onchange="scoutV700RenderTimeline()"><option value="">Todos los fundamentos</option><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select><input id="scout-v700-search" placeholder="Buscar código, jugador, set…" oninput="scoutV700RenderTimeline()"></div>
-        <div class="scout-v700-help"><b>Sincronización por ancla.</b> El scouting ya guarda un reloj interno para cada rally y acción. Solo necesitas alinear un momento del vídeo con una fila. Puedes reajustarlo después con ±0,25 s / ±1 s.</div>
+        <div class="scout-v700-list-head scout-v710-filter-grid">
+          <select id="scout-v700-kind" onchange="scoutV700RenderTimeline()"><option value="all">Rallies + acciones + eventos</option><option value="rally">Solo rallies</option><option value="action">Solo acciones</option><option value="event">Solo eventos</option></select>
+          <select id="scout-v710-set" onchange="scoutV700RenderTimeline()"><option value="">Todos los sets</option></select>
+          <select id="scout-v710-team" onchange="scoutV710FilterChanged()"><option value="">Ambos equipos</option><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select>
+          <select id="scout-v710-player" onchange="scoutV700RenderTimeline()"><option value="">Todos los jugadores</option></select>
+          <select id="scout-v700-skill" onchange="scoutV700RenderTimeline()"><option value="">Todos los fundamentos</option><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select>
+          <select id="scout-v710-eval" onchange="scoutV700RenderTimeline()"><option value="">Todas las valoraciones</option><option value="#"># Máxima / punto</option><option value="+">+ Positiva</option><option value="!">! Neutra</option><option value="-">− Negativa</option><option value="/">/ Muy negativa</option><option value="=">= Error</option></select>
+          <input id="scout-v700-search" placeholder="Buscar código, jugador, set…" oninput="scoutV700RenderTimeline()">
+        </div>
+        <div class="scout-v700-help"><b>V7.2.</b> Filtra el análisis como en V7.1 y pulsa <b>Clip</b> en cualquier rally/acción para guardarlo automáticamente. También puedes marcar IN/OUT sobre el vídeo. G-P mantiene <b>G = #</b> y <b>P = =</b>.</div>
         <div id="scout-v700-timeline" class="scout-v700-timeline"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="live-delay-modal" class="pro-modal" onclick="if(event.target===this)closeLiveDelay()">
+  <div class="pro-modal-card live-delay-card">
+    <div class="pro-modal-head">
+      <div>
+        <span class="pro-kicker">V7.3 · LIVE DELAY</span>
+        <h2>Vídeo en directo con retraso</h2>
+        <p id="live-delay-subtitle">Captura la cámara y revisa la acción unos segundos después sin detener la grabación.</p>
+      </div>
+      <button class="modal-close" type="button" onclick="closeLiveDelay()">×</button>
+    </div>
+
+    <div class="live-delay-toolbar">
+      <label class="live-delay-field camera">
+        <span>Cámara</span>
+        <select id="live-delay-camera"></select>
+      </label>
+      <label class="live-delay-field">
+        <span>Retraso</span>
+        <select id="live-delay-seconds" onchange="liveDelaySetDelay(this.value)">
+          <option value="3">3 s</option>
+          <option value="5">5 s</option>
+          <option value="8">8 s</option>
+          <option value="10" selected>10 s</option>
+          <option value="15">15 s</option>
+          <option value="20">20 s</option>
+          <option value="30">30 s</option>
+        </select>
+      </label>
+      <label class="live-delay-field">
+        <span>Búfer máximo</span>
+        <select id="live-delay-buffer" onchange="liveDelaySetBuffer(this.value)">
+          <option value="60">1 min</option>
+          <option value="120" selected>2 min</option>
+          <option value="180">3 min</option>
+          <option value="300">5 min</option>
+        </select>
+      </label>
+      <div class="live-delay-main-actions">
+        <button id="live-delay-start" class="success" type="button" onclick="startLiveDelay()">Iniciar cámara</button>
+        <button id="live-delay-stop" class="danger hidden" type="button" onclick="stopLiveDelay()">Detener</button>
+      </div>
+    </div>
+
+    <div id="live-delay-support" class="live-delay-support">
+      <b>Preparado.</b> La cámara no se envía a ningún servidor; el búfer temporal permanece en este dispositivo.
+    </div>
+
+    <div class="live-delay-grid">
+      <section class="live-delay-pane">
+        <div class="live-delay-pane-head">
+          <div><span class="pro-kicker">DIRECTO</span><strong>Cámara actual</strong></div>
+          <span id="live-delay-live-state" class="live-delay-state">DETENIDA</span>
+        </div>
+        <div class="live-delay-video-frame live">
+          <video id="live-delay-live" autoplay muted playsinline></video>
+          <div class="live-delay-badge">LIVE</div>
+          <div id="live-delay-live-empty" class="live-delay-empty">Pulsa “Iniciar cámara”.</div>
+        </div>
+      </section>
+
+      <section class="live-delay-pane">
+        <div class="live-delay-pane-head">
+          <div><span class="pro-kicker">REVISIÓN</span><strong id="live-delay-review-title">Retraso · 10 s</strong></div>
+          <span id="live-delay-review-state" class="live-delay-state delayed">ESPERANDO</span>
+        </div>
+        <div class="live-delay-video-frame delayed">
+          <video id="live-delay-delayed" autoplay muted playsinline></video>
+          <div id="live-delay-delay-badge" class="live-delay-badge delay">−10 s</div>
+          <div id="live-delay-review-empty" class="live-delay-empty">El vídeo retrasado aparecerá cuando haya suficiente búfer.</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="live-delay-metrics">
+      <div><span>Retraso real</span><b id="live-delay-actual">—</b><small>respecto al directo</small></div>
+      <div><span>Búfer disponible</span><b id="live-delay-buffered">0 s</b><small>historial temporal</small></div>
+      <div><span>Modo</span><b id="live-delay-mode">Delay</b><small id="live-delay-mode-note">seguimiento automático</small></div>
+      <div><span>Contexto</span><b id="live-delay-context">Entrenamiento</b><small id="live-delay-context-note">corrección técnica</small></div>
+    </div>
+
+    <div class="live-delay-controls">
+      <button class="ghost" type="button" onclick="liveDelayJump(-10)">↶ 10 s</button>
+      <button class="ghost" type="button" onclick="liveDelayJump(-5)">↶ 5 s</button>
+      <button class="ghost" type="button" onclick="liveDelayJump(-2)">↶ 2 s</button>
+      <button id="live-delay-pause" class="primary" type="button" onclick="liveDelayTogglePause()">Pausar revisión</button>
+      <button class="ghost" type="button" onclick="liveDelayJump(2)">2 s ↷</button>
+      <button class="ghost" type="button" onclick="liveDelayJump(5)">5 s ↷</button>
+      <button class="ghost" type="button" onclick="liveDelayReturn()">Volver al delay</button>
+    </div>
+
+    <div class="live-delay-training-tools">
+      <div>
+        <span class="pro-kicker">REPETICIÓN RÁPIDA</span>
+        <strong>Para corrección durante el entrenamiento</strong>
+        <small>La cámara continúa capturando aunque pauses o retrocedas la pantalla de revisión.</small>
+      </div>
+      <div class="live-delay-replay-actions">
+        <button class="ghost" type="button" onclick="liveDelayReplay(5)">Últimos 5 s</button>
+        <button class="ghost" type="button" onclick="liveDelayReplay(10)">Últimos 10 s</button>
+        <button class="ghost" type="button" onclick="liveDelayReplay(15)">Últimos 15 s</button>
+      </div>
+    </div>
+
+    <div class="live-delay-help">
+      <b>Uso recomendado en entrenamiento:</b> coloca el dispositivo grabando la zona de trabajo y usa entre 8 y 15 segundos de retraso. El jugador ejecuta la acción y, al terminar, puede mirar la segunda pantalla para verla sin que tengas que detener la cámara.
     </div>
   </div>
 </div>
@@ -1526,6 +1760,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <button onclick="quickPartido()"><b>🏐 Partido</b><small>Añadir partido o competición</small></button>
     <button onclick="quickJugador()"><b>👤 Jugador</b><small>Añadir a la plantilla</small></button>
     <button onclick="quickEjercicio()"><b>＋ Ejercicio</b><small>Crear una ficha en biblioteca</small></button>
+    <button onclick="toggleQuickActions(false);openLiveDelay('training')"><b>⏱ Live Delay</b><small>Revisión técnica con cámara y retraso</small></button>
   </div>
   <button id="quick-actions-trigger" class="quick-actions-trigger" onclick="toggleQuickActions()" aria-label="Acciones rápidas">＋</button>
 </div>
@@ -4015,7 +4250,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.0.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.4.0', {
         updateViaCache: 'none'
       });
 
@@ -8296,7 +8531,7 @@ else console.info('Volley Coach V7.0.2 · scouting handlers OK');
 
 <button id="scout-live-exit-fab" class="scout-live-exit-fab" type="button" onclick="scoutV6101ExitLive()" aria-label="Salir del modo directo">← Salir modo directo</button>
 <div id="scout-live-session-fab" class="scout-live-session-fab" aria-label="Controles de guardado del scouting">
-  <button class="ghost" type="button" onclick="scoutV700OpenVideo('live')">🎥 Vídeo</button>
+  <button class="ghost" type="button" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" type="button" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button>
   <button class="ghost" type="button" onclick="scoutV6102SaveAndExit()">Guardar scouting</button>
   <button class="success" type="button" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button>
 </div>
@@ -8877,6 +9112,1725 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
   console.info('Volley Coach V7.0.2 · hotfix de vídeo y persistencia cargado');
 })();
 
+</script>
+
+
+
+<style id="v710-video-analysis-style">
+/* ===== V7.1 · VIDEO ANALYSIS ===== */
+.scout-v700-player-side{overflow:auto}
+.scout-v710-overlay{position:absolute;left:10px;top:10px;z-index:6;display:flex;gap:7px;align-items:center;max-width:calc(100% - 20px);padding:6px 8px;border-radius:7px;background:rgba(5,18,30,.78);color:#dce8f1;font:700 9px/1.25 Arial,Helvetica,sans-serif;pointer-events:none;backdrop-filter:blur(4px)}
+.scout-v710-overlay b{display:inline-flex;align-items:center;padding:3px 5px;border-radius:5px;background:#e49a3a;color:#152b3b;font-size:8px;letter-spacing:.05em}
+.scout-v710-overlay span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scout-v710-playback{display:flex;gap:5px;align-items:end;flex-wrap:wrap;padding:8px 0 1px}
+.scout-v710-playback button{padding:7px 8px!important;font-size:8px!important}
+.scout-v710-playback label{display:flex;flex-direction:column;gap:3px;margin-left:auto;min-width:82px}
+.scout-v710-playback label>span{font-size:7px;text-transform:uppercase;letter-spacing:.08em;color:#86a0b5;font-weight:900}
+.scout-v710-playback select{padding:7px 8px!important;font-size:9px!important;background:#fff!important}
+.scout-v710-analysis{border:1px solid #1e3c55;border-radius:10px;background:#0d2235;padding:10px}
+.scout-v710-analysis-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+.scout-v710-analysis-head .pro-kicker{color:#7f99ae;margin-bottom:2px}
+.scout-v710-analysis-head strong{display:block;color:#fff;font-size:10px}
+.scout-v710-analysis-head button{font-size:7.5px!important;padding:5px 7px!important;background:#17324d!important;color:#dce8f2!important;border-color:#355168!important}
+.scout-v710-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.scout-v710-kpi{background:#102b43;border:1px solid #1f405a;border-radius:8px;padding:8px;min-width:0}
+.scout-v710-kpi span{display:block;font-size:6.8px;letter-spacing:.08em;text-transform:uppercase;color:#83a0b7;font-weight:900;white-space:nowrap}
+.scout-v710-kpi b{display:block;color:#fff;font-size:17px;margin-top:3px;font-variant-numeric:tabular-nums}
+.scout-v710-kpi small{display:block;color:#8fa8ba;font-size:7px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scout-v710-kpi.gp b{color:#f0b45f}.scout-v710-kpi.good b{color:#91d2ad}.scout-v710-kpi.bad b{color:#e6a09d}
+.scout-v710-skill-breakdown{display:grid;gap:4px;margin-top:7px}
+.scout-v710-skill-row{display:grid;grid-template-columns:74px 1fr repeat(4,38px);gap:5px;align-items:center;padding:5px 6px;border-radius:6px;background:#10283d;color:#c7d5df;font:700 7.5px/1.2 Arial,Helvetica,sans-serif}
+.scout-v710-skill-row.head{background:transparent;color:#708ba0;text-transform:uppercase;font-size:6.7px;padding-top:1px;padding-bottom:2px}
+.scout-v710-skill-row b{color:#fff;font-size:8px}.scout-v710-skill-row span:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+.scout-v710-filter-grid{display:grid!important;grid-template-columns:repeat(3,minmax(120px,1fr))!important}
+.scout-v710-filter-grid input{grid-column:1/-1}
+.scout-v700-item.v710-dimmed{opacity:.48}
+.scout-v700-item .v710-eval-badge{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:5px;border-radius:5px;background:#f1f4f6;color:#29475f;font-weight:900}
+.scout-v700-item .v710-eval-badge.good{background:#e9f4ee;color:#28613f}.scout-v700-item .v710-eval-badge.bad{background:#faeceb;color:#90413e}
+.scout-v710-empty{padding:8px 2px;color:#8fa4b5;font-size:8px}
+@media(max-width:1080px){.scout-v710-kpis{grid-template-columns:repeat(3,1fr)}.scout-v710-filter-grid{grid-template-columns:repeat(2,minmax(120px,1fr))!important}}
+@media(max-width:650px){.scout-v710-kpis{grid-template-columns:1fr 1fr}.scout-v710-filter-grid{grid-template-columns:1fr!important}.scout-v710-filter-grid input{grid-column:auto}.scout-v710-playback label{margin-left:0}.scout-v710-skill-row{grid-template-columns:68px 1fr repeat(4,34px)}}
+</style>
+
+
+<script id="v710-video-analysis-module">
+(()=>{
+'use strict';
+
+const V710_VERSION='7.1.0';
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const state={selectedKey:'',lastMatchId:null};
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function matches(){try{return arr(bridge()?.getMatches?.())}catch(_){return []}}
+function activeId(){try{return Number(bridge()?.getActiveId?.())||0}catch(_){return 0}}
+function teamName(){try{return bridge()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function label(a){try{return bridge()?.playerLabel?.(a)||fallbackLabel(a)}catch(_){return fallbackLabel(a)}}
+function fallbackLabel(a){const n=a?.playerNameSnapshot||a?.playerLabel||a?.playerNumberSnapshot;return String(n||'Jugador')}
+function currentMatch(){const id=Number($('scout-v700-match')?.value)||activeId();return matches().find(m=>Number(m.id)===id)||null}
+function video(){return $('scout-v700-player')}
+function meta(m){const x=m?.video;return x&&typeof x==='object'?x:null}
+function fmt(s){if(s==null||!Number.isFinite(Number(s)))return '—';s=Math.max(0,Number(s));const mm=Math.floor(s/60),ss=s-mm*60;return `${String(mm).padStart(2,'0')}:${ss.toFixed(1).padStart(4,'0')}`}
+function pct(n,d){return d?Math.round((Number(n)||0)*100/d):0}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function actionPlayerKey(a){if(a?.team==='ours')return `ours:${a.playerId??a.playerNumberSnapshot??a.playerNameSnapshot??a.playerLabel??''}`;return `opponent:${a.playerLabel??a.playerNumberSnapshot??a.playerNameSnapshot??''}`}
+function rallyStartMs(r){const aa=arr(r?.actions);return aa.length?(Number(aa[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0)}
+function rallyEndMs(r){const aa=arr(r?.actions);return aa.length?(Number(aa[aa.length-1].scoutMs)||Number(r?.scoutEndMs)||rallyStartMs(r)):(Number(r?.scoutEndMs)||rallyStartMs(r))}
+function mapped(m,ms){const x=meta(m);return x?.syncOffset==null?null:Math.max(0,(Number(ms)||0)/1000+Number(x.syncOffset))}
+
+function allItems(m){
+  const out=[];
+  arr(m?.sets).forEach(s=>arr(s.rallies).forEach((r,ri)=>{
+    out.push({
+      key:`r:${s.number}:${r.id}`,type:'rally',ms:rallyStartMs(r),endMs:rallyEndMs(r),set:Number(s.number)||1,
+      team:r.winner==='ours'?'ours':'opponent',label:`Set ${s.number} · Rally ${ri+1} · ${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`,
+      copy:`R${r.rotationBefore||1} vs R${r.opponentRotationBefore||1} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${arr(r.actions).length} acciones`,
+      rally:r,actions:arr(r.actions)
+    });
+    arr(r.actions).forEach(a=>out.push({
+      key:`a:${s.number}:${r.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(s.number)||1,
+      team:a.team==='opponent'?'opponent':'ours',skill:a.skill,evaluation:a.evaluation,playerKey:actionPlayerKey(a),
+      playerLabel:label(a),label:String(a.code||SKILLS[a.skill]||'Acción'),
+      copy:`S${s.number} · Rally ${ri+1} · ${a.team==='ours'?'Nuestro equipo':'Rival'} · ${label(a)}`,
+      action:a,rally:r
+    }));
+  }));
+  const cs=arr(m?.sets).find(s=>Number(s.number)===Number(m?.currentSet));
+  const li=arr(cs?.rallies).length+1;
+  arr(m?.liveRally?.actions).forEach(a=>out.push({
+    key:`a:${m.currentSet}:${m.liveRally.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(m.currentSet)||1,
+    team:a.team==='opponent'?'opponent':'ours',skill:a.skill,evaluation:a.evaluation,playerKey:actionPlayerKey(a),
+    playerLabel:label(a),label:String(a.code||SKILLS[a.skill]||'Acción'),
+    copy:`S${m.currentSet} · Rally ${li} en curso · ${a.team==='ours'?'Nuestro equipo':'Rival'} · ${label(a)}`,
+    action:a,rally:m.liveRally,live:true
+  }));
+  arr(m?.workflow?.events).forEach(e=>out.push({
+    key:`e:${String(e.uid||e.id)}`,type:'event',ms:Number(e.scoutMs)||0,set:Number(e.setNumber)||1,
+    label:String(e.type||'Evento'),copy:`S${e.setNumber||'?'} · ${e.scoreUs??0}–${e.scoreOpponent??0}${e.note?' · '+e.note:''}`,event:e
+  }));
+  arr(m?.events).forEach(e=>out.push({
+    key:`e:${String(e.uid||e.id)}`,type:'event',ms:Number(e.scoutMs)||0,set:Number(e.setNumber)||1,
+    label:e.type==='libero_auto'?'Líbero automático':'Cambio',
+    copy:`S${e.setNumber||'?'} · ${e.scoreUs??0}–${e.scoreOpponent??0} · ${e.outLabel||'—'} → ${e.inLabel||'—'}`,event:e
+  }));
+  return out.sort((a,b)=>a.ms-b.ms||String(a.key).localeCompare(String(b.key)));
+}
+
+function filterState(){
+  return {
+    kind:$('scout-v700-kind')?.value||'all',
+    set:$('scout-v710-set')?.value||'',
+    team:$('scout-v710-team')?.value||'',
+    player:$('scout-v710-player')?.value||'',
+    skill:$('scout-v700-skill')?.value||'',
+    evaluation:$('scout-v710-eval')?.value||'',
+    q:String($('scout-v700-search')?.value||'').trim().toLowerCase()
+  };
+}
+function actionMatches(item,f){
+  if(item.type!=='action')return false;
+  if(f.set&&String(item.set)!==f.set)return false;
+  if(f.team&&item.team!==f.team)return false;
+  if(f.player&&item.playerKey!==f.player)return false;
+  if(f.skill&&item.skill!==f.skill)return false;
+  if(f.evaluation&&item.evaluation!==f.evaluation)return false;
+  if(f.q&&!`${item.label} ${item.copy} ${item.playerLabel||''} ${SKILLS[item.skill]||''} ${item.set}`.toLowerCase().includes(f.q))return false;
+  return true;
+}
+function itemMatches(item,f){
+  if(f.kind!=='all'&&item.type!==f.kind)return false;
+  if(f.set&&String(item.set)!==f.set)return false;
+
+  const actionSpecific=!!(f.team||f.player||f.skill||f.evaluation);
+  if(item.type==='action')return actionMatches(item,f);
+  if(item.type==='rally'&&actionSpecific){
+    const actions=arr(item.actions).map(a=>({
+      type:'action',set:item.set,team:a.team==='opponent'?'opponent':'ours',playerKey:actionPlayerKey(a),
+      skill:a.skill,evaluation:a.evaluation,label:String(a.code||''),copy:label(a),playerLabel:label(a)
+    }));
+    if(!actions.some(x=>actionMatches(x,{...f,kind:'action',set:''})))return false;
+  }
+  if(item.type==='event'&&actionSpecific)return false;
+  if(f.q&&!`${item.label} ${item.copy} ${item.set}`.toLowerCase().includes(f.q))return false;
+  return true;
+}
+function filteredItems(m){const f=filterState();return allItems(m).filter(x=>itemMatches(x,f))}
+function filteredActions(m){
+  const f=filterState();
+  return allItems(m).filter(x=>x.type==='action'&&actionMatches(x,{...f,kind:'action'}));
+}
+
+function populateDynamicFilters(m){
+  if(!m)return;
+  const setSel=$('scout-v710-set');
+  if(setSel){
+    const old=setSel.value;
+    const sets=[...new Set(arr(m.sets).map(s=>Number(s.number)).filter(Boolean))].sort((a,b)=>a-b);
+    setSel.innerHTML='<option value="">Todos los sets</option>'+sets.map(n=>`<option value="${n}">Set ${n}</option>`).join('');
+    if(sets.map(String).includes(old))setSel.value=old;
+  }
+  populatePlayers(m);
+}
+function populatePlayers(m){
+  const sel=$('scout-v710-player');if(!sel||!m)return;
+  const old=sel.value,team=$('scout-v710-team')?.value||'';
+  const map=new Map();
+  allItems(m).filter(x=>x.type==='action'&&(!team||x.team===team)).forEach(x=>{
+    if(!map.has(x.playerKey))map.set(x.playerKey,{label:x.playerLabel||'Jugador',team:x.team});
+  });
+  const rows=[...map.entries()].sort((a,b)=>{
+    if(a[1].team!==b[1].team)return a[1].team==='ours'?-1:1;
+    return String(a[1].label).localeCompare(String(b[1].label),'es',{numeric:true});
+  });
+  sel.innerHTML='<option value="">Todos los jugadores</option>'+rows.map(([k,v])=>`<option value="${esc(k)}">${v.team==='ours'?'Nuestro':'Rival'} · ${esc(v.label)}</option>`).join('');
+  if(rows.some(([k])=>k===old))sel.value=old;
+}
+
+function metrics(m){
+  const rows=filteredActions(m),g=rows.filter(x=>x.evaluation==='#').length,p=rows.filter(x=>x.evaluation==='=').length,
+        pos=rows.filter(x=>x.evaluation==='#'||x.evaluation==='+').length,
+        neg=rows.filter(x=>['-','/','='].includes(x.evaluation)).length;
+  return {rows,total:rows.length,g,p,gp:g-p,pos,neg,posPct:pct(pos,rows.length),errPct:pct(p,rows.length)};
+}
+
+function filterSummary(){
+  const f=filterState(),parts=[];
+  if(f.set)parts.push(`Set ${f.set}`);
+  if(f.team)parts.push(f.team==='ours'?teamName():'Rival');
+  if(f.player)parts.push($('scout-v710-player')?.selectedOptions?.[0]?.textContent||'Jugador');
+  if(f.skill)parts.push(SKILLS[f.skill]||f.skill);
+  if(f.evaluation)parts.push(`Valoración ${f.evaluation}`);
+  if(f.q)parts.push(`“${f.q}”`);
+  return parts.length?parts.join(' · '):'Todas las acciones';
+}
+function renderMetrics(m){
+  const k=$('scout-v710-kpis'),breakdown=$('scout-v710-skill-breakdown');
+  if(!k||!breakdown)return;
+  if(!m){k.innerHTML='';breakdown.innerHTML='';return}
+  const x=metrics(m);
+  $('scout-v710-filter-summary').textContent=filterSummary();
+  k.innerHTML=`
+    <div class="scout-v710-kpi"><span>Acciones</span><b>${x.total}</b><small>muestra filtrada</small></div>
+    <div class="scout-v710-kpi good"><span>G · #</span><b>${x.g}</b><small>ganancias</small></div>
+    <div class="scout-v710-kpi bad"><span>P · =</span><b>${x.p}</b><small>pérdidas/error</small></div>
+    <div class="scout-v710-kpi gp"><span>G-P</span><b>${x.gp>0?'+':''}${x.gp}</b><small># menos =</small></div>
+    <div class="scout-v710-kpi"><span>Positivas</span><b>${x.posPct}%</b><small># / +</small></div>`;
+  const groups=Object.keys(SKILLS).map(skill=>{
+    const r=x.rows.filter(a=>a.skill===skill),g=r.filter(a=>a.evaluation==='#').length,p=r.filter(a=>a.evaluation==='=').length,pos=r.filter(a=>['#','+'].includes(a.evaluation)).length;
+    return {skill,n:r.length,g,p,gp:g-p,pos:pct(pos,r.length)};
+  }).filter(r=>r.n);
+  breakdown.innerHTML=groups.length?`
+    <div class="scout-v710-skill-row head"><span>Fundamento</span><span>Acc.</span><span>G</span><span>P</span><span>G-P</span><span>+/#</span></div>
+    ${groups.map(r=>`<div class="scout-v710-skill-row"><b>${esc(SKILLS[r.skill])}</b><span>${r.n}</span><span>${r.g}</span><span>${r.p}</span><span>${r.gp>0?'+':''}${r.gp}</span><span>${r.pos}%</span></div>`).join('')}`:
+    '<div class="scout-v710-empty">No hay acciones que cumplan los filtros.</div>';
+}
+
+function renderTimeline(){
+  const box=$('scout-v700-timeline'),m=currentMatch();if(!box)return;
+  if(!m){box.innerHTML='<div class="match-empty">No hay scouting seleccionado.</div>';renderMetrics(null);return}
+  populateDynamicFilters(m);
+  const rows=filteredItems(m);
+  box.innerHTML=rows.length?rows.map(x=>{
+    const t=mapped(m,x.ms),play=t!=null,pill=x.type==='rally'?'RALLY':x.type==='action'?(SKILLS[x.skill]||x.skill):'EVENTO';
+    const evalBadge=x.type==='action'&&x.evaluation?`<span class="v710-eval-badge ${['#','+'].includes(x.evaluation)?'good':['=','/','-'].includes(x.evaluation)?'bad':''}">${esc(x.evaluation)}</span>`:'';
+    return `<div class="scout-v700-item ${x.key===state.selectedKey?'active':''}" data-key="${esc(x.key)}">
+      <div class="time">${play?fmt(t):fmt((Number(x.ms)||0)/1000)}</div>
+      <div><span class="scout-v700-pill ${x.team==='ours'?'ours':x.team==='opponent'?'opponent':''}">${esc(pill)}</span>${evalBadge}<strong>${esc(x.label)}</strong><small>${esc(x.copy||'')}</small></div>
+      <div class="actions"><button class="ghost" onclick="scoutV700SyncKey('${esc(x.key)}')">Sincronizar aquí</button><button class="${play?'primary':'ghost'}" ${play?'':'disabled'} onclick="scoutV700PlayKey('${esc(x.key)}')">▶</button></div>
+    </div>`;
+  }).join(''):'<div class="match-empty">No hay elementos para estos filtros.</div>';
+  renderMetrics(m);
+}
+
+function setCurrentLabel(key){
+  const m=currentMatch();if(!m)return;
+  const item=allItems(m).find(x=>x.key===key);if(!item)return;
+  state.selectedKey=key;
+  const el=$('scout-v700-current-label');if(el)el.textContent=item.label;
+  const ov=$('scout-v710-overlay');if(ov)ov.innerHTML=`<b>${item.type==='rally'?'RALLY':item.type==='action'?(SKILLS[item.skill]||'ACCIÓN'):'EVENTO'}</b><span>${esc(item.label)} · ${esc(item.copy||'')}</span>`;
+}
+function nearestItemByVideoTime(m,t){
+  if(!m||meta(m)?.syncOffset==null)return null;
+  const rows=filteredItems(m).filter(x=>mapped(m,x.ms)!=null);
+  if(!rows.length)return null;
+  let best=rows[0],bestD=Math.abs(mapped(m,best.ms)-t);
+  rows.forEach(x=>{const d=Math.abs(mapped(m,x.ms)-t);if(d<bestD){best=x;bestD=d}});
+  return best;
+}
+function move(dir){
+  const m=currentMatch();if(!m)return;
+  const rows=filteredItems(m).filter(x=>mapped(m,x.ms)!=null);
+  if(!rows.length){alert('No hay elementos sincronizados con los filtros actuales.');return}
+  let idx=rows.findIndex(x=>x.key===state.selectedKey);
+  if(idx<0){
+    const near=nearestItemByVideoTime(m,Number(video()?.currentTime)||0);
+    idx=near?rows.findIndex(x=>x.key===near.key):(dir>0?-1:0);
+  }
+  idx=Math.max(0,Math.min(rows.length-1,idx+dir));
+  window.scoutV700PlayKey?.(rows[idx].key);
+}
+window.scoutV710Previous=()=>move(-1);
+window.scoutV710Next=()=>move(1);
+window.scoutV710Seek=function(delta){const v=video();if(!v?.src)return;const max=Number.isFinite(v.duration)?v.duration:Infinity;v.currentTime=Math.max(0,Math.min(max,(Number(v.currentTime)||0)+Number(delta||0)))};
+window.scoutV710TogglePlay=function(){const v=video();if(!v?.src)return;if(v.paused)v.play().catch(()=>{});else v.pause()};
+window.scoutV710SetSpeed=function(rate){const v=video();if(!v)return;const r=Math.max(.25,Math.min(3,Number(rate)||1));v.playbackRate=r;try{localStorage.setItem('volley_v710_playback_rate',String(r))}catch(_){}};
+window.scoutV710ResetFilters=function(){
+  ['scout-v710-set','scout-v710-team','scout-v710-player','scout-v700-skill','scout-v710-eval'].forEach(id=>{if($(id))$(id).value=''});
+  if($('scout-v700-kind'))$('scout-v700-kind').value='all';
+  if($('scout-v700-search'))$('scout-v700-search').value='';
+  populatePlayers(currentMatch());
+  renderTimeline();
+};
+window.scoutV710FilterChanged=function(){populatePlayers(currentMatch());renderTimeline()};
+
+const baseOpen=window.scoutV700OpenVideo;
+window.scoutV700OpenVideo=function(context=''){
+  const out=baseOpen?.(context);
+  const m=currentMatch();
+  populateDynamicFilters(m);
+  const saved=Number(localStorage.getItem('volley_v710_playback_rate'))||1;
+  if($('scout-v710-speed'))$('scout-v710-speed').value=String(saved);
+  if(video())video().playbackRate=saved;
+  setTimeout(renderTimeline,0);
+  return out;
+};
+
+const baseChanged=window.scoutV700MatchChanged;
+window.scoutV700MatchChanged=function(){
+  state.selectedKey='';
+  const out=baseChanged?.();
+  const m=currentMatch();
+  state.lastMatchId=m?.id||null;
+  populateDynamicFilters(m);
+  setTimeout(renderTimeline,0);
+  return out;
+};
+
+const basePlay=window.scoutV700PlayKey;
+window.scoutV700PlayKey=function(key){
+  setCurrentLabel(key);
+  const out=basePlay?.(key);
+  setTimeout(renderTimeline,0);
+  return out;
+};
+
+['scoutV700SyncKey','scoutV700Nudge','scoutV700ClearSync','scoutV700RangeChanged','scoutV700DetachFile'].forEach(name=>{
+  const base=window[name];
+  if(typeof base!=='function')return;
+  window[name]=function(...args){
+    const out=base.apply(this,args);
+    setTimeout(renderTimeline,0);
+    return out;
+  };
+});
+
+const baseLoad=window.scoutV700LoadFile;
+window.scoutV700LoadFile=function(ev){
+  const out=baseLoad?.(ev);
+  const v=video();
+  if(v)v.addEventListener('loadedmetadata',()=>renderTimeline(),{once:true});
+  setTimeout(renderTimeline,0);
+  return out;
+};
+
+window.scoutV700RenderTimeline=renderTimeline;
+
+const v=video();
+if(v&&!v.dataset.v710Bound){
+  v.dataset.v710Bound='1';
+  v.addEventListener('timeupdate',()=>{
+    const m=currentMatch();if(!m||meta(m)?.syncOffset==null)return;
+    const rows=allItems(m).filter(x=>mapped(m,x.ms)!=null);
+    if(!rows.length)return;
+    let current=rows[0];
+    for(const x of rows){if(mapped(m,x.ms)<=v.currentTime+.15)current=x;else break}
+    const ov=$('scout-v710-overlay');
+    if(ov&&current)ov.innerHTML=`<b>${current.type==='rally'?'RALLY':current.type==='action'?(SKILLS[current.skill]||'ACCIÓN'):'EVENTO'}</b><span>${esc(current.label)} · ${esc(current.copy||'')}</span>`;
+  });
+}
+
+document.addEventListener('keydown',e=>{
+  const modal=$('scout-v700-video-modal');
+  if(!modal?.classList.contains('open'))return;
+  const tag=String(e.target?.tagName||'').toLowerCase();
+  if(['input','select','textarea'].includes(tag))return;
+  if(e.code==='Space'){e.preventDefault();window.scoutV710TogglePlay()}
+  else if(e.key==='ArrowLeft'){e.preventDefault();window.scoutV710Seek(e.shiftKey?-5:-1)}
+  else if(e.key==='ArrowRight'){e.preventDefault();window.scoutV710Seek(e.shiftKey?5:1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();window.scoutV710Previous()}
+  else if(e.key==='ArrowDown'){e.preventDefault();window.scoutV710Next()}
+});
+
+window.scoutV710Diagnostics=function(){
+  const m=currentMatch(),x=m?metrics(m):null;
+  return {
+    version:V710_VERSION,
+    matchId:m?.id||null,
+    videoLoaded:!!video()?.src,
+    synchronized:meta(m)?.syncOffset!=null,
+    filteredItems:m?filteredItems(m).length:0,
+    filteredActions:x?.total||0,
+    gains:x?.g||0,
+    losses:x?.p||0,
+    gp:x?.gp||0
+  };
+};
+
+setTimeout(()=>{const m=currentMatch();if(m){populateDynamicFilters(m);renderTimeline()}},0);
+})();
+</script>
+
+
+
+<style id="v720-clip-studio-style">
+/* ===== V7.2 · CLIP STUDIO ===== */
+.scout-v720-studio{border:1px solid #dce4e9;border-radius:11px;background:#fff;padding:11px;margin-top:9px;color:#31495e}
+.scout-v720-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-bottom:9px;border-bottom:1px solid #e7ebee}
+.scout-v720-head strong{display:block;color:#17324d;font-size:12px}.scout-v720-head small{display:block;color:#7c8994;font-size:8.5px;margin-top:3px;line-height:1.35}
+.scout-v720-head-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.scout-v720-head-actions button{padding:6px 7px!important;font-size:7.5px!important}
+.scout-v720-markers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:9px}
+.scout-v720-marker{border:1px solid #e0e6ea;border-radius:8px;background:#f8fafb;padding:8px;display:grid;grid-template-columns:1fr auto;gap:3px 7px;align-items:center}
+.scout-v720-marker>span{font-size:7px;text-transform:uppercase;letter-spacing:.08em;color:#81909b;font-weight:900}.scout-v720-marker>b{grid-column:1;font-size:14px;color:#17324d;font-variant-numeric:tabular-nums}
+.scout-v720-marker>button{grid-column:2;grid-row:1/3;padding:6px 7px!important;font-size:7px!important}.scout-v720-marker.duration>b{color:#8a5b16}
+.scout-v720-form{display:grid;grid-template-columns:1.1fr .72fr 1.2fr auto;gap:6px;margin-top:8px}.scout-v720-form input,.scout-v720-form select{font-size:9px!important;padding:8px!important}.scout-v720-form button{font-size:8px!important;padding:8px 9px!important}
+.scout-v720-batch{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 0}.scout-v720-batch>span:first-child{font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#7f8c96}.scout-v720-batch button{padding:6px 7px!important;font-size:7.5px!important}
+.scout-v720-status{font-size:8px;color:#5e7181;margin-left:auto}.scout-v720-status.good{color:#2f7650}.scout-v720-status.warn{color:#9a681e}
+.scout-v720-clips{display:grid;gap:6px;max-height:300px;overflow:auto;padding-right:2px}
+.scout-v720-empty{padding:17px;text-align:center;border:1px dashed #dfe5e9;border-radius:8px;background:#fafbfc;color:#87939d;font-size:9px}
+.scout-v720-clip{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #e1e6ea;border-radius:9px;padding:8px;background:#fbfcfd}
+.scout-v720-clip.playing{border-color:#d99737;box-shadow:inset 3px 0 0 #d99737;background:#fffaf3}
+.scout-v720-time{font:900 9px/1.25 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#17324d}.scout-v720-time small{display:block;color:#84919b;font:700 7px Arial,sans-serif;margin-top:2px}
+.scout-v720-copy{min-width:0}.scout-v720-copy strong{display:block;color:#29475f;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scout-v720-copy small{display:block;color:#7d8993;font-size:7.8px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scout-v720-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}.scout-v720-tag{font-size:6.8px;padding:2px 5px;border-radius:999px;background:#eef3f6;color:#52697a;font-weight:850}.scout-v720-tag.skill{background:#eaf2f7;color:#31536d}.scout-v720-tag.good{background:#e9f4ee;color:#28613f}.scout-v720-tag.bad{background:#faeceb;color:#90413e}
+.scout-v720-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.scout-v720-actions button{padding:5px 6px!important;font-size:7px!important}.scout-v720-actions .danger{background:#fff1f0!important;color:#8e403d!important;border:1px solid #edcfcc!important}
+.scout-v720-exporting{position:fixed;right:18px;bottom:18px;z-index:40000;background:#102b43;color:#fff;border-radius:9px;padding:10px 12px;box-shadow:0 12px 28px rgba(8,29,48,.25);font-size:9px}
+.scout-v700-item .scout-v720-row-clip{padding:5px 7px!important;font-size:7.3px!important;background:#fff7e9!important;color:#815719!important;border:1px solid #ead3a7!important}
+@media(max-width:900px){.scout-v720-form{grid-template-columns:1fr 1fr}.scout-v720-form button{grid-column:1/-1}.scout-v720-markers{grid-template-columns:1fr 1fr}.scout-v720-marker.duration{grid-column:1/-1}}
+@media(max-width:600px){.scout-v720-head{flex-direction:column}.scout-v720-head-actions{justify-content:flex-start}.scout-v720-markers,.scout-v720-form{grid-template-columns:1fr}.scout-v720-marker.duration{grid-column:auto}.scout-v720-form button{grid-column:auto}.scout-v720-clip{grid-template-columns:55px minmax(0,1fr)}.scout-v720-actions{grid-column:1/-1;justify-content:flex-start}}
+</style>
+
+
+<script id="v720-clip-studio-module">
+(()=>{
+'use strict';
+
+const VERSION='7.2.0';
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const TAGS={general:'General',highlights:'Highlights',technical:'Técnico',tactical:'Táctico',player:'Jugador',opponent:'Rival',error:'Corrección / error'};
+const state={in:null,out:null,playingClipId:null,playlist:[],playlistIndex:-1,playlistStop:null,exporting:false};
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function matches(){try{return arr(bridge()?.getMatches?.())}catch(_){return []}}
+function activeId(){try{return Number(bridge()?.getActiveId?.())||0}catch(_){return 0}}
+function currentMatch(){
+  const id=Number($('scout-v700-match')?.value)||activeId();
+  return matches().find(m=>Number(m.id)===id)||null;
+}
+function video(){return $('scout-v700-player')}
+function teamName(){try{return bridge()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function playerLabel(a){try{return bridge()?.playerLabel?.(a)||String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}catch(_){return 'Jugador'}}
+function save(){
+  const m=currentMatch();
+  if(m){m.updatedAt=new Date().toISOString();m.dataVersion=VERSION}
+  try{bridge()?.save?.()}catch(err){console.error('V7.2 clip save',err)}
+}
+function meta(m){
+  if(!m)return null;
+  const raw=m.video&&typeof m.video==='object'?m.video:{};
+  m.video={...raw,clips:arr(raw.clips)};
+  return m.video;
+}
+function clips(m=currentMatch()){return meta(m)?.clips||[]}
+function fmt(s){
+  if(s==null||!Number.isFinite(Number(s)))return '—';
+  s=Math.max(0,Number(s));const mm=Math.floor(s/60),ss=s-mm*60;
+  return `${String(mm).padStart(2,'0')}:${ss.toFixed(1).padStart(4,'0')}`;
+}
+function durationText(s){if(!Number.isFinite(Number(s)))return '—';return `${Math.max(0,Number(s)).toFixed(1)} s`}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function slug(v){return String(v||'clip').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,70)||'clip'}
+function id(){return `clip_${Date.now()}_${Math.random().toString(36).slice(2,7)}`}
+function stampStatus(msg,kind=''){
+  const el=$('scout-v720-status');if(!el)return;
+  el.textContent=msg||'';el.className=`scout-v720-status ${kind||''}`;
+  if(msg)setTimeout(()=>{if(el.textContent===msg){el.textContent='';el.className='scout-v720-status'}},3500);
+}
+function downloadBlob(blob,name){
+  const u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),1500);
+}
+function downloadText(text,name,type='text/plain;charset=utf-8'){
+  downloadBlob(new Blob([text],{type}),name);
+}
+function mapped(m,ms){
+  const x=meta(m);return x?.syncOffset==null?null:Math.max(0,(Number(ms)||0)/1000+Number(x.syncOffset));
+}
+function rallyStartMs(r){
+  const a=arr(r?.actions);
+  return a.length?(Number(a[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0);
+}
+function rallyEndMs(r){
+  const a=arr(r?.actions);
+  return a.length?(Number(a[a.length-1].scoutMs)||Number(r?.scoutEndMs)||rallyStartMs(r)):(Number(r?.scoutEndMs)||rallyStartMs(r));
+}
+function findByKey(key,m=currentMatch()){
+  if(!m)return null;
+  const p=String(key||'').split(':');
+  if(p[0]==='r'){
+    const setNo=Number(p[1]),rid=Number(p[2]),s=arr(m.sets).find(x=>Number(x.number)===setNo),r=arr(s?.rallies).find(x=>Number(x.id)===rid);
+    if(!r)return null;
+    const pre=Math.max(0,Number(meta(m)?.preRoll??2)),post=Math.max(0,Number(meta(m)?.postRoll??2));
+    const a=mapped(m,rallyStartMs(r)),b=mapped(m,rallyEndMs(r));
+    return a==null||b==null?null:{
+      key,type:'rally',set:setNo,start:Math.max(0,a-pre),end:b+post,
+      name:`Set ${setNo} · Rally ${arr(s.rallies).findIndex(x=>Number(x.id)===rid)+1}`,
+      note:`${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${r.scoreAfter?.us??0}-${r.scoreAfter?.opponent??0}`,
+      team:r.winner==='ours'?'ours':'opponent'
+    };
+  }
+  if(p[0]==='a'){
+    const setNo=Number(p[1]),rid=Number(p[2]),aid=Number(p[3]),s=arr(m.sets).find(x=>Number(x.number)===setNo);
+    let r=arr(s?.rallies).find(x=>Number(x.id)===rid);
+    if(!r&&Number(m.liveRally?.id)===rid)r=m.liveRally;
+    const a=arr(r?.actions).find(x=>Number(x.id)===aid);if(!a)return null;
+    const x=meta(m),center=a.videoAction!=null?Number(a.videoAction):mapped(m,a.scoutMs);
+    let start=a.videoStart!=null?Number(a.videoStart):(center==null?null:Math.max(0,center-Math.max(0,Number(x?.preRoll??2))));
+    let end=a.videoEnd!=null?Number(a.videoEnd):(center==null?null:center+Math.max(0,Number(x?.postRoll??2)));
+    if(start==null||end==null)return null;
+    return {
+      key,type:'action',set:setNo,start,end,
+      name:`${SKILLS[a.skill]||a.skill||'Acción'} · ${playerLabel(a)}`,
+      note:`${a.code||''}${a.evaluation?` · ${a.evaluation}`:''}`,
+      team:a.team==='opponent'?'opponent':'ours',skill:a.skill||'',evaluation:a.evaluation||'',player:playerLabel(a)
+    };
+  }
+  if(p[0]==='e'){
+    const uid=p.slice(1).join(':'),events=[...arr(m.workflow?.events),...arr(m.events)],e=events.find(x=>String(x.uid||x.id)===uid);
+    if(!e)return null;
+    const center=e.videoTime!=null?Number(e.videoTime):mapped(m,e.scoutMs);if(center==null)return null;
+    const pre=Math.max(0,Number(meta(m)?.preRoll??2)),post=Math.max(0,Number(meta(m)?.postRoll??2));
+    return {key,type:'event',set:Number(e.setNumber)||null,start:Math.max(0,center-pre),end:center+post,name:String(e.type||'Evento'),note:e.note||'',team:''};
+  }
+  return null;
+}
+function normalizeRange(start,end){
+  start=Number(start);end=Number(end);
+  if(!Number.isFinite(start)||!Number.isFinite(end))return null;
+  if(end<start)[start,end]=[end,start];
+  if(end-start<0.15)return null;
+  const v=video();if(Number.isFinite(v?.duration)){start=Math.max(0,Math.min(start,v.duration));end=Math.max(0,Math.min(end,v.duration))}
+  return {start,end};
+}
+function createClip(data,quiet=false){
+  const m=currentMatch();if(!m){if(!quiet)alert('Selecciona un scouting.');return null}
+  const x=meta(m),range=normalizeRange(data.start,data.end);
+  if(!range){if(!quiet)alert('El clip necesita un intervalo IN–OUT válido.');return null}
+  const clip={
+    id:id(),name:String(data.name||`Clip ${clips(m).length+1}`).trim()||`Clip ${clips(m).length+1}`,
+    tag:String(data.tag||'general'),note:String(data.note||'').trim(),
+    start:range.start,end:range.end,duration:range.end-range.start,
+    sourceKey:data.sourceKey||null,type:data.type||'manual',set:data.set??null,team:data.team||'',
+    skill:data.skill||'',evaluation:data.evaluation||'',player:data.player||'',
+    createdAt:new Date().toISOString(),source:x?.source||''
+  };
+  x.clips.push(clip);save();render();
+  if(!quiet)stampStatus(`Clip guardado · ${durationText(clip.duration)}`,'good');
+  return clip;
+}
+function renderMarkers(){
+  if($('scout-v720-in'))$('scout-v720-in').textContent=fmt(state.in);
+  if($('scout-v720-out'))$('scout-v720-out').textContent=fmt(state.out);
+  const r=normalizeRange(state.in,state.out);
+  if($('scout-v720-duration'))$('scout-v720-duration').textContent=r?durationText(r.end-r.start):'—';
+}
+function render(){
+  renderMarkers();
+  const box=$('scout-v720-clips'),m=currentMatch();if(!box)return;
+  if(!m){box.innerHTML='<div class="scout-v720-empty">Selecciona un scouting.</div>';return}
+  const rows=clips(m).slice().sort((a,b)=>Number(a.start)-Number(b.start)||String(a.createdAt).localeCompare(String(b.createdAt)));
+  box.innerHTML=rows.length?rows.map(c=>{
+    const tags=[
+      `<span class="scout-v720-tag">${esc(TAGS[c.tag]||c.tag||'General')}</span>`,
+      c.skill?`<span class="scout-v720-tag skill">${esc(SKILLS[c.skill]||c.skill)}</span>`:'',
+      c.evaluation?`<span class="scout-v720-tag ${['#','+'].includes(c.evaluation)?'good':['=','/','-'].includes(c.evaluation)?'bad':''}">${esc(c.evaluation)}</span>`:'',
+      c.player?`<span class="scout-v720-tag">${esc(c.player)}</span>`:''
+    ].join('');
+    return `<article class="scout-v720-clip ${state.playingClipId===c.id?'playing':''}" data-clip-id="${esc(c.id)}">
+      <div class="scout-v720-time">${fmt(c.start)}<small>→ ${fmt(c.end)} · ${durationText(c.duration)}</small></div>
+      <div class="scout-v720-copy"><strong>${esc(c.name)}</strong><small>${esc(c.note||c.sourceKey||'Clip manual')}</small><div class="scout-v720-tags">${tags}</div></div>
+      <div class="scout-v720-actions">
+        <button class="primary" type="button" onclick="scoutV720Play('${esc(c.id)}')">▶</button>
+        <button class="ghost" type="button" onclick="scoutV720Edit('${esc(c.id)}')">Editar</button>
+        <button class="ghost" type="button" onclick="scoutV720ExportWebM('${esc(c.id)}')">WebM</button>
+        <button class="danger" type="button" onclick="scoutV720Delete('${esc(c.id)}')">Eliminar</button>
+      </div>
+    </article>`;
+  }).join(''):'<div class="scout-v720-empty">Todavía no hay clips. Pulsa “Clip” en una fila o marca IN/OUT sobre el vídeo.</div>';
+}
+function decorateTimeline(){
+  const root=$('scout-v700-timeline');if(!root)return;
+  root.querySelectorAll('.scout-v700-item').forEach(row=>{
+    if(row.querySelector('.scout-v720-row-clip'))return;
+    const key=row.dataset.key;if(!key)return;
+    const actions=row.querySelector('.actions');if(!actions)return;
+    const b=document.createElement('button');
+    b.type='button';b.className='ghost scout-v720-row-clip';b.textContent='Clip';
+    b.onclick=e=>{e.stopPropagation();window.scoutV720CreateFromKey(key)};
+    actions.prepend(b);
+  });
+}
+function selectedKey(){
+  return $('scout-v700-timeline')?.querySelector('.scout-v700-item.active')?.dataset?.key||
+         $('scout-v700-timeline')?.querySelector('.scout-v700-item')?.dataset?.key||'';
+}
+function clipById(cid){return clips().find(c=>String(c.id)===String(cid))||null}
+function playRange(c){
+  const v=video();if(!v?.src){alert('Vuelve a seleccionar el archivo de vídeo de este partido.');return}
+  const r=normalizeRange(c.start,c.end);if(!r)return;
+  state.playingClipId=c.id||null;state.playlistStop=r.end;
+  try{v.currentTime=r.start;v.play().catch(()=>{})}catch(_){}
+  render();
+}
+function stopPlayback(){
+  state.playingClipId=null;state.playlistStop=null;state.playlist=[];state.playlistIndex=-1;render();
+}
+function nextPlaylist(){
+  if(!state.playlist.length){stopPlayback();return}
+  state.playlistIndex++;
+  if(state.playlistIndex>=state.playlist.length){try{video()?.pause()}catch(_){};stopPlayback();stampStatus('Montaje terminado','good');return}
+  const c=clipById(state.playlist[state.playlistIndex]);
+  if(!c){nextPlaylist();return}
+  playRange(c);
+}
+window.scoutV720MarkIn=function(){const v=video();if(!v?.src){alert('Carga primero el vídeo.');return}state.in=Number(v.currentTime)||0;renderMarkers();stampStatus(`IN ${fmt(state.in)}`,'good')};
+window.scoutV720MarkOut=function(){const v=video();if(!v?.src){alert('Carga primero el vídeo.');return}state.out=Number(v.currentTime)||0;renderMarkers();stampStatus(`OUT ${fmt(state.out)}`,'good')};
+window.scoutV720ClearMarkers=function(){state.in=null;state.out=null;renderMarkers()};
+window.scoutV720CreateManual=function(){
+  const name=$('scout-v720-name')?.value||'',tag=$('scout-v720-tag')?.value||'general',note=$('scout-v720-note')?.value||'';
+  const c=createClip({start:state.in,end:state.out,name,tag,note,type:'manual'});
+  if(c){if($('scout-v720-name'))$('scout-v720-name').value='';if($('scout-v720-note'))$('scout-v720-note').value='';state.in=null;state.out=null;renderMarkers()}
+};
+window.scoutV720CreateFromKey=function(key,quiet=false){
+  const data=findByKey(key);if(!data){if(!quiet)alert('Este elemento todavía no tiene tiempo de vídeo. Sincroniza el partido primero.');return null}
+  return createClip({start:data.start,end:data.end,name:data.name,note:data.note,sourceKey:key,type:data.type,set:data.set,team:data.team,skill:data.skill,evaluation:data.evaluation,player:data.player,
+    tag:data.team==='opponent'?'opponent':data.type==='action'?'technical':'general'},quiet);
+};
+window.scoutV720CreateSelected=function(){
+  const key=selectedKey();if(!key){alert('No hay ninguna fila disponible.');return}
+  window.scoutV720CreateFromKey(key);
+};
+window.scoutV720CreateVisible=function(){
+  const keys=[...($('scout-v700-timeline')?.querySelectorAll('.scout-v700-item')||[])].map(x=>x.dataset.key).filter(Boolean);
+  if(!keys.length){alert('No hay filas visibles con los filtros actuales.');return}
+  const m=currentMatch(),existing=new Set(clips(m).map(c=>c.sourceKey).filter(Boolean));
+  let added=0,skipped=0;
+  keys.forEach(key=>{
+    if(existing.has(key)){skipped++;return}
+    const c=window.scoutV720CreateFromKey(key,true);if(c){added++;existing.add(key)}else skipped++;
+  });
+  save();render();stampStatus(`${added} clips creados${skipped?` · ${skipped} omitidos`:''}`,added?'good':'warn');
+};
+window.scoutV720Play=function(cid){
+  state.playlist=[];state.playlistIndex=-1;
+  const c=clipById(cid);if(c)playRange(c);
+};
+window.scoutV720PlayPlaylist=function(){
+  const rows=clips().slice().sort((a,b)=>Number(a.start)-Number(b.start));
+  if(!rows.length){alert('No hay clips guardados.');return}
+  if(!video()?.src){alert('Vuelve a seleccionar el archivo de vídeo del partido.');return}
+  state.playlist=rows.map(c=>c.id);state.playlistIndex=-1;nextPlaylist();
+};
+window.scoutV720Delete=function(cid){
+  const m=currentMatch(),x=meta(m);if(!m||!x)return;
+  const c=clipById(cid);if(!c)return;
+  if(!confirm(`¿Eliminar el clip “${c.name}”?`))return;
+  x.clips=x.clips.filter(k=>String(k.id)!==String(cid));
+  if(state.playingClipId===cid)stopPlayback();save();render();stampStatus('Clip eliminado','good');
+};
+window.scoutV720Edit=function(cid){
+  const c=clipById(cid);if(!c)return;
+  const name=prompt('Nombre del clip:',c.name);if(name===null)return;
+  const note=prompt('Nota del clip:',c.note||'');if(note===null)return;
+  c.name=String(name).trim()||c.name;c.note=String(note).trim();c.updatedAt=new Date().toISOString();
+  save();render();stampStatus('Clip actualizado','good');
+};
+function csvEscape(v){const s=String(v??'');return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
+window.scoutV720ExportCSV=function(){
+  const m=currentMatch();if(!m)return;
+  const rows=[['Nombre','Etiqueta','Inicio','Fin','Duracion_s','Tipo','Set','Equipo','Fundamento','Evaluacion','Jugador','Nota','SourceKey']];
+  clips(m).forEach(c=>rows.push([c.name,TAGS[c.tag]||c.tag,c.start,c.end,c.duration,c.type,c.set,c.team,c.skill,c.evaluation,c.player,c.note,c.sourceKey]));
+  downloadText(rows.map(r=>r.map(csvEscape).join(',')).join('\n'),`${slug(m.date||'partido')}_${slug(m.opponent||'rival')}_clips.csv`,'text/csv;charset=utf-8');
+  stampStatus('CSV de clips descargado','good');
+};
+window.scoutV720ExportJSON=function(){
+  const m=currentMatch();if(!m)return;
+  const payload={version:VERSION,exportedAt:new Date().toISOString(),match:{id:m.id,date:m.date,team:teamName(),opponent:m.opponent},video:{source:meta(m)?.source||'',syncOffset:meta(m)?.syncOffset??null},clips:clips(m)};
+  downloadText(JSON.stringify(payload,null,2),`${slug(m.date||'partido')}_${slug(m.opponent||'rival')}_clips.json`,'application/json;charset=utf-8');
+  stampStatus('JSON de clips descargado','good');
+};
+function exportOverlay(msg){
+  let el=$('scout-v720-exporting');if(!el){el=document.createElement('div');el.id='scout-v720-exporting';el.className='scout-v720-exporting';document.body.appendChild(el)}
+  el.textContent=msg;return el;
+}
+function removeExportOverlay(){const el=$('scout-v720-exporting');if(el)el.remove()}
+function supportedMime(){
+  if(typeof MediaRecorder==='undefined')return '';
+  const types=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  return types.find(t=>MediaRecorder.isTypeSupported?.(t))||'';
+}
+async function waitEvent(target,name,timeout=7000){
+  return new Promise((resolve,reject)=>{
+    let done=false;
+    const finish=(ok,e)=>{if(done)return;done=true;clearTimeout(timer);target.removeEventListener(name,on);ok?resolve(e):reject(new Error(`Timeout ${name}`))};
+    const on=e=>finish(true,e);target.addEventListener(name,on,{once:true});
+    const timer=setTimeout(()=>finish(false),timeout);
+  });
+}
+window.scoutV720ExportWebM=async function(cid){
+  if(state.exporting)return;
+  const c=clipById(cid),v=video();if(!c||!v?.src)return;
+  const capture=v.captureStream||v.mozCaptureStream;
+  if(typeof capture!=='function'||typeof MediaRecorder==='undefined'){
+    alert('Este navegador no permite exportar el recorte de vídeo directamente. Puedes usar Chrome/Edge de escritorio o exportar la lista CSV/JSON.');
+    return;
+  }
+  const range=normalizeRange(c.start,c.end);if(!range)return;
+  const mime=supportedMime();if(!mime){alert('El navegador no dispone de un formato WebM compatible para exportar el clip.');return}
+  state.exporting=true;
+  const old={time:v.currentTime,rate:v.playbackRate,muted:v.muted,paused:v.paused};
+  let recorder=null,stream=null,timer=null;
+  try{
+    exportOverlay(`Preparando “${c.name}”…`);
+    v.pause();v.playbackRate=1;
+    if(Math.abs(v.currentTime-range.start)>.08){v.currentTime=range.start;await waitEvent(v,'seeked')}
+    stream=capture.call(v);
+    const chunks=[];
+    recorder=new MediaRecorder(stream,{mimeType:mime});
+    recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+    const stopped=new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}));
+    recorder.start(250);
+    exportOverlay(`Exportando “${c.name}” · ${durationText(range.end-range.start)}`);
+    await v.play();
+    await new Promise((resolve,reject)=>{
+      const check=()=>{if(v.currentTime>=range.end-.04){cleanup();resolve()}};
+      const error=()=>{cleanup();reject(new Error('Error de reproducción'))};
+      const cleanup=()=>{v.removeEventListener('timeupdate',check);v.removeEventListener('error',error);if(timer)clearTimeout(timer)};
+      v.addEventListener('timeupdate',check);v.addEventListener('error',error,{once:true});
+      timer=setTimeout(()=>{cleanup();resolve()},Math.max(3000,(range.end-range.start+2)*1800));
+    });
+    v.pause();if(recorder.state!=='inactive')recorder.stop();await stopped;
+    const blob=new Blob(chunks,{type:mime});if(!blob.size)throw new Error('El navegador no generó datos de vídeo.');
+    downloadBlob(blob,`${slug(c.name)}.webm`);
+    stampStatus('Clip WebM exportado','good');
+  }catch(err){
+    console.error('V7.2 WebM export',err);
+    alert('No se ha podido exportar este clip como WebM. La definición del clip sigue guardada y puedes exportarla en CSV/JSON.');
+  }finally{
+    try{if(recorder&&recorder.state!=='inactive')recorder.stop()}catch(_){}
+    try{stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+    try{v.playbackRate=old.rate||1;v.currentTime=old.time||0;if(!old.paused)v.play().catch(()=>{})}catch(_){}
+    state.exporting=false;removeExportOverlay();
+  }
+};
+window.scoutV720Diagnostics=function(){
+  const m=currentMatch();
+  return {version:VERSION,matchId:m?.id||null,clips:clips(m).length,markers:{in:state.in,out:state.out},videoLoaded:!!video()?.src,captureStream:typeof (video()?.captureStream||video()?.mozCaptureStream)==='function',mediaRecorder:typeof MediaRecorder!=='undefined'};
+};
+
+const timeline=$('scout-v700-timeline');
+if(timeline&&!timeline.dataset.v720Observed){
+  timeline.dataset.v720Observed='1';
+  new MutationObserver(()=>decorateTimeline()).observe(timeline,{childList:true,subtree:true});
+}
+const modal=$('scout-v700-video-modal');
+if(modal&&!modal.dataset.v720Observed){
+  modal.dataset.v720Observed='1';
+  new MutationObserver(()=>{decorateTimeline();render()}).observe(modal,{attributes:true,attributeFilter:['class']});
+}
+const v=video();
+if(v&&!v.dataset.v720Bound){
+  v.dataset.v720Bound='1';
+  v.addEventListener('timeupdate',()=>{
+    if(state.playlistStop!=null&&v.currentTime>=state.playlistStop-.04){
+      v.pause();
+      if(state.playlist.length)nextPlaylist();else{state.playingClipId=null;state.playlistStop=null;render()}
+    }
+  });
+  v.addEventListener('ended',()=>{if(state.playlist.length)nextPlaylist();else stopPlayback()});
+}
+
+const baseOpen=window.scoutV700OpenVideo;
+window.scoutV700OpenVideo=function(context=''){
+  const out=baseOpen?.(context);setTimeout(()=>{render();decorateTimeline()},0);return out;
+};
+const baseChanged=window.scoutV700MatchChanged;
+window.scoutV700MatchChanged=function(){
+  state.in=null;state.out=null;stopPlayback();
+  const out=baseChanged?.();setTimeout(()=>{render();decorateTimeline()},0);return out;
+};
+
+document.addEventListener('keydown',e=>{
+  const modal=$('scout-v700-video-modal');
+  if(!modal?.classList.contains('open'))return;
+  const tag=String(e.target?.tagName||'').toLowerCase();
+  if(['input','select','textarea'].includes(tag))return;
+  if(e.key.toLowerCase()==='i'){e.preventDefault();window.scoutV720MarkIn()}
+  else if(e.key.toLowerCase()==='o'){e.preventDefault();window.scoutV720MarkOut()}
+  else if(e.key.toLowerCase()==='c'&&state.in!=null&&state.out!=null){e.preventDefault();window.scoutV720CreateManual()}
+});
+
+setTimeout(()=>{render();decorateTimeline()},0);
+})();
+</script>
+
+
+
+<style id="v730-live-delay-style">
+/* ===== V7.3 · LIVE DELAY ===== */
+.live-delay-entry{border-color:#d7c28e!important;background:#fff9ec!important;color:#76531f!important}
+.live-delay-card{width:min(1180px,97vw)!important;max-height:94vh!important}
+.live-delay-toolbar{display:grid;grid-template-columns:minmax(220px,1.3fr) 120px 130px auto;gap:8px;align-items:end;margin-bottom:9px}
+.live-delay-field{display:flex;flex-direction:column;gap:4px}.live-delay-field>span{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#73818d;font-weight:900}
+.live-delay-field select{font-size:10px!important}.live-delay-main-actions{display:flex;gap:5px}.live-delay-main-actions button{white-space:nowrap}
+.live-delay-support{padding:8px 10px;border:1px solid #dce4e9;border-left:3px solid #67869d;background:#f7f9fb;border-radius:8px;color:#5c6e7d;font-size:9px;line-height:1.4;margin-bottom:10px}
+.live-delay-support.good{border-left-color:#3f7c63;background:#f4faf6;color:#35624f}.live-delay-support.warn{border-left-color:#d08a31;background:#fffaf3;color:#72571f}.live-delay-support.bad{border-left-color:#a24d4a;background:#fff4f3;color:#824340}
+.live-delay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.live-delay-pane{border:1px solid #dfe5e9;border-radius:11px;background:#fff;overflow:hidden;min-width:0}
+.live-delay-pane-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid #e8ecef;background:#fafbfc}.live-delay-pane-head strong{display:block;color:#17324d;font-size:11px}
+.live-delay-state{font-size:7px;font-weight:950;letter-spacing:.08em;padding:4px 6px;border-radius:999px;background:#edf0f2;color:#687884}.live-delay-state.on{background:#e8f5ee;color:#28613f}.live-delay-state.delayed.on{background:#fff2df;color:#8a5b16}
+.live-delay-video-frame{position:relative;background:#081b2c;aspect-ratio:16/9;overflow:hidden}.live-delay-video-frame video{display:block;width:100%;height:100%;object-fit:contain;background:#071827}
+.live-delay-badge{position:absolute;top:8px;left:8px;z-index:3;padding:4px 6px;border-radius:5px;background:#a33632;color:#fff;font:900 7px/1 Arial,Helvetica,sans-serif;letter-spacing:.09em}.live-delay-badge.delay{background:#d28b2e;color:#172a3a}
+.live-delay-empty{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#91a5b5;font-size:9.5px;line-height:1.45;background:linear-gradient(135deg,rgba(7,24,39,.92),rgba(12,44,69,.92))}
+.live-delay-empty.hidden{display:none!important}
+.live-delay-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}.live-delay-metrics>div{border:1px solid #e2e7eb;border-radius:9px;background:#f8fafb;padding:9px}
+.live-delay-metrics span{display:block;font-size:7px;text-transform:uppercase;letter-spacing:.08em;color:#83909a;font-weight:900}.live-delay-metrics b{display:block;font-size:16px;color:#17324d;margin-top:3px}.live-delay-metrics small{display:block;color:#84919b;font-size:7.5px;margin-top:1px}
+.live-delay-controls{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;padding:9px 0}.live-delay-controls button{font-size:8px!important;padding:7px 9px!important}
+.live-delay-training-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid #dfe5e9;border-radius:9px;padding:10px 11px;background:#fff}
+.live-delay-training-tools strong{display:block;color:#29475f;font-size:10.5px}.live-delay-training-tools small{display:block;color:#7e8b95;font-size:8px;margin-top:2px;line-height:1.35}
+.live-delay-replay-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.live-delay-replay-actions button{padding:6px 8px!important;font-size:7.5px!important}
+.live-delay-help{margin-top:8px;padding:9px 10px;border-radius:8px;background:#eef4f8;border:1px solid #d7e3eb;color:#536b7e;font-size:9px;line-height:1.45}
+@media(max-width:900px){.live-delay-toolbar{grid-template-columns:1fr 1fr}.live-delay-field.camera{grid-column:1/-1}.live-delay-main-actions{justify-content:flex-end}.live-delay-grid{grid-template-columns:1fr}.live-delay-metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.live-delay-toolbar{grid-template-columns:1fr}.live-delay-field.camera{grid-column:auto}.live-delay-main-actions{justify-content:stretch}.live-delay-main-actions button{flex:1}.live-delay-metrics{grid-template-columns:1fr 1fr}.live-delay-training-tools{align-items:flex-start;flex-direction:column}.live-delay-replay-actions{justify-content:flex-start;width:100%}.live-delay-replay-actions button{flex:1}.live-delay-controls button{flex:1 1 calc(33% - 5px)}}
+</style>
+
+
+<script id="v730-live-delay-module">
+(()=>{
+'use strict';
+
+const VERSION='7.3.0';
+const $=id=>document.getElementById(id);
+const state={
+  context:'training',
+  stream:null,
+  recorder:null,
+  mediaSource:null,
+  sourceBuffer:null,
+  mediaUrl:null,
+  appendQueue:[],
+  appendBusy:false,
+  running:false,
+  delay:10,
+  maxBuffer:120,
+  mode:'delay',
+  initialized:false,
+  mime:'',
+  timer:null,
+  prunePending:false,
+  cameraReady:false,
+  lastCameraId:'',
+  streamStartedAt:0
+};
+
+function setStatus(text,kind=''){
+  const el=$('live-delay-support');if(!el)return;
+  el.className=`live-delay-support ${kind||''}`;
+  el.innerHTML=text;
+}
+function setState(id,text,on=false){
+  const el=$(id);if(!el)return;el.textContent=text;el.classList.toggle('on',!!on);
+}
+function fmtSec(v){
+  v=Number(v);if(!Number.isFinite(v)||v<0)return '—';
+  return v<10?`${v.toFixed(1)} s`:`${Math.round(v)} s`;
+}
+function delayed(){return $('live-delay-delayed')}
+function live(){return $('live-delay-live')}
+function bufferedRange(){
+  const v=delayed();if(!v?.buffered?.length)return null;
+  try{
+    const i=v.buffered.length-1;
+    return {start:v.buffered.start(0),end:v.buffered.end(i),span:v.buffered.end(i)-v.buffered.start(0)};
+  }catch(_){return null}
+}
+function savePrefs(){
+  try{
+    localStorage.setItem('volley_live_delay_v730',JSON.stringify({
+      delay:state.delay,maxBuffer:state.maxBuffer,cameraId:state.lastCameraId
+    }));
+  }catch(_){}
+}
+function loadPrefs(){
+  try{
+    const x=JSON.parse(localStorage.getItem('volley_live_delay_v730')||'{}');
+    if([3,5,8,10,15,20,30].includes(Number(x.delay)))state.delay=Number(x.delay);
+    if([60,120,180,300].includes(Number(x.maxBuffer)))state.maxBuffer=Number(x.maxBuffer);
+    state.lastCameraId=String(x.cameraId||'');
+  }catch(_){}
+}
+function updateUi(){
+  if($('live-delay-seconds'))$('live-delay-seconds').value=String(state.delay);
+  if($('live-delay-buffer'))$('live-delay-buffer').value=String(state.maxBuffer);
+  if($('live-delay-review-title'))$('live-delay-review-title').textContent=`Retraso · ${state.delay} s`;
+  if($('live-delay-delay-badge'))$('live-delay-delay-badge').textContent=`−${state.delay} s`;
+  if($('live-delay-context'))$('live-delay-context').textContent=state.context==='scouting'?'Scouting':'Entrenamiento';
+  if($('live-delay-context-note'))$('live-delay-context-note').textContent=state.context==='scouting'?'revisión durante partido':'corrección técnica';
+  if($('live-delay-subtitle'))$('live-delay-subtitle').textContent=state.context==='scouting'
+    ?'Mantén una cámara en directo y revisa jugadas con retraso sin cerrar el entorno de scouting.'
+    :'Captura la cámara y revisa la ejecución unos segundos después. Pensado para feedback técnico inmediato.';
+  $('live-delay-start')?.classList.toggle('hidden',state.running);
+  $('live-delay-stop')?.classList.toggle('hidden',!state.running);
+  setState('live-delay-live-state',state.running?'EN DIRECTO':'DETENIDA',state.running);
+  if(!state.running)setState('live-delay-review-state','ESPERANDO',false);
+  $('live-delay-live-empty')?.classList.toggle('hidden',state.running);
+  const mode=$('live-delay-mode');
+  if(mode)mode.textContent=state.mode==='delay'?'Delay':state.mode==='paused'?'Pausa':'Revisión';
+  const note=$('live-delay-mode-note');
+  if(note)note.textContent=state.mode==='delay'?'seguimiento automático':state.mode==='paused'?'imagen detenida':'navegación manual';
+  const pause=$('live-delay-pause');
+  if(pause)pause.textContent=state.mode==='paused'?'Continuar revisión':'Pausar revisión';
+}
+async function populateCameras(){
+  const sel=$('live-delay-camera');if(!sel||!navigator.mediaDevices?.enumerateDevices)return;
+  try{
+    const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
+    if(!devices.length){sel.innerHTML='<option value="">Cámara predeterminada</option>';return}
+    sel.innerHTML=devices.map((d,i)=>`<option value="${String(d.deviceId).replace(/"/g,'&quot;')}">${d.label||`Cámara ${i+1}`}</option>`).join('');
+    if(state.lastCameraId&&devices.some(d=>d.deviceId===state.lastCameraId))sel.value=state.lastCameraId;
+  }catch(_){}
+}
+function chooseMime(){
+  const mr=window.MediaRecorder,ms=window.MediaSource;
+  if(!mr||!ms)return '';
+  const candidates=[
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm',
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4'
+  ];
+  return candidates.find(t=>{
+    try{return (!mr.isTypeSupported||mr.isTypeSupported(t))&&(!ms.isTypeSupported||ms.isTypeSupported(t))}catch(_){return false}
+  })||'';
+}
+function resetMediaPipeline(){
+  try{state.recorder?.stop()}catch(_){}
+  state.recorder=null;
+  state.appendQueue=[];
+  state.appendBusy=false
+}
+function destroyMse(){
+  const v=delayed();
+  try{if(state.sourceBuffer&&state.mediaSource?.readyState==='open')state.mediaSource.endOfStream()}catch(_){}
+  state.sourceBuffer=null;state.mediaSource=null;state.appendQueue=[];state.appendBusy=false;state.prunePending=false;
+  if(v){try{v.pause()}catch(_){};v.removeAttribute('src');try{v.load()}catch(_){}}
+  if(state.mediaUrl){try{URL.revokeObjectURL(state.mediaUrl)}catch(_){}state.mediaUrl=null}
+}
+function createMse(){
+  return new Promise((resolve,reject)=>{
+    const v=delayed();if(!v)return reject(new Error('No existe el reproductor de retraso.'));
+    destroyMse();
+    const ms=new MediaSource();state.mediaSource=ms;
+    state.mediaUrl=URL.createObjectURL(ms);v.src=state.mediaUrl;v.muted=true;
+    const opened=()=>{
+      try{
+        const sb=ms.addSourceBuffer(state.mime);
+        state.sourceBuffer=sb;
+        sb.mode='segments';
+        sb.addEventListener('updateend',()=>{
+          state.appendBusy=false;
+          pruneBuffer();
+          appendNext();
+          maintainDelay();
+          updateMetrics();
+        });
+        sb.addEventListener('error',()=>setStatus('<b>Error del búfer.</b> Detén y vuelve a iniciar Live Delay.','bad'));
+        resolve();
+      }catch(err){reject(err)}
+    };
+    ms.addEventListener('sourceopen',opened,{once:true});
+    setTimeout(()=>{if(!state.sourceBuffer)reject(new Error('MediaSource no se abrió.'))},5000);
+  });
+}
+function appendNext(){
+  if(!state.running||!state.sourceBuffer||state.appendBusy||state.sourceBuffer.updating||!state.appendQueue.length)return;
+  const buf=state.appendQueue.shift();state.appendBusy=true;
+  try{state.sourceBuffer.appendBuffer(buf)}catch(err){
+    state.appendBusy=false;
+    if(err?.name==='QuotaExceededError'){
+      state.appendQueue.unshift(buf);pruneBuffer(true);
+    }else{
+      console.error('Live Delay append',err);
+      setStatus('<b>No se pudo añadir vídeo al búfer.</b> Prueba a reiniciar la cámara.','bad');
+    }
+  }
+}
+function pruneBuffer(force=false){
+  const sb=state.sourceBuffer;if(!sb||sb.updating||!sb.buffered?.length)return;
+  try{
+    const start=sb.buffered.start(0),end=sb.buffered.end(sb.buffered.length-1);
+    const keep=Math.max(state.maxBuffer,state.delay+20);
+    if(force||end-start>keep+10){
+      const cutoff=Math.max(start,end-keep);
+      const play=delayed();
+      const safe=Math.min(cutoff,Math.max(start,(play?.currentTime||cutoff)-2));
+      if(safe>start+.5){state.prunePending=true;sb.remove(start,safe)}
+    }
+  }catch(_){}
+}
+function targetTime(){
+  const r=bufferedRange();if(!r)return null;
+  return Math.max(r.start,r.end-state.delay);
+}
+function maintainDelay(force=false){
+  if(!state.running||state.mode!=='delay')return;
+  const v=delayed(),r=bufferedRange(),target=targetTime();if(!v||!r||target==null)return;
+  const enough=r.span>=Math.max(1.2,state.delay-.4);
+  $('live-delay-review-empty')?.classList.toggle('hidden',enough);
+  if(!enough){setState('live-delay-review-state','CREANDO BÚFER',false);return}
+  setState('live-delay-review-state','RETRASADO',true);
+  const diff=target-(Number(v.currentTime)||0);
+  if(force||v.readyState<2||Math.abs(diff)>1.5){
+    try{v.currentTime=target}catch(_){}
+  }
+  if(v.paused)v.play().catch(()=>{});
+}
+function updateMetrics(){
+  const r=bufferedRange(),v=delayed();
+  if($('live-delay-buffered'))$('live-delay-buffered').textContent=r?fmtSec(r.span):'0 s';
+  if($('live-delay-actual')){
+    const actual=r&&v&&Number.isFinite(v.currentTime)?Math.max(0,r.end-v.currentTime):null;
+    $('live-delay-actual').textContent=actual==null?'—':fmtSec(actual);
+  }
+  if(state.running&&r){
+    const enough=r.span>=Math.max(1.2,state.delay-.4);
+    $('live-delay-review-empty')?.classList.toggle('hidden',enough);
+  }
+}
+function startTicker(){
+  stopTicker();
+  state.timer=setInterval(()=>{maintainDelay();updateMetrics()},500);
+}
+function stopTicker(){if(state.timer){clearInterval(state.timer);state.timer=null}}
+async function requestStream(){
+  const sel=$('live-delay-camera'),deviceId=sel?.value||state.lastCameraId||'';
+  const videoConstraints=deviceId?{
+    deviceId:{exact:deviceId},
+    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}
+  }:{
+    facingMode:{ideal:'environment'},
+    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}
+  };
+  return navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false});
+}
+function startRecorder(){
+  const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:2500000}:{videoBitsPerSecond:2500000};
+  const rec=new MediaRecorder(state.stream,options);state.recorder=rec;
+  rec.addEventListener('dataavailable',async e=>{
+    if(!state.running||!e.data||!e.data.size)return;
+    try{
+      const ab=await e.data.arrayBuffer();
+      state.appendQueue.push(ab);
+      if(state.appendQueue.length>40)state.appendQueue.splice(0,state.appendQueue.length-40);
+      appendNext();
+    }catch(err){console.error('Live Delay chunk',err)}
+  });
+  rec.addEventListener('error',e=>{
+    console.error('Live Delay recorder',e);
+    setStatus('<b>Error de captura.</b> El navegador ha detenido el grabador.','bad');
+  });
+  rec.start(500);
+}
+window.startLiveDelay=async function(){
+  if(state.running)return;
+  if(!navigator.mediaDevices?.getUserMedia){
+    setStatus('<b>Este navegador no permite acceder a la cámara.</b> Abre Volley Coach mediante HTTPS en un navegador moderno.','bad');return;
+  }
+  state.mime=chooseMime();
+  if(!state.mime){
+    setStatus('<b>Live Delay no está disponible en este navegador.</b> Se necesita MediaRecorder + MediaSource compatibles. En Windows, usa Chrome o Edge actualizados.','bad');return;
+  }
+  try{
+    setStatus('<b>Solicitando cámara…</b> Acepta el permiso del navegador.','warn');
+    state.stream=await requestStream();
+    const lv=live();lv.srcObject=state.stream;lv.muted=true;await lv.play().catch(()=>{});
+    const track=state.stream.getVideoTracks()[0];
+    state.lastCameraId=track?.getSettings?.().deviceId||$('live-delay-camera')?.value||'';
+    savePrefs();await populateCameras();
+    if(state.lastCameraId&&$('live-delay-camera'))$('live-delay-camera').value=state.lastCameraId;
+    await createMse();
+    state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
+    startRecorder();startTicker();updateUi();updateMetrics();
+    setStatus(`<b>Live Delay activo.</b> ${state.delay} s de retraso · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la cámara continúa.`, 'good');
+  }catch(err){
+    console.error('Live Delay start',err);
+    stopLiveDelay(true);
+    const denied=err?.name==='NotAllowedError'||err?.name==='PermissionDeniedError';
+    setStatus(denied?'<b>Permiso de cámara denegado.</b> Autoriza la cámara para este sitio y vuelve a intentarlo.':'<b>No se pudo iniciar Live Delay.</b> '+String(err?.message||err),'bad');
+  }
+};
+window.stopLiveDelay=function(silent=false){
+  stopTicker();state.running=false;state.mode='delay';
+  try{state.recorder?.stop()}catch(_){}
+  state.recorder=null;
+  try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  state.stream=null;
+  const lv=live();if(lv){try{lv.pause()}catch(_){};lv.srcObject=null}
+  destroyMse();updateUi();updateMetrics();
+  $('live-delay-review-empty')?.classList.remove('hidden');
+  if(!silent)setStatus('<b>Live Delay detenido.</b> El búfer temporal se ha eliminado.','');
+};
+window.liveDelaySetDelay=function(v){
+  const n=Math.max(1,Math.min(60,Number(v)||10));state.delay=n;savePrefs();updateUi();
+  if(state.running){state.mode='delay';maintainDelay(true)}
+};
+window.liveDelaySetBuffer=function(v){
+  state.maxBuffer=Math.max(30,Math.min(600,Number(v)||120));savePrefs();pruneBuffer(true);updateUi()
+};
+window.liveDelayReturn=function(){
+  if(!state.running)return;
+  state.mode='delay';updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${state.delay} s del directo.`,'good')
+};
+window.liveDelayJump=function(delta){
+  if(!state.running)return;
+  const v=delayed(),r=bufferedRange();if(!v||!r)return;
+  state.mode='review';
+  const next=Math.max(r.start,Math.min(r.end-.05,(Number(v.currentTime)||r.end-state.delay)+Number(delta||0)));
+  try{v.currentTime=next;v.play().catch(()=>{})}catch(_){}
+  updateUi();updateMetrics()
+};
+window.liveDelayReplay=function(seconds){
+  if(!state.running)return;
+  const v=delayed(),r=bufferedRange();if(!v||!r)return;
+  state.mode='review';
+  const base=Math.max(r.start,r.end-state.delay);
+  const start=Math.max(r.start,base-Math.max(1,Number(seconds)||5));
+  try{v.currentTime=start;v.play().catch(()=>{})}catch(_){}
+  updateUi();updateMetrics();
+  setStatus(`<b>Repetición.</b> Revisando ${Math.round(seconds)} s anteriores; la cámara sigue capturando.`,'warn')
+};
+window.liveDelayTogglePause=function(){
+  if(!state.running)return;
+  const v=delayed();if(!v)return;
+  if(state.mode==='paused'||v.paused){
+    state.mode='review';v.play().catch(()=>{});
+  }else{
+    state.mode='paused';v.pause();
+  }
+  updateUi();updateMetrics()
+};
+window.openLiveDelay=async function(context='training'){
+  state.context=context==='scouting'?'scouting':'training';
+  loadPrefs();updateUi();
+  $('live-delay-modal')?.classList.add('open');
+  await populateCameras();
+  const supported=!!navigator.mediaDevices?.getUserMedia&&!!chooseMime();
+  if(!supported)setStatus('<b>Compatibilidad limitada.</b> Live Delay necesita acceso a cámara, MediaRecorder y MediaSource. Prueba Chrome o Edge actualizados.','warn');
+  else if(!state.running)setStatus('<b>Preparado.</b> La cámara no se envía a ningún servidor; el búfer temporal permanece en este dispositivo.','');
+};
+window.closeLiveDelay=function(){
+  $('live-delay-modal')?.classList.remove('open');
+  if(state.running){
+    // Se detiene al cerrar para no dejar la cámara activa accidentalmente.
+    stopLiveDelay(true);
+  }
+};
+window.liveDelayDiagnostics=function(){
+  const r=bufferedRange(),v=delayed();
+  return {
+    version:VERSION,
+    context:state.context,
+    running:state.running,
+    mime:state.mime||chooseMime(),
+    delaySeconds:state.delay,
+    maxBufferSeconds:state.maxBuffer,
+    mode:state.mode,
+    buffered:r?.span||0,
+    actualDelay:r&&v?Math.max(0,r.end-(Number(v.currentTime)||0)):null,
+    cameraApi:!!navigator.mediaDevices?.getUserMedia,
+    mediaRecorder:typeof MediaRecorder!=='undefined',
+    mediaSource:typeof MediaSource!=='undefined'
+  };
+};
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'&&state.running){
+    setStatus('<b>Live Delay sigue activo.</b> Mantén esta pestaña visible para una reproducción retrasada estable.','warn');
+  }
+});
+window.addEventListener('beforeunload',()=>{try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}});
+loadPrefs();updateUi();
+})();
+</script>
+
+
+
+<style id="v740-live-scout-video-style">
+/* ===== V7.4 · LIVE SCOUTING + VIDEO ===== */
+.scout-v740-video-btn{background:#fff4df!important;color:#7a551e!important;border-color:#e7c98d!important}
+.scout-v740-video-badge.on{background:#e9f4ee!important;color:#28613f!important}
+.scout-v740-video-badge.review{background:#fff2df!important;color:#8a5b16!important}
+.scout-v740-video-badge.error{background:#faeceb!important;color:#90413e!important}
+.scout-v740-dock{background:#fff;border:1px solid #dce3e8;border-radius:14px;padding:12px;margin:8px 0 10px;box-shadow:0 3px 15px rgba(16,42,64,.06)}
+.scout-v740-dock-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding-bottom:10px;border-bottom:1px solid #edf0f2}
+.scout-v740-dock-head h3{border:0!important;margin:2px 0 3px!important;padding:0!important;font-size:15px!important}.scout-v740-dock-head p{margin:0;color:#75828d;font-size:9.5px;line-height:1.4}
+.scout-v740-dock-actions{display:flex;gap:5px;align-items:center;justify-content:flex-end;flex-wrap:wrap}.scout-v740-dock-actions button,.scout-v740-dock-actions select{font-size:7.5px!important;padding:6px 7px!important;width:auto}
+.scout-v740-auto{display:flex;align-items:center;gap:5px;border:1px solid #dce3e8;border-radius:7px;padding:6px 7px;background:#f8fafb;color:#40586b;font-size:8px;font-weight:800;white-space:nowrap}.scout-v740-auto input{width:auto!important;margin:0}
+.scout-v740-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:9px 0}
+.scout-v740-status-grid>div{border:1px solid #e3e8eb;border-radius:9px;background:#f8fafb;padding:8px 9px;min-width:0}
+.scout-v740-status-grid span{display:block;font-size:7px;text-transform:uppercase;letter-spacing:.07em;color:#82909b;font-weight:900}.scout-v740-status-grid b{display:block;color:#17324d;font-size:16px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scout-v740-status-grid small{display:block;color:#84919b;font-size:7px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scout-v740-replay-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;background:#0f2a42;color:#fff;margin-bottom:9px}
+.scout-v740-replay-copy{min-width:0}.scout-v740-replay-copy .pro-kicker{color:#8da6ba}.scout-v740-replay-copy strong{display:block;font-size:10.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scout-v740-replay-copy small{display:block;font-size:8px;color:#aebfcd;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scout-v740-replay-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.scout-v740-replay-actions button{padding:6px 7px!important;font-size:7.3px!important;white-space:nowrap}
+.scout-v740-inline-host>.live-delay-toolbar{margin-top:2px}.scout-v740-inline-host>.live-delay-support{margin-bottom:7px}.scout-v740-inline-host .live-delay-card{max-height:none!important}
+.scout-v740-dock.compact .live-delay-pane:first-child{display:none}.scout-v740-dock.compact .live-delay-grid{grid-template-columns:1fr}.scout-v740-dock.compact .live-delay-training-tools,.scout-v740-dock.compact .live-delay-help{display:none}.scout-v740-dock.compact .live-delay-metrics{grid-template-columns:repeat(4,1fr)}
+.scout-v740-bookmarks{margin-top:8px;border:1px solid #e2e7eb;border-radius:9px;background:#fafbfc;overflow:hidden}
+.scout-v740-bookmarks>summary{list-style:none;cursor:pointer;padding:8px 10px;font-size:8px;font-weight:900;color:#526879;text-transform:uppercase;letter-spacing:.06em}.scout-v740-bookmarks>summary::-webkit-details-marker{display:none}.scout-v740-bookmarks>summary span{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:5px;border-radius:999px;background:#e9eef2;color:#29475f}
+.scout-v740-bookmark-list{padding:0 9px 8px;display:grid;gap:5px}.scout-v740-bookmark{display:grid;grid-template-columns:65px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 8px;border:1px solid #e5e9ec;border-radius:8px;background:#fff}.scout-v740-bookmark time{font:900 8px ui-monospace,SFMono-Regular,Menlo,monospace;color:#17324d}.scout-v740-bookmark strong{display:block;font-size:9px;color:#29475f}.scout-v740-bookmark small{display:block;font-size:7.5px;color:#82909b;margin-top:2px}.scout-v740-bookmark button{padding:5px 6px!important;font-size:7px!important}
+.scout-v740-link-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3f7c63;margin-right:4px;vertical-align:1px}
+.scout-v740-action-linked{box-shadow:inset 3px 0 0 #3f7c63!important}.scout-v740-rally-linked{box-shadow:inset 3px 0 0 #d59532!important}
+.scout-v740-toast{position:fixed;right:18px;bottom:18px;z-index:50000;background:#102b43;color:#fff;padding:9px 11px;border-radius:8px;box-shadow:0 12px 30px rgba(8,29,48,.24);font-size:9px;font-weight:750;max-width:min(340px,calc(100vw - 36px))}
+body.scout-live-compact #scout-v740-dock{padding:8px;margin:5px 0}body.scout-live-compact #scout-v740-dock .scout-v740-dock-head p{display:none}body.scout-live-compact #scout-v740-dock .scout-v740-status-grid{grid-template-columns:repeat(4,1fr);margin:6px 0}body.scout-live-compact #scout-v740-dock .live-delay-toolbar{grid-template-columns:minmax(170px,1fr) 95px 105px auto}body.scout-live-compact #scout-v740-dock .live-delay-support,body.scout-live-compact #scout-v740-dock .live-delay-help{display:none}
+@media(max-width:1050px){.scout-v740-dock-head{flex-direction:column}.scout-v740-dock-actions{justify-content:flex-start}.scout-v740-replay-bar{align-items:flex-start;flex-direction:column}.scout-v740-replay-actions{justify-content:flex-start}.scout-v740-status-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.scout-v740-status-grid{grid-template-columns:1fr 1fr}.scout-v740-dock-actions select{width:100%}.scout-v740-auto{width:100%}.scout-v740-replay-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.scout-v740-replay-actions button{width:100%}.scout-v740-bookmark{grid-template-columns:55px minmax(0,1fr)}.scout-v740-bookmark button{grid-column:1/-1}.scout-v740-dock.compact .live-delay-metrics{grid-template-columns:1fr 1fr}}
+</style>
+
+
+<script id="v740-live-scout-video-module">
+(()=>{
+'use strict';
+
+const VERSION='7.4.0';
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const state={
+  dockOpen:false,
+  moved:false,
+  sessionId:null,
+  sessionStartedAt:null,
+  replayStop:null,
+  replayAutoReturn:false,
+  replayReturnTimer:null,
+  compact:false,
+  exporting:false
+};
+const MOVE_IDS=[
+  'live-delay-toolbar',
+  'live-delay-support',
+  'live-delay-grid',
+  'live-delay-metrics',
+  'live-delay-controls',
+  'live-delay-training-tools',
+  'live-delay-help'
+];
+
+function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
+function setOf(m){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}catch(_){return null}}
+function save(){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(err){console.error('V7.4 save',err)}}
+function playerLabel(a){try{return window.VC_SCOUT_VIDEO_BRIDGE?.playerLabel?.(a)||String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}catch(_){return 'Jugador'}}
+function scoutElapsedSafe(m){
+  try{if(typeof scoutElapsed==='function')return Number(scoutElapsed(m))||0}catch(_){}
+  const t=Date.parse(m?.clockStartedAt||m?.createdAt||new Date().toISOString());
+  return Math.max(0,Date.now()-(Number.isFinite(t)?t:Date.now()));
+}
+function delayed(){return $('live-delay-delayed')}
+function liveRunning(){try{return !!window.liveDelayDiagnostics?.().running}catch(_){return false}}
+function bufferRange(){
+  const v=delayed();if(!v?.buffered?.length)return null;
+  try{
+    const start=v.buffered.start(0),end=v.buffered.end(v.buffered.length-1);
+    return {start,end,span:Math.max(0,end-start)};
+  }catch(_){return null}
+}
+function currentSession(m=active()){
+  if(!m)return null;
+  ensureMeta(m);
+  const id=state.sessionId||m.liveVideo.currentSessionId;
+  return arr(m.liveVideo.sessions).find(s=>String(s.id)===String(id))||null;
+}
+function ensureMeta(m){
+  if(!m)return null;
+  const raw=m.liveVideo&&typeof m.liveVideo==='object'?m.liveVideo:{};
+  m.liveVideo={
+    ...raw,
+    version:VERSION,
+    sessions:arr(raw.sessions),
+    bookmarks:arr(raw.bookmarks),
+    currentSessionId:raw.currentSessionId||null,
+    enabled:!!raw.enabled
+  };
+  return m.liveVideo;
+}
+function makeId(prefix='lv'){return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`}
+function fmt(s){
+  s=Number(s);if(!Number.isFinite(s)||s<0)return '—';
+  const m=Math.floor(s/60),x=s-m*60;
+  return `${String(m).padStart(2,'0')}:${x.toFixed(1).padStart(4,'0')}`;
+}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(msg){
+  let el=$('scout-v740-toast');
+  if(!el){el=document.createElement('div');el.id='scout-v740-toast';el.className='scout-v740-toast';document.body.appendChild(el)}
+  el.textContent=msg;clearTimeout(el._t);el._t=setTimeout(()=>el.remove(),3300);
+}
+function prefs(){
+  try{return JSON.parse(localStorage.getItem('volley_v740_prefs')||'{}')}catch(_){return {}}
+}
+window.scoutV740SavePrefs=function(){
+  try{
+    localStorage.setItem('volley_v740_prefs',JSON.stringify({
+      autoReplay:!!$('scout-v740-auto-replay')?.checked,
+      autoReturn:Number($('scout-v740-auto-return')?.value)||0,
+      compact:state.compact
+    }));
+  }catch(_){}
+};
+function loadPrefs(){
+  const p=prefs();
+  if($('scout-v740-auto-replay'))$('scout-v740-auto-replay').checked=!!p.autoReplay;
+  if($('scout-v740-auto-return')){
+    const values=[...$('scout-v740-auto-return').options].map(o=>o.value);
+    $('scout-v740-auto-return').value=values.includes(String(p.autoReturn))?String(p.autoReturn):'1.2';
+  }
+  state.compact=!!p.compact;$('scout-v740-dock')?.classList.toggle('compact',state.compact);
+}
+function nodes(){
+  const modal=$('live-delay-modal'),card=modal?.querySelector('.live-delay-card');
+  if(!card)return [];
+  const selectors=[
+    '.live-delay-toolbar','.live-delay-support','.live-delay-grid','.live-delay-metrics',
+    '.live-delay-controls','.live-delay-training-tools','.live-delay-help'
+  ];
+  return selectors.map(s=>card.querySelector(s)||$('scout-v740-inline-host')?.querySelector(s)).filter(Boolean);
+}
+function moveInline(){
+  const host=$('scout-v740-inline-host');if(!host||state.moved)return;
+  const list=nodes();list.forEach(n=>host.appendChild(n));state.moved=!!list.length;
+}
+function restoreModal(){
+  if(!state.moved)return;
+  const card=$('live-delay-modal')?.querySelector('.live-delay-card'),head=card?.querySelector('.pro-modal-head');
+  if(!card)return;
+  const list=[
+    hostFind('.live-delay-toolbar'),hostFind('.live-delay-support'),hostFind('.live-delay-grid'),
+    hostFind('.live-delay-metrics'),hostFind('.live-delay-controls'),
+    hostFind('.live-delay-training-tools'),hostFind('.live-delay-help')
+  ].filter(Boolean);
+  let ref=head?.nextSibling||null;
+  list.forEach(n=>{card.insertBefore(n,ref);ref=n.nextSibling});
+  state.moved=false;
+}
+function hostFind(sel){return $('scout-v740-inline-host')?.querySelector(sel)||null}
+async function openDock(){
+  const m=active();
+  if(!m){alert('Necesitas un scouting activo para abrir Live Scouting + Video.');return}
+  state.dockOpen=true;
+  $('scout-v740-dock')?.classList.remove('hidden');
+  loadPrefs();
+  try{await window.openLiveDelay?.('scouting')}catch(err){console.warn('V7.4 open Live Delay',err)}
+  $('live-delay-modal')?.classList.remove('open');
+  moveInline();
+  ensureMeta(m).enabled=true;
+  m.dataVersion=VERSION;save();render();
+  setTimeout(()=>document.getElementById('scout-v740-dock')?.scrollIntoView({block:'nearest',behavior:'smooth'}),0);
+}
+window.scoutV740ToggleDock=function(){if(state.dockOpen)window.scoutV740CloseDock();else openDock()};
+window.scoutV740CloseDock=function(){
+  state.dockOpen=false;clearReplay();
+  try{window.stopLiveDelay?.(true)}catch(_){}
+  restoreModal();$('live-delay-modal')?.classList.remove('open');
+  $('scout-v740-dock')?.classList.add('hidden');
+  const m=active();if(m){ensureMeta(m).enabled=false;m.liveVideo.currentSessionId=null;save()}
+  state.sessionId=null;state.sessionStartedAt=null;render();
+};
+window.scoutV740ToggleCompactVideo=function(){
+  state.compact=!state.compact;$('scout-v740-dock')?.classList.toggle('compact',state.compact);window.scoutV740SavePrefs()
+};
+
+function beginSession(){
+  const m=active();if(!m)return;
+  const lv=ensureMeta(m),diag=window.liveDelayDiagnostics?.()||{};
+  const s={
+    id:makeId('session'),startedAt:new Date().toISOString(),endedAt:null,
+    scoutMsAtStart:scoutElapsedSafe(m),
+    delaySeconds:Number(diag.delaySeconds)||Number($('live-delay-seconds')?.value)||10,
+    maxBufferSeconds:Number(diag.maxBufferSeconds)||Number($('live-delay-buffer')?.value)||120,
+    actionsLinked:0,ralliesLinked:0
+  };
+  lv.sessions.push(s);lv.currentSessionId=s.id;lv.enabled=true;
+  state.sessionId=s.id;state.sessionStartedAt=Date.now();
+  // If camera starts in the middle of a rally, its available video begins at 0.
+  if(m.liveRally&&!Number.isFinite(Number(m.liveRally.liveVideoStart)))m.liveRally.liveVideoStart=0;
+  m.liveRally.liveVideoSessionId=s.id;
+  m.dataVersion=VERSION;save();render();
+}
+function endSession(){
+  const m=active(),s=currentSession(m);if(!m||!s)return;
+  s.endedAt=new Date().toISOString();const r=bufferRange();s.lastBufferedEnd=r?.end??null;
+  const lv=ensureMeta(m);lv.currentSessionId=null;lv.enabled=false;
+  m.dataVersion=VERSION;save();state.sessionId=null;state.sessionStartedAt=null;render();
+}
+function videoTimeForScoutMs(m,scoutMs){
+  const s=currentSession(m);if(!s)return null;
+  const t=(Number(scoutMs)-Number(s.scoutMsAtStart))/1000;
+  return Number.isFinite(t)?Math.max(0,t):null;
+}
+function videoNow(m){
+  const s=currentSession(m);if(!s)return null;
+  const t=(scoutElapsedSafe(m)-Number(s.scoutMsAtStart))/1000;
+  return Number.isFinite(t)?Math.max(0,t):null;
+}
+function markAction(a,m){
+  const s=currentSession(m);if(!s||!a)return;
+  const t=videoTimeForScoutMs(m,a.scoutMs);
+  a.liveVideoTime=t;a.liveVideoSessionId=s.id;a.liveVideoLinkedAt=new Date().toISOString();
+  s.actionsLinked=Number(s.actionsLinked||0)+1;
+}
+function lastClosedRally(m=active()){
+  if(!m)return null;
+  const all=arr(m.sets).flatMap(s=>arr(s.rallies).map(r=>({r,set:s})));
+  return all.length?all[all.length-1]:null;
+}
+function lastAction(m=active()){
+  if(!m)return null;
+  const live=arr(m.liveRally?.actions);if(live.length)return live[live.length-1];
+  const lr=lastClosedRally(m)?.r;const aa=arr(lr?.actions);return aa.length?aa[aa.length-1]:null;
+}
+function linkRally(r,m,start,end){
+  const s=currentSession(m);if(!r||!s)return;
+  r.liveVideoSessionId=s.id;
+  r.liveVideoStart=Math.max(0,Number(start)||0);
+  r.liveVideoEnd=Math.max(r.liveVideoStart,Number(end)||r.liveVideoStart);
+  r.liveVideoLinkedAt=new Date().toISOString();
+  s.ralliesLinked=Number(s.ralliesLinked||0)+1;
+}
+function rangeAvailable(start,end){
+  const r=bufferRange();if(!r)return {ok:false,reason:'El búfer de vídeo todavía no está disponible.'};
+  if(end<r.start||start>r.end)return {ok:false,reason:'Ese momento ya no está dentro del búfer actual.'};
+  return {ok:true,start:Math.max(start,r.start),end:Math.min(end,r.end),range:r,trimmed:start<r.start||end>r.end};
+}
+function clearReplay(){
+  state.replayStop=null;state.replayAutoReturn=false;
+  if(state.replayReturnTimer){clearTimeout(state.replayReturnTimer);state.replayReturnTimer=null}
+}
+function playRange(start,end,title='',autoReturn=false){
+  if(!liveRunning()){alert('Inicia primero la cámara de Live Delay.');return false}
+  const check=rangeAvailable(Number(start),Number(end));
+  if(!check.ok){alert(check.reason);return false}
+  const v=delayed();if(!v)return false;
+  try{window.liveDelayJump?.(0)}catch(_){}
+  clearReplay();state.replayStop=check.end;state.replayAutoReturn=!!autoReturn;
+  try{v.currentTime=check.start;v.play().catch(()=>{})}catch(_){}
+  if(title)toast((check.trimmed?'Replay parcial · ':'Replay · ')+title);
+  return true;
+}
+function actionRange(a,m=active()){
+  const s=currentSession(m);if(!a||!s||String(a.liveVideoSessionId)!==String(s.id)||a.liveVideoTime==null)return null;
+  return {start:Math.max(0,Number(a.liveVideoTime)-2.2),end:Number(a.liveVideoTime)+2.0};
+}
+function rallyRange(r,m=active()){
+  const s=currentSession(m);if(!r||!s||String(r.liveVideoSessionId)!==String(s.id))return null;
+  if(r.liveVideoStart==null||r.liveVideoEnd==null)return null;
+  return {start:Math.max(0,Number(r.liveVideoStart)-1.5),end:Number(r.liveVideoEnd)+1.5};
+}
+window.scoutV740ReplayLastAction=function(){
+  const m=active(),a=lastAction(m),range=actionRange(a,m);
+  if(!a||!range){alert('La última acción no está vinculada al búfer de vídeo actual.');return}
+  playRange(range.start,range.end,`${a.code||a.skill||'Acción'} · ${playerLabel(a)}`,false);
+};
+window.scoutV740ReplayLastRally=function(auto=false){
+  const m=active(),item=lastClosedRally(m),range=rallyRange(item?.r,m);
+  if(!item?.r||!range){if(!auto)alert('El último rally no está vinculado al búfer de vídeo actual.');return false}
+  const idx=arr(item.set.rallies).indexOf(item.r)+1;
+  const title=`Set ${item.set.number} · Rally ${idx} · ${item.r.scoreAfter?.us??0}-${item.r.scoreAfter?.opponent??0}`;
+  return playRange(range.start,range.end,title,!!auto);
+};
+window.scoutV740BookmarkLastRally=function(){
+  const m=active(),item=lastClosedRally(m),range=rallyRange(item?.r,m),lv=ensureMeta(m),s=currentSession(m);
+  if(!m||!item?.r||!range||!s){alert('No hay un último rally reproducible en la sesión de vídeo actual.');return}
+  const idx=arr(item.set.rallies).indexOf(item.r)+1;
+  const mark={
+    id:makeId('mark'),sessionId:s.id,set:item.set.number,rallyId:item.r.id,
+    start:range.start,end:range.end,createdAt:new Date().toISOString(),
+    name:`Set ${item.set.number} · Rally ${idx}`,
+    score:`${item.r.scoreAfter?.us??0}-${item.r.scoreAfter?.opponent??0}`,
+    winner:item.r.winner
+  };
+  if(!lv.bookmarks.some(x=>String(x.sessionId)===String(mark.sessionId)&&Number(x.rallyId)===Number(mark.rallyId)))lv.bookmarks.push(mark);
+  save();render();toast('Marcador de vídeo guardado');
+};
+window.scoutV740PlayBookmark=function(id){
+  const m=active(),x=ensureMeta(m)?.bookmarks.find(b=>String(b.id)===String(id)),s=currentSession(m);
+  if(!x||!s||String(x.sessionId)!==String(s.id)){alert('Este marcador pertenece a otra sesión de cámara y ya no está disponible en el búfer actual.');return}
+  playRange(x.start,x.end,x.name,false);
+};
+window.scoutV740DeleteBookmark=function(id){
+  const m=active(),lv=ensureMeta(m);if(!lv)return;
+  lv.bookmarks=lv.bookmarks.filter(x=>String(x.id)!==String(id));save();render()
+};
+
+function renderBookmarks(m){
+  const box=$('scout-v740-bookmark-list'),count=$('scout-v740-bookmark-count');if(!box||!count)return;
+  const lv=ensureMeta(m),items=arr(lv?.bookmarks).slice().reverse();
+  count.textContent=String(items.length);
+  box.innerHTML=items.length?items.map(x=>{
+    const playable=String(x.sessionId)===String(state.sessionId)&&liveRunning();
+    return `<div class="scout-v740-bookmark"><time>${fmt(x.start)}–${fmt(x.end)}</time><div><strong>${esc(x.name||'Rally')}</strong><small>${esc(x.score||'')} · ${x.winner==='ours'?'Punto nuestro':x.winner==='opponent'?'Punto rival':'—'}${playable?' · disponible':' · sesión anterior'}</small></div><div><button class="ghost" ${playable?'':'disabled'} onclick="scoutV740PlayBookmark('${esc(x.id)}')">▶</button><button class="danger" onclick="scoutV740DeleteBookmark('${esc(x.id)}')">×</button></div></div>`;
+  }).join(''):'<div class="scout-action-empty">Sin marcadores de vídeo guardados.</div>';
+}
+function renderLinkedRows(m){
+  document.querySelectorAll('#scout-current-actions .scout-action-item').forEach((row,i)=>{
+    const a=arr(m?.liveRally?.actions)[i];row.classList.toggle('scout-v740-action-linked',a?.liveVideoTime!=null);
+    const small=row.querySelector('.scout-action-copy small');
+    if(a?.liveVideoTime!=null&&small&&!small.dataset.v740){
+      small.dataset.v740='1';small.innerHTML+=` · <span class="scout-v740-link-dot"></span>vídeo ${fmt(a.liveVideoTime)}`;
+    }
+  });
+  document.querySelectorAll('#scout-rally-list .scout-rally-item').forEach((row,i)=>{
+    const s=setOf(m),r=arr(s?.rallies)[i];row.classList.toggle('scout-v740-rally-linked',r?.liveVideoStart!=null&&r?.liveVideoEnd!=null);
+  });
+}
+function render(){
+  const m=active(),diag=window.liveDelayDiagnostics?.()||{},r=bufferRange(),s=currentSession(m);
+  const badge=$('scout-v740-video-badge');
+  if(badge){
+    const running=!!diag.running;
+    badge.textContent=running?(diag.mode==='delay'?`VÍDEO · −${diag.delaySeconds||'?'} s`:'VÍDEO · REPLAY'):'VÍDEO OFF';
+    badge.className='scout-save-badge scout-v740-video-badge '+(running?(diag.mode==='delay'?'on':'review'):'');
+  }
+  const btn=$('scout-v740-live-video-btn');if(btn)btn.textContent=state.dockOpen?'🎥 Cerrar live vídeo':'🎥 Live vídeo';
+  if(!m){
+    if($('scout-v740-linked-actions'))$('scout-v740-linked-actions').textContent='0';
+    if($('scout-v740-linked-rallies'))$('scout-v740-linked-rallies').textContent='0';
+    return;
+  }
+  const sessionText=s?String(s.id).replace(/^session_/,'').slice(0,13):'—';
+  if($('scout-v740-session'))$('scout-v740-session').textContent=sessionText;
+  if($('scout-v740-session-note'))$('scout-v740-session-note').textContent=s?(diag.running?'Cámara activa':'Sesión detenida'):'Cámara detenida';
+  const actions=arr(m.sets).flatMap(x=>arr(x.rallies)).flatMap(x=>arr(x.actions)).concat(arr(m.liveRally?.actions)).filter(a=>s&&String(a.liveVideoSessionId)===String(s.id)).length;
+  const rallies=arr(m.sets).flatMap(x=>arr(x.rallies)).filter(x=>s&&String(x.liveVideoSessionId)===String(s.id)).length;
+  if($('scout-v740-linked-actions'))$('scout-v740-linked-actions').textContent=String(actions);
+  if($('scout-v740-linked-rallies'))$('scout-v740-linked-rallies').textContent=String(rallies);
+  if($('scout-v740-buffer'))$('scout-v740-buffer').textContent=r?`${Math.round(r.span)} s`:'0 s';
+  const last=lastClosedRally(m),lr=last?.r,idx=lr?arr(last.set.rallies).indexOf(lr)+1:0,range=rallyRange(lr,m);
+  if($('scout-v740-last-title'))$('scout-v740-last-title').textContent=lr?`Set ${last.set.number} · Rally ${idx} · ${lr.scoreAfter?.us??0}-${lr.scoreAfter?.opponent??0}`:'Todavía no hay una jugada vinculada.';
+  if($('scout-v740-last-note'))$('scout-v740-last-note').textContent=lr?(range?`${lr.winner==='ours'?'Punto nuestro':'Punto rival'} · vídeo ${fmt(range.start)}–${fmt(range.end)}`:'Rally guardado, pero no pertenece al búfer de cámara actual.'):'Inicia la cámara y registra acciones normalmente.';
+  renderBookmarks(m);renderLinkedRows(m);
+}
+
+function csvSafe(v){const s=String(v??'');return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
+function slug(v){return String(v||'rally').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,70)||'rally'}
+function captureMime(){
+  if(typeof MediaRecorder==='undefined')return '';
+  const list=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  return list.find(x=>{try{return MediaRecorder.isTypeSupported?.(x)}catch(_){return false}})||'';
+}
+function dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+window.scoutV740ExportLastRally=async function(){
+  if(state.exporting)return;
+  const m=active(),item=lastClosedRally(m),range=rallyRange(item?.r,m),v=delayed();
+  if(!m||!item?.r||!range){alert('No hay un último rally disponible en el búfer actual.');return}
+  if(!v?.src||!liveRunning()){alert('Live Delay debe estar activo para exportar el rally.');return}
+  const capture=v.captureStream||v.mozCaptureStream,mime=captureMime();
+  if(typeof capture!=='function'||!mime){alert('Este navegador no permite exportar el replay directamente. El vínculo del rally queda guardado igualmente.');return}
+  const check=rangeAvailable(range.start,range.end);if(!check.ok){alert(check.reason);return}
+  state.exporting=true;clearReplay();
+  try{
+    window.liveDelayJump?.(0);v.pause();v.currentTime=check.start;
+    await new Promise(res=>{if(v.readyState>=2)setTimeout(res,80);else v.addEventListener('seeked',()=>res(),{once:true})});
+    const stream=capture.call(v),chunks=[],rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3000000});
+    rec.addEventListener('dataavailable',e=>{if(e.data?.size)chunks.push(e.data)});
+    const stopped=new Promise(res=>rec.addEventListener('stop',res,{once:true}));
+    rec.start(250);await v.play();
+    await new Promise(resolve=>{
+      const tick=()=>{if(v.currentTime>=check.end-.04){cleanup();resolve()}};
+      const cleanup=()=>v.removeEventListener('timeupdate',tick);
+      v.addEventListener('timeupdate',tick);
+      setTimeout(()=>{cleanup();resolve()},Math.max(3500,(check.end-check.start+2)*1700));
+    });
+    v.pause();if(rec.state!=='inactive')rec.stop();await stopped;stream.getTracks?.().forEach(t=>t.stop());
+    const blob=new Blob(chunks,{type:mime});if(!blob.size)throw new Error('Sin datos exportados');
+    const idx=arr(item.set.rallies).indexOf(item.r)+1;
+    dl(blob,`${slug(m.date||'partido')}_set${item.set.number}_rally${idx}_${item.r.scoreAfter?.us??0}-${item.r.scoreAfter?.opponent??0}.webm`);
+    toast('Rally exportado como WebM');
+  }catch(err){
+    console.error('V7.4 export rally',err);alert('No se ha podido exportar el rally en este navegador. El scouting y el vínculo de vídeo no se han perdido.');
+  }finally{
+    state.exporting=false;setTimeout(()=>window.liveDelayReturn?.(),200);
+  }
+};
+
+// Start/stop wrappers: create a mapping session between scouting clock and camera clock.
+const baseStartLive=window.startLiveDelay;
+window.startLiveDelay=async function(...args){
+  const was=liveRunning(),out=await baseStartLive?.apply(this,args);
+  if(!was&&liveRunning())beginSession();
+  render();return out;
+};
+const baseStopLive=window.stopLiveDelay;
+window.stopLiveDelay=function(...args){
+  if(liveRunning())endSession();
+  const out=baseStopLive?.apply(this,args);render();return out;
+};
+
+// Action wrapper: timestamp every action against the active camera session.
+if(typeof scoutPushAction==='function'){
+  const basePush=scoutPushAction;
+  scoutPushAction=function(action){
+    const m=active(),before=arr(m?.liveRally?.actions).length;
+    const out=basePush(action);
+    const mm=active(),aa=arr(mm?.liveRally?.actions);
+    if(out&&liveRunning()&&aa.length>before){
+      const a=aa[aa.length-1];markAction(a,mm);
+      if(mm.liveRally&&mm.liveRally.liveVideoStart==null){
+        const s=currentSession(mm);
+        mm.liveRally.liveVideoStart=s?Math.max(0,(Number(mm.liveRally.scoutStartMs)-Number(s.scoutMsAtStart))/1000):0;
+        mm.liveRally.liveVideoSessionId=s?.id||null;
+      }
+      mm.dataVersion=VERSION;save();render();
+    }
+    return out;
+  };
+}
+
+// Rally reset wrapper: start the next rally at the current camera time.
+if(typeof scoutResetLiveRally==='function'){
+  const baseReset=scoutResetLiveRally;
+  scoutResetLiveRally=function(m){
+    const out=baseReset(m);
+    if(m&&liveRunning()){
+      const s=currentSession(m);if(s){
+        m.liveRally.liveVideoSessionId=s.id;
+        m.liveRally.liveVideoStart=videoNow(m);
+      }
+    }
+    return out;
+  };
+}
+
+// Point wrapper: close the video range and optionally replay it immediately.
+const baseAward=window.scoutAwardPoint;
+window.scoutAwardPoint=function(winner){
+  const m=active(),s=currentSession(m);
+  const liveId=m?.liveRally?.id,start=m?.liveRally?.liveVideoStart,sessionId=m?.liveRally?.liveVideoSessionId||s?.id;
+  const end=(m&&s&&liveRunning())?videoNow(m):null;
+  const out=baseAward?.call(this,winner);
+  const mm=active();
+  if(mm&&s&&end!=null){
+    const all=arr(mm.sets).flatMap(set=>arr(set.rallies).map(r=>({set,r})));
+    const found=all.slice().reverse().find(x=>Number(x.r.id)===Number(liveId));
+    if(found&&String(sessionId)===String(s.id)){
+      const first=arr(found.r.actions).find(a=>String(a.liveVideoSessionId)===String(s.id));
+      const effectiveStart=start!=null?Number(start):(first?.liveVideoTime!=null?Math.max(0,Number(first.liveVideoTime)-1):Math.max(0,end-8));
+      linkRally(found.r,mm,effectiveStart,end);
+      mm.dataVersion=VERSION;save();render();
+      if($('scout-v740-auto-replay')?.checked){
+        setTimeout(()=>window.scoutV740ReplayLastRally(true),800);
+      }
+    }
+  }
+  return out;
+};
+
+// Undo wrapper: preserve live-video fields when a closed rally is reopened.
+const baseUndo=window.scoutUndoRally;
+window.scoutUndoRally=function(...args){
+  const m=active(),last=lastClosedRally(m)?.r;
+  const keep=last?{
+    liveVideoSessionId:last.liveVideoSessionId,liveVideoStart:last.liveVideoStart,
+    liveVideoEnd:last.liveVideoEnd,liveVideoLinkedAt:last.liveVideoLinkedAt
+  }:null;
+  const out=baseUndo?.apply(this,args);
+  const mm=active();
+  if(mm?.liveRally&&keep){
+    Object.entries(keep).forEach(([k,v])=>{if(v!==undefined)mm.liveRally[k]=v});
+    mm.dataVersion=VERSION;save();render();
+  }
+  return out;
+};
+
+// Render wrapper: keep video status integrated with every scouting render.
+const baseRender=window.scoutRender;
+window.scoutRender=function(...args){
+  const out=baseRender?.apply(this,args);setTimeout(render,0);return out;
+};
+
+// Keep linked markers after V6/V7 UI redraws.
+const delayedVideo=delayed();
+if(delayedVideo&&!delayedVideo.dataset.v740Bound){
+  delayedVideo.dataset.v740Bound='1';
+  delayedVideo.addEventListener('timeupdate',()=>{
+    if(state.replayStop!=null&&delayedVideo.currentTime>=state.replayStop-.04){
+      delayedVideo.pause();const auto=state.replayAutoReturn;clearReplay();
+      if(auto){
+        const wait=Math.max(0,Number($('scout-v740-auto-return')?.value)||0);
+        if(wait>0)state.replayReturnTimer=setTimeout(()=>window.liveDelayReturn?.(),wait*1000);
+      }
+    }
+    render();
+  });
+}
+
+// If the user saves/finalizes and actually exits the live scouting, release camera safely.
+['scoutV6102SaveAndExit','scoutV6102FinalizeAndExit'].forEach(name=>{
+  const base=window[name];if(typeof base!=='function')return;
+  window[name]=async function(...args){
+    const out=await base.apply(this,args);
+    const still=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive();
+    if(!still&&state.dockOpen)window.scoutV740CloseDock();
+    return out;
+  };
+});
+
+// Keyboard shortcuts only while the scouting view and dock are active.
+document.addEventListener('keydown',e=>{
+  if(!state.dockOpen||!$('scouting')?.classList.contains('active'))return;
+  const tag=String(e.target?.tagName||'').toLowerCase();if(['input','select','textarea'].includes(tag))return;
+  if(e.altKey&&e.key.toLowerCase()==='r'){e.preventDefault();window.scoutV740ReplayLastRally()}
+  else if(e.altKey&&e.key.toLowerCase()==='a'){e.preventDefault();window.scoutV740ReplayLastAction()}
+  else if(e.altKey&&e.key.toLowerCase()==='l'){e.preventDefault();window.liveDelayReturn?.()}
+});
+
+// If V7.3 modal close is invoked while its controls are embedded, use the V7.4 close flow.
+const baseCloseLive=window.closeLiveDelay;
+window.closeLiveDelay=function(...args){
+  if(state.dockOpen){window.scoutV740CloseDock();return}
+  return baseCloseLive?.apply(this,args);
+};
+
+window.scoutV740Diagnostics=function(){
+  const m=active(),s=currentSession(m),r=bufferRange(),last=lastClosedRally(m)?.r;
+  return {
+    version:VERSION,
+    dockOpen:state.dockOpen,
+    liveDelay:window.liveDelayDiagnostics?.()||null,
+    matchId:m?.id||null,
+    currentSessionId:s?.id||null,
+    sessionScoutMsAtStart:s?.scoutMsAtStart??null,
+    linkedActions:m&&s?arr(m.sets).flatMap(x=>arr(x.rallies)).flatMap(x=>arr(x.actions)).concat(arr(m.liveRally?.actions)).filter(a=>String(a.liveVideoSessionId)===String(s.id)).length:0,
+    linkedRallies:m&&s?arr(m.sets).flatMap(x=>arr(x.rallies)).filter(x=>String(x.liveVideoSessionId)===String(s.id)).length:0,
+    buffer:r,
+    lastRally:last?{id:last.id,start:last.liveVideoStart,end:last.liveVideoEnd,sessionId:last.liveVideoSessionId}:null,
+    bookmarks:arr(m?.liveVideo?.bookmarks).length
+  };
+};
+
+loadPrefs();setTimeout(render,0);
+})();
 </script>
 
 </body></html>
