@@ -1122,7 +1122,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.6 ✓</span></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -4257,7 +4257,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.6', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.7', {
         updateViaCache: 'none'
       });
 
@@ -6919,6 +6919,202 @@ window.scoutExportJSON=function(id){const m=scoutExportMatch(id);if(!m){alert('N
 window.scoutExportPlayerCSV=function(){const ctx=scoutPlayerDetailContext;if(!ctx)return;const m=scoutingMatches.find(x=>Number(x.id)===Number(ctx.matchId)),st=m?scoutBuildPlayerStats(m,ctx.team).find(x=>x.key===ctx.key):null;if(!m||!st)return;const headers=['set','rally','marcador_antes','marcador_despues','rotacion','fase_rally','codigo','fundamento','valoracion','zona_origen','zona_destino','tipo_saque','fase_accion','combinacion','tempo_ataque','bloqueadores','tiempo_scout'];const data=st.actions.map(a=>[a.set,a.rallyIndex,a.scoreBefore,a.scoreAfter,ctx.team==='ours'?a.rotation:a.opponentRotation,ctx.team==='ours'?(a.servingBefore==='ours'?'Break':'Side-out'):(a.servingBefore==='opponent'?'Break':'Side-out'),a.code,SCOUT_SKILLS[a.skill]||a.skill,a.evaluation,a.startZone,a.endZone,V620_SERVE_LABELS[a.serveType]||a.serveType||'',V620_PHASE_LABELS[a.phase]||a.phase||'',V620_COMBO_LABELS[a.setTarget||a.attackCombo]||a.setTarget||a.attackCombo||'',a.attackTempo||'',a.blockers??'',scoutFormatTime(a.scoutMs)]);const csv='\uFEFF'+[headers,...data].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+st.label)}_acciones.csv`)};
 function scoutExportNotice(show,text='Preparando informe…'){const el=$('scout-export-status');if(!el)return;el.textContent=text;el.classList.toggle('hidden',!show)}
 window.scoutExportPDF=async function(id){const m=scoutExportMatch(id);if(!m){alert('No hay scouting seleccionado.');return}if(!window.html2canvas||!window.jspdf?.jsPDF){alert('No se ha podido cargar el motor PDF.');return}scoutExportNotice(true,'Preparando informe PDF…');try{const a=scoutAnalysis(m),players=scoutBuildPlayerStats(m,'ours'),sets=scoutArr(m.sets),seq=scoutSequenceSummary(m,'ours'),dist=scoutDistributionRows(m,'ours','');const report=document.createElement('div');report.style.cssText='position:fixed;left:-20000px;top:0;width:1120px;background:#fff;color:#17324d;padding:46px;font-family:Arial,Helvetica,sans-serif;z-index:-1';const score=scoutSetsScore(m);report.innerHTML=`<div style="border-bottom:4px solid #102b43;padding-bottom:20px;margin-bottom:22px"><div style="font-size:12px;font-weight:900;letter-spacing:.16em;color:#718394">VOLLEY COACH · SCOUTING REPORT</div><h1 style="font-size:30px;margin:7px 0;color:#102b43">${esc(EQUIPOS[equipoActivo].nombre)} vs ${esc(m.opponent)}</h1><div style="color:#697b89;font-size:14px">${esc(m.date)}${m.competition?' · '+esc(m.competition):''} · Resultado ${score.us}–${score.opponent} sets</div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px"><div style="padding:14px;border:1px solid #dfe6eb"><small>SIDE-OUT</small><b style="display:block;font-size:25px">${a.sidePct??'—'}%</b><span>${a.sideWon}/${a.sideTotal}</span></div><div style="padding:14px;border:1px solid #dfe6eb"><small>BREAK POINT</small><b style="display:block;font-size:25px">${a.breakPct??'—'}%</b><span>${a.breakWon}/${a.breakTotal}</span></div><div style="padding:14px;border:1px solid #dfe6eb"><small>RALLIES</small><b style="display:block;font-size:25px">${a.rallies.length}</b></div><div style="padding:14px;border:1px solid #dfe6eb"><small>ACCIONES</small><b style="display:block;font-size:25px">${a.actions.length}</b></div></div><h2 style="font-size:18px;border-bottom:1px solid #dfe6eb;padding-bottom:8px">Sets</h2><table style="width:100%;border-collapse:collapse;margin-bottom:22px"><tbody>${sets.map(s=>`<tr><td style="padding:8px;border-bottom:1px solid #edf0f2"><b>Set ${s.number}</b></td><td style="padding:8px;border-bottom:1px solid #edf0f2">${s.finished?(s.winner==='ours'?'Ganado':'Perdido'):'En curso'}</td><td style="padding:8px;border-bottom:1px solid #edf0f2;text-align:right"><b>${s.scoreUs}–${s.scoreOpponent}</b></td></tr>`).join('')}</tbody></table><h2 style="font-size:18px;border-bottom:1px solid #dfe6eb;padding-bottom:8px">Estadística individual</h2><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#102b43;color:#fff"><th style="padding:8px;text-align:left">Jugador</th><th>ACC</th><th>SAQ #/=</th><th>REC POS/PERF</th><th>ATQ #/=/EFF</th><th>BLQ #</th><th>DEF POS</th></tr></thead><tbody>${players.map(st=>{const s=scoutSkillMetric(st,'S'),r=scoutSkillMetric(st,'R'),at=scoutSkillMetric(st,'A'),b=scoutSkillMetric(st,'B'),d=scoutSkillMetric(st,'D');return `<tr><td style="padding:8px;border-bottom:1px solid #e9edf0"><b>${esc(st.label)}</b></td><td style="text-align:center;border-bottom:1px solid #e9edf0">${st.total}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${s.total?s.perfect+'/'+s.error:'—'}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${r.total?r.posPct+'% / '+r.perfPct+'%':'—'}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${at.total?at.perfect+'/'+at.error+' / '+at.effPct+'%':'—'}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${b.total?b.perfect:'—'}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${d.total?d.posPct+'%':'—'}</td></tr>`}).join('')}</tbody></table><h2 style="font-size:18px;border-bottom:1px solid #dfe6eb;padding-bottom:8px;margin-top:25px">Rotaciones</h2><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#f1f4f6"><th style="padding:8px">Rotación</th><th>Side-out</th><th>Break</th><th>Puntos ganados</th></tr></thead><tbody>${a.rotations.map(r=>`<tr><td style="padding:8px;border-bottom:1px solid #e9edf0;text-align:center"><b>R${r.no}</b></td><td style="text-align:center;border-bottom:1px solid #e9edf0">${r.sideTotal?scoutPercent(r.sideWon,r.sideTotal)+'% ('+r.sideWon+'/'+r.sideTotal+')':'—'}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${r.breakTotal?scoutPercent(r.breakWon,r.breakTotal)+'% ('+r.breakWon+'/'+r.breakTotal+')':'—'}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${r.total?r.won+'/'+r.total:'—'}</td></tr>`).join('')}</tbody></table><h2 style="font-size:18px;border-bottom:1px solid #dfe6eb;padding-bottom:8px;margin-top:25px">Secuencias K1 / K2</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="padding:12px;border:1px solid #dfe6eb"><small>K1 · SIDE-OUT</small><b style="display:block;font-size:21px">${seq.k1.length?scoutPercent(seq.k1Won,seq.k1.length)+'%':'—'}</b><span>${seq.k1Won}/${seq.k1.length}</span></div><div style="padding:12px;border:1px solid #dfe6eb"><small>K2 · BREAK</small><b style="display:block;font-size:21px">${seq.k2.length?scoutPercent(seq.k2Won,seq.k2.length)+'%':'—'}</b><span>${seq.k2Won}/${seq.k2.length}</span></div></div><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#f1f4f6"><th style="padding:8px">Recepción</th><th>K1 ganados</th><th>Side-out</th></tr></thead><tbody>${seq.byReception.map(x=>`<tr><td style="padding:8px;border-bottom:1px solid #e9edf0;text-align:center"><b>${x.ev}</b></td><td style="text-align:center;border-bottom:1px solid #e9edf0">${x.won}/${x.total}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${x.total?x.pct+'%':'—'}</td></tr>`).join('')}</tbody></table><h2 style="font-size:18px;border-bottom:1px solid #dfe6eb;padding-bottom:8px;margin-top:25px">Distribución del colocador</h2><div style="font-size:11px;color:#526575;margin-bottom:8px">${dist.length} secuencias con destino/combinación codificada.</div><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#f1f4f6"><th style="padding:8px;text-align:left">Destino</th><th>Total</th><th>%</th></tr></thead><tbody>${Object.entries(dist.reduce((o,x)=>{o[x.target]=(o[x.target]||0)+1;return o},{})).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td style="padding:8px;border-bottom:1px solid #e9edf0"><b>${esc(V620_COMBO_LABELS[k]||k)}</b></td><td style="text-align:center;border-bottom:1px solid #e9edf0">${v}</td><td style="text-align:center;border-bottom:1px solid #e9edf0">${dist.length?Math.round(v/dist.length*100):0}%</td></tr>`).join('')||'<tr><td colspan="3" style="padding:10px;color:#84919b">Sin distribución codificada.</td></tr>'}</tbody></table><div style="margin-top:28px;padding-top:12px;border-top:1px solid #dfe6eb;color:#84919b;font-size:10px">Generado por Volley Coach · V6.5.0 · Las métricas se basan en los códigos registrados por el staff.</div>`;document.body.appendChild(report);const canvas=await html2canvas(report,{scale:1.45,backgroundColor:'#ffffff',logging:false,useCORS:true});report.remove();const {jsPDF}=window.jspdf,pdf=new jsPDF('p','mm','a4'),margin=10,pageW=210-margin*2,pageH=297-margin*2,imgW=pageW,imgH=canvas.height*imgW/canvas.width,img=canvas.toDataURL('image/jpeg',.92);let y=margin,remaining=imgH;pdf.addImage(img,'JPEG',margin,y,imgW,imgH);remaining-=pageH;while(remaining>0){pdf.addPage();y=margin-(imgH-remaining);pdf.addImage(img,'JPEG',margin,y,imgW,imgH);remaining-=pageH}pdf.save(`${scoutSafeFilename(m.date+'_'+m.opponent)}_informe_scouting.pdf`)}catch(err){console.error(err);alert('No se ha podido generar el PDF.')}finally{scoutExportNotice(false)}};
+
+/* ===== V7.5.7 · PDF DIRECTO DENTRO DEL MOTOR DE SCOUTING =====
+   IMPORTANTE: este código vive en el mismo closure que scoutExportPDF original.
+   No depende de bridges ni de módulos PDF externos de V7.5.x. */
+const scoutV757LegacyPDF=window.scoutExportPDF;
+
+function v757Pct(n,d){return d?Math.round((Number(n)||0)*100/(Number(d)||0)):0}
+function v757Gp(n){n=Number(n)||0;return `${n>0?'+':''}${n}`}
+function v757Rows(m,team){return scoutActionRows(m,false).filter(a=>a.team===team)}
+function v757SkillRows(rows,skill){
+  const a=rows.filter(x=>x.skill===skill),c={'#':0,'+':0,'!':0,'-':0,'/':0,'=':0};
+  a.forEach(x=>c[x.evaluation]=(c[x.evaluation]||0)+1);
+  const total=a.length,perfect=c['#']||0,positive=perfect+(c['+']||0),error=c['=']||0,blocked=c['/']||0;
+  return {total,perfect,positive,error,blocked,posPct:v757Pct(positive,total),excPct:v757Pct(perfect,total),ptsPct:v757Pct(perfect,total),effPct:total?Math.round((perfect-error-blocked)*100/total):0};
+}
+function v757Impact(m,team,key=null){
+  const all=scoutActionRows(m,false),teamRows=all.filter(a=>a.team===team),scope=a=>!key||scoutPlayerKey(a)===key;
+  const gains=teamRows.filter(a=>scope(a)&&a.winner===team&&a.evaluation==='#'&&['S','A','B'].includes(a.skill));
+  const groups=new Map();
+  all.forEach(a=>{const k=`${a.set}:${a.rallyIndex}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(a)});
+  const losses=[];
+  groups.forEach(g=>{
+    g.sort((a,b)=>(Number(a.actionIndex)||0)-(Number(b.actionIndex)||0));
+    const last=g[g.length-1];
+    if(last&&last.winner&&last.winner!==team&&last.team===team&&scope(last)&&(last.evaluation==='='||(last.skill==='A'&&last.evaluation==='/')))losses.push(last);
+  });
+  return {won:gains.length,lost:losses.length,gp:gains.length-losses.length,fp:gains.filter(a=>a.servingBefore===team).length};
+}
+function v757PlayerStats(m,team){
+  return scoutBuildPlayerStats(m,team).map(st=>{
+    const s=scoutSkillMetric(st,'S'),r=scoutSkillMetric(st,'R'),a=scoutSkillMetric(st,'A'),b=scoutSkillMetric(st,'B'),d=scoutSkillMetric(st,'D'),e=scoutSkillMetric(st,'E'),p=v757Impact(m,team,st.key);
+    return {...st,_s:s,_r:r,_a:a,_b:b,_d:d,_e:e,_p:p};
+  });
+}
+function v757PhaseAttack(seqRows,kind){
+  let rows=[];
+  if(kind==='positive')rows=seqRows.filter(x=>x.phase==='K1'&&['#','+'].includes(x.receptionEval)&&x.attackEval);
+  if(kind==='negative')rows=seqRows.filter(x=>x.phase==='K1'&&!['#','+'].includes(x.receptionEval)&&x.attackEval);
+  if(kind==='counter')rows=seqRows.filter(x=>x.phase==='K2'&&x.attackEval);
+  const pts=rows.filter(x=>x.attackEval==='#').length,err=rows.filter(x=>x.attackEval==='=').length,blq=rows.filter(x=>x.attackEval==='/').length;
+  return {total:rows.length,pts,err,blq,pct:v757Pct(pts,rows.length),eff:rows.length?Math.round((pts-err-blq)*100/rows.length):0};
+}
+function v757SetStats(m,team,setNo){
+  const rows=v757Rows(m,team).filter(a=>Number(a.set)===Number(setNo));
+  return {s:v757SkillRows(rows,'S'),r:v757SkillRows(rows,'R'),a:v757SkillRows(rows,'A'),b:v757SkillRows(rows,'B')};
+}
+function v757Safe(v){return esc(String(v??''))}
+function v757TableTeam(m,team){
+  const name=team==='ours'?EQUIPOS[equipoActivo].nombre:(m.opponent||'Rival'),players=v757PlayerStats(m,team),rows=v757Rows(m,team),tot=v757Impact(m,team),
+    ts=v757SkillRows(rows,'S'),tr=v757SkillRows(rows,'R'),ta=v757SkillRows(rows,'A'),tb=v757SkillRows(rows,'B');
+  const body=players.map(st=>`<tr>
+    <td class="name">${v757Safe(st.label)}</td>
+    <td>${st._p.won||'·'}</td><td>${st._p.fp||'·'}</td><td class="gp">${v757Gp(st._p.gp)}</td>
+    <td>${st._s.total||'·'}</td><td>${st._s.total?st._s.error:'·'}</td><td>${st._s.total?st._s.perfect:'·'}</td>
+    <td>${st._r.total||'·'}</td><td>${st._r.total?st._r.error:'·'}</td><td>${st._r.total?st._r.posPct+'%':'·'}</td><td>${st._r.total?'('+st._r.perfPct+'%)':'·'}</td>
+    <td>${st._a.total||'·'}</td><td>${st._a.total?st._a.error:'·'}</td><td>${st._a.total?st._a.veryNegative:'·'}</td><td>${st._a.total?st._a.perfect:'·'}</td><td>${st._a.total?st._a.perfPct+'%':'·'}</td>
+    <td>${st._b.total?st._b.perfect:'·'}</td>
+  </tr>`).join('');
+  const sets=scoutArr(m.sets).map(set=>{
+    const x=v757SetStats(m,team,set.number);
+    const sr=scoutArr(set.rallies),won=sr.filter(r=>r.winner===team);
+    const serve=won.filter(r=>scoutArr(r.actions).some(a=>a.team===team&&a.skill==='S'&&a.evaluation==='#')).length;
+    const attack=won.filter(r=>scoutArr(r.actions).some(a=>a.team===team&&a.skill==='A'&&a.evaluation==='#')).length;
+    const block=won.filter(r=>scoutArr(r.actions).some(a=>a.team===team&&a.skill==='B'&&a.evaluation==='#')).length;
+    const oppErr=Math.max(0,won.length-serve-attack-block);
+    return `<tr><td><b>Set ${set.number}</b></td><td>${serve||'·'}</td><td>${attack||'·'}</td><td>${block||'·'}</td><td>${oppErr||'·'}</td><td>${x.s.total||'·'}</td><td>${x.s.error||'·'}</td><td>${x.s.perfect||'·'}</td><td>${x.r.total||'·'}</td><td>${x.r.error||'·'}</td><td>${x.r.total?x.r.posPct+'%':'·'}</td><td>${x.r.total?'('+x.r.excPct+'%)':'·'}</td><td>${x.a.total||'·'}</td><td>${x.a.error||'·'}</td><td>${x.a.blocked||'·'}</td><td>${x.a.perfect||'·'}</td><td>${x.a.total?x.a.ptsPct+'%':'·'}</td><td>${x.b.perfect||'·'}</td></tr>`;
+  }).join('');
+  return `<section class="v757-team"><h2>${v757Safe(name)}</h2>
+  <table><thead><tr><th rowspan="2" class="name">Jugador</th><th colspan="3">Puntos</th><th colspan="3">Saque</th><th colspan="4">Recepción</th><th colspan="5">Ataque</th><th>BLQ</th></tr>
+  <tr><th>Tot</th><th>FP</th><th>G-P</th><th>Tot</th><th>Err</th><th>Pts</th><th>Tot</th><th>Err</th><th>Pos%</th><th>Exc%</th><th>Tot</th><th>Err</th><th>Blq</th><th>Pts</th><th>Pts%</th><th>Pts</th></tr></thead>
+  <tbody>${body}<tr class="total"><td class="name">Totales jugadores</td><td>${tot.won}</td><td>${tot.fp}</td><td class="gp">${v757Gp(tot.gp)}</td><td>${ts.total}</td><td>${ts.error}</td><td>${ts.perfect}</td><td>${tr.total}</td><td>${tr.error}</td><td>${tr.total?tr.posPct+'%':'·'}</td><td>${tr.total?'('+tr.excPct+'%)':'·'}</td><td>${ta.total}</td><td>${ta.error}</td><td>${ta.blocked}</td><td>${ta.perfect}</td><td>${ta.total?ta.ptsPct+'%':'·'}</td><td>${tb.perfect}</td></tr></tbody></table>
+  <table class="sets"><thead><tr><th></th><th>Saq</th><th>Att</th><th>BLQ</th><th>Er.Ad.</th><th>Saq T</th><th>Err</th><th>Pts</th><th>Rec T</th><th>Err</th><th>Pos%</th><th>Exc%</th><th>Atq T</th><th>Err</th><th>Blq</th><th>Pts</th><th>Pts%</th><th>BLQ</th></tr></thead><tbody>${sets}</tbody></table>
+  </section>`;
+}
+function v757OfficialHTML(m){
+  const score=scoutSetsScore(m),a=scoutAnalysis(m),ours=scoutSequenceSummary(m,'ours'),opp=scoutSequenceSummary(m,'opponent'),
+    op=v757PhaseAttack(ours.rows,'positive'),on=v757PhaseAttack(ours.rows,'negative'),oc=v757PhaseAttack(ours.rows,'counter'),
+    rp=v757PhaseAttack(opp.rows,'positive'),rn=v757PhaseAttack(opp.rows,'negative'),rc=v757PhaseAttack(opp.rows,'counter');
+  return `<div class="v757-report official"><style>
+    .v757-report{box-sizing:border-box;width:1180px;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif;padding:24px;font-size:9px}
+    .v757-head{display:grid;grid-template-columns:1fr 430px;gap:12px}.v757-title h1{font-size:24px;margin:0 0 4px}.v757-title .report{font-size:18px;font-weight:900;border-top:1px solid #555;padding-top:8px;margin-top:12px}
+    .v757-info{border:1px solid #555;padding:8px;margin-top:8px;display:grid;grid-template-columns:85px 1fr 85px 1fr;gap:4px 7px}.v757-score{border:1px solid #555}.v757-score .team{display:flex;justify-content:space-between;padding:7px 9px;font-size:15px;font-weight:900;border-bottom:1px solid #aaa}
+    .v757-score table,.v757-team table,.phase table{width:100%;border-collapse:collapse;table-layout:fixed}.v757-score th,.v757-score td,.v757-team th,.v757-team td,.phase th,.phase td{border:1px solid #aaa;padding:2.4px;text-align:center}
+    .v757-score th,.v757-team th,.phase th{background:#e4e6e7;font-weight:900}.v757-team{border:1px solid #555;margin-top:7px}.v757-team h2{margin:0;padding:4px 6px;background:#d8dadb;font-size:13px}.v757-team table{font-size:7px}.v757-team .name{text-align:left;width:185px;overflow:hidden}.v757-team .total td{font-weight:900;background:#e4e6e7}.v757-team .sets{margin-top:3px;font-size:6.7px}.gp{font-weight:900}
+    .phase{display:grid;grid-template-columns:150px 1fr 150px;gap:5px;margin-top:7px}.side,.center{border:1px solid #555;padding:6px}.side h3,.center h3{text-align:center;font-size:9px;margin:0 0 5px}.side .kv{display:grid;grid-template-columns:1fr auto;gap:3px}.rot{display:grid;grid-template-columns:1fr 1fr;margin-top:5px}.rot span{border:1px solid #ccc;padding:2px;display:flex;justify-content:space-between}.phase table{font-size:7px}
+    .legend{border:1px solid #777;margin-top:7px;padding:5px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;font-size:6.5px}.foot{margin-top:5px;font-size:6.5px;color:#666;display:flex;justify-content:space-between}
+  </style>
+  <div class="v757-head"><div class="v757-title"><h1>${v757Safe(m.competition||'Volley Coach · Informe de partido')}</h1><div>${v757Safe(m.date||'')} ${m.venue?'· '+v757Safe(m.venue):''}</div><div class="report">Informe</div><div class="v757-info"><b>Partido</b><span>VC-${m.id}</span><b>Fecha</b><span>${v757Safe(m.date||'—')}</span><b>Rival</b><span>${v757Safe(m.opponent||'Rival')}</span><b>Estado</b><span>${m.status==='finished'?'Finalizado':'Guardado'}</span></div></div>
+  <div class="v757-score"><div class="team"><span>${v757Safe(EQUIPOS[equipoActivo].nombre)}</span><b>${score.us}</b></div><div class="team"><span>${v757Safe(m.opponent||'Rival')}</span><b>${score.opponent}</b></div>
+  <table><thead><tr><th>Set</th><th>Marcador</th><th>Ganador</th></tr></thead><tbody>${scoutArr(m.sets).map(s=>`<tr><td>${s.number}</td><td><b>${s.scoreUs}-${s.scoreOpponent}</b></td><td>${s.finished?(s.winner==='ours'?v757Safe(EQUIPOS[equipoActivo].nombre):v757Safe(m.opponent||'Rival')):'—'}</td></tr>`).join('')}</tbody></table></div></div>
+  ${v757TableTeam(m,'ours')}${v757TableTeam(m,'opponent')}
+  <div class="phase"><div class="side"><h3>${v757Safe(EQUIPOS[equipoActivo].nombre)}</h3><div class="kv"><span>Recepciones</span><b>${ours.k1.length}</b><span>Puntos SO</span><b>${ours.k1Won}</b><span>Cada</span><b>${ours.k1Won?(ours.k1.length/ours.k1Won).toFixed(2):'·'}</b><span>Saques</span><b>${ours.k2.length}</b><span>Puntos FP</span><b>${ours.k2Won}</b></div><div class="rot">${a.rotations.map(r=>`<span><i>R${r.no}</i><b>${r.total?v757Gp(r.won-(r.total-r.won)):'·'}</b></span>`).join('')}</div></div>
+  <div class="center"><h3>CAMBIO DE SAQUE / FASE PUNTO</h3><table><thead><tr><th>Situación</th><th colspan="4">${v757Safe(EQUIPOS[equipoActivo].nombre)}</th><th colspan="4">${v757Safe(m.opponent||'Rival')}</th></tr><tr><th></th><th>Tot</th><th>Pts</th><th>Err/Blq</th><th>Pts%</th><th>Tot</th><th>Pts</th><th>Err/Blq</th><th>Pts%</th></tr></thead><tbody>
+  <tr><td>1er ataque tras REC +/#</td><td>${op.total}</td><td>${op.pts}</td><td>${op.err}/${op.blq}</td><td>${op.pct}%</td><td>${rp.total}</td><td>${rp.pts}</td><td>${rp.err}/${rp.blq}</td><td>${rp.pct}%</td></tr>
+  <tr><td>1er ataque tras REC negativa</td><td>${on.total}</td><td>${on.pts}</td><td>${on.err}/${on.blq}</td><td>${on.pct}%</td><td>${rn.total}</td><td>${rn.pts}</td><td>${rn.err}/${rn.blq}</td><td>${rn.pct}%</td></tr>
+  <tr><td>Contraataque (K2)</td><td>${oc.total}</td><td>${oc.pts}</td><td>${oc.err}/${oc.blq}</td><td>${oc.pct}%</td><td>${rc.total}</td><td>${rc.pts}</td><td>${rc.err}/${rc.blq}</td><td>${rc.pct}%</td></tr></tbody></table></div>
+  <div class="side"><h3>${v757Safe(m.opponent||'Rival')}</h3><div class="kv"><span>Recepciones</span><b>${opp.k1.length}</b><span>Puntos SO</span><b>${opp.k1Won}</b><span>Cada</span><b>${opp.k1Won?(opp.k1.length/opp.k1Won).toFixed(2):'·'}</b><span>Saques</span><b>${opp.k2.length}</b><span>Puntos FP</span><b>${opp.k2Won}</b></div><div class="rot">${a.opponentRotations.map(r=>`<span><i>R${r.no}</i><b>${r.total?v757Gp(r.won-(r.total-r.won)):'·'}</b></span>`).join('')}</div></div></div>
+  <div class="legend"><span><b>FP</b> Fase punto</span><span><b>G-P</b> Ganados - perdidos</span><span><b>Pos%</b> Recepción +/#</span><span><b>Exc%</b> Recepción #</span><span><b>Pts%</b> Puntos / intentos</span></div>
+  <div class="foot"><span>Volley Coach V7.5.7 · Hoja estadística</span><span>Datos calculados desde las acciones registradas.</span></div></div>`;
+}
+function v757ProPages(m){
+  const a=scoutAnalysis(m),score=scoutSetsScore(m),ours=v757Rows(m,'ours'),rival=v757Rows(m,'opponent'),
+    os=v757SkillRows(ours,'S'),or=v757SkillRows(ours,'R'),oa=v757SkillRows(ours,'A'),ob=v757SkillRows(ours,'B'),
+    rs=v757SkillRows(rival,'S'),rr=v757SkillRows(rival,'R'),ra=v757SkillRows(rival,'A'),rb=v757SkillRows(rival,'B'),
+    seqO=scoutSequenceSummary(m,'ours'),seqR=scoutSequenceSummary(m,'opponent'),
+    po=v757PlayerStats(m,'ours'),pr=v757PlayerStats(m,'opponent');
+  const best=[...a.rotations].filter(r=>r.total>=3).sort((x,y)=>(y.won/y.total)-(x.won/x.total))[0];
+  const worst=[...a.rotations].filter(r=>r.total>=3).sort((x,y)=>(x.won/x.total)-(y.won/y.total))[0];
+  const leader=[...po].filter(x=>x.total>=3).sort((x,y)=>y._p.gp-x._p.gp)[0];
+  const insights=[
+    `Side-out: ${a.sideTotal?a.sidePct+'% ('+a.sideWon+'/'+a.sideTotal+')':'sin muestra suficiente'}.`,
+    `Break point: ${a.breakTotal?a.breakPct+'% ('+a.breakWon+'/'+a.breakTotal+')':'sin muestra suficiente'}.`,
+    `Recepción propia: ${or.total?or.posPct+'% positiva y '+or.perfPct+'% perfecta sobre '+or.total:'sin datos'}. Rival: ${rr.total?rr.posPct+'% positiva sobre '+rr.total:'sin datos'}.`,
+    `Ataque propio: ${oa.total?oa.perfPct+'% de punto, EFF '+oa.effPct+'% ('+oa.perfect+'/'+oa.total+')':'sin datos'}. Rival: ${ra.total?ra.perfPct+'% de punto, EFF '+ra.effPct+'%':'sin datos'}.`,
+    best?`Rotación más eficaz con muestra ≥3: R${best.no}, ${v757Pct(best.won,best.total)}% (${best.won}/${best.total}).`:'No hay ninguna rotación con muestra mínima de 3 rallies.',
+    worst&&best&&worst.no!==best.no?`Rotación más exigida: R${worst.no}, ${v757Pct(worst.won,worst.total)}% (${worst.won}/${worst.total}).`:'',
+    leader?`Mayor G-P individual: ${leader.label}, ${v757Gp(leader._p.gp)}.`:''
+  ].filter(Boolean);
+  const common=`<style>.v757-pro{box-sizing:border-box;width:1120px;min-height:1500px;background:#fff;color:#17324d;font-family:Arial,Helvetica,sans-serif;padding:42px}.head{display:flex;justify-content:space-between;border-bottom:4px solid #102b43;padding-bottom:14px}.head h1{font-size:28px;margin:4px 0}.k{font-size:9px;font-weight:900;letter-spacing:.12em;color:#718394}.score{text-align:right}.score b{display:block;font-size:28px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.card{border:1px solid #dfe5e9;background:#f8fafb;padding:12px}.card span{display:block;font-size:8px;text-transform:uppercase;color:#72818d;font-weight:900}.card b{display:block;font-size:21px;margin:4px 0}.card small{font-size:8px;color:#7d8993}h2{font-size:16px;border-bottom:2px solid #294d69;padding-bottom:6px;margin-top:20px}.tbl{width:100%;border-collapse:collapse;font-size:9px}.tbl th,.tbl td{border-bottom:1px solid #e2e7ea;padding:6px;text-align:center}.tbl th{background:#edf2f5;font-size:8px}.tbl th:first-child,.tbl td:first-child{text-align:left}.ins{display:grid;gap:7px}.ins div{border:1px solid #dfe5e9;border-left:4px solid #597b95;padding:9px;background:#fafbfc;font-size:10px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}.foot{margin-top:25px;border-top:1px solid #dfe5e9;padding-top:7px;color:#788793;font-size:8px;display:flex;justify-content:space-between}</style>`;
+  const head=(title,page)=>`<div class="head"><div><div class="k">VOLLEY COACH · PROFESSIONAL MATCH REPORT · V7.5.7</div><h1>${v757Safe(title)}</h1><div>${v757Safe(EQUIPOS[equipoActivo].nombre)} vs ${v757Safe(m.opponent||'Rival')} · ${v757Safe(m.date||'')}</div></div><div class="score"><b>${score.us}-${score.opponent}</b><span>${page}/4</span></div></div>`;
+  const playerTable=(list)=>`<table class="tbl"><thead><tr><th>Jugador</th><th>PTS</th><th>FP</th><th>G-P</th><th>SAQ #/=</th><th>REC</th><th>POS%</th><th>EXC%</th><th>ATQ</th><th>PTS</th><th>EFF%</th><th>BLQ</th></tr></thead><tbody>${list.map(x=>`<tr><td><b>${v757Safe(x.label)}</b></td><td>${x._p.won}</td><td>${x._p.fp}</td><td><b>${v757Gp(x._p.gp)}</b></td><td>${x._s.perfect}/${x._s.error}</td><td>${x._r.total||'·'}</td><td>${x._r.total?x._r.posPct+'%':'·'}</td><td>${x._r.total?x._r.perfPct+'%':'·'}</td><td>${x._a.total||'·'}</td><td>${x._a.perfect||'·'}</td><td>${x._a.total?x._a.effPct+'%':'·'}</td><td>${x._b.perfect||'·'}</td></tr>`).join('')}</tbody></table>`;
+  const rotTable=(rot)=>`<table class="tbl"><thead><tr><th>Rot.</th><th>Rallies</th><th>Ganados</th><th>Global%</th><th>Side-out</th><th>Break</th></tr></thead><tbody>${rot.map(r=>`<tr><td><b>R${r.no}</b></td><td>${r.total}</td><td>${r.won}</td><td>${r.total?v757Pct(r.won,r.total)+'%':'·'}</td><td>${r.sideTotal?v757Pct(r.sideWon,r.sideTotal)+'% ('+r.sideWon+'/'+r.sideTotal+')':'·'}</td><td>${r.breakTotal?v757Pct(r.breakWon,r.breakTotal)+'% ('+r.breakWon+'/'+r.breakTotal+')':'·'}</td></tr>`).join('')}</tbody></table>`;
+  const page1=`<div class="v757-pro">${common}${head('Informe técnico del partido',1)}<div class="cards">
+  <div class="card"><span>K1 Side-out</span><b>${a.sideTotal?a.sidePct+'%':'—'}</b><small>${a.sideWon}/${a.sideTotal}</small></div>
+  <div class="card"><span>K2 Break</span><b>${a.breakTotal?a.breakPct+'%':'—'}</b><small>${a.breakWon}/${a.breakTotal}</small></div>
+  <div class="card"><span>Recepción +/#</span><b>${or.total?or.posPct+'%':'—'}</b><small>${or.total} recepciones · Exc ${or.total?or.perfPct+'%':'—'}</small></div>
+  <div class="card"><span>Ataque</span><b>${oa.total?oa.perfPct+'%':'—'}</b><small>EFF ${oa.total?oa.effPct+'%':'—'} · ${oa.perfect}/${oa.total}</small></div></div>
+  <h2>Lectura ejecutiva</h2><div class="ins">${insights.map(x=>`<div>${v757Safe(x)}</div>`).join('')}</div>
+  <h2>Evolución por set</h2><table class="tbl"><thead><tr><th>Set</th><th>Marcador</th><th>SAQ ace/err</th><th>REC Pos</th><th>REC Exc</th><th>ATQ Pts</th><th>ATQ EFF</th><th>BLQ</th></tr></thead><tbody>${scoutArr(m.sets).map(s=>{const x=v757SetStats(m,'ours',s.number);return `<tr><td><b>S${s.number}</b></td><td>${s.scoreUs}-${s.scoreOpponent}</td><td>${x.s.perfect}/${x.s.error}</td><td>${x.r.total?x.r.posPct+'%':'·'}</td><td>${x.r.total?x.r.excPct+'%':'·'}</td><td>${x.a.total?x.a.ptsPct+'%':'·'}</td><td>${x.a.total?x.a.effPct+'%':'·'}</td><td>${x.b.perfect}</td></tr>`}).join('')}</tbody></table><div class="foot"><span>${a.rallies.length} rallies · ${a.actions.length} acciones</span><span>Página 1 · Resumen ejecutivo</span></div></div>`;
+  const page2=`<div class="v757-pro">${common}${head('Rendimiento individual',2)}<h2>${v757Safe(EQUIPOS[equipoActivo].nombre)}</h2>${playerTable(po)}<h2>${v757Safe(m.opponent||'Rival')}</h2>${playerTable(pr)}<div class="foot"><span>G-P = puntos directos - pérdidas terminales atribuibles.</span><span>Página 2 · Jugadores</span></div></div>`;
+  const pO=[v757PhaseAttack(seqO.rows,'positive'),v757PhaseAttack(seqO.rows,'negative'),v757PhaseAttack(seqO.rows,'counter')],pR=[v757PhaseAttack(seqR.rows,'positive'),v757PhaseAttack(seqR.rows,'negative'),v757PhaseAttack(seqR.rows,'counter')],labs=['1er ataque tras recepción +/#','1er ataque tras recepción negativa','Contraataque (K2)'];
+  const page3=`<div class="v757-pro">${common}${head('K1, K2 y rotaciones',3)}<div class="twocol"><div><h2>Nuestras rotaciones</h2>${rotTable(a.rotations)}</div><div><h2>Rotaciones rival</h2>${rotTable(a.opponentRotations)}</div></div><h2>Ataque según fase</h2><table class="tbl"><thead><tr><th>Fase</th><th>N Tot</th><th>N Pts</th><th>N Err</th><th>N Blq</th><th>N Pts%</th><th>R Tot</th><th>R Pts</th><th>R Err</th><th>R Blq</th><th>R Pts%</th></tr></thead><tbody>${labs.map((l,i)=>`<tr><td><b>${v757Safe(l)}</b></td><td>${pO[i].total}</td><td>${pO[i].pts}</td><td>${pO[i].err}</td><td>${pO[i].blq}</td><td>${pO[i].pct}%</td><td>${pR[i].total}</td><td>${pR[i].pts}</td><td>${pR[i].err}</td><td>${pR[i].blq}</td><td>${pR[i].pct}%</td></tr>`).join('')}</tbody></table><h2>K1 por calidad de recepción</h2><table class="tbl"><thead><tr><th>Recepción</th><th>Rallies</th><th>K1 ganados</th><th>Side-out</th></tr></thead><tbody>${seqO.byReception.map(x=>`<tr><td><b>${x.ev}</b></td><td>${x.total}</td><td>${x.won}</td><td>${x.total?x.pct+'%':'·'}</td></tr>`).join('')}</tbody></table><div class="foot"><span>K1 = recepción · K2 = saque.</span><span>Página 3 · Fases y rotaciones</span></div></div>`;
+  const dist=scoutDistributionRows(m,'ours',''),counts={};dist.forEach(x=>{const k=x.target||'Sin destino';counts[k]=(counts[k]||0)+1});
+  const page4=`<div class="v757-pro">${common}${head('Distribución y calidad de datos',4)}<div class="twocol"><div><h2>Distribución del colocador</h2><table class="tbl"><thead><tr><th>Destino / combinación</th><th>Total</th><th>Uso</th></tr></thead><tbody>${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td><b>${v757Safe(k)}</b></td><td>${v}</td><td>${dist.length?v757Pct(v,dist.length):0}%</td></tr>`).join('')||'<tr><td colspan="3">Sin distribución codificada.</td></tr>'}</tbody></table></div><div><h2>Comparativa de fundamentos</h2><table class="tbl"><thead><tr><th>Fundamento</th><th>Nosotros</th><th>Rival</th></tr></thead><tbody><tr><td><b>Saque ace/error</b></td><td>${os.perfect}/${os.error}</td><td>${rs.perfect}/${rs.error}</td></tr><tr><td><b>Recepción Pos%</b></td><td>${or.total?or.posPct+'%':'·'}</td><td>${rr.total?rr.posPct+'%':'·'}</td></tr><tr><td><b>Recepción Exc%</b></td><td>${or.total?or.perfPct+'%':'·'}</td><td>${rr.total?rr.perfPct+'%':'·'}</td></tr><tr><td><b>Ataque Pts%</b></td><td>${oa.total?oa.perfPct+'%':'·'}</td><td>${ra.total?ra.perfPct+'%':'·'}</td></tr><tr><td><b>Ataque EFF%</b></td><td>${oa.total?oa.effPct+'%':'·'}</td><td>${ra.total?ra.effPct+'%':'·'}</td></tr><tr><td><b>Bloqueos punto</b></td><td>${ob.perfect}</td><td>${rb.perfect}</td></tr></tbody></table></div></div><h2>Calidad de la muestra</h2><div class="ins"><div>Rallies cerrados: <b>${a.rallies.length}</b>. Acciones registradas: <b>${a.actions.length}</b>.</div><div>Las cifras que no tienen acciones registradas se muestran como “·” o “—”; no se convierten en cero.</div><div>Para interpretar rotaciones se recomienda una muestra mínima de 3 rallies y, preferiblemente, varias repeticiones por set.</div></div><div class="foot"><span>Informe descriptivo basado en el scouting registrado.</span><span>Página 4 · Distribución y metodología</span></div></div>`;
+  return [page1,page2,page3,page4];
+}
+async function v757Canvas(markup,width=1180,scale=1.35){
+  const wrap=document.createElement('div');wrap.style.cssText=`position:fixed;left:-30000px;top:0;width:${width}px;background:#fff;z-index:-1`;wrap.innerHTML=markup;document.body.appendChild(wrap);
+  try{return await html2canvas(wrap.firstElementChild||wrap,{scale,backgroundColor:'#ffffff',logging:false,useCORS:true})}finally{wrap.remove()}
+}
+function v757DownloadJsPDF(pdf,filename){
+  try{
+    const blob=pdf.output('blob');
+    scoutDownloadBlob(blob,'application/pdf',filename);
+  }catch(err){
+    console.warn('V7.5.7 blob download fallback',err);
+    pdf.save(filename);
+  }
+}
+window.scoutV757ExportOfficialPDF=async function(id){
+  const m=scoutExportMatch(id);
+  if(!m){alert('No hay scouting seleccionado.');return false}
+  if(!window.html2canvas||!window.jspdf?.jsPDF){alert('No se ha podido cargar el motor PDF. Comprueba la conexión y recarga la página.');return false}
+  scoutExportNotice(true,'Generando hoja estadística…');
+  try{
+    const canvas=await v757Canvas(v757OfficialHTML(m),1180,1.45),{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight(),margin=4,ratio=Math.min((W-margin*2)/canvas.width,(H-margin*2)/canvas.height),w=canvas.width*ratio,h=canvas.height*ratio;
+    pdf.addImage(canvas.toDataURL('image/jpeg',.93),'JPEG',(W-w)/2,(H-h)/2,w,h,undefined,'FAST');
+    v757DownloadJsPDF(pdf,`${scoutSafeFilename((m.date||'partido')+'_'+(m.opponent||'rival'))}_Hoja_Oficial_V757.pdf`);
+    return false;
+  }catch(err){
+    console.error('V7.5.7 hoja oficial',err);
+    try{await scoutV757LegacyPDF(id)}catch(_){}
+    alert('La hoja profesional ha encontrado un error. Se ha intentado generar automáticamente el PDF clásico como respaldo.');
+    return false;
+  }finally{scoutExportNotice(false)}
+};
+window.scoutV757ExportAnalysisPDF=async function(id){
+  const m=scoutExportMatch(id);
+  if(!m){alert('No hay scouting seleccionado.');return false}
+  if(!window.html2canvas||!window.jspdf?.jsPDF){alert('No se ha podido cargar el motor PDF. Comprueba la conexión y recarga la página.');return false}
+  scoutExportNotice(true,'Generando análisis profesional…');
+  try{
+    const pages=v757ProPages(m),{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
+    for(let i=0;i<pages.length;i++){
+      scoutExportNotice(true,`Generando análisis profesional · ${i+1}/${pages.length}…`);
+      const canvas=await v757Canvas(pages[i],1120,1.35);
+      if(i)pdf.addPage('a4','portrait');
+      const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight(),margin=6,ratio=Math.min((W-margin*2)/canvas.width,(H-margin*2)/canvas.height),w=canvas.width*ratio,h=canvas.height*ratio;
+      pdf.addImage(canvas.toDataURL('image/jpeg',.92),'JPEG',(W-w)/2,(H-h)/2,w,h,undefined,'FAST');
+    }
+    v757DownloadJsPDF(pdf,`${scoutSafeFilename((m.date||'partido')+'_'+(m.opponent||'rival'))}_Analisis_Pro_V757.pdf`);
+    return false;
+  }catch(err){
+    console.error('V7.5.7 análisis Pro',err);
+    try{await scoutV757LegacyPDF(id)}catch(_){}
+    alert('El análisis Pro ha encontrado un error. Se ha intentado generar automáticamente el PDF clásico como respaldo.');
+    return false;
+  }finally{scoutExportNotice(false)}
+};
+window.scoutV757PDFDirectDiagnostics=function(){
+  const m=scoutExportMatch();
+  return {version:'7.5.7',insideScoutEngine:true,match:m?{id:m.id,date:m.date,opponent:m.opponent}:null,html2canvas:typeof window.html2canvas,jsPDF:typeof window.jspdf?.jsPDF,legacy:typeof scoutV757LegacyPDF,official:typeof window.scoutV757ExportOfficialPDF,analysis:typeof window.scoutV757ExportAnalysisPDF};
+};
+
+
 const scoutRenderAnalysisV611Base=window.scoutRenderAnalysis;window.scoutRenderAnalysis=function(){scoutRenderAnalysisV611Base();scoutRenderPlayerAnalytics()};
 
 /* Extiende el render principal para mantener Inicio/Análisis actualizados */
@@ -12019,7 +12215,7 @@ window.scoutExportAnalysisPDF=(id)=>window.scoutV753ExportAnalysisPDF(null,id);
 function markReady(){
   const toolbar=document.querySelector('#scout-analysis .scout-analysis-toolbar');
   if(toolbar&&!document.getElementById('scout-v753-pdf-ready')){
-    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.6 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
+    const s=document.createElement('span');s.id='scout-v753-pdf-ready';s.textContent='PDF 7.5.7 ✓';s.title='Módulo PDF cargado';toolbar.appendChild(s);
   }
 }
 markReady();
@@ -12235,7 +12431,7 @@ window.scoutExportPDF=window.scoutV754ExportOfficialPDF;
 window.scoutExportAnalysisPDF=window.scoutV754ExportAnalysisPDF;
 
 const badge=document.getElementById('scout-v753-pdf-ready');
-if(badge){badge.id='scout-v754-pdf-ready';badge.textContent='PDF 7.5.6 ✓';badge.title='PDF V7.5.6 cargado y conectado al puente del scouting'}
+if(badge){badge.id='scout-v754-pdf-ready';badge.textContent='PDF 7.5.7 ✓';badge.title='PDF V7.5.6 cargado y conectado al puente del scouting'}
 
 window.scoutV754PDFDiagnostics=function(){
   return {
@@ -12356,7 +12552,7 @@ window.scoutExportAnalysisPDF=window.scoutV755ExportAnalysisPDF;
 const oldBadge=document.getElementById('scout-v754-pdf-ready')||document.getElementById('scout-v753-pdf-ready');
 if(oldBadge){
   oldBadge.id='scout-v755-pdf-ready';
-  oldBadge.textContent='PDF 7.5.6 ✓';
+  oldBadge.textContent='PDF 7.5.7 ✓';
   oldBadge.title='PDF V7.5.6: selección directa desde la lista de scoutings';
 }
 
@@ -12575,7 +12771,7 @@ const badge=document.getElementById('scout-v755-pdf-ready')
   ||document.getElementById('scout-v753-pdf-ready');
 if(badge){
   badge.id='scout-v756-pdf-ready';
-  badge.textContent='PDF 7.5.6 ✓';
+  badge.textContent='PDF 7.5.7 ✓';
   badge.title='Ruta PDF directa: selector → partido → núcleo PDF';
 }
 
@@ -12592,6 +12788,64 @@ window.scoutV756PDFDiagnostics=function(){
     videoBridge:!!videoBridge(),
     officialFunction:typeof window.scoutV756ExportOfficialPDF,
     analysisFunction:typeof window.scoutV756ExportAnalysisPDF
+  };
+};
+})();
+</script>
+
+
+
+<script id="v757-final-pdf-router">
+(()=>{
+'use strict';
+const official=window.scoutV757ExportOfficialPDF;
+const analysis=window.scoutV757ExportAnalysisPDF;
+
+if(typeof official==='function'){
+  window.scoutExportPDF=official;
+  window.scoutV752ExportOfficialPDF=official;
+  window.scoutV753ExportOfficialPDF=official;
+  window.scoutV754ExportOfficialPDF=official;
+  window.scoutV755ExportOfficialPDF=official;
+  window.scoutV756ExportOfficialPDF=official;
+}
+if(typeof analysis==='function'){
+  window.scoutExportAnalysisPDF=analysis;
+  window.scoutV752ExportAnalysisPDF=analysis;
+  window.scoutV753ExportAnalysisPDF=analysis;
+  window.scoutV754ExportAnalysisPDF=analysis;
+  window.scoutV755ExportAnalysisPDF=analysis;
+  window.scoutV756ExportAnalysisPDF=analysis;
+}
+
+function rewire(root=document){
+  root.querySelectorAll?.('button').forEach(btn=>{
+    const txt=String(btn.textContent||'').trim().toLowerCase(),oc=String(btn.getAttribute('onclick')||'');
+    if(txt.includes('pdf análisis pro')||txt.includes('descargar análisis pro')){
+      btn.setAttribute('onclick','return scoutV757ExportAnalysisPDF()');
+    }else if(txt.includes('pdf hoja')||txt==='pdf'){
+      const id=(oc.match(/\((\d+)\)/)||[])[1];
+      btn.setAttribute('onclick',id?`return scoutV757ExportOfficialPDF(${id})`:'return scoutV757ExportOfficialPDF()');
+    }
+  });
+}
+rewire();
+new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)rewire(n)}))).observe(document.body,{childList:true,subtree:true});
+
+const badge=document.getElementById('scout-v756-pdf-ready')||document.getElementById('scout-v755-pdf-ready')||document.getElementById('scout-v754-pdf-ready')||document.getElementById('scout-v753-pdf-ready');
+if(badge){
+  badge.id='scout-v757-pdf-ready';
+  badge.textContent='PDF 7.5.7 DIRECT ✓';
+  badge.title='Exportadores PDF ejecutados dentro del motor de scouting';
+}
+window.scoutV757FinalDiagnostics=function(){
+  return {
+    version:'7.5.7',
+    directOfficial:typeof window.scoutV757ExportOfficialPDF,
+    directAnalysis:typeof window.scoutV757ExportAnalysisPDF,
+    finalScoutExportPDF:window.scoutExportPDF===window.scoutV757ExportOfficialPDF,
+    finalAnalysisPDF:window.scoutExportAnalysisPDF===window.scoutV757ExportAnalysisPDF,
+    directDiagnostics:window.scoutV757PDFDirectDiagnostics?.()||null
   };
 };
 })();
