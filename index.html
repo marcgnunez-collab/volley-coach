@@ -1715,10 +1715,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             </div>
 
             <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 7R# · 12A# · R8S=" onkeydown="if(event.key==='Enter'){event.preventDefault();v800AddCode()}">
-              <button class="primary" onclick="v800AddCode()">Añadir</button>
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 7R#.6~JF · 12A#.4>5*DL" onkeydown="if(event.key==='Enter'){event.preventDefault();v852AddCode()}">
+              <button id="v852-add-code-btn" class="primary" onclick="v852AddCode()">Añadir</button>
               <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
+            <div id="v852-code-status" class="v852-code-status">Listo para registrar códigos.</div>
             <div class="v800-code-presets">
               <button onclick="v800Preset('S#')">Saque #</button><button onclick="v800Preset('S=')">Saque =</button>
               <button onclick="v800Preset('R#')">Recepción #</button><button onclick="v800Preset('R-')">Recepción −</button>
@@ -4946,7 +4947,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.2', {
         updateViaCache: 'none'
       });
 
@@ -18760,6 +18761,208 @@ window.v851Diagnostics=()=>({
   lineupModal:!!$f('scout-lineup-modal'),
   controlModal:!!$f('v850-lineup-modal'),
   noteModal:!!$f('v850-note-modal')
+});
+})();
+</script>
+
+
+
+<style id="v852-match-code-fix-style">
+.v852-code-status{margin-top:5px;padding:5px 7px;border-radius:6px;background:#f3f6f8;color:#6f808c;font-size:6.8px;line-height:1.35}
+.v852-code-status.ok{background:#eaf5ee;color:#2f6849}
+.v852-code-status.bad{background:#faeceb;color:#944844}
+.v852-code-status.wait{background:#fff4e3;color:#845c20}
+#v852-add-code-btn.busy{opacity:.72;pointer-events:none}
+</style>
+
+
+<script id="v852-match-code-hard-fix">
+(()=>{
+'use strict';
+const VERSION='8.5.2';
+const $c=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function status(msg,type=''){
+  const el=$c('v852-code-status');if(!el)return;
+  el.textContent=msg;el.className='v852-code-status'+(type?' '+type:'');
+}
+function resolveMatch(){
+  let m=null;
+  try{if(typeof scoutActive==='function')m=scoutActive()}catch(_){}
+  if(!m)try{m=bridge()?.getActive?.()||null}catch(_){}
+  if(m)return m;
+  const id=Number($c('v800-match-select')?.value)||0;
+  if(id){try{m=bridge()?.activateMatch?.(id)||null}catch(_){}}
+  return m;
+}
+function players(){
+  try{const p=bridge()?.getPlayers?.();if(Array.isArray(p))return p}catch(_){}
+  try{if(typeof jugadoresEquipo!=='undefined'&&Array.isArray(jugadoresEquipo))return jugadoresEquipo}catch(_){}
+  return [];
+}
+function ownByNumber(num){
+  const n=String(num).trim();
+  const p=players().find(x=>String(x?.number??'').trim()===n);
+  if(p)return p;
+  try{if(typeof scoutFindOwnByNumber==='function'){const q=scoutFindOwnByNumber(n);if(q)return q}}catch(_){}
+  return null;
+}
+function opponentLabel(m,num){
+  try{if(typeof scoutFindOpponentByNumber==='function')return scoutFindOpponentByNumber(m,num)}catch(_){}
+  for(const pos of ['p1','p2','p3','p4','p5','p6']){
+    const label=String(m?.lineup?.opponent?.[pos]||'');
+    if(label.match(/\d+/)?.[0]===String(num))return label;
+  }
+  return '#'+num;
+}
+function normalizeZones(skill,z1,z2){
+  if(skill==='B'){
+    const c=z1||z2||'';
+    return {startZone:c,endZone:'',contactZone:c,sourceZone:''};
+  }
+  try{if(typeof scoutV6108NormalizeZoneInput==='function')return scoutV6108NormalizeZoneInput(skill,z1,z2)}catch(_){}
+  if(['R','D'].includes(skill)){
+    const c=z2||z1||'';
+    return {startZone:'',endZone:c,contactZone:c,sourceZone:''};
+  }
+  return {startZone:z1||'',endZone:z2||'',contactZone:'',sourceZone:''};
+}
+function fallbackParse(raw,m){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D)([#\+!\-\/=])?(?:\.([1-9])(?:>([1-9]))?)?(.*)$/);
+  if(!mt)return {error:'Código no reconocido. Revisa la chuleta.'};
+
+  const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',z1=mt[5]||'',z2=mt[6]||'';
+  let rest=mt[7]||'';
+  const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');
+  const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');
+  const direction=rest.match(/\*(LIN|DC|DL)/)?.[1]||'';rest=rest.replace(/\*(LIN|DC|DL)/,'');
+  const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');
+  const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');
+  const target=rest.match(/&(\d{1,3})/)?.[1]||'';rest=rest.replace(/&\d{1,3}/,'');
+
+  if(rest)return {error:'Parte del código no reconocida: '+rest};
+  if(z1&&!z2&&!['R','D','B'].includes(skill))return {error:'Una zona única (.6) solo se usa en recepción, defensa o bloqueo. Para saque/ataque usa .origen>destino.'};
+  if(direction&&skill!=='A')return {error:'*LIN / *DC / *DL solo se usa en ataque.'};
+  if(target&&skill!=='B')return {error:'&dorsal solo se usa en bloqueo.'};
+
+  const zones=normalizeZones(skill,z1,z2);
+  const a={
+    team:rival?'opponent':'ours',playerId:null,playerLabel:'',playerNumberSnapshot:num,
+    skill,evaluation,...zones,
+    serveType:skill==='S'?serve:'',
+    receivedServeType:skill==='R'?serve:'',
+    phase,
+    setTarget:skill==='E'?combo:'',
+    attackCombo:skill==='A'?combo:'',
+    attackDirection:skill==='A'?direction:'',
+    attackTempo:'',
+    blockers:(skill==='A'||skill==='B')?blockers:'',
+    blockTargetNumber:skill==='B'?target:'',
+    validationWarnings:[]
+  };
+
+  if(rival){
+    a.playerLabel=opponentLabel(m,num);
+    a.playerNameSnapshot=String(a.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'');
+  }else{
+    const p=ownByNumber(num);
+    if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla del equipo activo.`};
+    a.playerId=Number(p.id)||p.id;
+    a.playerNameSnapshot=p.name||'';
+    a.playerNumberSnapshot=p.number??num;
+  }
+
+  try{if(typeof scoutNormalizeAction==='function')Object.assign(a,scoutNormalizeAction(a))}catch(_){}
+  try{if(typeof scoutBuildCode==='function')a.code=scoutBuildCode(a)}catch(_){}
+  return {action:a};
+}
+function parseCode(raw,m){
+  try{
+    if(typeof scoutV6108ParseRaw==='function'){
+      const p=scoutV6108ParseRaw(raw,m,null);
+      if(p?.action&&!p.error)return p;
+      const f=fallbackParse(raw,m);
+      if(f?.action)return f;
+      return p?.error?p:f;
+    }
+  }catch(_){}
+  return fallbackParse(raw,m);
+}
+function stampVideo(m){
+  const action=arr(m?.liveRally?.actions).slice(-1)[0];
+  if(!action)return;
+  const media=window.VC_MATCH_MODE_MEDIA;
+  try{
+    if(media?.isReview?.()&&media?.loaded?.()){
+      action.videoTime=Number(media.current?.())||0;
+      action.videoSource=String(media.source?.()||'video');
+      bridge()?.save?.();return;
+    }
+  }catch(_){}
+  try{
+    const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+    if(d?.active){
+      action.videoTime=Math.max(0,Number(d.elapsedMs||0)/1000);
+      action.videoSource='recording';
+      bridge()?.save?.();
+    }
+  }catch(_){}
+}
+function refresh(){
+  try{window.v800Render?.()}catch(_){}
+  try{const m=resolveMatch();if(m&&typeof scoutRenderCurrentActions==='function')scoutRenderCurrentActions(m)}catch(_){}
+}
+
+window.v852AddCode=function(){
+  const input=$c('v800-code'),btn=$c('v852-add-code-btn');
+  const raw=String(input?.value||'').trim().toUpperCase().replace(/\s+/g,'');
+  if(!raw){status('Escribe un código o usa la chuleta.','wait');input?.focus();return false}
+
+  const m=resolveMatch();
+  if(!m){status('No hay un scouting activo. Selecciona o abre un partido.','bad');return false}
+  if(m.status==='finished'){status('Este scouting está finalizado y no admite acciones.','bad');return false}
+
+  btn?.classList.add('busy');status('Interpretando '+raw+'…','wait');
+  try{
+    const parsed=parseCode(raw,m);
+    if(parsed?.error||!parsed?.action){
+      status('✕ '+(parsed?.error||'No se ha podido interpretar el código.'),'bad');
+      input?.focus();return false;
+    }
+
+    let ok=false;
+    try{ok=typeof scoutPushAction==='function' ? scoutPushAction(parsed.action)!==false : false}
+    catch(err){
+      status('✕ Error al registrar: '+String(err?.message||err),'bad');
+      input?.focus();return false;
+    }
+    if(!ok){
+      status('✕ El scouting rechazó la acción. Comprueba que el set esté abierto.','bad');
+      input?.focus();return false;
+    }
+
+    stampVideo(m);
+    try{if(typeof scoutSave==='function')scoutSave(false);else bridge()?.save?.()}catch(_){}
+    if(input)input.value='';
+    status('✓ '+raw+' registrado en el rally actual.','ok');
+    refresh();input?.focus();return true;
+  } finally {
+    btn?.classList.remove('busy');
+  }
+};
+
+window.v800AddCode=window.v852AddCode;
+$c('v852-add-code-btn')?.addEventListener('click',e=>{e.preventDefault();window.v852AddCode()});
+$c('v800-code')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();window.v852AddCode()}});
+
+window.v852CodeDiagnostics=()=>({
+  version:VERSION,matchId:resolveMatch()?.id||null,
+  parser:typeof scoutV6108ParseRaw,push:typeof scoutPushAction,
+  players:players().map(p=>({id:p.id,number:p.number,name:p.name})),
+  input:!!$c('v800-code'),button:!!$c('v852-add-code-btn')
 });
 })();
 </script>
