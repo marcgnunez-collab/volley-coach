@@ -1488,6 +1488,8 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">PRO RECEPTION · V8.3</span><h3>Recepción profesional</h3><p class="scout-v630-subtitle">Cruza zona de recepción, tipo de saque recibido y conversión de side-out. Si antes codificas el saque rival, Volley Coach puede inferir el tipo y origen automáticamente.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v830-rec-team" onchange="scoutV830RenderReception()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v830-rec-player" onchange="scoutV830RenderReception()"><option value="">Todos</option></select></label><label><span>Saque recibido</span><select id="scout-v830-rec-serve" onchange="scoutV830RenderReception()"><option value="">Todos</option><option value="F">Flotante</option><option value="JF">Flotante salto</option><option value="JP">Salto potente</option><option value="U">Seguridad</option></select></label><label><span>Zona contacto</span><select id="scout-v830-rec-zone" onchange="scoutV830RenderReception()"><option value="">Todas</option><option value="1">Z1</option><option value="2">Z2</option><option value="3">Z3</option><option value="4">Z4</option><option value="5">Z5</option><option value="6">Z6</option><option value="7">Z7</option><option value="8">Z8</option><option value="9">Z9</option></select></label></div></div><div id="scout-v830-reception"></div></section>
       <section class="scout-analysis-panel wide scout-v840-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">PRO BLOCK · V8.4</span><h3>Bloqueo profesional</h3><p class="scout-v630-subtitle">Analiza tamaño del bloqueo, zona, atacante objetivo y resultado real del contacto.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v840-block-team" onchange="scoutV840RenderBlocking()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v840-block-player" onchange="scoutV840RenderBlocking()"><option value="">Todos</option></select></label><label><span>Tamaño</span><select id="scout-v840-block-size" onchange="scoutV840RenderBlocking()"><option value="">Todos</option><option value="1">Individual</option><option value="2">Doble</option><option value="3">Triple</option></select></label><label><span>Zona</span><select id="scout-v840-block-zone" onchange="scoutV840RenderBlocking()"><option value="">Todas</option><option value="2">Z2</option><option value="3">Z3</option><option value="4">Z4</option></select></label></div></div><div id="scout-v840-blocking"></div></section>
       <section class="scout-analysis-panel wide scout-v840-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">BREAK POINT / SIDE-OUT · V8.4</span><h3>Fase avanzada</h3><p class="scout-v630-subtitle">No solo muestra K1/K2 global: separa side-out por receptora y calidad de recepción, y break point por sacadora y rotación.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v840-phase-team" onchange="scoutV840RenderPhaseAdvanced()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Set</span><select id="scout-v840-phase-set" onchange="scoutV840RenderPhaseAdvanced()"><option value="">Todos</option></select></label><label><span>Rotación</span><select id="scout-v840-phase-rotation" onchange="scoutV840RenderPhaseAdvanced()"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label></div></div><div id="scout-v840-phase-advanced"></div></section>
+      <section class="scout-analysis-panel wide scout-v850-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">CONTEXT SCORE · V8.5</span><h3>Marcador contextual</h3><p class="scout-v630-subtitle">Compara rendimiento al inicio, tramo medio, final, marcadores cerrados y puntos de set.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v850-context-team" onchange="scoutV850RenderContextAnalysis()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Set</span><select id="scout-v850-context-set" onchange="scoutV850RenderContextAnalysis()"><option value="">Todos</option></select></label></div></div><div id="scout-v850-context-analysis"></div></section>
+
 
 
       <section class="scout-analysis-panel wide"><div class="scout-panel-head"><div><span class="pro-kicker">LECTURA TÁCTICA</span><h3>Perfil de R1–R6</h3></div></div><div id="scout-analysis-tactical-rotations"></div></section>
@@ -1646,7 +1648,10 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Scouting completo</button>
         <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
+        <button class="ghost" onclick="v850OpenLineupControl()">Control alineación</button>
+        <button class="ghost" onclick="v850OpenVideoNote()">📝 Nota vídeo</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
+        <button class="ghost" onclick="v841OpenCheatSheet()">⌨ Chuleta códigos</button>
         <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
       </div>
     </div>
@@ -1668,6 +1673,14 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v800-team rival"><small id="v800-opponent">Rival</small><strong id="v800-score-op">0</strong><span id="v800-sets-op">0 sets</span></div>
       </section>
 
+      <section id="v850-context-strip" class="v850-context-strip">
+        <div><span>CONTEXTO</span><b id="v850-context-stage">Inicio</b><small id="v850-context-copy">0-0</small></div>
+        <div><span>DIFERENCIA</span><b id="v850-context-diff">0</b><small id="v850-context-close">Marcador igualado</small></div>
+        <div><span>FASE</span><b id="v850-context-phase">K2</b><small id="v850-context-phase-copy">Saque / Break Point</small></div>
+        <div><span>TRAMO ACTUAL</span><b id="v850-context-rate">—</b><small id="v850-context-rate-copy">Sin muestra</small></div>
+        <div id="v850-pressure-box"><span>PRESIÓN</span><b id="v850-context-pressure">NORMAL</b><small id="v850-context-pressure-copy">Sin punto de set</small></div>
+      </section>
+
       <div class="v800-live-grid">
         <main class="v800-main">
           <section class="v800-court-card">
@@ -1685,6 +1698,13 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
                 <div id="v800-court-rival" class="v800-court rival"></div>
               </div>
             </div>
+            <div id="v850-lineup-guard" class="v850-lineup-guard">
+              <div class="v850-lineup-guard-head">
+                <div><b>Control de alineación</b><span id="v850-lineup-summary">Comprobando…</span></div>
+                <button class="ghost" onclick="v850OpenLineupControl()">Ver control completo</button>
+              </div>
+              <div id="v850-lineup-mini" class="v850-lineup-mini"></div>
+            </div>
           </section>
 
           <section class="v800-control-card">
@@ -1694,9 +1714,10 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <button class="v800-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
             </div>
 
-            <div class="v800-code-row">
+            <div class="v800-code-row v841-code-row">
               <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 7R# · 12A# · R8S=" onkeydown="if(event.key==='Enter'){event.preventDefault();v800AddCode()}">
               <button class="primary" onclick="v800AddCode()">Añadir</button>
+              <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
             <div class="v800-code-presets">
               <button onclick="v800Preset('S#')">Saque #</button><button onclick="v800Preset('S=')">Saque =</button>
@@ -1718,10 +1739,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <button onclick="v800QuickEvent('timeout_opponent')">⏱ Tiempo rival</button>
               <button onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
               <button onclick="scoutOpenLineup()">⌘ Alineación</button>
-              <button onclick="v800QuickEvent('note')">★ Nota táctica</button>
+              <button onclick="v850OpenVideoNote()">📝 Nota ligada a vídeo</button>
               <button onclick="scoutV690OpenEvent()">＋ Otro evento</button>
             </div>
             <div id="v800-events" class="v800-events"></div>
+            <div id="v850-video-notes" class="v850-video-notes"></div>
           </section>
         </main>
 
@@ -4924,7 +4946,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.4.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.0', {
         updateViaCache: 'none'
       });
 
@@ -8106,7 +8128,7 @@ const V690_SKILL_CODES=new Set(['S','R','E','A','B','D','F','C']);
 const V690_COMBOS=new Set(['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR']);
 const v690NormActionBase=scoutNormalizeAction;
 scoutNormalizeAction=function(a){const x=v690NormActionBase(a);x.uid=String(a?.uid||`act_${x.id}`);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};
-function v690NormalizeWorkflow(raw){raw=raw&&typeof raw==='object'?raw:{};const setLineups={};Object.entries(raw.setLineups||{}).forEach(([k,v])=>{if(v&&typeof v==='object')setLineups[String(k)]={baseLineup:scoutNormalizeLineup(v.baseLineup),lineup:scoutNormalizeLineup(v.lineup||v.baseLineup),lineupRoles:scoutNormalizeRoles(v.lineupRoles),libero:scoutNormalizeLibero(v.libero),rotationNo:Math.min(6,Math.max(1,Number(v.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(v.opponentRotationNo)||1)),savedAt:String(v.savedAt||scoutNow())}});return {setLineups,events:scoutArr(raw.events).map(e=>({id:Number(e?.id)||Date.now(),uid:String(e?.uid||`evt_${e?.id||Date.now()}`),type:String(e?.type||'note'),subject:String(e?.subject||''),note:String(e?.note||''),setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,rotationNo:Math.min(6,Math.max(1,Number(e?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(e?.opponentRotationNo)||1)),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0),videoTime:e?.videoTime==null?null:Number(e.videoTime)}))}};
+function v690NormalizeWorkflow(raw){raw=raw&&typeof raw==='object'?raw:{};const setLineups={};Object.entries(raw.setLineups||{}).forEach(([k,v])=>{if(v&&typeof v==='object')setLineups[String(k)]={baseLineup:scoutNormalizeLineup(v.baseLineup),lineup:scoutNormalizeLineup(v.lineup||v.baseLineup),lineupRoles:scoutNormalizeRoles(v.lineupRoles),libero:scoutNormalizeLibero(v.libero),rotationNo:Math.min(6,Math.max(1,Number(v.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(v.opponentRotationNo)||1)),savedAt:String(v.savedAt||scoutNow())}});return {setLineups,events:scoutArr(raw.events).map(e=>({id:Number(e?.id)||Date.now(),uid:String(e?.uid||`evt_${e?.id||Date.now()}`),type:String(e?.type||'note'),subject:String(e?.subject||''),note:String(e?.note||''),setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,rotationNo:Math.min(6,Math.max(1,Number(e?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(e?.opponentRotationNo)||1)),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0),videoTime:e?.videoTime==null?null:Number(e.videoTime),videoSource:String(e?.videoSource||''),videoExact:!!e?.videoExact,noteCategory:String(e?.noteCategory||''),contextLabel:String(e?.contextLabel||'')}))}};
 const v690NormMatchBase=scoutNormalizeMatch;
 scoutNormalizeMatch=function(m){const x=v690NormMatchBase(m);x.workflow=v690NormalizeWorkflow(m?.workflow);x.dataVersion=V690_VERSION;return x};
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
@@ -9337,7 +9359,7 @@ function v700FileSize(n){n=Number(n)||0;if(!n)return '—';if(n<1024*1024)return
 function v700Mapped(m,ms){const meta=v700Meta(m);if(meta?.syncOffset==null)return null;return Math.max(0,(Number(ms)||0)/1000+Number(meta.syncOffset))}
 function v700RallyStartMs(r){const a=scoutArr(r?.actions);return a.length?(Number(a[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0)}
 function v700RallyEndMs(r){const a=scoutArr(r?.actions);return a.length?(Number(a[a.length-1].scoutMs)||Number(r?.scoutEndMs)||v700RallyStartMs(r)):(Number(r?.scoutEndMs)||v700RallyStartMs(r))}
-function v700ApplyMapping(m){const meta=v700Meta(m);if(!m||meta.syncOffset==null)return;scoutArr(m.sets).forEach(set=>scoutArr(set.rallies).forEach(r=>{r.videoStart=v700Mapped(m,v700RallyStartMs(r));r.videoEnd=v700Mapped(m,v700RallyEndMs(r));scoutArr(r.actions).forEach(a=>{a.videoAction=v700Mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-meta.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+meta.postRoll})}));scoutArr(m.liveRally?.actions).forEach(a=>{a.videoAction=v700Mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-meta.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+meta.postRoll});scoutArr(m.workflow?.events).forEach(e=>e.videoTime=v700Mapped(m,e.scoutMs));scoutArr(m.events).forEach(e=>e.videoTime=v700Mapped(m,e.scoutMs))}
+function v700ApplyMapping(m){const meta=v700Meta(m);if(!m||meta.syncOffset==null)return;scoutArr(m.sets).forEach(set=>scoutArr(set.rallies).forEach(r=>{r.videoStart=v700Mapped(m,v700RallyStartMs(r));r.videoEnd=v700Mapped(m,v700RallyEndMs(r));scoutArr(r.actions).forEach(a=>{a.videoAction=v700Mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-meta.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+meta.postRoll})}));scoutArr(m.liveRally?.actions).forEach(a=>{a.videoAction=v700Mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-meta.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+meta.postRoll});scoutArr(m.workflow?.events).forEach(e=>{if(e.videoTime==null)e.videoTime=v700Mapped(m,e.scoutMs)});scoutArr(m.events).forEach(e=>e.videoTime=v700Mapped(m,e.scoutMs))}
 function v700FindRaw(type,id,setNo,actionId){const m=v700Match();if(!m)return null;if(type==='rally'){const s=scoutArr(m.sets).find(x=>Number(x.number)===Number(setNo));const r=scoutArr(s?.rallies).find(x=>Number(x.id)===Number(id));return r?{type,ms:v700RallyStartMs(r),set:s.number,id:r.id,r}:null}if(type==='action'){const s=scoutArr(m.sets).find(x=>Number(x.number)===Number(setNo));let r=scoutArr(s?.rallies).find(x=>Number(x.id)===Number(id)),live=false;if(!r&&Number(m.liveRally?.id)===Number(id)){r=m.liveRally;live=true}const a=scoutArr(r?.actions).find(x=>Number(x.id)===Number(actionId));return a?{type,ms:a.scoutMs,set:s?.number||m.currentSet,id:r.id,actionId:a.id,r,a,live}:null}if(type==='event'){const e=[...scoutArr(m.workflow?.events),...scoutArr(m.events)].find(x=>String(x.uid||x.id)===String(id));return e?{type,ms:e.scoutMs,set:e.setNumber,id:String(e.uid||e.id),e}:null}return null}
 function v700Timeline(m){const out=[];scoutArr(m?.sets).forEach(set=>scoutArr(set.rallies).forEach((r,ri)=>{const key=`r:${set.number}:${r.id}`;out.push({key,type:'rally',ms:v700RallyStartMs(r),set:set.number,rallyId:r.id,label:`Set ${set.number} · Rally ${ri+1} · ${r.scoreAfter.us}–${r.scoreAfter.opponent}`,copy:`R${r.rotationBefore} vs R${r.opponentRotationBefore||1} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${r.actions.length} acciones`,team:r.winner});scoutArr(r.actions).forEach((a,ai)=>out.push({key:`a:${set.number}:${r.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:set.number,rallyId:r.id,actionId:a.id,skill:a.skill,team:a.team,label:`${a.code||SCOUT_SKILLS[a.skill]||'Acción'}`,copy:`S${set.number} · Rally ${ri+1} · ${a.team==='ours'?'Nuestro equipo':'Rival'} · ${scoutActionPlayerLabel(a)}`,evaluation:a.evaluation}))}));const liveSet=scoutSet(m),liveIndex=(scoutArr(liveSet?.rallies).length||0)+1;scoutArr(m?.liveRally?.actions).forEach(a=>out.push({key:`a:${m.currentSet}:${m.liveRally.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:m.currentSet,rallyId:m.liveRally.id,actionId:a.id,skill:a.skill,team:a.team,label:`${a.code||SCOUT_SKILLS[a.skill]||'Acción'}`,copy:`S${m.currentSet} · Rally ${liveIndex} en curso · ${a.team==='ours'?'Nuestro equipo':'Rival'} · ${scoutActionPlayerLabel(a)}`,evaluation:a.evaluation,live:true}));scoutArr(m?.workflow?.events).forEach(e=>out.push({key:`e:${String(e.uid||e.id)}`,type:'event',ms:Number(e.scoutMs)||0,set:e.setNumber,id:String(e.uid||e.id),label:typeof V690_EVENT_LABELS!=='undefined'?(V690_EVENT_LABELS[e.type]||e.type):e.type,copy:`S${e.setNumber} · ${e.scoreUs}–${e.scoreOpponent}${e.note?' · '+e.note:''}`}));scoutArr(m?.events).forEach(e=>out.push({key:`e:${String(e.uid||e.id)}`,type:'event',ms:Number(e.scoutMs)||0,set:e.setNumber,id:String(e.uid||e.id),label:e.type==='libero_auto'?'Líbero automático':'Cambio',copy:`S${e.setNumber} · ${e.scoreUs}–${e.scoreOpponent} · ${e.outLabel||'—'} → ${e.inLabel||'—'}`}));return out.sort((a,b)=>a.ms-b.ms||String(a.key).localeCompare(String(b.key)))}
 function v700ParseKey(key){const p=String(key||'').split(':');if(p[0]==='r')return v700FindRaw('rally',Number(p[2]),Number(p[1]));if(p[0]==='a')return v700FindRaw('action',Number(p[2]),Number(p[1]),Number(p[3]));if(p[0]==='e')return v700FindRaw('event',p.slice(1).join(':'));return null}
@@ -9495,7 +9517,7 @@ function fmt(s){if(s==null||!Number.isFinite(Number(s)))return '—';s=Math.max(
 function rms(r){const a=arr(r?.actions);return a.length?(Number(a[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0)}
 function rme(r){const a=arr(r?.actions);return a.length?(Number(a[a.length-1].scoutMs)||Number(r?.scoutEndMs)||rms(r)):(Number(r?.scoutEndMs)||rms(r))}
 function mapped(m,ms){const x=meta(m);return x?.syncOffset==null?null:Math.max(0,(Number(ms)||0)/1000+Number(x.syncOffset))}
-function applyMap(m){const x=meta(m);if(!m||x.syncOffset==null)return;arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>{r.videoStart=mapped(m,rms(r));r.videoEnd=mapped(m,rme(r));arr(r.actions).forEach(a=>{a.videoAction=mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll})}));arr(m.liveRally?.actions).forEach(a=>{a.videoAction=mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll});arr(m.workflow?.events).forEach(e=>e.videoTime=mapped(m,e.scoutMs));arr(m.events).forEach(e=>e.videoTime=mapped(m,e.scoutMs))}
+function applyMap(m){const x=meta(m);if(!m||x.syncOffset==null)return;arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>{r.videoStart=mapped(m,rms(r));r.videoEnd=mapped(m,rme(r));arr(r.actions).forEach(a=>{a.videoAction=mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll})}));arr(m.liveRally?.actions).forEach(a=>{a.videoAction=mapped(m,a.scoutMs);a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll});arr(m.workflow?.events).forEach(e=>{if(e.videoTime==null)e.videoTime=mapped(m,e.scoutMs)});arr(m.events).forEach(e=>e.videoTime=mapped(m,e.scoutMs))}
 function release(){if(objectUrl){try{URL.revokeObjectURL(objectUrl)}catch(_){}objectUrl=null}fileMatchId=null;const v=$v('scout-v700-player');if(v){try{v.pause()}catch(_){}v.removeAttribute('src');try{v.load()}catch(_){}}stopAt=null}
 function populate(preferred){const sel=$v('scout-v700-match');if(!sel)return;const mm=matches().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.id)-Number(a.id));sel.innerHTML=mm.length?mm.map(m=>`<option value="${m.id}">${String(m.date||'')} · ${teamName()} vs ${String(m.opponent||'Rival')}</option>`).join(''):'<option value="">Sin scoutings</option>';const id=Number(preferred)||activeId()||Number(mm[0]?.id)||0;if(id&&mm.some(m=>Number(m.id)===id))sel.value=String(id)}
 function find(type,id,setNo,actionId){const m=currentMatch();if(!m)return null;if(type==='rally'){const s=arr(m.sets).find(x=>Number(x.number)===Number(setNo));const r=arr(s?.rallies).find(x=>Number(x.id)===Number(id));return r?{type,ms:rms(r),set:s.number,id:r.id,r}:null}if(type==='action'){const s=arr(m.sets).find(x=>Number(x.number)===Number(setNo));let r=arr(s?.rallies).find(x=>Number(x.id)===Number(id));let live=false;if(!r&&Number(m.liveRally?.id)===Number(id)){r=m.liveRally;live=true}const a=arr(r?.actions).find(x=>Number(x.id)===Number(actionId));return a?{type,ms:Number(a.scoutMs)||0,set:s?.number||m.currentSet,id:r.id,actionId:a.id,r,a,live}:null}if(type==='event'){const e=[...arr(m.workflow?.events),...arr(m.events)].find(x=>String(x.uid||x.id)===String(id));return e?{type,ms:Number(e.scoutMs)||0,set:e.setNumber,id:String(e.uid||e.id),e}:null}return null}
@@ -16774,6 +16796,7 @@ function render(){
   }else{
     $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
   }
+  window.v850RenderMatchExtras?.(m,s);
   syncVideo();renderREC();
 }
 window.v800Render=render;
@@ -16862,6 +16885,18 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
   wrapped.__v800=true;window[name]=wrapped;
 });
 
+window.VC_MATCH_MODE_MEDIA={
+  source:()=>media.source,
+  loaded:()=>mediaLoaded(),
+  current:()=>mediaCurrent(),
+  duration:()=>mediaDuration(),
+  seek:(t)=>mediaSeek(t),
+  play:()=>mediaPlay(),
+  pause:()=>mediaPause(),
+  isReview:()=>mediaIsReview(),
+  localName:()=>media.localFile?.name||null,
+  youtubeId:()=>media.youtubeId||null
+};
 window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,mediaSource:media.source,mediaLoaded:mediaLoaded(),mediaTime:mediaCurrent(),youtubeId:media.youtubeId||null,localFile:media.localFile?.name||null,mobileConnected:mobileConnected(),mobile:mobileDiagnostics(),liveVideo:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
 })();
 </script>
@@ -17771,6 +17806,581 @@ window.scoutExportCSV=function(id){
 
 /* Init */
 scoutUpdateAdvancedFields();
+})();
+</script>
+
+
+<div id="v841-cheat-modal" class="v841-cheat-modal hidden" role="dialog" aria-modal="true" aria-labelledby="v841-cheat-title">
+  <div class="v841-cheat-card">
+    <div class="v841-cheat-head">
+      <div>
+        <span class="pro-kicker">V8.4.1 · CHULETA DE CÓDIGOS</span>
+        <h2 id="v841-cheat-title">Scouting rápido</h2>
+        <p>Busca por fundamento, símbolo o ejemplo. Puedes copiar cualquier código directamente al cuadro de Modo Partido.</p>
+      </div>
+      <button class="ghost" onclick="v841CloseCheatSheet()">Cerrar ×</button>
+    </div>
+
+    <div class="v841-cheat-search">
+      <input id="v841-cheat-search" type="search" placeholder="Buscar: recepción, diagonal, bloqueo doble, K1, JF..." oninput="v841FilterCheatSheet(this.value)">
+      <div class="v841-cheat-tabs">
+        <button class="active" data-cat="all" onclick="v841CheatTab('all',this)">Todo</button>
+        <button data-cat="base" onclick="v841CheatTab('base',this)">Base</button>
+        <button data-cat="serve" onclick="v841CheatTab('serve',this)">Saque</button>
+        <button data-cat="reception" onclick="v841CheatTab('reception',this)">Recepción</button>
+        <button data-cat="set" onclick="v841CheatTab('set',this)">Colocación</button>
+        <button data-cat="attack" onclick="v841CheatTab('attack',this)">Ataque</button>
+        <button data-cat="block" onclick="v841CheatTab('block',this)">Bloqueo</button>
+        <button data-cat="defense" onclick="v841CheatTab('defense',this)">Defensa</button>
+      </div>
+    </div>
+
+    <div id="v841-cheat-content" class="v841-cheat-content">
+
+      <section class="v841-cheat-section" data-cat="base" data-search="base estructura dorsal fundamento valoracion simbolos">
+        <h3>1. Estructura base</h3>
+        <div class="v841-rule"><code>DORSAL + FUNDAMENTO + VALORACIÓN</code><span>Ejemplo: <b>7R#</b></span></div>
+        <div class="v841-grid">
+          <article><b>Fundamentos</b><span><code>S</code> Saque · <code>R</code> Recepción · <code>E</code> Colocación · <code>A</code> Ataque · <code>B</code> Bloqueo · <code>D</code> Defensa</span></article>
+          <article><b>Valoraciones</b><span><code>#</code> máxima/punto · <code>+</code> positiva · <code>!</code> neutra · <code>-</code> negativa · <code>/</code> muy negativa/bloqueado · <code>=</code> error</span></article>
+        </div>
+        <div class="v841-order">
+          <b>Orden recomendado de sufijos</b>
+          <code>.zonas → ~tipo saque → :destino/combinación → *dirección → ^fase → @bloqueadores → &objetivo</code>
+        </div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="serve" data-search="saque flotante salto potente seguridad origen destino zonas ace error">
+        <h3>2. Saque</h3>
+        <div class="v841-grid">
+          <article><b>Tipo</b><span><code>~F</code> flotante · <code>~JF</code> flotante en salto · <code>~JP</code> salto potente · <code>~U</code> seguridad</span></article>
+          <article><b>Zonas</b><span><code>.1&gt;5</code> = saca desde Z1 hacia Z5.</span></article>
+        </div>
+        <div class="v841-example" data-code="4S#.1>5~JF"><code>4S#.1&gt;5~JF</code><span>#4 hace ace desde Z1 a Z5 con flotante en salto.</span><button onclick="v841UseCode('4S#.1>5~JF')">Usar</button></div>
+        <div class="v841-example" data-code="4S=.1>6~JP"><code>4S=.1&gt;6~JP</code><span>#4 error de saque desde Z1 a Z6 con salto potente.</span><button onclick="v841UseCode('4S=.1>6~JP')">Usar</button></div>
+        <div class="v841-example" data-code="R8S+.1>6~F"><code>R8S+.1&gt;6~F</code><span>Rival #8 saca positivo desde Z1 a Z6 con flotante.</span><button onclick="v841UseCode('R8S+.1>6~F')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="reception" data-search="recepcion profesional tipo saque recibido jf jp flotante positiva perfecta side out zona contacto">
+        <h3>3. Recepción profesional</h3>
+        <div class="v841-rule"><code>.ZONA = zona de contacto · ~TIPO = tipo de saque recibido</code></div>
+        <div class="v841-example" data-code="7R#.6~JF"><code>7R#.6~JF</code><span>#7 recepción perfecta en Z6 ante flotante en salto.</span><button onclick="v841UseCode('7R#.6~JF')">Usar</button></div>
+        <div class="v841-example" data-code="7R+.5~JP"><code>7R+.5~JP</code><span>#7 recepción positiva en Z5 ante salto potente.</span><button onclick="v841UseCode('7R+.5~JP')">Usar</button></div>
+        <div class="v841-example" data-code="7R-.1~F"><code>7R-.1~F</code><span>#7 recepción negativa en Z1 ante flotante.</span><button onclick="v841UseCode('7R-.1~F')">Usar</button></div>
+        <div class="v841-tip"><b>Automático:</b> si antes has puesto <code>R4S+.1&gt;6~JF</code> y luego escribes <code>7R#.6</code>, Volley Coach intenta inferir que el saque venía de Z1 y era JF.</div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="set" data-search="colocacion colocador distribucion z1 z2 z4 z6 pipe primer tiempo 31 back k1 k2">
+        <h3>4. Colocación / distribución</h3>
+        <div class="v841-rule"><code>:DESTINO</code><span>Describe dónde decide colocar el balón.</span></div>
+        <div class="v841-grid">
+          <article><b>Destinos</b><span><code>Z4</code> · <code>Z2</code> · <code>Z1</code> · <code>Z6</code> · <code>1T</code> · <code>31</code> · <code>BACK</code> · <code>PIPE</code> · <code>2T</code></span></article>
+          <article><b>Fase</b><span><code>^K1</code> recepción/side-out · <code>^K2</code> saque/break point</span></article>
+        </div>
+        <div class="v841-example" data-code="3E+:Z1^K1"><code>3E+:Z1^K1</code><span>#3 coloca positivo hacia Z1 en K1.</span><button onclick="v841UseCode('3E+:Z1^K1')">Usar</button></div>
+        <div class="v841-example" data-code="3E#:PIPE^K1"><code>3E#:PIPE^K1</code><span>#3 colocación perfecta a pipe en K1.</span><button onclick="v841UseCode('3E#:PIPE^K1')">Usar</button></div>
+        <div class="v841-example" data-code="3E+:1T^K2"><code>3E+:1T^K2</code><span>#3 coloca a primer tiempo en K2.</span><button onclick="v841UseCode('3E+:1T^K2')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="attack" data-search="ataque direccion linea diagonal corta larga zonas origen destino bloqueo kill eficiencia">
+        <h3>5. Ataque + dirección</h3>
+        <div class="v841-grid">
+          <article><b>Trayectoria</b><span><code>.4&gt;5</code> = ataque desde Z4 hacia Z5.</span></article>
+          <article><b>Dirección</b><span><code>*LIN</code> línea · <code>*DC</code> diagonal corta · <code>*DL</code> diagonal larga</span></article>
+          <article><b>Bloqueo rival</b><span><code>@0</code> sin bloqueo · <code>@1</code> individual · <code>@2</code> doble · <code>@3</code> triple</span></article>
+        </div>
+        <div class="v841-example" data-code="12A#.4>5:Z4*DL^K1@2"><code>12A#.4&gt;5:Z4*DL^K1@2</code><span>#12 punto desde Z4 a Z5, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4>5:Z4*DL^K1@2')">Usar</button></div>
+        <div class="v841-example" data-code="12A+.4>1*LIN^K1@1"><code>12A+.4&gt;1*LIN^K1@1</code><span>#12 ataque positivo por línea en K1 contra bloqueo individual.</span><button onclick="v841UseCode('12A+.4>1*LIN^K1@1')">Usar</button></div>
+        <div class="v841-example" data-code="12A/.4>4*DC^K2@3"><code>12A/.4&gt;4*DC^K2@3</code><span>#12 ataque bloqueado, diagonal corta, K2, triple bloqueo.</span><button onclick="v841UseCode('12A/.4>4*DC^K2@3')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="block" data-search="bloqueo profesional individual doble triple block out objetivo atacante rival toque positivo continuidad error">
+        <h3>6. Bloqueo profesional</h3>
+        <div class="v841-rule"><code>DORSAL + B + EVAL + .ZONA + @TAMAÑO + &amp;ATACANTE</code></div>
+        <div class="v841-grid">
+          <article><b>Tamaño</b><span><code>@1</code> individual · <code>@2</code> doble · <code>@3</code> triple</span></article>
+          <article><b>Objetivo</b><span><code>&amp;12</code> = bloqueo sobre la atacante rival #12.</span></article>
+          <article><b>Resultado</b><span><code>#</code> punto · <code>+</code> toque positivo · <code>!</code> continuidad · <code>-</code> negativo · <code>/</code> block-out · <code>=</code> error</span></article>
+        </div>
+        <div class="v841-example" data-code="4B#.3@2&12"><code>4B#.3@2&amp;12</code><span>#4 punto de bloqueo doble en Z3 sobre #12.</span><button onclick="v841UseCode('4B#.3@2&12')">Usar</button></div>
+        <div class="v841-example" data-code="4B+.3@2&12"><code>4B+.3@2&amp;12</code><span>#4 toque positivo con bloqueo doble sobre #12.</span><button onclick="v841UseCode('4B+.3@2&12')">Usar</button></div>
+        <div class="v841-example" data-code="4B/.4@1&9"><code>4B/.4@1&amp;9</code><span>#4 block-out en Z4 con bloqueo individual sobre #9.</span><button onclick="v841UseCode('4B/.4@1&9')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="defense" data-search="defensa zona positiva negativa continuidad">
+        <h3>7. Defensa</h3>
+        <div class="v841-rule"><code>.ZONA = zona donde se produce la defensa</code></div>
+        <div class="v841-example" data-code="6D+.5"><code>6D+.5</code><span>#6 defensa positiva en Z5.</span><button onclick="v841UseCode('6D+.5')">Usar</button></div>
+        <div class="v841-example" data-code="6D!.6"><code>6D!.6</code><span>#6 defensa de continuidad en Z6.</span><button onclick="v841UseCode('6D!.6')">Usar</button></div>
+        <div class="v841-example" data-code="6D=.1"><code>6D=.1</code><span>#6 error defensivo en Z1.</span><button onclick="v841UseCode('6D=.1')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="base" data-search="fase k1 k2 fb tr break point side out">
+        <h3>8. Fases</h3>
+        <div class="v841-grid">
+          <article><b><code>^K1</code></b><span>Fase de recepción / side-out.</span></article>
+          <article><b><code>^K2</code></b><span>Fase de saque / break point.</span></article>
+          <article><b><code>^FB</code></b><span>Freeball.</span></article>
+          <article><b><code>^TR</code></b><span>Transición.</span></article>
+        </div>
+      </section>
+
+      <section class="v841-cheat-section" data-cat="base" data-search="ejemplo rally completo secuencia">
+        <h3>9. Ejemplo de rally completo</h3>
+        <div class="v841-rally-seq">
+          <div><code>R4S+.1&gt;6~JF</code><span>Saque rival #4, positivo, Z1→Z6, flotante salto.</span></div>
+          <div><code>7R#.6~JF</code><span>#7 recepción perfecta en Z6.</span></div>
+          <div><code>3E+:Z1^K1</code><span>#3 coloca a Z1 en K1.</span></div>
+          <div><code>12A#.4&gt;5:Z4*DL^K1@2</code><span>#12 punto de ataque diagonal larga contra doble bloqueo.</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="v841-cheat-foot">
+      <span id="v841-cheat-count">Mostrando toda la chuleta.</span>
+      <button class="ghost" onclick="v841CloseCheatSheet()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<style id="v841-code-cheat-style">
+.v841-code-row{grid-template-columns:minmax(0,1fr) auto 34px!important}
+.v841-cheat-modal{position:fixed;inset:0;z-index:99000;background:rgba(5,17,27,.78);display:grid;place-items:center;padding:16px}
+.v841-cheat-modal.hidden{display:none!important}
+.v841-cheat-card{width:min(1050px,96vw);max-height:92vh;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35)}
+.v841-cheat-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#0c2134,#23465f);color:#fff}.v841-cheat-head h2{margin:2px 0 4px!important;color:#fff!important;font-size:19px!important}.v841-cheat-head p{margin:0;color:#c0ced8;font-size:8px}.v841-cheat-head .pro-kicker{color:#91aaba}.v841-cheat-head .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.16)!important}
+.v841-cheat-search{padding:9px 12px;border-bottom:1px solid #e0e6ea;background:#f7f9fa}.v841-cheat-search input{width:100%;box-sizing:border-box;font-size:9px!important;padding:8px!important}.v841-cheat-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.v841-cheat-tabs button{font-size:6.8px!important;padding:5px 7px!important;background:#eef3f6!important;color:#526a7a!important;border:1px solid #dce4e9!important}.v841-cheat-tabs button.active{background:#17324d!important;color:#fff!important;border-color:#17324d!important}
+.v841-cheat-content{overflow:auto;padding:12px;display:grid;gap:9px;background:#fbfcfd}.v841-cheat-section{background:#fff;border:1px solid #dfe5e9;border-radius:10px;padding:9px}.v841-cheat-section.hidden{display:none!important}.v841-cheat-section h3{margin:0 0 7px!important;padding:0!important;border:0!important;font-size:11px!important;color:#203f57}
+.v841-rule{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:7px;background:#f2f6f8;border-radius:7px;margin-bottom:6px}.v841-rule code{font-size:8px;font-weight:900;color:#173f68}.v841-rule span{font-size:7px;color:#6f808d}
+.v841-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:6px}.v841-grid article{border:1px solid #e4e9ec;border-radius:7px;padding:6px;background:#fafcfd}.v841-grid b{display:block;font-size:7.5px;color:#29475f}.v841-grid span{display:block;font-size:6.7px;color:#74838e;line-height:1.45;margin-top:2px}.v841-grid code{font-weight:900;color:#173f68}
+.v841-order,.v841-tip{padding:7px 8px;border-left:3px solid #587b91;background:#f4f8fa;color:#657784;font-size:7px;line-height:1.45}.v841-order b,.v841-tip b{color:#29475f}.v841-order code{display:block;margin-top:3px;color:#173f68;font-weight:900}
+.v841-example{display:grid;grid-template-columns:minmax(150px,auto) minmax(0,1fr) auto;gap:7px;align-items:center;border-top:1px solid #edf0f2;padding:6px 0}.v841-example:first-of-type{border-top:0}.v841-example code{font-size:8px;font-weight:900;color:#163f67;white-space:nowrap}.v841-example span{font-size:7px;color:#6c7d89}.v841-example button{font-size:6.5px!important;padding:5px 7px!important}
+.v841-rally-seq{display:grid;gap:4px}.v841-rally-seq>div{display:grid;grid-template-columns:230px 1fr;gap:8px;border:1px solid #e2e8eb;border-radius:7px;padding:6px;background:#fafcfd}.v841-rally-seq code{font-size:8px;font-weight:900;color:#173f68}.v841-rally-seq span{font-size:7px;color:#71818d}
+.v841-cheat-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid #e0e6ea;background:#fff}.v841-cheat-foot span{font-size:6.8px;color:#788792}
+@media(max-width:760px){.v841-cheat-modal{padding:5px}.v841-cheat-card{width:99vw;max-height:97vh}.v841-cheat-head{padding:10px;flex-direction:column}.v841-grid{grid-template-columns:1fr}.v841-example{grid-template-columns:1fr auto}.v841-example span{grid-column:1/-1}.v841-rally-seq>div{grid-template-columns:1fr}.v841-cheat-tabs{overflow-x:auto;flex-wrap:nowrap}.v841-cheat-tabs button{white-space:nowrap}}
+</style>
+
+
+<script id="v841-code-cheat-module">
+(()=>{
+'use strict';
+let v841Category='all';
+function norm841(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+window.v841OpenCheatSheet=function(){
+  const m=document.getElementById('v841-cheat-modal');if(!m)return;
+  m.classList.remove('hidden');document.body.classList.add('v800-lock');
+  setTimeout(()=>document.getElementById('v841-cheat-search')?.focus(),20);
+  v841FilterCheatSheet(document.getElementById('v841-cheat-search')?.value||'');
+};
+window.v841CloseCheatSheet=function(){
+  document.getElementById('v841-cheat-modal')?.classList.add('hidden');
+  if(!document.fullscreenElement)document.body.classList.remove('v800-lock');
+  setTimeout(()=>document.getElementById('v800-code')?.focus(),20);
+};
+window.v841CheatTab=function(cat,btn){
+  v841Category=String(cat||'all');
+  document.querySelectorAll('.v841-cheat-tabs button').forEach(x=>x.classList.toggle('active',x===btn));
+  v841FilterCheatSheet(document.getElementById('v841-cheat-search')?.value||'');
+};
+window.v841FilterCheatSheet=function(q){
+  q=norm841(q);let shown=0,total=0;
+  document.querySelectorAll('.v841-cheat-section').forEach(sec=>{
+    total++;
+    const cat=sec.dataset.cat||'',txt=norm841((sec.dataset.search||'')+' '+sec.textContent);
+    const okCat=v841Category==='all'||cat===v841Category;
+    const okQ=!q||txt.includes(q);
+    const show=okCat&&okQ;sec.classList.toggle('hidden',!show);if(show)shown++;
+  });
+  const c=document.getElementById('v841-cheat-count');
+  if(c)c.textContent=q||v841Category!=='all'?`${shown} sección(es) encontradas.`:'Mostrando toda la chuleta.';
+};
+window.v841UseCode=function(code){
+  const input=document.getElementById('v800-code');
+  if(input){input.value=String(code||'');v841CloseCheatSheet();setTimeout(()=>{input.focus();input.select()},30)}
+};
+document.getElementById('v841-cheat-modal')?.addEventListener('click',e=>{if(e.target?.id==='v841-cheat-modal')v841CloseCheatSheet()});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!document.getElementById('v841-cheat-modal')?.classList.contains('hidden')){e.preventDefault();v841CloseCheatSheet()}
+  if(e.key==='?'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName||'')&&document.querySelector('#scout-match-mode.active')){e.preventDefault();v841OpenCheatSheet()}
+});
+})();
+</script>
+
+
+
+<div id="v850-lineup-modal" class="v850-modal hidden" role="dialog" aria-modal="true">
+  <div class="v850-modal-card v850-lineup-modal-card">
+    <div class="v850-modal-head">
+      <div><span class="pro-kicker">V8.5 · LINEUP CONTROL</span><h2>Control avanzado de alineación</h2><p>Comprueba seis rotacionales, líbero, colocador, banquillo y cambios registrados.</p></div>
+      <button class="ghost" onclick="v850CloseLineupControl()">Cerrar ×</button>
+    </div>
+    <div id="v850-lineup-modal-body" class="v850-modal-body"></div>
+    <div class="v850-modal-foot">
+      <button class="ghost" onclick="v850SaveInitialSnapshot()">Guardar foto inicial del set</button>
+      <div><button class="ghost" onclick="v850CloseLineupControl();scoutOpenSubstitution()">Cambio / Líbero</button><button class="primary" onclick="v850CloseLineupControl();scoutOpenLineup()">Editar alineación</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="v850-note-modal" class="v850-modal hidden" role="dialog" aria-modal="true">
+  <div class="v850-modal-card v850-note-modal-card">
+    <div class="v850-modal-head">
+      <div><span class="pro-kicker">V8.5 · VIDEO NOTE</span><h2>Nota ligada al vídeo</h2><p id="v850-note-time-copy">Se guardará el momento actual del scouting.</p></div>
+      <button class="ghost" onclick="v850CloseVideoNote()">Cerrar ×</button>
+    </div>
+    <div class="v850-note-form">
+      <label><span>Categoría</span><select id="v850-note-category"><option value="Táctica">Táctica</option><option value="Técnica">Técnica</option><option value="Rival">Rival</option><option value="Rotación">Rotación</option><option value="Jugadora">Jugadora</option><option value="Entrenamiento">Entrenamiento</option></select></label>
+      <label><span>Título corto</span><input id="v850-note-subject" placeholder="Ej. Cerrar línea a #12"></label>
+      <label class="wide"><span>Nota</span><textarea id="v850-note-text" rows="5" placeholder="Escribe qué quieres recordar de este momento..."></textarea></label>
+      <div id="v850-note-context" class="v850-note-context"></div>
+    </div>
+    <div class="v850-modal-foot"><span id="v850-note-link-status">—</span><div><button class="ghost" onclick="v850CloseVideoNote()">Cancelar</button><button class="primary" onclick="v850SaveVideoNote()">Guardar nota</button></div></div>
+  </div>
+</div>
+
+
+
+<style id="v850-context-lineup-notes-style">
+.v850-context-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;background:#fff;border:1px solid #dfe5e9;border-radius:10px;padding:6px}.v850-context-strip>div{padding:6px 7px;border-radius:7px;background:#f6f9fa;border:1px solid #e5eaed}.v850-context-strip span{display:block;font-size:5.8px;text-transform:uppercase;color:#7c8a94;font-weight:900;letter-spacing:.05em}.v850-context-strip b{display:block;font-size:11px;color:#17324d;margin:2px 0}.v850-context-strip small{display:block;font-size:6.2px;color:#7d8b95}.v850-context-strip .pressure{background:#fff6e8;border-color:#e7c98f}.v850-context-strip .setpoint{background:#fbecea;border-color:#e2aaa3}
+.v850-lineup-guard{margin-top:7px;border-top:1px solid #e6ebee;padding-top:7px}.v850-lineup-guard-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.v850-lineup-guard-head b{display:block;font-size:8px;color:#29475f}.v850-lineup-guard-head span{display:block;font-size:6.5px;color:#788792;margin-top:1px}.v850-lineup-guard-head button{font-size:6.5px!important;padding:5px 6px!important}.v850-lineup-mini{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}.v850-lineup-chip{padding:4px 6px;border-radius:999px;background:#edf4ef;color:#326247;font-size:6.3px;font-weight:850}.v850-lineup-chip.warn{background:#fff3df;color:#875b1d}.v850-lineup-chip.bad{background:#f9e9e8;color:#914741}
+.v850-video-notes{display:grid;gap:4px;margin-top:7px}.v850-video-note{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px;align-items:center;border:1px solid #e1e7ea;border-radius:7px;padding:6px;background:#f9fbfc}.v850-video-note time{font-size:6.3px;color:#71818d}.v850-video-note b{display:block;font-size:7.5px;color:#29475f}.v850-video-note small{display:block;font-size:6.4px;color:#7f8c95;margin-top:1px}.v850-video-note button{font-size:6.2px!important;padding:4px 5px!important}
+.v850-modal{position:fixed;inset:0;z-index:99500;background:rgba(4,16,25,.76);display:grid;place-items:center;padding:12px}.v850-modal.hidden{display:none!important}.v850-modal-card{width:min(980px,96vw);max-height:92vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#fff;border-radius:13px;overflow:hidden}.v850-note-modal-card{width:min(720px,96vw)}.v850-modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:13px 15px;background:#102b43;color:#fff}.v850-modal-head h2{margin:2px 0 4px!important;color:#fff!important;font-size:17px!important}.v850-modal-head p{margin:0;color:#becbd4;font-size:7.5px}.v850-modal-head .pro-kicker{color:#91a8b7}.v850-modal-head .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.15)!important}.v850-modal-body{overflow:auto;padding:11px}.v850-modal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid #e1e6e9}.v850-modal-foot>div{display:flex;gap:5px}.v850-modal-foot>span{font-size:6.8px;color:#71818d}
+.v850-audit-head{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}.v850-audit-head>div{border:1px solid #dfe5e9;border-radius:8px;padding:7px;background:#f7fafb}.v850-audit-head span{display:block;font-size:6px;text-transform:uppercase;color:#7c8993;font-weight:900}.v850-audit-head b{display:block;font-size:12px;color:#17324d;margin-top:2px}.v850-audit-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:8px}.v850-audit-section{border:1px solid #dfe5e9;border-radius:9px;padding:8px;background:#fbfcfd}.v850-audit-section h3{margin:0 0 6px!important;padding:0!important;border:0!important;font-size:9px!important}.v850-six{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.v850-six>div{border:1px solid #e0e6ea;border-radius:7px;padding:6px;background:#fff}.v850-six span{display:block;font-size:5.8px;color:#82909a;font-weight:900}.v850-six b{display:block;font-size:7.5px;color:#29475f;margin-top:2px}.v850-six small{display:block;font-size:6px;color:#7b8994;margin-top:1px}.v850-six .libero{border-color:#9fc3d1;background:#f2fafc}.v850-audit-list{display:grid;gap:4px}.v850-audit-item{padding:6px 7px;border-radius:7px;background:#edf6f0;color:#38654b;font-size:7px}.v850-audit-item.warn{background:#fff5e5;color:#865c20}.v850-audit-item.bad{background:#f9eaea;color:#914943}.v850-bench{display:flex;gap:4px;flex-wrap:wrap}.v850-bench span{padding:4px 6px;border-radius:999px;background:#eef3f6;color:#607483;font-size:6.2px}.v850-sub-history{display:grid;gap:4px}.v850-sub-history>div{display:grid;grid-template-columns:75px 1fr;gap:6px;border-bottom:1px solid #edf0f2;padding:4px 0}.v850-sub-history time{font-size:6.2px;color:#80909a}.v850-sub-history span{font-size:6.6px;color:#607381}
+.v850-note-form{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:auto}.v850-note-form label{display:flex;flex-direction:column;gap:4px}.v850-note-form label.wide{grid-column:1/-1}.v850-note-form label span{font-size:6.5px;text-transform:uppercase;color:#74838e;font-weight:900}.v850-note-form input,.v850-note-form select,.v850-note-form textarea{font-size:9px!important}.v850-note-context{grid-column:1/-1;padding:8px;border-left:3px solid #587b91;background:#f4f8fa;color:#647785;font-size:7px;line-height:1.45}
+.v850-context-table{width:100%;border-collapse:collapse;min-width:800px}.v850-context-table th{background:#102b43;color:#fff;font-size:6.4px;text-transform:uppercase;padding:6px;text-align:right}.v850-context-table th:first-child,.v850-context-table td:first-child{text-align:left}.v850-context-table td{padding:7px 6px;border-bottom:1px solid #e9edf0;font-size:7.5px;color:#596d7a;text-align:right}.v850-context-table td b{color:#203f57}.v850-context-table td.good{color:#26704e;font-weight:900}.v850-context-table td.bad{color:#9b4944;font-weight:900}
+@media(max-width:850px){.v850-context-strip{grid-template-columns:repeat(2,1fr)}.v850-audit-grid{grid-template-columns:1fr}.v850-audit-head{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.v850-modal{padding:4px}.v850-modal-card{width:99vw;max-height:97vh}.v850-six{grid-template-columns:1fr 1fr}.v850-note-form{grid-template-columns:1fr}.v850-note-form label.wide{grid-column:auto}}
+</style>
+
+
+<script id="v850-context-lineup-notes-module">
+(()=>{
+'use strict';
+const V850_VERSION='8.5.0';
+const $85=id=>document.getElementById(id);
+const a85=v=>Array.isArray(v)?v:[];
+const pct85=(n,d)=>d?Math.round(Number(n||0)*100/Number(d||0)):0;
+const esc85=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ==========================================================
+   CONTEXTUAL SCORE
+   ========================================================== */
+function v850SetTarget(setNo){return Number(setNo)===5?15:25}
+function v850ScoreContext(setNo,us,op){
+  us=Number(us)||0;op=Number(op)||0;
+  const target=v850SetTarget(setNo),high=Math.max(us,op),diff=us-op,abs=Math.abs(diff);
+  const earlyEnd=target===15?5:10,finalStart=target===15?12:20;
+  const stage=high<=earlyEnd?'early':high>=finalStart?'final':'middle';
+  const stageLabel=stage==='early'?'Inicio':stage==='middle'?'Tramo medio':'Final';
+  const close=abs<=2,tied=abs===0;
+  const oursSP=us>=target-1&&(us-op)>=1,opSP=op>=target-1&&(op-us)>=1;
+  const setPoint=oursSP?'ours':opSP?'opponent':null;
+  const pressure=!!setPoint||(stage==='final'&&close);
+  return {target,stage,stageLabel,diff,abs,close,tied,setPoint,pressure,label:`${stageLabel}${close?' · cerrado':''}${setPoint?' · punto de set':''}`};
+}
+function v850AllRallies(m){
+  const out=[];a85(m?.sets).forEach(s=>a85(s.rallies).forEach((r,i)=>out.push({set:s.number,index:i+1,r,ctx:v850ScoreContext(s.number,r.scoreBefore?.us,r.scoreBefore?.opponent)})));
+  return out;
+}
+function v850Perspective(row,team){
+  const r=row.r,win=r.winner===team,phase=r.servingBefore===team?'K2':'K1',acts=a85(r.actions).filter(a=>a.team===team);
+  return {...row,win,phase,acts};
+}
+function v850ContextStats(rows,team){
+  const rr=rows.map(x=>v850Perspective(x,team)),k1=rr.filter(x=>x.phase==='K1'),k2=rr.filter(x=>x.phase==='K2'),
+    serve=rr.flatMap(x=>x.acts).filter(a=>a.skill==='S'),att=rr.flatMap(x=>x.acts).filter(a=>a.skill==='A');
+  const kills=att.filter(a=>a.evaluation==='#').length,err=att.filter(a=>a.evaluation==='=').length,blk=att.filter(a=>a.evaluation==='/').length;
+  return {
+    n:rr.length,won:rr.filter(x=>x.win).length,
+    winPct:pct85(rr.filter(x=>x.win).length,rr.length),
+    k1:k1.length,k1w:k1.filter(x=>x.win).length,k1Pct:pct85(k1.filter(x=>x.win).length,k1.length),
+    k2:k2.length,k2w:k2.filter(x=>x.win).length,k2Pct:pct85(k2.filter(x=>x.win).length,k2.length),
+    serve:serve.length,serveErr:serve.filter(a=>a.evaluation==='=').length,
+    serveErrPct:pct85(serve.filter(a=>a.evaluation==='=').length,serve.length),
+    att:att.length,attEff:att.length?Math.round((kills-err-blk)*100/att.length):null
+  };
+}
+function v850CurrentStageRate(m,s){
+  const ctx=v850ScoreContext(s?.number||m.currentSet,s?.scoreUs||0,s?.scoreOpponent||0);
+  const rows=v850AllRallies(m).filter(x=>Number(x.set)===Number(s?.number||m.currentSet)&&x.ctx.stage===ctx.stage);
+  return {ctx,st:v850ContextStats(rows,'ours')};
+}
+window.scoutV850RenderContextAnalysis=function(){
+  const m=scoutMatchForAnalysis?.(),box=$85('scout-v850-context-analysis');if(!box||!m)return;
+  const team=$85('scout-v850-context-team')?.value||'ours',setNo=Number($85('scout-v850-context-set')?.value)||0,sel=$85('scout-v850-context-set');
+  if(sel){
+    const old=sel.value;sel.innerHTML='<option value="">Todos</option>'+a85(m.sets).map(s=>`<option value="${s.number}">Set ${s.number}</option>`).join('');
+    if([...sel.options].some(o=>o.value===old))sel.value=old;
+  }
+  let all=v850AllRallies(m);if(setNo)all=all.filter(x=>Number(x.set)===setNo);
+  const groups=[
+    ['Inicio',x=>x.ctx.stage==='early'],
+    ['Tramo medio',x=>x.ctx.stage==='middle'],
+    ['Final',x=>x.ctx.stage==='final'],
+    ['Marcador cerrado ±2',x=>x.ctx.close],
+    ['Presión',x=>x.ctx.pressure],
+    ['Punto de set',x=>!!x.ctx.setPoint]
+  ].map(([label,fn])=>({label,st:v850ContextStats(all.filter(fn),team)}));
+  box.innerHTML=`<div class="scout-v830-kpis">
+    <div><span>Rallies analizados</span><b>${all.length}</b><small>${setNo?'Set '+setNo:'Todos los sets'}</small></div>
+    <div><span>Finales cerrados</span><b>${all.filter(x=>x.ctx.stage==='final'&&x.ctx.close).length}</b><small>final + diferencia ≤2</small></div>
+    <div><span>Puntos de set</span><b>${all.filter(x=>x.ctx.setPoint).length}</b><small>marcador antes del rally</small></div>
+    <div><span>Rallies de presión</span><b>${all.filter(x=>x.ctx.pressure).length}</b><small>cerrado final o set point</small></div>
+  </div>
+  <div class="scout-v830-table-wrap"><table class="v850-context-table"><thead><tr><th>Contexto</th><th>Rallies</th><th>Ganados</th><th>Win%</th><th>Side-out%</th><th>BP%</th><th>Error saque%</th><th>ATQ EFF</th></tr></thead><tbody>
+  ${groups.map(g=>`<tr><td><b>${esc85(g.label)}</b></td><td>${g.st.n}</td><td>${g.st.won}</td><td class="${g.st.n&&g.st.winPct>=55?'good':g.st.n&&g.st.winPct<40?'bad':''}">${g.st.n?g.st.winPct+'%':'—'}</td><td>${g.st.k1?g.st.k1Pct+'%':'—'}</td><td>${g.st.k2?g.st.k2Pct+'%':'—'}</td><td>${g.st.serve?g.st.serveErrPct+'%':'—'}</td><td>${g.st.att?g.st.attEff+'%':'—'}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="scout-v840-editor-help"><b>Criterio:</b> sets a 25 → inicio 0–10, medio 11–19 y final 20+. Set 5 → inicio 0–5, medio 6–11 y final 12+. “Presión” incluye finales con diferencia ≤2 y puntos de set.</div>`;
+};
+
+/* ==========================================================
+   ADVANCED LINEUP CONTROL
+   ========================================================== */
+function v850PlayerLabel(id){
+  const p=scoutPlayer?.(Number(id));return p?`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`:'—';
+}
+function v850Role(id){try{return vcPlayerRole?.(Number(id))||''}catch(_){return ''}}
+function v850LineupAudit(m){
+  const issues=[],warnings=[],ok=[];
+  if(!m)return {issues:['Sin partido activo'],warnings,ok,subs:[],base:[],live:[],bench:[]};
+  try{vcEnsureProMatch?.(m)}catch(_){}
+  const base=SCOUT_POS.map(pos=>({pos,id:Number(m.baseLineup?.ours?.[pos])||null,liveId:Number(m.lineup?.ours?.[pos])||null,role:String(m.lineupRoles?.ours?.[pos]||v850Role(m.baseLineup?.ours?.[pos]))}));
+  const ids=base.map(x=>x.id).filter(Boolean),liveIds=base.map(x=>x.liveId).filter(Boolean);
+  if(ids.length!==6)issues.push(`Hay ${ids.length}/6 jugadores rotacionales asignados.`);
+  else ok.push('Seis rotacionales completos');
+  if(new Set(ids).size!==ids.length)issues.push('Hay un jugador repetido en los seis rotacionales.');
+  if(liveIds.length!==6)issues.push(`La pista actual contiene ${liveIds.length}/6 jugadores.`);
+  if(new Set(liveIds).size!==liveIds.length)issues.push('Hay un jugador repetido en la pista actual.');
+  const libId=Number(m.libero?.playerId)||null;
+  if(libId&&ids.includes(libId))issues.push('El líbero aparece dentro de los seis rotacionales.');
+  if(libId){
+    const livePos=base.find(x=>x.liveId===libId)?.pos||'';
+    if(livePos&&['p2','p3','p4'].includes(livePos))issues.push(`El líbero está en primera línea (${livePos.toUpperCase()}).`);
+    else if(livePos)ok.push(`Líbero activo en ${livePos.toUpperCase()}`);
+    else warnings.push('Líbero configurado pero actualmente fuera de pista.');
+  }else warnings.push('No hay líbero configurado.');
+  const setter=base.find(x=>String(x.role||'').toLowerCase().includes('coloc'));
+  if(setter){
+    const expected=Number(setter.pos.slice(1));
+    if(Number(m.rotationNo)!==expected)warnings.push(`Rotación marcada R${m.rotationNo}, pero el colocador está en ${setter.pos.toUpperCase()} (esperable R${expected}).`);
+    else ok.push(`Rotación R${m.rotationNo} coherente con el colocador`);
+  }else warnings.push('No se identifica un colocador entre los seis rotacionales.');
+  const set=scoutSet?.(m),start=m.workflow?.setLineups?.[String(m.currentSet)];
+  if(!start)warnings.push(`No hay foto inicial guardada del Set ${m.currentSet}.`);
+  else ok.push(`Foto inicial del Set ${m.currentSet} guardada`);
+  const subs=a85(m.events).filter(e=>Number(e.setNumber)===Number(m.currentSet)&&e.team==='ours');
+  const realSubs=subs.filter(e=>e.type==='substitution'),libEvents=subs.filter(e=>e.type==='libero'||e.type==='libero_auto');
+  if(realSubs.length)ok.push(`${realSubs.length} cambio(s) registrado(s) en el set`);
+  const roster=typeof jugadoresEquipo!=='undefined'?a85(jugadoresEquipo):[];
+  const used=new Set(liveIds);
+  const bench=roster.filter(p=>!used.has(Number(p.id))).map(p=>({id:Number(p.id),label:v850PlayerLabel(p.id),role:v850Role(p.id)}));
+  return {issues,warnings,ok,subs,realSubs,libEvents,base,bench,start,set};
+}
+window.v850LineupAudit=v850LineupAudit;
+
+function v850RenderLineupMini(m){
+  const audit=v850LineupAudit(m),sum=$85('v850-lineup-summary'),box=$85('v850-lineup-mini');
+  if(sum)sum.textContent=audit.issues.length?`${audit.issues.length} error(es) · revisar`:audit.warnings.length?`${audit.warnings.length} aviso(s) · estructura válida`:'Alineación coherente';
+  if(box){
+    const chips=[
+      {t:audit.issues.length?`${audit.issues.length} errores`:'6/6 OK',c:audit.issues.length?'bad':''},
+      {t:`R${m.rotationNo}`,c:audit.warnings.some(x=>x.includes('Rotación marcada'))?'warn':''},
+      {t:m.libero?.playerId?(m.libero.activePosition?`LIB ${String(m.libero.activePosition).toUpperCase()}`:'LIB fuera'):'Sin LIB',c:!m.libero?.playerId?'warn':''},
+      {t:`${audit.realSubs.length} cambios`,c:''},
+      {t:audit.start?'Inicial ✓':'Inicial pendiente',c:audit.start?'':'warn'}
+    ];
+    box.innerHTML=chips.map(x=>`<span class="v850-lineup-chip ${x.c}">${esc85(x.t)}</span>`).join('');
+  }
+}
+window.v850OpenLineupControl=function(){
+  const m=scoutActive?.();if(!m){alert('No hay un scouting activo.');return}
+  const a=v850LineupAudit(m),body=$85('v850-lineup-modal-body');if(!body)return;
+  body.innerHTML=`
+    <div class="v850-audit-head">
+      <div><span>Rotación</span><b>R${m.rotationNo} · rival R${m.opponentRotationNo}</b></div>
+      <div><span>Set</span><b>${m.currentSet}</b></div>
+      <div><span>Cambios registrados</span><b>${a.realSubs.length}</b></div>
+      <div><span>Líbero</span><b>${m.libero?.playerId?esc85(v850PlayerLabel(m.libero.playerId)):'No configurado'}</b></div>
+    </div>
+    <div class="v850-audit-grid">
+      <section class="v850-audit-section"><h3>Seis rotacionales / pista actual</h3><div class="v850-six">
+        ${a.base.map(x=>{
+          const isLib=Number(x.liveId)&&Number(x.liveId)===Number(m.libero?.playerId)&&Number(x.liveId)!==Number(x.id);
+          return `<div class="${isLib?'libero':''}"><span>${x.pos.toUpperCase()} · ${VC_POS_META?.[x.pos]?.zone||''}</span><b>${esc85(v850PlayerLabel(x.liveId||x.id))}</b><small>${isLib?'LIB por '+esc85(v850PlayerLabel(x.id)):esc85(x.role||v850Role(x.id))}</small></div>`;
+        }).join('')}
+      </div></section>
+      <section class="v850-audit-section"><h3>Control</h3><div class="v850-audit-list">
+        ${a.issues.map(x=>`<div class="v850-audit-item bad">✕ ${esc85(x)}</div>`).join('')}
+        ${a.warnings.map(x=>`<div class="v850-audit-item warn">⚠ ${esc85(x)}</div>`).join('')}
+        ${a.ok.map(x=>`<div class="v850-audit-item">✓ ${esc85(x)}</div>`).join('')}
+      </div></section>
+      <section class="v850-audit-section"><h3>Banquillo actual</h3><div class="v850-bench">${a.bench.length?a.bench.map(x=>`<span>${esc85(x.label)}${x.role?' · '+esc85(x.role):''}</span>`).join(''):'<span>Sin jugadores fuera de pista</span>'}</div></section>
+      <section class="v850-audit-section"><h3>Cambios / líbero · Set ${m.currentSet}</h3><div class="v850-sub-history">
+        ${a.subs.length?a.subs.slice().reverse().map(e=>`<div><time>${e.scoreUs}-${e.scoreOpponent} · ${String(e.position||'').toUpperCase()}</time><span>${e.type==='libero_auto'?'Líbero automático':e.type==='libero'?'Líbero':'Cambio'} · ${esc85(e.outLabel||'—')} → ${esc85(e.inLabel||'—')}</span></div>`).join(''):'<div><span>Sin cambios registrados.</span></div>'}
+      </div></section>
+    </div>`;
+  $85('v850-lineup-modal')?.classList.remove('hidden');document.body.classList.add('v800-lock');
+};
+window.v850CloseLineupControl=function(){$85('v850-lineup-modal')?.classList.add('hidden');if(!document.fullscreenElement)document.body.classList.remove('v800-lock')};
+window.v850SaveInitialSnapshot=function(){
+  const m=scoutActive?.();if(!m)return;
+  if(typeof scoutV690SaveSetInitial==='function'){scoutV690SaveSetInitial();v850OpenLineupControl();window.v800Render?.()}
+};
+
+/* Warn before silently rewriting the six after rallies have started. */
+const v850SaveLineupBase=window.scoutSaveLineup;
+window.scoutSaveLineup=function(){
+  const m=scoutActive?.(),s=scoutSet?.(m);
+  if(m&&s&&a85(s.rallies).length){
+    const next=SCOUT_POS.map(p=>Number($85(`scout-own-${p}`)?.value)||null);
+    const cur=SCOUT_POS.map(p=>Number(m.baseLineup?.ours?.[p])||null);
+    const changed=next.some((x,i)=>Number(x)!==Number(cur[i]));
+    if(changed&&!confirm(`El Set ${s.number} ya tiene ${s.rallies.length} rallies.\n\nCambiar P1–P6 desde “Alineación” reescribe la rotación actual sin registrar una sustitución. Para un cambio real usa “Cambio / Líbero”.\n\n¿Continuar solo como corrección de datos?`))return false;
+  }
+  const out=v850SaveLineupBase?.();
+  setTimeout(()=>{const mm=scoutActive?.();if(mm){v850RenderLineupMini(mm);window.v800Render?.()}},20);
+  return out;
+};
+
+/* ==========================================================
+   VIDEO-LINKED NOTES
+   ========================================================== */
+function v850MediaStamp(){
+  const bridge=window.VC_MATCH_MODE_MEDIA,d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+  try{
+    if(bridge?.isReview?.()&&bridge?.loaded?.()){
+      const source=bridge.source?.()||'video';
+      return {videoTime:Number(bridge.current?.())||0,videoSource:source==='youtube'?`youtube:${bridge.youtubeId?.()||''}`:`local:${bridge.localName?.()||''}`,videoExact:true,kind:source};
+    }
+  }catch(_){}
+  if(d?.active){
+    return {videoTime:Math.max(0,Number(d.elapsedMs||0)/1000),videoSource:`recording:${d.source||'live'}`,videoExact:true,kind:'recording'};
+  }
+  return {videoTime:null,videoSource:'scout-clock',videoExact:false,kind:'scout'};
+}
+function v850FmtTime(sec){
+  if(sec==null||!Number.isFinite(Number(sec)))return 'sin tiempo exacto';
+  sec=Math.max(0,Math.floor(Number(sec)));const m=Math.floor(sec/60),s=sec%60,h=Math.floor(m/60);
+  return h?`${String(h).padStart(2,'0')}:${String(m%60).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+window.v850OpenVideoNote=function(){
+  const m=scoutActive?.(),s=scoutSet?.(m);if(!m||!s){alert('No hay un scouting activo.');return}
+  const stamp=v850MediaStamp(),ctx=v850ScoreContext(s.number,s.scoreUs,s.scoreOpponent);
+  $85('v850-note-subject').value='';$85('v850-note-text').value='';
+  $85('v850-note-time-copy').textContent=stamp.videoExact?`Se guardará en ${v850FmtTime(stamp.videoTime)} del vídeo actual.`:'No hay un vídeo/regrabación con tiempo exacto. Se guardará el reloj del scouting para sincronizarlo después.';
+  $85('v850-note-link-status').textContent=stamp.videoExact?`Vinculación exacta · ${v850FmtTime(stamp.videoTime)}`:'Vinculación por reloj de scouting';
+  $85('v850-note-context').innerHTML=`Set ${s.number} · <b>${s.scoreUs}-${s.scoreOpponent}</b> · R${m.rotationNo} vs R${m.opponentRotationNo} · ${m.servingTeam==='ours'?'K2 / saque':'K1 / recepción'} · ${esc85(ctx.label)}`;
+  $85('v850-note-modal').dataset.stamp=JSON.stringify(stamp);
+  $85('v850-note-modal')?.classList.remove('hidden');document.body.classList.add('v800-lock');setTimeout(()=>$85('v850-note-subject')?.focus(),20);
+};
+window.v850CloseVideoNote=function(){$85('v850-note-modal')?.classList.add('hidden');if(!document.fullscreenElement)document.body.classList.remove('v800-lock')};
+window.v850SaveVideoNote=function(){
+  const m=scoutV690EnsureMatch?.(),s=scoutSet?.(m);if(!m||!s)return;
+  const subject=String($85('v850-note-subject')?.value||'').trim(),note=String($85('v850-note-text')?.value||'').trim();
+  if(!subject&&!note){alert('Escribe un título o una nota.');return}
+  let stamp={};try{stamp=JSON.parse($85('v850-note-modal')?.dataset?.stamp||'{}')}catch(_){}
+  const ctx=v850ScoreContext(s.number,s.scoreUs,s.scoreOpponent),id=Date.now();
+  m.workflow.events.push({
+    id,uid:`evt_${id}`,type:'note',subject,note,noteCategory:String($85('v850-note-category')?.value||'Táctica'),
+    setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,
+    createdAt:scoutNow(),scoutMs:scoutElapsed(m),videoTime:stamp.videoTime==null?null:Number(stamp.videoTime),
+    videoSource:String(stamp.videoSource||''),videoExact:!!stamp.videoExact,contextLabel:ctx.label
+  });
+  scoutSave(false);v850CloseVideoNote();window.v800Render?.();try{scoutV690RenderWorkflow?.()}catch(_){}
+};
+function v850VideoNotes(m){
+  return a85(m?.workflow?.events).filter(e=>e.type==='note').slice(-5).reverse();
+}
+function v850RenderVideoNotes(m){
+  const box=$85('v850-video-notes');if(!box)return;
+  const notes=v850VideoNotes(m);
+  box.innerHTML=notes.length?notes.map(e=>`<div class="v850-video-note"><time>${e.videoTime!=null?'▶ '+v850FmtTime(e.videoTime):'⏱ '+scoutV6100FmtMs?.(e.scoutMs||0)}</time><div><b>${esc85(e.noteCategory||'Nota')}${e.subject?' · '+esc85(e.subject):''}</b><small>${esc85(e.note||e.contextLabel||'')}</small></div><button class="ghost" onclick="v850PlayNote('${String(e.uid||e.id).replace(/'/g,"\\'")}')">Ver</button></div>`).join(''):'';
+}
+window.v850PlayNote=function(uid){
+  const m=scoutActive?.(),e=a85(m?.workflow?.events).find(x=>String(x.uid||x.id)===String(uid));if(!m||!e)return;
+  const bridge=window.VC_MATCH_MODE_MEDIA;
+  if(e.videoTime!=null&&bridge?.isReview?.()&&bridge?.loaded?.()){
+    try{bridge.seek?.(Math.max(0,Number(e.videoTime)-2));bridge.play?.();return}catch(_){}
+  }
+  const btn=typeof botonVista==='function'?botonVista('scout-video-hub'):document.querySelector('.tab-btn[data-view="scout-video-hub"]');
+  showView?.('scout-video-hub',btn);
+  setTimeout(()=>{
+    try{
+      const sel=$85('v780-match');if(sel){sel.value=String(m.id);window.v780MatchChanged?.()}
+      setTimeout(()=>{const key=`e:${String(e.uid||e.id)}`;window.v780Select?.(key);window.v780PlayKey?.(key)},140);
+    }catch(_){}
+  },80);
+};
+
+/* Timestamp substitution/libero events when created from Match Mode. */
+function v850StampNewEvents(m,before){
+  const list=a85(m?.events);if(list.length<=before)return;
+  const stamp=v850MediaStamp();
+  list.slice(before).forEach(e=>{
+    if(e.videoTime==null&&stamp.videoExact){e.videoTime=stamp.videoTime;e.videoSource=stamp.videoSource;e.videoExact=true}
+  });
+  scoutSave(false);
+}
+const v850SubBase=window.scoutApplySubstitution;
+window.scoutApplySubstitution=function(...args){
+  const m=scoutActive?.(),before=a85(m?.events).length,out=v850SubBase?.apply(this,args);
+  const mm=scoutActive?.();if(mm){v850StampNewEvents(mm,before);setTimeout(()=>{v850RenderLineupMini(mm);window.v800Render?.()},20)}
+  return out;
+};
+
+/* ==========================================================
+   MATCH MODE EXTRA RENDER
+   ========================================================== */
+window.v850RenderMatchExtras=function(m,s){
+  if(!m||!s)return;
+  const {ctx,st}=v850CurrentStageRate(m,s),diff=Number(s.scoreUs||0)-Number(s.scoreOpponent||0);
+  if($85('v850-context-stage'))$85('v850-context-stage').textContent=ctx.stageLabel.toUpperCase();
+  if($85('v850-context-copy'))$85('v850-context-copy').textContent=`${s.scoreUs}-${s.scoreOpponent} · objetivo ${ctx.target}`;
+  if($85('v850-context-diff'))$85('v850-context-diff').textContent=diff>0?`+${diff}`:String(diff);
+  if($85('v850-context-close'))$85('v850-context-close').textContent=ctx.tied?'Empate':ctx.close?'Diferencia ≤2':diff>0?'Ventaja nuestra':'Ventaja rival';
+  if($85('v850-context-phase'))$85('v850-context-phase').textContent=m.servingTeam==='ours'?'K2':'K1';
+  if($85('v850-context-phase-copy'))$85('v850-context-phase-copy').textContent=m.servingTeam==='ours'?'Saque / Break Point':'Recepción / Side-out';
+  if($85('v850-context-rate'))$85('v850-context-rate').textContent=st.n?`${st.winPct}%`:'—';
+  if($85('v850-context-rate-copy'))$85('v850-context-rate-copy').textContent=st.n?`${st.won}/${st.n} rallies ganados en ${ctx.stageLabel.toLowerCase()}`:'Sin rallies en este tramo';
+  const p=$85('v850-pressure-box');if(p)p.className=ctx.setPoint?'setpoint':ctx.pressure?'pressure':'';
+  if($85('v850-context-pressure'))$85('v850-context-pressure').textContent=ctx.setPoint?(ctx.setPoint==='ours'?'SET POINT NUESTRO':'SET POINT RIVAL'):ctx.pressure?'ALTA':'NORMAL';
+  if($85('v850-context-pressure-copy'))$85('v850-context-pressure-copy').textContent=ctx.setPoint?'El siguiente punto puede cerrar el set':ctx.pressure?'Final con marcador cerrado':'Sin punto de set';
+  v850RenderLineupMini(m);v850RenderVideoNotes(m);
+};
+
+/* Stamp newly created libero-auto events and refresh after points. */
+const v850PointBase=window.scoutAwardPoint;
+window.scoutAwardPoint=function(...args){
+  const m=scoutActive?.(),before=a85(m?.events).length,out=v850PointBase?.apply(this,args);
+  const mm=scoutActive?.();if(mm){v850StampNewEvents(mm,before);setTimeout(()=>window.v800Render?.(),20)}
+  return out;
+};
+
+/* Analysis hook */
+const v850AnalysisBase=window.scoutRenderAnalysis;
+window.scoutRenderAnalysis=function(){
+  v850AnalysisBase?.();
+  scoutV850RenderContextAnalysis();
+};
+
+/* Enhance post-match note labels without changing its statistics. */
+const v850PostRender=window.v820Render;
+if(typeof v850PostRender==='function')window.v820Render=function(){
+  const out=v850PostRender();
+  const m=(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]).find(x=>Number(x.id)===Number($85('v820-match')?.value))||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.();
+  const box=$85('v820-events');
+  if(m&&box){
+    const ev=[...a85(m.workflow?.events),...a85(m.events)].sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
+    box.innerHTML=ev.length?ev.map(e=>`<article class="v820-event-row"><time>S${e.setNumber||'—'} · ${e.scoreUs??0}-${e.scoreOpponent??0}${e.videoTime!=null?' · '+v850FmtTime(e.videoTime):''}</time><div><strong>${e.type==='note'?'Nota '+esc85(e.noteCategory||'táctica'):(typeof EVENT_LABELS!=='undefined'?(EVENT_LABELS[e.type]||e.type):e.type)}</strong><small>${esc85(e.subject||e.outLabel&&e.inLabel?`${e.outLabel||''} → ${e.inLabel||''}`:e.note||'')}</small></div><span></span></article>`).join(''):'<div class="match-empty">No hay eventos registrados.</div>';
+  }
+  return out;
+};
+
+/* Modal backdrop close */
+['v850-lineup-modal','v850-note-modal'].forEach(id=>$85(id)?.addEventListener('click',e=>{if(e.target?.id===id){id==='v850-lineup-modal'?v850CloseLineupControl():v850CloseVideoNote()}}));
+
 })();
 </script>
 
