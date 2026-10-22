@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v7.7.0-recording-studio-v1';
+const CACHE_NAME = 'volley-coach-v7.7.1-manual-orientation-v1';
 
 const APP_SHELL = [
   './',
