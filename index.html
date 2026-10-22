@@ -1732,6 +1732,26 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <button id="v802-source-youtube" onclick="v802SetSource('youtube')">▶ YouTube</button>
             </div>
 
+            <div id="v803-mobile-tools" class="v803-mobile-tools">
+              <div class="v803-mobile-head">
+                <div><b>Cámara móvil</b><span>Conecta el móvil aquí y graba mientras haces el scouting.</span></div>
+                <span id="v803-mobile-status" class="v800-status">SIN CONECTAR</span>
+              </div>
+              <div class="v803-mobile-body">
+                <div id="v803-mobile-qr" class="v803-mobile-qr"><span>Pulsa “Generar QR”.</span></div>
+                <div class="v803-mobile-connect">
+                  <div class="v803-mobile-actions">
+                    <button class="primary" type="button" onclick="v803PrepareMobile(false)">Generar QR / conectar</button>
+                    <button class="ghost" type="button" onclick="v803PrepareMobile(true)">Nuevo QR</button>
+                    <button class="ghost" type="button" onclick="v803CopyMobileLink()">Copiar enlace</button>
+                    <button class="danger" type="button" onclick="v803DisconnectMobile()">Desconectar</button>
+                  </div>
+                  <input id="v803-mobile-link" type="text" readonly placeholder="Aquí aparecerá el enlace para el móvil">
+                  <small id="v803-mobile-note">Escanea el QR en el móvil, abre la cámara y pulsa “Iniciar transmisión”. La imagen aparecerá en la pantalla grande.</small>
+                </div>
+              </div>
+            </div>
+
             <div id="v802-local-tools" class="v802-source-tools hidden">
               <button class="primary" onclick="document.getElementById('v802-local-file').click()">Abrir vídeo guardado</button>
               <input id="v802-local-file" class="hidden" type="file" accept="video/*,.webm,.mp4,.mov,.m4v" onchange="v802LoadLocal(event)">
@@ -1902,7 +1922,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <div class="scout-panel-head"><div><span class="pro-kicker">CONSOLA DE SCOUT</span><h3>Registrar acción</h3></div><div class="scout-console-tools"><span class="scout-hint">Enter para guardar</span><button class="ghost" onclick="scoutV6100OpenCourt()">⌖ Pista</button><button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button></div></div>
           <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 7R#.6 · 6D+.5 · 4S+.1&gt;5"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
           <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. En recepción/defensa puedes añadir solo la zona: <b>7R#.6</b> / <b>6D+.5</b>. Para trayectoria completa usa <b>.origen&gt;destino</b>. Los sufijos <b>~ : ^ @</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
-          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6</code> recepción perfecta #7 en Z6 · <code>6D+.5</code> defensa positiva #6 en Z5 · <code>4S+.1&gt;5</code> saque positivo #4 de Z1 a Z5 · <code>12A#.4&gt;5</code> ataque punto de Z4 a Z5 · <code>R7R-.5</code> recepción negativa del rival #7 en Z5.</div></details>
+          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6</code> recepción perfecta #7 en Z6 · <code>6D+.5</code> defensa positiva #6 en Z5 · <code>4S+.1&gt;5</code> saque positivo #4 de Z1 a Z5 · <code>12A#.4&gt;5</code> ataque punto de Z4 a Z5 · <code>3E+:Z1</code> colocación a Z1 · <code>3E+:Z6</code> colocación a Z6 · <code>R7R-.5</code> recepción negativa del rival #7 en Z5.</div></details>
           <div class="scout-action-grid">
             <label><span>Equipo</span><select id="scout-action-team" onchange="scoutRefreshActionPlayers()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
             <label><span>Jugador</span><select id="scout-action-player"></select></label>
@@ -1916,7 +1936,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             <div class="scout-advanced-grid">
               <label id="scout-adv-serve-wrap"><span>Tipo de saque</span><select id="scout-action-serve-type"><option value="">— Sin especificar —</option><option value="F">Flotante</option><option value="JF">Flotante en salto</option><option value="JP">Salto potente</option><option value="U">Bajo / seguridad</option></select></label>
               <label id="scout-adv-phase-wrap"><span>Fase</span><select id="scout-action-phase"><option value="">Auto</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break point</option><option value="FB">Freeball</option><option value="TR">Transición</option></select></label>
-              <label id="scout-adv-combo-wrap"><span>Combinación / destino</span><select id="scout-action-combo"><option value="">— Sin especificar —</option><option value="Z4">Zona 4</option><option value="Z2">Zona 2</option><option value="1T">Primer tiempo</option><option value="31">31</option><option value="BACK">Primer tiempo detrás</option><option value="PIPE">Pipe</option><option value="2T">Segundo toque</option><option value="OTR">Otra</option></select></label>
+              <label id="scout-adv-combo-wrap"><span>Combinación / destino</span><select id="scout-action-combo"><option value="">— Sin especificar —</option><option value="Z4">Zona 4</option><option value="Z2">Zona 2</option><option value="Z1">Zona 1</option><option value="Z6">Zona 6</option><option value="1T">Primer tiempo</option><option value="31">31</option><option value="BACK">Primer tiempo detrás</option><option value="PIPE">Pipe</option><option value="2T">Segundo toque</option><option value="OTR">Otra</option></select></label>
               <label id="scout-adv-tempo-wrap"><span>Tempo de ataque</span><select id="scout-action-tempo"><option value="">—</option><option value="RAP">Rápido</option><option value="MED">Medio</option><option value="ALT">Alto</option></select></label>
               <label id="scout-adv-block-wrap"><span>Bloqueadores</span><select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select></label>
             </div>
@@ -4898,7 +4918,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.3', {
         updateViaCache: 'none'
       });
 
@@ -7430,7 +7450,7 @@ function scoutEmptySet(n){return {number:n,scoreUs:0,scoreOpponent:0,finished:fa
 function scoutNormalizeLineup(raw){const base=scoutEmptyLineup();SCOUT_POS.forEach(p=>{base.ours[p]=raw?.ours?.[p]!=null&&raw?.ours?.[p]!==''?Number(raw.ours[p]):null;base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
 function scoutNormalizeRoles(raw){const base={ours:{},opponent:{}};SCOUT_POS.forEach(p=>{base.ours[p]=String(raw?.ours?.[p]||'');base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
 function scoutNormalizeLibero(raw){return {enabled:!!raw?.enabled,auto:raw?.auto!==false,playerId:raw?.playerId!=null&&raw?.playerId!==''?Number(raw.playerId):null,centralIds:scoutArr(raw?.centralIds).map(Number).filter(Boolean),activeForId:raw?.activeForId!=null&&raw?.activeForId!==''?Number(raw.activeForId):null,activePosition:String(raw?.activePosition||'')}}
-function scoutNormalizeAction(a){return {id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0),videoTime:a?.videoTime==null?null:Number(a.videoTime),videoSource:String(a?.videoSource||'')}}
+function scoutNormalizeAction(a){return {id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0),videoTime:a?.videoTime==null?null:Number(a.videoTime),videoSource:String(a?.videoSource||'')}}
 function scoutNormalizeRally(r){return {id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)}}
 function scoutNormalizeSet(s,i=0){return {number:Number(s?.number)||i+1,scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,finished:!!s?.finished,winner:s?.winner==='opponent'?'opponent':s?.winner==='ours'?'ours':null,rallies:scoutArr(s?.rallies).map(scoutNormalizeRally),startedAt:String(s?.startedAt||scoutNow()),endedAt:s?.endedAt?String(s.endedAt):null}}
 function scoutNormalizeMatch(m){const sets=scoutArr(m?.sets).map(scoutNormalizeSet);return {dataVersion:String(m?.dataVersion||'6.8.0'),id:Number(m?.id)||Date.now(),linkedMatchId:m?.linkedMatchId?Number(m.linkedMatchId):null,date:String(m?.date||fechaLocalISO()),opponent:String(m?.opponent||'Rival'),competition:String(m?.competition||''),status:m?.status==='finished'?'finished':'live',currentSet:Math.max(1,Number(m?.currentSet)||1),servingTeam:m?.servingTeam==='opponent'?'opponent':'ours',rotationNo:Math.min(6,Math.max(1,Number(m?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(m?.opponentRotationNo)||1)),lineup:scoutNormalizeLineup(m?.lineup),baseLineup:scoutNormalizeLineup(m?.baseLineup||m?.lineup),lineupRoles:scoutNormalizeRoles(m?.lineupRoles),libero:scoutNormalizeLibero(m?.libero),sets:sets.length?sets:[scoutEmptySet(1)],events:scoutArr(m?.events).map(e=>({id:Number(e?.id)||Date.now(),type:['libero','libero_auto','substitution'].includes(e?.type)?e.type:'substitution',team:e?.team==='opponent'?'opponent':'ours',setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,position:String(e?.position||''),outPlayerId:e?.outPlayerId!=null?Number(e.outPlayerId):null,inPlayerId:e?.inPlayerId!=null?Number(e.inPlayerId):null,outLabel:String(e?.outLabel||''),inLabel:String(e?.inLabel||''),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0)})),clockStartedAt:String(m?.clockStartedAt||m?.createdAt||scoutNow()),liveRally:{id:Number(m?.liveRally?.id)||Date.now(),actions:scoutArr(m?.liveRally?.actions).map(scoutNormalizeAction),startedAt:String(m?.liveRally?.startedAt||scoutNow()),scoutStartMs:Math.max(0,Number(m?.liveRally?.scoutStartMs)||0),startSnapshot:m?.liveRally?.startSnapshot?scoutClone(m.liveRally.startSnapshot):null},createdAt:String(m?.createdAt||scoutNow()),updatedAt:String(m?.updatedAt||scoutNow()),endedAt:m?.endedAt?String(m.endedAt):null}}
@@ -7491,7 +7511,7 @@ window.scoutRefreshActionPlayers=function(){const team=$('scout-action-team')?.v
 window.scoutAddManualAction=function(){const team=$('scout-action-team')?.value||'ours',pv=$('scout-action-player')?.value||'',skill=$('scout-action-skill')?.value||'S',combo=$('scout-action-combo')?.value||'';scoutPushAction({team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',skill,evaluation:$('scout-action-eval')?.value||'!',startZone:$('scout-action-start')?.value||'',endZone:$('scout-action-end')?.value||'',serveType:$('scout-action-serve-type')?.value||'',phase:$('scout-action-phase')?.value||'',setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',attackTempo:skill==='A'?($('scout-action-tempo')?.value||''):'',blockers:skill==='A'?($('scout-action-blockers')?.value||''):''})};
 function scoutFindOwnByNumber(num){return (jugadoresEquipo||[]).find(p=>String(p.number??'').trim()===String(num).trim())||null}
 function scoutFindOpponentByNumber(m,num){for(const pos of SCOUT_POS){const label=String(m?.lineup?.opponent?.[pos]||'');if(label.match(/\d+/)?.[0]===String(num))return label}return '#'+num}
-window.scoutAddCode=function(){const input=$('scout-code-input'),raw=String(input?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!raw)return;const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt){alert('Código no reconocido. Abre “Chuleta” para ver la sintaxis. Ejemplos: 4S+.1>5 · 12A# · R7R-');return}let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest){alert('Hay una parte del código avanzado que no reconozco: '+rest+'\nAbre “Chuleta” para ver la sintaxis V6.2.');return}const m=scoutActive(),rival=!!mt[1],num=mt[2],skill=mt[3],ev=mt[4]||'!',startZ=mt[5]||'',endZ=mt[6]||'',meta={serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',attackTempo:''};if(rival){scoutPushAction({team:'opponent',playerLabel:scoutFindOpponentByNumber(m,num),skill,evaluation:ev,startZone:startZ,endZone:endZ,...meta})}else{const p=scoutFindOwnByNumber(num);if(!p){alert(`No encuentro un jugador de tu plantilla con dorsal ${num}.`);return}scoutPushAction({team:'ours',playerId:p.id,skill,evaluation:ev,startZone:startZ,endZone:endZ,...meta})}if(input){input.value='';input.focus()}};
+window.scoutAddCode=function(){const input=$('scout-code-input'),raw=String(input?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!raw)return;const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt){alert('Código no reconocido. Abre “Chuleta” para ver la sintaxis. Ejemplos: 4S+.1>5 · 12A# · R7R-');return}let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest){alert('Hay una parte del código avanzado que no reconozco: '+rest+'\nAbre “Chuleta” para ver la sintaxis V6.2.');return}const m=scoutActive(),rival=!!mt[1],num=mt[2],skill=mt[3],ev=mt[4]||'!',startZ=mt[5]||'',endZ=mt[6]||'',meta={serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',attackTempo:''};if(rival){scoutPushAction({team:'opponent',playerLabel:scoutFindOpponentByNumber(m,num),skill,evaluation:ev,startZone:startZ,endZone:endZ,...meta})}else{const p=scoutFindOwnByNumber(num);if(!p){alert(`No encuentro un jugador de tu plantilla con dorsal ${num}.`);return}scoutPushAction({team:'ours',playerId:p.id,skill,evaluation:ev,startZone:startZ,endZone:endZ,...meta})}if(input){input.value='';input.focus()}};
 window.scoutDeleteLastAction=function(){const m=scoutActive();if(!m||!m.liveRally.actions.length)return;m.liveRally.actions.pop();if(!m.liveRally.actions.length)m.liveRally.startSnapshot=null;scoutSave()};
 function scoutSetTarget(setNo){return Number(setNo)===5?15:25}
 function scoutSetHasWinner(s){const target=scoutSetTarget(s.number),a=s.scoreUs,b=s.scoreOpponent;return (a>=target||b>=target)&&Math.abs(a-b)>=2}
@@ -7810,7 +7830,7 @@ const vcRenderAnalysisBase=window.scoutRenderAnalysis;window.scoutRenderAnalysis
 
 const V620_SERVE_LABELS={F:'Flotante',JF:'Flotante salto',JP:'Salto potente',U:'Bajo / seguridad'};
 const V620_PHASE_LABELS={K1:'K1 · Side-out',K2:'K2 · Break',FB:'Freeball',TR:'Transición'};
-const V620_COMBO_LABELS={Z4:'Zona 4',Z2:'Zona 2','1T':'Primer tiempo','31':'31',BACK:'Primer tiempo detrás',PIPE:'Pipe','2T':'Segundo toque',OTR:'Otra'};
+const V620_COMBO_LABELS={Z4:'Zona 4',Z2:'Zona 2',Z1:'Zona 1',Z6:'Zona 6','1T':'Primer tiempo','31':'31',BACK:'Primer tiempo detrás',PIPE:'Pipe','2T':'Segundo toque',OTR:'Otra'};
 function scoutAdvancedMetaText(a){const x=[];if(a.serveType)x.push(V620_SERVE_LABELS[a.serveType]||a.serveType);if(a.phase)x.push(V620_PHASE_LABELS[a.phase]||a.phase);const combo=a.setTarget||a.attackCombo;if(combo)x.push(V620_COMBO_LABELS[combo]||combo);if(a.attackTempo)x.push('Tempo '+({RAP:'rápido',MED:'medio',ALT:'alto'}[a.attackTempo]||a.attackTempo));if(a.blockers!==''&&a.blockers!=null)x.push(`${a.blockers} bloqueador${String(a.blockers)==='1'?'':'es'}`);return x.join(' · ')}
 function scoutDefaultPhase(m,team){return m?.servingTeam===team?'K2':'K1'}
 window.scoutUpdateAdvancedFields=function(){const skill=$('scout-action-skill')?.value||'S',m=scoutActive(),team=$('scout-action-team')?.value||'ours';const show=(id,on)=>$(id)?.classList.toggle('hidden',!on);show('scout-adv-serve-wrap',skill==='S'||skill==='R');show('scout-adv-phase-wrap',skill!=='S');show('scout-adv-combo-wrap',skill==='E'||skill==='A');show('scout-adv-tempo-wrap',skill==='A');show('scout-adv-block-wrap',skill==='A');if($('scout-advanced-title'))$('scout-advanced-title').textContent=SCOUT_SKILLS[skill]||skill;if($('scout-advanced-context'))$('scout-advanced-context').textContent=skill==='S'?'Tipo y dirección del servicio':skill==='R'?'Tipo de saque recibido y calidad':skill==='E'?'Destino de la colocación y fase':skill==='A'?'Combinación, fase, tempo y bloqueo':'Fase táctica de la acción';const phase=$('scout-action-phase');if(phase&&!phase.value&&m&&skill!=='S')phase.dataset.auto=scoutDefaultPhase(m,team);scoutUpdateAdvancedCodePreview()};
@@ -7819,7 +7839,7 @@ function scoutSequenceRows(m,team='ours'){const rows=[];scoutArr(m?.sets).forEac
 function scoutSequenceSummary(m,team){const rows=scoutSequenceRows(m,team),k1=rows.filter(x=>x.phase==='K1'),k2=rows.filter(x=>x.phase==='K2'),byReception=['#','+','!','-','/','='].map(ev=>{const r=k1.filter(x=>x.receptionEval===ev);return {ev,total:r.length,won:r.filter(x=>x.win).length,pct:scoutPercent(r.filter(x=>x.win).length,r.length)}});return {rows,k1,k2,k1Won:k1.filter(x=>x.win).length,k2Won:k2.filter(x=>x.win).length,byReception}}
 function scoutDistributionRows(m,team,evalFilter=''){return scoutSequenceRows(m,team).filter(x=>x.target&&(!evalFilter||x.receptionEval===evalFilter))}
 function scoutTacticalRotationProfiles(m,team='ours'){const seq=scoutSequenceRows(m,team);return Array.from({length:6},(_,i)=>{const no=i+1,rows=seq.filter(x=>x.rotation===no),sample=rows.find(x=>x.rallyData?.lineupRolesBefore?.[team]);const roles=sample?.rallyData?.lineupRolesBefore?.[team]||{},setterPos=SCOUT_POS.find(p=>String(roles[p]||'').toLowerCase().includes('coloc'))||'',setterLine=['p2','p3','p4'].includes(setterPos)?'Delantero':setterPos?'Zaguero':'—',frontAttackers=['p2','p3','p4'].filter(p=>{const r=String(roles[p]||'').toLowerCase();return r&&!r.includes('coloc')&&!r.includes('líbero')&&!r.includes('libero')}).length,targets={};rows.forEach(x=>{if(x.target)targets[x.target]=(targets[x.target]||0)+1});const top=Object.entries(targets).sort((a,b)=>b[1]-a[1])[0];const k1=rows.filter(x=>x.phase==='K1'),k2=rows.filter(x=>x.phase==='K2');return {no,setterPos,setterLine,frontAttackers,topTarget:top?.[0]||'',topCount:top?.[1]||0,k1Total:k1.length,k1Won:k1.filter(x=>x.win).length,k2Total:k2.length,k2Won:k2.filter(x=>x.win).length}})}
-window.scoutRenderPerformanceAnalytics=function(){const m=scoutMatchForAnalysis(),seqBox=$('scout-analysis-sequences'),distBox=$('scout-analysis-distribution'),tacBox=$('scout-analysis-tactical-rotations');if(!m){[seqBox,distBox,tacBox].forEach(x=>{if(x)x.innerHTML='<div class="match-empty">Selecciona un scouting.</div>'});return}const team=$('scout-sequence-team-scope')?.value||'ours',sum=scoutSequenceSummary(m,team),teamLabel=team==='ours'?'Nuestro equipo':'Rival';if(seqBox){seqBox.innerHTML=`<div class="scout-sequence-kpis"><div><span>K1 · Side-out</span><b>${sum.k1.length?scoutPercent(sum.k1Won,sum.k1.length)+'%':'—'}</b><small>${sum.k1Won}/${sum.k1.length}</small></div><div><span>K2 · Break</span><b>${sum.k2.length?scoutPercent(sum.k2Won,sum.k2.length)+'%':'—'}</b><small>${sum.k2Won}/${sum.k2.length}</small></div><div><span>Secuencias</span><b>${sum.rows.length}</b><small>${teamLabel}</small></div></div><div class="scout-sequence-table"><div class="head"><b>Recepción</b><b>K1 ganados</b><b>Side-out</b><b>Muestra</b></div>${sum.byReception.map(x=>`<div><strong>${x.ev}</strong><span>${x.won}/${x.total}</span><span class="${(x.pct||0)>=60?'good':(x.pct||0)<40&&x.total?'bad':''}">${x.total?(x.pct+'%'):'—'}</span><small>${x.total} rallies</small></div>`).join('')}</div>`}const filter=$('scout-distribution-reception-filter')?.value||'',dist=scoutDistributionRows(m,team,filter),targets=['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'];if(distBox){const counts={};targets.forEach(t=>counts[t]=Array(6).fill(0));dist.forEach(x=>{if(!counts[x.target])counts[x.target]=Array(6).fill(0);counts[x.target][Math.max(0,Math.min(5,x.rotation-1))]++});const used=Object.entries(counts).filter(([,arr])=>arr.some(Boolean));const total=dist.length;distBox.innerHTML=used.length?`<div class="scout-dist-summary"><b>${esc(teamLabel)}</b><span>${filter?'Recepción '+esc(filter):'Todas las calidades'} · ${total} distribuciones codificadas</span></div><div class="scout-dist-table-wrap"><table class="scout-dist-table"><thead><tr><th>Destino</th>${[1,2,3,4,5,6].map(n=>`<th>R${n}</th>`).join('')}<th>Total</th><th>%</th></tr></thead><tbody>${used.map(([t,arr])=>{const n=arr.reduce((a,b)=>a+b,0);return `<tr><td><b>${esc(V620_COMBO_LABELS[t]||t)}</b></td>${arr.map(v=>`<td>${v||'—'}</td>`).join('')}<td><b>${n}</b></td><td>${total?Math.round(n/total*100):0}%</td></tr>`}).join('')}</tbody></table></div>`:'<div class="match-empty">Todavía no hay colocaciones/ataques con combinación codificada para este filtro.</div>'}if(tacBox){const profiles=scoutTacticalRotationProfiles(m,team);tacBox.innerHTML=`<div class="scout-tactical-grid">${profiles.map(r=>`<div class="scout-tactical-card"><div class="scout-tactical-head"><b>R${r.no}</b><span>${esc(r.setterLine)}</span></div><div class="scout-tactical-body"><p><span>Colocador</span><b>${r.setterPos?r.setterPos.toUpperCase():'—'}</b></p><p><span>Atacantes delanteros</span><b>${r.frontAttackers||'—'}</b></p><p><span>Destino más usado</span><b>${r.topTarget?esc(V620_COMBO_LABELS[r.topTarget]||r.topTarget):'—'}</b></p><p><span>K1</span><b>${r.k1Total?scoutPercent(r.k1Won,r.k1Total)+'%':'—'}</b></p><p><span>K2</span><b>${r.k2Total?scoutPercent(r.k2Won,r.k2Total)+'%':'—'}</b></p></div></div>`).join('')}</div>`}}
+window.scoutRenderPerformanceAnalytics=function(){const m=scoutMatchForAnalysis(),seqBox=$('scout-analysis-sequences'),distBox=$('scout-analysis-distribution'),tacBox=$('scout-analysis-tactical-rotations');if(!m){[seqBox,distBox,tacBox].forEach(x=>{if(x)x.innerHTML='<div class="match-empty">Selecciona un scouting.</div>'});return}const team=$('scout-sequence-team-scope')?.value||'ours',sum=scoutSequenceSummary(m,team),teamLabel=team==='ours'?'Nuestro equipo':'Rival';if(seqBox){seqBox.innerHTML=`<div class="scout-sequence-kpis"><div><span>K1 · Side-out</span><b>${sum.k1.length?scoutPercent(sum.k1Won,sum.k1.length)+'%':'—'}</b><small>${sum.k1Won}/${sum.k1.length}</small></div><div><span>K2 · Break</span><b>${sum.k2.length?scoutPercent(sum.k2Won,sum.k2.length)+'%':'—'}</b><small>${sum.k2Won}/${sum.k2.length}</small></div><div><span>Secuencias</span><b>${sum.rows.length}</b><small>${teamLabel}</small></div></div><div class="scout-sequence-table"><div class="head"><b>Recepción</b><b>K1 ganados</b><b>Side-out</b><b>Muestra</b></div>${sum.byReception.map(x=>`<div><strong>${x.ev}</strong><span>${x.won}/${x.total}</span><span class="${(x.pct||0)>=60?'good':(x.pct||0)<40&&x.total?'bad':''}">${x.total?(x.pct+'%'):'—'}</span><small>${x.total} rallies</small></div>`).join('')}</div>`}const filter=$('scout-distribution-reception-filter')?.value||'',dist=scoutDistributionRows(m,team,filter),targets=['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'];if(distBox){const counts={};targets.forEach(t=>counts[t]=Array(6).fill(0));dist.forEach(x=>{if(!counts[x.target])counts[x.target]=Array(6).fill(0);counts[x.target][Math.max(0,Math.min(5,x.rotation-1))]++});const used=Object.entries(counts).filter(([,arr])=>arr.some(Boolean));const total=dist.length;distBox.innerHTML=used.length?`<div class="scout-dist-summary"><b>${esc(teamLabel)}</b><span>${filter?'Recepción '+esc(filter):'Todas las calidades'} · ${total} distribuciones codificadas</span></div><div class="scout-dist-table-wrap"><table class="scout-dist-table"><thead><tr><th>Destino</th>${[1,2,3,4,5,6].map(n=>`<th>R${n}</th>`).join('')}<th>Total</th><th>%</th></tr></thead><tbody>${used.map(([t,arr])=>{const n=arr.reduce((a,b)=>a+b,0);return `<tr><td><b>${esc(V620_COMBO_LABELS[t]||t)}</b></td>${arr.map(v=>`<td>${v||'—'}</td>`).join('')}<td><b>${n}</b></td><td>${total?Math.round(n/total*100):0}%</td></tr>`}).join('')}</tbody></table></div>`:'<div class="match-empty">Todavía no hay colocaciones/ataques con combinación codificada para este filtro.</div>'}if(tacBox){const profiles=scoutTacticalRotationProfiles(m,team);tacBox.innerHTML=`<div class="scout-tactical-grid">${profiles.map(r=>`<div class="scout-tactical-card"><div class="scout-tactical-head"><b>R${r.no}</b><span>${esc(r.setterLine)}</span></div><div class="scout-tactical-body"><p><span>Colocador</span><b>${r.setterPos?r.setterPos.toUpperCase():'—'}</b></p><p><span>Atacantes delanteros</span><b>${r.frontAttackers||'—'}</b></p><p><span>Destino más usado</span><b>${r.topTarget?esc(V620_COMBO_LABELS[r.topTarget]||r.topTarget):'—'}</b></p><p><span>K1</span><b>${r.k1Total?scoutPercent(r.k1Won,r.k1Total)+'%':'—'}</b></p><p><span>K2</span><b>${r.k2Total?scoutPercent(r.k2Won,r.k2Total)+'%':'—'}</b></p></div></div>`).join('')}</div>`}}
 function scoutRenderLiveTactical(m){const box=$('scout-live-tactical');if(!box||!m)return;const team='ours',roles=m.lineupRoles?.ours||{},setterPos=SCOUT_POS.find(p=>String(roles[p]||'').toLowerCase().includes('coloc'))||'',setterLine=['p2','p3','p4'].includes(setterPos)?'delantero':setterPos?'zaguero':'sin identificar',phase=m.servingTeam==='ours'?'K2 · Break':'K1 · Side-out',front=['p2','p3','p4'].filter(p=>{const r=String(roles[p]||'').toLowerCase();return r&&!r.includes('coloc')&&!r.includes('lib')}).length;box.innerHTML=`<div><span>FASE</span><b>${phase}</b></div><div><span>COLOCADOR</span><b>${setterPos?setterPos.toUpperCase()+' · '+setterLine:'—'}</b></div><div><span>ATACANTES DEL.</span><b>${front||'—'}</b></div><div><span>ROTACIÓN RIVAL</span><b>R${m.opponentRotationNo||1}</b></div>`}
 function vcUpgradeCodeReference(){const modal=$('scout-code-reference-modal');if(!modal)return;const p=modal.querySelector('.pro-modal-head p');if(p)p.textContent='Sistema de codificación estructurado para registrar rápido y mantener criterios consistentes entre partidos.';const evalGuide=modal.querySelector('.scout-eval-guide');if(evalGuide)evalGuide.innerHTML=`<div><b>#</b><span><strong>Saque:</strong> ace · <strong>Recepción:</strong> perfecta · <strong>Ataque:</strong> punto · <strong>Bloqueo:</strong> punto.</span></div><div><b>+</b><span>Acción positiva: genera ventaja clara o mantiene todas las opciones.</span></div><div><b>!</b><span>Continuidad / acción neutra: no genera una ventaja clara.</span></div><div><b>-</b><span>Acción negativa: reduce opciones o facilita la organización rival.</span></div><div><b>/</b><span><strong>Ataque:</strong> bloqueado · en otros fundamentos, acción muy negativa o balón regalado.</span></div><div><b>=</b><span>Error directo que concede el punto o termina la acción.</span></div>`}
 function vcMigrateMatches(){let changed=false;scoutingMatches.forEach(m=>{vcEnsureProMatch(m);if(!m.libero.playerId){const libs=(jugadoresEquipo||[]).filter(p=>vcHasRole(p,'Líbero'));if(libs.length===1){m.libero.playerId=Number(libs[0].id);m.libero.enabled=true;changed=true}}vcApplyAutoLibero(m,false)});if(changed)scoutSave(false)}
@@ -8044,7 +8064,7 @@ window.scoutV680RestoreSnapshot=async function(which='current'){const snap=await
 window.scoutV680DownloadBackup=function(){const snap=v680Snapshot('download');if(!snap){alert('No hay un scouting activo que copiar.');return}const blob=new Blob([JSON.stringify(snap,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename((snap.match.date||'partido')+'_'+(snap.match.opponent||'rival'))}_backup_v680.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 window.scoutV680ImportBackup=function(event){const file=event?.target?.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!data?.match||!['volley-coach-scout-recovery','volley-coach-scout-backup'].includes(data.type)){throw new Error('Formato de copia no reconocido')}const restored=scoutNormalizeMatch(data.match);if(!confirm(`Importar scouting contra ${restored.opponent}?`))return;const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scouting',botonVista('scouting'));scoutRender()}catch(err){alert('No se pudo importar la copia: '+err.message)}finally{event.target.value=''}};reader.readAsText(file)};
 
-function v680ParseCode(raw,m,oldAction=null){raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt)return {error:'Código no reconocido.'};let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest)return {error:'Parte avanzada no reconocida: '+rest};const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,startZone:mt[5]||'',endZone:mt[6]||'',serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};if(rival){base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'')}else{let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num}const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a}}
+function v680ParseCode(raw,m,oldAction=null){raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt)return {error:'Código no reconocido.'};let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest)return {error:'Parte avanzada no reconocida: '+rest};const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,startZone:mt[5]||'',endZone:mt[6]||'',serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};if(rival){base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'')}else{let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num}const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a}}
 window.scoutV680OpenSetEditor=function(setNo){const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo));if(!m||!s)return;v680EditContext={mode:'set',setNo:Number(setNo)};document.getElementById('scout-v680-rally-modal')?.classList.add('open');document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · rallies`;document.getElementById('scout-v680-rally-subtitle').textContent='Selecciona un rally para corregir sus acciones. El marcador queda protegido.';const body=document.getElementById('scout-v680-rally-body'),footer=document.getElementById('scout-v680-rally-footer');if(body)body.innerHTML=`<div class="scout-v680-rally-browser">${scoutArr(s.rallies).slice().reverse().map((r,i)=>`<div class="scout-v680-rally-browser-row"><strong>${r.scoreAfter.us}–${r.scoreAfter.opponent}</strong><div><b>R${r.rotationBefore} · ${r.actions.length} acciones</b><small>${v680Esc(r.actions.map(a=>a.code).join('  ')||'Sin acciones')}${r.editedAt?' · editado '+v680When(r.editedAt):''}</small></div><button class="ghost" onclick="scoutV680OpenRallyEditor(${s.number},${r.id})">Editar acciones</button></div>`).join('')||'<div class="match-empty">No hay rallies cerrados en este set.</div>'}</div>`;if(footer)footer.innerHTML='<div></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cerrar</button></div>'};
 window.scoutV680OpenRallyEditor=function(setNo,rallyId){const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo)),r=s?.rallies?.find(x=>Number(x.id)===Number(rallyId));if(!m||!s||!r)return;v680EditContext={mode:'rally',setNo:Number(setNo),rallyId:Number(rallyId),actions:scoutClone(r.actions)};document.getElementById('scout-v680-rally-modal')?.classList.add('open');document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · ${r.scoreAfter.us}–${r.scoreAfter.opponent}`;document.getElementById('scout-v680-rally-subtitle').textContent=`R${r.rotationBefore} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · marcador y rotaciones bloqueados`;scoutV680RenderRallyEditor()};
 window.scoutV680RenderRallyEditor=function(){const c=v680EditContext,body=document.getElementById('scout-v680-rally-body'),footer=document.getElementById('scout-v680-rally-footer');if(!body||c?.mode!=='rally')return;body.innerHTML=`<div class="scout-v680-edit-list">${c.actions.map((a,i)=>`<div class="scout-v680-edit-action"><span>${i+1}</span><input id="scout-v680-edit-code-${i}" value="${v680Esc(a.code||scoutBuildCode(a))}" spellcheck="false"><button class="danger" onclick="scoutV680RemoveEditAction(${i})">Eliminar</button></div>`).join('')||'<div class="match-empty">Este rally no tiene acciones.</div>'}</div><div class="scout-v680-add-code"><input id="scout-v680-new-code" placeholder="Añadir código al rally · ej. 12A#.4>5" spellcheck="false"><button class="ghost" onclick="scoutV680AddEditAction()">Añadir</button></div><div class="scout-v680-warning">Edición protegida: solo cambian las acciones. Si el punto fue asignado al equipo incorrecto, utiliza “Deshacer último rally” cuando sea el rally más reciente.</div>`;if(footer)footer.innerHTML=`<div><button class="ghost" onclick="scoutV680OpenSetEditor(${c.setNo})">← Volver al set</button></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cancelar</button><button class="primary" onclick="scoutV680SaveRallyEdit()">Guardar corrección</button></div>`};
@@ -8077,7 +8097,7 @@ setTimeout(()=>{scoutV680UpdateStatus();scoutV680CheckRecoveryOpportunity();cons
 const V690_VERSION='6.9.0';
 const V690_SETTINGS_KEY='volley_scout_workflow_v690';
 const V690_SKILL_CODES=new Set(['S','R','E','A','B','D','F','C']);
-const V690_COMBOS=new Set(['Z4','Z2','1T','31','BACK','PIPE','2T','OTR']);
+const V690_COMBOS=new Set(['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR']);
 const v690NormActionBase=scoutNormalizeAction;
 scoutNormalizeAction=function(a){const x=v690NormActionBase(a);x.uid=String(a?.uid||`act_${x.id}`);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};
 function v690NormalizeWorkflow(raw){raw=raw&&typeof raw==='object'?raw:{};const setLineups={};Object.entries(raw.setLineups||{}).forEach(([k,v])=>{if(v&&typeof v==='object')setLineups[String(k)]={baseLineup:scoutNormalizeLineup(v.baseLineup),lineup:scoutNormalizeLineup(v.lineup||v.baseLineup),lineupRoles:scoutNormalizeRoles(v.lineupRoles),libero:scoutNormalizeLibero(v.libero),rotationNo:Math.min(6,Math.max(1,Number(v.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(v.opponentRotationNo)||1)),savedAt:String(v.savedAt||scoutNow())}});return {setLineups,events:scoutArr(raw.events).map(e=>({id:Number(e?.id)||Date.now(),uid:String(e?.uid||`evt_${e?.id||Date.now()}`),type:String(e?.type||'note'),subject:String(e?.subject||''),note:String(e?.note||''),setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,rotationNo:Math.min(6,Math.max(1,Number(e?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(e?.opponentRotationNo)||1)),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0),videoTime:e?.videoTime==null?null:Number(e.videoTime)}))}};
@@ -8957,7 +8977,7 @@ function scoutV6108ParseRaw(raw,m,oldAction=null){
   if(!mt)return {error:'Código no reconocido.'};
   let rest=mt[7]||'';
   const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');
-  const combo=rest.match(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|1T|31|BACK|PIPE|2T|OTR)/,'');
+  const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');
   const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');
   const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');
   if(rest)return {error:'Parte avanzada no reconocida: '+rest};
@@ -16188,13 +16208,38 @@ window.v790Diagnostics=()=>({
   .v802-source-tools{grid-template-columns:1fr}
   .v802-playback label{margin-left:0}
 }
+
+/* ===== V8.0.3 · MOBILE CAMERA + SETTER Z1/Z6 ===== */
+.v803-mobile-tools{display:grid;gap:6px;margin-bottom:6px;padding:7px;border:1px solid #dce5ea;border-radius:8px;background:#f7fafb}
+.v803-mobile-tools.hidden{display:none!important}
+.v803-mobile-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.v803-mobile-head b{display:block;font-size:8px;color:#29475f}
+.v803-mobile-head span:not(.v800-status){display:block;font-size:6.8px;color:#7b8994;margin-top:1px}
+.v803-mobile-body{display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px;align-items:center}
+.v803-mobile-qr{width:116px;height:116px;display:grid;place-items:center;border:1px dashed #c9d5dc;border-radius:7px;background:#fff;padding:4px;overflow:hidden}
+.v803-mobile-qr canvas,.v803-mobile-qr img{max-width:106px!important;max-height:106px!important}
+.v803-mobile-qr span{text-align:center;font-size:6.5px;color:#85949e;line-height:1.35}
+.v803-mobile-connect{min-width:0}
+.v803-mobile-connect input{width:100%;box-sizing:border-box;font-size:7px!important;padding:6px!important;margin-top:5px}
+.v803-mobile-connect>small{display:block;font-size:6.6px;color:#758590;line-height:1.4;margin-top:4px}
+.v803-mobile-actions{display:flex;gap:4px;flex-wrap:wrap}
+.v803-mobile-actions button{font-size:6.7px!important;padding:5px 6px!important}
+#v803-mobile-status.on{background:#e5f4eb;color:#28613f}
+#v803-mobile-status.wait{background:#fff2df;color:#8a5b16}
+#v803-mobile-status.bad{background:#faeceb;color:#90413e}
+.v800-video-frame{min-height:370px!important}
+@media(max-width:650px){
+  .v803-mobile-body{grid-template-columns:1fr}
+  .v803-mobile-qr{margin:auto}
+  .v800-video-frame{min-height:0!important}
+}
 </style>
 
 
 <script id="v800-match-mode-module">
 (()=>{
 'use strict';
-const VERSION='8.0.2';
+const VERSION='8.0.3';
 const $=id=>document.getElementById(id);
 const arr=v=>Array.isArray(v)?v:[];
 const POS=['p1','p2','p3','p4','p5','p6'];
@@ -16351,7 +16396,7 @@ function mediaIsReview(){return media.source==='local'||media.source==='youtube'
 function mediaLoaded(){
   if(media.source==='local')return !!media.localUrl&&!!mediaLocalVideo()?.src;
   if(media.source==='youtube')return !!media.youtubeReady&&!!media.youtubePlayer&&!!media.youtubeId;
-  return !!$('live-delay-live')?.srcObject?.getVideoTracks?.().some(t=>t.readyState==='live');
+  return mobileConnected()||!!$('live-delay-live')?.srcObject?.getVideoTracks?.().some(t=>t.readyState==='live');
 }
 function mediaCurrent(){
   if(media.source==='local')return Number(mediaLocalVideo()?.currentTime)||0;
@@ -16440,6 +16485,7 @@ function saveMediaPreference(){
 }
 function setSourceUi(){
   ['live','local','youtube'].forEach(s=>$(`v802-source-${s}`)?.classList.toggle('active',media.source===s));
+  $('v803-mobile-tools')?.classList.toggle('hidden',media.source!=='live');
   $('v802-local-tools')?.classList.toggle('hidden',media.source!=='local');
   $('v802-youtube-tools')?.classList.toggle('hidden',media.source!=='youtube');
   $('v802-playback')?.classList.toggle('hidden',!mediaIsReview());
@@ -16462,9 +16508,9 @@ function refreshMediaStatus(){
   const empty=$('v800-video-empty'),status=$('v800-video-status'),overlay=$('v802-video-overlay'),sync=$('v802-sync-badge');
   const loaded=mediaLoaded();
   if(media.source==='live'){
-    const live=loaded;
-    if(empty){empty.textContent='Inicia Live Delay para ver la cámara aquí.';empty.classList.toggle('hidden',live)}
-    if(status){status.textContent=live?'LIVE':'OFF';status.className=`v800-status ${live?'on':''}`}
+    const remote=mobileConnected(),live=loaded||remote;
+    if(empty){empty.textContent='Conecta el móvil aquí o inicia Live Delay para ver la cámara.';empty.classList.toggle('hidden',live)}
+    if(status){status.textContent=remote?'MÓVIL':live?'LIVE':'OFF';status.className=`v800-status ${live?'on':''}`}
   }else if(media.source==='local'){
     if(empty){empty.textContent=media.localFile?'Preparando vídeo…':'Selecciona un archivo de vídeo guardado.';empty.classList.toggle('hidden',loaded)}
     if(status){status.textContent=loaded?'ARCHIVO':'SIN VÍDEO';status.className=`v800-status ${loaded?'on':''}`}
@@ -16597,12 +16643,81 @@ function restoreMatchMedia(){
   }
 }
 
+
+function mobileDiagnostics(){
+  try{return window.vcRemoteCameraDiagnostics?.()||window.VC_REMOTE_CAMERA?.diagnostics?.()||{}}catch(_){return {}}
+}
+function mobileConnected(){
+  try{return !!window.VC_REMOTE_CAMERA?.isConnected?.()}catch(_){return false}
+}
+function mobileStream(){
+  try{return window.VC_REMOTE_CAMERA?.getStream?.()||null}catch(_){return null}
+}
+function remotePublisherLink(){
+  const fromDom=String($('vc-remote-link')?.value||'').trim();
+  if(fromDom)return fromDom;
+  return '';
+}
+function renderMobileQR(){
+  const box=$('v803-mobile-qr'),input=$('v803-mobile-link'),link=remotePublisherLink();
+  if(input)input.value=link;
+  if(!box)return;
+  box.innerHTML='';
+  if(!link){box.innerHTML='<span>No se ha generado todavía una sesión.</span>';return}
+  if(window.QRCode){
+    try{new QRCode(box,{text:link,width:106,height:106,correctLevel:QRCode.CorrectLevel.M});return}catch(_){}
+  }
+  box.innerHTML='<span>QR no disponible. Usa “Copiar enlace”.</span>';
+}
+function refreshMobileStatus(){
+  const status=$('v803-mobile-status'),note=$('v803-mobile-note');
+  if(!status)return;
+  const d=mobileDiagnostics(),connected=mobileConnected();
+  if(connected){
+    status.textContent='MÓVIL CONECTADO';status.className='v800-status on';
+    if(note)note.textContent='Señal recibida. Puedes pulsar ● REC y seguir haciendo scouting a la vez.';
+  }else if(d.streamId){
+    status.textContent='ESPERANDO MÓVIL';status.className='v800-status wait';
+    if(note)note.textContent='QR preparado. Abre el enlace en el móvil y pulsa “Iniciar transmisión”.';
+  }else{
+    status.textContent='SIN CONECTAR';status.className='v800-status';
+    if(note)note.textContent='Escanea el QR en el móvil, abre la cámara y pulsa “Iniciar transmisión”. La imagen aparecerá en la pantalla grande.';
+  }
+}
+window.v803PrepareMobile=async function(reset=false){
+  if(typeof window.vcRemotePrepare!=='function'){alert('La cámara remota no está disponible.');return}
+  const status=$('v803-mobile-status');
+  if(status){status.textContent='PREPARANDO…';status.className='v800-status wait'}
+  try{
+    window.vcRemoteSourceChanged?.('remote');
+    await window.vcRemotePrepare(reset);
+    renderMobileQR();refreshMobileStatus();syncVideo();renderREC();
+  }catch(err){
+    if(status){status.textContent='ERROR';status.className='v800-status bad'}
+    alert('No se ha podido preparar la cámara móvil.\n\n'+String(err?.message||err));
+  }
+};
+window.v803CopyMobileLink=async function(){
+  const link=String($('v803-mobile-link')?.value||remotePublisherLink()).trim();
+  if(!link){alert('Primero genera el QR de la cámara móvil.');return}
+  try{await navigator.clipboard.writeText(link);const s=$('v803-mobile-status');if(s){s.textContent='ENLACE COPIADO';s.className='v800-status on'}}
+  catch(_){prompt('Copia este enlace y ábrelo en el móvil:',link)}
+};
+window.v803DisconnectMobile=async function(){
+  try{await window.vcRemoteDisconnect?.()}catch(_){}
+  refreshMobileStatus();syncVideo();renderREC();
+};
+
 function syncVideo(){
-  const source=$('live-delay-live'),target=$('v800-live-video'),stream=source?.srcObject;
+  const source=$('live-delay-live'),target=$('v800-live-video');
+  const remote=mobileConnected()?mobileStream():null;
+  const delayedLive=source?.srcObject;
+  const stream=remote?.getVideoTracks?.().some(t=>t.readyState==='live')?remote:delayedLive;
   const live=stream?.getVideoTracks?.().some(t=>t.readyState==='live');
-  if(live&&target?.srcObject!==stream){target.srcObject=stream;target.play().catch(()=>{})}
+  if(live&&target?.srcObject!==stream){target.srcObject=stream;target.muted=true;target.play().catch(()=>{})}
   if(!live&&target?.srcObject)target.srcObject=null;
   if(media.source==='live')refreshMediaStatus();
+  refreshMobileStatus();
 }
 function renderREC(){
   const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
@@ -16662,13 +16777,15 @@ window.v800Open=function(){
   restoreMatchMedia();
   render();
   setSourceUi();
+  renderMobileQR();refreshMobileStatus();
   clearInterval(ticker);
   ticker=setInterval(()=>{
     const view=$('scout-match-mode');
     if(view?.classList.contains('active')){
       const m=match();
       if(m)$('v800-clock').textContent=elapsed(m);
-      syncVideo();renderREC();refreshMediaStatus();
+      syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
+      if(!$('v803-mobile-link')?.value&&remotePublisherLink())renderMobileQR();
     }
   },500)
 };
@@ -16714,7 +16831,8 @@ window.v800ToggleREC=async function(){
   try{
     if(d?.active){if(confirm('¿Finalizar y guardar la grabación actual?'))await window.vcRecordingStop?.()}
     else{
-      if(!d?.sourceAvailable){alert('Primero inicia Live Delay o conecta una cámara activa.');return}
+      if(mobileConnected())window.vcRemoteSourceChanged?.('remote');
+      if(!d?.sourceAvailable&&!mobileConnected()){alert('Primero conecta el móvil, inicia Live Delay o conecta una cámara activa.');return}
       await window.vcRecordingStart();
     }
   }catch(err){alert('No se ha podido cambiar el estado de grabación.\n\n'+String(err?.message||err))}
@@ -16738,7 +16856,7 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
   wrapped.__v800=true;window[name]=wrapped;
 });
 
-window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,mediaSource:media.source,mediaLoaded:mediaLoaded(),mediaTime:mediaCurrent(),youtubeId:media.youtubeId||null,localFile:media.localFile?.name||null,liveVideo:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
+window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,mediaSource:media.source,mediaLoaded:mediaLoaded(),mediaTime:mediaCurrent(),youtubeId:media.youtubeId||null,localFile:media.localFile?.name||null,mobileConnected:mobileConnected(),mobile:mobileDiagnostics(),liveVideo:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
 })();
 </script>
 
