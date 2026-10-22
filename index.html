@@ -1722,19 +1722,52 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <aside class="v800-side">
           <section class="v800-video-card">
             <div class="v800-card-head">
-              <div><span class="pro-kicker">VÍDEO</span><h3>Directo + Replay</h3></div>
-              <span id="v800-video-status" class="v800-status">OFF</span>
+              <div><span class="pro-kicker">VÍDEO DE SCOUTING</span><h3 id="v802-video-title">Directo</h3></div>
+              <div class="v802-video-badges"><span id="v802-sync-badge" class="v800-status">SIN VINCULAR</span><span id="v800-video-status" class="v800-status">OFF</span></div>
             </div>
-            <div class="v800-video-frame">
+
+            <div class="v802-source-tabs">
+              <button id="v802-source-live" class="active" onclick="v802SetSource('live')">● Directo</button>
+              <button id="v802-source-local" onclick="v802SetSource('local')">▣ Archivo</button>
+              <button id="v802-source-youtube" onclick="v802SetSource('youtube')">▶ YouTube</button>
+            </div>
+
+            <div id="v802-local-tools" class="v802-source-tools hidden">
+              <button class="primary" onclick="document.getElementById('v802-local-file').click()">Abrir vídeo guardado</button>
+              <input id="v802-local-file" class="hidden" type="file" accept="video/*,.webm,.mp4,.mov,.m4v" onchange="v802LoadLocal(event)">
+              <span id="v802-local-name">Ningún archivo seleccionado</span>
+            </div>
+
+            <div id="v802-youtube-tools" class="v802-source-tools hidden">
+              <input id="v802-youtube-url" type="url" inputmode="url" placeholder="Pega aquí el enlace de YouTube">
+              <button class="primary" onclick="v802LoadYouTube()">Abrir</button>
+            </div>
+
+            <div id="v800-video-frame" class="v800-video-frame">
               <video id="v800-live-video" muted autoplay playsinline></video>
+              <video id="v802-local-video" class="hidden" controls playsinline preload="metadata"></video>
+              <div id="v802-youtube-wrap" class="v802-youtube-wrap hidden"><div id="v802-youtube-player"></div></div>
               <div id="v800-video-empty" class="v800-video-empty">Inicia Live Delay para ver la cámara aquí.</div>
+              <div id="v802-video-overlay" class="v802-video-overlay hidden"></div>
             </div>
+
+            <div id="v802-playback" class="v802-playback hidden">
+              <button class="ghost" onclick="v802Jump(-10)">−10 s</button>
+              <button class="ghost" onclick="v802Jump(-5)">−5 s</button>
+              <button class="primary" onclick="v802TogglePlay()">▶ / ❚❚</button>
+              <button class="ghost" onclick="v802Jump(5)">+5 s</button>
+              <button class="ghost" onclick="v802Jump(10)">+10 s</button>
+              <label><span>Velocidad</span><select id="v802-speed" onchange="v802SetSpeed(this.value)"><option value=".5">0,5×</option><option value=".75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+              <button id="v802-sync-btn" class="ghost" onclick="v802SyncNow()">⛓ Vincular tiempo</button>
+            </div>
+
             <div class="v800-video-actions">
-              <button class="primary" onclick="scoutV740ReplayLastRally()">▶ Último rally</button>
-              <button class="ghost" onclick="scoutV740ReplayLastAction()">Última acción</button>
-              <button class="ghost" onclick="openLiveDelay('match')">Live Delay</button>
+              <button class="primary" onclick="v802PrimaryReplay()">▶ Último rally</button>
+              <button class="ghost" onclick="v802SecondaryReplay()">Última acción</button>
+              <button id="v802-live-delay-btn" class="ghost" onclick="openLiveDelay('match')">Live Delay</button>
               <button id="v800-rec-btn" class="ghost" onclick="v800ToggleREC()">● REC</button>
             </div>
+            <div id="v802-video-help" class="v802-video-help">En Directo, el vídeo viene de Live Delay. Para scoutar un partido grabado, elige Archivo o YouTube.</div>
             <div id="v800-rec-copy" class="v800-rec-copy">Grabación detenida.</div>
           </section>
 
@@ -4865,7 +4898,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.2', {
         updateViaCache: 'none'
       });
 
@@ -7397,7 +7430,7 @@ function scoutEmptySet(n){return {number:n,scoreUs:0,scoreOpponent:0,finished:fa
 function scoutNormalizeLineup(raw){const base=scoutEmptyLineup();SCOUT_POS.forEach(p=>{base.ours[p]=raw?.ours?.[p]!=null&&raw?.ours?.[p]!==''?Number(raw.ours[p]):null;base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
 function scoutNormalizeRoles(raw){const base={ours:{},opponent:{}};SCOUT_POS.forEach(p=>{base.ours[p]=String(raw?.ours?.[p]||'');base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
 function scoutNormalizeLibero(raw){return {enabled:!!raw?.enabled,auto:raw?.auto!==false,playerId:raw?.playerId!=null&&raw?.playerId!==''?Number(raw.playerId):null,centralIds:scoutArr(raw?.centralIds).map(Number).filter(Boolean),activeForId:raw?.activeForId!=null&&raw?.activeForId!==''?Number(raw.activeForId):null,activePosition:String(raw?.activePosition||'')}}
-function scoutNormalizeAction(a){return {id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0)}}
+function scoutNormalizeAction(a){return {id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0),videoTime:a?.videoTime==null?null:Number(a.videoTime),videoSource:String(a?.videoSource||'')}}
 function scoutNormalizeRally(r){return {id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)}}
 function scoutNormalizeSet(s,i=0){return {number:Number(s?.number)||i+1,scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,finished:!!s?.finished,winner:s?.winner==='opponent'?'opponent':s?.winner==='ours'?'ours':null,rallies:scoutArr(s?.rallies).map(scoutNormalizeRally),startedAt:String(s?.startedAt||scoutNow()),endedAt:s?.endedAt?String(s.endedAt):null}}
 function scoutNormalizeMatch(m){const sets=scoutArr(m?.sets).map(scoutNormalizeSet);return {dataVersion:String(m?.dataVersion||'6.8.0'),id:Number(m?.id)||Date.now(),linkedMatchId:m?.linkedMatchId?Number(m.linkedMatchId):null,date:String(m?.date||fechaLocalISO()),opponent:String(m?.opponent||'Rival'),competition:String(m?.competition||''),status:m?.status==='finished'?'finished':'live',currentSet:Math.max(1,Number(m?.currentSet)||1),servingTeam:m?.servingTeam==='opponent'?'opponent':'ours',rotationNo:Math.min(6,Math.max(1,Number(m?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(m?.opponentRotationNo)||1)),lineup:scoutNormalizeLineup(m?.lineup),baseLineup:scoutNormalizeLineup(m?.baseLineup||m?.lineup),lineupRoles:scoutNormalizeRoles(m?.lineupRoles),libero:scoutNormalizeLibero(m?.libero),sets:sets.length?sets:[scoutEmptySet(1)],events:scoutArr(m?.events).map(e=>({id:Number(e?.id)||Date.now(),type:['libero','libero_auto','substitution'].includes(e?.type)?e.type:'substitution',team:e?.team==='opponent'?'opponent':'ours',setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,position:String(e?.position||''),outPlayerId:e?.outPlayerId!=null?Number(e.outPlayerId):null,inPlayerId:e?.inPlayerId!=null?Number(e.inPlayerId):null,outLabel:String(e?.outLabel||''),inLabel:String(e?.inLabel||''),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0)})),clockStartedAt:String(m?.clockStartedAt||m?.createdAt||scoutNow()),liveRally:{id:Number(m?.liveRally?.id)||Date.now(),actions:scoutArr(m?.liveRally?.actions).map(scoutNormalizeAction),startedAt:String(m?.liveRally?.startedAt||scoutNow()),scoutStartMs:Math.max(0,Number(m?.liveRally?.scoutStartMs)||0),startSnapshot:m?.liveRally?.startSnapshot?scoutClone(m.liveRally.startSnapshot):null},createdAt:String(m?.createdAt||scoutNow()),updatedAt:String(m?.updatedAt||scoutNow()),endedAt:m?.endedAt?String(m.endedAt):null}}
@@ -15248,7 +15281,7 @@ function applyMap(m){
   arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>{
     r.videoStart=mapped(m,rallyStartMs(r));r.videoEnd=mapped(m,rallyEndMs(r));
     arr(r.actions).forEach(a=>{
-      a.videoAction=mapped(m,a.scoutMs);
+      a.videoAction=a.videoTime!=null?Number(a.videoTime):mapped(m,a.scoutMs);
       a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);
       a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll;
     });
@@ -15318,6 +15351,8 @@ function rowRange(row,m=currentMatch()){
   if(!row||!m)return null;const x=meta(m),pre=Math.max(0,Number(x?.preRoll??2)),post=Math.max(0,Number(x?.postRoll??2));
   if(x?.syncOffset==null)return null;
   if(row.type==='rally'){
+    const direct=arr(row.r?.actions).map(a=>a.videoTime).filter(v=>v!=null&&Number.isFinite(Number(v))).map(Number);
+    if(direct.length)return {start:Math.max(0,Math.min(...direct)-pre),end:Math.max(...direct)+post};
     return {start:Math.max(0,mapped(m,row.ms)-pre),end:mapped(m,row.endMs)+post};
   }
   const center=row.a?.videoAction!=null?Number(row.a.videoAction):mapped(m,row.ms);
@@ -16082,18 +16117,103 @@ window.v790Diagnostics=()=>({
 .v800-match-picker>span{font-size:5.8px!important;text-transform:uppercase!important;letter-spacing:.07em!important;color:#9fb3c0!important;font-weight:900!important}
 .v800-match-picker select{height:28px!important;padding:4px 6px!important;border-radius:6px!important;background:#fff!important;color:#29475f!important;border:1px solid rgba(255,255,255,.3)!important;font-size:7.5px!important;font-weight:800!important}
 @media(max-width:700px){.v800-match-picker{width:100%;min-width:0}.v800-match-picker select{width:100%}}
+
+/* ===== V8.0.2 · VIDEO WORKSPACE ===== */
+.v800-live-grid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.7fr) minmax(340px,.62fr)!important;
+  grid-template-areas:
+    "video control"
+    "court kpi"
+    "court decision"
+    "events last"!important;
+  gap:8px!important;
+  align-items:start!important
+}
+.v800-main,.v800-side{display:contents!important}
+.v800-video-card{grid-area:video!important;padding:10px!important}
+.v800-control-card{grid-area:control!important}
+.v800-court-card{grid-area:court!important}
+.v800-events-card{grid-area:events!important}
+.v800-kpi-card{grid-area:kpi!important}
+.v800-decision-card{grid-area:decision!important}
+.v800-last-card{grid-area:last!important}
+.v800-video-frame{aspect-ratio:16/9!important;min-height:340px!important;max-height:none!important;background:#02080d!important}
+.v800-video-frame video,.v802-youtube-wrap{width:100%!important;height:100%!important;object-fit:contain!important}
+.v802-youtube-wrap{position:absolute;inset:0;background:#000;z-index:1}
+.v802-youtube-wrap>div,.v802-youtube-wrap iframe{width:100%!important;height:100%!important;border:0!important}
+.v800-video-frame>.hidden,.v802-youtube-wrap.hidden{display:none!important}
+.v802-video-overlay{position:absolute;left:10px;top:10px;z-index:4;max-width:70%;padding:5px 7px;border-radius:6px;background:rgba(4,18,29,.78);color:#fff;font-size:7px;backdrop-filter:blur(4px)}
+.v802-video-overlay.hidden{display:none}
+.v802-video-badges{display:flex;gap:4px;align-items:center}
+.v802-source-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:6px}
+.v802-source-tabs button{font-size:7.5px!important;padding:7px!important;border:1px solid #dce4e9!important;background:#f4f7f9!important;color:#506879!important}
+.v802-source-tabs button.active{background:#17324d!important;color:#fff!important;border-color:#17324d!important}
+.v802-source-tools{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px;align-items:center;margin:0 0 6px;padding:6px;border:1px solid #e0e6ea;border-radius:7px;background:#f7fafb}
+.v802-source-tools.hidden{display:none!important}
+.v802-source-tools input{font-size:8px!important;padding:7px!important;min-width:0}
+.v802-source-tools button{font-size:7px!important;padding:6px 8px!important}
+.v802-source-tools span{font-size:7px;color:#6f808d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v802-playback{display:flex;align-items:flex-end;gap:4px;flex-wrap:wrap;margin-top:6px;padding:6px;border-radius:7px;background:#f5f8fa;border:1px solid #e1e7ea}
+.v802-playback.hidden{display:none!important}
+.v802-playback button{font-size:7px!important;padding:6px 7px!important}
+.v802-playback label{margin-left:auto;display:flex;flex-direction:column;gap:2px}
+.v802-playback label span{font-size:5.8px;text-transform:uppercase;color:#7b8994;font-weight:900}
+.v802-playback select{font-size:7px!important;padding:5px!important}
+.v802-video-help{font-size:6.8px;color:#74848f;margin-top:5px;line-height:1.4}
+#v802-sync-badge.synced{background:#e4f2e9!important;color:#2d6645!important}
+#v802-sync-badge.exact{background:#e7eef8!important;color:#355e82!important}
+.v800-point-row button{height:72px!important}
+.v800-code-presets{grid-template-columns:repeat(2,1fr)!important}
+.v800-courts{grid-template-columns:1fr 1fr!important}
+.v800-court{aspect-ratio:10/7!important}
+.v800-event-buttons{grid-template-columns:repeat(3,1fr)!important}
+@media(max-width:1150px){
+  .v800-live-grid{
+    grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr)!important;
+    grid-template-areas:"video control" "court court" "kpi decision" "events last"!important
+  }
+  .v800-video-frame{min-height:290px!important}
+}
+@media(max-width:850px){
+  .v800-live-grid{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"video" "control" "kpi" "court" "decision" "last" "events"!important
+  }
+  .v800-video-frame{min-height:0!important}
+  .v800-courts{grid-template-columns:1fr!important}
+}
+@media(max-width:600px){
+  .v802-source-tabs{grid-template-columns:1fr 1fr 1fr}
+  .v802-source-tools{grid-template-columns:1fr}
+  .v802-playback label{margin-left:0}
+}
 </style>
 
 
 <script id="v800-match-mode-module">
 (()=>{
 'use strict';
-const VERSION='8.0.1';
+const VERSION='8.0.2';
 const $=id=>document.getElementById(id);
 const arr=v=>Array.isArray(v)?v:[];
 const POS=['p1','p2','p3','p4','p5','p6'];
 const EVENT_LABELS={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival',challenge_ours:'Challenge nuestro',challenge_opponent:'Challenge rival',card:'Tarjeta',injury:'Lesión',interruption:'Interrupción',note:'Nota táctica',substitution:'Cambio',libero:'Líbero'};
 let ticker=null;
+
+let media={
+  source:'live',
+  localUrl:null,
+  localFile:null,
+  youtubeId:null,
+  youtubeUrl:'',
+  youtubePlayer:null,
+  youtubeReady:false,
+  youtubePromise:null,
+  youtubeTicker:null,
+  matchId:null
+};
+
 
 function br(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
 function openMatches(){
@@ -16224,17 +16344,265 @@ function decisionRows(m){
   }
   return rows.slice(0,4);
 }
-function syncVideo(){
-  const source=$('live-delay-live'),target=$('v800-live-video'),empty=$('v800-video-empty'),status=$('v800-video-status');
-  const stream=source?.srcObject;
-  const live=stream?.getVideoTracks?.().some(t=>t.readyState==='live');
-  if(live){
-    if(target.srcObject!==stream){target.srcObject=stream;target.play().catch(()=>{})}
-    empty?.classList.add('hidden');status.textContent='LIVE';status.className='v800-status on';
+
+function mediaLocalVideo(){return $('v802-local-video')}
+function mediaYoutubeWrap(){return $('v802-youtube-wrap')}
+function mediaIsReview(){return media.source==='local'||media.source==='youtube'}
+function mediaLoaded(){
+  if(media.source==='local')return !!media.localUrl&&!!mediaLocalVideo()?.src;
+  if(media.source==='youtube')return !!media.youtubeReady&&!!media.youtubePlayer&&!!media.youtubeId;
+  return !!$('live-delay-live')?.srcObject?.getVideoTracks?.().some(t=>t.readyState==='live');
+}
+function mediaCurrent(){
+  if(media.source==='local')return Number(mediaLocalVideo()?.currentTime)||0;
+  if(media.source==='youtube'){try{return Number(media.youtubePlayer?.getCurrentTime?.())||0}catch(_){return 0}}
+  return null;
+}
+function mediaDuration(){
+  if(media.source==='local')return Number(mediaLocalVideo()?.duration)||0;
+  if(media.source==='youtube'){try{return Number(media.youtubePlayer?.getDuration?.())||0}catch(_){return 0}}
+  return 0;
+}
+function mediaPaused(){
+  if(media.source==='local')return mediaLocalVideo()?.paused!==false;
+  if(media.source==='youtube'){try{return media.youtubePlayer?.getPlayerState?.()!==window.YT?.PlayerState?.PLAYING}catch(_){return true}}
+  return false;
+}
+function mediaSeek(sec){
+  const d=mediaDuration(),t=Math.max(0,Math.min(d>0?d:1e12,Number(sec)||0));
+  if(media.source==='local'){try{mediaLocalVideo().currentTime=t}catch(_){}}
+  else if(media.source==='youtube'){try{media.youtubePlayer?.seekTo?.(t,true)}catch(_){}}
+}
+function mediaPlay(){
+  if(media.source==='local')mediaLocalVideo()?.play?.().catch?.(()=>{});
+  else if(media.source==='youtube'){try{media.youtubePlayer?.playVideo?.()}catch(_){}}
+}
+function mediaPause(){
+  if(media.source==='local'){try{mediaLocalVideo()?.pause?.()}catch(_){}}
+  else if(media.source==='youtube'){try{media.youtubePlayer?.pauseVideo?.()}catch(_){}}
+}
+function parseYoutubeId(value){
+  const raw=String(value||'').trim();
+  if(/^[A-Za-z0-9_-]{11}$/.test(raw))return raw;
+  try{
+    const u=new URL(raw),host=u.hostname.replace(/^www\./,'').toLowerCase();
+    if(host==='youtu.be'){
+      const id=u.pathname.split('/').filter(Boolean)[0]||'';
+      return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+    }
+    if(host.endsWith('youtube.com')||host.endsWith('youtube-nocookie.com')){
+      let id=u.searchParams.get('v')||'';
+      if(!id){
+        const parts=u.pathname.split('/').filter(Boolean),i=parts.findIndex(x=>['embed','shorts','live','v'].includes(x));
+        if(i>=0)id=parts[i+1]||'';
+      }
+      return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+    }
+  }catch(_){}
+  return null;
+}
+function ensureYoutubeApi(){
+  if(window.YT?.Player)return Promise.resolve(window.YT);
+  if(media.youtubePromise)return media.youtubePromise;
+  media.youtubePromise=new Promise((resolve,reject)=>{
+    const old=window.onYouTubeIframeAPIReady,started=Date.now();
+    window.onYouTubeIframeAPIReady=function(){try{if(typeof old==='function')old()}catch(_){}if(window.YT?.Player)resolve(window.YT)};
+    if(![...document.scripts].some(s=>/youtube\.com\/iframe_api/.test(s.src||''))){
+      const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.async=true;s.onerror=()=>reject(new Error('No se ha podido cargar la API de YouTube.'));document.head.appendChild(s);
+    }
+    const timer=setInterval(()=>{
+      if(window.YT?.Player){clearInterval(timer);resolve(window.YT)}
+      else if(Date.now()-started>12000){clearInterval(timer);reject(new Error('YouTube no ha respondido.'))}
+    },120);
+  });
+  return media.youtubePromise;
+}
+function resetYoutubeContainer(){
+  const w=mediaYoutubeWrap();if(w)w.innerHTML='<div id="v802-youtube-player"></div>';
+}
+function destroyYoutube(){
+  clearInterval(media.youtubeTicker);media.youtubeTicker=null;
+  if(media.youtubePlayer){try{media.youtubePlayer.destroy?.()}catch(_){}}
+  media.youtubePlayer=null;media.youtubeReady=false;
+  resetYoutubeContainer();
+}
+function saveMediaPreference(){
+  const m=match();if(!m)return;
+  m.matchModeMedia=m.matchModeMedia||{};
+  m.matchModeMedia={
+    type:media.source,
+    youtubeId:media.youtubeId||null,
+    youtubeUrl:media.youtubeUrl||'',
+    localName:media.localFile?.name||m.matchModeMedia.localName||'',
+    updatedAt:new Date().toISOString()
+  };
+  br()?.save?.();
+}
+function setSourceUi(){
+  ['live','local','youtube'].forEach(s=>$(`v802-source-${s}`)?.classList.toggle('active',media.source===s));
+  $('v802-local-tools')?.classList.toggle('hidden',media.source!=='local');
+  $('v802-youtube-tools')?.classList.toggle('hidden',media.source!=='youtube');
+  $('v802-playback')?.classList.toggle('hidden',!mediaIsReview());
+  $('v802-live-delay-btn')?.classList.toggle('hidden',media.source!=='live');
+  $('v800-rec-btn')?.classList.toggle('hidden',media.source!=='live');
+  $('v800-rec-copy')?.classList.toggle('hidden',media.source!=='live');
+  $('v800-live-video')?.classList.toggle('hidden',media.source!=='live');
+  mediaLocalVideo()?.classList.toggle('hidden',media.source!=='local');
+  mediaYoutubeWrap()?.classList.toggle('hidden',media.source!=='youtube');
+  const title=$('v802-video-title'),help=$('v802-video-help');
+  if(title)title.textContent=media.source==='live'?'Directo / Live Delay':media.source==='local'?'Vídeo guardado':'YouTube';
+  if(help)help.textContent=media.source==='live'
+    ?'El directo usa la cámara de Live Delay. Los replays utilizan el buffer en vivo.'
+    :media.source==='local'
+      ?'Haz scouting mientras reproduces el archivo. Cada acción registrada desde esta pantalla guarda el instante exacto del vídeo.'
+      :'Haz scouting sobre YouTube. Cada acción registrada desde esta pantalla guarda el instante exacto del vídeo.';
+  refreshMediaStatus();
+}
+function refreshMediaStatus(){
+  const empty=$('v800-video-empty'),status=$('v800-video-status'),overlay=$('v802-video-overlay'),sync=$('v802-sync-badge');
+  const loaded=mediaLoaded();
+  if(media.source==='live'){
+    const live=loaded;
+    if(empty){empty.textContent='Inicia Live Delay para ver la cámara aquí.';empty.classList.toggle('hidden',live)}
+    if(status){status.textContent=live?'LIVE':'OFF';status.className=`v800-status ${live?'on':''}`}
+  }else if(media.source==='local'){
+    if(empty){empty.textContent=media.localFile?'Preparando vídeo…':'Selecciona un archivo de vídeo guardado.';empty.classList.toggle('hidden',loaded)}
+    if(status){status.textContent=loaded?'ARCHIVO':'SIN VÍDEO';status.className=`v800-status ${loaded?'on':''}`}
   }else{
-    if(target?.srcObject)target.srcObject=null;
-    empty?.classList.remove('hidden');status.textContent='OFF';status.className='v800-status';
+    if(empty){empty.textContent=media.youtubeId?'Cargando YouTube…':'Pega un enlace de YouTube.';empty.classList.toggle('hidden',loaded)}
+    if(status){status.textContent=loaded?'YOUTUBE':'SIN VÍDEO';status.className=`v800-status ${loaded?'on':''}`}
   }
+  const m=match(),hasExact=mediaIsReview()&&allActions(m||{}).some(x=>x.a?.videoTime!=null);
+  if(sync){
+    sync.textContent=hasExact?'TIEMPO EXACTO':m?.video?.syncOffset!=null?'VINCULADO':'SIN VINCULAR';
+    sync.className=`v800-status ${hasExact?'exact':m?.video?.syncOffset!=null?'synced':''}`;
+  }
+  if(overlay&&mediaIsReview()&&loaded){
+    const t=mediaCurrent(),d=mediaDuration();
+    overlay.textContent=`${formatMediaTime(t)} / ${formatMediaTime(d)} · ${media.source==='youtube'?'YouTube':media.localFile?.name||'Archivo'}`;
+    overlay.classList.remove('hidden');
+  }else overlay?.classList.add('hidden');
+}
+function formatMediaTime(sec){
+  sec=Math.max(0,Number(sec)||0);const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);
+  return h?`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function stampLatestAction(){
+  if(!mediaIsReview()||!mediaLoaded())return;
+  const m=match(),s=setOf(m),a=arr(m?.liveRally?.actions).slice(-1)[0];
+  if(!m||!a)return;
+  a.videoTime=mediaCurrent();
+  a.videoSource=media.source;
+  m.video=m.video||{};
+  if(media.source==='youtube'){
+    m.video.youtubeId=media.youtubeId;m.video.youtubeUrl=media.youtubeUrl;m.video.source=`YouTube · ${media.youtubeId}`;
+  }else if(media.localFile){
+    m.video.source=media.localFile.name;m.video.fileSize=media.localFile.size||0;m.video.mimeType=media.localFile.type||'';
+  }
+  br()?.save?.();
+  refreshMediaStatus();
+}
+function stampEvent(e){
+  if(mediaIsReview()&&mediaLoaded()&&e){e.videoTime=mediaCurrent();e.videoSource=media.source}
+}
+function mediaScoutSeconds(m){
+  const start=Date.parse(m?.clockStartedAt||m?.createdAt||'');
+  return Number.isFinite(start)?Math.max(0,(Date.now()-start)/1000):0;
+}
+window.v802SetSource=function(source){
+  if(!['live','local','youtube'].includes(source))return;
+  media.source=source;media.matchId=match()?.id||null;
+  setSourceUi();saveMediaPreference();
+  if(source==='live')syncVideo();
+};
+window.v802LoadLocal=function(ev){
+  const f=ev?.target?.files?.[0];if(!f)return;
+  if(media.localUrl){try{URL.revokeObjectURL(media.localUrl)}catch(_){}}
+  media.localFile=f;media.localUrl=URL.createObjectURL(f);media.source='local';media.matchId=match()?.id||null;
+  const v=mediaLocalVideo();v.src=media.localUrl;v.load();
+  $('v802-local-name').textContent=f.name;
+  v.onloadedmetadata=()=>{setSourceUi();saveMediaPreference();refreshMediaStatus()};
+  v.ontimeupdate=refreshMediaStatus;
+  setSourceUi();
+};
+window.v802LoadYouTube=async function(){
+  const url=String($('v802-youtube-url')?.value||'').trim(),id=parseYoutubeId(url);
+  if(!id){alert('No reconozco ese enlace de YouTube.');return}
+  media.source='youtube';media.youtubeId=id;media.youtubeUrl=url;media.matchId=match()?.id||null;
+  setSourceUi();destroyYoutube();
+  try{
+    await ensureYoutubeApi();resetYoutubeContainer();
+    media.youtubePlayer=new YT.Player('v802-youtube-player',{
+      width:'100%',height:'100%',videoId:id,
+      playerVars:{playsinline:1,controls:1,rel:0},
+      events:{
+        onReady:()=>{
+          media.youtubeReady=true;setSourceUi();saveMediaPreference();
+          clearInterval(media.youtubeTicker);media.youtubeTicker=setInterval(()=>{if(media.source==='youtube')refreshMediaStatus()},250);
+        },
+        onStateChange:()=>refreshMediaStatus(),
+        onError:e=>{
+          media.youtubeReady=false;refreshMediaStatus();
+          const msg=Number(e.data)===101||Number(e.data)===150?'El propietario no permite reproducir este vídeo fuera de YouTube.':Number(e.data)===100?'El vídeo es privado, no existe o se ha eliminado.':'YouTube no puede reproducir este vídeo aquí.';
+          alert(msg);
+        }
+      }
+    });
+  }catch(err){alert('No se ha podido cargar YouTube.\n\n'+String(err?.message||err))}
+};
+window.v802Jump=function(delta){if(mediaIsReview()&&mediaLoaded())mediaSeek(mediaCurrent()+Number(delta||0))};
+window.v802TogglePlay=function(){if(!mediaIsReview()||!mediaLoaded())return;mediaPaused()?mediaPlay():mediaPause()};
+window.v802SetSpeed=function(value){
+  const r=Number(value)||1;
+  if(media.source==='local'&&mediaLocalVideo())mediaLocalVideo().playbackRate=r;
+  else if(media.source==='youtube'){try{media.youtubePlayer?.setPlaybackRate?.(r)}catch(_){}}
+};
+window.v802SyncNow=function(){
+  const m=match();if(!m||!mediaIsReview()||!mediaLoaded()){alert('Abre primero un archivo o un vídeo de YouTube.');return}
+  m.video=m.video||{};
+  m.video.syncOffset=mediaCurrent()-mediaScoutSeconds(m);
+  m.video.syncedAt=new Date().toISOString();
+  m.video.anchor={type:'match-mode',scoutMs:Math.round(mediaScoutSeconds(m)*1000),videoTime:mediaCurrent()};
+  if(media.source==='youtube'){m.video.youtubeId=media.youtubeId;m.video.youtubeUrl=media.youtubeUrl;m.video.source=`YouTube · ${media.youtubeId}`}
+  else if(media.localFile){m.video.source=media.localFile.name;m.video.fileSize=media.localFile.size||0;m.video.mimeType=media.localFile.type||''}
+  br()?.save?.();refreshMediaStatus();
+};
+window.v802PrimaryReplay=function(){
+  if(media.source==='live'){window.scoutV740ReplayLastRally?.();return}
+  const m=match(),s=setOf(m),r=arr(s?.rallies).slice(-1)[0];if(!r){alert('Todavía no hay rallies cerrados.');return}
+  const times=arr(r.actions).map(a=>a.videoTime).filter(v=>v!=null&&Number.isFinite(Number(v))).map(Number);
+  if(!times.length){alert('Ese rally no tiene tiempos de vídeo directos. Usa “Vincular tiempo” o registra las acciones desde Modo Partido.');return}
+  mediaSeek(Math.max(0,Math.min(...times)-2));mediaPlay();
+};
+window.v802SecondaryReplay=function(){
+  if(media.source==='live'){window.scoutV740ReplayLastAction?.();return}
+  const m=match(),actions=allActions(m||{}).map(x=>x.a).filter(a=>a.videoTime!=null),a=actions.slice(-1)[0];
+  if(!a){alert('Todavía no hay acciones con tiempo de vídeo.');return}
+  mediaSeek(Math.max(0,Number(a.videoTime)-2));mediaPlay();
+};
+function restoreMatchMedia(){
+  const m=match();if(!m)return;
+  if(Number(media.matchId)===Number(m.id))return;
+  media.matchId=m.id;
+  const pref=m.matchModeMedia||{};
+  if(pref.type==='youtube'&&pref.youtubeId){
+    media.source='youtube';media.youtubeId=pref.youtubeId;media.youtubeUrl=pref.youtubeUrl||`https://www.youtube.com/watch?v=${pref.youtubeId}`;
+    if($('v802-youtube-url'))$('v802-youtube-url').value=media.youtubeUrl;
+    setTimeout(()=>window.v802LoadYouTube?.(),20);
+  }else if(pref.type==='local'){
+    media.source='local';setSourceUi();
+    if($('v802-local-name'))$('v802-local-name').textContent=pref.localName?`${pref.localName} · vuelve a seleccionar el archivo`:'Ningún archivo seleccionado';
+  }else{
+    media.source='live';setSourceUi();
+  }
+}
+
+function syncVideo(){
+  const source=$('live-delay-live'),target=$('v800-live-video'),stream=source?.srcObject;
+  const live=stream?.getVideoTracks?.().some(t=>t.readyState==='live');
+  if(live&&target?.srcObject!==stream){target.srcObject=stream;target.play().catch(()=>{})}
+  if(!live&&target?.srcObject)target.srcObject=null;
+  if(media.source==='live')refreshMediaStatus();
 }
 function renderREC(){
   const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
@@ -16291,33 +16659,35 @@ window.v800Render=render;
 window.v800Open=function(){
   populateMatchPicker();
   ensureMatchForMode();
+  restoreMatchMedia();
   render();
+  setSourceUi();
   clearInterval(ticker);
   ticker=setInterval(()=>{
     const view=$('scout-match-mode');
     if(view?.classList.contains('active')){
       const m=match();
       if(m)$('v800-clock').textContent=elapsed(m);
-      syncVideo();renderREC();
+      syncVideo();renderREC();refreshMediaStatus();
     }
   },500)
 };
 window.v800SelectMatch=function(id){
   if(!id)return;
   const m=activateMatch(id,false);
-  if(m)render();
+  if(m){media.matchId=null;restoreMatchMedia();render();setSourceUi()}
 };
 window.v800ResumeSelected=function(){
   const id=Number($('v800-match-select')?.value)||Number(openMatches()[0]?.id)||0;
   if(!id){alert('No hay ningún scouting guardado en curso.');return}
   const m=activateMatch(id,true);
-  if(m)render();
+  if(m){media.matchId=null;restoreMatchMedia();render();setSourceUi()}
 };
 window.v800AddCode=function(){
   const value=String($('v800-code')?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!value)return;
   const target=$('scout-code-input');if(!target){alert('No encuentro la consola de códigos del scouting.');return}
   target.value=value;
-  try{window.scoutAddCode?.();$('v800-code').value='';render()}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
+  try{window.scoutAddCode?.();stampLatestAction();$('v800-code').value='';render()}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
 };
 window.v800Preset=function(suffix){
   const n=String($('v800-code-number')?.value||'').trim();
@@ -16331,10 +16701,10 @@ window.v800QuickEvent=function(type){
     const note=prompt('Nota táctica:');if(!String(note||'').trim())return;
     type='note';
     m.workflow=m.workflow||{};m.workflow.events=arr(m.workflow.events);
-    m.workflow.events.push({id:Date.now(),uid:`evt_${Date.now()}`,type,subject:'',note:String(note).trim(),setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:new Date().toISOString(),scoutMs:Math.max(0,Date.now()-Date.parse(m.clockStartedAt||m.createdAt||new Date().toISOString())),videoTime:null});
+    const evt={id:Date.now(),uid:`evt_${Date.now()}`,type,subject:'',note:String(note).trim(),setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:new Date().toISOString(),scoutMs:Math.max(0,Date.now()-Date.parse(m.clockStartedAt||m.createdAt||new Date().toISOString())),videoTime:null};stampEvent(evt);m.workflow.events.push(evt);
   }else{
     m.workflow=m.workflow||{};m.workflow.events=arr(m.workflow.events);
-    m.workflow.events.push({id:Date.now(),uid:`evt_${Date.now()}`,type,subject:'',note:'',setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:new Date().toISOString(),scoutMs:Math.max(0,Date.now()-Date.parse(m.clockStartedAt||m.createdAt||new Date().toISOString())),videoTime:null});
+    const evt={id:Date.now(),uid:`evt_${Date.now()}`,type,subject:'',note:'',setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:new Date().toISOString(),scoutMs:Math.max(0,Date.now()-Date.parse(m.clockStartedAt||m.createdAt||new Date().toISOString())),videoTime:null};stampEvent(evt);m.workflow.events.push(evt);
   }
   br()?.save?.();try{br()?.render?.()}catch(_){}render();
 };
@@ -16368,7 +16738,7 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
   wrapped.__v800=true;window[name]=wrapped;
 });
 
-window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,video:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
+window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,mediaSource:media.source,mediaLoaded:mediaLoaded(),mediaTime:mediaCurrent(),youtubeId:media.youtubeId||null,localFile:media.localFile?.name||null,liveVideo:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
 })();
 </script>
 
