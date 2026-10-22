@@ -1636,6 +1636,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
       <div class="v800-top-actions">
+        <label class="v800-match-picker"><span>Scouting</span><select id="v800-match-select" onchange="v800SelectMatch(this.value)"><option value="">Sin scouting</option></select></label>
         <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Scouting completo</button>
         <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
@@ -1647,7 +1648,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <div id="v800-empty" class="v800-empty">
       <strong>No hay un partido activo.</strong>
       <span>Crea un scouting nuevo o abre uno en curso.</span>
-      <div><button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button><button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Ir a Scouting</button></div>
+      <div><button id="v800-resume-btn" class="primary hidden" onclick="v800ResumeSelected()">▶ Continuar scouting guardado</button><button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button><button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Ir a Scouting</button></div>
     </div>
 
     <div id="v800-live" class="hidden">
@@ -4864,7 +4865,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.1', {
         updateViaCache: 'none'
       });
 
@@ -7420,6 +7421,16 @@ window.VC_SCOUT_VIDEO_BRIDGE={
   teamName:()=>EQUIPOS?.[equipoActivo]?.nombre||'Equipo',
   getTeamId:()=>String(equipoActivo||'equipo'),
   getPlayers:()=>scoutClone(jugadoresEquipo||[]),
+  activateMatch:(id)=>{
+    const m=scoutingMatches.find(x=>Number(x.id)===Number(id));
+    if(!m||m.status==='finished')return null;
+    const current=scoutActive();
+    if(current&&Number(current.id)!==Number(m.id))scoutSave(false);
+    scoutingActiveId=m.id;
+    m.status='live';m.endedAt=null;m.reopenedAt=scoutNow();m.updatedAt=scoutNow();
+    scoutSave(false);
+    return m;
+  },
   playerLabel:(a)=>{try{return scoutActionPlayerLabel(a)}catch(_){return String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}}
 };
 /* Estado por equipo / Supabase */
@@ -9382,7 +9393,7 @@ function applyWorkspace(mode){currentWorkspace=mode==='scouting'?'scouting':'tra
 window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scouting',botonVista('scouting'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
-window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&id!=='scouting'){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
+window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-match-mode'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
 /* Restaurar el área sin forzar una vista distinta en la carga inicial */
 applyWorkspace(currentWorkspace);
 if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scouting':'scout-dashboard';showView(target,botonVista(target))},0)}
@@ -16066,13 +16077,18 @@ window.v790Diagnostics=()=>({
 #scout-match-mode.v800-full{position:fixed!important;inset:0!important;z-index:85000!important;background:#07131d!important;padding:6px!important;overflow:auto!important}body.v800-lock{overflow:hidden!important}#scout-match-mode.v800-full .v800-top{position:sticky;top:0;z-index:3}
 @media(max-width:1050px){.v800-live-grid{grid-template-columns:1fr}.v800-side{grid-template-columns:1fr 1fr}.v800-courts{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.v800-top{align-items:flex-start;flex-direction:column}.v800-scoreboard{grid-template-columns:1fr 95px 1fr}.v800-team strong{font-size:34px}.v800-courts{grid-template-columns:1fr}.v800-side{grid-template-columns:1fr}.v800-code-presets{grid-template-columns:1fr 1fr}.v800-preset-builder{grid-template-columns:1fr 1fr}.v800-preset-builder small{grid-column:1/-1}.v800-event-buttons{grid-template-columns:1fr 1fr}.v800-kpis{grid-template-columns:1fr 1fr}}
+
+.v800-match-picker{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:210px}
+.v800-match-picker>span{font-size:5.8px!important;text-transform:uppercase!important;letter-spacing:.07em!important;color:#9fb3c0!important;font-weight:900!important}
+.v800-match-picker select{height:28px!important;padding:4px 6px!important;border-radius:6px!important;background:#fff!important;color:#29475f!important;border:1px solid rgba(255,255,255,.3)!important;font-size:7.5px!important;font-weight:800!important}
+@media(max-width:700px){.v800-match-picker{width:100%;min-width:0}.v800-match-picker select{width:100%}}
 </style>
 
 
 <script id="v800-match-mode-module">
 (()=>{
 'use strict';
-const VERSION='8.0.0';
+const VERSION='8.0.1';
 const $=id=>document.getElementById(id);
 const arr=v=>Array.isArray(v)?v:[];
 const POS=['p1','p2','p3','p4','p5','p6'];
@@ -16080,6 +16096,47 @@ const EVENT_LABELS={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival
 let ticker=null;
 
 function br(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function openMatches(){
+  try{
+    return arr(br()?.getMatches?.()).filter(m=>m&&m.status!=='finished')
+      .sort((a,b)=>String(b.manualSavedAt||b.updatedAt||b.createdAt||'').localeCompare(String(a.manualSavedAt||a.updatedAt||a.createdAt||'')));
+  }catch(_){return []}
+}
+function populateMatchPicker(){
+  const sel=$('v800-match-select');if(!sel)return;
+  const active=Number(br()?.getActiveId?.())||0,previous=Number(sel.value)||0,list=openMatches();
+  sel.innerHTML=list.length
+    ? list.map(m=>`<option value="${m.id}">${m.date||''} · ${m.opponent||'Rival'}${m.manualSavedAt?' · Guardado':' · En curso'}</option>`).join('')
+    : '<option value="">Sin scoutings en curso</option>';
+  if(active&&list.some(m=>Number(m.id)===active))sel.value=String(active);
+  else if(previous&&list.some(m=>Number(m.id)===previous))sel.value=String(previous);
+  else if(list[0])sel.value=String(list[0].id);
+  const resume=$('v800-resume-btn');
+  if(resume)resume.classList.toggle('hidden',!!active||!list.length);
+}
+function activateMatch(id,silent=false){
+  id=Number(id)||0;if(!id)return null;
+  const current=br()?.getActive?.();
+  if(current&&Number(current.id)===id)return current;
+  const target=openMatches().find(m=>Number(m.id)===id);
+  if(!target)return null;
+  if(current&&Number(current.id)!==id&&!silent){
+    if(!confirm(`Cambiar del scouting contra ${current.opponent||'el rival actual'} al scouting guardado contra ${target.opponent||'el rival seleccionado'}?`)){
+      populateMatchPicker();return current;
+    }
+  }
+  const activated=br()?.activateMatch?.(id)||null;
+  populateMatchPicker();
+  return activated;
+}
+function ensureMatchForMode(){
+  let m=br()?.getActive?.()||null;
+  if(m)return m;
+  populateMatchPicker();
+  const selId=Number($('v800-match-select')?.value)||Number(openMatches()[0]?.id)||0;
+  if(selId)m=activateMatch(selId,true);
+  return m||null;
+}
 function match(){try{return br()?.getActive?.()||null}catch(_){return null}}
 function setOf(m){try{return br()?.getCurrentSet?.(m)||null}catch(_){return null}}
 function teamName(){try{return br()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
@@ -16192,10 +16249,14 @@ function renderREC(){
   }
 }
 function render(){
+  populateMatchPicker();
   const m=match(),empty=$('v800-empty'),live=$('v800-live');
   if(!m){
+    const saved=openMatches();
     empty?.classList.remove('hidden');live?.classList.add('hidden');
-    $('v800-title').textContent='Sin partido activo';$('v800-meta').textContent='Abre o crea un scouting para empezar.';
+    $('v800-title').textContent=saved.length?'Scouting guardado disponible':'Sin partido activo';
+    $('v800-meta').textContent=saved.length?`${saved.length} scouting(s) en curso guardado(s). Selecciona uno para continuar.`:'Abre o crea un scouting para empezar.';
+    const resume=$('v800-resume-btn');if(resume)resume.classList.toggle('hidden',!saved.length);
     return;
   }
   empty?.classList.add('hidden');live?.classList.remove('hidden');
@@ -16227,7 +16288,31 @@ function render(){
   syncVideo();renderREC();
 }
 window.v800Render=render;
-window.v800Open=function(){render();clearInterval(ticker);ticker=setInterval(()=>{const view=$('scout-match-mode');if(view?.classList.contains('active')){const m=match();if(m)$('v800-clock').textContent=elapsed(m);syncVideo();renderREC()}},500)};
+window.v800Open=function(){
+  populateMatchPicker();
+  ensureMatchForMode();
+  render();
+  clearInterval(ticker);
+  ticker=setInterval(()=>{
+    const view=$('scout-match-mode');
+    if(view?.classList.contains('active')){
+      const m=match();
+      if(m)$('v800-clock').textContent=elapsed(m);
+      syncVideo();renderREC();
+    }
+  },500)
+};
+window.v800SelectMatch=function(id){
+  if(!id)return;
+  const m=activateMatch(id,false);
+  if(m)render();
+};
+window.v800ResumeSelected=function(){
+  const id=Number($('v800-match-select')?.value)||Number(openMatches()[0]?.id)||0;
+  if(!id){alert('No hay ningún scouting guardado en curso.');return}
+  const m=activateMatch(id,true);
+  if(m)render();
+};
 window.v800AddCode=function(){
   const value=String($('v800-code')?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!value)return;
   const target=$('scout-code-input');if(!target){alert('No encuentro la consola de códigos del scouting.');return}
@@ -16283,7 +16368,7 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
   wrapped.__v800=true;window[name]=wrapped;
 });
 
-window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,video:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
+window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,video:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
 })();
 </script>
 
