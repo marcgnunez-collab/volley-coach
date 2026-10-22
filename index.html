@@ -1570,7 +1570,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="pro-modal-card live-delay-card">
     <div class="pro-modal-head">
       <div>
-        <span class="pro-kicker">V7.7 · RECORDING STUDIO + LIVE DELAY</span>
+        <span class="pro-kicker">V7.7.1 · RECORDING STUDIO + LIVE DELAY</span>
         <h2>Vídeo en directo con retraso</h2>
         <p id="live-delay-subtitle">Captura la cámara y revisa la acción unos segundos después sin detener la grabación.</p>
       </div>
@@ -1640,7 +1640,23 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           </div>
         </div>
         <div class="vc-remote-preview-wrap">
-          <div class="vc-remote-preview-head"><span>PREVISUALIZACIÓN REMOTA</span><button class="ghost" type="button" onclick="vcRemoteFullscreenPreview()">⛶ Pantalla completa</button></div>
+          <div class="vc-remote-preview-head">
+            <span>PREVISUALIZACIÓN REMOTA</span>
+            <div class="vc-remote-view-controls">
+              <label>Vista en PC
+                <select id="vc-remote-view-orientation" onchange="vcRemoteSetViewOrientation(this.value)">
+                  <option value="auto">Auto</option>
+                  <option value="horizontal">Horizontal 16:9</option>
+                  <option value="vertical">Vertical 9:16</option>
+                  <option value="right">Girar 90° derecha</option>
+                  <option value="left">Girar 90° izquierda</option>
+                </select>
+              </label>
+              <button class="ghost" type="button" onclick="vcRemoteRotateView(-1)" title="Girar vista 90° a la izquierda">↶</button>
+              <button class="ghost" type="button" onclick="vcRemoteRotateView(1)" title="Girar vista 90° a la derecha">↷</button>
+              <button class="ghost" type="button" onclick="vcRemoteFullscreenPreview()">⛶ Pantalla completa</button>
+            </div>
+          </div>
           <div id="vc-remote-preview-frame" class="vc-remote-preview-frame">
             <video id="vc-remote-preview" autoplay muted playsinline></video>
             <div id="vc-remote-preview-empty" class="vc-remote-preview-empty">Esperando al móvil…</div>
@@ -4358,7 +4374,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.7.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.7.1', {
         updateViaCache: 'none'
       });
 
@@ -12998,6 +13014,25 @@ window.scoutV757FinalDiagnostics=function(){
 .vc-publisher-orientation.portrait{background:#5b456f;color:#f4eaff}
 .vc-remote-preview-frame[data-orientation="portrait"],.live-delay-video-frame[data-orientation="portrait"]{max-width:460px;margin-left:auto;margin-right:auto}
 .vc-remote-preview-frame[data-orientation="landscape"],.live-delay-video-frame[data-orientation="landscape"]{max-width:none}
+
+.vc-remote-view-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.vc-remote-view-controls label{display:flex;align-items:center;gap:5px;font-size:7px!important;color:#6e8190!important;letter-spacing:.03em!important;text-transform:none!important}
+.vc-remote-view-controls select{height:27px;padding:3px 5px!important;border-radius:6px;border:1px solid #cfd9df;background:#fff;color:#29475f;font-size:7.5px!important;font-weight:800}
+.vc-remote-view-controls button{min-width:27px}
+.vc-remote-preview-frame,.live-delay-video-frame{position:relative!important}
+.vc-remote-preview-frame[data-view-mode="horizontal"],
+.live-delay-video-frame[data-view-mode="horizontal"],
+.vc-remote-preview-frame[data-view-mode="right"],
+.live-delay-video-frame[data-view-mode="right"],
+.vc-remote-preview-frame[data-view-mode="left"],
+.live-delay-video-frame[data-view-mode="left"]{max-width:none!important;width:100%}
+.vc-remote-preview-frame[data-view-mode="vertical"],
+.live-delay-video-frame[data-view-mode="vertical"]{max-width:460px!important;margin-left:auto!important;margin-right:auto!important}
+.vc-remote-preview-frame:fullscreen,
+.live-delay-video-frame:fullscreen{max-width:none!important;width:100vw!important;height:100vh!important;aspect-ratio:auto!important}
+.vc-remote-preview-frame:fullscreen video,
+.live-delay-video-frame:fullscreen video{max-width:none!important;max-height:none!important}
+@media(max-width:720px){.vc-remote-preview-head{align-items:flex-start!important;gap:6px}.vc-remote-view-controls{width:100%;justify-content:flex-start}.vc-remote-view-controls label{flex:1}.vc-remote-view-controls select{width:100%}}
 </style>
 
 
@@ -13005,7 +13040,7 @@ window.scoutV757FinalDiagnostics=function(){
 (()=>{
 'use strict';
 
-const VERSION='7.6.1';
+const VERSION='7.6.2';
 const $=id=>document.getElementById(id);
 const state={
   room:'',
@@ -13024,6 +13059,7 @@ const state={
   publisherOrientation:null,
   orientationTimer:null,
   orientationBusy:false,
+  viewOrientation:'auto',
   wakeLock:null
 };
 
@@ -13131,7 +13167,10 @@ async function connectViewer(){
     state.stream=incoming;
     state.connected=true;
     const pv=$('vc-remote-preview');
-    if(pv){pv.srcObject=incoming;pv.muted=true;pv.play().catch(()=>{})}
+    if(pv){
+      pv.srcObject=incoming;pv.muted=true;
+      pv.play().then(()=>setTimeout(vcApplyViewOrientation,60)).catch(()=>{});
+    }
     setPreviewEmpty('',true);
     setRemoteStatus('MÓVIL CONECTADO','on');
     if($('live-delay-live-title'))$('live-delay-live-title').textContent='Móvil remoto';
@@ -13204,43 +13243,139 @@ window.VC_REMOTE_CAMERA={
 };
 
 
-/* ---------- Automatic aspect ratio on receiver and publisher ---------- */
-function vcSyncVideoAspect(video,frame){
-  if(!video||!frame)return;
-  const w=Number(video.videoWidth)||0,h=Number(video.videoHeight)||0;
-  if(!w||!h)return;
-  frame.style.aspectRatio=`${w} / ${h}`;
-  frame.dataset.orientation=w>=h?'landscape':'portrait';
+/* ---------- PC view orientation / aspect ratio ---------- */
+function vcViewTargets(){
+  const remote=$('vc-remote-preview');
+  const live=$('live-delay-live');
+  const delayed=$('live-delay-delayed');
+  return [
+    {video:remote,frame:$('vc-remote-preview-frame')},
+    {video:live,frame:live?.closest?.('.live-delay-video-frame')},
+    {video:delayed,frame:delayed?.closest?.('.live-delay-video-frame')}
+  ].filter(x=>x.video&&x.frame);
 }
-function vcBindAspect(video,frame){
-  if(!video||!frame||video.dataset.vcAspectBound)return;
-  video.dataset.vcAspectBound='1';
-  const sync=()=>vcSyncVideoAspect(video,frame);
+function vcVideoIntrinsic(video){
+  const w=Number(video?.videoWidth)||0,h=Number(video?.videoHeight)||0;
+  return {w,h,portrait:!!(w&&h&&h>w),landscape:!!(w&&h&&w>=h)};
+}
+function vcDesiredRotation(video,mode){
+  const d=vcVideoIntrinsic(video);
+  if(mode==='right')return 90;
+  if(mode==='left')return -90;
+  if(mode==='horizontal')return d.portrait?90:0;
+  if(mode==='vertical')return d.landscape?90:0;
+  return 0;
+}
+function vcTargetAspect(video,mode,rotation){
+  const d=vcVideoIntrinsic(video);
+  if(mode==='horizontal'||mode==='right'||mode==='left')return 16/9;
+  if(mode==='vertical')return 9/16;
+  if(d.w&&d.h)return rotation?d.h/d.w:d.w/d.h;
+  return 16/9;
+}
+function vcLayoutVideo(video,frame){
+  if(!video||!frame)return;
+  const mode=state.viewOrientation||'auto';
+  const rotation=vcDesiredRotation(video,mode);
+  const aspect=vcTargetAspect(video,mode,rotation);
+
+  frame.style.aspectRatio=String(aspect);
+  frame.dataset.viewMode=mode;
+  frame.dataset.rotation=String(rotation);
+  frame.dataset.orientation=aspect>=1?'landscape':'portrait';
+
+  /* The video is absolutely positioned. For a 90° rotation its CSS width/height
+     are swapped to match the container before rotation. This avoids a tiny,
+     letterboxed portrait image in a horizontal fullscreen frame. */
+  video.style.position='absolute';
+  video.style.left='50%';
+  video.style.top='50%';
+  video.style.maxWidth='none';
+  video.style.maxHeight='none';
+  video.style.objectFit='contain';
+  video.style.transformOrigin='center center';
+
+  const fw=Math.max(1,frame.clientWidth||0),fh=Math.max(1,frame.clientHeight||0);
+  if(Math.abs(rotation)===90){
+    video.style.width=`${fh}px`;
+    video.style.height=`${fw}px`;
+    video.style.transform=`translate(-50%,-50%) rotate(${rotation}deg)`;
+  }else{
+    video.style.width='100%';
+    video.style.height='100%';
+    video.style.transform='translate(-50%,-50%)';
+  }
+}
+function vcApplyViewOrientation(){
+  vcViewTargets().forEach(({video,frame})=>vcLayoutVideo(video,frame));
+  const sel=$('vc-remote-view-orientation');
+  if(sel&&sel.value!==state.viewOrientation)sel.value=state.viewOrientation;
+}
+function vcBindViewVideo(video,frame){
+  if(!video||!frame||video.dataset.vcViewBound)return;
+  video.dataset.vcViewBound='1';
+  const sync=()=>requestAnimationFrame(()=>vcLayoutVideo(video,frame));
   video.addEventListener('resize',sync);
   video.addEventListener('loadedmetadata',sync);
   video.addEventListener('loadeddata',sync);
+  video.addEventListener('playing',sync);
   setTimeout(sync,0);
 }
 function vcBindAllAspects(){
-  const remote=$('vc-remote-preview');
-  vcBindAspect(remote,$('vc-remote-preview-frame'));
-  const liveVideo=$('live-delay-live');
-  vcBindAspect(liveVideo,liveVideo?.closest?.('.live-delay-video-frame'));
-  const delayedVideo=$('live-delay-delayed');
-  vcBindAspect(delayedVideo,delayedVideo?.closest?.('.live-delay-video-frame'));
-  const publisherVideo=$('vc-publisher-video');
-  vcBindAspect(publisherVideo,publisherVideo?.closest?.('.vc-publisher-video'));
+  vcViewTargets().forEach(({video,frame})=>vcBindViewVideo(video,frame));
+  vcApplyViewOrientation();
 }
+window.vcRemoteSetViewOrientation=function(mode){
+  const allowed=['auto','horizontal','vertical','right','left'];
+  state.viewOrientation=allowed.includes(mode)?mode:'auto';
+  try{localStorage.setItem('volley_remote_view_orientation',state.viewOrientation)}catch(_){}
+  vcApplyViewOrientation();
+};
+window.vcRemoteRotateView=function(direction=1){
+  const current=state.viewOrientation||'auto';
+  const cycleRight={auto:'right',right:'vertical',vertical:'left',left:'horizontal',horizontal:'auto'};
+  const cycleLeft={auto:'left',left:'vertical',vertical:'right',right:'horizontal',horizontal:'auto'};
+  state.viewOrientation=(Number(direction)<0?cycleLeft:cycleRight)[current]||'auto';
+  try{localStorage.setItem('volley_remote_view_orientation',state.viewOrientation)}catch(_){}
+  vcApplyViewOrientation();
+};
+function vcRestoreViewOrientation(){
+  try{
+    const saved=localStorage.getItem('volley_remote_view_orientation');
+    if(['auto','horizontal','vertical','right','left'].includes(saved))state.viewOrientation=saved;
+  }catch(_){}
+  const sel=$('vc-remote-view-orientation');
+  if(sel)sel.value=state.viewOrientation;
+}
+vcRestoreViewOrientation();
 setTimeout(vcBindAllAspects,0);
 new MutationObserver(vcBindAllAspects).observe(document.body,{childList:true,subtree:true});
+window.addEventListener('resize',()=>requestAnimationFrame(vcApplyViewOrientation));
+document.addEventListener('fullscreenchange',()=>setTimeout(vcApplyViewOrientation,60));
+document.addEventListener('webkitfullscreenchange',()=>setTimeout(vcApplyViewOrientation,60));
 
 /* ---------- Fullscreen ---------- */
 async function fullscreenElement(el,video){
   try{
-    if(document.fullscreenElement){await document.exitFullscreen();return}
-    if(el?.requestFullscreen){await el.requestFullscreen();return}
-    if(el?.webkitRequestFullscreen){el.webkitRequestFullscreen();return}
-    if(video?.webkitEnterFullscreen){video.webkitEnterFullscreen();return}
+    if(document.fullscreenElement){
+      await document.exitFullscreen();
+      setTimeout(()=>window.vcRemoteSetViewOrientation?.(state.viewOrientation),60);
+      return;
+    }
+    if(el?.requestFullscreen){
+      await el.requestFullscreen();
+      setTimeout(vcApplyViewOrientation,80);
+      return;
+    }
+    if(el?.webkitRequestFullscreen){
+      el.webkitRequestFullscreen();
+      setTimeout(vcApplyViewOrientation,80);
+      return;
+    }
+    if(video?.webkitEnterFullscreen){
+      video.webkitEnterFullscreen();
+      return;
+    }
     throw new Error('El navegador no ofrece pantalla completa para este elemento.');
   }catch(err){console.warn('Fullscreen',err)}
 }
@@ -13516,6 +13651,7 @@ window.vcRemoteCameraDiagnostics=function(){
     publisherTrackOrientation:state.publisherOrientation,
     publisherMode:!!publisherParams().streamId,
     source:state.source,
+    pcViewOrientation:state.viewOrientation,
     remoteConnected:state.connected,
     room:state.room||null,
     streamId:state.streamId||null,
