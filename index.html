@@ -1483,7 +1483,13 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <section class="scout-analysis-panel wide scout-player-analysis-panel"><div class="scout-panel-head scout-v630-head"><div><span class="pro-kicker">PRO DATA SHEET · G-P</span><h3>Hoja estadística por jugador</h3><p class="scout-v630-subtitle">Lectura por conteos, inspirada en la hoja oficial de Data Volley: puntos, BP y G-P. Las cifras subrayadas abren las acciones que forman el dato.</p></div><div class="scout-player-toolbar scout-v630-filters"><select id="scout-player-team-scope" onchange="scoutRenderPlayerAnalytics()"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select><select id="scout-v630-set" onchange="scoutRenderPlayerAnalytics()"><option value="">Todos los sets</option></select><select id="scout-v630-rotation" onchange="scoutRenderPlayerAnalytics()"><option value="">Todas las rotaciones</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select><select id="scout-v630-phase" onchange="scoutRenderPlayerAnalytics()"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select><button class="ghost" onclick="scoutV630ResetFilters()">Limpiar</button></div></div><div id="scout-v630-filter-summary" class="scout-v630-filter-summary"></div><div id="scout-analysis-players"></div><div class="scout-dv-legend scout-v630-legend"><span><b>PTS</b> = ace + ataque # + bloqueo #</span><span><b>BP</b> = punto directo cuando el equipo estaba al saque</span><span><b>G-P</b> = puntos directos − pérdidas directas</span><span><b>REC POS</b> = # +</span><span><b>REC EXC</b> = #</span><span><b>ATQ BLO</b> = ataque /</span><span><b>DEF / COL G-P</b> = positivas − negativas/errores</span><span><b>K1 / K2 G-P</b> = rallies ganados − perdidos</span></div></section>
       <section class="scout-analysis-panel"><div class="scout-panel-head"><div><span class="pro-kicker">FUNDAMENTOS</span><h3>Acciones registradas</h3></div></div><div id="scout-analysis-skills"></div></section>
       <section class="scout-analysis-panel wide"><div class="scout-panel-head"><div><span class="pro-kicker">SECUENCIAS K1 / K2</span><h3>Resultado de la secuencia de juego</h3></div><div class="scout-sequence-toolbar"><select id="scout-sequence-team-scope" onchange="scoutRenderPerformanceAnalytics()"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></div></div><div id="scout-analysis-sequences"></div></section>
-      <section class="scout-analysis-panel wide"><div class="scout-panel-head"><div><span class="pro-kicker">SETTER DISTRIBUTION</span><h3>Distribución por rotación y calidad de recepción</h3></div><div class="scout-sequence-toolbar"><select id="scout-distribution-reception-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">Todas las recepciones</option><option value="#">Recepción #</option><option value="+">Recepción +</option><option value="!">Recepción !</option><option value="-">Recepción -</option><option value="/">Recepción /</option><option value="=">Recepción =</option></select></div></div><div id="scout-analysis-distribution"></div></section>
+      <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">SETTER DISTRIBUTION · V8.3</span><h3>Distribución profesional de colocadores</h3><p class="scout-v630-subtitle">Filtra por colocador, fase y calidad de recepción. Muestra volumen, uso, resultado del ataque y rendimiento del rally.</p></div><div class="scout-v830-toolbar"><label><span>Colocador</span><select id="scout-distribution-setter-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">Todos</option></select></label><label><span>Fase</span><select id="scout-distribution-phase-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">K1 + K2</option><option value="K1">K1</option><option value="K2">K2</option></select></label><label><span>Recepción</span><select id="scout-distribution-reception-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">Todas</option><option value="#"># Perfecta</option><option value="+">+ Positiva</option><option value="!">! Neutra</option><option value="-">- Negativa</option><option value="/">/ Muy negativa</option><option value="=">= Error</option></select></label></div></div><div id="scout-analysis-distribution"></div></section>
+      <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">ATTACK DIRECTIONS · V8.3</span><h3>Direcciones de ataque</h3><p class="scout-v630-subtitle">Línea, diagonal corta y diagonal larga con kill%, error, bloqueo y eficiencia. La trayectoria de zonas (.4&gt;5) se conserva aparte.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v830-attack-team" onchange="scoutV830RenderAttackDirections()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v830-attack-player" onchange="scoutV830RenderAttackDirections()"><option value="">Todos</option></select></label><label><span>Rotación</span><select id="scout-v830-attack-rotation" onchange="scoutV830RenderAttackDirections()"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label><label><span>Fase</span><select id="scout-v830-attack-phase" onchange="scoutV830RenderAttackDirections()"><option value="">Todas</option><option value="K1">K1</option><option value="K2">K2</option></select></label></div></div><div id="scout-v830-attack-directions"></div></section>
+      <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">PRO RECEPTION · V8.3</span><h3>Recepción profesional</h3><p class="scout-v630-subtitle">Cruza zona de recepción, tipo de saque recibido y conversión de side-out. Si antes codificas el saque rival, Volley Coach puede inferir el tipo y origen automáticamente.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v830-rec-team" onchange="scoutV830RenderReception()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v830-rec-player" onchange="scoutV830RenderReception()"><option value="">Todos</option></select></label><label><span>Saque recibido</span><select id="scout-v830-rec-serve" onchange="scoutV830RenderReception()"><option value="">Todos</option><option value="F">Flotante</option><option value="JF">Flotante salto</option><option value="JP">Salto potente</option><option value="U">Seguridad</option></select></label><label><span>Zona contacto</span><select id="scout-v830-rec-zone" onchange="scoutV830RenderReception()"><option value="">Todas</option><option value="1">Z1</option><option value="2">Z2</option><option value="3">Z3</option><option value="4">Z4</option><option value="5">Z5</option><option value="6">Z6</option><option value="7">Z7</option><option value="8">Z8</option><option value="9">Z9</option></select></label></div></div><div id="scout-v830-reception"></div></section>
+      <section class="scout-analysis-panel wide scout-v840-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">PRO BLOCK · V8.4</span><h3>Bloqueo profesional</h3><p class="scout-v630-subtitle">Analiza tamaño del bloqueo, zona, atacante objetivo y resultado real del contacto.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v840-block-team" onchange="scoutV840RenderBlocking()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v840-block-player" onchange="scoutV840RenderBlocking()"><option value="">Todos</option></select></label><label><span>Tamaño</span><select id="scout-v840-block-size" onchange="scoutV840RenderBlocking()"><option value="">Todos</option><option value="1">Individual</option><option value="2">Doble</option><option value="3">Triple</option></select></label><label><span>Zona</span><select id="scout-v840-block-zone" onchange="scoutV840RenderBlocking()"><option value="">Todas</option><option value="2">Z2</option><option value="3">Z3</option><option value="4">Z4</option></select></label></div></div><div id="scout-v840-blocking"></div></section>
+      <section class="scout-analysis-panel wide scout-v840-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">BREAK POINT / SIDE-OUT · V8.4</span><h3>Fase avanzada</h3><p class="scout-v630-subtitle">No solo muestra K1/K2 global: separa side-out por receptora y calidad de recepción, y break point por sacadora y rotación.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v840-phase-team" onchange="scoutV840RenderPhaseAdvanced()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Set</span><select id="scout-v840-phase-set" onchange="scoutV840RenderPhaseAdvanced()"><option value="">Todos</option></select></label><label><span>Rotación</span><select id="scout-v840-phase-rotation" onchange="scoutV840RenderPhaseAdvanced()"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label></div></div><div id="scout-v840-phase-advanced"></div></section>
+
+
       <section class="scout-analysis-panel wide"><div class="scout-panel-head"><div><span class="pro-kicker">LECTURA TÁCTICA</span><h3>Perfil de R1–R6</h3></div></div><div id="scout-analysis-tactical-rotations"></div></section>
       <section class="scout-analysis-panel wide scout-v640-panel"><div class="scout-panel-head scout-v640-head"><div><span class="pro-kicker">TACTICAL TENDENCIES</span><h3>Tendencias tácticas por jugador</h3><p class="scout-v630-subtitle">Analiza qué decide el colocador según el contexto y hacia dónde resuelven los atacantes. Cada fila se puede abrir para revisar las acciones que forman el patrón.</p></div><div class="scout-v640-mode"><button id="scout-v640-mode-setter" class="active" onclick="scoutV640SetMode('setter')">Colocador</button><button id="scout-v640-mode-attacker" onclick="scoutV640SetMode('attacker')">Atacante</button></div></div><div class="scout-v640-toolbar"><label><span>Equipo</span><select id="scout-v640-team" onchange="scoutV640FiltersChanged(true)"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v640-player" onchange="scoutV640RenderTendencies()"></select></label><label><span>Recepción previa</span><select id="scout-v640-reception" onchange="scoutV640RenderTendencies()"><option value="">Todas</option><option value="#" selected># · Perfecta</option><option value="+">+ · Positiva</option><option value="!">! · Neutra</option><option value="-">- · Negativa</option><option value="/">/ · Muy negativa</option><option value="=">= · Error</option></select></label><label><span>Rotación</span><select id="scout-v640-rotation" onchange="scoutV640RenderTendencies()"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label><label><span>Fase</span><select id="scout-v640-phase" onchange="scoutV640RenderTendencies()"><option value="K1" selected>K1 · Side-out</option><option value="K2">K2 · Break</option><option value="">Todas</option></select></label><label><span>Set</span><select id="scout-v640-set" onchange="scoutV640RenderTendencies()"><option value="">Todos</option></select></label><button class="ghost" onclick="scoutV640ResetFilters()">Limpiar</button></div><div id="scout-v640-filter-summary" class="scout-v640-summary"></div><div id="scout-v640-tendencies"></div></section>
 
@@ -1921,8 +1927,8 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <section class="scout-panel scout-console-panel">
           <div class="scout-panel-head"><div><span class="pro-kicker">CONSOLA DE SCOUT</span><h3>Registrar acción</h3></div><div class="scout-console-tools"><span class="scout-hint">Enter para guardar</span><button class="ghost" onclick="scoutV6100OpenCourt()">⌖ Pista</button><button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button></div></div>
           <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 7R#.6 · 6D+.5 · 4S+.1&gt;5"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
-          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. En recepción/defensa puedes añadir solo la zona: <b>7R#.6</b> / <b>6D+.5</b>. Para trayectoria completa usa <b>.origen&gt;destino</b>. Los sufijos <b>~ : ^ @</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
-          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6</code> recepción perfecta #7 en Z6 · <code>6D+.5</code> defensa positiva #6 en Z5 · <code>4S+.1&gt;5</code> saque positivo #4 de Z1 a Z5 · <code>12A#.4&gt;5</code> ataque punto de Z4 a Z5 · <code>3E+:Z1</code> colocación a Z1 · <code>3E+:Z6</code> colocación a Z6 · <code>R7R-.5</code> recepción negativa del rival #7 en Z5.</div></details>
+          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. En recepción/defensa puedes añadir solo la zona: <b>7R#.6</b> / <b>6D+.5</b>. Para trayectoria completa usa <b>.origen&gt;destino</b>. Los sufijos <b>~ : * ^ @</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
+          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6</code> recepción perfecta #7 en Z6 · <code>6D+.5</code> defensa positiva #6 en Z5 · <code>4S+.1&gt;5</code> saque positivo #4 de Z1 a Z5 · <code>12A#.4&gt;5</code> ataque punto de Z4 a Z5 · <code>3E+:Z1</code> colocación a Z1 · <code>3E+:Z6</code> colocación a Z6 · <code>12A#.4&gt;5*DL</code> ataque diagonal larga · <code>7R#.6~JF</code> recepción perfecta en Z6 ante flotante en salto · <code>4B#.3@2&amp;12</code> bloqueo doble punto en Z3 sobre #12 · <code>R7R-.5</code> recepción negativa del rival #7 en Z5.</div></details>
           <div class="scout-action-grid">
             <label><span>Equipo</span><select id="scout-action-team" onchange="scoutRefreshActionPlayers()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
             <label><span>Jugador</span><select id="scout-action-player"></select></label>
@@ -1934,11 +1940,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <div id="scout-advanced-fields" class="scout-advanced-fields">
             <div class="scout-advanced-head"><div><span class="pro-kicker">DETALLE TÁCTICO</span><strong id="scout-advanced-title">Saque</strong></div><span id="scout-advanced-context" class="scout-advanced-context">Completa solo lo que conozcas</span></div>
             <div class="scout-advanced-grid">
-              <label id="scout-adv-serve-wrap"><span>Tipo de saque</span><select id="scout-action-serve-type"><option value="">— Sin especificar —</option><option value="F">Flotante</option><option value="JF">Flotante en salto</option><option value="JP">Salto potente</option><option value="U">Bajo / seguridad</option></select></label>
+              <label id="scout-adv-serve-wrap"><span id="scout-action-serve-label">Tipo de saque</span><select id="scout-action-serve-type"><option value="">— Sin especificar —</option><option value="F">Flotante</option><option value="JF">Flotante en salto</option><option value="JP">Salto potente</option><option value="U">Bajo / seguridad</option></select></label>
               <label id="scout-adv-phase-wrap"><span>Fase</span><select id="scout-action-phase"><option value="">Auto</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break point</option><option value="FB">Freeball</option><option value="TR">Transición</option></select></label>
               <label id="scout-adv-combo-wrap"><span>Combinación / destino</span><select id="scout-action-combo"><option value="">— Sin especificar —</option><option value="Z4">Zona 4</option><option value="Z2">Zona 2</option><option value="Z1">Zona 1</option><option value="Z6">Zona 6</option><option value="1T">Primer tiempo</option><option value="31">31</option><option value="BACK">Primer tiempo detrás</option><option value="PIPE">Pipe</option><option value="2T">Segundo toque</option><option value="OTR">Otra</option></select></label>
-              <label id="scout-adv-tempo-wrap"><span>Tempo de ataque</span><select id="scout-action-tempo"><option value="">—</option><option value="RAP">Rápido</option><option value="MED">Medio</option><option value="ALT">Alto</option></select></label>
-              <label id="scout-adv-block-wrap"><span>Bloqueadores</span><select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select></label>
+              <label id="scout-adv-tempo-wrap"><span>Tempo de ataque</span><select id="scout-action-tempo"><option value="">—</option><option value="RAP">Rápido</option><option value="MED">Medio</option><option value="ALT">Alto</option></select></label><label id="scout-adv-direction-wrap"><span>Dirección de ataque</span><select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select></label>
+              <label id="scout-adv-block-wrap"><span>Bloqueadores</span><select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select></label><label id="scout-v840-block-target-wrap" class="hidden"><span>Atacante objetivo</span><input id="scout-v840-block-target" inputmode="numeric" placeholder="Dorsal rival · ej. 12"></label>
             </div>
             <div id="scout-advanced-code-preview" class="scout-advanced-code-preview">Código: —</div>
           </div>
@@ -4918,7 +4924,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.3', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.4.0', {
         updateViaCache: 'none'
       });
 
@@ -7414,7 +7420,7 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
       <section class="scout-reference-section"><div class="scout-reference-title">Valoraciones</div><div class="scout-reference-body"><div class="scout-eval-guide"><div><b>#</b><span>Máxima valoración / acción perfecta / punto según el fundamento.</span></div><div><b>+</b><span>Acción positiva que genera ventaja.</span></div><div><b>!</b><span>Acción neutra o continuidad.</span></div><div><b>-</b><span>Acción negativa; limita las opciones.</span></div><div><b>/</b><span>Muy negativa; gran ventaja para el rival.</span></div><div><b>=</b><span>Error directo.</span></div></div></div></section>
       <section class="scout-reference-section"><div class="scout-reference-title">Sintaxis</div><div class="scout-reference-body"><div class="scout-example-list"><div class="scout-example"><code>4S+.1&gt;5</code>Dorsal 4 · saque positivo · origen zona 1 · destino zona 5.</div><div class="scout-example"><code>12A#</code>Dorsal 12 · ataque con valoración máxima/punto.</div><div class="scout-example"><code>7R-</code>Dorsal 7 · recepción negativa.</div><div class="scout-example"><code>R7S=</code><b>R</b> inicial = rival · dorsal 7 · error de saque.</div><div class="scout-example"><code>R11A#.4&gt;1</code>Rival #11 · ataque máximo · de zona 4 hacia zona 1.</div></div></div></section>
       <section class="scout-reference-section"><div class="scout-reference-title">Reglas rápidas</div><div class="scout-reference-body"><table class="scout-reference-table"><tbody><tr><td><code>R</code> antes del dorsal</td><td>La acción pertenece al rival.</td></tr><tr><td><code>.1&gt;5</code></td><td>Zona de origen 1 → zona de destino 5.</td></tr><tr><td>Sin valoración</td><td>Volley Coach usa <code>!</code> por defecto.</td></tr><tr><td>Enter</td><td>Guarda el código escrito en la consola.</td></tr></tbody></table><div class="small" style="margin-top:10px">En V6.2 puedes combinar el código básico con información táctica. Los desplegables de la consola construyen esta información sin necesidad de memorizarla.</div></div></section>
-      <section class="scout-reference-section wide"><div class="scout-reference-title">Sintaxis avanzada V6.2</div><div class="scout-reference-body"><div class="scout-reference-advanced"><p>Los sufijos son opcionales y pueden combinarse. El código básico sigue funcionando exactamente igual.</p><div class="scout-advanced-syntax"><code>4S+.1&gt;5~JF</code><span>Saque positivo #4, de Z1 a Z5, flotante en salto.</span><code>12A#.4&gt;5:Z4^K1@2</code><span>Ataque punto #12 desde Z4 a Z5, combinación Z4, K1 y bloqueo doble.</span><code>3E+:PIPE^K1</code><span>Colocación positiva #3 hacia pipe dentro de K1.</span><code>R11A/:Z2^K2@3</code><span>Ataque rival #11 bloqueado, por Z2, en K2 contra triple bloqueo.</span></div><div class="scout-token-key"><span><b>~F</b> flotante</span><span><b>~JF</b> flotante salto</span><span><b>~JP</b> salto potente</span><span><b>:Z4/Z2/1T/31/BACK/PIPE/2T</b> combinación</span><span><b>^K1/K2/FB/TR</b> fase</span><span><b>@0–3</b> bloqueadores</span></div></div></div></section>
+      <section class="scout-reference-section wide"><div class="scout-reference-title">Sintaxis avanzada V6.2</div><div class="scout-reference-body"><div class="scout-reference-advanced"><p>Los sufijos son opcionales y pueden combinarse. El código básico sigue funcionando exactamente igual.</p><div class="scout-advanced-syntax"><code>4S+.1&gt;5~JF</code><span>Saque positivo #4, de Z1 a Z5, flotante en salto.</span><code>12A#.4&gt;5:Z4^K1@2</code><span>Ataque punto #12 desde Z4 a Z5, combinación Z4, K1 y bloqueo doble.</span><code>3E+:PIPE^K1</code><span>Colocación positiva #3 hacia pipe dentro de K1.</span><code>12A#.4&gt;5:Z4*DL^K1@2</code><span>Ataque punto #12 desde Z4 a Z5, diagonal larga, K1 y bloqueo doble.</span><code>7R#.6~JF</code><span>Recepción perfecta #7 en Z6 ante saque flotante en salto.</span><code>R11A/:Z2*LIN^K2@3</code><span>Ataque rival #11 bloqueado, por Z2 y línea, en K2 contra triple bloqueo.</span></div><div class="scout-token-key"><span><b>~F/JF/JP</b> tipo de saque; en R = saque recibido</span><span><b>:Z4/Z2/Z1/Z6/1T/31/BACK/PIPE/2T</b> destino colocación</span><span><b>*LIN/DC/DL</b> dirección de ataque</span><span><b>^K1/K2/FB/TR</b> fase</span><span><b>@0–3</b> bloqueadores</span></div></div></div></section>
     </div>
   </div>
 </div>
@@ -17081,6 +17087,690 @@ window.v820ExportPDF=async function(){
   finally{if(btn?.tagName==='BUTTON')btn.disabled=false}
 };
 window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:current()?.id||null,rallies:allRallies(current()).length,actions:allActions(current()).length});
+})();
+</script>
+
+
+
+<style id="v830-tactical-scouting-style">
+.scout-v830-head{align-items:flex-start!important;gap:10px}.scout-v830-toolbar{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.scout-v830-toolbar label{display:flex;flex-direction:column;gap:3px;min-width:120px}.scout-v830-toolbar label span{font-size:6.5px;text-transform:uppercase;letter-spacing:.06em;color:#788793;font-weight:900}.scout-v830-toolbar select{font-size:8px!important;padding:6px!important}
+.scout-v830-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}.scout-v830-kpis>div{border:1px solid #e1e7ea;background:#f8fafb;border-radius:8px;padding:8px}.scout-v830-kpis span{display:block;font-size:6.5px;text-transform:uppercase;color:#7c8a94;font-weight:900}.scout-v830-kpis b{display:block;font-size:15px;color:#17324d;margin-top:2px}.scout-v830-kpis small{display:block;font-size:6.5px;color:#81909a;margin-top:2px}
+.scout-v830-table-wrap{overflow:auto}.scout-v830-table{width:100%;border-collapse:collapse;min-width:760px}.scout-v830-table th{background:#102b43;color:#fff;padding:6px;font-size:6.5px;text-transform:uppercase;letter-spacing:.04em;text-align:right}.scout-v830-table th:first-child,.scout-v830-table td:first-child{text-align:left}.scout-v830-table td{padding:7px 6px;border-bottom:1px solid #e9edf0;text-align:right;font-size:7.8px;color:#536977}.scout-v830-table td b{color:#203f57}.scout-v830-table td.good{color:#26704e;font-weight:900}.scout-v830-table td.bad{color:#9c4944;font-weight:900}
+.scout-v830-matrix td.rotation{font-size:6.8px;color:#72818d}.scout-v830-note{margin-top:7px;padding:7px 8px;border-left:3px solid #587d95;background:#f4f8fa;color:#657784;font-size:7.2px;line-height:1.4}
+.scout-v830-codeguide{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.scout-v830-codeguide>div{border:1px solid #e1e6e9;border-radius:8px;padding:7px;background:#fafcfd}.scout-v830-codeguide code{display:block;color:#173f68;font-weight:900;font-size:8px}.scout-v830-codeguide span{display:block;color:#74838e;font-size:6.8px;line-height:1.4;margin-top:3px}
+@media(max-width:800px){.scout-v830-toolbar{width:100%;justify-content:stretch}.scout-v830-toolbar label{flex:1 1 45%}.scout-v830-kpis{grid-template-columns:1fr 1fr}.scout-v830-codeguide{grid-template-columns:1fr}}
+</style>
+
+
+<script id="v830-tactical-scouting-module">
+(()=>{
+'use strict';
+const V830_VERSION='8.3.0';
+const V830_ATTACK_DIR={LIN:'Línea',DC:'Diagonal corta',DL:'Diagonal larga'};
+const V830_SERVE={F:'Flotante',JF:'Flotante salto',JP:'Salto potente',U:'Seguridad'};
+const $v=id=>document.getElementById(id);
+const arr830=v=>Array.isArray(v)?v:[];
+const pct830=(n,d)=>d?Math.round(Number(n||0)*100/Number(d||0)):0;
+
+/* ---------- Persist new tactical metadata ---------- */
+const v830NormalizeBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v830NormalizeBase(a);
+  x.attackDirection=['LIN','DC','DL'].includes(String(a?.attackDirection||''))?String(a.attackDirection):'';
+  x.receivedServeType=['F','JF','JP','U'].includes(String(a?.receivedServeType||''))?String(a.receivedServeType):'';
+  // Compatibility: early builds allowed ~JF on R inside serveType.
+  if(x.skill==='R'&&!x.receivedServeType&&['F','JF','JP','U'].includes(String(a?.serveType||'')))x.receivedServeType=String(a.serveType);
+  if(x.skill==='R')x.serveType='';
+  return x;
+};
+
+function v830InferReceptionMeta(action,m=scoutActive()){
+  if(!action||action.skill!=='R'||!m)return action;
+  const other=action.team==='ours'?'opponent':'ours';
+  const prev=[...arr830(m.liveRally?.actions)].reverse().find(a=>a.team===other&&a.skill==='S');
+  if(prev){
+    if(!action.receivedServeType&&prev.serveType)action.receivedServeType=prev.serveType;
+    if(!action.sourceZone&&prev.startZone)action.sourceZone=String(prev.startZone);
+    if(!action.sourceActionId)action.sourceActionId=Number(prev.id)||null;
+  }
+  return action;
+}
+const v830PushBase=scoutPushAction;
+scoutPushAction=function(action){
+  if(action?.skill==='R')v830InferReceptionMeta(action);
+  return v830PushBase(action);
+};
+
+/* ---------- Code builder/parser ---------- */
+scoutBuildCode=function(a){
+  let token='';
+  if(a.team==='opponent'){
+    const n=String(a.playerLabel||'').match(/\d+/)?.[0]||String(a.playerNumberSnapshot||'').match(/\d+/)?.[0]||String(a.playerLabel||'').replace(/\s+/g,'').slice(0,4)||'?';
+    token='R'+n;
+  }else{
+    const p=scoutPlayer(a.playerId);
+    token=p?.number!==''&&p?.number!=null?String(p.number):(a.playerNumberSnapshot!==''&&a.playerNumberSnapshot!=null?String(a.playerNumberSnapshot):'P');
+  }
+  token+=a.skill+(a.evaluation||'!');
+  if(a.startZone&&a.endZone)token+=`.${a.startZone}>${a.endZone}`;
+  else if(typeof scoutV6108IsContactSkill==='function'&&scoutV6108IsContactSkill(a.skill)&&scoutV6108ContactZone(a))token+=`.${scoutV6108ContactZone(a)}`;
+  const serveMeta=a.skill==='R'?a.receivedServeType:a.serveType;
+  if(serveMeta)token+=`~${serveMeta}`;
+  const combo=a.setTarget||a.attackCombo;if(combo)token+=`:${combo}`;
+  if(a.skill==='A'&&a.attackDirection)token+=`*${a.attackDirection}`;
+  if(a.phase)token+=`^${a.phase}`;
+  if(a.blockers!==''&&a.blockers!=null)token+=`@${a.blockers}`;
+  return token;
+};
+
+const v830ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const direction=raw.match(/\*(LIN|DC|DL)/)?.[1]||'';
+  raw=raw.replace(/\*(LIN|DC|DL)/,'');
+  const parsed=v830ParseBase(raw,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;
+  if(a.skill==='R'){
+    a.receivedServeType=a.receivedServeType||a.serveType||'';
+    a.serveType='';
+    v830InferReceptionMeta(a,m);
+  }
+  if(a.skill==='A')a.attackDirection=direction||String(oldAction?.attackDirection||'');
+  else a.attackDirection='';
+  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+  return {action:a};
+};
+v680ParseCode=function(raw,m,oldAction=null){return scoutV6108ParseRaw(raw,m,oldAction)};
+
+/* ---------- Manual form ---------- */
+window.scoutAddManualAction=function(){
+  const team=$v('scout-action-team')?.value||'ours',pv=$v('scout-action-player')?.value||'',skill=$v('scout-action-skill')?.value||'S',combo=$v('scout-action-combo')?.value||'';
+  const zones=scoutV6108NormalizeZoneInput(skill,$v('scout-action-start')?.value||'',$v('scout-action-end')?.value||'');
+  const serve=$v('scout-action-serve-type')?.value||'';
+  scoutPushAction({
+    team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',
+    skill,evaluation:$v('scout-action-eval')?.value||'!',...zones,
+    serveType:skill==='S'?serve:'',
+    receivedServeType:skill==='R'?serve:'',
+    phase:$v('scout-action-phase')?.value||'',
+    setTarget:skill==='E'?combo:'',
+    attackCombo:skill==='A'?combo:'',
+    attackTempo:skill==='A'?($v('scout-action-tempo')?.value||''):'',
+    attackDirection:skill==='A'?($v('scout-action-direction')?.value||''):'',
+    blockers:skill==='A'?($v('scout-action-blockers')?.value||''):''
+  });
+};
+
+window.scoutUpdateAdvancedCodePreview=function(){
+  const skill=$v('scout-action-skill')?.value||'S',ev=$v('scout-action-eval')?.value||'!',start=$v('scout-action-start')?.value||'',end=$v('scout-action-end')?.value||'',
+    serve=$v('scout-action-serve-type')?.value||'',phase=$v('scout-action-phase')?.value||'',combo=$v('scout-action-combo')?.value||'',
+    direction=$v('scout-action-direction')?.value||'',blockers=$v('scout-action-blockers')?.value??'';
+  let c='N'+skill+ev;
+  if(start&&end)c+=`.${start}>${end}`;
+  else if(typeof scoutV6108IsContactSkill==='function'&&scoutV6108IsContactSkill(skill)&&(end||start))c+=`.`+(end||start);
+  if((skill==='S'||skill==='R')&&serve)c+=`~${serve}`;
+  if((skill==='E'||skill==='A')&&combo)c+=`:${combo}`;
+  if(skill==='A'&&direction)c+=`*${direction}`;
+  if(phase)c+=`^${phase}`;
+  if(skill==='A'&&blockers!=='')c+=`@${blockers}`;
+  if($v('scout-advanced-code-preview'))$v('scout-advanced-code-preview').textContent='Código: '+c;
+};
+
+const v830AdvancedBase=window.scoutUpdateAdvancedFields;
+window.scoutUpdateAdvancedFields=function(){
+  const out=v830AdvancedBase?.();
+  const skill=$v('scout-action-skill')?.value||'S';
+  $v('scout-adv-direction-wrap')?.classList.toggle('hidden',skill!=='A');
+  const lab=$v('scout-action-serve-label');
+  if(lab)lab.textContent=skill==='R'?'Tipo de saque recibido':'Tipo de saque';
+  const ctx=$v('scout-advanced-context');
+  if(ctx&&skill==='R')ctx.textContent='Zona de contacto + valoración + tipo de saque recibido';
+  if(ctx&&skill==='A')ctx.textContent='Combinación + dirección + fase + tempo + bloqueo';
+  scoutUpdateAdvancedCodePreview();
+  return out;
+};
+['scout-action-direction','scout-action-serve-type'].forEach(id=>$v(id)?.addEventListener('change',scoutUpdateAdvancedCodePreview));
+
+const v830MetaBase=scoutAdvancedMetaText;
+scoutAdvancedMetaText=function(a){
+  const parts=[];
+  const base=v830MetaBase(a);if(base)parts.push(base);
+  if(a?.skill==='R'&&a.receivedServeType)parts.push('Recibe '+(V830_SERVE[a.receivedServeType]||a.receivedServeType));
+  if(a?.skill==='A'&&a.attackDirection)parts.push(V830_ATTACK_DIR[a.attackDirection]||a.attackDirection);
+  return [...new Set(parts)].join(' · ');
+};
+
+/* ---------- Reception serve inference for saved rallies ---------- */
+function v830ReceptionServeType(m,row){
+  if(row?.receivedServeType)return row.receivedServeType;
+  if(row?.skill==='R'&&row?.serveType)return row.serveType;
+  const set=arr830(m?.sets).find(s=>Number(s.number)===Number(row?.set));
+  const rally=arr830(set?.rallies)[Math.max(0,Number(row?.rallyIndex||1)-1)];
+  if(!rally)return '';
+  const acts=arr830(rally.actions),idx=Math.max(0,Number(row?.actionIndex||1)-1),other=row.team==='ours'?'opponent':'ours';
+  const prev=acts.slice(0,idx).reverse().find(a=>a.team===other&&a.skill==='S');
+  return prev?.serveType||'';
+}
+function v830ReceptionSourceZone(m,row){
+  if(row?.sourceZone)return String(row.sourceZone);
+  const set=arr830(m?.sets).find(s=>Number(s.number)===Number(row?.set));
+  const rally=arr830(set?.rallies)[Math.max(0,Number(row?.rallyIndex||1)-1)];
+  if(!rally)return '';
+  const acts=arr830(rally.actions),idx=Math.max(0,Number(row?.actionIndex||1)-1),other=row.team==='ours'?'opponent':'ours';
+  const prev=acts.slice(0,idx).reverse().find(a=>a.team===other&&a.skill==='S');
+  return String(prev?.startZone||'');
+}
+
+/* ---------- Enhanced setter distribution ---------- */
+function v830SetterRows(m,team){
+  return scoutSequenceRows(m,team).filter(x=>x.target);
+}
+function v830PopulateSetterFilter(m,team){
+  const sel=$v('scout-distribution-setter-filter');if(!sel)return;
+  const old=sel.value,setters=[...new Set(v830SetterRows(m,team).map(x=>x.setter).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  sel.innerHTML='<option value="">Todos</option>'+setters.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  if(setters.includes(old))sel.value=old;
+}
+function scoutV830RenderSetterDistribution(){
+  const m=scoutMatchForAnalysis(),box=$v('scout-analysis-distribution');if(!m||!box)return;
+  const team=$v('scout-sequence-team-scope')?.value||'ours';
+  v830PopulateSetterFilter(m,team);
+  const setter=$v('scout-distribution-setter-filter')?.value||'',phase=$v('scout-distribution-phase-filter')?.value||'',rec=$v('scout-distribution-reception-filter')?.value||'';
+  let rows=v830SetterRows(m,team);
+  if(setter)rows=rows.filter(x=>x.setter===setter);
+  if(phase)rows=rows.filter(x=>x.phase===phase);
+  if(rec)rows=rows.filter(x=>x.receptionEval===rec);
+  const targets=['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'];
+  const data=targets.map(t=>{
+    const rr=rows.filter(x=>x.target===t),kills=rr.filter(x=>x.attackEval==='#').length,err=rr.filter(x=>x.attackEval==='=').length,blk=rr.filter(x=>x.attackEval==='/').length,att=rr.filter(x=>x.attackEval).length,wins=rr.filter(x=>x.win).length;
+    const rot=[1,2,3,4,5,6].map(n=>rr.filter(x=>Number(x.rotation)===n).length);
+    return {t,n:rr.length,kills,err,blk,att,wins,usage:pct830(rr.length,rows.length),killPct:pct830(kills,att),eff:att?Math.round((kills-err-blk)*100/att):0,winPct:pct830(wins,rr.length),rot};
+  }).filter(x=>x.n);
+  const top=data.slice().sort((a,b)=>b.n-a.n)[0],best=data.filter(x=>x.att>=3).slice().sort((a,b)=>b.eff-a.eff)[0];
+  box.innerHTML=data.length?`
+    <div class="scout-v830-kpis">
+      <div><span>Distribuciones</span><b>${rows.length}</b><small>${setter||'Todos los colocadores'}</small></div>
+      <div><span>Destino más usado</span><b>${top?esc(V620_COMBO_LABELS[top.t]||top.t):'—'}</b><small>${top?top.usage+'% · '+top.n+' balones':'—'}</small></div>
+      <div><span>Mejor EFF ataque</span><b>${best?best.eff+'%':'—'}</b><small>${best?esc(V620_COMBO_LABELS[best.t]||best.t)+' · n='+best.att:'muestra < 3'}</small></div>
+      <div><span>Rallies ganados</span><b>${rows.length?pct830(rows.filter(x=>x.win).length,rows.length)+'%':'—'}</b><small>${rows.filter(x=>x.win).length}/${rows.length}</small></div>
+    </div>
+    <div class="scout-v830-table-wrap"><table class="scout-v830-table scout-v830-matrix"><thead><tr><th>Destino</th>${[1,2,3,4,5,6].map(n=>`<th>R${n}</th>`).join('')}<th>Total</th><th>Uso</th><th>Kill%</th><th>EFF</th><th>Rally%</th></tr></thead><tbody>
+      ${data.map(x=>`<tr><td><b>${esc(V620_COMBO_LABELS[x.t]||x.t)}</b></td>${x.rot.map(v=>`<td class="rotation">${v||'—'}</td>`).join('')}<td><b>${x.n}</b></td><td>${x.usage}%</td><td>${x.att?x.killPct+'%':'—'}</td><td class="${x.eff>=20?'good':x.eff<0?'bad':''}">${x.att?x.eff+'%':'—'}</td><td>${x.winPct}%</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="scout-v830-note">Ejemplo de código de colocación: <b>3E+:Z1^K1</b>. El destino va después de <b>:</b>. Z1/Z6 quedan separados de PIPE/1T/31 para poder analizar la distribución real por rotación.</div>`
+    :'<div class="match-empty">No hay colocaciones con destino codificado para este filtro.</div>';
+}
+
+/* ---------- Attack directions ---------- */
+function v830PhaseForAction(a,team){return team==='ours'?(a.servingBefore==='ours'?'K2':'K1'):(a.servingBefore==='opponent'?'K2':'K1')}
+function v830RotationForAction(a,team){return team==='ours'?Number(a.rotation)||1:Number(a.opponentRotation)||1}
+function v830PopulatePlayers(selectId,m,team,skill){
+  const sel=$v(selectId);if(!sel)return;
+  const old=sel.value,rows=scoutActionRows(m,false).filter(a=>a.team===team&&a.skill===skill),map=new Map();
+  rows.forEach(a=>map.set(scoutPlayerKey(a),scoutActionPlayerLabel(a)));
+  sel.innerHTML='<option value="">Todos</option>'+[...map.entries()].sort((a,b)=>a[1].localeCompare(b[1],'es')).map(([k,l])=>`<option value="${esc(k)}">${esc(l)}</option>`).join('');
+  if(map.has(old))sel.value=old;
+}
+window.scoutV830RenderAttackDirections=function(){
+  const m=scoutMatchForAnalysis(),box=$v('scout-v830-attack-directions');if(!m||!box)return;
+  const team=$v('scout-v830-attack-team')?.value||'ours';v830PopulatePlayers('scout-v830-attack-player',m,team,'A');
+  const player=$v('scout-v830-attack-player')?.value||'',rot=Number($v('scout-v830-attack-rotation')?.value)||0,phase=$v('scout-v830-attack-phase')?.value||'';
+  let rows=scoutActionRows(m,false).filter(a=>a.team===team&&a.skill==='A');
+  if(player)rows=rows.filter(a=>scoutPlayerKey(a)===player);
+  if(rot)rows=rows.filter(a=>v830RotationForAction(a,team)===rot);
+  if(phase)rows=rows.filter(a=>v830PhaseForAction(a,team)===phase);
+  const coded=rows.filter(a=>a.attackDirection);
+  const data=['LIN','DC','DL'].map(dir=>{
+    const rr=coded.filter(a=>a.attackDirection===dir),kill=rr.filter(a=>a.evaluation==='#').length,err=rr.filter(a=>a.evaluation==='=').length,blk=rr.filter(a=>a.evaluation==='/').length;
+    const routeMap={};rr.forEach(a=>{const k=a.startZone&&a.endZone?`Z${a.startZone}→Z${a.endZone}`:'Sin trayectoria';routeMap[k]=(routeMap[k]||0)+1});
+    const top=Object.entries(routeMap).sort((a,b)=>b[1]-a[1])[0];
+    return {dir,n:rr.length,kill,err,blk,killPct:pct830(kill,rr.length),eff:rr.length?Math.round((kill-err-blk)*100/rr.length):0,top:top?.[0]||'—'};
+  }).filter(x=>x.n);
+  const uncoded=rows.length-coded.length;
+  box.innerHTML=data.length?`
+    <div class="scout-v830-kpis"><div><span>Ataques</span><b>${rows.length}</b><small>filtro actual</small></div><div><span>Dirección codificada</span><b>${pct830(coded.length,rows.length)}%</b><small>${coded.length}/${rows.length}</small></div><div><span>Sin dirección</span><b>${uncoded}</b><small>se pueden editar después</small></div><div><span>Dirección dominante</span><b>${esc(V830_ATTACK_DIR[data.slice().sort((a,b)=>b.n-a.n)[0]?.dir]||'—')}</b><small>por volumen</small></div></div>
+    <div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Dirección</th><th>Total</th><th>Kill</th><th>Error</th><th>Bloq.</th><th>Kill%</th><th>EFF</th><th>Trayectoria más usada</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(V830_ATTACK_DIR[x.dir])}</b></td><td>${x.n}</td><td>${x.kill}</td><td>${x.err}</td><td>${x.blk}</td><td>${x.killPct}%</td><td class="${x.eff>=20?'good':x.eff<0?'bad':''}">${x.eff}%</td><td>${esc(x.top)}</td></tr>`).join('')}</tbody></table></div>
+    <div class="scout-v830-codeguide"><div><code>12A#.4&gt;5*DL</code><span>Punto desde Z4 a Z5 · diagonal larga.</span></div><div><code>12A+.4&gt;1*LIN</code><span>Ataque positivo · línea.</span></div><div><code>12A/.4&gt;4*DC</code><span>Ataque bloqueado · diagonal corta.</span></div></div>`
+    :'<div class="match-empty">Todavía no hay ataques con dirección *LIN / *DC / *DL en este filtro.</div>';
+};
+
+/* ---------- Professional reception ---------- */
+window.scoutV830RenderReception=function(){
+  const m=scoutMatchForAnalysis(),box=$v('scout-v830-reception');if(!m||!box)return;
+  const team=$v('scout-v830-rec-team')?.value||'ours';v830PopulatePlayers('scout-v830-rec-player',m,team,'R');
+  const player=$v('scout-v830-rec-player')?.value||'',serve=$v('scout-v830-rec-serve')?.value||'',zone=$v('scout-v830-rec-zone')?.value||'';
+  let rows=scoutActionRows(m,false).filter(a=>a.team===team&&a.skill==='R').map(a=>({...a,_serve:v830ReceptionServeType(m,a),_source:v830ReceptionSourceZone(m,a),_contact:String(a.contactZone||a.endZone||a.startZone||'')}));
+  if(player)rows=rows.filter(a=>scoutPlayerKey(a)===player);
+  if(serve)rows=rows.filter(a=>a._serve===serve);
+  if(zone)rows=rows.filter(a=>a._contact===zone);
+  const groups=new Map();
+  rows.forEach(a=>{
+    const key=`${a._serve||'UNK'}|${a._contact||'?'}`;
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(a);
+  });
+  const data=[...groups.entries()].map(([key,rr])=>{
+    const [st,z]=key.split('|'),perfect=rr.filter(a=>a.evaluation==='#').length,pos=rr.filter(a=>['#','+'].includes(a.evaluation)).length,neg=rr.filter(a=>['-','/','='].includes(a.evaluation)).length,err=rr.filter(a=>a.evaluation==='=').length,so=rr.filter(a=>a.winner===team).length;
+    const src={};rr.forEach(a=>{if(a._source)src[a._source]=(src[a._source]||0)+1});const topSrc=Object.entries(src).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+    return {st,z,n:rr.length,perfect,pos,neg,err,so,posPct:pct830(pos,rr.length),excPct:pct830(perfect,rr.length),errPct:pct830(err,rr.length),soPct:pct830(so,rr.length),topSrc};
+  }).sort((a,b)=>b.n-a.n);
+  const perfect=rows.filter(a=>a.evaluation==='#').length,pos=rows.filter(a=>['#','+'].includes(a.evaluation)).length,err=rows.filter(a=>a.evaluation==='=').length,so=rows.filter(a=>a.winner===team).length;
+  box.innerHTML=rows.length?`
+    <div class="scout-v830-kpis"><div><span>Recepciones</span><b>${rows.length}</b><small>muestra filtrada</small></div><div><span>Positiva +/#</span><b>${pct830(pos,rows.length)}%</b><small>${pos}/${rows.length}</small></div><div><span>Excelente #</span><b>${pct830(perfect,rows.length)}%</b><small>${perfect}/${rows.length}</small></div><div><span>Side-out</span><b>${pct830(so,rows.length)}%</b><small>${so}/${rows.length} rallies ganados</small></div></div>
+    <div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Saque recibido</th><th>Zona</th><th>Origen saq.</th><th>Total</th><th>Pos%</th><th>Exc%</th><th>Errores</th><th>Err%</th><th>Side-out%</th></tr></thead><tbody>${data.map(x=>`<tr><td><b>${esc(V830_SERVE[x.st]||'No especificado')}</b></td><td>${x.z==='?'?'—':'Z'+esc(x.z)}</td><td>${x.topSrc==='—'?'—':'Z'+esc(x.topSrc)}</td><td>${x.n}</td><td class="${x.posPct>=60?'good':''}">${x.posPct}%</td><td>${x.excPct}%</td><td>${x.err}</td><td class="${x.errPct>=20?'bad':''}">${x.errPct}%</td><td class="${x.soPct>=60?'good':x.soPct<40?'bad':''}">${x.soPct}%</td></tr>`).join('')}</tbody></table></div>
+    <div class="scout-v830-codeguide"><div><code>7R#.6~JF</code><span>Perfecta en Z6 ante flotante en salto.</span></div><div><code>7R+.5~JP</code><span>Positiva en Z5 ante salto potente.</span></div><div><code>7R-.1~F</code><span>Negativa en Z1 ante flotante.</span></div></div>
+    <div class="scout-v830-note">Si antes registras el saque rival, por ejemplo <b>R4S+.1&gt;6~JF</b>, y después escribes <b>7R#.6</b>, Volley Coach intenta inferir automáticamente que la recepción llegó desde Z1 y que el saque era JF.</div>`
+    :'<div class="match-empty">No hay recepciones para este filtro.</div>';
+};
+
+/* ---------- Hook into existing analysis ---------- */
+const v830PerformanceBase=window.scoutRenderPerformanceAnalytics;
+window.scoutRenderPerformanceAnalytics=function(){
+  v830PerformanceBase?.();
+  scoutV830RenderSetterDistribution();
+  scoutV830RenderAttackDirections();
+  scoutV830RenderReception();
+};
+const v830AnalysisBase=window.scoutRenderAnalysis;
+window.scoutRenderAnalysis=function(){
+  v830AnalysisBase?.();
+  scoutV830RenderSetterDistribution();
+  scoutV830RenderAttackDirections();
+  scoutV830RenderReception();
+};
+
+/* ---------- CSV exports: tactical fields ---------- */
+const v830ExportCSVBase=window.scoutExportCSV;
+window.scoutExportCSV=function(id){
+  const m=scoutExportMatch(id);if(!m)return v830ExportCSVBase(id);
+  const rows=scoutExportRows(m);
+  const headers=['fecha','equipo','rival','competicion','set','rally','marcador_antes','marcador_despues','saque_antes','rotacion_nuestra','rotacion_rival','secuencia','equipo_accion','jugador','fundamento','valoracion','zona_origen','zona_destino','tipo_saque','tipo_saque_recibido','fase','combinacion','direccion_ataque','tempo_ataque','bloqueadores','codigo','tiempo_scout'];
+  const data=rows.map(a=>[m.date,EQUIPOS[equipoActivo].nombre,m.opponent,m.competition,a.set,a.rallyIndex,a.scoreBefore,a.scoreAfter,a.servingBefore==='ours'?'Nuestro':'Rival',a.rotation,a.opponentRotation,a.actionIndex,a.team==='ours'?'Nuestro':'Rival',scoutActionPlayerLabel(a),SCOUT_SKILLS[a.skill]||a.skill,a.evaluation,a.startZone,a.endZone,V620_SERVE_LABELS[a.serveType]||a.serveType||'',V830_SERVE[a.receivedServeType]||a.receivedServeType||'',V620_PHASE_LABELS[a.phase]||a.phase||'',V620_COMBO_LABELS[a.setTarget||a.attackCombo]||a.setTarget||a.attackCombo||'',V830_ATTACK_DIR[a.attackDirection]||a.attackDirection||'',a.attackTempo||'',a.blockers??'',a.code,scoutFormatTime(a.scoutMs)]);
+  const csv='\uFEFF'+[headers,...data].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');
+  scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_acciones.csv`);
+};
+
+/* Initial UI */
+scoutUpdateAdvancedFields();
+})();
+</script>
+
+
+
+<style id="v840-pro-rally-block-phase-style">
+.scout-v840-panel{border-top:3px solid #274b66!important}
+.scout-v840-editor-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:9px}.scout-v840-editor-summary>div{border:1px solid #dfe6ea;border-radius:8px;background:#f7fafb;padding:7px}.scout-v840-editor-summary span{display:block;font-size:6px;text-transform:uppercase;color:#7a8994;font-weight:900}.scout-v840-editor-summary b{display:block;font-size:10px;color:#24455d;margin-top:2px}
+.scout-v840-edit-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:7px;align-items:center;border:1px solid #dfe5e9;border-radius:9px;padding:7px;background:#fafcfd}.scout-v840-edit-row.has-warning{border-color:#e4c78e;background:#fffaf0}.scout-v840-edit-seq{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:#17324d;color:#fff;font-size:7px;font-weight:900}.scout-v840-edit-main{min-width:0}.scout-v840-edit-main input{width:100%;box-sizing:border-box;font-family:ui-monospace,SFMono-Regular,Consolas,monospace!important;font-size:9px!important;font-weight:850!important}.scout-v840-edit-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}.scout-v840-edit-meta span{padding:3px 5px;border-radius:999px;background:#eef3f6;color:#617684;font-size:6px}.scout-v840-edit-tools{display:grid;grid-template-columns:repeat(2,auto);gap:3px}.scout-v840-edit-tools button{min-width:28px!important;padding:5px!important;font-size:7px!important}.scout-v840-add{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:5px;margin-top:9px}.scout-v840-add input{font-family:ui-monospace,SFMono-Regular,Consolas,monospace!important;font-size:9px!important}.scout-v840-editor-help{margin-top:8px;padding:7px 8px;border-left:3px solid #557b93;background:#f3f7fa;color:#617482;font-size:7px;line-height:1.45}
+.scout-v840-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.scout-v840-subpanel{border:1px solid #dfe5e9;border-radius:9px;padding:8px;background:#fbfcfd}.scout-v840-subpanel h4{margin:0 0 6px;font-size:9px;color:#29475f}.scout-v840-codeguide{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.scout-v840-codeguide>div{border:1px solid #e0e6ea;border-radius:7px;padding:6px;background:#fff}.scout-v840-codeguide code{display:block;font-size:8px;font-weight:900;color:#173f68}.scout-v840-codeguide span{display:block;font-size:6.5px;color:#71818d;line-height:1.35;margin-top:2px}
+.scout-v840-resultlegend{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}.scout-v840-resultlegend span{padding:4px 6px;border-radius:999px;background:#eef3f6;color:#5f7382;font-size:6.4px}.scout-v840-resultlegend b{color:#203f57}
+.scout-v840-phase-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:8px}.scout-v840-phase-card{border:1px solid #dfe5e9;border-radius:8px;padding:7px;background:#f8fafb}.scout-v840-phase-card span{display:block;font-size:6px;text-transform:uppercase;color:#7b8994;font-weight:900}.scout-v840-phase-card b{display:block;font-size:14px;color:#17324d;margin:2px 0}.scout-v840-phase-card small{display:block;font-size:6px;color:#83909a;line-height:1.35}
+@media(max-width:900px){.scout-v840-editor-summary{grid-template-columns:repeat(2,1fr)}.scout-v840-grid{grid-template-columns:1fr}.scout-v840-phase-cards{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.scout-v840-add{grid-template-columns:1fr 1fr}.scout-v840-add input{grid-column:1/-1}.scout-v840-phase-cards{grid-template-columns:1fr 1fr}}
+</style>
+
+
+<script id="v840-pro-rally-block-phase-module">
+(()=>{
+'use strict';
+const V840_VERSION='8.4.0';
+const $84=id=>document.getElementById(id);
+const a84=v=>Array.isArray(v)?v:[];
+const pct84=(n,d)=>d?Math.round(Number(n||0)*100/Number(d||0)):0;
+const BLOCK_EVAL={
+  '#':'Punto de bloqueo',
+  '+':'Toque positivo / controlado',
+  '!':'Toque de continuidad',
+  '-':'Toque negativo',
+  '/':'Block-out',
+  '=':'Error de bloqueo'
+};
+
+/* ==========================================================
+   BLOCKING METADATA + CODE
+   Format: 4B#.3@2&12
+   ========================================================== */
+const v840NormBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v840NormBase(a);
+  x.blockTargetNumber=String(a?.blockTargetNumber||'').replace(/\D/g,'').slice(0,3);
+  x.blockTargetLabel=String(a?.blockTargetLabel||'');
+  if(x.skill!=='B'){x.blockTargetNumber='';x.blockTargetLabel=''}
+  return x;
+};
+
+function v840InferBlockTarget(action,m=scoutActive()){
+  if(!action||action.skill!=='B'||!m)return action;
+  const other=action.team==='ours'?'opponent':'ours';
+  const prev=[...a84(m.liveRally?.actions)].reverse().find(a=>a.team===other&&a.skill==='A');
+  if(prev&&!action.blockTargetNumber){
+    action.blockTargetNumber=String(prev.playerNumberSnapshot||String(prev.playerLabel||'').match(/\d+/)?.[0]||'');
+    action.blockTargetLabel=scoutActionPlayerLabel(prev);
+  }
+  return action;
+}
+
+const v840PushBase=scoutPushAction;
+scoutPushAction=function(action){
+  if(action?.skill==='B')v840InferBlockTarget(action);
+  return v840PushBase(action);
+};
+
+const v840BuildBase=scoutBuildCode;
+scoutBuildCode=function(a){
+  if(a?.skill!=='B')return v840BuildBase(a);
+  const z=String(a.startZone||a.contactZone||'');
+  const copy={...a,startZone:z,endZone:z||''};
+  let code=v840BuildBase(copy);
+  if(z)code=code.replace(`.${z}>${z}`,`.${z}`);
+  if(a.blockTargetNumber)code+=`&${String(a.blockTargetNumber).replace(/\D/g,'').slice(0,3)}`;
+  return code;
+};
+
+const v840ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const target=original.match(/&(\d{1,3})/)?.[1]||'';
+  const blockSize=original.match(/@([1-3])/)?.[1]||'';
+  let cleaned=original.replace(/&\d{1,3}/,'');
+  let singleBlockZone='';
+  const bz=cleaned.match(/^(R)?(\d+)B([#\+!\-\/=])?\.([1-9])(?!>)/);
+  if(bz){
+    singleBlockZone=bz[4];
+    cleaned=cleaned.replace(`.${singleBlockZone}`,`.${singleBlockZone}>${singleBlockZone}`);
+  }
+  const parsed=v840ParseBase(cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;
+  if(a.skill==='B'){
+    if(singleBlockZone){a.startZone=singleBlockZone;a.endZone='';a.contactZone=singleBlockZone}
+    a.blockers=blockSize||String(oldAction?.blockers||'');
+    a.blockTargetNumber=target||String(oldAction?.blockTargetNumber||'');
+    if(!a.blockTargetNumber)v840InferBlockTarget(a,m);
+  }else{
+    a.blockTargetNumber='';
+    a.blockTargetLabel='';
+  }
+  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+  return {action:a};
+};
+v680ParseCode=function(raw,m,oldAction=null){return scoutV6108ParseRaw(raw,m,oldAction)};
+
+/* ---------- Manual blocking fields ---------- */
+const v840ManualBase=window.scoutAddManualAction;
+window.scoutAddManualAction=function(){
+  const skill=$84('scout-action-skill')?.value||'S';
+  if(skill!=='B')return v840ManualBase();
+  const team=$84('scout-action-team')?.value||'ours',pv=$84('scout-action-player')?.value||'',
+    z=$84('scout-action-start')?.value||$84('scout-action-end')?.value||'';
+  scoutPushAction({
+    team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',
+    skill:'B',evaluation:$84('scout-action-eval')?.value||'!',
+    startZone:z,endZone:'',contactZone:z,
+    phase:$84('scout-action-phase')?.value||'',
+    blockers:$84('scout-action-blockers')?.value||'',
+    blockTargetNumber:String($84('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3)
+  });
+};
+
+const v840FieldsBase=window.scoutUpdateAdvancedFields;
+window.scoutUpdateAdvancedFields=function(){
+  const out=v840FieldsBase?.();
+  const skill=$84('scout-action-skill')?.value||'S',isB=skill==='B';
+  $84('scout-adv-block-wrap')?.classList.toggle('hidden',!(skill==='A'||isB));
+  $84('scout-v840-block-target-wrap')?.classList.toggle('hidden',!isB);
+  if(isB){
+    const sl=$84('scout-action-start-label'),el=$84('scout-action-end-wrap'),ctx=$84('scout-advanced-context');
+    if(sl)sl.textContent='Zona de bloqueo';
+    el?.classList.add('hidden');
+    const lab=$84('scout-adv-block-wrap')?.querySelector('span');if(lab)lab.textContent='Tamaño del bloqueo';
+    if(ctx)ctx.textContent='Zona + individual/doble/triple + atacante objetivo';
+  }else{
+    $84('scout-action-end-wrap')?.classList.remove('hidden');
+    const lab=$84('scout-adv-block-wrap')?.querySelector('span');if(lab)lab.textContent='Bloqueadores';
+  }
+  scoutUpdateAdvancedCodePreview();
+  return out;
+};
+
+const v840PreviewBase=window.scoutUpdateAdvancedCodePreview;
+window.scoutUpdateAdvancedCodePreview=function(){
+  const skill=$84('scout-action-skill')?.value||'S';
+  if(skill!=='B')return v840PreviewBase?.();
+  const ev=$84('scout-action-eval')?.value||'!',z=$84('scout-action-start')?.value||$84('scout-action-end')?.value||'',
+    phase=$84('scout-action-phase')?.value||'',size=$84('scout-action-blockers')?.value||'',target=String($84('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3);
+  let c='NB'+ev;if(z)c+=`.${z}`;if(phase)c+=`^${phase}`;if(size)c+=`@${size}`;if(target)c+=`&${target}`;
+  if($84('scout-advanced-code-preview'))$84('scout-advanced-code-preview').textContent='Código: '+c;
+};
+$84('scout-v840-block-target')?.addEventListener('input',scoutUpdateAdvancedCodePreview);
+
+/* ==========================================================
+   PROFESSIONAL RALLY EDITOR
+   ========================================================== */
+function v840EditorRally(){
+  const c=v680EditContext,m=scoutActive(),s=a84(m?.sets).find(x=>Number(x.number)===Number(c?.setNo));
+  return s?.rallies?.find(x=>Number(x.id)===Number(c?.rallyId))||null;
+}
+function v840ActionMeta(a){
+  const bits=[a.team==='ours'?'Nuestro':'Rival',SCOUT_SKILLS[a.skill]||a.skill,BLOCK_EVAL[a.evaluation]&&a.skill==='B'?BLOCK_EVAL[a.evaluation]:a.evaluation];
+  if(a.skill==='B'&&a.blockers)bits.push(a.blockers==='1'?'Individual':a.blockers==='2'?'Doble':'Triple');
+  if(a.skill==='B'&&a.blockTargetNumber)bits.push('vs #'+a.blockTargetNumber);
+  if(a.skill==='B'&&a.startZone)bits.push('Z'+a.startZone);
+  if(a.videoTime!=null)bits.push('vídeo '+Math.floor(Number(a.videoTime))+'s');
+  return bits.filter(Boolean);
+}
+window.scoutV840MoveEditAction=function(i,delta){
+  if(v680EditContext?.mode!=='rally')return;
+  i=Number(i);const j=i+Number(delta);
+  if(j<0||j>=v680EditContext.actions.length)return;
+  const [x]=v680EditContext.actions.splice(i,1);v680EditContext.actions.splice(j,0,x);
+  scoutV680RenderRallyEditor();
+};
+window.scoutV840DuplicateEditAction=function(i){
+  if(v680EditContext?.mode!=='rally')return;
+  i=Number(i);const src=v680EditContext.actions[i];if(!src)return;
+  const c=scoutClone(src);c.id=Date.now()+Math.floor(Math.random()*1000);c.createdAt=scoutNow();c.seq=i+2;
+  v680EditContext.actions.splice(i+1,0,c);scoutV680RenderRallyEditor();
+};
+window.scoutV840AddAt=function(where='end'){
+  if(v680EditContext?.mode!=='rally')return;
+  const input=$84('scout-v680-new-code'),raw=String(input?.value||'').trim(),m=scoutActive();
+  if(!raw){input?.focus();return}
+  const parsed=v680ParseCode(raw,m,null);if(parsed.error){alert(parsed.error);input?.focus();return}
+  parsed.action.id=Date.now()+Math.floor(Math.random()*1000);parsed.action.createdAt=scoutNow();
+  const r=v840EditorRally();parsed.action.scoutMs=Number(r?.scoutEndMs)||0;
+  if(where==='start')v680EditContext.actions.unshift(parsed.action);else v680EditContext.actions.push(parsed.action);
+  scoutV680RenderRallyEditor();setTimeout(()=>$84('scout-v680-new-code')?.focus(),0);
+};
+window.scoutV680AddEditAction=function(){scoutV840AddAt('end')};
+
+window.scoutV680RenderRallyEditor=function(){
+  const c=v680EditContext,body=$84('scout-v680-rally-body'),footer=$84('scout-v680-rally-footer'),r=v840EditorRally();
+  if(!body||c?.mode!=='rally'||!r)return;
+  const warnings=c.actions.reduce((n,a)=>n+a84(a.validationWarnings).length,0);
+  body.innerHTML=`
+    <div class="scout-v840-editor-summary">
+      <div><span>Marcador</span><b>${r.scoreBefore.us}-${r.scoreBefore.opponent} → ${r.scoreAfter.us}-${r.scoreAfter.opponent}</b></div>
+      <div><span>Ganador</span><b>${r.winner==='ours'?'Nuestro':'Rival'}</b></div>
+      <div><span>Saque</span><b>${r.servingBefore==='ours'?'Nuestro':'Rival'}</b></div>
+      <div><span>Rotaciones</span><b>R${r.rotationBefore} · Rival R${r.opponentRotationBefore||1}</b></div>
+      <div><span>Acciones</span><b>${c.actions.length}${warnings?' · '+warnings+' avisos':''}</b></div>
+    </div>
+    <div class="scout-v680-edit-list">${c.actions.map((a,i)=>`
+      <div class="scout-v840-edit-row ${a84(a.validationWarnings).length?'has-warning':''}">
+        <span class="scout-v840-edit-seq">${i+1}</span>
+        <div class="scout-v840-edit-main">
+          <input id="scout-v680-edit-code-${i}" value="${v680Esc(a.code||scoutBuildCode(a))}" spellcheck="false">
+          <div class="scout-v840-edit-meta">${v840ActionMeta(a).map(x=>`<span>${v680Esc(x)}</span>`).join('')}${a84(a.validationWarnings).map(x=>`<span>⚠ ${v680Esc(x)}</span>`).join('')}</div>
+        </div>
+        <div class="scout-v840-edit-tools">
+          <button class="ghost" ${i===0?'disabled':''} onclick="scoutV840MoveEditAction(${i},-1)" title="Subir">↑</button>
+          <button class="ghost" ${i===c.actions.length-1?'disabled':''} onclick="scoutV840MoveEditAction(${i},1)" title="Bajar">↓</button>
+          <button class="ghost" onclick="scoutV840DuplicateEditAction(${i})" title="Duplicar">⧉</button>
+          <button class="danger" onclick="scoutV680RemoveEditAction(${i})" title="Eliminar">×</button>
+        </div>
+      </div>`).join('')||'<div class="match-empty">Este rally no tiene acciones.</div>'}</div>
+    <div class="scout-v840-add"><input id="scout-v680-new-code" placeholder="Añadir acción · ej. 4B#.3@2&12" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();scoutV840AddAt('end')}"><button class="ghost" onclick="scoutV840AddAt('start')">＋ Al inicio</button><button class="primary" onclick="scoutV840AddAt('end')">＋ Al final</button></div>
+    <div class="scout-v840-editor-help"><b>Editor profesional:</b> puedes corregir códigos, reordenar ↑↓, duplicar, eliminar o insertar acciones. Al guardar se vuelve a interpretar cada código con la gramática actual V8.4. Marcador, ganador y rotaciones siguen protegidos para evitar romper el partido.</div>`;
+  if(footer)footer.innerHTML=`<div><button class="ghost" onclick="scoutV680OpenSetEditor(${c.setNo})">← Volver al set</button></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cancelar</button><button class="primary" onclick="scoutV680SaveRallyEdit()">Guardar rally</button></div>`;
+};
+
+/* ==========================================================
+   PROFESSIONAL BLOCK ANALYSIS
+   ========================================================== */
+function v840PlayerKey(a){return scoutPlayerKey(a)}
+function v840PopulateBlockPlayers(m,team){
+  const sel=$84('scout-v840-block-player');if(!sel)return;
+  const old=sel.value,map=new Map();
+  scoutActionRows(m,false).filter(a=>a.team===team&&a.skill==='B').forEach(a=>map.set(v840PlayerKey(a),scoutActionPlayerLabel(a)));
+  sel.innerHTML='<option value="">Todos</option>'+[...map.entries()].sort((a,b)=>a[1].localeCompare(b[1],'es')).map(([k,v])=>`<option value="${esc(k)}">${esc(v)}</option>`).join('');
+  if(map.has(old))sel.value=old;
+}
+window.scoutV840RenderBlocking=function(){
+  const m=scoutMatchForAnalysis(),box=$84('scout-v840-blocking');if(!m||!box)return;
+  const team=$84('scout-v840-block-team')?.value||'ours';v840PopulateBlockPlayers(m,team);
+  const player=$84('scout-v840-block-player')?.value||'',size=$84('scout-v840-block-size')?.value||'',zone=$84('scout-v840-block-zone')?.value||'';
+  let rows=scoutActionRows(m,false).filter(a=>a.team===team&&a.skill==='B');
+  if(player)rows=rows.filter(a=>v840PlayerKey(a)===player);
+  if(size)rows=rows.filter(a=>String(a.blockers||'')===size);
+  if(zone)rows=rows.filter(a=>String(a.startZone||a.contactZone||'')===zone);
+  const point=rows.filter(a=>a.evaluation==='#').length,pos=rows.filter(a=>a.evaluation==='+').length,cont=rows.filter(a=>a.evaluation==='!').length,
+    neg=rows.filter(a=>a.evaluation==='-').length,bo=rows.filter(a=>a.evaluation==='/').length,err=rows.filter(a=>a.evaluation==='=').length;
+  const sizes=[1,2,3].map(n=>({n,total:rows.filter(a=>String(a.blockers)===String(n)).length,pts:rows.filter(a=>String(a.blockers)===String(n)&&a.evaluation==='#').length}));
+  const targets=new Map();rows.forEach(a=>{const k=String(a.blockTargetNumber||'');if(k){if(!targets.has(k))targets.set(k,{n:0,pts:0});const x=targets.get(k);x.n++;if(a.evaluation==='#')x.pts++}});
+  const targetRows=[...targets.entries()].sort((a,b)=>b[1].n-a[1].n).slice(0,8);
+  box.innerHTML=rows.length?`
+    <div class="scout-v830-kpis"><div><span>Acciones de bloqueo</span><b>${rows.length}</b><small>filtro actual</small></div><div><span>Puntos</span><b>${point}</b><small>${pct84(point,rows.length)}%</small></div><div><span>Toque + / !</span><b>${pos+cont}</b><small>control/continuidad</small></div><div><span>Block-out + error</span><b>${bo+err}</b><small>${pct84(bo+err,rows.length)}%</small></div></div>
+    <div class="scout-v840-grid">
+      <div class="scout-v840-subpanel"><h4>Resultado del bloqueo</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Resultado</th><th>Total</th><th>%</th></tr></thead><tbody>
+      ${[['#','Punto',point],['+','Toque positivo',pos],['!','Continuidad',cont],['-','Toque negativo',neg],['/','Block-out',bo],['=','Error',err]].map(x=>`<tr><td><b>${x[0]} · ${x[1]}</b></td><td>${x[2]}</td><td>${pct84(x[2],rows.length)}%</td></tr>`).join('')}
+      </tbody></table></div></div>
+      <div class="scout-v840-subpanel"><h4>Tamaño del bloqueo</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Bloqueo</th><th>Total</th><th>Puntos</th><th>Punto%</th></tr></thead><tbody>
+      ${sizes.map(x=>`<tr><td><b>${x.n===1?'Individual':x.n===2?'Doble':'Triple'}</b></td><td>${x.total}</td><td>${x.pts}</td><td>${x.total?pct84(x.pts,x.total)+'%':'—'}</td></tr>`).join('')}
+      </tbody></table></div></div>
+    </div>
+    ${targetRows.length?`<div class="scout-v840-subpanel" style="margin-top:8px"><h4>Atacantes objetivo</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Atacante rival</th><th>Bloqueos</th><th>Puntos</th><th>Punto%</th></tr></thead><tbody>${targetRows.map(([k,x])=>`<tr><td><b>#${esc(k)}</b></td><td>${x.n}</td><td>${x.pts}</td><td>${pct84(x.pts,x.n)}%</td></tr>`).join('')}</tbody></table></div></div>`:''}
+    <div class="scout-v840-codeguide"><div><code>4B#.3@2&amp;12</code><span>Punto en Z3 · bloqueo doble · sobre atacante #12.</span></div><div><code>4B+.3@2&amp;12</code><span>Toque positivo/controlado.</span></div><div><code>4B/.4@1&amp;9</code><span>Block-out en Z4 · bloqueo individual · atacante #9.</span></div></div>
+    <div class="scout-v840-resultlegend"><span><b>#</b> punto</span><span><b>+</b> toque positivo</span><span><b>!</b> continuidad</span><span><b>-</b> toque negativo</span><span><b>/</b> block-out</span><span><b>=</b> error</span></div>`
+    :'<div class="match-empty">No hay acciones de bloqueo para este filtro.</div>';
+};
+
+/* ==========================================================
+   ADVANCED BREAK POINT / SIDE-OUT
+   ========================================================== */
+function v840AllRallies(m,team){
+  const setFilter=Number($84('scout-v840-phase-set')?.value)||0,rotFilter=Number($84('scout-v840-phase-rotation')?.value)||0,out=[];
+  a84(m?.sets).forEach(set=>a84(set.rallies).forEach((r,ri)=>{
+    const rotation=team==='ours'?Number(r.rotationBefore||1):Number(r.opponentRotationBefore||1);
+    if(setFilter&&Number(set.number)!==setFilter)return;if(rotFilter&&rotation!==rotFilter)return;
+    const phase=r.servingBefore===team?'K2':'K1';
+    out.push({set:set.number,index:ri+1,r,rotation,phase,win:r.winner===team,actions:a84(r.actions).filter(a=>a.team===team)});
+  }));
+  return out;
+}
+function v840PopulatePhaseSets(m){
+  const sel=$84('scout-v840-phase-set');if(!sel)return;const old=sel.value;
+  sel.innerHTML='<option value="">Todos</option>'+a84(m?.sets).map(s=>`<option value="${s.number}">Set ${s.number}</option>`).join('');
+  if([...sel.options].some(o=>o.value===old))sel.value=old;
+}
+function v840ReceiverRows(rallies,team){
+  const map=new Map();
+  rallies.filter(x=>x.phase==='K1').forEach(x=>{
+    const r=x.actions.find(a=>a.skill==='R');if(!r)return;
+    const key=scoutPlayerKey(r),label=scoutActionPlayerLabel(r);
+    if(!map.has(key))map.set(key,{key,label,total:0,won:0,pos:0,perfect:0,err:0});
+    const z=map.get(key);z.total++;if(x.win)z.won++;if(['#','+'].includes(r.evaluation))z.pos++;if(r.evaluation==='#')z.perfect++;if(r.evaluation==='=')z.err++;
+  });
+  return [...map.values()].sort((a,b)=>b.total-a.total);
+}
+function v840ServerRows(rallies,team){
+  const map=new Map();
+  rallies.filter(x=>x.phase==='K2').forEach(x=>{
+    const s=x.actions.find(a=>a.skill==='S');if(!s)return;
+    const key=scoutPlayerKey(s),label=scoutActionPlayerLabel(s);
+    if(!map.has(key))map.set(key,{key,label,total:0,bp:0,ace:0,err:0});
+    const z=map.get(key);z.total++;if(x.win)z.bp++;if(s.evaluation==='#')z.ace++;if(s.evaluation==='=')z.err++;
+  });
+  return [...map.values()].sort((a,b)=>b.total-a.total);
+}
+function v840ReceptionQuality(rallies){
+  return ['#','+','!','-','/','='].map(ev=>{
+    const rr=rallies.filter(x=>x.phase==='K1'&&x.actions.some(a=>a.skill==='R'&&a.evaluation===ev));
+    return {ev,total:rr.length,won:rr.filter(x=>x.win).length};
+  }).filter(x=>x.total);
+}
+function v840Rotations(rallies){
+  return [1,2,3,4,5,6].map(no=>{
+    const k1=rallies.filter(x=>x.rotation===no&&x.phase==='K1'),k2=rallies.filter(x=>x.rotation===no&&x.phase==='K2');
+    return {no,k1:k1.length,k1w:k1.filter(x=>x.win).length,k2:k2.length,k2w:k2.filter(x=>x.win).length};
+  });
+}
+window.scoutV840RenderPhaseAdvanced=function(){
+  const m=scoutMatchForAnalysis(),box=$84('scout-v840-phase-advanced');if(!m||!box)return;
+  v840PopulatePhaseSets(m);
+  const team=$84('scout-v840-phase-team')?.value||'ours',rallies=v840AllRallies(m,team),k1=rallies.filter(x=>x.phase==='K1'),k2=rallies.filter(x=>x.phase==='K2'),
+    k1w=k1.filter(x=>x.win).length,k2w=k2.filter(x=>x.win).length,firstAttackKills=k1.filter(x=>x.actions.find(a=>a.skill==='A')?.evaluation==='#').length,
+    aceBP=k2.filter(x=>x.actions.some(a=>a.skill==='S'&&a.evaluation==='#')&&x.win).length,transitionBP=k2w-aceBP,
+    receivers=v840ReceiverRows(rallies,team),servers=v840ServerRows(rallies,team),quality=v840ReceptionQuality(rallies),rots=v840Rotations(rallies);
+  box.innerHTML=`
+    <div class="scout-v840-phase-cards">
+      <div class="scout-v840-phase-card"><span>Side-out</span><b>${k1.length?pct84(k1w,k1.length)+'%':'—'}</b><small>${k1w}/${k1.length} K1 ganados</small></div>
+      <div class="scout-v840-phase-card"><span>1er ataque K1 #</span><b>${k1.length?pct84(firstAttackKills,k1.length)+'%':'—'}</b><small>${firstAttackKills}/${k1.length} rallies</small></div>
+      <div class="scout-v840-phase-card"><span>Break Point</span><b>${k2.length?pct84(k2w,k2.length)+'%':'—'}</b><small>${k2w}/${k2.length} al saque</small></div>
+      <div class="scout-v840-phase-card"><span>BP por ace</span><b>${k2w?pct84(aceBP,k2w)+'%':'—'}</b><small>${aceBP} de ${k2w} BP</small></div>
+      <div class="scout-v840-phase-card"><span>BP transición</span><b>${k2w?pct84(transitionBP,k2w)+'%':'—'}</b><small>${transitionBP} sin ace</small></div>
+      <div class="scout-v840-phase-card"><span>Rallies</span><b>${rallies.length}</b><small>K1 ${k1.length} · K2 ${k2.length}</small></div>
+    </div>
+    <div class="scout-v840-grid">
+      <div class="scout-v840-subpanel"><h4>Side-out por receptora</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Receptora</th><th>Rec.</th><th>Pos%</th><th>Exc%</th><th>Err</th><th>SO%</th></tr></thead><tbody>${receivers.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${pct84(x.pos,x.total)}%</td><td>${pct84(x.perfect,x.total)}%</td><td>${x.err}</td><td class="${pct84(x.won,x.total)>=60?'good':pct84(x.won,x.total)<45?'bad':''}">${pct84(x.won,x.total)}%</td></tr>`).join('')||'<tr><td colspan="6">Sin recepción individual codificada.</td></tr>'}</tbody></table></div></div>
+      <div class="scout-v840-subpanel"><h4>Break Point por sacadora</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Sacadora</th><th>Saques</th><th>BP</th><th>BP%</th><th>Aces</th><th>Err</th></tr></thead><tbody>${servers.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.bp}</td><td class="${pct84(x.bp,x.total)>=45?'good':pct84(x.bp,x.total)<30?'bad':''}">${pct84(x.bp,x.total)}%</td><td>${x.ace}</td><td>${x.err}</td></tr>`).join('')||'<tr><td colspan="6">Sin saque individual codificado.</td></tr>'}</tbody></table></div></div>
+    </div>
+    <div class="scout-v840-grid" style="margin-top:8px">
+      <div class="scout-v840-subpanel"><h4>Side-out según calidad de recepción</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Recepción</th><th>Rallies</th><th>Ganados</th><th>SO%</th></tr></thead><tbody>${quality.map(x=>`<tr><td><b>${x.ev}</b></td><td>${x.total}</td><td>${x.won}</td><td>${pct84(x.won,x.total)}%</td></tr>`).join('')||'<tr><td colspan="4">Sin recepciones codificadas.</td></tr>'}</tbody></table></div></div>
+      <div class="scout-v840-subpanel"><h4>K1 / K2 por rotación</h4><div class="scout-v830-table-wrap"><table class="scout-v830-table"><thead><tr><th>Rot.</th><th>K1</th><th>SO%</th><th>K2</th><th>BP%</th></tr></thead><tbody>${rots.map(x=>`<tr><td><b>R${x.no}</b></td><td>${x.k1}</td><td>${x.k1?pct84(x.k1w,x.k1)+'%':'—'}</td><td>${x.k2}</td><td>${x.k2?pct84(x.k2w,x.k2)+'%':'—'}</td></tr>`).join('')}</tbody></table></div></div>
+    </div>
+    <div class="scout-v840-editor-help"><b>Lectura:</b> Side-out% = rallies K1 ganados / rallies recibidos. BP% = rallies K2 ganados / rallies iniciados al saque. “1er ataque K1 #” mide si el primer ataque registrado de K1 fue punto; no sustituye al Side-out.</div>`;
+};
+
+/* ---------- Hook analysis ---------- */
+const v840PerfBase=window.scoutRenderPerformanceAnalytics;
+window.scoutRenderPerformanceAnalytics=function(){
+  v840PerfBase?.();
+  scoutV840RenderBlocking();
+  scoutV840RenderPhaseAdvanced();
+};
+const v840AnalysisBase=window.scoutRenderAnalysis;
+window.scoutRenderAnalysis=function(){
+  v840AnalysisBase?.();
+  scoutV840RenderBlocking();
+  scoutV840RenderPhaseAdvanced();
+};
+
+/* ---------- Meta text ---------- */
+const v840MetaBase=scoutAdvancedMetaText;
+scoutAdvancedMetaText=function(a){
+  const bits=[];const b=v840MetaBase(a);if(b)bits.push(b);
+  if(a?.skill==='B'){
+    if(a.startZone)bits.push('Bloqueo Z'+a.startZone);
+    if(a.blockTargetNumber)bits.push('vs #'+a.blockTargetNumber);
+    if(BLOCK_EVAL[a.evaluation])bits.push(BLOCK_EVAL[a.evaluation]);
+  }
+  return [...new Set(bits)].join(' · ');
+};
+
+/* ---------- CSV action export gets block target ---------- */
+const v840CSVBase=window.scoutExportCSV;
+window.scoutExportCSV=function(id){
+  const m=scoutExportMatch(id);if(!m)return v840CSVBase(id);
+  const rows=scoutExportRows(m);
+  const headers=['fecha','equipo','rival','competicion','set','rally','marcador_antes','marcador_despues','saque_antes','rotacion_nuestra','rotacion_rival','secuencia','equipo_accion','jugador','fundamento','valoracion','zona_origen','zona_destino','tipo_saque','tipo_saque_recibido','fase','combinacion','direccion_ataque','tempo_ataque','tamano_bloqueo','atacante_objetivo','codigo','tiempo_scout'];
+  const data=rows.map(a=>[m.date,EQUIPOS[equipoActivo].nombre,m.opponent,m.competition,a.set,a.rallyIndex,a.scoreBefore,a.scoreAfter,a.servingBefore==='ours'?'Nuestro':'Rival',a.rotation,a.opponentRotation,a.actionIndex,a.team==='ours'?'Nuestro':'Rival',scoutActionPlayerLabel(a),SCOUT_SKILLS[a.skill]||a.skill,a.evaluation,a.startZone,a.endZone,V620_SERVE_LABELS[a.serveType]||a.serveType||'',V830_SERVE?.[a.receivedServeType]||a.receivedServeType||'',V620_PHASE_LABELS[a.phase]||a.phase||'',V620_COMBO_LABELS[a.setTarget||a.attackCombo]||a.setTarget||a.attackCombo||'',V830_ATTACK_DIR?.[a.attackDirection]||a.attackDirection||'',a.attackTempo||'',a.blockers??'',a.blockTargetNumber||'',a.code,scoutFormatTime(a.scoutMs)]);
+  const csv='\uFEFF'+[headers,...data].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');
+  scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_acciones.csv`);
+};
+
+/* Init */
+scoutUpdateAdvancedFields();
 })();
 </script>
 
