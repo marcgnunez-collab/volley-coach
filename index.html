@@ -1650,6 +1650,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
         <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
         <button id="v851-video-note-btn" class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
+        <button id="v853-rally-editor-btn" class="ghost" onclick="v853OpenRallyEditor()">✎ Editar rallies</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
         <button class="ghost" onclick="v841OpenCheatSheet()">⌨ Chuleta códigos</button>
         <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
@@ -1715,11 +1716,15 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             </div>
 
             <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 7R#.6~JF · 12A#.4>5*DL" onkeydown="if(event.key==='Enter'){event.preventDefault();v852AddCode()}">
-              <button id="v852-add-code-btn" class="primary" onclick="v852AddCode()">Añadir</button>
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · usa exactamente los mismos códigos que Scouting completo" onkeydown="if(event.key==='Enter'){event.preventDefault();v853AddCode()}">
+              <button id="v853-add-code-btn" class="primary" onclick="v853AddCode()">Añadir</button>
               <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
-            <div id="v852-code-status" class="v852-code-status">Listo para registrar códigos.</div>
+            <div id="v852-code-status" class="v852-code-status">Mismo motor de códigos que Scouting completo.</div>
+            <div class="v853-code-tools">
+              <button class="ghost" onclick="showView('scouting',botonVista('scouting'));setTimeout(()=>document.getElementById('scout-code-input')?.focus(),50)">Abrir consola completa</button>
+              <button class="ghost" onclick="v853OpenRallyEditor()">✎ Editor de rallies</button>
+            </div>
             <div class="v800-code-presets">
               <button onclick="v800Preset('S#')">Saque #</button><button onclick="v800Preset('S=')">Saque =</button>
               <button onclick="v800Preset('R#')">Recepción #</button><button onclick="v800Preset('R-')">Recepción −</button>
@@ -4947,7 +4952,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.3', {
         updateViaCache: 'none'
       });
 
@@ -18963,6 +18968,192 @@ window.v852CodeDiagnostics=()=>({
   parser:typeof scoutV6108ParseRaw,push:typeof scoutPushAction,
   players:players().map(p=>({id:p.id,number:p.number,name:p.name})),
   input:!!$c('v800-code'),button:!!$c('v852-add-code-btn')
+});
+})();
+</script>
+
+
+
+<style id="v853-code-engine-fix-style">
+.v853-code-tools{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:5px 0}
+.v853-code-tools button{font-size:6.7px!important;padding:5px 6px!important}
+#v853-add-code-btn.busy{opacity:.72;pointer-events:none}
+@media(max-width:600px){.v853-code-tools{grid-template-columns:1fr}}
+</style>
+
+
+<script id="v853-complete-scout-code-bridge">
+(()=>{
+'use strict';
+const VERSION='8.5.3';
+const $m=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function setStatus(msg,type=''){
+  const el=$m('v852-code-status');if(!el)return;
+  el.textContent=msg;
+  el.className='v852-code-status'+(type?' '+type:'');
+}
+function selectedMatchId(){return Number($m('v800-match-select')?.value)||0}
+function activeMatch(){
+  try{if(typeof scoutActive==='function')return scoutActive()||null}catch(_){}
+  return null;
+}
+function ensureExactActiveMatch(){
+  const selected=selectedMatchId();
+  let active=activeMatch();
+
+  // Match Mode selector is authoritative. If another match is active, activate
+  // the selected one using the existing bridge used by the whole scouting app.
+  if(selected && Number(active?.id)!==selected){
+    try{bridge()?.activateMatch?.(selected)}catch(_){}
+    active=activeMatch();
+  }
+
+  if(!active && selected){
+    try{bridge()?.activateMatch?.(selected)}catch(_){}
+    active=activeMatch();
+  }
+
+  if(!active){
+    try{active=bridge()?.getActive?.()||null}catch(_){}
+  }
+  return active;
+}
+function liveCount(m){return arr(m?.liveRally?.actions).length}
+
+function stampLastAction(m){
+  const a=arr(m?.liveRally?.actions).slice(-1)[0];
+  if(!a)return;
+  const media=window.VC_MATCH_MODE_MEDIA;
+  try{
+    if(media?.isReview?.()&&media?.loaded?.()){
+      a.videoTime=Number(media.current?.())||0;
+      a.videoSource=String(media.source?.()||'video');
+      try{if(typeof scoutSave==='function')scoutSave(false);else bridge()?.save?.()}catch(_){}
+      return;
+    }
+  }catch(_){}
+  try{
+    const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+    if(d?.active){
+      a.videoTime=Math.max(0,Number(d.elapsedMs||0)/1000);
+      a.videoSource='recording';
+      try{if(typeof scoutSave==='function')scoutSave(false);else bridge()?.save?.()}catch(_){}
+    }
+  }catch(_){}
+}
+function refreshMatchMode(){
+  try{window.v800Render?.()}catch(_){}
+  try{
+    const m=activeMatch();
+    if(m&&typeof scoutRenderCurrentActions==='function')scoutRenderCurrentActions(m);
+  }catch(_){}
+}
+
+window.v853AddCode=function(){
+  const input=$m('v800-code');
+  const completeInput=$m('scout-code-input');
+  const btn=$m('v853-add-code-btn');
+  const raw=String(input?.value||'').trim().toUpperCase().replace(/\s+/g,'');
+
+  if(!raw){
+    setStatus('Escribe un código o selecciónalo desde la chuleta.','wait');
+    input?.focus();
+    return false;
+  }
+  if(!completeInput){
+    setStatus('No encuentro la consola del Scouting completo. Recarga la aplicación.','bad');
+    return false;
+  }
+  if(typeof window.scoutAddCode!=='function'){
+    setStatus('El motor de códigos del Scouting completo no está disponible. Recarga la aplicación.','bad');
+    return false;
+  }
+
+  const m=ensureExactActiveMatch();
+  if(!m){
+    setStatus('No hay un scouting activo. Selecciona un partido arriba.','bad');
+    return false;
+  }
+  if(m.status==='finished'){
+    setStatus('Este scouting está finalizado.','bad');
+    return false;
+  }
+
+  const before=liveCount(m);
+  btn?.classList.add('busy');
+  setStatus('Registrando con el motor del Scouting completo…','wait');
+
+  try{
+    // EXACT SAME PATH AS COMPLETE SCOUTING:
+    // scout-code-input -> window.scoutAddCode()
+    completeInput.value=raw;
+    window.scoutAddCode();
+
+    const activeAfter=activeMatch()||m;
+    const after=liveCount(activeAfter);
+
+    if(after>before){
+      stampLastAction(activeAfter);
+      if(input)input.value='';
+      setStatus(`✓ ${raw} registrado · ${after} acción${after===1?'':'es'} en el rally actual.`,'ok');
+      refreshMatchMode();
+      input?.focus();
+      return true;
+    }
+
+    // Complete scouting already shows its own alert when parsing/validation
+    // fails. Keep the typed code so it can be corrected.
+    setStatus(`✕ ${raw} no se ha registrado. Corrige el código; es el mismo formato que en Scouting completo.`,'bad');
+    input?.focus();
+    return false;
+  }catch(err){
+    setStatus('✕ Error del motor de Scouting: '+String(err?.message||err),'bad');
+    input?.focus();
+    return false;
+  }finally{
+    btn?.classList.remove('busy');
+  }
+};
+
+// Preserve old public names so presets/older calls all reach the exact engine.
+window.v800AddCode=window.v853AddCode;
+window.v852AddCode=window.v853AddCode;
+
+/* ---------- Professional Rally Editor from Match Mode ---------- */
+window.v853OpenRallyEditor=function(){
+  const m=ensureExactActiveMatch();
+  if(!m){
+    alert('No hay un scouting activo.');
+    return false;
+  }
+  if(typeof window.scoutV680OpenSetEditor!=='function'){
+    alert('No encuentro el editor profesional de rallies. Recarga la aplicación.');
+    return false;
+  }
+  const setNo=Number(m.currentSet)||1;
+  const set=arr(m.sets).find(s=>Number(s.number)===setNo);
+  if(!set){
+    alert('No encuentro el set actual.');
+    return false;
+  }
+  window.scoutV680OpenSetEditor(setNo);
+  return true;
+};
+
+window.v853CodeDiagnostics=()=>({
+  version:VERSION,
+  selectedId:selectedMatchId()||null,
+  activeId:activeMatch()?.id||null,
+  fullScoutInput:!!$m('scout-code-input'),
+  fullScoutEngine:typeof window.scoutAddCode,
+  parser:typeof window.scoutV6108ParseRaw,
+  push:typeof window.scoutPushAction,
+  rallyEditor:typeof window.scoutV680OpenSetEditor,
+  matchInput:!!$m('v800-code'),
+  matchButton:!!$m('v853-add-code-btn')
 });
 })();
 </script>
