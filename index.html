@@ -1648,8 +1648,8 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Scouting completo</button>
         <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
-        <button class="ghost" onclick="v850OpenLineupControl()">Control alineación</button>
-        <button class="ghost" onclick="v850OpenVideoNote()">📝 Nota vídeo</button>
+        <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
+        <button id="v851-video-note-btn" class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
         <button class="ghost" onclick="v841OpenCheatSheet()">⌨ Chuleta códigos</button>
         <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
@@ -1701,7 +1701,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             <div id="v850-lineup-guard" class="v850-lineup-guard">
               <div class="v850-lineup-guard-head">
                 <div><b>Control de alineación</b><span id="v850-lineup-summary">Comprobando…</span></div>
-                <button class="ghost" onclick="v850OpenLineupControl()">Ver control completo</button>
+                <button class="ghost" onclick="v851OpenLineupControl()">Ver control completo</button>
               </div>
               <div id="v850-lineup-mini" class="v850-lineup-mini"></div>
             </div>
@@ -1739,7 +1739,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <button onclick="v800QuickEvent('timeout_opponent')">⏱ Tiempo rival</button>
               <button onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
               <button onclick="scoutOpenLineup()">⌘ Alineación</button>
-              <button onclick="v850OpenVideoNote()">📝 Nota ligada a vídeo</button>
+              <button onclick="v851OpenVideoNote()">📝 Nota ligada a vídeo</button>
               <button onclick="scoutV690OpenEvent()">＋ Otro evento</button>
             </div>
             <div id="v800-events" class="v800-events"></div>
@@ -4946,7 +4946,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.1', {
         updateViaCache: 'none'
       });
 
@@ -7413,7 +7413,7 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
       <section class="scout-pro-config-card"><div class="scout-pro-config-title"><span>LECTURA DE ROTACIÓN</span><b>Orden reglamentario</b></div><div class="scout-position-legend"><span><b>P1</b>Z1 · zaguero / saque</span><span><b>P2</b>Z2 · delantero</span><span><b>P3</b>Z3 · delantero</span><span><b>P4</b>Z4 · delantero</span><span><b>P5</b>Z5 · zaguero</span><span><b>P6</b>Z6 · zaguero</span></div></section>
     </div>
     <div id="scout-lineup-preview" class="scout-lineup-preview"></div>
-    <div class="scout-lineup-footer"><div class="scout-lineup-rotations"><label><span>Rotación nuestra</span><select id="scout-lineup-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label><label><span>Rotación rival</span><select id="scout-lineup-rival-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label></div><div class="player-form-actions"><button class="ghost" onclick="scoutCloseLineup()">Cancelar</button><button class="primary" onclick="scoutSaveLineup()">Guardar alineación</button></div></div>
+    <div class="scout-lineup-footer"><div class="scout-lineup-rotations"><label><span>Rotación nuestra</span><select id="scout-lineup-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label><label><span>Rotación rival</span><select id="scout-lineup-rival-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label></div><div class="player-form-actions"><button class="ghost" onclick="scoutCloseLineup()">Cancelar</button><button id="v851-save-lineup-btn" class="primary" onclick="v851SaveLineup()">Guardar alineación</button></div></div>
   </div>
 </div>
 
@@ -18014,11 +18014,11 @@ document.addEventListener('keydown',e=>{
   <div class="v850-modal-card v850-lineup-modal-card">
     <div class="v850-modal-head">
       <div><span class="pro-kicker">V8.5 · LINEUP CONTROL</span><h2>Control avanzado de alineación</h2><p>Comprueba seis rotacionales, líbero, colocador, banquillo y cambios registrados.</p></div>
-      <button class="ghost" onclick="v850CloseLineupControl()">Cerrar ×</button>
+      <button class="ghost" onclick="v851CloseLineupControl()">Cerrar ×</button>
     </div>
     <div id="v850-lineup-modal-body" class="v850-modal-body"></div>
     <div class="v850-modal-foot">
-      <button class="ghost" onclick="v850SaveInitialSnapshot()">Guardar foto inicial del set</button>
+      <button class="ghost" onclick="v851SaveInitialSnapshot()">Guardar foto inicial del set</button>
       <div><button class="ghost" onclick="v850CloseLineupControl();scoutOpenSubstitution()">Cambio / Líbero</button><button class="primary" onclick="v850CloseLineupControl();scoutOpenLineup()">Editar alineación</button></div>
     </div>
   </div>
@@ -18028,7 +18028,7 @@ document.addEventListener('keydown',e=>{
   <div class="v850-modal-card v850-note-modal-card">
     <div class="v850-modal-head">
       <div><span class="pro-kicker">V8.5 · VIDEO NOTE</span><h2>Nota ligada al vídeo</h2><p id="v850-note-time-copy">Se guardará el momento actual del scouting.</p></div>
-      <button class="ghost" onclick="v850CloseVideoNote()">Cerrar ×</button>
+      <button class="ghost" onclick="v851CloseVideoNote()">Cerrar ×</button>
     </div>
     <div class="v850-note-form">
       <label><span>Categoría</span><select id="v850-note-category"><option value="Táctica">Táctica</option><option value="Técnica">Técnica</option><option value="Rival">Rival</option><option value="Rotación">Rotación</option><option value="Jugadora">Jugadora</option><option value="Entrenamiento">Entrenamiento</option></select></label>
@@ -18036,7 +18036,7 @@ document.addEventListener('keydown',e=>{
       <label class="wide"><span>Nota</span><textarea id="v850-note-text" rows="5" placeholder="Escribe qué quieres recordar de este momento..."></textarea></label>
       <div id="v850-note-context" class="v850-note-context"></div>
     </div>
-    <div class="v850-modal-foot"><span id="v850-note-link-status">—</span><div><button class="ghost" onclick="v850CloseVideoNote()">Cancelar</button><button class="primary" onclick="v850SaveVideoNote()">Guardar nota</button></div></div>
+    <div class="v850-modal-foot"><span id="v850-note-link-status">—</span><div><button class="ghost" onclick="v851CloseVideoNote()">Cancelar</button><button class="primary" onclick="v851SaveVideoNote()">Guardar nota</button></div></div>
   </div>
 </div>
 
@@ -18381,6 +18381,386 @@ if(typeof v850PostRender==='function')window.v820Render=function(){
 /* Modal backdrop close */
 ['v850-lineup-modal','v850-note-modal'].forEach(id=>$85(id)?.addEventListener('click',e=>{if(e.target?.id===id){id==='v850-lineup-modal'?v850CloseLineupControl():v850CloseVideoNote()}}));
 
+})();
+</script>
+
+
+
+<script id="v851-controls-hard-fix">
+(()=>{
+'use strict';
+const VERSION='8.5.1';
+const POS=['p1','p2','p3','p4','p5','p6'];
+const $f=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const clone=v=>{try{return structuredClone(v)}catch(_){return JSON.parse(JSON.stringify(v??null))}};
+const now=()=>new Date().toISOString();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function resolveMatch(){
+  let m=null;
+  try{if(typeof scoutActive==='function')m=scoutActive()}catch(_){}
+  if(!m)try{m=bridge()?.getActive?.()||null}catch(_){}
+  if(m)return m;
+
+  // If Match Mode has a selected saved in-progress scouting, reactivate it.
+  const selected=Number($f('v800-match-select')?.value)||0;
+  if(selected){
+    try{
+      m=bridge()?.activateMatch?.(selected)||null;
+      if(m)return m;
+    }catch(_){}
+  }
+
+  // Last fallback: lineup modal may remember the match id.
+  const modalId=Number($f('scout-lineup-modal')?.dataset?.matchId)||0;
+  if(modalId){
+    try{
+      m=bridge()?.activateMatch?.(modalId)||null;
+      if(m)return m;
+    }catch(_){}
+  }
+  return null;
+}
+function setOf(m){
+  if(!m)return null;
+  try{if(typeof scoutSet==='function')return scoutSet(m)}catch(_){}
+  return arr(m.sets).find(s=>Number(s.number)===Number(m.currentSet))||arr(m.sets)[0]||null;
+}
+function roster(){
+  try{const r=bridge()?.getPlayers?.();if(Array.isArray(r))return r}catch(_){}
+  try{if(typeof jugadoresEquipo!=='undefined'&&Array.isArray(jugadoresEquipo))return jugadoresEquipo}catch(_){}
+  return [];
+}
+function player(id){
+  const p=roster().find(x=>Number(x.id)===Number(id));
+  return p?`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`:'—';
+}
+function role(id){
+  try{if(typeof vcPlayerRole==='function')return String(vcPlayerRole(Number(id))||'')}catch(_){}
+  const p=roster().find(x=>Number(x.id)===Number(id));
+  return String(p?.position||p?.role||'');
+}
+function hasRole(id,name){
+  try{
+    if(typeof vcHasRole==='function'){
+      const p=typeof scoutPlayer==='function'?scoutPlayer(Number(id)):roster().find(x=>Number(x.id)===Number(id));
+      return !!vcHasRole(p,name);
+    }
+  }catch(_){}
+  return role(id).toLowerCase().includes(String(name).toLowerCase());
+}
+function ensureStructures(m){
+  if(!m.baseLineup)m.baseLineup={ours:{},opponent:{}};
+  if(!m.lineup)m.lineup={ours:{},opponent:{}};
+  if(!m.lineupRoles)m.lineupRoles={ours:{},opponent:{}};
+  if(!m.libero)m.libero={playerId:null,enabled:false,auto:true,centralIds:[],activeForId:null,activePosition:''};
+  if(!m.workflow)m.workflow={setLineups:{},events:[]};
+  if(!m.workflow.setLineups)m.workflow.setLineups={};
+  if(!Array.isArray(m.workflow.events))m.workflow.events=[];
+  if(!Array.isArray(m.events))m.events=[];
+  POS.forEach(p=>{
+    if(!(p in m.baseLineup.ours))m.baseLineup.ours[p]=null;
+    if(!(p in m.baseLineup.opponent))m.baseLineup.opponent[p]='';
+    if(!(p in m.lineup.ours))m.lineup.ours[p]=m.baseLineup.ours[p]||null;
+    if(!(p in m.lineup.opponent))m.lineup.opponent[p]=m.baseLineup.opponent[p]||'';
+    if(!(p in m.lineupRoles.ours))m.lineupRoles.ours[p]='';
+    if(!(p in m.lineupRoles.opponent))m.lineupRoles.opponent[p]='';
+  });
+  try{if(typeof vcEnsureProMatch==='function')vcEnsureProMatch(m)}catch(_){}
+  return m;
+}
+function persist(m){
+  m.updatedAt=now();
+  try{if(typeof scoutRefreshActionPlayers==='function')scoutRefreshActionPlayers()}catch(_){}
+  try{if(typeof scoutSave==='function')scoutSave(false); else bridge()?.save?.()}catch(_){try{bridge()?.save?.()}catch(__){}}
+  try{if(typeof scoutRender==='function')scoutRender()}catch(_){}
+  try{if(typeof scoutV690RenderWorkflow==='function')scoutV690RenderWorkflow()}catch(_){}
+  try{window.v800Render?.()}catch(_){}
+}
+function closeLineupModal(){
+  const modal=$f('scout-lineup-modal');
+  if(modal){modal.classList.remove('open');modal.removeAttribute('data-match-id')}
+}
+
+/* ------------------------------
+   1) ROBUST LINEUP SAVE
+   ------------------------------ */
+window.v851SaveLineup=function(){
+  const m=ensureStructures(resolveMatch());
+  if(!m){alert('No encuentro el scouting activo. Abre el partido desde Modo Partido o Partidos guardados y vuelve a intentarlo.');return false}
+  if(m.status==='finished'){alert('Este scouting está finalizado y no se puede modificar.');return false}
+
+  const controls=POS.map(pos=>({pos,el:$f(`scout-own-${pos}`)}));
+  if(controls.some(x=>!x.el)){
+    alert('La ventana de alineación no está preparada. Ciérrala, vuelve a pulsar “Alineación” y prueba de nuevo.');
+    return false;
+  }
+  const ids=controls.map(x=>Number(x.el.value)||null);
+  const missing=POS.filter((_,i)=>!ids[i]);
+  if(missing.length){
+    alert(`Faltan jugadores en ${missing.map(x=>x.toUpperCase()).join(', ')}. Debes asignar exactamente seis rotacionales.`);
+    return false;
+  }
+  if(new Set(ids).size!==6){alert('Hay un jugador repetido. Cada posición P1–P6 debe tener un jugador distinto.');return false}
+
+  const libId=Number($f('scout-lineup-libero')?.value)||null;
+  if(libId&&ids.includes(libId)){alert('El líbero no puede estar también dentro de los seis rotacionales.');return false}
+  const badLib=ids.find(id=>hasRole(id,'Líbero'));
+  if(badLib){alert(`${player(badLib)} está marcado como líbero y no puede formar parte de los seis rotacionales.`);return false}
+
+  const s=setOf(m);
+  if(s&&arr(s.rallies).length){
+    const old=POS.map(p=>Number(m.baseLineup?.ours?.[p])||null);
+    const changed=ids.some((id,i)=>id!==old[i]);
+    if(changed&&!confirm(`El Set ${s.number} ya tiene ${arr(s.rallies).length} rallies.\n\nEsto modificará P1–P6 como corrección de datos. Para una sustitución real usa “Cambio / Líbero”.\n\n¿Guardar igualmente?`))return false;
+  }
+
+  POS.forEach((pos,i)=>{
+    const id=ids[i];
+    const rival=String($f(`scout-rival-${pos}`)?.value||'').trim();
+    m.baseLineup.ours[pos]=id;
+    m.baseLineup.opponent[pos]=rival;
+    m.lineupRoles.ours[pos]=role(id);
+    m.lineupRoles.opponent[pos]=String($f(`scout-rival-role-${pos}`)?.value||'');
+  });
+  m.rotationNo=Math.min(6,Math.max(1,Number($f('scout-lineup-rotation')?.value)||1));
+  m.opponentRotationNo=Math.min(6,Math.max(1,Number($f('scout-lineup-rival-rotation')?.value)||1));
+
+  m.libero.playerId=libId;
+  m.libero.enabled=!!libId;
+  m.libero.auto=$f('scout-lineup-libero-auto')?.checked!==false;
+  m.libero.centralIds=ids.filter(id=>hasRole(id,'Central'));
+  m.libero.activeForId=null;
+  m.libero.activePosition='';
+
+  // Live lineup starts from the six rotational players, then auto-libero may replace a central.
+  m.lineup.ours=clone(m.baseLineup.ours);
+  m.lineup.opponent=clone(m.baseLineup.opponent);
+  try{if(typeof vcApplyAutoLibero==='function')vcApplyAutoLibero(m,false)}catch(_){}
+
+  // Initial snapshot if the set has not started.
+  if(s&&!arr(s.rallies).length&&!m.workflow.setLineups[String(m.currentSet)]){
+    m.workflow.setLineups[String(m.currentSet)]={
+      baseLineup:clone(m.baseLineup),lineup:clone(m.lineup),lineupRoles:clone(m.lineupRoles),
+      libero:clone(m.libero),rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,savedAt:now()
+    };
+  }
+
+  persist(m);
+  closeLineupModal();
+  const badge=$f('scout-save-badge');
+  if(badge)badge.textContent='Alineación guardada · sesión abierta';
+  setTimeout(()=>{if(badge&&badge.textContent.startsWith('Alineación guardada'))badge.textContent='Sesión abierta · auto-protección'},2200);
+  return true;
+};
+// Make every old “Guardar alineación” call use the fixed implementation.
+window.scoutSaveLineup=window.v851SaveLineup;
+
+/* ------------------------------
+   2) ROBUST LINEUP CONTROL
+   ------------------------------ */
+function audit(m){
+  m=ensureStructures(m);
+  const issues=[],warnings=[],ok=[];
+  const base=POS.map(pos=>({
+    pos,
+    id:Number(m.baseLineup.ours[pos])||null,
+    liveId:Number(m.lineup.ours[pos])||null,
+    role:String(m.lineupRoles.ours[pos]||role(m.baseLineup.ours[pos]))
+  }));
+  const baseIds=base.map(x=>x.id).filter(Boolean),liveIds=base.map(x=>x.liveId).filter(Boolean);
+  if(baseIds.length!==6)issues.push(`Seis rotacionales incompletos: ${baseIds.length}/6.`);
+  else ok.push('Seis rotacionales completos');
+  if(new Set(baseIds).size!==baseIds.length)issues.push('Hay jugadores duplicados en P1–P6.');
+  if(liveIds.length!==6)issues.push(`Pista actual incompleta: ${liveIds.length}/6.`);
+  if(new Set(liveIds).size!==liveIds.length)issues.push('Hay jugadores duplicados en la pista actual.');
+
+  const libId=Number(m.libero?.playerId)||null;
+  if(libId&&baseIds.includes(libId))issues.push('El líbero aparece dentro de los seis rotacionales.');
+  const libPos=base.find(x=>x.liveId===libId)?.pos||'';
+  if(libId&&['p2','p3','p4'].includes(libPos))issues.push(`El líbero está en primera línea (${libPos.toUpperCase()}).`);
+  else if(libId&&libPos)ok.push(`Líbero activo en ${libPos.toUpperCase()}`);
+  else if(libId)warnings.push('Líbero configurado, actualmente fuera de pista.');
+  else warnings.push('No hay líbero configurado.');
+
+  const setter=base.find(x=>String(x.role).toLowerCase().includes('coloc'));
+  if(setter){
+    const expected=Number(setter.pos.slice(1));
+    if(Number(m.rotationNo)!==expected)warnings.push(`Marcador R${m.rotationNo}; colocador en ${setter.pos.toUpperCase()} (referencia R${expected}).`);
+    else ok.push(`R${m.rotationNo} coherente con la posición del colocador`);
+  }else warnings.push('No se identifica un colocador en los seis rotacionales.');
+
+  const s=setOf(m),snap=m.workflow?.setLineups?.[String(m.currentSet)];
+  if(snap)ok.push(`Foto inicial del Set ${m.currentSet} guardada`);
+  else warnings.push(`Falta foto inicial del Set ${m.currentSet}.`);
+
+  const subs=arr(m.events).filter(e=>Number(e.setNumber)===Number(m.currentSet)&&e.team==='ours');
+  const realSubs=subs.filter(e=>e.type==='substitution');
+  if(realSubs.length)ok.push(`${realSubs.length} cambio(s) registrado(s) en el set`);
+
+  const used=new Set(liveIds);
+  const bench=roster().filter(p=>!used.has(Number(p.id)));
+  return {issues,warnings,ok,base,subs,realSubs,bench,snap,s};
+}
+window.v851OpenLineupControl=function(){
+  const m=resolveMatch();
+  if(!m){alert('No hay un scouting activo. Abre un partido en Modo Partido y vuelve a intentarlo.');return false}
+  const modal=$f('v850-lineup-modal'),body=$f('v850-lineup-modal-body');
+  if(!modal||!body){alert('No encuentro la ventana de Control de alineación. Recarga la aplicación con Ctrl+F5.');return false}
+  const a=audit(m);
+  const posMeta=(pos)=>{
+    try{if(typeof VC_POS_META!=='undefined')return VC_POS_META[pos]?.zone||''}catch(_){}
+    return '';
+  };
+  body.innerHTML=`
+    <div class="v850-audit-head">
+      <div><span>Rotación</span><b>R${m.rotationNo||1} · rival R${m.opponentRotationNo||1}</b></div>
+      <div><span>Set</span><b>${m.currentSet||1}</b></div>
+      <div><span>Cambios</span><b>${a.realSubs.length}</b></div>
+      <div><span>Líbero</span><b>${m.libero?.playerId?esc(player(m.libero.playerId)):'No configurado'}</b></div>
+    </div>
+    <div class="v850-audit-grid">
+      <section class="v850-audit-section"><h3>Seis rotacionales / pista actual</h3><div class="v850-six">
+        ${a.base.map(x=>{
+          const isLib=Number(x.liveId)&&Number(x.liveId)===Number(m.libero?.playerId)&&Number(x.liveId)!==Number(x.id);
+          return `<div class="${isLib?'libero':''}"><span>${x.pos.toUpperCase()}${posMeta(x.pos)?' · '+esc(posMeta(x.pos)):''}</span><b>${esc(player(x.liveId||x.id))}</b><small>${isLib?'LIB por '+esc(player(x.id)):esc(x.role||role(x.id))}</small></div>`;
+        }).join('')}
+      </div></section>
+      <section class="v850-audit-section"><h3>Control</h3><div class="v850-audit-list">
+        ${a.issues.map(x=>`<div class="v850-audit-item bad">✕ ${esc(x)}</div>`).join('')}
+        ${a.warnings.map(x=>`<div class="v850-audit-item warn">⚠ ${esc(x)}</div>`).join('')}
+        ${a.ok.map(x=>`<div class="v850-audit-item">✓ ${esc(x)}</div>`).join('')}
+      </div></section>
+      <section class="v850-audit-section"><h3>Banquillo actual</h3><div class="v850-bench">${a.bench.length?a.bench.map(p=>`<span>${esc(player(p.id))}${role(p.id)?' · '+esc(role(p.id)):''}</span>`).join(''):'<span>Sin jugadores fuera de pista.</span>'}</div></section>
+      <section class="v850-audit-section"><h3>Cambios / Líbero · Set ${m.currentSet||1}</h3><div class="v850-sub-history">
+        ${a.subs.length?a.subs.slice().reverse().map(e=>`<div><time>${e.scoreUs??0}-${e.scoreOpponent??0} · ${esc(String(e.position||'').toUpperCase())}</time><span>${e.type==='libero_auto'?'Líbero automático':e.type==='libero'?'Líbero':'Cambio'} · ${esc(e.outLabel||'—')} → ${esc(e.inLabel||'—')}</span></div>`).join(''):'<div><span>Sin cambios registrados.</span></div>'}
+      </div></section>
+    </div>`;
+  const status=$f('v851-lineup-control-status');
+  if(status)status.textContent=a.issues.length?`${a.issues.length} error(es) detectado(s).`:a.warnings.length?`${a.warnings.length} aviso(s); estructura utilizable.`:'Alineación coherente.';
+  modal.classList.remove('hidden');
+  document.body.classList.add('v800-lock');
+  return true;
+};
+window.v851CloseLineupControl=function(){
+  $f('v850-lineup-modal')?.classList.add('hidden');
+  if(!document.fullscreenElement)document.body.classList.remove('v800-lock');
+};
+window.v851SaveInitialSnapshot=function(){
+  const m=ensureStructures(resolveMatch()),s=setOf(m);
+  if(!m||!s){alert('No hay un set activo.');return false}
+  m.workflow.setLineups[String(m.currentSet)]={
+    baseLineup:clone(m.baseLineup),lineup:clone(m.lineup),lineupRoles:clone(m.lineupRoles),
+    libero:clone(m.libero),rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,savedAt:now()
+  };
+  persist(m);
+  window.v851OpenLineupControl();
+  return true;
+};
+// Backward-compatible aliases.
+window.v850OpenLineupControl=window.v851OpenLineupControl;
+window.v850CloseLineupControl=window.v851CloseLineupControl;
+window.v850SaveInitialSnapshot=window.v851SaveInitialSnapshot;
+
+/* ------------------------------
+   3) ROBUST VIDEO NOTE
+   ------------------------------ */
+function mediaStamp(){
+  const media=window.VC_MATCH_MODE_MEDIA;
+  try{
+    if(media?.isReview?.()&&media?.loaded?.()){
+      const source=String(media.source?.()||'video');
+      return {
+        videoTime:Number(media.current?.())||0,
+        videoSource:source==='youtube'?`youtube:${media.youtubeId?.()||''}`:`local:${media.localName?.()||''}`,
+        videoExact:true,kind:source
+      };
+    }
+  }catch(_){}
+  try{
+    const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+    if(d?.active)return {videoTime:Math.max(0,Number(d.elapsedMs||0)/1000),videoSource:`recording:${d.source||'live'}`,videoExact:true,kind:'recording'};
+  }catch(_){}
+  return {videoTime:null,videoSource:'scout-clock',videoExact:false,kind:'scout'};
+}
+function fmt(sec){
+  if(sec==null||!Number.isFinite(Number(sec)))return 'sin tiempo exacto';
+  sec=Math.max(0,Math.floor(Number(sec)));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+  return h?`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function scoutMs(m){
+  try{if(typeof scoutElapsed==='function')return Number(scoutElapsed(m))||0}catch(_){}
+  const start=Date.parse(m?.clockStartedAt||m?.createdAt||'');
+  return Number.isFinite(start)?Math.max(0,Date.now()-start):0;
+}
+window.v851OpenVideoNote=function(){
+  const m=ensureStructures(resolveMatch()),s=setOf(m);
+  if(!m||!s){alert('No hay un scouting activo. Abre el partido en Modo Partido y vuelve a intentarlo.');return false}
+  const modal=$f('v850-note-modal');
+  if(!modal){alert('No encuentro la ventana de Nota vídeo. Recarga con Ctrl+F5.');return false}
+  const stamp=mediaStamp();
+  const subject=$f('v850-note-subject'),text=$f('v850-note-text');
+  if(subject)subject.value='';if(text)text.value='';
+  const copy=$f('v850-note-time-copy');
+  if(copy)copy.textContent=stamp.videoExact?`Se guardará en ${fmt(stamp.videoTime)} del vídeo/REC actual.`:'Se guardará con el reloj del scouting para sincronizarlo después.';
+  const status=$f('v850-note-link-status');
+  if(status)status.textContent=stamp.videoExact?`Vinculación exacta · ${fmt(stamp.videoTime)}`:'Vinculación por reloj del scouting';
+  const ctx=$f('v850-note-context');
+  if(ctx)ctx.innerHTML=`Set ${s.number||m.currentSet} · <b>${s.scoreUs||0}-${s.scoreOpponent||0}</b> · R${m.rotationNo||1} vs R${m.opponentRotationNo||1} · ${m.servingTeam==='ours'?'K2 / saque':'K1 / recepción'}`;
+  modal.dataset.stamp=JSON.stringify(stamp);
+  modal.classList.remove('hidden');document.body.classList.add('v800-lock');
+  setTimeout(()=>subject?.focus(),20);
+  return true;
+};
+window.v851CloseVideoNote=function(){
+  $f('v850-note-modal')?.classList.add('hidden');
+  if(!document.fullscreenElement)document.body.classList.remove('v800-lock');
+};
+window.v851SaveVideoNote=function(){
+  const m=ensureStructures(resolveMatch()),s=setOf(m);
+  if(!m||!s){alert('No hay un scouting activo.');return false}
+  const subject=String($f('v850-note-subject')?.value||'').trim();
+  const note=String($f('v850-note-text')?.value||'').trim();
+  if(!subject&&!note){alert('Escribe un título o una nota.');return false}
+  let stamp={};try{stamp=JSON.parse($f('v850-note-modal')?.dataset?.stamp||'{}')}catch(_){}
+  const id=Date.now();
+  m.workflow.events.push({
+    id,uid:`evt_${id}`,type:'note',
+    subject,note,noteCategory:String($f('v850-note-category')?.value||'Táctica'),
+    setNumber:Number(s.number||m.currentSet)||1,
+    scoreUs:Number(s.scoreUs)||0,scoreOpponent:Number(s.scoreOpponent)||0,
+    rotationNo:Number(m.rotationNo)||1,opponentRotationNo:Number(m.opponentRotationNo)||1,
+    createdAt:now(),scoutMs:scoutMs(m),
+    videoTime:stamp.videoTime==null?null:Number(stamp.videoTime),
+    videoSource:String(stamp.videoSource||''),
+    videoExact:!!stamp.videoExact,
+    contextLabel:''
+  });
+  persist(m);
+  window.v851CloseVideoNote();
+  return true;
+};
+window.v850OpenVideoNote=window.v851OpenVideoNote;
+window.v850CloseVideoNote=window.v851CloseVideoNote;
+window.v850SaveVideoNote=window.v851SaveVideoNote;
+
+/* Direct listeners too: protects against inline-handler/caching quirks. */
+$f('v851-lineup-control-btn')?.addEventListener('click',e=>{e.preventDefault();window.v851OpenLineupControl()});
+$f('v851-video-note-btn')?.addEventListener('click',e=>{e.preventDefault();window.v851OpenVideoNote()});
+$f('v851-save-lineup-btn')?.addEventListener('click',e=>{e.preventDefault();window.v851SaveLineup()});
+
+window.v851Diagnostics=()=>({
+  version:VERSION,
+  match:resolveMatch()?.id||null,
+  saveLineup:typeof window.v851SaveLineup,
+  lineupControl:typeof window.v851OpenLineupControl,
+  videoNote:typeof window.v851OpenVideoNote,
+  lineupModal:!!$f('scout-lineup-modal'),
+  controlModal:!!$f('v850-lineup-modal'),
+  noteModal:!!$f('v850-note-modal')
+});
 })();
 </script>
 
