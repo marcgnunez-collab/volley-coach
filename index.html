@@ -852,8 +852,12 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
     </div>
     <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden">
       <button class="tab-btn" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
+      <button class="tab-btn" data-view="scout-match-mode" onclick="showView('scout-match-mode',this)">Modo partido</button>
       <button class="tab-btn" data-view="scouting" onclick="showView('scouting',this)">En directo</button>
       <button class="tab-btn" data-view="competicion" onclick="showView('competicion',this)">Partidos</button>
+      <button class="tab-btn" data-view="scout-video-hub" onclick="showView('scout-video-hub',this)">Vídeo Hub</button>
+      <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
+      <button class="tab-btn" data-view="scout-postmatch" onclick="showView('scout-postmatch',this)">Postpartido</button>
       <button class="tab-btn" data-view="scout-analysis" onclick="showView('scout-analysis',this)">Análisis</button>
       <button class="tab-btn" data-view="scout-plan" onclick="showView('scout-plan',this)">Plan de partido</button>
       <button class="tab-btn" data-view="scout-matchup" onclick="showView('scout-matchup',this)">Match-up</button>
@@ -1120,6 +1124,344 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   </div>
 </section>
 
+
+
+<section id="scout-season" class="view">
+  <div class="v790-season">
+    <div class="v790-hero">
+      <div>
+        <span class="pro-kicker">V7.9 · SEASON ANALYTICS</span>
+        <h2>Temporada completa</h2>
+        <p>Rendimiento acumulado del equipo y de cada jugador a partir de todos los scoutings guardados.</p>
+      </div>
+      <div class="v790-hero-actions">
+        <button class="ghost" type="button" onclick="v790ExportBackup()">↓ Copia de seguridad</button>
+        <button class="ghost" type="button" onclick="document.getElementById('v790-restore-file').click()">↑ Restaurar copia</button>
+        <input id="v790-restore-file" class="hidden" type="file" accept=".json,application/json" onchange="v790RestoreBackup(event)">
+      </div>
+    </div>
+
+    <section class="v790-backup-strip">
+      <div>
+        <span class="v790-backup-icon">SAFE</span>
+        <div><b>Protección de datos</b><small id="v790-backup-status">Todavía no se ha exportado una copia desde este navegador.</small></div>
+      </div>
+      <div class="v790-backup-actions">
+        <button class="primary" onclick="v790ExportBackup()">Exportar ahora</button>
+        <button class="ghost" onclick="v790InspectBackup()">Qué se guarda</button>
+      </div>
+    </section>
+
+    <div class="v790-filters">
+      <label><span>Periodo</span>
+        <select id="v790-period" onchange="v790RenderSeason()">
+          <option value="all">Toda la temporada</option>
+          <option value="30">Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+          <option value="year">Año actual</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </label>
+      <label class="v790-custom"><span>Desde</span><input id="v790-from" type="date" onchange="v790RenderSeason()"></label>
+      <label class="v790-custom"><span>Hasta</span><input id="v790-to" type="date" onchange="v790RenderSeason()"></label>
+      <label><span>Jugador</span><select id="v790-player" onchange="v790RenderSeason()"><option value="">Todos</option></select></label>
+      <label><span>Fundamento</span>
+        <select id="v790-skill" onchange="v790RenderSeason()">
+          <option value="">Todos</option><option value="S">Saque</option><option value="R">Recepción</option>
+          <option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option>
+          <option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="v790-kpis">
+      <div><span>Partidos</span><b id="v790-kpi-matches">0</b><small id="v790-kpi-record">0–0</small></div>
+      <div><span>Sets</span><b id="v790-kpi-sets">0</b><small id="v790-kpi-sets-record">0–0</small></div>
+      <div><span>G-P</span><b id="v790-kpi-gp">0</b><small id="v790-kpi-actions">0 acciones</small></div>
+      <div><span>Recepción +/#</span><b id="v790-kpi-rec">—</b><small id="v790-kpi-rec-exc"># —</small></div>
+      <div><span>Ataque EFF</span><b id="v790-kpi-att">—</b><small id="v790-kpi-att-points">0 puntos</small></div>
+      <div><span>Saque</span><b id="v790-kpi-serve">—</b><small id="v790-kpi-serve-copy">0 ace · 0 err</small></div>
+    </div>
+
+    <div class="v790-grid-main">
+      <section class="v790-panel">
+        <div class="v790-panel-head"><div><span class="pro-kicker">EVOLUCIÓN</span><h3>Partido a partido</h3></div><span id="v790-trend-label" class="v790-chip">G-P</span></div>
+        <div id="v790-trend" class="v790-trend"></div>
+      </section>
+      <section class="v790-panel">
+        <div class="v790-panel-head"><div><span class="pro-kicker">ROTACIONES</span><h3>R1–R6 temporada</h3></div></div>
+        <div id="v790-rotations" class="v790-rotations"></div>
+      </section>
+    </div>
+
+    <section class="v790-panel">
+      <div class="v790-panel-head">
+        <div><span class="pro-kicker">JUGADORES</span><h3>Rendimiento acumulado</h3></div>
+        <small>Haz clic en un jugador para abrir su ficha de temporada.</small>
+      </div>
+      <div id="v790-player-table" class="v790-player-table"></div>
+    </section>
+
+    <div class="v790-grid-main">
+      <section class="v790-panel">
+        <div class="v790-panel-head"><div><span class="pro-kicker">PLAYER DETAIL</span><h3 id="v790-player-title">Equipo completo</h3></div><button class="ghost" onclick="v790ClearPlayer()">Ver equipo</button></div>
+        <div id="v790-player-detail" class="v790-player-detail"></div>
+      </section>
+      <section class="v790-panel">
+        <div class="v790-panel-head"><div><span class="pro-kicker">PARTIDOS</span><h3>Historial competitivo</h3></div></div>
+        <div id="v790-match-list" class="v790-match-list"></div>
+      </section>
+    </div>
+  </div>
+</section>
+
+
+<section id="scout-postmatch" class="view">
+  <div class="v820-shell">
+    <div class="v820-hero">
+      <div>
+        <span class="pro-kicker">V8.2 · INFORME POSTPARTIDO</span>
+        <h2>Informe técnico automático</h2>
+        <p>Convierte el scouting registrado en conclusiones, prioridades de trabajo y momentos de vídeo.</p>
+      </div>
+      <div class="v820-hero-actions">
+        <label><span>Partido</span><select id="v820-match" onchange="v820Render()"></select></label>
+        <button class="ghost" onclick="v820OpenVideoHub()">▶ Vídeo Hub</button>
+        <button class="primary" onclick="v820ExportPDF()">↓ PDF informe</button>
+      </div>
+    </div>
+
+    <div id="v820-empty" class="v820-empty hidden">
+      <strong>No hay partidos con scouting.</strong>
+      <span>Finaliza o guarda un scouting y aparecerá aquí.</span>
+    </div>
+
+    <div id="v820-report-export" class="v820-report">
+      <section class="v820-cover">
+        <div>
+          <span class="pro-kicker">VOLLEY COACH · POST-MATCH</span>
+          <h2 id="v820-title">—</h2>
+          <p id="v820-meta">—</p>
+        </div>
+        <div class="v820-result">
+          <span id="v820-result-label">RESULTADO</span>
+          <strong id="v820-result">0–0</strong>
+          <small id="v820-set-scores">—</small>
+        </div>
+      </section>
+
+      <section class="v820-kpis">
+        <div><span>K1 / Side-out</span><b id="v820-k1">—</b><small id="v820-k1-copy">—</small></div>
+        <div><span>K2 / Break</span><b id="v820-k2">—</b><small id="v820-k2-copy">—</small></div>
+        <div><span>G-P</span><b id="v820-gp">0</b><small id="v820-gp-copy">—</small></div>
+        <div><span>Recepción +/#</span><b id="v820-rec">—</b><small id="v820-rec-copy">—</small></div>
+        <div><span>Ataque EFF</span><b id="v820-att">—</b><small id="v820-att-copy">—</small></div>
+        <div><span>Calidad scout</span><b id="v820-quality">—</b><small id="v820-quality-copy">—</small></div>
+      </section>
+
+      <div class="v820-two">
+        <section class="v820-panel">
+          <div class="v820-head"><div><span class="pro-kicker">LECTURA AUTOMÁTICA</span><h3>Qué funcionó</h3></div></div>
+          <div id="v820-positive" class="v820-insights"></div>
+        </section>
+        <section class="v820-panel">
+          <div class="v820-head"><div><span class="pro-kicker">PRIORIDADES</span><h3>Qué revisar</h3></div></div>
+          <div id="v820-review" class="v820-insights"></div>
+        </section>
+      </div>
+
+      <section class="v820-panel">
+        <div class="v820-head"><div><span class="pro-kicker">ROTACIONES</span><h3>R1–R6 · K1/K2 y G-P</h3></div><small>Ordenado por rotación reglamentaria.</small></div>
+        <div id="v820-rotations" class="v820-rotations"></div>
+      </section>
+
+      <section class="v820-panel">
+        <div class="v820-head"><div><span class="pro-kicker">FUNDAMENTOS</span><h3>Producción por skill</h3></div></div>
+        <div id="v820-skills" class="v820-table-wrap"></div>
+      </section>
+
+      <section class="v820-panel">
+        <div class="v820-head"><div><span class="pro-kicker">JUGADORES</span><h3>Rendimiento individual</h3></div><small>G-P son recuentos, no porcentajes.</small></div>
+        <div id="v820-players" class="v820-table-wrap"></div>
+      </section>
+
+      <div class="v820-two">
+        <section class="v820-panel">
+          <div class="v820-head"><div><span class="pro-kicker">MOMENTOS CLAVE</span><h3>Rallies a revisar en vídeo</h3></div></div>
+          <div id="v820-key-rallies" class="v820-key-rallies"></div>
+        </section>
+        <section class="v820-panel">
+          <div class="v820-head"><div><span class="pro-kicker">EVENTOS</span><h3>Tiempos, cambios e incidencias</h3></div></div>
+          <div id="v820-events" class="v820-events"></div>
+        </section>
+      </div>
+
+      <section class="v820-panel v820-summary-panel">
+        <div class="v820-head"><div><span class="pro-kicker">RESUMEN PARA EL SIGUIENTE ENTRENAMIENTO</span><h3>3 focos prioritarios</h3></div></div>
+        <div id="v820-training-focus" class="v820-training-focus"></div>
+      </section>
+
+      <footer class="v820-footer">
+        <span id="v820-generated">—</span>
+        <span>Volley Coach · Informe generado a partir del scouting registrado.</span>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<section id="scout-video-hub" class="view">
+  <div class="v780-hub">
+    <div class="v780-hero">
+      <div>
+        <span class="pro-kicker">V7.9 · SEASON ANALYTICS + BACKUP</span>
+        <h2>Partido, vídeo y scouting en una sola pantalla</h2>
+        <p>Reproduce rallies y acciones desde el scouting, crea playlists automáticas y reutiliza las grabaciones de Recording Studio.</p>
+      </div>
+      <div class="v780-hero-actions">
+        <button class="ghost" type="button" onclick="v780OpenRecordingPicker()">Grabaciones V7.7</button>
+        <button class="ghost" type="button" onclick="document.getElementById('v780-file').click()">Abrir vídeo</button>
+        <button id="v782-youtube-button" class="ghost" type="button" onclick="v782OpenYouTubeDialog()">▶ YouTube</button>
+        <button id="v781-tv-button" class="ghost" type="button" onclick="v781ToggleTV()">▣ Modo TV</button>
+        <button class="primary" type="button" onclick="v780Fullscreen()">⛶ Vídeo completo</button>
+        <input id="v780-file" type="file" accept="video/*,.webm,.mp4,.mov,.m4v" class="hidden" onchange="v780LoadFile(event)">
+      </div>
+    </div>
+
+    <div class="v780-toolbar">
+      <label><span>Partido</span><select id="v780-match" onchange="v780MatchChanged()"></select></label>
+      <label><span>Set</span><select id="v780-set" onchange="v780Render()"><option value="">Todos</option></select></label>
+      <label><span>Equipo</span><select id="v780-team" onchange="v780FiltersChanged()"><option value="">Ambos</option><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
+      <label><span>Fundamento</span><select id="v780-skill" onchange="v780FiltersChanged()"><option value="">Todos</option><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label>
+      <label><span>Jugador</span><select id="v780-player" onchange="v781PlayerChanged()"><option value="">Todos</option></select></label>
+      <label><span>Rotación propia</span><select id="v781-rotation" onchange="v781RotationChanged()"><option value="">Todas</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label>
+      <label class="search"><span>Buscar</span><input id="v780-search" placeholder="Código, jugador, marcador…" oninput="v780Render()"></label>
+    </div>
+
+    <div class="v780-status-grid">
+      <div><span>Vídeo</span><b id="v780-video-state">Sin vídeo</b><small id="v780-video-source">Selecciona archivo o grabación</small></div>
+      <div><span>Sincronización</span><b id="v780-sync-state">Pendiente</b><small id="v780-sync-copy">—</small></div>
+      <div><span>Rallies</span><b id="v780-rally-count">0</b><small>en el filtro actual</small></div>
+      <div><span>Acciones</span><b id="v780-action-count">0</b><small>en el filtro actual</small></div>
+    </div>
+
+    <section class="v781-set-map-panel">
+      <div class="v780-section-head">
+        <div><span class="pro-kicker">MAPA DEL PARTIDO</span><h3>Sets, rallies y momento del vídeo</h3></div>
+        <div class="v781-map-legend"><span class="ours">● Punto nuestro</span><span class="opponent">● Punto rival</span></div>
+      </div>
+      <div id="v781-set-map" class="v781-set-map"></div>
+    </section>
+
+    <div class="v780-main">
+      <section class="v780-video-panel">
+        <div id="v780-video-frame" class="v780-video-frame">
+          <video id="v780-player-video" controls playsinline preload="metadata"></video>
+          <div id="v782-youtube-wrap" class="v782-youtube-wrap hidden"><div id="v782-youtube-player"></div></div>
+          <div id="v780-video-empty" class="v780-video-empty"><b>Sin vídeo cargado</b><span>Abre un archivo, una grabación o pega un enlace de YouTube.</span></div>
+          <div id="v780-now-overlay" class="v780-now-overlay hidden"></div>
+        </div>
+
+        <div class="v780-play-controls">
+          <button class="ghost" onclick="v780Jump(-10)">−10 s</button>
+          <button class="ghost" onclick="v780Jump(-5)">−5 s</button>
+          <button class="ghost" onclick="v780Jump(-1)">−1 s</button>
+          <button class="primary" onclick="v780TogglePlay()">▶ / ❚❚</button>
+          <button class="ghost" onclick="v780Jump(1)">+1 s</button>
+          <button class="ghost" onclick="v780Jump(5)">+5 s</button>
+          <button class="ghost" onclick="v780Jump(10)">+10 s</button>
+          <label><span>Velocidad</span><select id="v780-speed" onchange="v780SpeedChanged()"><option value=".5">0,5×</option><option value=".75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+        </div>
+
+        <div class="v780-sync-panel">
+          <div>
+            <span class="pro-kicker">SINCRONIZACIÓN</span>
+            <strong id="v780-sync-title">Vídeo todavía no sincronizado</strong>
+            <small>Busca una acción reconocible, coloca el vídeo en ese instante y pulsa “Sincronizar con selección”.</small>
+          </div>
+          <div class="v780-sync-actions">
+            <button class="ghost" onclick="v780Nudge(-1)">−1 s</button>
+            <button class="ghost" onclick="v780Nudge(-.25)">−0,25</button>
+            <button class="primary" onclick="v780SyncSelected()">Sincronizar con selección</button>
+            <button class="ghost" onclick="v780Nudge(.25)">+0,25</button>
+            <button class="ghost" onclick="v780Nudge(1)">+1 s</button>
+          </div>
+        </div>
+
+        <div class="v780-ruler-wrap">
+          <div class="v780-ruler-head"><span>LÍNEA TEMPORAL</span><small id="v780-ruler-copy">Carga un vídeo para activar la navegación visual.</small></div>
+          <div id="v780-ruler" class="v780-ruler" onclick="v780RulerSeek(event)"><div id="v780-ruler-playhead" class="v780-ruler-playhead"></div></div>
+        </div>
+      </section>
+
+      <aside class="v780-side">
+        <section class="v781-tactical">
+          <div class="v780-section-head">
+            <div><span class="pro-kicker">NAVEGACIÓN TÁCTICA</span><h3>Rotaciones R1–R6</h3></div>
+            <button class="ghost" type="button" onclick="v781ClearRotation()">Todas</button>
+          </div>
+          <div id="v781-rotation-grid" class="v781-rotation-grid"></div>
+          <div id="v781-rotation-detail" class="v781-rotation-detail">Selecciona una rotación para filtrar y revisar sus rallies.</div>
+          <div class="v781-tactical-actions">
+            <button class="primary" type="button" onclick="v781PlayRotation()">▶ Reproducir rotación</button>
+            <button class="ghost" type="button" onclick="v781PlayRotationErrors()">▶ Errores de rotación</button>
+          </div>
+        </section>
+
+        <section class="v781-player-focus">
+          <div class="v780-section-head">
+            <div><span class="pro-kicker">PLAYER FOCUS</span><h3 id="v781-player-title">Selecciona una jugadora</h3></div>
+            <button class="ghost" type="button" onclick="v781ClearPlayer()">Todos</button>
+          </div>
+          <div id="v781-player-kpis" class="v781-player-kpis">
+            <div><span>Acciones</span><b>—</b></div><div><span>G-P</span><b>—</b></div><div><span>REC +/#</span><b>—</b></div><div><span>ATQ EFF</span><b>—</b></div>
+          </div>
+          <div id="v781-player-skill-line" class="v781-player-skill-line">Selecciona un jugador en el filtro superior.</div>
+          <div class="v781-player-actions">
+            <button class="primary" type="button" onclick="v781PlayPlayer('all')">▶ Todas</button>
+            <button class="ghost" type="button" onclick="v781PlayPlayer('points')">▶ Puntos</button>
+            <button class="ghost" type="button" onclick="v781PlayPlayer('errors')">▶ Errores</button>
+          </div>
+        </section>
+
+        <section class="v780-playlists">
+          <div class="v780-section-head"><div><span class="pro-kicker">PLAYLISTS AUTOMÁTICAS</span><h3>Revisión rápida</h3></div><button class="ghost" onclick="v780StopPlaylist()">Detener</button></div>
+          <div class="v780-playlist-grid">
+            <button onclick="v780PlayPreset('points')"><b>▶ Puntos nuestros</b><small id="v780-count-points">0 rallies</small></button>
+            <button onclick="v780PlayPreset('errors')"><b>▶ Errores</b><small id="v780-count-errors">0 acciones</small></button>
+            <button onclick="v780PlayPreset('kills')"><b>▶ Ataques #</b><small id="v780-count-kills">0 acciones</small></button>
+            <button onclick="v780PlayPreset('recepbad')"><b>▶ Recepciones − / =</b><small id="v780-count-recepbad">0 acciones</small></button>
+            <button onclick="v780PlayPreset('aces')"><b>▶ Aces</b><small id="v780-count-aces">0 acciones</small></button>
+            <button onclick="v780PlayVisible()"><b>▶ Filtro actual</b><small id="v780-count-visible">0 elementos</small></button>
+          </div>
+          <div id="v780-playlist-state" class="v780-playlist-state">Ninguna playlist activa.</div>
+        </section>
+
+        <section class="v780-selection">
+          <div class="v780-section-head"><div><span class="pro-kicker">SELECCIÓN</span><h3 id="v780-selected-title">Ningún elemento</h3></div></div>
+          <div id="v780-selected-copy" class="v780-selected-copy">Selecciona un rally o una acción de la lista.</div>
+          <div class="v780-selection-actions">
+            <button class="primary" onclick="v780PlaySelected()">▶ Reproducir</button>
+            <button class="ghost" onclick="v780SyncSelected()">Sincronizar aquí</button>
+            <button class="ghost" onclick="v780CreateClipSelected()">Crear clip</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="v780-timeline-panel">
+      <div class="v780-section-head">
+        <div><span class="pro-kicker">SCOUTING TIMELINE</span><h3>Rallies y acciones</h3></div>
+        <div class="v780-kind-switch">
+          <button id="v780-kind-all" class="active" onclick="v780SetKind('all')">Todo</button>
+          <button id="v780-kind-rally" onclick="v780SetKind('rally')">Rallies</button>
+          <button id="v780-kind-action" onclick="v780SetKind('action')">Acciones</button>
+        </div>
+      </div>
+      <div id="v780-timeline" class="v780-timeline"></div>
+    </section>
+  </div>
+</section>
+
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
     <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
@@ -1284,11 +1626,147 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   </div>
 </div>
 
+
+<section id="scout-match-mode" class="view">
+  <div id="v800-shell" class="v800-shell">
+    <div class="v800-top">
+      <div class="v800-match-title">
+        <span class="pro-kicker">V8.0 · MODO PARTIDO</span>
+        <h2 id="v800-title">Sin partido activo</h2>
+        <p id="v800-meta">Abre o crea un scouting para empezar.</p>
+      </div>
+      <div class="v800-top-actions">
+        <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Scouting completo</button>
+        <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
+        <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
+        <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
+        <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
+      </div>
+    </div>
+
+    <div id="v800-empty" class="v800-empty">
+      <strong>No hay un partido activo.</strong>
+      <span>Crea un scouting nuevo o abre uno en curso.</span>
+      <div><button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button><button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Ir a Scouting</button></div>
+    </div>
+
+    <div id="v800-live" class="hidden">
+      <section class="v800-scoreboard">
+        <div class="v800-team ours"><small id="v800-team-name">Equipo</small><strong id="v800-score-us">0</strong><span id="v800-sets-us">0 sets</span></div>
+        <div class="v800-center-score">
+          <span id="v800-set-label">SET 1</span>
+          <b id="v800-clock">00:00</b>
+          <div class="v800-service"><i id="v800-service-dot"></i><span id="v800-service-copy">Saque nuestro</span></div>
+        </div>
+        <div class="v800-team rival"><small id="v800-opponent">Rival</small><strong id="v800-score-op">0</strong><span id="v800-sets-op">0 sets</span></div>
+      </section>
+
+      <div class="v800-live-grid">
+        <main class="v800-main">
+          <section class="v800-court-card">
+            <div class="v800-card-head">
+              <div><span class="pro-kicker">SEXTETO ACTUAL</span><h3 id="v800-rotation-title">R1 · vs R1</h3></div>
+              <div class="v800-chips"><span id="v800-lineup-health">Alineación —</span><span id="v800-rally-chip">Rally —</span></div>
+            </div>
+            <div class="v800-courts">
+              <div>
+                <span class="v800-court-label">NUESTRO EQUIPO</span>
+                <div id="v800-court-own" class="v800-court"></div>
+              </div>
+              <div>
+                <span class="v800-court-label">RIVAL</span>
+                <div id="v800-court-rival" class="v800-court rival"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="v800-control-card">
+            <div class="v800-point-row">
+              <button class="v800-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
+              <button class="v800-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
+              <button class="v800-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
+            </div>
+
+            <div class="v800-code-row">
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 7R# · 12A# · R8S=" onkeydown="if(event.key==='Enter'){event.preventDefault();v800AddCode()}">
+              <button class="primary" onclick="v800AddCode()">Añadir</button>
+            </div>
+            <div class="v800-code-presets">
+              <button onclick="v800Preset('S#')">Saque #</button><button onclick="v800Preset('S=')">Saque =</button>
+              <button onclick="v800Preset('R#')">Recepción #</button><button onclick="v800Preset('R-')">Recepción −</button>
+              <button onclick="v800Preset('A#')">Ataque #</button><button onclick="v800Preset('A=')">Ataque =</button>
+              <button onclick="v800Preset('B#')">Bloqueo #</button><button onclick="v800Preset('D+')">Defensa +</button>
+            </div>
+            <div class="v800-preset-builder">
+              <label><span>Equipo</span><select id="v800-code-team"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
+              <label><span>Dorsal</span><input id="v800-code-number" inputmode="numeric" placeholder="7"></label>
+              <small>Selecciona equipo + dorsal y pulsa una valoración rápida.</small>
+            </div>
+          </section>
+
+          <section class="v800-events-card">
+            <div class="v800-card-head"><div><span class="pro-kicker">GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div></div>
+            <div class="v800-event-buttons">
+              <button onclick="v800QuickEvent('timeout_ours')">⏱ Tiempo nuestro</button>
+              <button onclick="v800QuickEvent('timeout_opponent')">⏱ Tiempo rival</button>
+              <button onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
+              <button onclick="scoutOpenLineup()">⌘ Alineación</button>
+              <button onclick="v800QuickEvent('note')">★ Nota táctica</button>
+              <button onclick="scoutV690OpenEvent()">＋ Otro evento</button>
+            </div>
+            <div id="v800-events" class="v800-events"></div>
+          </section>
+        </main>
+
+        <aside class="v800-side">
+          <section class="v800-video-card">
+            <div class="v800-card-head">
+              <div><span class="pro-kicker">VÍDEO</span><h3>Directo + Replay</h3></div>
+              <span id="v800-video-status" class="v800-status">OFF</span>
+            </div>
+            <div class="v800-video-frame">
+              <video id="v800-live-video" muted autoplay playsinline></video>
+              <div id="v800-video-empty" class="v800-video-empty">Inicia Live Delay para ver la cámara aquí.</div>
+            </div>
+            <div class="v800-video-actions">
+              <button class="primary" onclick="scoutV740ReplayLastRally()">▶ Último rally</button>
+              <button class="ghost" onclick="scoutV740ReplayLastAction()">Última acción</button>
+              <button class="ghost" onclick="openLiveDelay('match')">Live Delay</button>
+              <button id="v800-rec-btn" class="ghost" onclick="v800ToggleREC()">● REC</button>
+            </div>
+            <div id="v800-rec-copy" class="v800-rec-copy">Grabación detenida.</div>
+          </section>
+
+          <section class="v800-kpi-card">
+            <div class="v800-card-head"><div><span class="pro-kicker">SET ACTUAL</span><h3>Lectura rápida</h3></div></div>
+            <div class="v800-kpis">
+              <div><span>K1</span><b id="v800-k1">—</b><small id="v800-k1-copy">0/0</small></div>
+              <div><span>K2</span><b id="v800-k2">—</b><small id="v800-k2-copy">0/0</small></div>
+              <div><span>G-P</span><b id="v800-gp">0</b><small id="v800-gp-copy">G 0 · P 0</small></div>
+              <div><span>Rally</span><b id="v800-rallies">0</b><small>cerrados</small></div>
+            </div>
+          </section>
+
+          <section class="v800-decision-card">
+            <div class="v800-card-head"><div><span class="pro-kicker">DECISIONES EN DIRECTO</span><h3>Qué mirar ahora</h3></div></div>
+            <div id="v800-decisions" class="v800-decisions"></div>
+          </section>
+
+          <section class="v800-last-card">
+            <div class="v800-card-head"><div><span class="pro-kicker">ÚLTIMO RALLY</span><h3 id="v800-last-title">Todavía sin rallies</h3></div></div>
+            <div id="v800-last-rally" class="v800-last-rally"></div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="scouting" class="view">
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -1570,7 +2048,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="pro-modal-card live-delay-card">
     <div class="pro-modal-head">
       <div>
-        <span class="pro-kicker">V7.7.1 · RECORDING STUDIO + LIVE DELAY</span>
+        <span class="pro-kicker">V7.9 · SEASON ANALYTICS + BACKUP</span>
         <h2>Vídeo en directo con retraso</h2>
         <p id="live-delay-subtitle">Captura la cámara y revisa la acción unos segundos después sin detener la grabación.</p>
       </div>
@@ -1690,7 +2168,19 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <section class="live-delay-pane">
         <div class="live-delay-pane-head">
           <div><span class="pro-kicker">REVISIÓN</span><strong id="live-delay-review-title">Retraso · 10 s</strong></div>
-          <div class="live-delay-pane-actions"><span id="live-delay-review-state" class="live-delay-state delayed">ESPERANDO</span><button class="ghost" type="button" onclick="liveDelayFullscreen('delay')">⛶</button></div>
+          <div class="live-delay-pane-actions">
+            <label class="vc-delay-fix-label" title="Solo corrige la imagen de REVISIÓN si algún navegador codifica la orientación de forma extraña">
+              <span>Ajuste</span>
+              <select id="vc-delay-orientation-fix" onchange="vcSetDelayOrientationFix(this.value)">
+                <option value="sync">Igual que directo</option>
+                <option value="180">Girar 180°</option>
+                <option value="90">+90°</option>
+                <option value="-90">−90°</option>
+              </select>
+            </label>
+            <span id="live-delay-review-state" class="live-delay-state delayed">ESPERANDO</span>
+            <button class="ghost" type="button" onclick="liveDelayFullscreen('delay')">⛶</button>
+          </div>
         </div>
         <div class="live-delay-video-frame delayed">
           <video id="live-delay-delayed" autoplay muted playsinline></video>
@@ -4374,7 +4864,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.7.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.2.0', {
         updateViaCache: 'none'
       });
 
@@ -6928,6 +7418,8 @@ window.VC_SCOUT_VIDEO_BRIDGE={
   save:()=>scoutSave(false),
   render:()=>scoutRender(),
   teamName:()=>EQUIPOS?.[equipoActivo]?.nombre||'Equipo',
+  getTeamId:()=>String(equipoActivo||'equipo'),
+  getPlayers:()=>scoutClone(jugadoresEquipo||[]),
   playerLabel:(a)=>{try{return scoutActionPlayerLabel(a)}catch(_){return String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}}
 };
 /* Estado por equipo / Supabase */
@@ -8884,13 +9376,13 @@ window.V620_COMBO_LABELS=V620_COMBO_LABELS;
 <script id="v610-workspace-script">
 (()=>{
 'use strict';
-const SCOUT_VIEWS=new Set(['scout-dashboard','scouting','competicion','scout-analysis','scout-plan','scout-matchup']);
+const SCOUT_VIEWS=new Set(['scout-dashboard','scout-match-mode','scouting','competicion','scout-video-hub','scout-season','scout-postmatch','scout-analysis','scout-plan','scout-matchup']);
 let currentWorkspace=localStorage.getItem('volley_workspace_v610')==='scouting'?'scouting':'training';
 function applyWorkspace(mode){currentWorkspace=mode==='scouting'?'scouting':'training';localStorage.setItem('volley_workspace_v610',currentWorkspace);document.getElementById('training-nav')?.classList.toggle('hidden',currentWorkspace!=='training');document.getElementById('scouting-nav')?.classList.toggle('hidden',currentWorkspace!=='scouting');document.getElementById('workspace-training-btn')?.classList.toggle('active',currentWorkspace==='training');document.getElementById('workspace-scouting-btn')?.classList.toggle('active',currentWorkspace==='scouting');document.body.classList.toggle('workspace-scouting',currentWorkspace==='scouting')}
 window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scouting',botonVista('scouting'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
-window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&id!=='scouting'){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
+window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&id!=='scouting'){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
 /* Restaurar el área sin forzar una vista distinta en la carga inicial */
 applyWorkspace(currentWorkspace);
 if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scouting':'scout-dashboard';showView(target,botonVista(target))},0)}
@@ -10306,6 +10798,7 @@ const $=id=>document.getElementById(id);
 const state={
   context:'training',
   stream:null,
+  recorderStream:null,
   recorder:null,
   mediaSource:null,
   sourceBuffer:null,
@@ -10524,9 +11017,33 @@ async function requestStream(){
   };
   return navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false});
 }
-function startRecorder(){
+async function startRecorder(){
+  let recorderStream=state.stream;
+  const sourceMode=$('live-delay-source')?.value||'local';
+
+  /* Remote WebRTC video can carry rotation metadata that MediaRecorder/MediaSource
+     interprets differently from a direct <video>. For the DELAY only, render the
+     visually-correct LIVE image to a canvas first and record that normalized canvas. */
+  if(sourceMode==='remote'&&typeof window.VC_REMOTE_CAMERA?.createDelayNormalizedStream==='function'){
+    try{
+      const normalized=await window.VC_REMOTE_CAMERA.createDelayNormalizedStream(live());
+      if(normalized?.getVideoTracks?.().some(t=>t.readyState==='live')){
+        recorderStream=normalized;
+        state.recorderStream=normalized;
+        delayed()?.setAttribute('data-vc-normalized-delay','1');
+      }
+    }catch(err){
+      console.warn('V7.7.2 delay normalizer fallback',err);
+      state.recorderStream=null;
+      delayed()?.removeAttribute('data-vc-normalized-delay');
+    }
+  }else{
+    state.recorderStream=null;
+    delayed()?.removeAttribute('data-vc-normalized-delay');
+  }
+
   const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:2500000}:{videoBitsPerSecond:2500000};
-  const rec=new MediaRecorder(state.stream,options);state.recorder=rec;
+  const rec=new MediaRecorder(recorderStream,options);state.recorder=rec;
   rec.addEventListener('dataavailable',async e=>{
     if(!state.running||!e.data||!e.data.size)return;
     try{
@@ -10565,7 +11082,7 @@ window.startLiveDelay=async function(){
     savePrefs();
     await createMse();
     state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
-    startRecorder();startTicker();updateUi();updateMetrics();
+    await startRecorder();startTicker();updateUi();updateMetrics();
     setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'móvil remoto':'cámara local'} · ${state.delay} s de retraso · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la captura continúa.`, 'good');
   }catch(err){
     console.error('Live Delay start',err);
@@ -10578,6 +11095,12 @@ window.stopLiveDelay=function(silent=false){
   stopTicker();state.running=false;state.mode='delay';
   try{state.recorder?.stop()}catch(_){}
   state.recorder=null;
+  try{window.VC_REMOTE_CAMERA?.stopDelayNormalizedStream?.()}catch(_){}
+  if(state.recorderStream&&state.recorderStream!==state.stream){
+    try{state.recorderStream.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  }
+  state.recorderStream=null;
+  delayed()?.removeAttribute('data-vc-normalized-delay');
   try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
   state.stream=null;
   const lv=live();if(lv){try{lv.pause()}catch(_){};lv.srcObject=null}
@@ -13033,6 +13556,11 @@ window.scoutV757FinalDiagnostics=function(){
 .vc-remote-preview-frame:fullscreen video,
 .live-delay-video-frame:fullscreen video{max-width:none!important;max-height:none!important}
 @media(max-width:720px){.vc-remote-preview-head{align-items:flex-start!important;gap:6px}.vc-remote-view-controls{width:100%;justify-content:flex-start}.vc-remote-view-controls label{flex:1}.vc-remote-view-controls select{width:100%}}
+
+.vc-delay-fix-label{display:flex!important;align-items:center!important;gap:4px!important;margin:0!important}
+.vc-delay-fix-label>span{font-size:6.5px!important;color:#84939e!important;text-transform:uppercase!important;letter-spacing:.05em!important;font-weight:900!important}
+.vc-delay-fix-label select{height:25px!important;padding:2px 4px!important;border-radius:6px!important;border:1px solid #cad6de!important;background:#fff!important;color:#375166!important;font-size:7px!important;max-width:105px}
+@media(max-width:720px){.vc-delay-fix-label>span{display:none}.vc-delay-fix-label select{max-width:90px}}
 </style>
 
 
@@ -13040,7 +13568,7 @@ window.scoutV757FinalDiagnostics=function(){
 (()=>{
 'use strict';
 
-const VERSION='7.6.2';
+const VERSION='7.6.3';
 const $=id=>document.getElementById(id);
 const state={
   room:'',
@@ -13060,6 +13588,13 @@ const state={
   orientationTimer:null,
   orientationBusy:false,
   viewOrientation:'auto',
+  delayOrientationFix:'sync',
+  delayCanvas:null,
+  delayCtx:null,
+  delayStream:null,
+  delaySourceVideo:null,
+  delayFrameHandle:null,
+  delayFrameMode:'',
   wakeLock:null
 };
 
@@ -13259,11 +13794,22 @@ function vcVideoIntrinsic(video){
   return {w,h,portrait:!!(w&&h&&h>w),landscape:!!(w&&h&&w>=h)};
 }
 function vcDesiredRotation(video,mode){
+  /* The delayed MediaSource is already physically normalized by the canvas.
+     Do not apply the DIRECT rotation again or the image is double-rotated. */
+  if(video?.id==='live-delay-delayed'&&video?.dataset?.vcNormalizedDelay==='1')return 0;
   const d=vcVideoIntrinsic(video);
   if(mode==='right')return 90;
   if(mode==='left')return -90;
   if(mode==='horizontal')return d.portrait?90:0;
   if(mode==='vertical')return d.landscape?90:0;
+  return 0;
+}
+function vcDelayCorrection(video){
+  if(video?.id!=='live-delay-delayed')return 0;
+  const v=state.delayOrientationFix;
+  if(v==='180')return 180;
+  if(v==='90')return 90;
+  if(v==='-90')return -90;
   return 0;
 }
 function vcTargetAspect(video,mode,rotation){
@@ -13276,8 +13822,9 @@ function vcTargetAspect(video,mode,rotation){
 function vcLayoutVideo(video,frame){
   if(!video||!frame)return;
   const mode=state.viewOrientation||'auto';
-  const rotation=vcDesiredRotation(video,mode);
-  const aspect=vcTargetAspect(video,mode,rotation);
+  const baseRotation=vcDesiredRotation(video,mode);
+  const rotation=baseRotation+vcDelayCorrection(video);
+  const aspect=vcTargetAspect(video,mode,baseRotation);
 
   frame.style.aspectRatio=String(aspect);
   frame.dataset.viewMode=mode;
@@ -13339,6 +13886,24 @@ window.vcRemoteRotateView=function(direction=1){
   try{localStorage.setItem('volley_remote_view_orientation',state.viewOrientation)}catch(_){}
   vcApplyViewOrientation();
 };
+
+window.vcSetDelayOrientationFix=function(value){
+  const allowed=['sync','180','90','-90'];
+  state.delayOrientationFix=allowed.includes(String(value))?String(value):'sync';
+  try{localStorage.setItem('volley_delay_orientation_fix',state.delayOrientationFix)}catch(_){}
+  const sel=$('vc-delay-orientation-fix');
+  if(sel&&sel.value!==state.delayOrientationFix)sel.value=state.delayOrientationFix;
+  vcApplyViewOrientation();
+};
+function vcRestoreDelayOrientationFix(){
+  try{
+    const saved=localStorage.getItem('volley_delay_orientation_fix');
+    if(['sync','180','90','-90'].includes(saved))state.delayOrientationFix=saved;
+  }catch(_){}
+  const sel=$('vc-delay-orientation-fix');
+  if(sel)sel.value=state.delayOrientationFix;
+}
+
 function vcRestoreViewOrientation(){
   try{
     const saved=localStorage.getItem('volley_remote_view_orientation');
@@ -13348,11 +13913,109 @@ function vcRestoreViewOrientation(){
   if(sel)sel.value=state.viewOrientation;
 }
 vcRestoreViewOrientation();
+vcRestoreDelayOrientationFix();
 setTimeout(vcBindAllAspects,0);
 new MutationObserver(vcBindAllAspects).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('resize',()=>requestAnimationFrame(vcApplyViewOrientation));
 document.addEventListener('fullscreenchange',()=>setTimeout(vcApplyViewOrientation,60));
 document.addEventListener('webkitfullscreenchange',()=>setTimeout(vcApplyViewOrientation,60));
+
+
+/* ---------- V7.7.2 · Normalize REMOTE video before MediaRecorder ---------- */
+function vcWaitForVideoDimensions(video,timeout=2500){
+  return new Promise(resolve=>{
+    if(video?.videoWidth&&video?.videoHeight)return resolve(true);
+    const started=Date.now();
+    const tick=()=>{
+      if(video?.videoWidth&&video?.videoHeight)return resolve(true);
+      if(Date.now()-started>=timeout)return resolve(false);
+      setTimeout(tick,60);
+    };
+    tick();
+  });
+}
+function vcDelayCanvasSpec(video){
+  const mode=state.viewOrientation||'auto';
+  const d=vcVideoIntrinsic(video);
+  const rotation=vcDesiredRotation(video,mode);
+  let landscape=true;
+  if(mode==='vertical')landscape=false;
+  else if(['horizontal','right','left'].includes(mode))landscape=true;
+  else if(d.w&&d.h){
+    const rw=Math.abs(rotation)%180===90?d.h:d.w;
+    const rh=Math.abs(rotation)%180===90?d.w:d.h;
+    landscape=rw>=rh;
+  }
+  return {
+    mode,rotation,
+    width:landscape?1280:720,
+    height:landscape?720:1280
+  };
+}
+function vcDrawDelayNormalizedFrame(){
+  const canvas=state.delayCanvas,ctx=state.delayCtx,video=state.delaySourceVideo;
+  if(!canvas||!ctx||!video)return;
+  const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
+  if(sw&&sh){
+    const spec=vcDelayCanvasSpec(video);
+    /* Keep the canvas dimensions stable for the current delay session.
+       Orientation/view changes should be made before starting Live Delay. */
+    const cw=canvas.width,ch=canvas.height;
+    const r=((spec.rotation%360)+360)%360;
+    const quarter=r===90||r===270;
+    const rw=quarter?sh:sw,rh=quarter?sw:sh;
+    const scale=Math.min(cw/rw,ch/rh);
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle='#000';
+    ctx.fillRect(0,0,cw,ch);
+    ctx.translate(cw/2,ch/2);
+    ctx.rotate(spec.rotation*Math.PI/180);
+    ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
+    ctx.restore();
+  }
+
+  if(typeof video.requestVideoFrameCallback==='function'){
+    state.delayFrameMode='rvfc';
+    state.delayFrameHandle=video.requestVideoFrameCallback(()=>vcDrawDelayNormalizedFrame());
+  }else{
+    state.delayFrameMode='raf';
+    state.delayFrameHandle=requestAnimationFrame(()=>vcDrawDelayNormalizedFrame());
+  }
+}
+window.vcStopDelayNormalizer=function(){
+  const video=state.delaySourceVideo;
+  try{
+    if(state.delayFrameMode==='rvfc'&&video?.cancelVideoFrameCallback&&state.delayFrameHandle!=null){
+      video.cancelVideoFrameCallback(state.delayFrameHandle);
+    }else if(state.delayFrameMode==='raf'&&state.delayFrameHandle!=null){
+      cancelAnimationFrame(state.delayFrameHandle);
+    }
+  }catch(_){}
+  state.delayFrameHandle=null;state.delayFrameMode='';
+  try{state.delayStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  state.delayStream=null;state.delayCanvas=null;state.delayCtx=null;state.delaySourceVideo=null;
+};
+async function vcCreateDelayNormalizedStream(video){
+  window.vcStopDelayNormalizer();
+  if(!video)throw new Error('No existe el vídeo DIRECTO para normalizar.');
+  if(typeof HTMLCanvasElement==='undefined'||typeof document.createElement('canvas').captureStream!=='function'){
+    throw new Error('Este navegador no permite normalizar el vídeo mediante canvas.');
+  }
+  await vcWaitForVideoDimensions(video,2500);
+  const spec=vcDelayCanvasSpec(video);
+  const canvas=document.createElement('canvas');
+  canvas.width=spec.width;canvas.height=spec.height;
+  const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
+  if(!ctx)throw new Error('No se pudo crear el canvas de orientación.');
+  state.delayCanvas=canvas;state.delayCtx=ctx;state.delaySourceVideo=video;
+  vcDrawDelayNormalizedFrame();
+  const stream=canvas.captureStream(30);
+  state.delayStream=stream;
+  return stream;
+}
+window.VC_REMOTE_CAMERA.createDelayNormalizedStream=vcCreateDelayNormalizedStream;
+window.VC_REMOTE_CAMERA.stopDelayNormalizedStream=window.vcStopDelayNormalizer;
 
 /* ---------- Fullscreen ---------- */
 async function fullscreenElement(el,video){
@@ -13630,6 +14293,7 @@ window.addEventListener('resize',()=>{
   state.orientationTimer=setTimeout(schedulePublisherOrientationRefresh,250);
 });
 window.addEventListener('beforeunload',()=>{
+  try{window.vcStopDelayNormalizer?.()}catch(_){}
   try{state.sdk?.disconnect?.()}catch(_){}
   try{state.publisher?.disconnect?.()}catch(_){}
 });
@@ -13652,6 +14316,8 @@ window.vcRemoteCameraDiagnostics=function(){
     publisherMode:!!publisherParams().streamId,
     source:state.source,
     pcViewOrientation:state.viewOrientation,
+    delayOrientationFix:state.delayOrientationFix,
+    delayNormalizerActive:!!state.delayStream,
     remoteConnected:state.connected,
     room:state.room||null,
     streamId:state.streamId||null,
@@ -14015,11 +14681,20 @@ window.vcRecordingStart=async function(){
       writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0
     });
 
-    await dbPutSession({
+    const initialSession={
       id:sessionId,filename,startedAt:nowIso(),endedAt:null,durationMs:0,bytes:0,mime,mode,
       source:sourceLabel(),completed:false,markers:[],
       match:m?{id:m.id,date:m.date,opponent:m.opponent}:null
-    });
+    };
+    if(handle){
+      try{await dbPutSession({...initialSession,fileHandle:handle})}
+      catch(err){
+        console.warn('V7.8 · el navegador no permite persistir FileSystemHandle; se guardan solo metadatos.',err);
+        await dbPutSession(initialSession);
+      }
+    }else{
+      await dbPutSession(initialSession);
+    }
 
     const opts={mimeType:mime,videoBitsPerSecond:3500000};
     const recorder=new MediaRecorder(recStream,opts);
@@ -14198,6 +14873,1641 @@ window.vcRecordingDiagnostics=function(){
     if(interrupted.length&&$('vc-recording-last'))$('vc-recording-last').textContent=`${interrupted.length} grabación(es) recuperable(s)`;
   }catch(_){}
 })();
+})();
+</script>
+
+
+
+<style id="v780-match-video-hub-style">
+.v780-hub{display:grid;gap:10px}
+.v780-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;background:linear-gradient(135deg,#071d35,#123c60);color:#fff;border-radius:16px;padding:20px 22px}.v780-hero h2{margin:3px 0 5px!important;color:#fff!important;font-size:24px!important}.v780-hero p{margin:0;color:#c6d4df;font-size:10.5px}.v780-hero .pro-kicker{color:#8faabe}.v780-hero-actions{display:flex;gap:6px;flex-wrap:wrap}.v780-hero .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important}
+.v780-toolbar{display:grid;grid-template-columns:1.2fr 90px 100px 120px 150px 1fr;gap:6px;background:#fff;border:1px solid #e1e6ea;border-radius:11px;padding:9px}.v780-toolbar label{display:flex;flex-direction:column;gap:4px;min-width:0}.v780-toolbar label>span{font-size:7px;text-transform:uppercase;letter-spacing:.07em;font-weight:900;color:#7a8994}.v780-toolbar select,.v780-toolbar input{font-size:8.5px!important;padding:7px!important;min-width:0}
+.v780-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.v780-status-grid>div{background:#fff;border:1px solid #e1e6ea;border-radius:10px;padding:9px 10px}.v780-status-grid span{display:block;font-size:7px;text-transform:uppercase;font-weight:900;letter-spacing:.07em;color:#7d8a94}.v780-status-grid b{display:block;font-size:15px;color:#17324d;margin:3px 0}.v780-status-grid small{display:block;font-size:7.5px;color:#82909a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v780-main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(310px,.7fr);gap:10px}.v780-video-panel,.v780-side>section,.v780-timeline-panel{background:#fff;border:1px solid #e0e6ea;border-radius:13px;padding:10px}
+.v780-video-frame{position:relative;background:#050e16;border-radius:10px;overflow:hidden;aspect-ratio:16/9;display:grid;place-items:center}.v780-video-frame video{width:100%;height:100%;object-fit:contain;background:#000}.v780-video-empty{position:absolute;inset:0;display:grid;place-items:center;align-content:center;text-align:center;color:#8da1b0;background:linear-gradient(135deg,#061523,#0d2c45);gap:4px}.v780-video-empty b{font-size:12px;color:#d5e0e8}.v780-video-empty span{font-size:8px}.v780-video-empty.hidden{display:none}.v780-now-overlay{position:absolute;top:9px;left:9px;max-width:75%;background:rgba(6,22,35,.82);backdrop-filter:blur(4px);border-radius:7px;padding:6px 8px;color:#fff;font-size:8px}.v780-now-overlay.hidden{display:none}
+.v780-play-controls{display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap;margin-top:7px}.v780-play-controls button{padding:6px 7px!important;font-size:7.5px!important}.v780-play-controls label{margin-left:auto;display:flex;flex-direction:column;gap:3px}.v780-play-controls label span{font-size:6.5px;text-transform:uppercase;font-weight:900;color:#7c8a94}.v780-play-controls select{font-size:8px!important;padding:6px!important}
+.v780-sync-panel{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #dce5eb;background:#f5f9fb;border-radius:9px;padding:8px 9px;margin-top:7px}.v780-sync-panel strong{display:block;font-size:9px;color:#29475f}.v780-sync-panel small{display:block;font-size:7.5px;color:#7b8994;margin-top:2px}.v780-sync-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.v780-sync-actions button{font-size:7px!important;padding:5px 6px!important}
+.v780-ruler-wrap{margin-top:7px}.v780-ruler-head{display:flex;justify-content:space-between;font-size:6.5px;color:#7a8994;font-weight:900;letter-spacing:.05em}.v780-ruler{position:relative;height:42px;border-radius:7px;background:#edf2f5;overflow:hidden;margin-top:4px;cursor:pointer}.v780-ruler-marker{position:absolute;top:8px;width:3px;height:26px;border-radius:2px;background:#7892a7;opacity:.75}.v780-ruler-marker.ours{background:#3b7a5a}.v780-ruler-marker.opponent{background:#a55a4e}.v780-ruler-marker.action{height:13px;top:21px;width:2px;opacity:.55}.v780-ruler-playhead{position:absolute;z-index:3;top:0;bottom:0;width:2px;background:#e49a3a;left:0;pointer-events:none}
+.v780-side{display:grid;gap:10px;align-content:start}.v780-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px}.v780-section-head h3{margin:2px 0 0!important;padding:0!important;border:0!important;font-size:12px!important}.v780-section-head button{font-size:7px!important;padding:5px 6px!important}
+.v780-playlist-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.v780-playlist-grid button{text-align:left;border:1px solid #e0e6ea!important;background:#f8fafb!important;color:#29475f!important;border-radius:8px!important;padding:8px!important;text-transform:none!important;letter-spacing:0!important}.v780-playlist-grid button b{display:block;font-size:8.5px}.v780-playlist-grid button small{display:block;color:#7f8c95;font-size:7px;margin-top:2px}.v780-playlist-state{font-size:7.5px;color:#71818e;margin-top:6px;padding:6px;border-radius:6px;background:#f4f7f9}
+.v780-selected-copy{font-size:8px;line-height:1.4;color:#697b88;min-height:42px}.v780-selection-actions{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}.v780-selection-actions button{font-size:7px!important;padding:6px 7px!important}
+.v780-kind-switch{display:flex;gap:3px}.v780-kind-switch button{font-size:7px!important;padding:5px 7px!important;background:#f3f6f8!important;color:#617482!important;border-color:#dde4e9!important}.v780-kind-switch button.active{background:#17324d!important;color:#fff!important;border-color:#17324d!important}
+.v780-timeline{display:grid;gap:4px;max-height:560px;overflow:auto}.v780-row{display:grid;grid-template-columns:66px 52px minmax(0,1fr) auto;gap:7px;align-items:center;border:1px solid #e5eaed;border-radius:8px;padding:7px 8px;background:#fbfcfd;cursor:pointer}.v780-row:hover,.v780-row.selected{border-color:#8fa7b8;background:#f2f7fa}.v780-row.playing{border-color:#e2a24d;box-shadow:inset 3px 0 #e49a3a}.v780-time{font-weight:900;color:#17324d;font-size:9px;font-variant-numeric:tabular-nums}.v780-type{display:inline-grid;place-items:center;padding:3px 4px;border-radius:5px;background:#e8eef2;color:#516878;font-size:6.5px;font-weight:900}.v780-type.ours{background:#e6f3ec;color:#28613f}.v780-type.opponent{background:#f8ebe8;color:#8d4a42}.v780-row-copy strong{display:block;font-size:9px;color:#29475f}.v780-row-copy small{display:block;font-size:7.5px;color:#7c8994;margin-top:2px}.v780-row-actions{display:flex;gap:3px}.v780-row-actions button{padding:5px 6px!important;font-size:7px!important}
+.v780-recording-modal{position:fixed;inset:0;z-index:90000;background:rgba(5,20,32,.7);display:grid;place-items:center;padding:18px}.v780-recording-card{width:min(720px,96vw);max-height:85vh;overflow:auto;background:#fff;border-radius:13px;padding:14px}.v780-recording-list{display:grid;gap:6px;margin-top:9px}.v780-recording-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #e1e7ea;border-radius:8px;padding:8px;background:#fafbfc}.v780-recording-row strong{display:block;font-size:9px;color:#29475f}.v780-recording-row small{display:block;font-size:7.5px;color:#7c8994;margin-top:2px}.v780-recording-row button{font-size:7px!important;padding:5px 6px!important}
+.v780-video-frame:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;background:#000}.v780-video-frame:fullscreen video{object-fit:contain}
+@media(max-width:1050px){.v780-toolbar{grid-template-columns:1fr 1fr 1fr}.v780-main{grid-template-columns:1fr}.v780-side{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.v780-hero{align-items:flex-start;flex-direction:column}.v780-toolbar{grid-template-columns:1fr 1fr}.v780-toolbar .search{grid-column:1/-1}.v780-status-grid{grid-template-columns:1fr 1fr}.v780-side{grid-template-columns:1fr}.v780-row{grid-template-columns:56px 45px 1fr}.v780-row-actions{grid-column:1/-1;justify-content:flex-end}.v780-sync-panel{align-items:flex-start;flex-direction:column}.v780-playlist-grid{grid-template-columns:1fr}}
+
+/* ===== V7.8.1 · PROFESSIONAL HUB ===== */
+.v780-toolbar{grid-template-columns:1.25fr 82px 92px 110px 138px 110px 1fr!important}
+.v781-set-map-panel{background:#fff;border:1px solid #e0e6ea;border-radius:13px;padding:10px}
+.v781-map-legend{display:flex;gap:10px;align-items:center;font-size:7px;font-weight:850;color:#758590}.v781-map-legend .ours{color:#347152}.v781-map-legend .opponent{color:#985148}
+.v781-set-map{display:grid;gap:7px}.v781-set-lane{display:grid;grid-template-columns:115px minmax(0,1fr) 120px;gap:8px;align-items:center;border:1px solid #e4e9ec;border-radius:9px;padding:7px 8px;background:#fafcfd}.v781-set-lane.active{border-color:#8ba5b7;background:#f2f7fa}
+.v781-set-label{cursor:pointer}.v781-set-label b{display:block;font-size:10px;color:#203f57}.v781-set-label small{display:block;font-size:7px;color:#7d8a94;margin-top:2px}.v781-set-track{position:relative;height:31px;border-radius:6px;background:linear-gradient(90deg,#edf2f5,#f7f9fa);overflow:hidden;cursor:pointer}.v781-set-dot{position:absolute;top:7px;width:9px;height:17px;border:0;border-radius:4px;transform:translateX(-50%);padding:0!important;min-width:0!important;box-shadow:0 0 0 1px rgba(255,255,255,.85);cursor:pointer}.v781-set-dot.ours{background:#3d7a59!important}.v781-set-dot.opponent{background:#a65b4e!important}.v781-set-dot.selected{outline:2px solid #e3a148;outline-offset:1px}
+.v781-set-summary{display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:7px}.v781-set-summary span{display:flex;justify-content:space-between;gap:5px;border-radius:4px;background:#eef3f6;padding:3px 4px;color:#687b89}.v781-set-summary b{color:#29475f}
+.v781-rotation-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.v781-rotation-card{border:1px solid #dfe6ea!important;background:#f8fafb!important;color:#29475f!important;border-radius:8px!important;padding:7px!important;text-align:left!important;text-transform:none!important;letter-spacing:0!important}.v781-rotation-card.active{border-color:#466f8b!important;background:#eaf2f7!important;box-shadow:inset 3px 0 #466f8b}.v781-rotation-card strong{display:block;font-size:10px}.v781-rotation-card small{display:block;font-size:6.8px;color:#7d8b95;margin-top:2px}.v781-rotation-card em{display:block;font-style:normal;font-weight:900;font-size:11px;margin-top:3px;color:#17324d}
+.v781-rotation-detail{margin-top:6px;padding:6px 7px;border-radius:6px;background:#f4f7f9;color:#627685;font-size:7.5px;line-height:1.4}.v781-tactical-actions,.v781-player-actions{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.v781-tactical-actions button,.v781-player-actions button{font-size:7px!important;padding:5px 6px!important}
+.v781-player-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.v781-player-kpis>div{border:1px solid #e3e8eb;border-radius:7px;background:#f8fafb;padding:6px}.v781-player-kpis span{display:block;font-size:6.2px;text-transform:uppercase;letter-spacing:.05em;color:#82909a;font-weight:900}.v781-player-kpis b{display:block;margin-top:2px;font-size:12px;color:#17324d}.v781-player-skill-line{margin-top:5px;padding:6px;border-radius:6px;background:#f4f7f9;color:#687b89;font-size:7.2px;line-height:1.45}
+body.v781-tv-lock{overflow:hidden!important}
+#scout-video-hub.v781-tv{position:fixed!important;inset:0!important;z-index:70000!important;background:#071522!important;padding:8px!important;overflow:hidden!important}
+#scout-video-hub.v781-tv .v780-hub{height:100%;display:flex;flex-direction:column;gap:7px}
+#scout-video-hub.v781-tv .v780-hero{padding:9px 12px;border-radius:9px;align-items:center;flex:0 0 auto}
+#scout-video-hub.v781-tv .v780-hero h2{font-size:15px!important;margin:1px 0!important}
+#scout-video-hub.v781-tv .v780-hero p,#scout-video-hub.v781-tv .v780-toolbar,#scout-video-hub.v781-tv .v780-status-grid,#scout-video-hub.v781-tv .v781-set-map-panel,#scout-video-hub.v781-tv .v780-sync-panel,#scout-video-hub.v781-tv .v780-ruler-wrap,#scout-video-hub.v781-tv .v780-timeline-panel{display:none!important}
+#scout-video-hub.v781-tv .v780-main{grid-template-columns:minmax(0,2.15fr) minmax(300px,.75fr);gap:7px;flex:1;min-height:0}
+#scout-video-hub.v781-tv .v780-video-panel{min-height:0;display:flex;flex-direction:column;background:#071522;border-color:#244057;padding:6px}
+#scout-video-hub.v781-tv .v780-video-frame{flex:1;min-height:0;height:auto;aspect-ratio:auto;border-radius:7px}
+#scout-video-hub.v781-tv .v780-play-controls{flex:0 0 auto;background:#0d2940;padding:5px;border-radius:7px}
+#scout-video-hub.v781-tv .v780-side{min-height:0;overflow:auto;gap:6px}
+#scout-video-hub.v781-tv .v780-side>section{padding:8px;border-radius:9px}
+#scout-video-hub.v781-tv #v781-tv-button{background:#fff!important;color:#17324d!important}
+@media(max-width:1100px){.v780-toolbar{grid-template-columns:1fr 1fr 1fr 1fr!important}.v780-toolbar .search{grid-column:span 2}.v781-set-lane{grid-template-columns:90px 1fr}}
+@media(max-width:750px){.v780-toolbar{grid-template-columns:1fr 1fr!important}.v780-toolbar .search{grid-column:1/-1}.v781-set-lane{grid-template-columns:1fr}.v781-set-summary{grid-template-columns:repeat(4,1fr)}.v781-rotation-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ===== V7.8.2 · YOUTUBE ===== */
+.v782-youtube-wrap{position:absolute;inset:0;background:#000;z-index:1}
+.v782-youtube-wrap.hidden{display:none}
+.v782-youtube-wrap iframe,.v782-youtube-wrap>div{width:100%!important;height:100%!important;border:0!important;display:block}
+.v780-video-frame>video.hidden{display:none!important}
+.v780-now-overlay{z-index:4}
+.v780-video-empty{z-index:3}
+.v782-youtube-modal{position:fixed;inset:0;z-index:95000;background:rgba(5,20,32,.74);display:grid;place-items:center;padding:18px}
+.v782-youtube-card{width:min(620px,96vw);background:#fff;border-radius:14px;padding:16px;color:#29475f;box-shadow:0 22px 70px rgba(0,0,0,.3)}
+.v782-youtube-card h3{margin:2px 0 5px!important;border:0!important;padding:0!important;font-size:16px!important}
+.v782-youtube-card p{font-size:8.5px;line-height:1.45;color:#71818d;margin:0 0 10px}
+.v782-youtube-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.v782-youtube-input-row input{padding:9px!important;font-size:9px!important}
+.v782-youtube-input-row button{padding:8px 11px!important;font-size:8px!important}
+.v782-youtube-examples{margin-top:7px;padding:7px;border-radius:7px;background:#f3f7f9;color:#70818d;font-size:7.5px;line-height:1.45}
+.v782-youtube-actions{display:flex;justify-content:flex-end;gap:5px;margin-top:10px}
+.v782-youtube-actions button{font-size:7.5px!important;padding:6px 8px!important}
+.v782-youtube-error{display:none;margin-top:8px;border:1px solid #eccbc7;background:#fbefed;color:#8a413a;border-radius:7px;padding:7px;font-size:8px}
+.v782-youtube-error.show{display:block}
+.v782-youtube-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;background:#f5e7e5;color:#9b4138;font-size:6.8px;font-weight:900}
+#scout-video-hub.v781-tv .v782-youtube-wrap{inset:0}
+</style>
+
+
+<script id="v780-match-video-hub-module">
+(()=>{
+'use strict';
+
+const VERSION='7.8.2';
+const REC_DB='VolleyCoachRecordingsV770';
+const REC_DB_VERSION=1;
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const skillNames={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const state={
+  objectUrl:null,file:null,fileMatchId:null,selectedKey:'',kind:'all',
+  stopAt:null,playlist:[],playlistIndex:-1,playlistName:'',
+  lastRows:[],loadedRecording:null,rotation:0,tv:false,
+  mediaType:'local',youtubePlayer:null,youtubeId:null,youtubeUrl:'',
+  youtubeReady:false,youtubeApiPromise:null,youtubeTicker:null
+};
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function matches(){try{return arr(bridge()?.getMatches?.())}catch(_){return []}}
+function activeId(){try{return Number(bridge()?.getActiveId?.())||0}catch(_){return 0}}
+function teamName(){try{return bridge()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function save(){try{bridge()?.save?.()}catch(err){console.error('V7.8 save',err)}}
+function playerLabel(a){try{return bridge()?.playerLabel?.(a)||fallbackPlayer(a)}catch(_){return fallbackPlayer(a)}}
+function fallbackPlayer(a){return String(a?.playerNameSnapshot||a?.playerLabel||a?.playerNumberSnapshot||'Jugador')}
+function currentMatch(){const id=Number($('v780-match')?.value)||activeId();return matches().find(m=>Number(m.id)===id)||null}
+function video(){return $('v780-player-video')}
+
+function youtubeWrap(){return $('v782-youtube-wrap')}
+function youtubeElement(){return $('v782-youtube-player')}
+function isYouTube(){return state.mediaType==='youtube'}
+function mediaLoaded(){
+  const m=currentMatch();
+  if(!m||Number(state.fileMatchId)!==Number(m.id))return false;
+  if(isYouTube())return !!state.youtubeReady&&!!state.youtubeId&&!!state.youtubePlayer;
+  return !!video()?.src;
+}
+function mediaCurrentTime(){
+  if(isYouTube()){
+    try{return Number(state.youtubePlayer?.getCurrentTime?.())||0}catch(_){return 0}
+  }
+  return Number(video()?.currentTime)||0;
+}
+function mediaDuration(){
+  if(isYouTube()){
+    try{return Number(state.youtubePlayer?.getDuration?.())||0}catch(_){return 0}
+  }
+  return Number(video()?.duration)||0;
+}
+function mediaSeek(seconds){
+  const target=Math.max(0,Math.min(mediaDuration()>0?mediaDuration():1e9,Number(seconds)||0));
+  if(isYouTube()){
+    try{state.youtubePlayer?.seekTo?.(target,true)}catch(_){}
+  }else if(video()?.src){
+    try{video().currentTime=target}catch(_){}
+  }
+}
+function mediaPlay(){
+  if(isYouTube()){
+    try{state.youtubePlayer?.playVideo?.()}catch(_){}
+  }else{
+    video()?.play?.().catch?.(()=>{});
+  }
+}
+function mediaPause(){
+  if(isYouTube()){
+    try{state.youtubePlayer?.pauseVideo?.()}catch(_){}
+  }else{
+    try{video()?.pause?.()}catch(_){}
+  }
+}
+function mediaIsPaused(){
+  if(isYouTube()){
+    try{return state.youtubePlayer?.getPlayerState?.()!==window.YT?.PlayerState?.PLAYING}catch(_){return true}
+  }
+  return video()?.paused!==false;
+}
+function mediaSetSpeed(rate){
+  const r=Math.max(.25,Math.min(2,Number(rate)||1));
+  if(isYouTube()){
+    try{
+      const available=state.youtubePlayer?.getAvailablePlaybackRates?.()||[];
+      const chosen=available.length?available.reduce((best,x)=>Math.abs(x-r)<Math.abs(best-r)?x:best,available[0]):r;
+      state.youtubePlayer?.setPlaybackRate?.(chosen);
+      if($('v780-speed'))$('v780-speed').value=String(chosen);
+    }catch(_){}
+  }else if(video()){
+    video().playbackRate=r;
+  }
+}
+function showMediaLayer(type){
+  state.mediaType=type==='youtube'?'youtube':'local';
+  const v=video(),yw=youtubeWrap(),empty=$('v780-video-empty');
+  if(v)v.classList.toggle('hidden',isYouTube());
+  yw?.classList.toggle('hidden',!isYouTube());
+  if(mediaLoaded())empty?.classList.add('hidden');
+}
+function parseYouTubeId(value){
+  const raw=String(value||'').trim();
+  if(/^[A-Za-z0-9_-]{11}$/.test(raw))return raw;
+  try{
+    const u=new URL(raw);
+    const host=u.hostname.replace(/^www\./,'').toLowerCase();
+    if(host==='youtu.be'){
+      const id=u.pathname.split('/').filter(Boolean)[0]||'';
+      return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+    }
+    if(host.endsWith('youtube.com')||host.endsWith('youtube-nocookie.com')){
+      let id=u.searchParams.get('v')||'';
+      if(!id){
+        const parts=u.pathname.split('/').filter(Boolean);
+        const i=parts.findIndex(x=>['embed','shorts','live','v'].includes(x));
+        if(i>=0)id=parts[i+1]||'';
+      }
+      return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+    }
+  }catch(_){}
+  return null;
+}
+function ensureYouTubeAPI(){
+  if(window.YT?.Player)return Promise.resolve(window.YT);
+  if(state.youtubeApiPromise)return state.youtubeApiPromise;
+  state.youtubeApiPromise=new Promise((resolve,reject)=>{
+    const old=window.onYouTubeIframeAPIReady;
+    let done=false;
+    const finish=()=>{
+      if(done)return;
+      if(window.YT?.Player){done=true;resolve(window.YT)}
+    };
+    window.onYouTubeIframeAPIReady=function(){
+      try{if(typeof old==='function')old()}catch(err){console.warn(err)}
+      finish();
+    };
+    let script=[...document.scripts].find(s=>/youtube\.com\/iframe_api/.test(s.src||''));
+    if(!script){
+      script=document.createElement('script');
+      script.src='https://www.youtube.com/iframe_api';
+      script.async=true;
+      script.onerror=()=>{if(!done){done=true;reject(new Error('No se ha podido cargar la API de YouTube.'))}};
+      document.head.appendChild(script);
+    }
+    const started=Date.now();
+    const poll=setInterval(()=>{
+      if(done){clearInterval(poll);return}
+      if(window.YT?.Player){clearInterval(poll);finish();return}
+      if(Date.now()-started>12000){clearInterval(poll);done=true;reject(new Error('Tiempo de espera agotado cargando YouTube.'))}
+    },120);
+  });
+  return state.youtubeApiPromise;
+}
+function resetYouTubeContainer(){
+  const wrap=youtubeWrap();if(!wrap)return;
+  wrap.innerHTML='<div id="v782-youtube-player"></div>';
+}
+function destroyYouTube(){
+  clearInterval(state.youtubeTicker);state.youtubeTicker=null;
+  if(state.youtubePlayer){
+    try{state.youtubePlayer.stopVideo?.()}catch(_){}
+    try{state.youtubePlayer.destroy?.()}catch(_){}
+  }
+  state.youtubePlayer=null;state.youtubeReady=false;state.youtubeId=null;state.youtubeUrl='';
+  resetYouTubeContainer();
+  youtubeWrap()?.classList.add('hidden');
+  const empty=$('v780-video-empty');
+  if(empty){empty.classList.remove('hidden');empty.innerHTML='<b>Sin vídeo cargado</b><span>Abre un archivo, una grabación o pega un enlace de YouTube.</span>'}
+}
+function youtubeErrorText(code){
+  const map={
+    2:'El enlace o ID de YouTube no es válido.',
+    5:'YouTube no puede reproducir este vídeo en HTML5.',
+    100:'El vídeo no existe, es privado o ha sido eliminado.',
+    101:'El propietario no permite reproducir este vídeo fuera de YouTube.',
+    150:'El propietario no permite reproducir este vídeo fuera de YouTube.'
+  };
+  return map[Number(code)]||`YouTube ha devuelto el error ${code}.`;
+}
+function mediaTick(){
+  updatePlayhead();
+  const now=mediaCurrentTime();
+  if(state.stopAt!=null&&now>=state.stopAt-.08){
+    mediaPause();state.stopAt=null;
+    if(state.playlist.length)setTimeout(nextPlaylist,250);
+  }
+  const playing=state.selectedKey;
+  document.querySelectorAll('#v780-timeline .v780-row').forEach(el=>el.classList.toggle('playing',!!playing&&el.dataset.key===playing&&!mediaIsPaused()));
+}
+async function loadYouTubeById(id,url=''){
+  const m=currentMatch();if(!m)throw new Error('Selecciona primero un partido.');
+  releaseVideo();
+  state.mediaType='youtube';
+  state.fileMatchId=Number(m.id);
+  state.youtubeId=id;
+  state.youtubeUrl=url||`https://www.youtube.com/watch?v=${id}`;
+  const x=meta(m);
+  x.source=`YouTube · ${id}`;x.youtubeId=id;x.youtubeUrl=state.youtubeUrl;x.mimeType='youtube';x.fileSize=0;
+  showMediaLayer('youtube');
+  $('v780-video-empty')?.classList.remove('hidden');
+  $('v780-video-empty').innerHTML='<b>Cargando YouTube…</b><span>Preparando reproductor integrado.</span>';
+  await ensureYouTubeAPI();
+  resetYouTubeContainer();
+  state.youtubePlayer=new YT.Player('v782-youtube-player',{
+    width:'100%',height:'100%',videoId:id,
+    playerVars:{playsinline:1,controls:1,rel:0},
+    events:{
+      onReady:e=>{
+        state.youtubeReady=true;
+        try{x.duration=Number(e.target.getDuration())||null}catch(_){}
+        $('v780-video-empty')?.classList.add('hidden');
+        showMediaLayer('youtube');
+        save();renderAll();
+        clearInterval(state.youtubeTicker);
+        state.youtubeTicker=setInterval(()=>{if(isYouTube()&&state.youtubeReady)mediaTick()},180);
+      },
+      onStateChange:e=>{
+        if(e.data===YT.PlayerState.ENDED){
+          state.stopAt=null;
+          if(state.playlist.length)setTimeout(nextPlaylist,250);
+        }
+        mediaTick();
+      },
+      onError:e=>{
+        const message=youtubeErrorText(e.data);
+        state.youtubeReady=false;
+        $('v780-video-empty')?.classList.remove('hidden');
+        $('v780-video-empty').innerHTML=`<b>No se puede reproducir este vídeo</b><span>${esc(message)}</span>`;
+        renderStatus();
+      }
+    }
+  });
+  save();renderAll();
+}
+window.v782OpenYouTubeDialog=function(){
+  document.getElementById('v782-youtube-modal')?.remove();
+  const modal=document.createElement('div');modal.id='v782-youtube-modal';modal.className='v782-youtube-modal';
+  const saved=meta(currentMatch())?.youtubeUrl||'';
+  modal.innerHTML=`<div class="v782-youtube-card">
+    <span class="pro-kicker">V7.8.2 · YOUTUBE</span>
+    <h3>Abrir vídeo de YouTube</h3>
+    <p>Pega el enlace del partido. Después podrás sincronizarlo y usar rallies, rotaciones, jugadores y playlists igual que con un vídeo local.</p>
+    <div class="v782-youtube-input-row">
+      <input id="v782-youtube-url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." value="${esc(saved)}">
+      <button class="primary" id="v782-youtube-open">Abrir</button>
+    </div>
+    <div id="v782-youtube-error" class="v782-youtube-error"></div>
+    <div class="v782-youtube-examples">Compatible con youtube.com/watch, youtu.be, Shorts, /embed/ y /live/. El vídeo debe permitir reproducción incrustada.</div>
+    <div class="v782-youtube-actions"><button class="ghost" id="v782-youtube-close">Cancelar</button></div>
+  </div>`;
+  document.body.appendChild(modal);
+  const input=$('v782-youtube-url');setTimeout(()=>input?.focus(),30);
+  const open=async()=>{
+    const id=parseYouTubeId(input?.value);
+    const err=$('v782-youtube-error');
+    if(!id){err.textContent='No reconozco ese enlace de YouTube.';err.classList.add('show');return}
+    err.classList.remove('show');
+    try{modal.remove();await loadYouTubeById(id,input.value.trim())}
+    catch(e){alert('No se ha podido abrir YouTube.\n\n'+String(e?.message||e))}
+  };
+  $('v782-youtube-open').onclick=open;
+  $('v782-youtube-close').onclick=()=>modal.remove();
+  input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();open()}});
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
+};
+window.v782LoadYouTube=function(value){
+  const id=parseYouTubeId(value);
+  if(!id){alert('No reconozco ese enlace de YouTube.');return false}
+  loadYouTubeById(id,String(value||'').trim()).catch(e=>alert(String(e?.message||e)));
+  return true;
+};
+
+function fmt(sec){
+  if(sec==null||!Number.isFinite(Number(sec)))return '—';
+  sec=Math.max(0,Number(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+  return h?`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${s.toFixed(1).padStart(4,'0')}`:`${String(m).padStart(2,'0')}:${s.toFixed(1).padStart(4,'0')}`;
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function meta(m){
+  if(!m)return null;
+  const r=m.video&&typeof m.video==='object'?m.video:{};
+  m.video={...r,syncOffset:r.syncOffset==null?null:Number(r.syncOffset),source:String(r.source||''),duration:r.duration==null?null:Number(r.duration),preRoll:Math.max(0,Number(r.preRoll??2)),postRoll:Math.max(0,Number(r.postRoll??2)),syncedAt:r.syncedAt||null,anchor:r.anchor||null,clips:arr(r.clips)};
+  return m.video;
+}
+function rallyStartMs(r){const a=arr(r?.actions);return a.length?(Number(a[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0)}
+function rallyEndMs(r){const a=arr(r?.actions);return a.length?(Number(a[a.length-1].scoutMs)||Number(r?.scoutEndMs)||rallyStartMs(r)):(Number(r?.scoutEndMs)||rallyStartMs(r))}
+function mapped(m,ms){const x=meta(m);return x?.syncOffset==null?null:Math.max(0,(Number(ms)||0)/1000+Number(x.syncOffset))}
+function applyMap(m){
+  const x=meta(m);if(!m||x.syncOffset==null)return;
+  arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>{
+    r.videoStart=mapped(m,rallyStartMs(r));r.videoEnd=mapped(m,rallyEndMs(r));
+    arr(r.actions).forEach(a=>{
+      a.videoAction=mapped(m,a.scoutMs);
+      a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);
+      a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll;
+    });
+  }));
+}
+function releaseVideo(){
+  clearInterval(state.youtubeTicker);state.youtubeTicker=null;
+  if(state.objectUrl){try{URL.revokeObjectURL(state.objectUrl)}catch(_){}state.objectUrl=null}
+  state.file=null;state.fileMatchId=null;state.loadedRecording=null;state.stopAt=null;
+  const v=video();if(v){try{v.pause()}catch(_){}v.removeAttribute('src');try{v.load()}catch(_){}}
+  if(state.youtubePlayer||state.youtubeId)destroyYouTube();
+  state.mediaType='local';
+  v?.classList.remove('hidden');
+  youtubeWrap()?.classList.add('hidden');
+}
+function loadBlob(blob,name='',recording=null){
+  const m=currentMatch();if(!m)throw new Error('Selecciona primero un partido.');
+  releaseVideo();
+  state.objectUrl=URL.createObjectURL(blob);
+  state.fileMatchId=Number(m.id);
+  state.loadedRecording=recording||null;
+  state.mediaType='local';
+  const v=video();v.classList.remove('hidden');youtubeWrap()?.classList.add('hidden');v.src=state.objectUrl;v.load();
+  const x=meta(m);x.source=name||recording?.filename||'Vídeo';
+  x.fileSize=blob.size||0;x.mimeType=blob.type||'';
+  v.onloadedmetadata=()=>{
+    x.duration=Number.isFinite(v.duration)?v.duration:null;
+    $('v780-video-empty')?.classList.add('hidden');
+    if(recording)autoSyncRecording(recording,m);
+    save();renderAll();
+  };
+  v.onerror=()=>alert('No se ha podido reproducir este vídeo.');
+  save();renderAll();
+}
+function autoSyncRecording(rec,m){
+  if(!rec||!m)return false;
+  const recStart=Date.parse(rec.startedAt||'');
+  const scoutStart=Date.parse(m.clockStartedAt||m.createdAt||'');
+  if(!Number.isFinite(recStart)||!Number.isFinite(scoutStart))return false;
+  const x=meta(m);
+  x.syncOffset=(scoutStart-recStart)/1000;
+  x.syncedAt=new Date().toISOString();
+  x.anchor={type:'recording-auto',recordingId:rec.id,scoutStart:m.clockStartedAt||m.createdAt,recordingStart:rec.startedAt};
+  applyMap(m);save();return true;
+}
+function timeline(m){
+  const out=[];
+  arr(m?.sets).forEach(s=>arr(s.rallies).forEach((r,ri)=>{
+    out.push({
+      key:`r:${s.number}:${r.id}`,type:'rally',ms:rallyStartMs(r),endMs:rallyEndMs(r),set:Number(s.number)||1,
+      team:r.winner==='opponent'?'opponent':'ours',ownRotation:Number(r.rotationBefore)||1,opponentRotation:Number(r.opponentRotationBefore)||1,
+      servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',
+      label:`Set ${s.number} · Rally ${ri+1} · ${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`,
+      copy:`R${r.rotationBefore||1} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${arr(r.actions).length} acciones`,r
+    });
+    arr(r.actions).forEach(a=>out.push({
+      key:`a:${s.number}:${r.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(s.number)||1,
+      team:a.team==='opponent'?'opponent':'ours',ownRotation:Number(r.rotationBefore)||1,opponentRotation:Number(r.opponentRotationBefore)||1,
+      servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',
+      skill:a.skill||'',evaluation:a.evaluation||'',player:playerLabel(a),
+      label:String(a.code||skillNames[a.skill]||'Acción'),copy:`${skillNames[a.skill]||a.skill||'Acción'} · ${playerLabel(a)} · ${a.evaluation||'!'}`,a,r
+    }));
+  }));
+  return out.sort((a,b)=>a.ms-b.ms);
+}
+function rowRange(row,m=currentMatch()){
+  if(!row||!m)return null;const x=meta(m),pre=Math.max(0,Number(x?.preRoll??2)),post=Math.max(0,Number(x?.postRoll??2));
+  if(x?.syncOffset==null)return null;
+  if(row.type==='rally'){
+    return {start:Math.max(0,mapped(m,row.ms)-pre),end:mapped(m,row.endMs)+post};
+  }
+  const center=row.a?.videoAction!=null?Number(row.a.videoAction):mapped(m,row.ms);
+  return center==null?null:{start:Math.max(0,center-pre),end:center+post};
+}
+function filteredRows(){
+  const m=currentMatch();if(!m)return [];
+  const set=Number($('v780-set')?.value)||0,team=$('v780-team')?.value||'',skill=$('v780-skill')?.value||'',player=$('v780-player')?.value||'',rotation=Number($('v781-rotation')?.value)||state.rotation||0,q=String($('v780-search')?.value||'').trim().toLowerCase();
+  return timeline(m).filter(r=>{
+    if(state.kind!=='all'&&r.type!==state.kind)return false;
+    if(set&&Number(r.set)!==set)return false;
+    if(team&&r.team!==team)return false;
+    if(skill&&(r.type!=='action'||r.skill!==skill))return false;
+    if(player&&(r.type!=='action'||r.player!==player))return false;
+    if(rotation&&Number(r.ownRotation)!==rotation)return false;
+    if(q&&!`${r.label} ${r.copy} ${r.player||''} ${r.evaluation||''}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+}
+function findRow(key){return timeline(currentMatch()).find(x=>x.key===key)||null}
+function selectedRow(){return findRow(state.selectedKey)}
+function playRow(row){
+  const m=currentMatch();if(!row||!m)return;
+  if(!mediaLoaded()){alert('Carga primero el vídeo de este partido.');return}
+  const range=rowRange(row,m);
+  if(!range){alert('Sincroniza primero el vídeo.');return}
+  const duration=mediaDuration();
+  const end=duration>0?Math.min(range.end,duration):range.end;
+  mediaSeek(Math.max(0,range.start));state.stopAt=end;state.selectedKey=row.key;
+  mediaPlay();renderTimeline();renderSelection();
+}
+function updatePlayhead(){
+  const head=$('v780-ruler-playhead'),duration=mediaDuration(),current=mediaCurrentTime();
+  if(head&&duration>0)head.style.left=`${Math.max(0,Math.min(100,current/duration*100))}%`;
+  const m=currentMatch();
+  if(m&&meta(m)?.syncOffset!=null&&mediaLoaded()){
+    const scoutMs=(current-Number(meta(m).syncOffset))*1000;
+    const rows=timeline(m);
+    const closest=rows.reduce((best,r)=>Math.abs(r.ms-scoutMs)<Math.abs((best?.ms??1e15)-scoutMs)?r:best,null);
+    const ov=$('v780-now-overlay');
+    if(ov&&closest&&Math.abs(closest.ms-scoutMs)<5000){
+      ov.classList.remove('hidden');ov.innerHTML=`<b>${esc(closest.type==='rally'?'RALLY':closest.label)}</b> · ${esc(closest.copy)}`;
+    }else ov?.classList.add('hidden');
+  }
+}
+function renderRuler(){
+  const box=$('v780-ruler'),m=currentMatch(),duration=mediaDuration();if(!box)return;
+  [...box.querySelectorAll('.v780-ruler-marker')].forEach(x=>x.remove());
+  if(!m||duration<=0||meta(m)?.syncOffset==null){
+    if($('v780-ruler-copy'))$('v780-ruler-copy').textContent='Carga y sincroniza el vídeo para ver las marcas.';
+    return;
+  }
+  const rows=timeline(m);
+  rows.forEach(r=>{
+    const t=mapped(m,r.ms);if(t==null||t<0||t>duration)return;
+    const mk=document.createElement('i');mk.className=`v780-ruler-marker ${r.type==='action'?'action':''} ${r.team||''}`;
+    mk.style.left=`${Math.max(0,Math.min(100,t/duration*100))}%`;mk.title=`${r.label} · ${fmt(t)}`;mk.onclick=e=>{e.stopPropagation();state.selectedKey=r.key;playRow(r)};
+    box.appendChild(mk);
+  });
+  if($('v780-ruler-copy'))$('v780-ruler-copy').textContent=`${rows.length} marcas · duración ${fmt(duration)}`;
+}
+function populateMatches(){
+  const sel=$('v780-match');if(!sel)return;
+  const list=matches().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.id)-Number(a.id));
+  const previous=Number(sel.value)||activeId()||Number(list[0]?.id)||0;
+  sel.innerHTML=list.length?list.map(m=>`<option value="${m.id}">${esc(m.date||'')} · ${esc(teamName())} vs ${esc(m.opponent||'Rival')}</option>`).join(''):'<option value="">Sin scoutings</option>';
+  if(previous&&list.some(m=>Number(m.id)===previous))sel.value=String(previous);
+}
+function populateFilters(){
+  const m=currentMatch(),setSel=$('v780-set'),playerSel=$('v780-player');if(!m)return;
+  const prevSet=setSel?.value||'',prevPlayer=playerSel?.value||'';
+  const sets=arr(m.sets).map(s=>Number(s.number)).filter(Boolean);
+  if(setSel){setSel.innerHTML='<option value="">Todos</option>'+sets.map(n=>`<option value="${n}">Set ${n}</option>`).join('');if(sets.includes(Number(prevSet)))setSel.value=prevSet}
+  const players=[...new Set(timeline(m).filter(r=>r.type==='action').map(r=>r.player).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if(playerSel){playerSel.innerHTML='<option value="">Todos</option>'+players.map(p=>`<option>${esc(p)}</option>`).join('');if(players.includes(prevPlayer))playerSel.value=prevPlayer}
+}
+function renderStatus(){
+  const m=currentMatch(),x=meta(m);
+  const loaded=mediaLoaded();
+  $('v780-video-state').textContent=loaded?(isYouTube()?'YouTube':'Cargado'):'Sin vídeo';
+  $('v780-video-source').textContent=loaded?(x?.source||state.file?.name||'Vídeo'):(x?.source?`${x.source} · volver a cargar`:'Selecciona archivo, grabación o YouTube');
+  $('v780-sync-state').textContent=x?.syncOffset==null?'Pendiente':'Sincronizado';
+  $('v780-sync-copy').textContent=x?.syncOffset==null?'—':`${x.syncOffset>=0?'+':''}${Number(x.syncOffset).toFixed(2)} s`;
+  $('v780-sync-title').textContent=x?.syncOffset==null?'Vídeo todavía no sincronizado':`Sincronizado · offset ${x.syncOffset>=0?'+':''}${Number(x.syncOffset).toFixed(2)} s`;
+}
+function renderSelection(){
+  const row=selectedRow(),t=$('v780-selected-title'),c=$('v780-selected-copy');
+  if(!row){if(t)t.textContent='Ningún elemento';if(c)c.textContent='Selecciona un rally o una acción de la lista.';return}
+  if(t)t.textContent=row.label;
+  if(c)c.innerHTML=`${esc(row.copy)}<br><b>Scout:</b> ${fmt(row.ms/1000)}${row.type==='action'?` · <b>${esc(skillNames[row.skill]||row.skill||'')}</b> ${esc(row.evaluation||'')}`:''}`;
+}
+function presetRows(type){
+  const rows=timeline(currentMatch());
+  if(type==='points')return rows.filter(r=>r.type==='rally'&&r.team==='ours');
+  if(type==='errors')return rows.filter(r=>r.type==='action'&&r.team==='ours'&&(r.evaluation==='='||(r.skill==='A'&&r.evaluation==='/')));
+  if(type==='kills')return rows.filter(r=>r.type==='action'&&r.team==='ours'&&r.skill==='A'&&r.evaluation==='#');
+  if(type==='recepbad')return rows.filter(r=>r.type==='action'&&r.team==='ours'&&r.skill==='R'&&['-','/','='].includes(r.evaluation));
+  if(type==='aces')return rows.filter(r=>r.type==='action'&&r.team==='ours'&&r.skill==='S'&&r.evaluation==='#');
+  return [];
+}
+function renderPresetCounts(){
+  const map={points:'v780-count-points',errors:'v780-count-errors',kills:'v780-count-kills',recepbad:'v780-count-recepbad',aces:'v780-count-aces'};
+  Object.entries(map).forEach(([k,id])=>{const n=presetRows(k).length;$(id).textContent=`${n} ${k==='points'?'rallies':'acciones'}`});
+  $('v780-count-visible').textContent=`${state.lastRows.length} elementos`;
+}
+function renderTimeline(){
+  const box=$('v780-timeline');if(!box)return;
+  const rows=filteredRows();state.lastRows=rows;
+  let rallies=0,actions=0;rows.forEach(r=>r.type==='rally'?rallies++:actions++);
+  $('v780-rally-count').textContent=String(rallies);$('v780-action-count').textContent=String(actions);
+  box.innerHTML=rows.length?rows.map(r=>{
+    const tm=mapped(currentMatch(),r.ms),range=rowRange(r),playable=!!range&&mediaLoaded();
+    return `<article class="v780-row ${state.selectedKey===r.key?'selected':''}" data-key="${esc(r.key)}" onclick="v780Select('${esc(r.key)}')">
+      <div class="v780-time">${fmt(tm!=null?tm:r.ms/1000)}</div>
+      <span class="v780-type ${r.team||''}">${r.type==='rally'?'RALLY':esc(r.skill||'ACC')}</span>
+      <div class="v780-row-copy"><strong>${esc(r.label)}</strong><small>${esc(r.copy)}</small></div>
+      <div class="v780-row-actions"><button class="${playable?'primary':'ghost'}" ${playable?'':'disabled'} onclick="event.stopPropagation();v780PlayKey('${esc(r.key)}')">▶</button><button class="ghost" onclick="event.stopPropagation();v780CreateClip('${esc(r.key)}')">Clip</button></div>
+    </article>`;
+  }).join(''):'<div class="match-empty">No hay elementos para estos filtros.</div>';
+  renderPresetCounts();
+}
+
+function pct(n,d){return d?Math.round((Number(n)||0)*100/(Number(d)||0)):0}
+function rotationStats(m,no){
+  const rallies=timeline(m).filter(r=>r.type==='rally'&&Number(r.ownRotation)===Number(no));
+  const won=rallies.filter(r=>r.winner==='ours').length,lost=rallies.length-won;
+  const k1=rallies.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
+  const k2=rallies.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
+  return {no,total:rallies.length,won,lost,gp:won-lost,pct:pct(won,rallies.length),k1Total:k1.length,k1Won:k1w,k1Pct:pct(k1w,k1.length),k2Total:k2.length,k2Won:k2w,k2Pct:pct(k2w,k2.length),rallies};
+}
+function renderTactical(){
+  const m=currentMatch(),box=$('v781-rotation-grid'),detail=$('v781-rotation-detail');
+  if(!box||!m)return;
+  const selected=Number($('v781-rotation')?.value)||state.rotation||0;
+  const stats=[1,2,3,4,5,6].map(n=>rotationStats(m,n));
+  box.innerHTML=stats.map(s=>`<button class="v781-rotation-card ${selected===s.no?'active':''}" onclick="v781SelectRotation(${s.no})">
+    <strong>R${s.no}</strong><small>${s.won}/${s.total} rallies · G-P ${s.gp>0?'+':''}${s.gp}</small><em>${s.total?s.pct+'%':'—'}</em>
+  </button>`).join('');
+  if(detail){
+    if(!selected)detail.textContent='Selecciona una rotación para filtrar y revisar sus rallies.';
+    else{
+      const s=stats.find(x=>x.no===selected);
+      detail.innerHTML=`<b>R${selected}</b> · Global ${s.total?s.pct+'%':'—'} (${s.won}/${s.total}) · K1 ${s.k1Total?s.k1Pct+'%':'—'} (${s.k1Won}/${s.k1Total}) · K2 ${s.k2Total?s.k2Pct+'%':'—'} (${s.k2Won}/${s.k2Total}) · G-P <b>${s.gp>0?'+':''}${s.gp}</b>`;
+    }
+  }
+}
+function playerStats(name){
+  const rows=timeline(currentMatch()).filter(r=>r.type==='action'&&r.player===name);
+  const own=rows.filter(r=>r.team==='ours');
+  const points=own.filter(r=>['S','A','B'].includes(r.skill)&&r.evaluation==='#').length;
+  const errors=own.filter(r=>r.evaluation==='='||(r.skill==='A'&&r.evaluation==='/')).length;
+  const rec=own.filter(r=>r.skill==='R'),recPos=rec.filter(r=>['#','+'].includes(r.evaluation)).length,recExc=rec.filter(r=>r.evaluation==='#').length;
+  const att=own.filter(r=>r.skill==='A'),attPts=att.filter(r=>r.evaluation==='#').length,attErr=att.filter(r=>r.evaluation==='=').length,attBlq=att.filter(r=>r.evaluation==='/').length;
+  const serve=own.filter(r=>r.skill==='S'),aces=serve.filter(r=>r.evaluation==='#').length,serveErr=serve.filter(r=>r.evaluation==='=').length;
+  const blocks=own.filter(r=>r.skill==='B'&&r.evaluation==='#').length;
+  const attEff=att.length?Math.round((attPts-attErr-attBlq)*100/att.length):0;
+  return {rows,own,total:own.length,points,errors,gp:points-errors,rec:rec.length,recPos,recExc,recPosPct:pct(recPos,rec.length),recExcPct:pct(recExc,rec.length),att:att.length,attPts,attErr,attBlq,attEff,serve:serve.length,aces,serveErr,blocks};
+}
+function renderPlayerFocus(){
+  const name=$('v780-player')?.value||'',title=$('v781-player-title'),box=$('v781-player-kpis'),line=$('v781-player-skill-line');
+  if(!title||!box||!line)return;
+  if(!name){
+    title.textContent='Selecciona una jugadora';
+    box.innerHTML='<div><span>Acciones</span><b>—</b></div><div><span>G-P</span><b>—</b></div><div><span>REC +/#</span><b>—</b></div><div><span>ATQ EFF</span><b>—</b></div>';
+    line.textContent='Selecciona un jugador en el filtro superior.';
+    return;
+  }
+  const s=playerStats(name);title.textContent=name;
+  box.innerHTML=`<div><span>Acciones</span><b>${s.total}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.rec?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.att?s.attEff+'%':'—'}</b></div>`;
+  line.innerHTML=`Saque ${s.serve}: <b>${s.aces} ace</b> / ${s.serveErr} error · Recepción ${s.rec}: +/# ${s.recPosPct}% · # ${s.recExcPct}% · Ataque ${s.att}: ${s.attPts} punto / ${s.attErr} error / ${s.attBlq} bloqueado · Bloqueo: ${s.blocks} puntos`;
+}
+function setStats(set){
+  const rallies=arr(set?.rallies),won=rallies.filter(r=>r.winner==='ours').length,lost=rallies.length-won;
+  const first=rallies[0],last=rallies[rallies.length-1];
+  const start=first?rallyStartMs(first):0,end=last?rallyEndMs(last):start;
+  const k1=rallies.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
+  const k2=rallies.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
+  return {rallies,won,lost,start,end,duration:Math.max(0,end-start),k1:k1.length,k1w,k1pct:pct(k1w,k1.length),k2:k2.length,k2w,k2pct:pct(k2w,k2.length)};
+}
+function renderSetMap(){
+  const m=currentMatch(),box=$('v781-set-map');if(!box)return;
+  if(!m){box.innerHTML='<div class="match-empty">Sin partido seleccionado.</div>';return}
+  const selectedSet=Number($('v780-set')?.value)||0;
+  box.innerHTML=arr(m.sets).map(set=>{
+    const st=setStats(set),span=Math.max(1,st.end-st.start);
+    const dots=st.rallies.map((r,i)=>{
+      const ms=rallyStartMs(r),left=st.rallies.length===1?50:Math.max(1,Math.min(99,(ms-st.start)/span*100));
+      const key=`r:${set.number}:${r.id}`,selected=state.selectedKey===key;
+      return `<button class="v781-set-dot ${r.winner==='ours'?'ours':'opponent'} ${selected?'selected':''}" style="left:${left}%" title="Rally ${i+1} · ${r.scoreAfter?.us??0}-${r.scoreAfter?.opponent??0} · R${r.rotationBefore||1}" onclick="event.stopPropagation();v781PlayMapRally('${esc(key)}')"></button>`;
+    }).join('');
+    return `<article class="v781-set-lane ${selectedSet===Number(set.number)?'active':''}">
+      <div class="v781-set-label" onclick="v781SelectSet(${Number(set.number)})"><b>Set ${set.number} · ${set.scoreUs||0}-${set.scoreOpponent||0}</b><small>${st.rallies.length} rallies · ${fmt(st.duration/1000)}</small></div>
+      <div class="v781-set-track" onclick="v781SelectSet(${Number(set.number)})">${dots}</div>
+      <div class="v781-set-summary"><span>K1 <b>${st.k1?st.k1pct+'%':'—'}</b></span><span>K2 <b>${st.k2?st.k2pct+'%':'—'}</b></span><span>G <b>${st.won}</b></span><span>P <b>${st.lost}</b></span></div>
+    </article>`;
+  }).join('')||'<div class="match-empty">Este partido todavía no tiene sets.</div>';
+}
+window.v781SelectSet=function(n){const s=$('v780-set');if(s)s.value=String(n);renderAll()};
+window.v781PlayMapRally=function(key){state.selectedKey=key;renderAll();const r=findRow(key);if(r)playRow(r)};
+window.v781SelectRotation=function(n){state.rotation=Number(n)||0;const s=$('v781-rotation');if(s)s.value=state.rotation?String(state.rotation):'';renderAll()};
+window.v781ClearRotation=function(){state.rotation=0;const s=$('v781-rotation');if(s)s.value='';renderAll()};
+window.v781RotationChanged=function(){state.rotation=Number($('v781-rotation')?.value)||0;renderAll()};
+window.v781PlayerChanged=function(){renderAll()};
+window.v781ClearPlayer=function(){const p=$('v780-player');if(p)p.value='';renderAll()};
+window.v781PlayRotation=function(){
+  const n=Number($('v781-rotation')?.value)||state.rotation||0;if(!n){alert('Selecciona una rotación R1–R6.');return}
+  startPlaylist(timeline(currentMatch()).filter(r=>r.type==='rally'&&Number(r.ownRotation)===n),`Rotación R${n}`);
+};
+window.v781PlayRotationErrors=function(){
+  const n=Number($('v781-rotation')?.value)||state.rotation||0;if(!n){alert('Selecciona una rotación R1–R6.');return}
+  startPlaylist(timeline(currentMatch()).filter(r=>r.type==='action'&&Number(r.ownRotation)===n&&r.team==='ours'&&(r.evaluation==='='||(r.skill==='A'&&r.evaluation==='/'))),`Errores R${n}`);
+};
+window.v781PlayPlayer=function(kind='all'){
+  const name=$('v780-player')?.value||'';if(!name){alert('Selecciona una jugadora.');return}
+  const rows=timeline(currentMatch()).filter(r=>r.type==='action'&&r.player===name&&r.team==='ours').filter(r=>{
+    if(kind==='points')return ['S','A','B'].includes(r.skill)&&r.evaluation==='#';
+    if(kind==='errors')return r.evaluation==='='||(r.skill==='A'&&r.evaluation==='/');
+    return true;
+  });
+  startPlaylist(rows,`${name} · ${kind==='points'?'Puntos':kind==='errors'?'Errores':'Todas las acciones'}`);
+};
+window.v781ToggleTV=function(force){
+  const view=$('scout-video-hub');if(!view)return;
+  state.tv=typeof force==='boolean'?force:!state.tv;
+  view.classList.toggle('v781-tv',state.tv);
+  document.body.classList.toggle('v781-tv-lock',state.tv);
+  const b=$('v781-tv-button');if(b)b.textContent=state.tv?'Salir TV':'▣ Modo TV';
+};
+window.v781ExitTV=function(){window.v781ToggleTV(false)};
+
+function renderAll(){populateFilters();renderStatus();renderTimeline();renderSelection();renderRuler();renderSetMap();renderTactical();renderPlayerFocus();updatePlayhead()}
+window.v780Render=renderAll;
+window.v780Open=function(){
+  populateMatches();populateFilters();renderAll();
+  const m=currentMatch();if(m&&!mediaLoaded()){const x=meta(m);if(x?.youtubeId)loadYouTubeById(x.youtubeId,x.youtubeUrl||'').catch(()=>{});else tryAutoOpenRecording(m.id)};
+};
+window.v780MatchChanged=function(){releaseVideo();state.selectedKey='';state.playlist=[];state.playlistIndex=-1;state.rotation=0;if($('v781-rotation'))$('v781-rotation').value='';if($('v780-player'))$('v780-player').value='';populateFilters();renderAll();tryAutoOpenRecording(Number($('v780-match')?.value)||0)};
+window.v780FiltersChanged=function(){populateFilters();renderAll()};
+window.v780SetKind=function(kind){state.kind=['all','rally','action'].includes(kind)?kind:'all';['all','rally','action'].forEach(k=>$(`v780-kind-${k}`)?.classList.toggle('active',k===state.kind));renderAll()};
+window.v780Select=function(key){state.selectedKey=key;renderTimeline();renderSelection();renderSetMap()};
+window.v780PlayKey=function(key){const r=findRow(key);if(r)playRow(r)};
+window.v780PlaySelected=function(){const r=selectedRow();if(!r){alert('Selecciona primero un rally o una acción.');return}playRow(r)};
+window.v780Jump=function(delta){if(mediaLoaded())mediaSeek(mediaCurrentTime()+Number(delta||0))};
+window.v780TogglePlay=function(){if(!mediaLoaded())return;mediaIsPaused()?mediaPlay():mediaPause()};
+window.v780SpeedChanged=function(){mediaSetSpeed(Number($('v780-speed')?.value)||1)};
+window.v780Fullscreen=async function(){const el=$('v780-video-frame'),v=video();try{if(document.fullscreenElement)return document.exitFullscreen();if(el?.requestFullscreen)return el.requestFullscreen();if(!isYouTube()&&v?.webkitEnterFullscreen)return v.webkitEnterFullscreen()}catch(err){console.warn(err)}};
+window.v780RulerSeek=function(e){const box=$('v780-ruler'),duration=mediaDuration();if(!mediaLoaded()||duration<=0||!box)return;const r=box.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));mediaSeek(x*duration)};
+window.v780SyncSelected=function(){
+  const m=currentMatch(),row=selectedRow();if(!m||!row){alert('Selecciona un rally o una acción.');return}if(!mediaLoaded()){alert('Carga primero el vídeo.');return}
+  const current=mediaCurrentTime(),x=meta(m);x.syncOffset=current-(Number(row.ms)||0)/1000;x.syncedAt=new Date().toISOString();x.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:current};
+  applyMap(m);save();renderAll();
+};
+window.v780Nudge=function(delta){const m=currentMatch(),x=meta(m);if(!m||x?.syncOffset==null){alert('Sincroniza primero el vídeo.');return}x.syncOffset+=Number(delta||0);applyMap(m);save();renderAll()};
+window.v780LoadFile=function(ev){
+  const f=ev?.target?.files?.[0];if(!f)return;
+  if(!String(f.type||'').startsWith('video/')&&!/\.(webm|mp4|mov|m4v)$/i.test(f.name)){alert('Selecciona un archivo de vídeo compatible.');return}
+  state.file=f;loadBlob(f,f.name,null);
+};
+window.v780CreateClip=function(key){
+  state.selectedKey=key;renderSelection();
+  if(typeof window.scoutV720CreateFromKey==='function'){
+    const m=currentMatch(),x=meta(m),row=findRow(key);
+    if(x?.syncOffset==null){alert('Sincroniza primero el vídeo.');return}
+    /* V7.2 works on its own modal/player, so persist mapped ranges and create a compatible clip directly. */
+    const range=rowRange(row,m);if(!range)return;
+    x.clips=arr(x.clips);
+    x.clips.push({id:`hub_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,name:row.label,tag:row.team==='opponent'?'opponent':row.type==='action'?'technical':'general',note:row.copy,start:range.start,end:range.end,duration:range.end-range.start,sourceKey:key,type:row.type,set:row.set,team:row.team||'',skill:row.skill||'',evaluation:row.evaluation||'',player:row.player||'',createdAt:new Date().toISOString(),source:x.source||''});
+    save();
+    alert(isYouTube()
+      ? 'Referencia de clip guardada. En YouTube se conserva el intervalo para análisis, pero Volley Coach no descarga ni recorta el vídeo de YouTube.'
+      : 'Clip añadido a Clip Studio.');
+  }
+};
+window.v780CreateClipSelected=function(){if(!state.selectedKey){alert('Selecciona primero un elemento.');return}v780CreateClip(state.selectedKey)};
+function startPlaylist(rows,name){
+  const playable=rows.filter(r=>rowRange(r));if(!playable.length){alert('No hay elementos sincronizados para esta playlist.');return}
+  state.playlist=playable.map(r=>r.key);state.playlistIndex=-1;state.playlistName=name;nextPlaylist();
+}
+function nextPlaylist(){
+  state.playlistIndex++;
+  if(state.playlistIndex>=state.playlist.length){window.v780StopPlaylist();$('v780-playlist-state').textContent='Playlist terminada.';return}
+  const key=state.playlist[state.playlistIndex],row=findRow(key);if(!row){nextPlaylist();return}
+  $('v780-playlist-state').textContent=`${state.playlistName} · ${state.playlistIndex+1}/${state.playlist.length}`;
+  playRow(row);
+}
+window.v780PlayPreset=function(type){startPlaylist(presetRows(type),({points:'Puntos nuestros',errors:'Errores',kills:'Ataques #',recepbad:'Recepciones negativas',aces:'Aces'})[type]||'Playlist')};
+window.v780PlayVisible=function(){startPlaylist(state.lastRows,'Filtro actual')};
+window.v780StopPlaylist=function(){state.playlist=[];state.playlistIndex=-1;state.playlistName='';state.stopAt=null;mediaPause();$('v780-playlist-state').textContent='Ninguna playlist activa.';renderTimeline()};
+
+/* Recording Studio integration */
+function openRecDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(REC_DB,REC_DB_VERSION);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  });
+}
+async function recSessions(){
+  const db=await openRecDB();
+  const out=await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readonly'),r=tx.objectStore('sessions').getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)});
+  db.close();return out.sort((a,b)=>String(b.startedAt||'').localeCompare(String(a.startedAt||'')));
+}
+async function recChunks(id){
+  const db=await openRecDB();
+  const out=await new Promise((resolve,reject)=>{const tx=db.transaction('chunks','readonly'),idx=tx.objectStore('chunks').index('sessionId'),r=idx.getAll(id);r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)});
+  db.close();return out.sort((a,b)=>a.index-b.index);
+}
+async function openRecording(rec){
+  if(!rec)return;
+  if(rec.mode==='browser'){
+    const chunks=await recChunks(rec.id);if(!chunks.length)throw new Error('Esta grabación no contiene fragmentos.');
+    const blob=new Blob(chunks.map(x=>x.blob),{type:rec.mime||'video/webm'});loadBlob(blob,`${rec.filename}.${String(rec.mime||'').startsWith('video/mp4')?'mp4':'webm'}`,rec);return;
+  }
+  if(rec.fileHandle){
+    try{
+      let perm=await rec.fileHandle.queryPermission?.({mode:'read'});
+      if(perm!=='granted')perm=await rec.fileHandle.requestPermission?.({mode:'read'});
+      if(perm==='granted'){const file=await rec.fileHandle.getFile();state.file=file;loadBlob(file,file.name,rec);return}
+    }catch(err){console.warn('V7.8 file handle',err)}
+  }
+  alert('Esta grabación se guardó directamente al disco. Selecciona ahora el archivo WebM/MP4 correspondiente.');
+  document.getElementById('v780-file')?.click();
+}
+window.v780OpenRecordingPicker=async function(){
+  try{
+    const all=await recSessions(),mid=Number(currentMatch()?.id)||0;
+    const list=all.filter(s=>!mid||Number(s.match?.id)===mid||!s.match?.id);
+    document.getElementById('v780-recording-modal')?.remove();
+    const modal=document.createElement('div');modal.id='v780-recording-modal';modal.className='v780-recording-modal';
+    modal.innerHTML=`<div class="v780-recording-card"><div class="v780-section-head"><div><span class="pro-kicker">RECORDING STUDIO</span><h3>Grabaciones disponibles</h3></div><button class="ghost" id="v780-rec-close">Cerrar</button></div><div class="v780-recording-list">${list.length?list.map(s=>`<div class="v780-recording-row"><div><strong>${esc(s.filename||s.id)}</strong><small>${esc(s.startedAt||'')} · ${esc(s.source||'')} · ${s.mode==='browser'?'Navegador':'Disco'}${s.match?.opponent?' · '+esc(s.match.opponent):''}</small></div><button class="primary" data-rec="${esc(s.id)}">Abrir</button></div>`).join(''):'<div class="match-empty">No hay grabaciones compatibles para este partido.</div>'}</div></div>`;
+    document.body.appendChild(modal);
+    modal.onclick=e=>{if(e.target===modal)modal.remove()};
+    $('v780-rec-close').onclick=()=>modal.remove();
+    modal.querySelectorAll('[data-rec]').forEach(btn=>btn.onclick=async()=>{const s=all.find(x=>x.id===btn.dataset.rec);modal.remove();try{await openRecording(s)}catch(err){alert('No se ha podido abrir la grabación.\n\n'+String(err?.message||err))}});
+  }catch(err){alert('No se han podido leer las grabaciones de Recording Studio.\n\n'+String(err?.message||err))}
+};
+async function tryAutoOpenRecording(matchId){
+  if(!matchId||mediaLoaded())return;
+  try{
+    const all=await recSessions();
+    const candidates=all.filter(s=>Number(s.match?.id)===Number(matchId)&&s.completed!==false);
+    if(candidates.length===1)await openRecording(candidates[0]);
+  }catch(err){console.warn('V7.8 auto recording',err)}
+}
+
+const v=video();
+if(v&&!v.dataset.v780Bound){
+  v.dataset.v780Bound='1';
+  v.addEventListener('timeupdate',mediaTick);
+  v.addEventListener('loadedmetadata',renderRuler);
+}
+
+document.addEventListener('keydown',e=>{
+  const view=$('scout-video-hub');
+  if(!view||!view.classList.contains('active'))return;
+  const tag=String(e.target?.tagName||'').toLowerCase();
+  if(['input','select','textarea'].includes(tag))return;
+  if(e.key.toLowerCase()==='t'){e.preventDefault();v781ToggleTV()}
+  if(e.key==='Escape'&&state.tv){e.preventDefault();v781ExitTV()}
+  if(/^[1-6]$/.test(e.key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();v781SelectRotation(Number(e.key))}
+});
+
+window.v780Diagnostics=()=>({version:VERSION,matches:matches().length,match:currentMatch()?.id||null,videoLoaded:mediaLoaded(),mediaType:state.mediaType,youtubeId:state.youtubeId||null,fileMatchId:state.fileMatchId,syncOffset:meta(currentMatch())?.syncOffset??null,duration:mediaDuration(),currentTime:mediaCurrentTime(),rows:timeline(currentMatch()).length,recording:state.loadedRecording?.id||null,rotation:state.rotation||null,player:$('v780-player')?.value||null,tv:state.tv});
+})();
+</script>
+
+
+
+<style id="v790-season-analytics-style">
+.v790-season{display:grid;gap:10px}
+.v790-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;background:linear-gradient(135deg,#071d35,#17435f);color:#fff;border-radius:16px;padding:20px 22px}.v790-hero h2{margin:3px 0 5px!important;color:#fff!important;font-size:24px!important}.v790-hero p{margin:0;color:#c8d6e0;font-size:10.5px}.v790-hero .pro-kicker{color:#93adbf}.v790-hero-actions{display:flex;gap:6px;flex-wrap:wrap}.v790-hero-actions .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important}
+.v790-backup-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #cfe0d7;background:#f3faf6;border-radius:11px;padding:9px 10px}.v790-backup-strip>div:first-child{display:flex;align-items:center;gap:8px}.v790-backup-strip b{display:block;color:#28543c;font-size:9px}.v790-backup-strip small{display:block;color:#708278;font-size:7.5px;margin-top:2px}.v790-backup-icon{display:grid;place-items:center;min-width:43px;height:30px;border-radius:7px;background:#2f6549;color:#fff;font-size:7px;font-weight:950;letter-spacing:.08em}.v790-backup-actions{display:flex;gap:5px}.v790-backup-actions button{font-size:7.5px!important;padding:6px 8px!important}
+.v790-filters{display:grid;grid-template-columns:150px 130px 130px minmax(150px,1fr) 130px;gap:6px;background:#fff;border:1px solid #e0e6ea;border-radius:11px;padding:9px}.v790-filters label{display:flex;flex-direction:column;gap:4px}.v790-filters label>span{font-size:6.8px;text-transform:uppercase;letter-spacing:.07em;font-weight:900;color:#7d8a94}.v790-filters select,.v790-filters input{font-size:8.5px!important;padding:7px!important}
+.v790-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.v790-kpis>div{background:#fff;border:1px solid #e0e6ea;border-radius:10px;padding:9px}.v790-kpis span{display:block;color:#7b8994;font-size:6.8px;text-transform:uppercase;letter-spacing:.06em;font-weight:900}.v790-kpis b{display:block;color:#17324d;font-size:18px;margin:3px 0}.v790-kpis small{display:block;color:#82909a;font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v790-grid-main{display:grid;grid-template-columns:1.3fr .7fr;gap:10px}.v790-panel{background:#fff;border:1px solid #e0e6ea;border-radius:13px;padding:10px}.v790-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}.v790-panel-head h3{margin:2px 0 0!important;padding:0!important;border:0!important;font-size:12px!important}.v790-panel-head small{font-size:7.5px;color:#7a8893}.v790-chip{padding:4px 7px;border-radius:999px;background:#eef3f6;color:#516a7c;font-size:7px;font-weight:900}
+.v790-trend{min-height:215px;display:flex;align-items:stretch;gap:5px;overflow-x:auto;padding:9px 2px 2px}.v790-trend-item{min-width:58px;display:grid;grid-template-rows:1fr auto;gap:5px;cursor:pointer}.v790-trend-bar-wrap{display:flex;align-items:flex-end;justify-content:center;height:160px;border-bottom:1px solid #d9e0e5;position:relative}.v790-trend-zero{position:absolute;left:0;right:0;bottom:50%;border-top:1px dashed #cdd7de}.v790-trend-bar{width:22px;min-height:3px;border-radius:5px 5px 2px 2px;background:#466f8b;position:relative}.v790-trend-bar.neg{background:#a35d50;border-radius:2px 2px 5px 5px;align-self:flex-start}.v790-trend-value{position:absolute;left:50%;transform:translateX(-50%);font-size:7px;font-weight:900;color:#29475f;white-space:nowrap}.v790-trend-copy{text-align:center}.v790-trend-copy b{display:block;font-size:7.5px;color:#425d70;max-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v790-trend-copy small{display:block;font-size:6.5px;color:#82909a}
+.v790-rotations{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.v790-rotation{border:1px solid #e0e6ea;border-radius:8px;padding:8px;background:#f9fbfc}.v790-rotation-head{display:flex;justify-content:space-between;align-items:center}.v790-rotation-head b{font-size:11px;color:#17324d}.v790-rotation-head strong{font-size:12px;color:#345a75}.v790-rotation small{display:block;color:#7c8993;font-size:7px;margin-top:3px}.v790-mini-bar{height:5px;border-radius:999px;background:#e4e9ec;overflow:hidden;margin-top:5px}.v790-mini-bar i{display:block;height:100%;background:#527a93;border-radius:999px}
+.v790-player-table{overflow:auto}.v790-player-table table{width:100%;border-collapse:collapse;min-width:850px}.v790-player-table th{position:sticky;top:0;background:#f4f7f9;color:#6f808d;text-align:right;font-size:6.7px;text-transform:uppercase;letter-spacing:.04em;padding:6px;border-bottom:1px solid #dce3e8}.v790-player-table th:first-child,.v790-player-table td:first-child{text-align:left}.v790-player-table td{text-align:right;padding:7px 6px;border-bottom:1px solid #edf0f2;color:#536977;font-size:8px}.v790-player-table tr{cursor:pointer}.v790-player-table tbody tr:hover,.v790-player-table tbody tr.active{background:#f1f6f9}.v790-player-table td b{color:#203f57}.v790-player-name{display:flex;align-items:center;gap:5px;white-space:nowrap}.v790-player-number{display:grid;place-items:center;min-width:23px;height:23px;border-radius:6px;background:#17324d;color:#fff;font-size:7px;font-weight:900}
+.v790-player-detail{display:grid;gap:8px}.v790-detail-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.v790-detail-kpis>div{border:1px solid #e2e7ea;background:#f8fafb;border-radius:8px;padding:7px}.v790-detail-kpis span{display:block;font-size:6.4px;color:#7e8c96;text-transform:uppercase;font-weight:900}.v790-detail-kpis b{display:block;font-size:14px;color:#17324d;margin-top:2px}.v790-skill-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.v790-skill-card{border:1px solid #e4e9ec;border-radius:8px;padding:7px}.v790-skill-card strong{display:block;font-size:8px;color:#29475f}.v790-skill-card small{display:block;font-size:7px;color:#7c8993;margin-top:3px;line-height:1.4}
+.v790-match-list{display:grid;gap:5px;max-height:430px;overflow:auto}.v790-match-row{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:7px;align-items:center;border:1px solid #e3e8eb;border-radius:8px;padding:7px;background:#fafbfc}.v790-match-row time{font-size:7.5px;color:#72828e}.v790-match-row strong{display:block;font-size:8.5px;color:#29475f}.v790-match-row small{display:block;font-size:7px;color:#82909a;margin-top:2px}.v790-match-row button{font-size:7px!important;padding:5px 6px!important}
+.v790-backup-modal{position:fixed;inset:0;z-index:100000;background:rgba(5,20,32,.72);display:grid;place-items:center;padding:18px}.v790-backup-card{width:min(660px,96vw);background:#fff;border-radius:14px;padding:15px;color:#29475f}.v790-backup-card h3{margin:2px 0 7px!important;border:0!important;padding:0!important}.v790-backup-card p,.v790-backup-card li{font-size:8.5px;line-height:1.5;color:#687b88}.v790-backup-card ul{padding-left:18px}.v790-backup-card .actions{display:flex;justify-content:flex-end;gap:5px;margin-top:10px}
+@media(max-width:1100px){.v790-kpis{grid-template-columns:repeat(3,1fr)}.v790-grid-main{grid-template-columns:1fr}.v790-filters{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.v790-hero{align-items:flex-start;flex-direction:column}.v790-backup-strip{align-items:flex-start;flex-direction:column}.v790-filters{grid-template-columns:1fr 1fr}.v790-kpis{grid-template-columns:1fr 1fr}.v790-detail-kpis,.v790-skill-grid{grid-template-columns:1fr 1fr}}
+</style>
+
+
+<script id="v790-season-analytics-module">
+(()=>{
+'use strict';
+const VERSION='7.9.0';
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const BACKUP_KEY='volley_v790_last_backup_at';
+const state={selectedPlayer:'',lastBackup:null};
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function matches(){try{return arr(bridge()?.getMatches?.())}catch(_){return []}}
+function roster(){try{return arr(bridge()?.getPlayers?.())}catch(_){return []}}
+function teamId(){try{return String(bridge()?.getTeamId?.()||'equipo')}catch(_){return 'equipo'}}
+function teamName(){try{return String(bridge()?.teamName?.()||'Equipo')}catch(_){return 'Equipo'}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function pct(n,d){return d?Math.round((Number(n)||0)*100/(Number(d)||0)):0}
+function isoDate(v){const d=new Date(v||0);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''}
+function fmtDate(v){const d=new Date(v||0);if(!Number.isFinite(d.getTime()))return '—';return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'})}
+function matchDate(m){return String(m?.date||isoDate(m?.createdAt)||'')}
+function playerKey(a){
+  if(a?.playerId!=null&&String(a.playerId)!=='')return `id:${a.playerId}`;
+  const num=String(a?.playerNumberSnapshot??'').trim(),name=String(a?.playerNameSnapshot||a?.playerLabel||'').trim();
+  return num?`num:${num}`:`name:${name.toLowerCase()}`;
+}
+function playerName(a){
+  try{return bridge()?.playerLabel?.(a)||String(a?.playerNameSnapshot||a?.playerLabel||a?.playerNumberSnapshot||'Jugador')}catch(_){return String(a?.playerNameSnapshot||a?.playerLabel||'Jugador')}
+}
+function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s?.rallies).map(r=>({m,set:s,r})))}
+function allActions(m){return allRallies(m).flatMap(x=>arr(x.r?.actions).map(a=>({...x,a})))}
+
+function periodBounds(){
+  const p=$('v790-period')?.value||'all',today=new Date(),to=new Date(today.getFullYear(),today.getMonth(),today.getDate(),23,59,59,999);
+  if(p==='all')return {from:null,to:null};
+  if(p==='30'||p==='90'){const from=new Date(to);from.setDate(from.getDate()-Number(p)+1);from.setHours(0,0,0,0);return {from,to}}
+  if(p==='year'){return {from:new Date(today.getFullYear(),0,1),to}}
+  if(p==='custom'){
+    const f=$('v790-from')?.value,t=$('v790-to')?.value;
+    return {from:f?new Date(`${f}T00:00:00`):null,to:t?new Date(`${t}T23:59:59`):null};
+  }
+  return {from:null,to:null};
+}
+function periodMatches(){
+  const {from,to}=periodBounds();
+  return matches().filter(m=>{
+    const d=new Date(`${matchDate(m)}T12:00:00`);
+    if(!Number.isFinite(d.getTime()))return !from&&!to;
+    return (!from||d>=from)&&(!to||d<=to);
+  }).sort((a,b)=>matchDate(a).localeCompare(matchDate(b))||Number(a.id)-Number(b.id));
+}
+function matchResult(m){
+  let won=0,lost=0;
+  arr(m?.sets).forEach(s=>{
+    const us=Number(s?.scoreUs??s?.score?.us??0),op=Number(s?.scoreOpponent??s?.score?.opponent??0);
+    if(us>op)won++;else if(op>us)lost++;
+  });
+  return {won,lost,result:won>lost?'W':lost>won?'L':'—'};
+}
+function summarizeActions(items){
+  const actions=items.map(x=>x.a||x).filter(Boolean);
+  const ours=actions.filter(a=>a.team!=='opponent');
+  const g=ours.filter(a=>a.evaluation==='#').length;
+  const p=ours.filter(a=>a.evaluation==='=').length;
+  const rec=ours.filter(a=>a.skill==='R'),recPos=rec.filter(a=>['#','+'].includes(a.evaluation)).length,recExc=rec.filter(a=>a.evaluation==='#').length;
+  const att=ours.filter(a=>a.skill==='A'),attPts=att.filter(a=>a.evaluation==='#').length,attErr=att.filter(a=>a.evaluation==='=').length,attBlk=att.filter(a=>a.evaluation==='/').length;
+  const serve=ours.filter(a=>a.skill==='S'),aces=serve.filter(a=>a.evaluation==='#').length,serveErr=serve.filter(a=>a.evaluation==='=').length;
+  const blocks=ours.filter(a=>a.skill==='B'&&a.evaluation==='#').length;
+  return {
+    actions:ours.length,g,p,gp:g-p,
+    rec:rec.length,recPos,recExc,recPosPct:pct(recPos,rec.length),recExcPct:pct(recExc,rec.length),
+    att:att.length,attPts,attErr,attBlk,attEff:att.length?Math.round((attPts-attErr-attBlk)*100/att.length):0,
+    serve:serve.length,aces,serveErr,serveEff:serve.length?Math.round((aces-serveErr)*100/serve.length):0,
+    blocks
+  };
+}
+function filteredActionItems(){
+  const ms=periodMatches(),player=$('v790-player')?.value||state.selectedPlayer||'',skill=$('v790-skill')?.value||'';
+  return ms.flatMap(allActions).filter(x=>{
+    if(x.a?.team==='opponent')return false;
+    if(player&&playerKey(x.a)!==player)return false;
+    if(skill&&x.a?.skill!==skill)return false;
+    return true;
+  });
+}
+function seasonSummary(){
+  const ms=periodMatches(),actions=filteredActionItems(),stats=summarizeActions(actions);
+  let setsWon=0,setsLost=0,matchesWon=0,matchesLost=0;
+  ms.forEach(m=>{const r=matchResult(m);setsWon+=r.won;setsLost+=r.lost;if(r.result==='W')matchesWon++;if(r.result==='L')matchesLost++});
+  return {...stats,matches:ms.length,matchesWon,matchesLost,sets:setsWon+setsLost,setsWon,setsLost};
+}
+function populatePlayers(){
+  const sel=$('v790-player');if(!sel)return;
+  const old=sel.value||state.selectedPlayer||'';
+  const map=new Map();
+  roster().forEach(p=>{
+    const k=p?.id!=null?`id:${p.id}`:(p?.number!=null?`num:${p.number}`:`name:${String(p?.name||'').toLowerCase()}`);
+    map.set(k,{key:k,name:String(p?.name||'Jugador'),number:p?.number??''});
+  });
+  periodMatches().flatMap(allActions).filter(x=>x.a?.team!=='opponent').forEach(x=>{
+    const k=playerKey(x.a);if(!map.has(k)){
+      map.set(k,{key:k,name:String(x.a?.playerNameSnapshot||x.a?.playerLabel||'Jugador'),number:x.a?.playerNumberSnapshot??''});
+    }
+  });
+  const list=[...map.values()].sort((a,b)=>Number(a.number||999)-Number(b.number||999)||a.name.localeCompare(b.name));
+  sel.innerHTML='<option value="">Todos</option>'+list.map(p=>`<option value="${esc(p.key)}">${p.number!==''?'#'+esc(p.number)+' · ':''}${esc(p.name)}</option>`).join('');
+  if(old&&list.some(p=>p.key===old))sel.value=old;else if(state.selectedPlayer&&list.some(p=>p.key===state.selectedPlayer))sel.value=state.selectedPlayer;
+}
+function rotationSummary(no){
+  const rs=periodMatches().flatMap(allRallies).filter(x=>Number(x.r?.rotationBefore||1)===Number(no));
+  const won=rs.filter(x=>x.r?.winner==='ours').length,lost=rs.length-won;
+  const k1=rs.filter(x=>x.r?.servingBefore==='opponent'),k1w=k1.filter(x=>x.r?.winner==='ours').length;
+  const k2=rs.filter(x=>x.r?.servingBefore!=='opponent'),k2w=k2.filter(x=>x.r?.winner==='ours').length;
+  return {no,total:rs.length,won,lost,gp:won-lost,winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
+}
+function renderKPIs(){
+  const s=seasonSummary();
+  $('v790-kpi-matches').textContent=String(s.matches);
+  $('v790-kpi-record').textContent=`${s.matchesWon}–${s.matchesLost}`;
+  $('v790-kpi-sets').textContent=String(s.sets);
+  $('v790-kpi-sets-record').textContent=`${s.setsWon}–${s.setsLost}`;
+  $('v790-kpi-gp').textContent=(s.gp>0?'+':'')+String(s.gp);
+  $('v790-kpi-actions').textContent=`${s.actions} acciones · G ${s.g} / P ${s.p}`;
+  $('v790-kpi-rec').textContent=s.rec?`${s.recPosPct}%`:'—';
+  $('v790-kpi-rec-exc').textContent=s.rec?`# ${s.recExcPct}% · ${s.rec} rec.`:'# —';
+  $('v790-kpi-att').textContent=s.att?`${s.attEff}%`:'—';
+  $('v790-kpi-att-points').textContent=`${s.attPts} puntos · ${s.att} ataques`;
+  $('v790-kpi-serve').textContent=s.serve?`${s.serveEff}%`:'—';
+  $('v790-kpi-serve-copy').textContent=`${s.aces} ace · ${s.serveErr} err`;
+}
+function renderTrend(){
+  const box=$('v790-trend');if(!box)return;
+  const player=$('v790-player')?.value||state.selectedPlayer||'',skill=$('v790-skill')?.value||'';
+  const rows=periodMatches().map(m=>{
+    let items=allActions(m).filter(x=>x.a?.team!=='opponent');
+    if(player)items=items.filter(x=>playerKey(x.a)===player);
+    if(skill)items=items.filter(x=>x.a?.skill===skill);
+    const s=summarizeActions(items),res=matchResult(m);
+    return {m,s,res,value:s.gp};
+  });
+  const max=Math.max(1,...rows.map(x=>Math.abs(x.value)));
+  box.innerHTML=rows.length?rows.map(x=>{
+    const h=Math.max(4,Math.abs(x.value)/max*72),positive=x.value>=0;
+    const style=positive?`height:${h}px;margin-bottom:80px`:`height:${h}px;margin-top:80px`;
+    const valStyle=positive?'bottom:100%':'top:100%';
+    return `<div class="v790-trend-item" onclick="v790OpenMatch(${Number(x.m.id)})">
+      <div class="v790-trend-bar-wrap"><i class="v790-trend-zero"></i><div class="v790-trend-bar ${positive?'':'neg'}" style="${style}"><span class="v790-trend-value" style="${valStyle}">${x.value>0?'+':''}${x.value}</span></div></div>
+      <div class="v790-trend-copy"><b>${esc(x.m.opponent||'Rival')}</b><small>${fmtDate(matchDate(x.m))} · ${x.res.won}-${x.res.lost}</small></div>
+    </div>`;
+  }).join(''):'<div class="match-empty">No hay partidos en este periodo.</div>';
+}
+function renderRotations(){
+  const box=$('v790-rotations');if(!box)return;
+  box.innerHTML=[1,2,3,4,5,6].map(n=>{
+    const r=rotationSummary(n);
+    return `<article class="v790-rotation"><div class="v790-rotation-head"><b>R${n}</b><strong>${r.total?r.winPct+'%':'—'}</strong></div><small>${r.won}/${r.total} rallies · G-P ${r.gp>0?'+':''}${r.gp}</small><div class="v790-mini-bar"><i style="width:${r.winPct}%"></i></div><small>K1 ${r.k1?r.k1Pct+'%':'—'} · K2 ${r.k2?r.k2Pct+'%':'—'}</small></article>`;
+  }).join('');
+}
+function allPlayerRows(){
+  const map=new Map();
+  periodMatches().flatMap(allActions).filter(x=>x.a?.team!=='opponent').forEach(x=>{
+    const key=playerKey(x.a);
+    if(!map.has(key))map.set(key,{key,name:playerName(x.a),number:x.a?.playerNumberSnapshot??'',items:[]});
+    map.get(key).items.push(x);
+  });
+  roster().forEach(p=>{
+    const key=p?.id!=null?`id:${p.id}`:(p?.number!=null?`num:${p.number}`:`name:${String(p?.name||'').toLowerCase()}`);
+    if(!map.has(key))map.set(key,{key,name:String(p?.name||'Jugador'),number:p?.number??'',items:[]});
+  });
+  return [...map.values()].map(p=>({...p,stats:summarizeActions(p.items)})).sort((a,b)=>Number(a.number||999)-Number(b.number||999)||a.name.localeCompare(b.name));
+}
+function renderPlayerTable(){
+  const box=$('v790-player-table');if(!box)return;
+  const players=allPlayerRows(),active=$('v790-player')?.value||state.selectedPlayer||'';
+  box.innerHTML=`<table><thead><tr><th>Jugador</th><th>Acc.</th><th>G</th><th>P</th><th>G-P</th><th>S ACE</th><th>S ERR</th><th>REC +/#</th><th>REC #</th><th>ATQ PTS</th><th>ATQ EFF</th><th>BLQ</th></tr></thead><tbody>${players.map(p=>{
+    const s=p.stats;
+    return `<tr class="${active===p.key?'active':''}" onclick="v790SelectPlayer('${esc(p.key)}')"><td><div class="v790-player-name"><span class="v790-player-number">${p.number!==''?esc(p.number):'–'}</span><b>${esc(p.name)}</b></div></td><td>${s.actions}</td><td>${s.g}</td><td>${s.p}</td><td><b>${s.gp>0?'+':''}${s.gp}</b></td><td>${s.aces}</td><td>${s.serveErr}</td><td>${s.rec?s.recPosPct+'%':'—'}</td><td>${s.rec?s.recExcPct+'%':'—'}</td><td>${s.attPts}</td><td>${s.att?s.attEff+'%':'—'}</td><td>${s.blocks}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+function selectedPlayerRow(){
+  const key=$('v790-player')?.value||state.selectedPlayer||'';
+  return allPlayerRows().find(p=>p.key===key)||null;
+}
+function renderPlayerDetail(){
+  const box=$('v790-player-detail'),title=$('v790-player-title');if(!box||!title)return;
+  const p=selectedPlayerRow();
+  if(!p){
+    const s=seasonSummary();title.textContent=teamName();
+    box.innerHTML=`<div class="v790-detail-kpis"><div><span>Acciones</span><b>${s.actions}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.rec?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.att?s.attEff+'%':'—'}</b></div></div><div class="v790-skill-grid"><div class="v790-skill-card"><strong>Saque</strong><small>${s.serve} acciones · ${s.aces} ace · ${s.serveErr} error</small></div><div class="v790-skill-card"><strong>Recepción</strong><small>${s.rec} acciones · +/# ${s.rec?s.recPosPct+'%':'—'} · # ${s.rec?s.recExcPct+'%':'—'}</small></div><div class="v790-skill-card"><strong>Ataque</strong><small>${s.att} acciones · ${s.attPts} pts · ${s.attErr} err · ${s.attBlk} blq</small></div><div class="v790-skill-card"><strong>Bloqueo</strong><small>${s.blocks} puntos de bloqueo</small></div></div>`;
+    return;
+  }
+  const s=p.stats;title.textContent=`${p.number!==''?'#'+p.number+' · ':''}${p.name}`;
+  box.innerHTML=`<div class="v790-detail-kpis"><div><span>Acciones</span><b>${s.actions}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.rec?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.att?s.attEff+'%':'—'}</b></div></div><div class="v790-skill-grid"><div class="v790-skill-card"><strong>Saque</strong><small>${s.serve} · ${s.aces} ace · ${s.serveErr} error · índice ${s.serve?s.serveEff+'%':'—'}</small></div><div class="v790-skill-card"><strong>Recepción</strong><small>${s.rec} · +/# ${s.rec?s.recPosPct+'%':'—'} · excelente ${s.rec?s.recExcPct+'%':'—'}</small></div><div class="v790-skill-card"><strong>Ataque</strong><small>${s.att} · ${s.attPts} pts · ${s.attErr} err · ${s.attBlk} blq · eff ${s.att?s.attEff+'%':'—'}</small></div><div class="v790-skill-card"><strong>Bloqueo</strong><small>${s.blocks} puntos directos</small></div></div>`;
+}
+function renderMatchList(){
+  const box=$('v790-match-list');if(!box)return;
+  const player=$('v790-player')?.value||state.selectedPlayer||'',skill=$('v790-skill')?.value||'';
+  box.innerHTML=periodMatches().slice().reverse().map(m=>{
+    let items=allActions(m).filter(x=>x.a?.team!=='opponent');
+    if(player)items=items.filter(x=>playerKey(x.a)===player);
+    if(skill)items=items.filter(x=>x.a?.skill===skill);
+    const s=summarizeActions(items),r=matchResult(m);
+    return `<article class="v790-match-row"><time>${fmtDate(matchDate(m))}</time><div><strong>${esc(teamName())} ${r.won}-${r.lost} ${esc(m.opponent||'Rival')}</strong><small>${items.length} acciones · G-P ${s.gp>0?'+':''}${s.gp} · REC ${s.rec?s.recPosPct+'%':'—'} · ATQ ${s.att?s.attEff+'%':'—'}</small></div><button class="ghost" onclick="v790OpenMatch(${Number(m.id)})">Abrir</button></article>`;
+  }).join('')||'<div class="match-empty">No hay partidos en este periodo.</div>';
+}
+window.v790SelectPlayer=function(key){state.selectedPlayer=String(key||'');const s=$('v790-player');if(s)s.value=state.selectedPlayer;window.v790RenderSeason()};
+window.v790ClearPlayer=function(){state.selectedPlayer='';const s=$('v790-player');if(s)s.value='';window.v790RenderSeason()};
+window.v790OpenMatch=function(id){
+  try{
+    const btn=document.querySelector('.tab-btn[data-view="scout-video-hub"]');
+    showView('scout-video-hub',btn);
+    setTimeout(()=>{
+      const sel=$('v780-match');if(sel){sel.value=String(id);window.v780MatchChanged?.()}
+    },50);
+  }catch(err){console.error('V7.9 open match',err)}
+};
+function updateBackupStatus(){
+  const x=localStorage.getItem(BACKUP_KEY),el=$('v790-backup-status');if(!el)return;
+  if(!x){el.textContent='Todavía no se ha exportado una copia desde este navegador.';return}
+  const d=new Date(x);el.textContent=Number.isFinite(d.getTime())?`Última copia exportada: ${d.toLocaleString('es-ES')}`:`Última copia: ${x}`;
+}
+window.v790RenderSeason=function(){
+  const custom=$('v790-period')?.value==='custom';
+  document.querySelectorAll('#scout-season .v790-custom').forEach(x=>x.style.opacity=custom?'1':'.45');
+  populatePlayers();renderKPIs();renderTrend();renderRotations();renderPlayerTable();renderPlayerDetail();renderMatchList();updateBackupStatus();
+};
+window.v790Open=function(){window.v790RenderSeason()};
+
+/* ---------- Backup ---------- */
+function backupStorageKeys(){
+  const out=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i)||'';
+    const lower=k.toLowerCase();
+    const appOwned=/^(volleycoach|volley_|volleyv)/i.test(k);
+    const sensitive=/supabase|auth|token|anon|cloud-url|cloud-key/i.test(lower);
+    if(appOwned&&!sensitive)out.push(k);
+  }
+  return [...new Set(out)].sort();
+}
+function cleanForJSON(value){
+  try{
+    return JSON.parse(JSON.stringify(value,(k,v)=>{
+      if(k==='fileHandle')return undefined;
+      if(typeof Blob!=='undefined'&&v instanceof Blob)return {__type:'Blob',size:v.size,type:v.type};
+      if(typeof FileSystemHandle!=='undefined'&&v instanceof FileSystemHandle)return undefined;
+      return v;
+    }));
+  }catch(_){return null}
+}
+function openKnownDB(name){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(name,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(name==='VolleyCoachScoutingV702'&&!db.objectStoreNames.contains('scoutingByTeam'))db.createObjectStore('scoutingByTeam',{keyPath:'teamId'});
+      if(name==='volley-coach-match-recovery-v680'&&!db.objectStoreNames.contains('snapshots'))db.createObjectStore('snapshots',{keyPath:'key'});
+      if(name==='VolleyCoachRecordingsV770'&&!db.objectStoreNames.contains('sessions'))db.createObjectStore('sessions',{keyPath:'id'});
+    };
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error(`No se pudo abrir ${name}`));
+  });
+}
+async function readStore(name,store){
+  try{
+    const db=await openKnownDB(name);
+    if(!db.objectStoreNames.contains(store)){db.close();return []}
+    const rows=await new Promise((resolve,reject)=>{const tx=db.transaction(store,'readonly'),r=tx.objectStore(store).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)});
+    db.close();return cleanForJSON(rows)||[];
+  }catch(err){console.warn('V7.9 backup read',name,store,err);return []}
+}
+async function writeStore(name,store,rows){
+  const db=await openKnownDB(name);
+  if(!db.objectStoreNames.contains(store)){db.close();return false}
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(store,'readwrite'),st=tx.objectStore(store);st.clear();arr(rows).forEach(r=>st.put(r));
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  });
+  db.close();return true;
+}
+async function buildBackup(){
+  const storage={};backupStorageKeys().forEach(k=>storage[k]=localStorage.getItem(k));
+  const scouting=await readStore('VolleyCoachScoutingV702','scoutingByTeam');
+  const recovery=await readStore('volley-coach-match-recovery-v680','snapshots');
+  const recordings=await readStore('VolleyCoachRecordingsV770','sessions');
+  return {
+    type:'volley-coach-backup',version:VERSION,createdAt:new Date().toISOString(),
+    teamId:teamId(),teamName:teamName(),
+    scope:{
+      localStorage:'Datos de Volley Coach, preferencias y estado de equipos',
+      scoutingIndexedDB:'Copias independientes de scoutings',
+      recoveryIndexedDB:'Snapshots de recuperación de partido',
+      recordingMetadata:'Metadatos de Recording Studio, sin archivos de vídeo ni chunks'
+    },
+    localStorage:storage,
+    indexedDB:{
+      VolleyCoachScoutingV702:{scoutingByTeam:scouting},
+      'volley-coach-match-recovery-v680':{snapshots:recovery},
+      VolleyCoachRecordingsV770:{sessions:recordings}
+    }
+  };
+}
+function downloadJSON(obj,name){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+window.v790ExportBackup=async function(){
+  const btn=document.activeElement;if(btn?.tagName==='BUTTON')btn.disabled=true;
+  try{
+    const backup=await buildBackup();
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+    downloadJSON(backup,`Volley_Coach_Backup_${stamp}.json`);
+    const now=new Date().toISOString();localStorage.setItem(BACKUP_KEY,now);updateBackupStatus();
+  }catch(err){alert('No se ha podido crear la copia de seguridad.\n\n'+String(err?.message||err))}
+  finally{if(btn?.tagName==='BUTTON')btn.disabled=false}
+};
+window.v790InspectBackup=function(){
+  document.getElementById('v790-backup-modal')?.remove();
+  const modal=document.createElement('div');modal.id='v790-backup-modal';modal.className='v790-backup-modal';
+  modal.innerHTML=`<div class="v790-backup-card"><span class="pro-kicker">COPIA DE SEGURIDAD</span><h3>Qué incluye</h3><p>La copia está diseñada para reconstruir los datos de Volley Coach sin guardar credenciales de nube ni tokens de sesión.</p><ul><li>Equipos, jugadores, biblioteca, planificación, historial y entrenamientos.</li><li>Partidos, scoutings, rallies, acciones, estadísticas, clips y enlaces/referencias de vídeo.</li><li>Preferencias propias de Volley Coach.</li><li>Snapshots de recuperación y copia independiente de scouting de IndexedDB.</li><li>Metadatos de Recording Studio.</li></ul><p><b>No incluye los archivos de vídeo ni los chunks de grabaciones.</b> Esos archivos deben conservarse aparte porque pueden ocupar varios GB.</p><div class="actions"><button class="ghost" id="v790-backup-close">Cerrar</button><button class="primary" id="v790-backup-now">Exportar copia</button></div></div>`;
+  document.body.appendChild(modal);modal.onclick=e=>{if(e.target===modal)modal.remove()};$('v790-backup-close').onclick=()=>modal.remove();$('v790-backup-now').onclick=()=>{modal.remove();v790ExportBackup()};
+};
+function validateBackup(x){
+  if(!x||x.type!=='volley-coach-backup')throw new Error('El archivo no es una copia de Volley Coach.');
+  if(!x.localStorage||typeof x.localStorage!=='object')throw new Error('La copia no contiene el bloque principal de datos.');
+  return true;
+}
+window.v790RestoreBackup=async function(ev){
+  const file=ev?.target?.files?.[0];if(!file)return;
+  try{
+    const raw=await file.text(),backup=JSON.parse(raw);validateBackup(backup);
+    const created=backup.createdAt?new Date(backup.createdAt).toLocaleString('es-ES'):'fecha desconocida';
+    if(!confirm(`Restaurar esta copia de seguridad?\n\nCreada: ${created}\nEquipo: ${backup.teamName||'—'}\n\nSe reemplazarán los datos de Volley Coach de este navegador. Los vídeos no se modifican.`))return;
+
+    /* Remove only app-owned, non-sensitive state before restore. */
+    backupStorageKeys().forEach(k=>localStorage.removeItem(k));
+    Object.entries(backup.localStorage||{}).forEach(([k,v])=>{if(v!=null)localStorage.setItem(k,String(v))});
+
+    const db=backup.indexedDB||{};
+    await writeStore('VolleyCoachScoutingV702','scoutingByTeam',db.VolleyCoachScoutingV702?.scoutingByTeam||[]);
+    await writeStore('volley-coach-match-recovery-v680','snapshots',db['volley-coach-match-recovery-v680']?.snapshots||[]);
+    await writeStore('VolleyCoachRecordingsV770','sessions',db.VolleyCoachRecordingsV770?.sessions||[]);
+
+    alert('Copia restaurada. Volley Coach se recargará ahora.');
+    location.reload();
+  }catch(err){alert('No se ha podido restaurar la copia.\n\n'+String(err?.message||err))}
+  finally{if(ev?.target)ev.target.value=''}
+};
+
+/* Open a specific match directly in Video Hub. */
+window.v790Diagnostics=()=>({
+  version:VERSION,teamId:teamId(),matches:matches().length,players:allPlayerRows().length,
+  periodMatches:periodMatches().length,selectedPlayer:$('v790-player')?.value||null,
+  backupKeys:backupStorageKeys()
+});
+})();
+</script>
+
+
+
+<style id="v800-match-mode-style">
+.v800-shell{display:grid;gap:8px}
+.v800-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#071a2e,#123c5b);color:#fff;border-radius:14px;padding:14px 16px}.v800-top h2{color:#fff!important;margin:2px 0 3px!important;font-size:18px!important}.v800-top p{margin:0;color:#bccbd6;font-size:8px}.v800-top .pro-kicker{color:#8daabe}.v800-top-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.v800-top-actions .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.16)!important}.v800-top-actions button{font-size:7px!important;padding:6px 7px!important}
+.v800-empty{min-height:400px;background:#fff;border:1px solid #e0e6ea;border-radius:13px;display:grid;place-items:center;align-content:center;gap:7px;color:#6f808c}.v800-empty strong{font-size:13px;color:#29475f}.v800-empty>div{display:flex;gap:5px}
+.v800-scoreboard{display:grid;grid-template-columns:1fr 150px 1fr;background:#081827;color:#fff;border-radius:13px;overflow:hidden;border:1px solid #173b55}.v800-team{display:grid;grid-template-columns:1fr auto;align-items:center;padding:11px 14px;gap:2px 10px}.v800-team.rival{text-align:right}.v800-team small{font-size:9px;font-weight:900;letter-spacing:.03em}.v800-team strong{grid-row:1/3;grid-column:2;font-size:48px;line-height:.8;font-variant-numeric:tabular-nums}.v800-team.rival strong{grid-column:1;grid-row:1/3}.v800-team.rival small,.v800-team.rival span{grid-column:2}.v800-team span{font-size:7px;color:#91a7b6}.v800-center-score{display:grid;place-items:center;align-content:center;border-left:1px solid #1d4057;border-right:1px solid #1d4057;padding:7px}.v800-center-score>span{font-size:7px;letter-spacing:.09em;font-weight:900;color:#8fa7b7}.v800-center-score>b{font-size:17px;margin:2px 0;font-variant-numeric:tabular-nums}.v800-service{display:flex;gap:5px;align-items:center;color:#c2d1dc;font-size:7px}.v800-service i{width:7px;height:7px;border-radius:50%;background:#68aa7f}
+.v800-live-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.65fr);gap:8px}.v800-main,.v800-side{display:grid;gap:8px;align-content:start}.v800-court-card,.v800-control-card,.v800-events-card,.v800-video-card,.v800-kpi-card,.v800-decision-card,.v800-last-card{background:#fff;border:1px solid #dfe5e9;border-radius:11px;padding:9px}.v800-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:7px}.v800-card-head h3{margin:2px 0 0!important;padding:0!important;border:0!important;font-size:11px!important}.v800-chips{display:flex;gap:4px}.v800-chips span,.v800-status{padding:4px 6px;border-radius:999px;background:#eef3f6;color:#627684;font-size:6.5px;font-weight:900}
+.v800-courts{display:grid;grid-template-columns:1fr 1fr;gap:7px}.v800-court-label{display:block;font-size:6.5px;color:#7c8993;font-weight:900;letter-spacing:.06em;margin:0 0 4px 2px}.v800-court{position:relative;aspect-ratio:9/7;background:linear-gradient(90deg,#d6aa6b 0 49.5%,#f7f7f3 49.5% 50.5%,#d6aa6b 50.5%);border:2px solid #f4f0df;border-radius:8px;overflow:hidden;box-shadow:inset 0 0 0 1px #b58b54}.v800-court:before{content:"";position:absolute;left:33.333%;right:33.333%;top:0;bottom:0;border-left:1px solid rgba(255,255,255,.65);border-right:1px solid rgba(255,255,255,.65)}.v800-pos{position:absolute;width:31%;height:27%;display:grid;place-items:center;text-align:center;border-radius:7px;background:rgba(7,29,49,.90);color:#fff;padding:4px;font-size:7px;box-shadow:0 2px 5px rgba(0,0,0,.15)}.v800-pos b{display:block;font-size:8px;line-height:1.1}.v800-pos small{display:block;font-size:5.5px;color:#a9bdca;margin-top:2px}.v800-pos.p1{right:2%;bottom:5%}.v800-pos.p2{right:2%;top:5%}.v800-pos.p3{left:34.5%;top:5%}.v800-pos.p4{left:2%;top:5%}.v800-pos.p5{left:2%;bottom:5%}.v800-pos.p6{left:34.5%;bottom:5%}.v800-court.rival .v800-pos{background:rgba(111,48,44,.90)}
+.v800-point-row{display:grid;grid-template-columns:1fr 70px 1fr;gap:6px}.v800-point-row button{height:64px;border-radius:9px!important}.v800-point{display:flex;align-items:center;justify-content:center;gap:8px;border:0!important}.v800-point b{font-size:25px}.v800-point span{font-size:9px;font-weight:950}.v800-point.ours{background:#285d42!important;color:#fff!important}.v800-point.rival{background:#88473f!important;color:#fff!important}.v800-undo{background:#eef2f4!important;color:#536a7a!important;display:grid!important;place-items:center;align-content:center;font-size:18px!important}.v800-undo span{font-size:6px}
+.v800-code-row{display:grid;grid-template-columns:1fr auto;gap:5px;margin-top:7px}.v800-code-row input{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:900;font-size:11px!important;text-transform:uppercase;padding:9px!important}.v800-code-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px}.v800-code-presets button{font-size:7px!important;padding:6px!important;background:#f4f7f9!important;color:#435e70!important;border:1px solid #dce4e9!important}.v800-preset-builder{display:grid;grid-template-columns:130px 100px 1fr;gap:5px;align-items:end;margin-top:6px;padding-top:6px;border-top:1px solid #e7ebee}.v800-preset-builder label{display:flex;flex-direction:column;gap:3px}.v800-preset-builder label span{font-size:6px;text-transform:uppercase;color:#7d8a94;font-weight:900}.v800-preset-builder select,.v800-preset-builder input{font-size:8px!important;padding:6px!important}.v800-preset-builder small{font-size:7px;color:#7b8994;padding-bottom:6px}
+.v800-event-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.v800-event-buttons button{font-size:7px!important;padding:7px!important;background:#f5f8fa!important;color:#415c6e!important;border:1px solid #dce4e9!important}.v800-events{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.v800-event-pill{padding:4px 6px;border-radius:999px;background:#eef3f6;color:#597080;font-size:6.5px}.v800-event-pill b{color:#29475f}
+.v800-video-frame{position:relative;aspect-ratio:16/9;border-radius:8px;background:#06131e;overflow:hidden}.v800-video-frame video{width:100%;height:100%;object-fit:contain}.v800-video-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px;color:#859aaa;font-size:7.5px;background:linear-gradient(135deg,#071824,#0d2b42)}.v800-video-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px}.v800-video-actions button{font-size:7px!important;padding:6px!important}.v800-rec-copy{font-size:7px;color:#778792;margin-top:5px}.v800-status.on{background:#e6f4ec;color:#28613f}.v800-status.rec{background:#f8e7e5;color:#933f38;animation:v800Pulse 1.2s infinite}@keyframes v800Pulse{50%{opacity:.5}}
+.v800-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.v800-kpis>div{border:1px solid #e4e9ec;border-radius:7px;padding:6px;background:#f8fafb}.v800-kpis span{display:block;font-size:6px;text-transform:uppercase;color:#81909a;font-weight:900}.v800-kpis b{display:block;color:#17324d;font-size:14px;margin-top:2px}.v800-kpis small{display:block;color:#84919a;font-size:6px;margin-top:1px}
+.v800-decisions{display:grid;gap:4px}.v800-decision{border-left:3px solid #547991;background:#f4f8fa;border-radius:6px;padding:6px 7px}.v800-decision.warn{border-left-color:#c38a3c;background:#fbf7ef}.v800-decision.good{border-left-color:#4d825f;background:#f2f8f4}.v800-decision b{display:block;font-size:8px;color:#29475f}.v800-decision span{display:block;font-size:7px;color:#71818d;margin-top:2px;line-height:1.35}
+.v800-last-rally{font-size:7.5px;color:#657885;line-height:1.45}.v800-last-actions{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}.v800-last-actions span{padding:3px 5px;border-radius:5px;background:#eef3f6;color:#4f687a;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:850}
+#scout-match-mode.v800-full{position:fixed!important;inset:0!important;z-index:85000!important;background:#07131d!important;padding:6px!important;overflow:auto!important}body.v800-lock{overflow:hidden!important}#scout-match-mode.v800-full .v800-top{position:sticky;top:0;z-index:3}
+@media(max-width:1050px){.v800-live-grid{grid-template-columns:1fr}.v800-side{grid-template-columns:1fr 1fr}.v800-courts{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.v800-top{align-items:flex-start;flex-direction:column}.v800-scoreboard{grid-template-columns:1fr 95px 1fr}.v800-team strong{font-size:34px}.v800-courts{grid-template-columns:1fr}.v800-side{grid-template-columns:1fr}.v800-code-presets{grid-template-columns:1fr 1fr}.v800-preset-builder{grid-template-columns:1fr 1fr}.v800-preset-builder small{grid-column:1/-1}.v800-event-buttons{grid-template-columns:1fr 1fr}.v800-kpis{grid-template-columns:1fr 1fr}}
+</style>
+
+
+<script id="v800-match-mode-module">
+(()=>{
+'use strict';
+const VERSION='8.0.0';
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const POS=['p1','p2','p3','p4','p5','p6'];
+const EVENT_LABELS={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival',challenge_ours:'Challenge nuestro',challenge_opponent:'Challenge rival',card:'Tarjeta',injury:'Lesión',interruption:'Interrupción',note:'Nota táctica',substitution:'Cambio',libero:'Líbero'};
+let ticker=null;
+
+function br(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function match(){try{return br()?.getActive?.()||null}catch(_){return null}}
+function setOf(m){try{return br()?.getCurrentSet?.(m)||null}catch(_){return null}}
+function teamName(){try{return br()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function roster(){try{return arr(br()?.getPlayers?.())}catch(_){return []}}
+function player(id){
+  const p=roster().find(x=>Number(x.id)===Number(id));
+  if(!p)return 'Sin asignar';
+  return `${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`;
+}
+function setsScore(m){
+  const done=arr(m?.sets).filter(s=>s.finished);
+  return {us:done.filter(s=>s.winner==='ours').length,op:done.filter(s=>s.winner==='opponent').length}
+}
+function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s.rallies).map(r=>({s,r})))}
+function allActions(m){return allRallies(m).flatMap(x=>arr(x.r.actions).map(a=>({...x,a})))}
+function pct(n,d){return d?Math.round(n*100/d):null}
+function elapsed(m){
+  const start=Date.parse(m?.clockStartedAt||m?.createdAt||'');
+  if(!Number.isFinite(start))return '00:00';
+  const sec=Math.max(0,Math.floor((Date.now()-start)/1000)),h=Math.floor(sec/3600),min=Math.floor((sec%3600)/60),s=sec%60;
+  return h?`${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function currentSetStats(m,s){
+  const rs=arr(s?.rallies),k1=rs.filter(r=>r.servingBefore==='opponent'),k2=rs.filter(r=>r.servingBefore==='ours');
+  const k1w=k1.filter(r=>r.winner==='ours').length,k2w=k2.filter(r=>r.winner==='ours').length;
+  const acts=rs.flatMap(r=>arr(r.actions)).filter(a=>a.team==='ours');
+  const g=acts.filter(a=>a.evaluation==='#').length,p=acts.filter(a=>a.evaluation==='=').length;
+  return {rallies:rs.length,k1:k1.length,k1w,k1pct:pct(k1w,k1.length),k2:k2.length,k2w,k2pct:pct(k2w,k2.length),g,p,gp:g-p};
+}
+function rotationStats(m,no){
+  const rs=allRallies(m).map(x=>x.r).filter(r=>Number(r.rotationBefore||1)===Number(no));
+  const won=rs.filter(r=>r.winner==='ours').length;
+  const k1=rs.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
+  const k2=rs.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
+  return {total:rs.length,won,winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
+}
+function lineupHealth(m){
+  const ids=POS.map(p=>Number(m?.lineup?.ours?.[p])||0);
+  const filled=ids.filter(Boolean),unique=new Set(filled);
+  if(filled.length<6)return {ok:false,text:`Alineación ${filled.length}/6`};
+  if(unique.size!==filled.length)return {ok:false,text:'Jugador duplicado'};
+  return {ok:true,text:'Alineación OK'};
+}
+function renderCourt(container,lineup,ours=true){
+  if(!container)return;
+  container.innerHTML=POS.map(pos=>{
+    const raw=lineup?.[pos];
+    const label=ours?player(raw):String(raw||'Sin asignar');
+    return `<div class="v800-pos ${pos}"><b>${label}</b><small>${pos.toUpperCase()}</small></div>`;
+  }).join('');
+}
+function quickEvents(m){
+  return [...arr(m?.workflow?.events),...arr(m?.events)]
+    .sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')))
+    .slice(-7).reverse();
+}
+function opponentTarget(m){
+  const actions=allActions(m).map(x=>x.a).filter(a=>a.team==='opponent'&&a.skill==='R');
+  const map=new Map();
+  actions.forEach(a=>{
+    const key=String(a.playerNameSnapshot||a.playerLabel||a.playerNumberSnapshot||'Rival');
+    if(!map.has(key))map.set(key,{name:key,total:0,bad:0,err:0});
+    const x=map.get(key);x.total++;
+    if(['-','/','='].includes(a.evaluation))x.bad++;
+    if(a.evaluation==='=')x.err++;
+  });
+  return [...map.values()].filter(x=>x.total>=2).sort((a,b)=>(b.bad/b.total)-(a.bad/a.total)||b.total-a.total)[0]||null;
+}
+function decisionRows(m){
+  const rows=[],current=rotationStats(m,m.rotationNo||1);
+  if(current.total>=3){
+    rows.push({kind:current.winPct<45?'warn':current.winPct>=60?'good':'',title:`R${m.rotationNo} · ${current.winPct}% rallies ganados`,copy:`K1 ${current.k1?current.k1Pct+'%':'—'} · K2 ${current.k2?current.k2Pct+'%':'—'} · ${current.won}/${current.total} rallies.`});
+  } else rows.push({kind:'',title:`R${m.rotationNo} · muestra pequeña`,copy:`Solo ${current.total} rallies registrados en esta rotación.`});
+  const rotations=[1,2,3,4,5,6].map(n=>({n,...rotationStats(m,n)})).filter(x=>x.total>=3);
+  if(rotations.length){
+    const worst=rotations.slice().sort((a,b)=>a.winPct-b.winPct)[0];
+    if(worst.n!==Number(m.rotationNo))rows.push({kind:'warn',title:`Rotación a vigilar: R${worst.n}`,copy:`${worst.winPct}% de rallies ganados (${worst.won}/${worst.total}).`});
+  }
+  const target=opponentTarget(m);
+  if(target)rows.push({kind:target.bad/target.total>=.45?'good':'',title:`Objetivo de saque: ${target.name}`,copy:`${target.bad}/${target.total} recepciones negativas o error (${pct(target.bad,target.total)}%).`});
+  const recent=allRallies(m).map(x=>x.r).slice(-8);
+  if(recent.length>=5){
+    const ours=recent.filter(r=>r.winner==='ours').length;
+    rows.push({kind:ours>=5?'good':ours<=2?'warn':'',title:`Últimos ${recent.length}: ${ours}-${recent.length-ours}`,copy:ours>=5?'Tramo favorable. Mantener la estructura actual.':ours<=2?'Tramo desfavorable. Revisar rotación, saque y recepción.':'Tramo equilibrado.'});
+  }
+  return rows.slice(0,4);
+}
+function syncVideo(){
+  const source=$('live-delay-live'),target=$('v800-live-video'),empty=$('v800-video-empty'),status=$('v800-video-status');
+  const stream=source?.srcObject;
+  const live=stream?.getVideoTracks?.().some(t=>t.readyState==='live');
+  if(live){
+    if(target.srcObject!==stream){target.srcObject=stream;target.play().catch(()=>{})}
+    empty?.classList.add('hidden');status.textContent='LIVE';status.className='v800-status on';
+  }else{
+    if(target?.srcObject)target.srcObject=null;
+    empty?.classList.remove('hidden');status.textContent='OFF';status.className='v800-status';
+  }
+}
+function renderREC(){
+  const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+  const btn=$('v800-rec-btn'),copy=$('v800-rec-copy');
+  if(!btn||!copy)return;
+  if(d?.active){
+    btn.textContent=d.paused?'▶ Reanudar REC':'■ Finalizar REC';
+    btn.className='v800-status rec';
+    copy.textContent=`REC ${Math.floor((d.elapsedMs||0)/1000)} s · ${Math.round((d.bytes||0)/1048576)} MB · ${d.mode||''}`;
+  }else{
+    btn.textContent='● REC';btn.className='ghost';copy.textContent='Grabación detenida.';
+  }
+}
+function render(){
+  const m=match(),empty=$('v800-empty'),live=$('v800-live');
+  if(!m){
+    empty?.classList.remove('hidden');live?.classList.add('hidden');
+    $('v800-title').textContent='Sin partido activo';$('v800-meta').textContent='Abre o crea un scouting para empezar.';
+    return;
+  }
+  empty?.classList.add('hidden');live?.classList.remove('hidden');
+  const s=setOf(m),sets=setsScore(m),st=currentSetStats(m,s),lh=lineupHealth(m);
+  $('v800-title').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;
+  $('v800-meta').textContent=`${m.date||''}${m.competition?' · '+m.competition:''} · ${m.status==='finished'?'Finalizado':'En directo'}`;
+  $('v800-team-name').textContent=teamName();$('v800-opponent').textContent=m.opponent||'Rival';
+  $('v800-score-us').textContent=String(s?.scoreUs||0);$('v800-score-op').textContent=String(s?.scoreOpponent||0);
+  $('v800-sets-us').textContent=`${sets.us} sets`;$('v800-sets-op').textContent=`${sets.op} sets`;
+  $('v800-set-label').textContent=`SET ${m.currentSet||s?.number||1}`;$('v800-clock').textContent=elapsed(m);
+  $('v800-service-copy').textContent=m.servingTeam==='opponent'?'Saque rival':'Saque nuestro';
+  $('v800-service-dot').style.background=m.servingTeam==='opponent'?'#b76458':'#68aa7f';
+  $('v800-rotation-title').textContent=`R${m.rotationNo||1} · vs R${m.opponentRotationNo||1}`;
+  $('v800-lineup-health').textContent=lh.text;$('v800-lineup-health').style.background=lh.ok?'#e7f4ec':'#faece8';$('v800-lineup-health').style.color=lh.ok?'#2b6543':'#8f453e';
+  $('v800-rally-chip').textContent=`Rally ${(s?.rallies?.length||0)+1}`;
+  renderCourt($('v800-court-own'),m.lineup?.ours,true);renderCourt($('v800-court-rival'),m.lineup?.opponent,false);
+  $('v800-k1').textContent=st.k1pct==null?'—':`${st.k1pct}%`;$('v800-k1-copy').textContent=`${st.k1w}/${st.k1}`;
+  $('v800-k2').textContent=st.k2pct==null?'—':`${st.k2pct}%`;$('v800-k2-copy').textContent=`${st.k2w}/${st.k2}`;
+  $('v800-gp').textContent=`${st.gp>0?'+':''}${st.gp}`;$('v800-gp-copy').textContent=`G ${st.g} · P ${st.p}`;$('v800-rallies').textContent=String(st.rallies);
+  const ev=quickEvents(m);$('v800-events').innerHTML=ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>';
+  const decisions=decisionRows(m);$('v800-decisions').innerHTML=decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${x.title}</b><span>${x.copy}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>';
+  const last=arr(s?.rallies).slice(-1)[0];
+  if(last){
+    $('v800-last-title').textContent=`${last.scoreAfter?.us??0}-${last.scoreAfter?.opponent??0} · ${last.winner==='ours'?'Punto nuestro':'Punto rival'}`;
+    $('v800-last-rally').innerHTML=`R${last.rotationBefore||1} · ${last.servingBefore==='ours'?'K2 / saque':'K1 / recepción'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||''))}</span>`).join('')}</div>`;
+  }else{
+    $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
+  }
+  syncVideo();renderREC();
+}
+window.v800Render=render;
+window.v800Open=function(){render();clearInterval(ticker);ticker=setInterval(()=>{const view=$('scout-match-mode');if(view?.classList.contains('active')){const m=match();if(m)$('v800-clock').textContent=elapsed(m);syncVideo();renderREC()}},500)};
+window.v800AddCode=function(){
+  const value=String($('v800-code')?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!value)return;
+  const target=$('scout-code-input');if(!target){alert('No encuentro la consola de códigos del scouting.');return}
+  target.value=value;
+  try{window.scoutAddCode?.();$('v800-code').value='';render()}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
+};
+window.v800Preset=function(suffix){
+  const n=String($('v800-code-number')?.value||'').trim();
+  if(!n){$('v800-code-number')?.focus();return}
+  const prefix=$('v800-code-team')?.value==='opponent'?'R':'';
+  $('v800-code').value=`${prefix}${n}${suffix}`;v800AddCode();
+};
+window.v800QuickEvent=function(type){
+  const m=match(),s=setOf(m);if(!m||!s)return;
+  if(type==='note'){
+    const note=prompt('Nota táctica:');if(!String(note||'').trim())return;
+    type='note';
+    m.workflow=m.workflow||{};m.workflow.events=arr(m.workflow.events);
+    m.workflow.events.push({id:Date.now(),uid:`evt_${Date.now()}`,type,subject:'',note:String(note).trim(),setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:new Date().toISOString(),scoutMs:Math.max(0,Date.now()-Date.parse(m.clockStartedAt||m.createdAt||new Date().toISOString())),videoTime:null});
+  }else{
+    m.workflow=m.workflow||{};m.workflow.events=arr(m.workflow.events);
+    m.workflow.events.push({id:Date.now(),uid:`evt_${Date.now()}`,type,subject:'',note:'',setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:new Date().toISOString(),scoutMs:Math.max(0,Date.now()-Date.parse(m.clockStartedAt||m.createdAt||new Date().toISOString())),videoTime:null});
+  }
+  br()?.save?.();try{br()?.render?.()}catch(_){}render();
+};
+window.v800ToggleREC=async function(){
+  if(typeof window.vcRecordingDiagnostics!=='function'||typeof window.vcRecordingStart!=='function'){alert('Recording Studio no está disponible.');return}
+  const d=window.vcRecordingDiagnostics();
+  try{
+    if(d?.active){if(confirm('¿Finalizar y guardar la grabación actual?'))await window.vcRecordingStop?.()}
+    else{
+      if(!d?.sourceAvailable){alert('Primero inicia Live Delay o conecta una cámara activa.');return}
+      await window.vcRecordingStart();
+    }
+  }catch(err){alert('No se ha podido cambiar el estado de grabación.\n\n'+String(err?.message||err))}
+  renderREC();
+};
+window.v800ToggleFullscreen=async function(){
+  const view=$('scout-match-mode');
+  if(!view)return;
+  if(document.fullscreenElement){try{await document.exitFullscreen()}catch(_){}view.classList.remove('v800-full');document.body.classList.remove('v800-lock');return}
+  try{
+    if(view.requestFullscreen){await view.requestFullscreen()}
+    else{view.classList.add('v800-full');document.body.classList.add('v800-lock')}
+  }catch(_){view.classList.toggle('v800-full');document.body.classList.toggle('v800-lock')}
+};
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){$('scout-match-mode')?.classList.remove('v800-full');document.body.classList.remove('v800-lock')}});
+
+/* Refresh Mode Partido after every core match mutation. */
+['scoutAwardPoint','scoutUndoRally','scoutAddCode','scoutAddManualAction','scoutApplySubstitution','scoutSaveLineup','scoutNextSet','scoutFinishMatch'].forEach(name=>{
+  const base=window[name];if(typeof base!=='function'||base.__v800)return;
+  const wrapped=function(...args){const out=base.apply(this,args);Promise.resolve(out).finally(()=>setTimeout(render,20));return out};
+  wrapped.__v800=true;window[name]=wrapped;
+});
+
+window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,video:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
+})();
+</script>
+
+
+
+<style id="v820-postmatch-style">
+.v820-shell{display:grid;gap:10px}
+.v820-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;background:linear-gradient(135deg,#101c2b,#2b4459);color:#fff;border-radius:16px;padding:19px 21px}.v820-hero h2{color:#fff!important;margin:3px 0 5px!important;font-size:23px!important}.v820-hero p{margin:0;color:#c8d4dc;font-size:10px}.v820-hero .pro-kicker{color:#9cb1c0}.v820-hero-actions{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}.v820-hero-actions label{display:flex;flex-direction:column;gap:3px}.v820-hero-actions label span{font-size:6px;text-transform:uppercase;letter-spacing:.07em;color:#a7bac6;font-weight:900}.v820-hero-actions select{min-width:220px;background:#fff!important;font-size:8px!important;padding:7px!important}.v820-hero-actions .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.15)!important}
+.v820-empty{min-height:280px;background:#fff;border:1px solid #e0e6ea;border-radius:12px;display:grid;place-items:center;align-content:center;gap:5px;color:#73838f}.v820-empty strong{font-size:12px;color:#29475f}
+.v820-report{display:grid;gap:9px}.v820-cover{display:flex;justify-content:space-between;align-items:center;gap:20px;background:#fff;border:1px solid #dfe5e9;border-radius:13px;padding:14px 16px}.v820-cover h2{margin:2px 0 4px!important;font-size:20px!important}.v820-cover p{margin:0;color:#73828e;font-size:8.5px}.v820-result{text-align:right}.v820-result>span{display:block;font-size:6.5px;color:#82909a;font-weight:900;letter-spacing:.07em}.v820-result strong{display:block;font-size:34px;line-height:1;color:#17324d;margin:3px 0}.v820-result small{display:block;color:#73828e;font-size:7px}
+.v820-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.v820-kpis>div{background:#fff;border:1px solid #dfe5e9;border-radius:10px;padding:9px}.v820-kpis span{display:block;font-size:6.4px;text-transform:uppercase;letter-spacing:.06em;color:#7d8a94;font-weight:900}.v820-kpis b{display:block;font-size:17px;color:#17324d;margin:3px 0}.v820-kpis small{display:block;font-size:6.7px;color:#83909a}
+.v820-two{display:grid;grid-template-columns:1fr 1fr;gap:9px}.v820-panel{background:#fff;border:1px solid #dfe5e9;border-radius:12px;padding:10px}.v820-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}.v820-head h3{margin:2px 0 0!important;padding:0!important;border:0!important;font-size:12px!important}.v820-head small{font-size:7px;color:#7b8993}
+.v820-insights{display:grid;gap:5px}.v820-insight{border-left:3px solid #4f7c61;border-radius:6px;background:#f2f8f4;padding:7px 8px}.v820-insight.review{border-left-color:#b47a39;background:#fbf6ed}.v820-insight b{display:block;font-size:8.5px;color:#29475f}.v820-insight span{display:block;font-size:7.3px;color:#70808c;line-height:1.4;margin-top:2px}
+.v820-rotations{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.v820-rotation{border:1px solid #e1e7ea;border-radius:8px;padding:7px;background:#f9fbfc}.v820-rotation strong{display:flex;justify-content:space-between;color:#203f57;font-size:9px}.v820-rotation strong em{font-style:normal;font-size:11px}.v820-rotation small{display:block;color:#788792;font-size:6.5px;line-height:1.45;margin-top:3px}.v820-bar{height:5px;border-radius:999px;background:#e4e9ec;overflow:hidden;margin-top:5px}.v820-bar i{display:block;height:100%;border-radius:999px;background:#557b93}
+.v820-table-wrap{overflow:auto}.v820-table{width:100%;border-collapse:collapse;min-width:780px}.v820-table th{background:#f4f7f9;color:#6f808d;font-size:6.4px;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:6px;border-bottom:1px solid #dce3e7}.v820-table th:first-child,.v820-table td:first-child{text-align:left}.v820-table td{font-size:7.6px;color:#566b79;text-align:right;padding:7px 6px;border-bottom:1px solid #eef1f3}.v820-table td b{color:#203f57}.v820-table tbody tr:hover{background:#f7fafb}
+.v820-key-rallies,.v820-events{display:grid;gap:5px}.v820-key-row,.v820-event-row{display:grid;grid-template-columns:65px minmax(0,1fr) auto;gap:7px;align-items:center;border:1px solid #e3e8eb;border-radius:7px;padding:6px;background:#fafbfc}.v820-key-row time,.v820-event-row time{font-size:7px;color:#778690}.v820-key-row strong,.v820-event-row strong{display:block;font-size:8px;color:#29475f}.v820-key-row small,.v820-event-row small{display:block;font-size:6.8px;color:#82909a;margin-top:1px}.v820-key-row button{font-size:6.8px!important;padding:5px 6px!important}
+.v820-training-focus{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.v820-focus{border:1px solid #dfe6ea;border-radius:9px;padding:9px;background:#f7fafb}.v820-focus span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#17324d;color:#fff;font-size:8px;font-weight:900}.v820-focus b{display:block;font-size:9px;color:#29475f;margin-top:6px}.v820-focus p{font-size:7.2px;color:#70808c;line-height:1.4;margin:3px 0 0}
+.v820-footer{display:flex;justify-content:space-between;gap:8px;color:#85919a;font-size:6.5px;padding:3px 2px 10px}
+@media(max-width:1100px){.v820-kpis{grid-template-columns:repeat(3,1fr)}.v820-rotations{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:750px){.v820-hero{align-items:flex-start;flex-direction:column}.v820-hero-actions{width:100%}.v820-hero-actions label{width:100%}.v820-hero-actions select{width:100%}.v820-two{grid-template-columns:1fr}.v820-kpis{grid-template-columns:1fr 1fr}.v820-rotations{grid-template-columns:1fr 1fr}.v820-training-focus{grid-template-columns:1fr}.v820-cover{align-items:flex-start;flex-direction:column}.v820-result{text-align:left}}
+@media print{#scout-postmatch .v820-hero{display:none!important}.v820-report{display:block}.v820-panel,.v820-cover,.v820-kpis{break-inside:avoid;margin-bottom:8px}}
+</style>
+
+
+<script id="v820-postmatch-module">
+(()=>{
+'use strict';
+const VERSION='8.2.0';
+const $=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const EVENT_LABELS={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival',challenge_ours:'Challenge nuestro',challenge_opponent:'Challenge rival',card:'Tarjeta',injury:'Lesión',interruption:'Interrupción',note:'Nota táctica',substitution:'Sustitución',libero:'Líbero'};
+
+function br(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function matches(){try{return arr(br()?.getMatches?.())}catch(_){return []}}
+function teamName(){try{return br()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function roster(){try{return arr(br()?.getPlayers?.())}catch(_){return []}}
+function current(){
+  const id=Number($('v820-match')?.value)||Number(br()?.getActiveId?.())||0;
+  return matches().find(m=>Number(m.id)===id)||matches().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null;
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function pct(n,d){return d?Math.round(n*100/d):null}
+function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s.rallies).map((r,i)=>({set:s,index:i+1,r})))}
+function allActions(m){return allRallies(m).flatMap(x=>arr(x.r.actions).map(a=>({...x,a})))}
+function setsScore(m){
+  const done=arr(m?.sets).filter(s=>s.finished);
+  return {us:done.filter(s=>s.winner==='ours').length,op:done.filter(s=>s.winner==='opponent').length,done};
+}
+function playerLabel(a){
+  try{return br()?.playerLabel?.(a)||String(a?.playerNameSnapshot||a?.playerLabel||a?.playerNumberSnapshot||'Jugador')}catch(_){return String(a?.playerNameSnapshot||a?.playerLabel||'Jugador')}
+}
+function playerKey(a){
+  if(a?.playerId!=null&&String(a.playerId)!=='')return `id:${a.playerId}`;
+  if(a?.playerNumberSnapshot!=null&&String(a.playerNumberSnapshot)!=='')return `num:${a.playerNumberSnapshot}`;
+  return `name:${String(a?.playerNameSnapshot||a?.playerLabel||'Jugador').toLowerCase()}`;
+}
+function baseStats(actions){
+  const ours=actions.filter(a=>a.team!=='opponent');
+  const g=ours.filter(a=>a.evaluation==='#').length,p=ours.filter(a=>a.evaluation==='=').length;
+  const rec=ours.filter(a=>a.skill==='R'),recPos=rec.filter(a=>['#','+'].includes(a.evaluation)).length,recExc=rec.filter(a=>a.evaluation==='#').length;
+  const att=ours.filter(a=>a.skill==='A'),attPts=att.filter(a=>a.evaluation==='#').length,attErr=att.filter(a=>a.evaluation==='=').length,attBlk=att.filter(a=>a.evaluation==='/').length;
+  const serve=ours.filter(a=>a.skill==='S'),aces=serve.filter(a=>a.evaluation==='#').length,serveErr=serve.filter(a=>a.evaluation==='=').length;
+  const blocks=ours.filter(a=>a.skill==='B'&&a.evaluation==='#').length;
+  return {total:ours.length,g,p,gp:g-p,rec:rec.length,recPos,recExc,recPosPct:pct(recPos,rec.length),recExcPct:pct(recExc,rec.length),att:att.length,attPts,attErr,attBlk,attEff:att.length?Math.round((attPts-attErr-attBlk)*100/att.length):null,serve:serve.length,aces,serveErr,serveIndex:serve.length?Math.round((aces-serveErr)*100/serve.length):null,blocks};
+}
+function rotationStats(m,no){
+  const rs=allRallies(m).filter(x=>Number(x.r.rotationBefore||1)===Number(no)).map(x=>x.r);
+  const won=rs.filter(r=>r.winner==='ours').length;
+  const k1=rs.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
+  const k2=rs.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
+  return {no,total:rs.length,won,lost:rs.length-won,gp:won-(rs.length-won),winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
+}
+function skillStats(m){
+  const actions=allActions(m).map(x=>x.a).filter(a=>a.team!=='opponent');
+  return Object.keys(SKILLS).map(skill=>{
+    const a=actions.filter(x=>x.skill===skill),g=a.filter(x=>x.evaluation==='#').length,p=a.filter(x=>x.evaluation==='=').length,pos=a.filter(x=>['#','+'].includes(x.evaluation)).length;
+    const s=baseStats(a);
+    return {skill,name:SKILLS[skill],total:a.length,g,p,gp:g-p,posPct:pct(pos,a.length),special:skill==='A'?s.attEff:skill==='R'?s.recPosPct:skill==='S'?s.serveIndex:null};
+  }).filter(x=>x.total);
+}
+function playerStats(m){
+  const map=new Map();
+  allActions(m).filter(x=>x.a.team!=='opponent').forEach(x=>{
+    const key=playerKey(x.a);
+    if(!map.has(key))map.set(key,{key,name:playerLabel(x.a),number:x.a.playerNumberSnapshot??'',actions:[]});
+    map.get(key).actions.push(x.a);
+  });
+  return [...map.values()].map(p=>({...p,s:baseStats(p.actions)})).sort((a,b)=>b.s.gp-a.s.gp||b.s.total-a.s.total);
+}
+function k1k2(m){
+  const rs=allRallies(m).map(x=>x.r),k1=rs.filter(r=>r.servingBefore==='opponent'),k2=rs.filter(r=>r.servingBefore==='ours');
+  const k1w=k1.filter(r=>r.winner==='ours').length,k2w=k2.filter(r=>r.winner==='ours').length;
+  return {k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
+}
+function quality(m){
+  const rs=allRallies(m);if(!rs.length)return {score:0,issues:0};
+  let serve=0,rec=0,att=0,zones=0;
+  rs.forEach(x=>{
+    const a=arr(x.r.actions),server=x.r.servingBefore,receiver=server==='ours'?'opponent':'ours',atts=a.filter(y=>y.skill==='A');
+    if(a.some(y=>y.team===server&&y.skill==='S'))serve++;
+    if(a.some(y=>y.team===receiver&&y.skill==='R'))rec++;
+    if(atts.length)att++;
+    if(atts.some(y=>y.startZone&&y.endZone)||a.some(y=>y.skill==='S'&&y.startZone&&y.endZone))zones++;
+  });
+  const score=Math.round((serve/rs.length)*25+(rec/rs.length)*25+(att/rs.length)*30+(zones/rs.length)*20);
+  return {score,issues:Math.round((1-score/100)*rs.length)};
+}
+function insights(m){
+  const pos=[],review=[],rots=[1,2,3,4,5,6].map(n=>rotationStats(m,n)).filter(r=>r.total>=3),players=playerStats(m),skills=skillStats(m),kk=k1k2(m),all=baseStats(allActions(m).map(x=>x.a));
+  if(kk.k1Pct!=null){
+    (kk.k1Pct>=60?pos:review).push({title:`K1 ${kk.k1Pct}%`,copy:`${kk.k1w}/${kk.k1} rallies de recepción ganados.${kk.k1Pct>=60?' Buena capacidad de side-out.':' Prioridad clara para la siguiente sesión.'}`});
+  }
+  if(kk.k2Pct!=null){
+    (kk.k2Pct>=45?pos:review).push({title:`K2 ${kk.k2Pct}%`,copy:`${kk.k2w}/${kk.k2} rallies de saque ganados.${kk.k2Pct>=45?' El equipo genera presión con saque/bloqueo-defensa.':' Falta convertir más fases de break.'}`});
+  }
+  if(rots.length){
+    const best=rots.slice().sort((a,b)=>(b.winPct??-1)-(a.winPct??-1))[0],worst=rots.slice().sort((a,b)=>(a.winPct??999)-(b.winPct??999))[0];
+    if(best)pos.push({title:`Mejor rotación: R${best.no}`,copy:`${best.winPct}% de rallies ganados (${best.won}/${best.total}); K1 ${best.k1Pct??'—'}% · K2 ${best.k2Pct??'—'}%.`});
+    if(worst)review.push({title:`Rotación a revisar: R${worst.no}`,copy:`${worst.winPct}% de rallies ganados (${worst.won}/${worst.total}); K1 ${worst.k1Pct??'—'}% · K2 ${worst.k2Pct??'—'}%.`});
+  }
+  const attackers=players.filter(p=>p.s.att>=5).sort((a,b)=>(b.s.attEff??-999)-(a.s.attEff??-999));
+  if(attackers[0])pos.push({title:`Ataque destacado: ${attackers[0].name}`,copy:`${attackers[0].s.attEff}% de eficiencia en ${attackers[0].s.att} ataques · ${attackers[0].s.attPts} puntos.`});
+  const receivers=players.filter(p=>p.s.rec>=5).sort((a,b)=>(b.s.recPosPct??-1)-(a.s.recPosPct??-1));
+  if(receivers[0])pos.push({title:`Recepción más estable: ${receivers[0].name}`,copy:`${receivers[0].s.recPosPct}% positiva (+/#) sobre ${receivers[0].s.rec} recepciones.`});
+  const errorSkills=skills.slice().sort((a,b)=>b.p-a.p);
+  if(errorSkills[0]?.p)review.push({title:`Principal fuente de error: ${errorSkills[0].name}`,copy:`${errorSkills[0].p} errores directos registrados en ${errorSkills[0].total} acciones.`});
+  if(all.att!=null&&all.att>=5&&all.attEff<20)review.push({title:'Eficiencia de ataque baja',copy:`${all.attEff}% de eficiencia: ${all.attPts} puntos, ${all.attErr} errores y ${all.attBlk} ataques bloqueados.`});
+  return {positive:pos.slice(0,4),review:review.slice(0,4)};
+}
+function focusItems(m){
+  const kk=k1k2(m),rots=[1,2,3,4,5,6].map(n=>rotationStats(m,n)).filter(r=>r.total>=3),skills=skillStats(m),items=[];
+  if(rots.length){const worst=rots.slice().sort((a,b)=>(a.winPct??999)-(b.winPct??999))[0];items.push({title:`R${worst.no}: mejorar K1/K2`,copy:`Revisar los ${worst.total} rallies de R${worst.no}; rendimiento global ${worst.winPct}%.`})}
+  if(kk.k1Pct!=null&&kk.k1Pct<60)items.push({title:'Side-out / K1',copy:`Objetivo: subir desde ${kk.k1Pct}% mejorando calidad de recepción y primera opción de ataque.`});
+  if(kk.k2Pct!=null&&kk.k2Pct<45)items.push({title:'Break point / K2',copy:`Objetivo: subir desde ${kk.k2Pct}% con saque dirigido y organización bloqueo-defensa.`});
+  const err=skills.slice().sort((a,b)=>b.p-a.p)[0];if(err?.p)items.push({title:`Reducir errores de ${err.name.toLowerCase()}`,copy:`${err.p} errores directos. Diseñar una tarea con presión y criterio de continuidad.`});
+  const att=skills.find(x=>x.skill==='A');if(att?.special!=null&&att.special<20)items.push({title:'Eficiencia ofensiva',copy:`Ataque en ${att.special}% de eficiencia. Priorizar selección de golpeo y soluciones contra bloqueo.`});
+  while(items.length<3)items.push({title:'Consolidar patrón de juego',copy:'Revisar los rallies de mayor valor en Vídeo Hub y convertirlos en una tarea específica de entrenamiento.'});
+  return items.slice(0,3);
+}
+function keyRallies(m){
+  return allRallies(m).map(x=>{
+    const ownErr=arr(x.r.actions).filter(a=>a.team==='ours'&&(a.evaluation==='='||(a.skill==='A'&&a.evaluation==='/'))).length;
+    const ownPts=arr(x.r.actions).filter(a=>a.team==='ours'&&['S','A','B'].includes(a.skill)&&a.evaluation==='#').length;
+    const score=Math.max(Number(x.r.scoreAfter?.us)||0,Number(x.r.scoreAfter?.opponent)||0);
+    const importance=score+(x.r.winner==='opponent'?ownErr*8:ownPts*5)+(score>=20?10:0);
+    return {...x,ownErr,ownPts,importance};
+  }).filter(x=>x.ownErr||x.ownPts||Math.max(x.r.scoreAfter?.us||0,x.r.scoreAfter?.opponent||0)>=20).sort((a,b)=>b.importance-a.importance).slice(0,7);
+}
+function render(){
+  const m=current(),empty=$('v820-empty'),report=$('v820-report-export');
+  if(!m){empty?.classList.remove('hidden');report?.classList.add('hidden');return}
+  empty?.classList.add('hidden');report?.classList.remove('hidden');
+  const ss=setsScore(m),kk=k1k2(m),base=baseStats(allActions(m).map(x=>x.a)),q=quality(m),ins=insights(m);
+  $('v820-title').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;
+  $('v820-meta').textContent=`${m.date||''}${m.competition?' · '+m.competition:''}${m.venue?' · '+m.venue:''}`;
+  $('v820-result').textContent=`${ss.us}–${ss.op}`;$('v820-result-label').textContent=ss.us>ss.op?'VICTORIA':ss.op>ss.us?'DERROTA':'RESULTADO';
+  $('v820-set-scores').textContent=arr(m.sets).filter(s=>s.finished).map(s=>`${s.scoreUs||0}-${s.scoreOpponent||0}`).join(' · ')||'Sin sets finalizados';
+  $('v820-k1').textContent=kk.k1Pct==null?'—':`${kk.k1Pct}%`;$('v820-k1-copy').textContent=`${kk.k1w}/${kk.k1} rallies`;
+  $('v820-k2').textContent=kk.k2Pct==null?'—':`${kk.k2Pct}%`;$('v820-k2-copy').textContent=`${kk.k2w}/${kk.k2} rallies`;
+  $('v820-gp').textContent=`${base.gp>0?'+':''}${base.gp}`;$('v820-gp-copy').textContent=`G ${base.g} · P ${base.p} · ${base.total} acciones`;
+  $('v820-rec').textContent=base.rec?`${base.recPosPct}%`:'—';$('v820-rec-copy').textContent=base.rec?`# ${base.recExcPct}% · ${base.rec} recepciones`:'Sin muestra';
+  $('v820-att').textContent=base.att?`${base.attEff}%`:'—';$('v820-att-copy').textContent=base.att?`${base.attPts} pts · ${base.attErr} err · ${base.attBlk} blq`:'Sin muestra';
+  $('v820-quality').textContent=`${q.score}%`;$('v820-quality-copy').textContent=`${allRallies(m).length} rallies`;
+  $('v820-positive').innerHTML=ins.positive.length?ins.positive.map(x=>`<div class="v820-insight"><b>${esc(x.title)}</b><span>${esc(x.copy)}</span></div>`).join(''):'<div class="v820-insight"><b>Sin muestra suficiente</b><span>Se necesitan más rallies para destacar patrones positivos fiables.</span></div>';
+  $('v820-review').innerHTML=ins.review.length?ins.review.map(x=>`<div class="v820-insight review"><b>${esc(x.title)}</b><span>${esc(x.copy)}</span></div>`).join(''):'<div class="v820-insight review"><b>Sin alertas principales</b><span>No aparece una prioridad clara con los datos disponibles.</span></div>';
+  $('v820-rotations').innerHTML=[1,2,3,4,5,6].map(n=>{const r=rotationStats(m,n);return `<article class="v820-rotation"><strong><span>R${n}</span><em>${r.total?r.winPct+'%':'—'}</em></strong><small>${r.won}/${r.total} rallies · G-P ${r.gp>0?'+':''}${r.gp}</small><div class="v820-bar"><i style="width:${r.winPct||0}%"></i></div><small>K1 ${r.k1?r.k1Pct+'%':'—'} · K2 ${r.k2?r.k2Pct+'%':'—'}</small></article>`}).join('');
+  const skills=skillStats(m);
+  $('v820-skills').innerHTML=`<table class="v820-table"><thead><tr><th>Fundamento</th><th>Tot</th><th>G</th><th>P</th><th>G-P</th><th>Pos +/#</th><th>Índice específico</th></tr></thead><tbody>${skills.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${s.total}</td><td>${s.g}</td><td>${s.p}</td><td><b>${s.gp>0?'+':''}${s.gp}</b></td><td>${s.posPct==null?'—':s.posPct+'%'}</td><td>${s.special==null?'—':s.special+'%'}</td></tr>`).join('')}</tbody></table>`;
+  const ps=playerStats(m);
+  $('v820-players').innerHTML=`<table class="v820-table"><thead><tr><th>Jugador</th><th>Acc</th><th>G</th><th>P</th><th>G-P</th><th>Ace</th><th>S Err</th><th>REC +/#</th><th>REC #</th><th>ATQ Pts</th><th>ATQ Eff</th><th>BLQ</th></tr></thead><tbody>${ps.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${p.s.total}</td><td>${p.s.g}</td><td>${p.s.p}</td><td><b>${p.s.gp>0?'+':''}${p.s.gp}</b></td><td>${p.s.aces}</td><td>${p.s.serveErr}</td><td>${p.s.rec?p.s.recPosPct+'%':'—'}</td><td>${p.s.rec?p.s.recExcPct+'%':'—'}</td><td>${p.s.attPts}</td><td>${p.s.att?p.s.attEff+'%':'—'}</td><td>${p.s.blocks}</td></tr>`).join('')}</tbody></table>`;
+  const keys=keyRallies(m);
+  $('v820-key-rallies').innerHTML=keys.length?keys.map(x=>`<article class="v820-key-row"><time>Set ${x.set.number}</time><div><strong>${x.r.scoreAfter?.us??0}-${x.r.scoreAfter?.opponent??0} · R${x.r.rotationBefore||1} · ${x.r.winner==='ours'?'Ganado':'Perdido'}</strong><small>${x.ownErr?x.ownErr+' error(es) propio(s)':''}${x.ownErr&&x.ownPts?' · ':''}${x.ownPts?x.ownPts+' punto(s) terminal(es)':''}</small></div><button class="ghost" onclick="v820OpenVideoRally(${Number(m.id)},${Number(x.set.number)},${Number(x.r.id)})">▶ Vídeo</button></article>`).join(''):'<div class="match-empty">No hay rallies destacados suficientes.</div>';
+  const ev=[...arr(m.workflow?.events),...arr(m.events)].sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
+  $('v820-events').innerHTML=ev.length?ev.map(e=>`<article class="v820-event-row"><time>S${e.setNumber||'—'} · ${e.scoreUs??0}-${e.scoreOpponent??0}</time><div><strong>${esc(EVENT_LABELS[e.type]||e.type)}</strong><small>${esc(e.subject||e.outLabel&&e.inLabel?`${e.outLabel||''} → ${e.inLabel||''}`:e.note||'')}</small></div><span></span></article>`).join(''):'<div class="match-empty">No hay eventos registrados.</div>';
+  $('v820-training-focus').innerHTML=focusItems(m).map((x,i)=>`<article class="v820-focus"><span>${i+1}</span><b>${esc(x.title)}</b><p>${esc(x.copy)}</p></article>`).join('');
+  $('v820-generated').textContent=`Generado ${new Date().toLocaleString('es-ES')} · ${allRallies(m).length} rallies · ${base.total} acciones`;
+}
+window.v820Render=render;
+window.v820Open=function(){
+  const sel=$('v820-match');if(!sel)return;
+  const list=matches().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.id)-Number(a.id));
+  const cur=Number(sel.value)||Number(br()?.getActiveId?.())||Number(list[0]?.id)||0;
+  sel.innerHTML=list.length?list.map(m=>`<option value="${m.id}" ${Number(m.id)===cur?'selected':''}>${esc(m.date||'')} · ${esc(m.opponent||'Rival')}${m.status==='finished'?' · Finalizado':' · En curso'}</option>`).join(''):'<option value="">Sin partidos</option>';
+  render();
+};
+window.v820OpenVideoHub=function(){
+  const m=current();if(!m)return;
+  const btn=document.querySelector('.tab-btn[data-view="scout-video-hub"]');showView('scout-video-hub',btn);
+  setTimeout(()=>{const s=$('v780-match');if(s){s.value=String(m.id);window.v780MatchChanged?.()}},60);
+};
+window.v820OpenVideoRally=function(matchId,setNo,rallyId){
+  const btn=document.querySelector('.tab-btn[data-view="scout-video-hub"]');showView('scout-video-hub',btn);
+  setTimeout(()=>{
+    const s=$('v780-match');if(s){s.value=String(matchId);window.v780MatchChanged?.()}
+    setTimeout(()=>{const key=`r:${setNo}:${rallyId}`;window.v780Select?.(key);window.v780PlayKey?.(key)},120);
+  },60);
+};
+window.v820ExportPDF=async function(){
+  const el=$('v820-report-export'),m=current();if(!el||!m)return;
+  const btn=document.activeElement;if(btn?.tagName==='BUTTON')btn.disabled=true;
+  try{
+    if(typeof html2canvas!=='function'||!window.jspdf?.jsPDF)throw new Error('El motor PDF no está disponible.');
+    const canvas=await html2canvas(el,{scale:1.55,useCORS:true,backgroundColor:'#ffffff',logging:false});
+    const {jsPDF}=window.jspdf,pdf=new jsPDF('p','mm','a4');
+    const pageW=210,pageH=297,margin=7,contentW=pageW-margin*2;
+    const imgW=contentW,imgH=canvas.height*imgW/canvas.width;
+    const pagePx=canvas.width*(pageH-margin*2)/contentW;
+    let yPx=0,page=0;
+    while(yPx<canvas.height){
+      const sliceH=Math.min(pagePx,canvas.height-yPx);
+      const c=document.createElement('canvas');c.width=canvas.width;c.height=sliceH;
+      c.getContext('2d').drawImage(canvas,0,yPx,canvas.width,sliceH,0,0,canvas.width,sliceH);
+      const data=c.toDataURL('image/jpeg',.93),h=sliceH*imgW/canvas.width;
+      if(page++)pdf.addPage();
+      pdf.addImage(data,'JPEG',margin,margin,imgW,h,undefined,'FAST');
+      yPx+=sliceH;
+    }
+    const safe=String(m.opponent||'Rival').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'_');
+    pdf.save(`${m.date||'partido'}_${safe}_Informe_Postpartido_V8_2.pdf`);
+  }catch(err){alert('No se ha podido generar el PDF.\n\n'+String(err?.message||err))}
+  finally{if(btn?.tagName==='BUTTON')btn.disabled=false}
+};
+window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:current()?.id||null,rallies:allRallies(current()).length,actions:allActions(current()).length});
 })();
 </script>
 
