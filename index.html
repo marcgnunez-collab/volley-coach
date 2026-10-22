@@ -1570,7 +1570,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="pro-modal-card live-delay-card">
     <div class="pro-modal-head">
       <div>
-        <span class="pro-kicker">V7.6 · REMOTE CAMERA + LIVE DELAY</span>
+        <span class="pro-kicker">V7.7 · RECORDING STUDIO + LIVE DELAY</span>
         <h2>Vídeo en directo con retraso</h2>
         <p id="live-delay-subtitle">Captura la cámara y revisa la acción unos segundos después sin detener la grabación.</p>
       </div>
@@ -1690,6 +1690,62 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <div><span>Modo</span><b id="live-delay-mode">Delay</b><small id="live-delay-mode-note">seguimiento automático</small></div>
       <div><span>Contexto</span><b id="live-delay-context">Entrenamiento</b><small id="live-delay-context-note">corrección técnica</small></div>
     </div>
+
+    <section id="vc-recording-studio" class="vc-recording-studio">
+      <div class="vc-recording-head">
+        <div>
+          <span class="pro-kicker">V7.7 · RECORDING STUDIO</span>
+          <strong>Grabar partido o entrenamiento completo</strong>
+          <small>La grabación usa el vídeo directo y funciona a la vez que el Live Delay.</small>
+        </div>
+        <span id="vc-recording-state" class="vc-recording-state">LISTO</span>
+      </div>
+
+      <div class="vc-recording-toolbar">
+        <label>
+          <span>Nombre</span>
+          <input id="vc-recording-name" type="text" maxlength="90" placeholder="Partido / entrenamiento">
+        </label>
+        <label>
+          <span>Guardado</span>
+          <select id="vc-recording-storage" onchange="vcRecordingStorageChanged()">
+            <option value="disk">Directo al disco · recomendado</option>
+            <option value="browser">Navegador · recuperable</option>
+          </select>
+        </label>
+        <label class="vc-recording-check">
+          <input id="vc-recording-auto-set" type="checkbox" checked>
+          <span>Marcar cambios de set</span>
+        </label>
+        <div class="vc-recording-main-actions">
+          <button id="vc-recording-start" class="vc-rec-start" type="button" onclick="vcRecordingStart()">● Iniciar REC</button>
+          <button id="vc-recording-pause" class="ghost hidden" type="button" onclick="vcRecordingTogglePause()">Pausar</button>
+          <button id="vc-recording-stop" class="vc-rec-stop hidden" type="button" onclick="vcRecordingStop()">■ Finalizar y guardar</button>
+        </div>
+      </div>
+
+      <div class="vc-recording-metrics">
+        <div><span>REC</span><b id="vc-recording-time">00:00:00</b><small id="vc-recording-status-note">Cámara preparada</small></div>
+        <div><span>Tamaño</span><b id="vc-recording-size">0 MB</b><small>aproximado escrito</small></div>
+        <div><span>Fuente</span><b id="vc-recording-source">—</b><small>vídeo que se está grabando</small></div>
+        <div><span>Marcadores</span><b id="vc-recording-marker-count">0</b><small>sets / bloques / momentos</small></div>
+      </div>
+
+      <div class="vc-recording-secondary">
+        <button class="ghost" type="button" onclick="vcRecordingAddMarker()">＋ Marcar set / bloque</button>
+        <button class="ghost" type="button" onclick="vcRecordingAddMarker('Momento')">★ Marcar momento</button>
+        <button class="ghost" type="button" onclick="vcRecordingRecover()">Recuperar grabaciones</button>
+        <a id="vc-recording-download" class="vc-recording-download hidden" href="#" download>Descargar última grabación</a>
+        <span id="vc-recording-last" class="vc-recording-last"></span>
+      </div>
+
+      <div id="vc-recording-markers" class="vc-recording-markers"></div>
+
+      <div class="vc-recording-help">
+        <b>Directo al disco:</b> recomendado en Chrome/Edge de ordenador para partidos largos; los fragmentos se escriben al archivo mientras grabas y no se acumula el vídeo completo en RAM.
+        <b>Navegador:</b> guarda fragmentos en IndexedDB para poder recuperar una grabación incluso si se interrumpe la sesión; al finalizar crea el archivo WebM.
+      </div>
+    </section>
 
     <div class="live-delay-controls">
       <button class="ghost" type="button" onclick="liveDelayJump(-10)">↶ 10 s</button>
@@ -4302,7 +4358,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.6.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.7.0', {
         updateViaCache: 'none'
       });
 
@@ -12935,6 +12991,13 @@ window.scoutV757FinalDiagnostics=function(){
 .live-delay-video-frame:fullscreen,.vc-remote-preview-frame:fullscreen{background:#000;width:100vw;height:100vh;aspect-ratio:auto}.live-delay-video-frame:fullscreen video,.vc-remote-preview-frame:fullscreen video{object-fit:contain}
 @media(max-width:1050px){.live-delay-toolbar{grid-template-columns:1fr 1fr!important}.live-delay-field.source,.live-delay-field.camera{grid-column:auto!important}.vc-remote-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.live-delay-toolbar{grid-template-columns:1fr!important}.vc-remote-pair{grid-template-columns:1fr}.vc-remote-qr{margin:auto}.vc-publisher-bottom{grid-template-columns:1fr}.vc-publisher-buttons{justify-content:stretch}.vc-publisher-buttons button{flex:1}}
+
+.vc-publisher-top-status{display:flex;align-items:center;gap:6px}
+.vc-publisher-orientation{padding:5px 8px;border-radius:999px;background:#203e56;color:#c6d6e1;font-size:8px;font-weight:900}
+.vc-publisher-orientation.landscape{background:#254f6c;color:#e7f5ff}
+.vc-publisher-orientation.portrait{background:#5b456f;color:#f4eaff}
+.vc-remote-preview-frame[data-orientation="portrait"],.live-delay-video-frame[data-orientation="portrait"]{max-width:460px;margin-left:auto;margin-right:auto}
+.vc-remote-preview-frame[data-orientation="landscape"],.live-delay-video-frame[data-orientation="landscape"]{max-width:none}
 </style>
 
 
@@ -12942,7 +13005,7 @@ window.scoutV757FinalDiagnostics=function(){
 (()=>{
 'use strict';
 
-const VERSION='7.6.0';
+const VERSION='7.6.1';
 const $=id=>document.getElementById(id);
 const state={
   room:'',
@@ -12958,6 +13021,9 @@ const state={
   publisherStream:null,
   publisherFacing:'environment',
   publisherQuality:'720',
+  publisherOrientation:null,
+  orientationTimer:null,
+  orientationBusy:false,
   wakeLock:null
 };
 
@@ -13137,6 +13203,37 @@ window.VC_REMOTE_CAMERA={
   diagnostics:()=>({version:VERSION,source:state.source,room:state.room,streamId:state.streamId,connected:state.connected,tracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]})
 };
 
+
+/* ---------- Automatic aspect ratio on receiver and publisher ---------- */
+function vcSyncVideoAspect(video,frame){
+  if(!video||!frame)return;
+  const w=Number(video.videoWidth)||0,h=Number(video.videoHeight)||0;
+  if(!w||!h)return;
+  frame.style.aspectRatio=`${w} / ${h}`;
+  frame.dataset.orientation=w>=h?'landscape':'portrait';
+}
+function vcBindAspect(video,frame){
+  if(!video||!frame||video.dataset.vcAspectBound)return;
+  video.dataset.vcAspectBound='1';
+  const sync=()=>vcSyncVideoAspect(video,frame);
+  video.addEventListener('resize',sync);
+  video.addEventListener('loadedmetadata',sync);
+  video.addEventListener('loadeddata',sync);
+  setTimeout(sync,0);
+}
+function vcBindAllAspects(){
+  const remote=$('vc-remote-preview');
+  vcBindAspect(remote,$('vc-remote-preview-frame'));
+  const liveVideo=$('live-delay-live');
+  vcBindAspect(liveVideo,liveVideo?.closest?.('.live-delay-video-frame'));
+  const delayedVideo=$('live-delay-delayed');
+  vcBindAspect(delayedVideo,delayedVideo?.closest?.('.live-delay-video-frame'));
+  const publisherVideo=$('vc-publisher-video');
+  vcBindAspect(publisherVideo,publisherVideo?.closest?.('.vc-publisher-video'));
+}
+setTimeout(vcBindAllAspects,0);
+new MutationObserver(vcBindAllAspects).observe(document.body,{childList:true,subtree:true});
+
 /* ---------- Fullscreen ---------- */
 async function fullscreenElement(el,video){
   try{
@@ -13163,16 +13260,36 @@ function publisherParams(){
   const streamId=q.get('vcCamera')||'',room=q.get('vcRoom')||'',key=q.get('vcKey')||'',quality=q.get('vcQuality')||'720';
   return {streamId,room,key,quality};
 }
-function qualityConfig(q){
-  if(String(q)==='1080')return {width:1920,height:1080,fps:30,bitrate:5000,resolution:'1920x1080@30'};
-  return {width:1280,height:720,fps:30,bitrate:2800,resolution:'1280x720@30'};
+function publisherOrientation(){
+  try{
+    const type=screen.orientation?.type||'';
+    if(type.startsWith('landscape'))return 'landscape';
+    if(type.startsWith('portrait'))return 'portrait';
+  }catch(_){}
+  return window.innerWidth>window.innerHeight?'landscape':'portrait';
 }
-async function requestPublisherCamera(){
-  const cfg=qualityConfig(state.publisherQuality);
+function setPublisherOrientationBadge(orientation=publisherOrientation()){
+  const el=$('vc-publisher-orientation');
+  if(el){
+    el.textContent=orientation==='landscape'?'HORIZONTAL':'VERTICAL';
+    el.className=`vc-publisher-orientation ${orientation}`;
+  }
+}
+function qualityConfig(q,orientation=publisherOrientation()){
+  const hd=String(q)==='1080';
+  const long=hd?1920:1280,short=hd?1080:720,fps=30,bitrate=hd?5000:2800;
+  const width=orientation==='portrait'?short:long;
+  const height=orientation==='portrait'?long:short;
+  return {width,height,fps,bitrate,resolution:`${width}x${height}@${fps}`};
+}
+async function requestPublisherCamera(orientation=publisherOrientation()){
+  setPublisherOrientationBadge(orientation);
+  const cfg=qualityConfig(state.publisherQuality,orientation);
   return navigator.mediaDevices.getUserMedia({
     video:{
       facingMode:{ideal:state.publisherFacing},
       width:{ideal:cfg.width},height:{ideal:cfg.height},
+      aspectRatio:{ideal:cfg.width/cfg.height},
       frameRate:{ideal:cfg.fps,max:cfg.fps}
     },
     audio:false
@@ -13195,12 +13312,14 @@ window.vcPublisherStart=async function(){
   try{
     publisherState('INICIANDO…','');
     await ensureVDOSDK();
-    state.publisherStream=await requestPublisherCamera();
+    const captureOrientation=publisherOrientation();
+    state.publisherStream=await requestPublisherCamera(captureOrientation);
+    state.publisherOrientation=captureOrientation;
     const preview=$('vc-publisher-video');
     if(preview){preview.srcObject=state.publisherStream;preview.muted=true;await preview.play().catch(()=>{})}
     $('vc-publisher-empty')?.classList.add('hidden');
 
-    const cfg=qualityConfig(state.publisherQuality);
+    const cfg=qualityConfig(state.publisherQuality,state.publisherOrientation||publisherOrientation());
     const sdk=new VDONinjaSDK({salt:'vdo.ninja',password:p.key});
     state.publisher=sdk;
     await sdk.connect();
@@ -13234,31 +13353,93 @@ window.vcPublisherStop=async function(silent=false){
   $('vc-publisher-stop')?.classList.add('hidden');
   if(!silent)publisherState('DETENIDA','');
 };
+
+async function vcPublisherReplaceVideoTrack(reason='orientation'){
+  if(!state.publisher||!state.publisherStream||state.orientationBusy)return false;
+  const targetOrientation=publisherOrientation();
+  state.orientationBusy=true;
+  try{
+    publisherState(reason==='orientation'?'AJUSTANDO GIRO…':'CAMBIANDO CÁMARA…','');
+    setPublisherOrientationBadge(targetOrientation);
+
+    const oldTrack=state.publisherStream.getVideoTracks()[0];
+    const next=await requestPublisherCamera(targetOrientation);
+    const newTrack=next.getVideoTracks()[0];
+    if(!newTrack)throw new Error('La cámara no ha devuelto una pista de vídeo.');
+
+    if(typeof state.publisher.replaceTrack==='function'&&oldTrack){
+      await state.publisher.replaceTrack(oldTrack,newTrack);
+    }else{
+      const p=publisherParams(),cfg=qualityConfig(state.publisherQuality,targetOrientation);
+      try{state.publisher.stopPublishing?.()}catch(_){}
+      await state.publisher.publish(new MediaStream([newTrack]),{
+        room:p.room,streamID:p.streamId,password:p.key,label:'Volley Coach Remote Camera',
+        media:{video:{codec:'VP8',maxBitrate:cfg.bitrate,resolution:cfg.resolution,frameRate:cfg.fps}}
+      });
+    }
+
+    if(oldTrack){
+      try{state.publisherStream.removeTrack(oldTrack)}catch(_){}
+      try{oldTrack.stop()}catch(_){}
+    }
+    state.publisherStream.addTrack(newTrack);
+    state.publisherOrientation=targetOrientation;
+
+    const preview=$('vc-publisher-video');
+    if(preview){
+      preview.srcObject=state.publisherStream;
+      preview.muted=true;
+      await preview.play().catch(()=>{});
+    }
+    next.getTracks().filter(t=>t!==newTrack).forEach(t=>t.stop());
+
+    const cfg=qualityConfig(state.publisherQuality,targetOrientation);
+    try{
+      await state.publisher.updatePublisherMedia?.({
+        media:{video:{maxBitrate:cfg.bitrate,resolution:cfg.resolution,frameRate:cfg.fps}}
+      });
+    }catch(err){console.warn('V7.6.1 update media',err)}
+
+    publisherState('TRANSMITIENDO','on');
+    return true;
+  }catch(err){
+    console.error('V7.6.1 replace track',reason,err);
+    publisherState('TRANSMITIENDO','on');
+    if(reason!=='orientation')alert('No se ha podido cambiar la cámara.\n\n'+String(err?.message||err));
+    return false;
+  }finally{
+    state.orientationBusy=false;
+  }
+}
+function schedulePublisherOrientationRefresh(){
+  const orientation=publisherOrientation();
+  setPublisherOrientationBadge(orientation);
+  if(!state.publisher||!state.publisherStream){
+    state.publisherOrientation=orientation;
+    return;
+  }
+  if(orientation===state.publisherOrientation)return;
+  clearTimeout(state.orientationTimer);
+  state.orientationTimer=setTimeout(async()=>{
+    if(publisherOrientation()!==state.publisherOrientation){
+      await vcPublisherReplaceVideoTrack('orientation');
+    }
+  },600);
+}
+window.vcPublisherRefreshOrientation=()=>vcPublisherReplaceVideoTrack('orientation');
+
 window.vcPublisherSwitchCamera=async function(){
   state.publisherFacing=state.publisherFacing==='environment'?'user':'environment';
   const btn=$('vc-publisher-switch');
   if(btn)btn.textContent=state.publisherFacing==='environment'?'Usar cámara frontal':'Usar cámara trasera';
   if(!state.publisher||!state.publisherStream)return;
-  try{
-    const oldTrack=state.publisherStream.getVideoTracks()[0];
-    const next=await requestPublisherCamera();
-    const newTrack=next.getVideoTracks()[0];
-    if(state.publisher.replaceTrack&&oldTrack&&newTrack)await state.publisher.replaceTrack(oldTrack,newTrack);
-    state.publisherStream.removeTrack(oldTrack);
-    state.publisherStream.addTrack(newTrack);
-    oldTrack?.stop?.();
-    const v=$('vc-publisher-video');if(v)v.srcObject=state.publisherStream;
-    next.getTracks().filter(t=>t!==newTrack).forEach(t=>t.stop());
-  }catch(err){
-    console.error('Switch camera',err);
-    alert('No se ha podido cambiar de cámara. Puedes detener y volver a iniciar la transmisión.');
-  }
+  await vcPublisherReplaceVideoTrack('camera');
 };
 window.vcPublisherQualityChanged=async function(value){
   state.publisherQuality=value==='1080'?'1080':'720';
   if(!state.publisher)return;
   try{
-    const cfg=qualityConfig(state.publisherQuality);
+    const cfg=qualityConfig(state.publisherQuality,state.publisherOrientation||publisherOrientation());
     await state.publisher.updatePublisherMedia?.({media:{video:{maxBitrate:cfg.bitrate,resolution:cfg.resolution}}});
   }catch(err){console.warn('Quality update',err)}
 };
@@ -13273,7 +13454,7 @@ function initPublisherMode(){
   document.body.classList.add('vc-remote-publisher-mode');
   const el=document.createElement('div');
   el.id='vc-publisher-overlay';el.className='vc-publisher-overlay';
-  el.innerHTML=`<div class="vc-publisher-top"><div><div class="brand">VOLLEY COACH · CÁMARA REMOTA</div><small>Envía esta cámara al ordenador mediante WebRTC</small></div><span id="vc-publisher-state" class="vc-publisher-state">DETENIDA</span></div>
+  el.innerHTML=`<div class="vc-publisher-top"><div><div class="brand">VOLLEY COACH · CÁMARA REMOTA</div><small>Envía esta cámara al ordenador mediante WebRTC</small></div><div class="vc-publisher-top-status"><span id="vc-publisher-orientation" class="vc-publisher-orientation">—</span><span id="vc-publisher-state" class="vc-publisher-state">DETENIDA</span></div></div>
   <div class="vc-publisher-video"><video id="vc-publisher-video" autoplay muted playsinline></video><div id="vc-publisher-empty" class="vc-publisher-empty">Pulsa “Iniciar transmisión” y permite el acceso a la cámara.<br>Para menor latencia, mantén esta página visible.</div></div>
   <div class="vc-publisher-bottom">
     <label>Calidad<select id="vc-publisher-quality" onchange="vcPublisherQualityChanged(this.value)"><option value="720">720p · 30 fps</option><option value="1080">1080p · 30 fps</option></select></label>
@@ -13283,10 +13464,12 @@ function initPublisherMode(){
       <button id="vc-publisher-switch" type="button" onclick="vcPublisherSwitchCamera()">Usar cámara frontal</button>
       <button type="button" onclick="vcPublisherFullscreen()">⛶ Pantalla completa</button>
     </div>
-    <div class="vc-publisher-note">No cierres ni bloquees esta pestaña durante el partido. La transmisión utiliza WebRTC; Volley Coach no guarda automáticamente el vídeo remoto en un servidor.</div>
+    <div class="vc-publisher-note">Puedes girar el móvil mientras transmites. Volley Coach detecta vertical/horizontal y renueva automáticamente la pista WebRTC. No cierres ni bloquees esta pestaña durante el partido.</div>
   </div>`;
   document.body.appendChild(el);
   $('vc-publisher-quality').value=state.publisherQuality;
+  setPublisherOrientationBadge(publisherOrientation());
+  state.publisherOrientation=publisherOrientation();
   return true;
 }
 
@@ -13304,6 +13487,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 document.addEventListener('visibilitychange',async()=>{
   if(document.visibilityState==='visible'&&state.publisher&&!state.wakeLock)await requestWakeLock();
+});
+try{screen.orientation?.addEventListener?.('change',schedulePublisherOrientationRefresh)}catch(_){}
+window.addEventListener('orientationchange',schedulePublisherOrientationRefresh);
+window.addEventListener('resize',()=>{
+  clearTimeout(state.orientationTimer);
+  state.orientationTimer=setTimeout(schedulePublisherOrientationRefresh,250);
 });
 window.addEventListener('beforeunload',()=>{
   try{state.sdk?.disconnect?.()}catch(_){}
@@ -13323,6 +13512,8 @@ document.addEventListener('keydown',e=>{
 window.vcRemoteCameraDiagnostics=function(){
   return {
     version:VERSION,
+    orientation:publisherOrientation(),
+    publisherTrackOrientation:state.publisherOrientation,
     publisherMode:!!publisherParams().streamId,
     source:state.source,
     remoteConnected:state.connected,
@@ -13334,6 +13525,543 @@ window.vcRemoteCameraDiagnostics=function(){
     remoteTracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]
   };
 };
+})();
+</script>
+
+
+
+<style id="v770-recording-studio-style">
+/* ===== V7.7 · RECORDING STUDIO ===== */
+.vc-recording-studio{margin-top:9px;border:1px solid #dce4e9;border-radius:11px;background:#fff;padding:10px;color:#31495e}
+.vc-recording-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:8px;border-bottom:1px solid #e8ecef}
+.vc-recording-head strong{display:block;color:#17324d;font-size:11px}.vc-recording-head small{display:block;color:#7d8993;font-size:8px;margin-top:2px}
+.vc-recording-state{padding:5px 8px;border-radius:999px;background:#edf0f2;color:#637583;font:900 7px/1 Arial,sans-serif;letter-spacing:.08em}
+.vc-recording-state.rec{background:#f9e7e5;color:#a33f39;animation:vcRecPulse 1.2s infinite}.vc-recording-state.pause{background:#fff0d9;color:#8b601c}.vc-recording-state.done{background:#e8f5ee;color:#28613f}.vc-recording-state.bad{background:#faeceb;color:#90413e}
+@keyframes vcRecPulse{0%,100%{opacity:1}50%{opacity:.52}}
+.vc-recording-toolbar{display:grid;grid-template-columns:minmax(180px,1.2fr) 190px auto auto;gap:7px;align-items:end;margin-top:9px}
+.vc-recording-toolbar>label:not(.vc-recording-check){display:flex;flex-direction:column;gap:4px}.vc-recording-toolbar label>span{font-size:7px;text-transform:uppercase;letter-spacing:.07em;color:#7b8994;font-weight:900}
+.vc-recording-toolbar input,.vc-recording-toolbar select{font-size:8.5px!important;padding:7px!important}
+.vc-recording-check{display:flex!important;align-items:center;gap:5px;border:1px solid #dfe5e9;background:#f8fafb;border-radius:7px;padding:7px 8px;white-space:nowrap}.vc-recording-check input{width:auto!important;margin:0}.vc-recording-check span{text-transform:none!important;letter-spacing:0!important;font-size:8px!important;color:#52697a!important}
+.vc-recording-main-actions{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}.vc-recording-main-actions button{padding:7px 9px!important;font-size:8px!important;white-space:nowrap}
+.vc-rec-start{background:#a33e39!important;color:#fff!important;border:1px solid #a33e39!important}.vc-rec-stop{background:#17324d!important;color:#fff!important;border:1px solid #17324d!important}
+.vc-recording-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.vc-recording-metrics>div{border:1px solid #e2e7eb;border-radius:8px;background:#f8fafb;padding:8px}
+.vc-recording-metrics span{display:block;font-size:6.8px;text-transform:uppercase;letter-spacing:.07em;color:#82909a;font-weight:900}.vc-recording-metrics b{display:block;font-size:15px;color:#17324d;margin-top:2px}.vc-recording-metrics small{display:block;font-size:7px;color:#87939c;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vc-recording-secondary{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:8px 0 4px}.vc-recording-secondary button,.vc-recording-download{font-size:7.5px!important;padding:6px 7px!important}.vc-recording-download{display:inline-flex;align-items:center;border-radius:7px;background:#e9f4ee;color:#28613f;border:1px solid #cfe5d8;text-decoration:none;font-weight:850}
+.vc-recording-last{margin-left:auto;color:#71808b;font-size:7.5px}
+.vc-recording-markers{display:flex;gap:4px;flex-wrap:wrap}.vc-recording-marker{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;background:#eef3f6;color:#536b7c;font-size:7px}.vc-recording-marker b{color:#17324d}
+.vc-recording-help{margin-top:7px;padding:7px 8px;border-radius:7px;background:#eef4f8;border:1px solid #d8e4eb;color:#576e7e;font-size:7.8px;line-height:1.45}.vc-recording-help b{color:#29475f}
+.vc-rec-recovery{position:fixed;inset:0;z-index:80000;background:rgba(7,23,37,.68);display:grid;place-items:center;padding:18px}.vc-rec-recovery-card{width:min(680px,96vw);max-height:85vh;overflow:auto;background:#fff;border-radius:13px;padding:15px;color:#29475f}.vc-rec-recovery-card h3{margin:0 0 4px!important;border:0!important;padding:0!important}.vc-rec-recovery-list{display:grid;gap:6px;margin-top:10px}.vc-rec-recovery-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #e2e7eb;border-radius:8px;padding:8px;background:#fafbfc}.vc-rec-recovery-row strong{display:block;font-size:9px}.vc-rec-recovery-row small{display:block;font-size:7.5px;color:#7d8b95;margin-top:2px}.vc-rec-recovery-row div:last-child{display:flex;gap:4px}.vc-rec-recovery-row button{font-size:7px!important;padding:5px 6px!important}
+@media(max-width:980px){.vc-recording-toolbar{grid-template-columns:1fr 1fr}.vc-recording-main-actions{justify-content:flex-start}.vc-recording-metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.vc-recording-toolbar{grid-template-columns:1fr}.vc-recording-metrics{grid-template-columns:1fr 1fr}.vc-recording-main-actions button{flex:1}.vc-recording-last{width:100%;margin-left:0}.vc-rec-recovery-row{grid-template-columns:1fr}}
+</style>
+
+
+<script id="v770-recording-studio-module">
+(()=>{
+'use strict';
+
+const VERSION='7.7.0';
+const DB_NAME='VolleyCoachRecordingsV770';
+const DB_VERSION=1;
+const $=id=>document.getElementById(id);
+
+const state={
+  active:false,
+  paused:false,
+  recorder:null,
+  stream:null,
+  mode:'disk',
+  mime:'',
+  extension:'webm',
+  sessionId:null,
+  filename:'',
+  startedAt:0,
+  pausedAt:0,
+  pausedMs:0,
+  bytes:0,
+  chunkIndex:0,
+  writer:null,
+  fileHandle:null,
+  writeQueue:Promise.resolve(),
+  timer:null,
+  markers:[],
+  lastSet:null,
+  lastDownloadUrl:null,
+  blockCounter:0
+};
+
+function nowIso(){return new Date().toISOString()}
+function makeId(){return `rec_${Date.now()}_${Math.random().toString(36).slice(2,8)}`}
+function fmtTime(ms){
+  ms=Math.max(0,Number(ms)||0);
+  const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`;
+}
+function fmtBytes(bytes){
+  bytes=Number(bytes)||0;
+  if(bytes<1024*1024)return `${(bytes/1024).toFixed(0)} KB`;
+  if(bytes<1024*1024*1024)return `${(bytes/1024/1024).toFixed(1)} MB`;
+  return `${(bytes/1024/1024/1024).toFixed(2)} GB`;
+}
+function safeName(v){
+  return String(v||'Volley_Coach')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_')
+    .replace(/^_+|_+$/g,'').slice(0,90)||'Volley_Coach';
+}
+function recordingElapsed(){
+  if(!state.startedAt)return 0;
+  const end=state.paused?state.pausedAt:Date.now();
+  return Math.max(0,end-state.startedAt-state.pausedMs);
+}
+function setState(text,kind=''){
+  const el=$('vc-recording-state');if(!el)return;
+  el.textContent=text;el.className=`vc-recording-state ${kind}`;
+}
+function sourceLabel(){
+  const source=$('live-delay-source')?.value||'local';
+  return source==='remote'?'Móvil remoto':'Cámara local';
+}
+function getSourceStream(){
+  const direct=$('live-delay-live')?.srcObject;
+  if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
+  const remote=window.VC_REMOTE_CAMERA?.getStream?.();
+  if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
+  return null;
+}
+function cloneSource(stream){
+  const tracks=stream?.getTracks?.().filter(t=>t.readyState==='live')||[];
+  return new MediaStream(tracks.map(t=>t.clone()));
+}
+function chooseMime(){
+  if(typeof MediaRecorder==='undefined')return '';
+  const candidates=[
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm',
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4'
+  ];
+  return candidates.find(x=>{try{return MediaRecorder.isTypeSupported?.(x)}catch(_){return false}})||'';
+}
+function extForMime(mime){return String(mime).startsWith('video/mp4')?'mp4':'webm'}
+function currentMatch(){
+  try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}
+}
+function currentSetNo(){
+  try{
+    const m=currentMatch();
+    return Number(window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)?.number)||null;
+  }catch(_){return null}
+}
+function defaultName(){
+  const m=currentMatch();
+  if(m)return `${m.date||new Date().toISOString().slice(0,10)}_${m.opponent||'Partido'}`;
+  return `Entrenamiento_${new Date().toISOString().slice(0,10)}`;
+}
+function updateUI(){
+  const elapsed=recordingElapsed();
+  if($('vc-recording-time'))$('vc-recording-time').textContent=fmtTime(elapsed);
+  if($('vc-recording-size'))$('vc-recording-size').textContent=fmtBytes(state.bytes);
+  if($('vc-recording-source'))$('vc-recording-source').textContent=state.active?sourceLabel():'—';
+  if($('vc-recording-marker-count'))$('vc-recording-marker-count').textContent=String(state.markers.length);
+  if($('vc-recording-status-note')){
+    $('vc-recording-status-note').textContent=state.active
+      ? (state.paused?'Grabación pausada':state.mode==='disk'?'Escribiendo directamente al archivo':'Guardando fragmentos recuperables')
+      : 'Cámara preparada';
+  }
+  $('vc-recording-start')?.classList.toggle('hidden',state.active);
+  $('vc-recording-pause')?.classList.toggle('hidden',!state.active);
+  $('vc-recording-stop')?.classList.toggle('hidden',!state.active);
+  if($('vc-recording-pause'))$('vc-recording-pause').textContent=state.paused?'Reanudar':'Pausar';
+
+  const box=$('vc-recording-markers');
+  if(box){
+    box.innerHTML=state.markers.map(m=>`<span class="vc-recording-marker"><b>${m.label}</b> ${fmtTime(m.ms)}</span>`).join('');
+  }
+}
+function startTimer(){
+  clearInterval(state.timer);
+  state.timer=setInterval(()=>{
+    updateUI();
+    if(state.active&&$('vc-recording-auto-set')?.checked){
+      const setNo=currentSetNo();
+      if(setNo&&setNo!==state.lastSet){
+        state.lastSet=setNo;
+        addMarkerInternal(`Set ${setNo}`,true);
+      }
+    }
+  },500);
+}
+function stopTimer(){clearInterval(state.timer);state.timer=null}
+
+/* ---------- IndexedDB ---------- */
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains('sessions'))db.createObjectStore('sessions',{keyPath:'id'});
+      if(!db.objectStoreNames.contains('chunks')){
+        const st=db.createObjectStore('chunks',{keyPath:'key'});
+        st.createIndex('sessionId','sessionId',{unique:false});
+      }
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function dbPutSession(patch){
+  const db=await openDB();
+  const existing=await new Promise((resolve,reject)=>{
+    const tx=db.transaction('sessions','readonly'),r=tx.objectStore('sessions').get(patch.id);
+    r.onsuccess=()=>resolve(r.result||{});r.onerror=()=>reject(r.error);
+  });
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction('sessions','readwrite');
+    tx.objectStore('sessions').put({...existing,...patch});
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+  });
+  db.close();
+}
+async function dbPutChunk(sessionId,index,blob){
+  const db=await openDB();
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction('chunks','readwrite');
+    tx.objectStore('chunks').put({key:`${sessionId}:${String(index).padStart(8,'0')}`,sessionId,index,blob,size:blob.size});
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+  });
+  db.close();
+}
+async function dbChunks(sessionId){
+  const db=await openDB();
+  const out=await new Promise((resolve,reject)=>{
+    const tx=db.transaction('chunks','readonly'),idx=tx.objectStore('chunks').index('sessionId'),r=idx.getAll(sessionId);
+    r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);
+  });
+  db.close();
+  return out.sort((a,b)=>a.index-b.index);
+}
+async function dbSessions(){
+  const db=await openDB();
+  const out=await new Promise((resolve,reject)=>{
+    const tx=db.transaction('sessions','readonly'),r=tx.objectStore('sessions').getAll();
+    r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);
+  });
+  db.close();
+  return out.sort((a,b)=>String(b.startedAt||'').localeCompare(String(a.startedAt||'')));
+}
+async function dbDeleteSession(id){
+  const db=await openDB();
+  const chunks=await new Promise((resolve,reject)=>{
+    const tx=db.transaction('chunks','readonly'),idx=tx.objectStore('chunks').index('sessionId'),r=idx.getAllKeys(id);
+    r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);
+  });
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(['sessions','chunks'],'readwrite');
+    tx.objectStore('sessions').delete(id);
+    const cs=tx.objectStore('chunks');chunks.forEach(k=>cs.delete(k));
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+  });
+  db.close();
+}
+
+/* ---------- Recording ---------- */
+async function chooseDiskFile(filename,mime){
+  if(typeof window.showSaveFilePicker!=='function')return null;
+  const ext=extForMime(mime);
+  return window.showSaveFilePicker({
+    suggestedName:`${filename}.${ext}`,
+    types:[{description:ext==='mp4'?'Vídeo MP4':'Vídeo WebM',accept:{[ext==='mp4'?'video/mp4':'video/webm']:[`.${ext}`]}}]
+  });
+}
+function cleanupLastUrl(){
+  if(state.lastDownloadUrl){try{URL.revokeObjectURL(state.lastDownloadUrl)}catch(_){}state.lastDownloadUrl=null}
+}
+function offerDownload(blob,filename){
+  cleanupLastUrl();
+  const url=URL.createObjectURL(blob);state.lastDownloadUrl=url;
+  const a=$('vc-recording-download');
+  if(a){
+    a.href=url;a.download=filename;a.textContent='Descargar última grabación';a.classList.remove('hidden');
+  }
+  try{
+    const auto=document.createElement('a');auto.href=url;auto.download=filename;document.body.appendChild(auto);auto.click();auto.remove();
+  }catch(_){}
+}
+function metadataPayload(session){
+  return {
+    version:VERSION,
+    id:session.id,
+    filename:session.filename,
+    startedAt:session.startedAt,
+    endedAt:session.endedAt||nowIso(),
+    durationMs:session.durationMs,
+    bytes:session.bytes,
+    mime:session.mime,
+    source:session.source,
+    mode:session.mode,
+    markers:session.markers||[],
+    match:session.match||null
+  };
+}
+function downloadJSON(obj,name){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function writeChunk(blob){
+  state.bytes+=blob.size;
+  const idx=state.chunkIndex++;
+  if(state.mode==='disk'&&state.writer){
+    state.writeQueue=state.writeQueue.then(()=>state.writer.write(blob));
+  }else{
+    state.writeQueue=state.writeQueue.then(()=>dbPutChunk(state.sessionId,idx,blob));
+  }
+  updateUI();
+}
+function addMarkerInternal(label,automatic=false){
+  if(!state.active)return null;
+  const marker={label:String(label||`Bloque ${++state.blockCounter}`),ms:recordingElapsed(),at:nowIso(),automatic:!!automatic};
+  state.markers.push(marker);
+  dbPutSession({id:state.sessionId,markers:state.markers}).catch(()=>{});
+  updateUI();return marker;
+}
+window.vcRecordingAddMarker=function(label){
+  if(!state.active){alert('Inicia primero la grabación.');return}
+  if(!label){
+    const setNo=currentSetNo();
+    label=setNo?`Set ${setNo}`:`Bloque ${++state.blockCounter}`;
+  }
+  addMarkerInternal(label,false);
+};
+
+window.vcRecordingStorageChanged=function(){
+  const sel=$('vc-recording-storage');
+  if(sel?.value==='disk'&&typeof window.showSaveFilePicker!=='function'){
+    sel.value='browser';
+    alert('Este navegador no permite escritura directa al disco. Se usará el modo Navegador/IndexedDB.');
+  }
+};
+
+window.vcRecordingStart=async function(){
+  if(state.active)return;
+  const source=getSourceStream();
+  if(!source){alert('Primero inicia la cámara o conecta el móvil y activa Live Delay.');return}
+  if(typeof MediaRecorder==='undefined'){alert('Este navegador no dispone de MediaRecorder.');return}
+
+  const mime=chooseMime();
+  if(!mime){alert('No se ha encontrado un formato de vídeo compatible para grabar.');return}
+
+  let mode=$('vc-recording-storage')?.value||'disk';
+  if(mode==='disk'&&typeof window.showSaveFilePicker!=='function')mode='browser';
+
+  const base=safeName($('vc-recording-name')?.value||defaultName());
+  const filename=`${base}_${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}`;
+  let handle=null,writer=null;
+
+  try{
+    if(mode==='disk'){
+      handle=await chooseDiskFile(filename,mime);
+      if(!handle)return; // User cancelled picker.
+      writer=await handle.createWritable();
+    }
+
+    const recStream=cloneSource(source);
+    const videoTracks=recStream.getVideoTracks();
+    if(!videoTracks.length)throw new Error('No hay ninguna pista de vídeo activa.');
+
+    const sessionId=makeId(),m=currentMatch();
+    Object.assign(state,{
+      active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
+      sessionId,filename,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
+      writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0
+    });
+
+    await dbPutSession({
+      id:sessionId,filename,startedAt:nowIso(),endedAt:null,durationMs:0,bytes:0,mime,mode,
+      source:sourceLabel(),completed:false,markers:[],
+      match:m?{id:m.id,date:m.date,opponent:m.opponent}:null
+    });
+
+    const opts={mimeType:mime,videoBitsPerSecond:3500000};
+    const recorder=new MediaRecorder(recStream,opts);
+    state.recorder=recorder;
+
+    recorder.addEventListener('dataavailable',e=>{
+      if(e.data?.size)writeChunk(e.data).catch(err=>{
+        console.error('V7.7 write chunk',err);
+        setState('ERROR','bad');
+      });
+    });
+    recorder.addEventListener('error',e=>{
+      console.error('V7.7 recorder',e);
+      setState('ERROR','bad');
+    });
+    recorder.start(1000);
+
+    cleanupLastUrl();
+    $('vc-recording-download')?.classList.add('hidden');
+    if($('vc-recording-name'))$('vc-recording-name').value=base;
+    setState('● REC','rec');
+    if(state.lastSet)addMarkerInternal(`Set ${state.lastSet}`,true);
+    else addMarkerInternal('Inicio',true);
+    startTimer();updateUI();
+  }catch(err){
+    console.error('V7.7 start',err);
+    try{await writer?.abort?.()}catch(_){}
+    try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+    Object.assign(state,{active:false,recorder:null,stream:null,writer:null,fileHandle:null});
+    setState('ERROR','bad');
+    alert('No se ha podido iniciar la grabación.\n\n'+String(err?.message||err));
+  }
+};
+
+window.vcRecordingTogglePause=function(){
+  if(!state.active||!state.recorder)return;
+  try{
+    if(state.paused){
+      state.pausedMs+=Date.now()-state.pausedAt;state.pausedAt=0;state.paused=false;
+      state.recorder.resume();setState('● REC','rec');
+      addMarkerInternal('Reanudación',true);
+    }else{
+      state.paused=true;state.pausedAt=Date.now();state.recorder.pause();setState('PAUSA','pause');
+      addMarkerInternal('Pausa',true);
+    }
+    updateUI();
+  }catch(err){console.error('V7.7 pause',err)}
+};
+
+async function finalizeSession(){
+  await state.writeQueue;
+  const endedAt=nowIso(),durationMs=recordingElapsed();
+  const m=currentMatch();
+  const session={
+    id:state.sessionId,filename:state.filename,startedAt:new Date(state.startedAt).toISOString(),
+    endedAt,durationMs,bytes:state.bytes,mime:state.mime,mode:state.mode,source:sourceLabel(),
+    markers:state.markers,completed:true,match:m?{id:m.id,date:m.date,opponent:m.opponent}:null
+  };
+  await dbPutSession(session);
+
+  if(state.mode==='disk'&&state.writer){
+    await state.writer.close();
+    state.writer=null;
+    const sidecar=`${state.filename}_marcadores.json`;
+    downloadJSON(metadataPayload(session),sidecar);
+    if($('vc-recording-last'))$('vc-recording-last').textContent=`Guardado en disco · ${fmtTime(durationMs)} · ${fmtBytes(state.bytes)}`;
+  }else{
+    const chunks=await dbChunks(state.sessionId);
+    if(!chunks.length)throw new Error('La grabación no contiene fragmentos recuperables.');
+    const blob=new Blob(chunks.map(x=>x.blob),{type:state.mime||'video/webm'});
+    const fullName=`${state.filename}.${state.extension}`;
+    offerDownload(blob,fullName);
+    downloadJSON(metadataPayload(session),`${state.filename}_marcadores.json`);
+    if($('vc-recording-last'))$('vc-recording-last').textContent=`Vídeo listo · ${fmtTime(durationMs)} · ${fmtBytes(blob.size)}`;
+  }
+  return session;
+}
+window.vcRecordingStop=async function(silent=false){
+  if(!state.active)return null;
+  stopTimer();
+  setState('GUARDANDO','pause');
+
+  const recorder=state.recorder;
+  const stopped=recorder&&recorder.state!=='inactive'
+    ?new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}))
+    :Promise.resolve();
+
+  try{
+    if(recorder&&recorder.state!=='inactive')recorder.stop();
+    await stopped;
+    const session=await finalizeSession();
+    setState('GUARDADO','done');
+    if(!silent&&state.mode==='disk')alert('Grabación guardada correctamente en el archivo seleccionado.');
+    return session;
+  }catch(err){
+    console.error('V7.7 finalize',err);
+    setState('ERROR','bad');
+    if(!silent)alert('La grabación se ha detenido, pero ha ocurrido un error al finalizarla.\nPuedes intentar recuperarla desde “Recuperar grabaciones”.\n\n'+String(err?.message||err));
+    return null;
+  }finally{
+    try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0});
+    updateUI();
+  }
+};
+
+/* ---------- Recovery ---------- */
+window.vcRecordingRecover=async function(){
+  try{
+    const sessions=await dbSessions();
+    const browserSessions=sessions.filter(s=>s.mode==='browser');
+    let modal=document.getElementById('vc-rec-recovery');
+    if(modal)modal.remove();
+    modal=document.createElement('div');modal.id='vc-rec-recovery';modal.className='vc-rec-recovery';
+    const rows=browserSessions.map(s=>`<div class="vc-rec-recovery-row">
+      <div><strong>${String(s.filename||s.id)}</strong><small>${String(s.startedAt||'')} · ${fmtTime(s.durationMs||0)} · ${fmtBytes(s.bytes||0)} · ${s.completed?'finalizada':'interrumpida / recuperable'}</small></div>
+      <div><button class="primary" onclick="vcRecordingExportRecovered('${s.id}')">Descargar</button><button class="danger" onclick="vcRecordingDeleteRecovered('${s.id}')">Eliminar</button></div>
+    </div>`).join('');
+    modal.innerHTML=`<div class="vc-rec-recovery-card"><h3>Grabaciones recuperables</h3><p style="font-size:9px;color:#71818d">Fragmentos guardados en este navegador. Puedes descargar o eliminar cada sesión.</p><div class="vc-rec-recovery-list">${rows||'<div class="vc-recording-help">No hay grabaciones guardadas en el navegador.</div>'}</div><div style="margin-top:10px;text-align:right"><button class="ghost" id="vc-rec-recovery-close">Cerrar</button></div></div>`;
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
+    document.body.appendChild(modal);
+    $('vc-rec-recovery-close')?.addEventListener('click',()=>modal.remove());
+  }catch(err){alert('No se han podido leer las grabaciones recuperables.\n\n'+String(err?.message||err))}
+};
+window.vcRecordingExportRecovered=async function(id){
+  try{
+    const sessions=await dbSessions(),s=sessions.find(x=>x.id===id);
+    if(!s)throw new Error('No se encuentra la sesión.');
+    const chunks=await dbChunks(id);
+    if(!chunks.length)throw new Error('No hay fragmentos guardados.');
+    const blob=new Blob(chunks.map(x=>x.blob),{type:s.mime||'video/webm'});
+    offerDownload(blob,`${s.filename}.${extForMime(s.mime)}`);
+    downloadJSON(metadataPayload({...s,bytes:blob.size}),`${s.filename}_marcadores.json`);
+  }catch(err){alert('No se ha podido recuperar la grabación.\n\n'+String(err?.message||err))}
+};
+window.vcRecordingDeleteRecovered=async function(id){
+  if(!confirm('¿Eliminar definitivamente esta grabación recuperable del navegador?'))return;
+  await dbDeleteSession(id);window.vcRecordingRecover();
+};
+
+/* ---------- Integration / safeguards ---------- */
+const baseStopLive=window.stopLiveDelay;
+window.stopLiveDelay=function(...args){
+  if(state.active){
+    /* Start finalization before stopping the camera source. The recording uses cloned tracks. */
+    window.vcRecordingStop(true).catch(()=>{});
+  }
+  return baseStopLive?.apply(this,args);
+};
+
+window.addEventListener('beforeunload',e=>{
+  if(!state.active)return;
+  e.preventDefault();e.returnValue='';
+});
+
+window.vcRecordingDiagnostics=function(){
+  return {
+    version:VERSION,
+    active:state.active,paused:state.paused,mode:state.mode,mime:state.mime,
+    bytes:state.bytes,elapsedMs:recordingElapsed(),markers:state.markers,
+    diskDirectSupported:typeof window.showSaveFilePicker==='function',
+    indexedDB:typeof indexedDB!=='undefined',
+    mediaRecorder:typeof MediaRecorder!=='undefined',
+    sourceAvailable:!!getSourceStream()
+  };
+};
+
+(async()=>{
+  if($('vc-recording-name')&&!$('vc-recording-name').value)$('vc-recording-name').value=defaultName();
+  const storage=$('vc-recording-storage');
+  if(storage&&typeof window.showSaveFilePicker!=='function')storage.value='browser';
+  updateUI();
+  try{
+    const sessions=await dbSessions();
+    const interrupted=sessions.filter(s=>s.mode==='browser'&&!s.completed);
+    if(interrupted.length&&$('vc-recording-last'))$('vc-recording-last').textContent=`${interrupted.length} grabación(es) recuperable(s)`;
+  }catch(_){}
+})();
 })();
 </script>
 
