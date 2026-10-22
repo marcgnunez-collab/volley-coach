@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v7.5.7-report-bridge-fix-v1';
+const CACHE_NAME = 'volley-coach-v7.6.0-remote-camera-v1';
 
 const APP_SHELL = [
   './',
