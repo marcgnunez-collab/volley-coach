@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v8.2.3-mobile-rec-z1-z6-v1';
+const CACHE_NAME = 'volley-coach-v8.4.0-pro-rally-block-phase-v1';
 
 const APP_SHELL = [
   './',
