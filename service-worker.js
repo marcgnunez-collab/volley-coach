@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v8.5.0-context-lineup-video-notes-v1';
+const CACHE_NAME = 'volley-coach-v8.5.1-controls-hard-fix-v1';
 
 const APP_SHELL = [
   './',
