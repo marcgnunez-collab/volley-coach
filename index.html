@@ -1570,7 +1570,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="pro-modal-card live-delay-card">
     <div class="pro-modal-head">
       <div>
-        <span class="pro-kicker">V7.3 · LIVE DELAY</span>
+        <span class="pro-kicker">V7.6 · REMOTE CAMERA + LIVE DELAY</span>
         <h2>Vídeo en directo con retraso</h2>
         <p id="live-delay-subtitle">Captura la cámara y revisa la acción unos segundos después sin detener la grabación.</p>
       </div>
@@ -1578,8 +1578,15 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     </div>
 
     <div class="live-delay-toolbar">
-      <label class="live-delay-field camera">
-        <span>Cámara</span>
+      <label class="live-delay-field source">
+        <span>Fuente de vídeo</span>
+        <select id="live-delay-source" onchange="vcRemoteSourceChanged(this.value)">
+          <option value="local">Cámara de este dispositivo</option>
+          <option value="remote">Móvil / dispositivo remoto</option>
+        </select>
+      </label>
+      <label id="live-delay-local-camera-field" class="live-delay-field camera">
+        <span>Cámara local</span>
         <select id="live-delay-camera"></select>
       </label>
       <label class="live-delay-field">
@@ -1609,6 +1616,44 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
     </div>
 
+    <section id="vc-remote-panel" class="vc-remote-panel hidden">
+      <div class="vc-remote-head">
+        <div>
+          <span class="pro-kicker">CÁMARA REMOTA · WEBRTC</span>
+          <strong>Conectar un móvil sin OBS</strong>
+          <small>Escanea el QR con el móvil, inicia la cámara y Volley Coach recibirá el vídeo directamente.</small>
+        </div>
+        <span id="vc-remote-status" class="vc-remote-status">SIN PREPARAR</span>
+      </div>
+      <div class="vc-remote-grid">
+        <div class="vc-remote-pair">
+          <div id="vc-remote-qr" class="vc-remote-qr"><span>Genera una sesión para mostrar el QR.</span></div>
+          <div class="vc-remote-linkbox">
+            <label>Enlace para el móvil</label>
+            <input id="vc-remote-link" type="text" readonly placeholder="Se generará al preparar la cámara">
+            <div class="vc-remote-actions">
+              <button class="primary" type="button" onclick="vcRemotePrepare(false)">Generar / conectar</button>
+              <button class="ghost" type="button" onclick="vcRemoteCopyLink()">Copiar enlace</button>
+              <button class="ghost" type="button" onclick="vcRemotePrepare(true)">Nuevo QR</button>
+            </div>
+            <small id="vc-remote-session-note">Cada QR utiliza identificadores aleatorios de sesión.</small>
+          </div>
+        </div>
+        <div class="vc-remote-preview-wrap">
+          <div class="vc-remote-preview-head"><span>PREVISUALIZACIÓN REMOTA</span><button class="ghost" type="button" onclick="vcRemoteFullscreenPreview()">⛶ Pantalla completa</button></div>
+          <div id="vc-remote-preview-frame" class="vc-remote-preview-frame">
+            <video id="vc-remote-preview" autoplay muted playsinline></video>
+            <div id="vc-remote-preview-empty" class="vc-remote-preview-empty">Esperando al móvil…</div>
+          </div>
+          <div class="vc-remote-actions bottom">
+            <button class="ghost" type="button" onclick="vcRemoteReconnect()">Reintentar conexión</button>
+            <button class="danger" type="button" onclick="vcRemoteDisconnect()">Desconectar móvil</button>
+          </div>
+        </div>
+      </div>
+      <div class="vc-remote-help"><b>Flujo:</b> ordenador genera QR → móvil abre Volley Coach en modo cámara → pulsa “Iniciar transmisión” → vuelve al ordenador y pulsa “Iniciar cámara” para aplicar el delay.</div>
+    </section>
+
     <div id="live-delay-support" class="live-delay-support">
       <b>Preparado.</b> La cámara no se envía a ningún servidor; el búfer temporal permanece en este dispositivo.
     </div>
@@ -1616,8 +1661,8 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <div class="live-delay-grid">
       <section class="live-delay-pane">
         <div class="live-delay-pane-head">
-          <div><span class="pro-kicker">DIRECTO</span><strong>Cámara actual</strong></div>
-          <span id="live-delay-live-state" class="live-delay-state">DETENIDA</span>
+          <div><span class="pro-kicker">DIRECTO</span><strong id="live-delay-live-title">Cámara actual</strong></div>
+          <div class="live-delay-pane-actions"><span id="live-delay-live-state" class="live-delay-state">DETENIDA</span><button class="ghost" type="button" onclick="liveDelayFullscreen('live')">⛶</button></div>
         </div>
         <div class="live-delay-video-frame live">
           <video id="live-delay-live" autoplay muted playsinline></video>
@@ -1629,7 +1674,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <section class="live-delay-pane">
         <div class="live-delay-pane-head">
           <div><span class="pro-kicker">REVISIÓN</span><strong id="live-delay-review-title">Retraso · 10 s</strong></div>
-          <span id="live-delay-review-state" class="live-delay-state delayed">ESPERANDO</span>
+          <div class="live-delay-pane-actions"><span id="live-delay-review-state" class="live-delay-state delayed">ESPERANDO</span><button class="ghost" type="button" onclick="liveDelayFullscreen('delay')">⛶</button></div>
         </div>
         <div class="live-delay-video-frame delayed">
           <video id="live-delay-delayed" autoplay muted playsinline></video>
@@ -4257,7 +4302,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.5.7', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=7.6.0', {
         updateViaCache: 'none'
       });
 
@@ -10389,6 +10434,14 @@ function startTicker(){
 }
 function stopTicker(){if(state.timer){clearInterval(state.timer);state.timer=null}}
 async function requestStream(){
+  const source=$('live-delay-source')?.value||'local';
+  if(source==='remote'){
+    const original=window.VC_REMOTE_CAMERA?.getStream?.();
+    const tracks=original?.getVideoTracks?.().filter(t=>t.readyState==='live')||[];
+    if(!tracks.length)throw new Error('El móvil todavía no está conectado. Escanea el QR e inicia la transmisión desde el móvil.');
+    /* Use cloned tracks so stopping Live Delay does not kill the remote WebRTC receiver. */
+    return new MediaStream(tracks.map(t=>t.clone()));
+  }
   const sel=$('live-delay-camera'),deviceId=sel?.value||state.lastCameraId||'';
   const videoConstraints=deviceId?{
     deviceId:{exact:deviceId},
@@ -10419,25 +10472,29 @@ function startRecorder(){
 }
 window.startLiveDelay=async function(){
   if(state.running)return;
-  if(!navigator.mediaDevices?.getUserMedia){
-    setStatus('<b>Este navegador no permite acceder a la cámara.</b> Abre Volley Coach mediante HTTPS en un navegador moderno.','bad');return;
+  const sourceMode=$('live-delay-source')?.value||'local';
+  if(sourceMode!=='remote'&&!navigator.mediaDevices?.getUserMedia){
+    setStatus('<b>Este navegador no permite acceder a la cámara local.</b> Abre Volley Coach mediante HTTPS en un navegador moderno.','bad');return;
   }
   state.mime=chooseMime();
   if(!state.mime){
     setStatus('<b>Live Delay no está disponible en este navegador.</b> Se necesita MediaRecorder + MediaSource compatibles. En Windows, usa Chrome o Edge actualizados.','bad');return;
   }
   try{
-    setStatus('<b>Solicitando cámara…</b> Acepta el permiso del navegador.','warn');
+    setStatus(sourceMode==='remote'?'<b>Conectando con el móvil…</b> Usando la señal WebRTC recibida.':'<b>Solicitando cámara…</b> Acepta el permiso del navegador.','warn');
     state.stream=await requestStream();
     const lv=live();lv.srcObject=state.stream;lv.muted=true;await lv.play().catch(()=>{});
     const track=state.stream.getVideoTracks()[0];
-    state.lastCameraId=track?.getSettings?.().deviceId||$('live-delay-camera')?.value||'';
-    savePrefs();await populateCameras();
-    if(state.lastCameraId&&$('live-delay-camera'))$('live-delay-camera').value=state.lastCameraId;
+    if(sourceMode!=='remote'){
+      state.lastCameraId=track?.getSettings?.().deviceId||$('live-delay-camera')?.value||'';
+      await populateCameras();
+      if(state.lastCameraId&&$('live-delay-camera'))$('live-delay-camera').value=state.lastCameraId;
+    }
+    savePrefs();
     await createMse();
     state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
     startRecorder();startTicker();updateUi();updateMetrics();
-    setStatus(`<b>Live Delay activo.</b> ${state.delay} s de retraso · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la cámara continúa.`, 'good');
+    setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'móvil remoto':'cámara local'} · ${state.delay} s de retraso · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la captura continúa.`, 'good');
   }catch(err){
     console.error('Live Delay start',err);
     stopLiveDelay(true);
@@ -12846,6 +12903,435 @@ window.scoutV757FinalDiagnostics=function(){
     finalScoutExportPDF:window.scoutExportPDF===window.scoutV757ExportOfficialPDF,
     finalAnalysisPDF:window.scoutExportAnalysisPDF===window.scoutV757ExportAnalysisPDF,
     directDiagnostics:window.scoutV757PDFDirectDiagnostics?.()||null
+  };
+};
+})();
+</script>
+
+
+
+<style id="v760-remote-camera-style">
+/* ===== V7.6 · REMOTE CAMERA + FULLSCREEN ===== */
+.live-delay-toolbar{grid-template-columns:155px minmax(210px,1.15fr) 105px 120px auto!important}
+.live-delay-field.source{min-width:150px}
+.live-delay-pane-actions{display:flex;align-items:center;gap:5px}.live-delay-pane-actions button{padding:4px 6px!important;font-size:9px!important;min-width:29px}
+.vc-remote-panel{border:1px solid #d7e2e9;border-radius:11px;background:#f8fafb;padding:10px;margin-bottom:9px}
+.vc-remote-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}.vc-remote-head strong{display:block;font-size:11px;color:#17324d}.vc-remote-head small{display:block;color:#74848f;font-size:8px;margin-top:2px}
+.vc-remote-status{padding:5px 7px;border-radius:999px;background:#e9edf0;color:#657684;font:900 7px/1 Arial,sans-serif;letter-spacing:.06em;white-space:nowrap}.vc-remote-status.wait{background:#fff2df;color:#8a5b16}.vc-remote-status.on{background:#e8f5ee;color:#28613f}.vc-remote-status.bad{background:#faeceb;color:#90413e}
+.vc-remote-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.vc-remote-pair{display:grid;grid-template-columns:175px minmax(0,1fr);gap:10px;border:1px solid #e0e6ea;border-radius:9px;background:#fff;padding:9px}
+.vc-remote-qr{width:160px;height:160px;border:1px dashed #c7d2da;border-radius:8px;background:#fff;display:grid;place-items:center;padding:6px;box-sizing:border-box;overflow:hidden}.vc-remote-qr img,.vc-remote-qr canvas{max-width:148px!important;max-height:148px!important}.vc-remote-qr span{text-align:center;color:#82919c;font-size:8px;line-height:1.35}
+.vc-remote-linkbox{min-width:0}.vc-remote-linkbox label{display:block;font-size:7px;text-transform:uppercase;letter-spacing:.07em;color:#7b8994;font-weight:900;margin-bottom:4px}.vc-remote-linkbox input{font-size:8px!important;width:100%;box-sizing:border-box}.vc-remote-linkbox>small{display:block;color:#81909a;font-size:7.3px;margin-top:6px;line-height:1.35}
+.vc-remote-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.vc-remote-actions button{font-size:7.5px!important;padding:6px 7px!important}.vc-remote-actions.bottom{justify-content:flex-end}
+.vc-remote-preview-wrap{border:1px solid #e0e6ea;border-radius:9px;background:#fff;padding:8px}.vc-remote-preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#6e8190;font-size:7px;font-weight:900;letter-spacing:.06em}.vc-remote-preview-head button{font-size:7px!important;padding:5px 6px!important}
+.vc-remote-preview-frame{position:relative;background:#071827;border-radius:7px;overflow:hidden;aspect-ratio:16/9}.vc-remote-preview-frame video{width:100%;height:100%;object-fit:contain;display:block}.vc-remote-preview-empty{position:absolute;inset:0;display:grid;place-items:center;color:#91a5b5;font-size:8px;background:linear-gradient(135deg,#071827,#0d2d47)}.vc-remote-preview-empty.hidden{display:none}
+.vc-remote-help{margin-top:8px;padding:7px 9px;border-radius:7px;background:#edf4f8;border:1px solid #d9e5ec;color:#526c7e;font-size:8.3px;line-height:1.4}
+
+/* Remote publisher screen on the phone */
+.vc-publisher-overlay{position:fixed;inset:0;z-index:100000;background:#071827;color:#fff;font-family:Arial,Helvetica,sans-serif;display:flex;flex-direction:column}
+.vc-publisher-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;background:#0d2940;border-bottom:1px solid #24455e}.vc-publisher-top .brand{font-weight:950;font-size:13px}.vc-publisher-top small{display:block;color:#93a9ba;font-size:8px;margin-top:2px}.vc-publisher-state{padding:5px 8px;border-radius:999px;background:#203e56;color:#c6d6e1;font-size:8px;font-weight:900}.vc-publisher-state.on{background:#1f6547;color:#e8fff1}.vc-publisher-state.bad{background:#743d3b;color:#ffeceb}
+.vc-publisher-video{position:relative;flex:1;min-height:0;background:#000;display:grid;place-items:center}.vc-publisher-video video{width:100%;height:100%;object-fit:contain}.vc-publisher-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:30px;color:#91a8b8;font-size:12px;line-height:1.5}
+.vc-publisher-bottom{background:#0d2940;border-top:1px solid #24455e;padding:11px;display:grid;grid-template-columns:150px 1fr;gap:8px}.vc-publisher-bottom label{display:flex;flex-direction:column;gap:4px;color:#90a6b6;font-size:8px;text-transform:uppercase;font-weight:900;letter-spacing:.06em}.vc-publisher-bottom select{padding:8px;border-radius:7px;border:1px solid #31516a;background:#102f48;color:#fff}.vc-publisher-buttons{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.vc-publisher-buttons button{padding:9px 11px;border-radius:8px;border:1px solid #395970;background:#173d5a;color:#fff;font-weight:850;font-size:9px}.vc-publisher-buttons .start{background:#2e7754;border-color:#2e7754}.vc-publisher-buttons .stop{background:#8b4743;border-color:#8b4743}.vc-publisher-note{grid-column:1/-1;color:#86a0b3;font-size:7.5px;line-height:1.35}
+.vc-publisher-overlay:fullscreen .vc-publisher-top,.vc-publisher-overlay:fullscreen .vc-publisher-bottom{opacity:.9}
+.live-delay-video-frame:fullscreen,.vc-remote-preview-frame:fullscreen{background:#000;width:100vw;height:100vh;aspect-ratio:auto}.live-delay-video-frame:fullscreen video,.vc-remote-preview-frame:fullscreen video{object-fit:contain}
+@media(max-width:1050px){.live-delay-toolbar{grid-template-columns:1fr 1fr!important}.live-delay-field.source,.live-delay-field.camera{grid-column:auto!important}.vc-remote-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.live-delay-toolbar{grid-template-columns:1fr!important}.vc-remote-pair{grid-template-columns:1fr}.vc-remote-qr{margin:auto}.vc-publisher-bottom{grid-template-columns:1fr}.vc-publisher-buttons{justify-content:stretch}.vc-publisher-buttons button{flex:1}}
+</style>
+
+
+<script id="v760-remote-camera-module">
+(()=>{
+'use strict';
+
+const VERSION='7.6.0';
+const $=id=>document.getElementById(id);
+const state={
+  room:'',
+  streamId:'',
+  key:'',
+  sdk:null,
+  stream:null,
+  connected:false,
+  preparing:false,
+  viewerPromise:null,
+  source:'local',
+  publisher:null,
+  publisherStream:null,
+  publisherFacing:'environment',
+  publisherQuality:'720',
+  wakeLock:null
+};
+
+function randomToken(prefix='',bytes=12){
+  const a=new Uint8Array(bytes);
+  crypto.getRandomValues(a);
+  return prefix+[...a].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function setRemoteStatus(text,kind=''){
+  const el=$('vc-remote-status');if(!el)return;
+  el.textContent=text;el.className=`vc-remote-status ${kind}`;
+}
+function setPreviewEmpty(text,hidden=false){
+  const el=$('vc-remote-preview-empty');if(!el)return;
+  el.textContent=text||'';el.classList.toggle('hidden',!!hidden);
+}
+function loadScript(src,test,timeout=12000){
+  if(test())return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const existing=[...document.scripts].find(s=>s.src===src);
+    if(existing){
+      const timer=setInterval(()=>{if(test()){clearInterval(timer);resolve()}},80);
+      setTimeout(()=>{clearInterval(timer);test()?resolve():reject(new Error('No se pudo cargar '+src))},timeout);
+      return;
+    }
+    const s=document.createElement('script');s.src=src;s.async=true;
+    const to=setTimeout(()=>reject(new Error('Timeout cargando '+src)),timeout);
+    s.onload=()=>{clearTimeout(to);test()?resolve():reject(new Error('La librería no expuso su API.'))};
+    s.onerror=()=>{clearTimeout(to);reject(new Error('Error cargando '+src))};
+    document.head.appendChild(s);
+  });
+}
+async function ensureVDOSDK(){
+  if(window.VDONinjaSDK)return;
+  const sources=[
+    'https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@latest/vdoninja-sdk.min.js',
+    'https://unpkg.com/@vdoninja/sdk/vdoninja-sdk.min.js'
+  ];
+  let last;
+  for(const src of sources){
+    try{await loadScript(src,()=>!!window.VDONinjaSDK);return}catch(err){last=err}
+  }
+  throw last||new Error('No se pudo cargar VDO.Ninja SDK.');
+}
+async function ensureQR(){
+  if(window.QRCode)return true;
+  try{
+    await loadScript('https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js',()=>!!window.QRCode,10000);
+    return true;
+  }catch(err){
+    console.warn('QR library unavailable',err);
+    return false;
+  }
+}
+function publisherUrl(){
+  const u=new URL(location.href);
+  u.search='';
+  u.hash='';
+  u.searchParams.set('vcCamera',state.streamId);
+  u.searchParams.set('vcRoom',state.room);
+  u.searchParams.set('vcKey',state.key);
+  u.searchParams.set('vcQuality','720');
+  return u.href;
+}
+async function renderQR(){
+  const box=$('vc-remote-qr'),input=$('vc-remote-link');
+  const link=publisherUrl();
+  if(input)input.value=link;
+  if(!box)return;
+  box.innerHTML='';
+  const ok=await ensureQR();
+  if(ok&&window.QRCode){
+    new QRCode(box,{text:link,width:148,height:148,correctLevel:QRCode.CorrectLevel.M});
+  }else{
+    box.innerHTML='<span>No se pudo dibujar el QR. Usa “Copiar enlace” y ábrelo en el móvil.</span>';
+  }
+}
+async function disconnectViewer(keepSession=true){
+  state.connected=false;
+  const preview=$('vc-remote-preview');
+  if(preview){try{preview.pause()}catch(_){};preview.srcObject=null}
+  if(state.stream){try{state.stream.getTracks().forEach(t=>t.stop())}catch(_){}}
+  state.stream=null;
+  try{state.sdk?.disconnect?.()}catch(_){}
+  state.sdk=null;state.viewerPromise=null;
+  setPreviewEmpty('Esperando al móvil…',false);
+  setRemoteStatus(keepSession?'DESCONECTADO':'SIN PREPARAR',keepSession?'wait':'');
+  if(!keepSession){state.room='';state.streamId='';state.key='';if($('vc-remote-link'))$('vc-remote-link').value='';if($('vc-remote-qr'))$('vc-remote-qr').innerHTML='<span>Genera una sesión para mostrar el QR.</span>'}
+}
+async function connectViewer(){
+  if(!state.room||!state.streamId||!state.key)throw new Error('Primero genera una sesión de cámara.');
+  await ensureVDOSDK();
+  await disconnectViewer(true);
+  setRemoteStatus('ESPERANDO MÓVIL','wait');
+  setPreviewEmpty('Esperando al móvil…',false);
+
+  const sdk=new VDONinjaSDK({salt:'vdo.ninja',password:state.key});
+  state.sdk=sdk;
+  const incoming=new MediaStream();
+
+  sdk.addEventListener('track',event=>{
+    const track=event?.detail?.track;
+    if(!track||track.kind!=='video')return;
+    if(!incoming.getVideoTracks().some(t=>t.id===track.id))incoming.addTrack(track);
+    state.stream=incoming;
+    state.connected=true;
+    const pv=$('vc-remote-preview');
+    if(pv){pv.srcObject=incoming;pv.muted=true;pv.play().catch(()=>{})}
+    setPreviewEmpty('',true);
+    setRemoteStatus('MÓVIL CONECTADO','on');
+    if($('live-delay-live-title'))$('live-delay-live-title').textContent='Móvil remoto';
+    track.addEventListener('ended',()=>{
+      state.connected=false;
+      setRemoteStatus('SEÑAL PERDIDA','bad');
+      setPreviewEmpty('Se ha perdido la señal del móvil.',false);
+    },{once:true});
+  });
+
+  sdk.addEventListener?.('connectionstate',e=>{
+    const s=String(e?.detail?.state||e?.detail||'');
+    if(/failed|disconnected|closed/i.test(s)&&!state.connected)setRemoteStatus('SIN SEÑAL','bad');
+  });
+
+  await sdk.connect();
+  await sdk.joinRoom({room:state.room,password:state.key});
+  state.viewerPromise=sdk.view(state.streamId,{audio:false,video:true});
+  Promise.resolve(state.viewerPromise).catch(err=>{
+    console.warn('V7.6 remote view',err);
+    if(!state.connected)setRemoteStatus('REINTENTAR','bad');
+  });
+}
+window.vcRemotePrepare=async function(reset=false){
+  if(state.preparing)return;
+  state.preparing=true;
+  try{
+    if(reset||!state.room||!state.streamId||!state.key){
+      await disconnectViewer(false);
+      state.room=randomToken('vcroom_',8);
+      state.streamId=randomToken('cam_',10);
+      state.key=randomToken('',14);
+    }
+    setRemoteStatus('PREPARANDO…','wait');
+    await renderQR();
+    const note=$('vc-remote-session-note');
+    if(note)note.textContent=`Sesión ${state.streamId.slice(-8)} · el enlace contiene una clave privada; no lo compartas públicamente.`;
+    await connectViewer();
+  }catch(err){
+    console.error('V7.6 prepare remote',err);
+    setRemoteStatus('ERROR','bad');
+    setPreviewEmpty('No se ha podido preparar la conexión remota.',false);
+    alert('No se ha podido preparar la cámara remota.\n\n'+String(err?.message||err));
+  }finally{state.preparing=false}
+};
+window.vcRemoteReconnect=async function(){
+  try{await connectViewer()}catch(err){setRemoteStatus('ERROR','bad');alert(String(err?.message||err))}
+};
+window.vcRemoteDisconnect=async function(){await disconnectViewer(true)};
+window.vcRemoteCopyLink=async function(){
+  const link=$('vc-remote-link')?.value||publisherUrl();
+  try{await navigator.clipboard.writeText(link);setRemoteStatus('ENLACE COPIADO','on')}
+  catch(_){prompt('Copia este enlace y ábrelo en el móvil:',link)}
+};
+window.vcRemoteSourceChanged=function(value){
+  state.source=value==='remote'?'remote':'local';
+  const remote=$('vc-remote-panel'),local=$('live-delay-local-camera-field');
+  remote?.classList.toggle('hidden',state.source!=='remote');
+  local?.classList.toggle('hidden',state.source==='remote');
+  if($('live-delay-live-title'))$('live-delay-live-title').textContent=state.source==='remote'?'Móvil remoto':'Cámara actual';
+  try{localStorage.setItem('volley_live_delay_source',state.source)}catch(_){}
+  if(state.source==='remote'&&!state.room)window.vcRemotePrepare(false);
+};
+window.VC_REMOTE_CAMERA={
+  getStream:()=>state.stream,
+  isConnected:()=>state.connected&&!!state.stream?.getVideoTracks?.().some(t=>t.readyState==='live'),
+  prepare:window.vcRemotePrepare,
+  disconnect:window.vcRemoteDisconnect,
+  diagnostics:()=>({version:VERSION,source:state.source,room:state.room,streamId:state.streamId,connected:state.connected,tracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]})
+};
+
+/* ---------- Fullscreen ---------- */
+async function fullscreenElement(el,video){
+  try{
+    if(document.fullscreenElement){await document.exitFullscreen();return}
+    if(el?.requestFullscreen){await el.requestFullscreen();return}
+    if(el?.webkitRequestFullscreen){el.webkitRequestFullscreen();return}
+    if(video?.webkitEnterFullscreen){video.webkitEnterFullscreen();return}
+    throw new Error('El navegador no ofrece pantalla completa para este elemento.');
+  }catch(err){console.warn('Fullscreen',err)}
+}
+window.liveDelayFullscreen=function(which='live'){
+  const id=which==='delay'?'live-delay-delayed':'live-delay-live';
+  const v=$(id),frame=v?.closest?.('.live-delay-video-frame')||v;
+  return fullscreenElement(frame,v);
+};
+window.vcRemoteFullscreenPreview=function(){
+  const v=$('vc-remote-preview'),frame=$('vc-remote-preview-frame')||v;
+  return fullscreenElement(frame,v);
+};
+
+/* ---------- Mobile publisher mode ---------- */
+function publisherParams(){
+  const q=new URLSearchParams(location.search);
+  const streamId=q.get('vcCamera')||'',room=q.get('vcRoom')||'',key=q.get('vcKey')||'',quality=q.get('vcQuality')||'720';
+  return {streamId,room,key,quality};
+}
+function qualityConfig(q){
+  if(String(q)==='1080')return {width:1920,height:1080,fps:30,bitrate:5000,resolution:'1920x1080@30'};
+  return {width:1280,height:720,fps:30,bitrate:2800,resolution:'1280x720@30'};
+}
+async function requestPublisherCamera(){
+  const cfg=qualityConfig(state.publisherQuality);
+  return navigator.mediaDevices.getUserMedia({
+    video:{
+      facingMode:{ideal:state.publisherFacing},
+      width:{ideal:cfg.width},height:{ideal:cfg.height},
+      frameRate:{ideal:cfg.fps,max:cfg.fps}
+    },
+    audio:false
+  });
+}
+function publisherState(text,kind=''){
+  const el=$('vc-publisher-state');if(!el)return;
+  el.textContent=text;el.className=`vc-publisher-state ${kind}`;
+}
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator)state.wakeLock=await navigator.wakeLock.request('screen');
+  }catch(_){}
+}
+async function releaseWakeLock(){try{await state.wakeLock?.release?.()}catch(_){}state.wakeLock=null}
+window.vcPublisherStart=async function(){
+  const p=publisherParams();
+  if(!p.streamId||!p.room||!p.key)return;
+  if(state.publisher)return;
+  try{
+    publisherState('INICIANDO…','');
+    await ensureVDOSDK();
+    state.publisherStream=await requestPublisherCamera();
+    const preview=$('vc-publisher-video');
+    if(preview){preview.srcObject=state.publisherStream;preview.muted=true;await preview.play().catch(()=>{})}
+    $('vc-publisher-empty')?.classList.add('hidden');
+
+    const cfg=qualityConfig(state.publisherQuality);
+    const sdk=new VDONinjaSDK({salt:'vdo.ninja',password:p.key});
+    state.publisher=sdk;
+    await sdk.connect();
+    await sdk.joinRoom({room:p.room,password:p.key});
+    await sdk.publish(state.publisherStream,{
+      room:p.room,streamID:p.streamId,password:p.key,label:'Volley Coach Remote Camera',
+      media:{video:{codec:'VP8',maxBitrate:cfg.bitrate,resolution:cfg.resolution}}
+    });
+    await requestWakeLock();
+    publisherState('TRANSMITIENDO','on');
+    if($('vc-publisher-start'))$('vc-publisher-start').classList.add('hidden');
+    if($('vc-publisher-stop'))$('vc-publisher-stop').classList.remove('hidden');
+  }catch(err){
+    console.error('Publisher start',err);
+    publisherState('ERROR','bad');
+    alert('No se ha podido iniciar la cámara.\n\n'+String(err?.message||err));
+    await window.vcPublisherStop(true);
+  }
+};
+window.vcPublisherStop=async function(silent=false){
+  try{state.publisher?.stopPublishing?.()}catch(_){}
+  try{await state.publisher?.disconnect?.()}catch(_){}
+  state.publisher=null;
+  try{state.publisherStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  state.publisherStream=null;
+  const v=$('vc-publisher-video');if(v){try{v.pause()}catch(_){};v.srcObject=null}
+  $('vc-publisher-empty')?.classList.remove('hidden');
+  await releaseWakeLock();
+  publisherState('DETENIDA','');
+  $('vc-publisher-start')?.classList.remove('hidden');
+  $('vc-publisher-stop')?.classList.add('hidden');
+  if(!silent)publisherState('DETENIDA','');
+};
+window.vcPublisherSwitchCamera=async function(){
+  state.publisherFacing=state.publisherFacing==='environment'?'user':'environment';
+  const btn=$('vc-publisher-switch');
+  if(btn)btn.textContent=state.publisherFacing==='environment'?'Usar cámara frontal':'Usar cámara trasera';
+  if(!state.publisher||!state.publisherStream)return;
+  try{
+    const oldTrack=state.publisherStream.getVideoTracks()[0];
+    const next=await requestPublisherCamera();
+    const newTrack=next.getVideoTracks()[0];
+    if(state.publisher.replaceTrack&&oldTrack&&newTrack)await state.publisher.replaceTrack(oldTrack,newTrack);
+    state.publisherStream.removeTrack(oldTrack);
+    state.publisherStream.addTrack(newTrack);
+    oldTrack?.stop?.();
+    const v=$('vc-publisher-video');if(v)v.srcObject=state.publisherStream;
+    next.getTracks().filter(t=>t!==newTrack).forEach(t=>t.stop());
+  }catch(err){
+    console.error('Switch camera',err);
+    alert('No se ha podido cambiar de cámara. Puedes detener y volver a iniciar la transmisión.');
+  }
+};
+window.vcPublisherQualityChanged=async function(value){
+  state.publisherQuality=value==='1080'?'1080':'720';
+  if(!state.publisher)return;
+  try{
+    const cfg=qualityConfig(state.publisherQuality);
+    await state.publisher.updatePublisherMedia?.({media:{video:{maxBitrate:cfg.bitrate,resolution:cfg.resolution}}});
+  }catch(err){console.warn('Quality update',err)}
+};
+window.vcPublisherFullscreen=function(){
+  const overlay=$('vc-publisher-overlay'),v=$('vc-publisher-video');
+  return fullscreenElement(overlay,v);
+};
+function initPublisherMode(){
+  const p=publisherParams();
+  if(!p.streamId||!p.room||!p.key)return false;
+  state.publisherQuality=p.quality==='1080'?'1080':'720';
+  document.body.classList.add('vc-remote-publisher-mode');
+  const el=document.createElement('div');
+  el.id='vc-publisher-overlay';el.className='vc-publisher-overlay';
+  el.innerHTML=`<div class="vc-publisher-top"><div><div class="brand">VOLLEY COACH · CÁMARA REMOTA</div><small>Envía esta cámara al ordenador mediante WebRTC</small></div><span id="vc-publisher-state" class="vc-publisher-state">DETENIDA</span></div>
+  <div class="vc-publisher-video"><video id="vc-publisher-video" autoplay muted playsinline></video><div id="vc-publisher-empty" class="vc-publisher-empty">Pulsa “Iniciar transmisión” y permite el acceso a la cámara.<br>Para menor latencia, mantén esta página visible.</div></div>
+  <div class="vc-publisher-bottom">
+    <label>Calidad<select id="vc-publisher-quality" onchange="vcPublisherQualityChanged(this.value)"><option value="720">720p · 30 fps</option><option value="1080">1080p · 30 fps</option></select></label>
+    <div class="vc-publisher-buttons">
+      <button id="vc-publisher-start" class="start" type="button" onclick="vcPublisherStart()">Iniciar transmisión</button>
+      <button id="vc-publisher-stop" class="stop hidden" type="button" onclick="vcPublisherStop()">Detener</button>
+      <button id="vc-publisher-switch" type="button" onclick="vcPublisherSwitchCamera()">Usar cámara frontal</button>
+      <button type="button" onclick="vcPublisherFullscreen()">⛶ Pantalla completa</button>
+    </div>
+    <div class="vc-publisher-note">No cierres ni bloquees esta pestaña durante el partido. La transmisión utiliza WebRTC; Volley Coach no guarda automáticamente el vídeo remoto en un servidor.</div>
+  </div>`;
+  document.body.appendChild(el);
+  $('vc-publisher-quality').value=state.publisherQuality;
+  return true;
+}
+
+/* Restore preferred source on desktop. */
+function initDesktop(){
+  let source='local';
+  try{source=localStorage.getItem('volley_live_delay_source')||'local'}catch(_){}
+  const sel=$('live-delay-source');if(sel){sel.value=source==='remote'?'remote':'local';vcRemoteSourceChanged(sel.value)}
+}
+function boot(){
+  if(initPublisherMode())return;
+  initDesktop();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState==='visible'&&state.publisher&&!state.wakeLock)await requestWakeLock();
+});
+window.addEventListener('beforeunload',()=>{
+  try{state.sdk?.disconnect?.()}catch(_){}
+  try{state.publisher?.disconnect?.()}catch(_){}
+});
+
+/* Keyboard fullscreen inside Live Delay: F = delayed view, Shift+F = live. */
+document.addEventListener('keydown',e=>{
+  const modal=$('live-delay-modal');
+  const scoutingDock=$('scout-v740-dock');
+  const visible=modal?.classList.contains('open')||(scoutingDock&&!scoutingDock.classList.contains('hidden'));
+  if(!visible)return;
+  const tag=String(e.target?.tagName||'').toLowerCase();if(['input','select','textarea'].includes(tag))return;
+  if(e.key.toLowerCase()==='f'){e.preventDefault();liveDelayFullscreen(e.shiftKey?'live':'delay')}
+});
+
+window.vcRemoteCameraDiagnostics=function(){
+  return {
+    version:VERSION,
+    publisherMode:!!publisherParams().streamId,
+    source:state.source,
+    remoteConnected:state.connected,
+    room:state.room||null,
+    streamId:state.streamId||null,
+    sdkLoaded:!!window.VDONinjaSDK,
+    qrLoaded:!!window.QRCode,
+    fullscreen:!!document.fullscreenEnabled,
+    remoteTracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]
   };
 };
 })();
