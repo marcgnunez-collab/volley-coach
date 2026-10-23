@@ -1710,15 +1710,15 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 
           <section class="v800-control-card">
             <div class="v800-point-row">
-              <button id="v855-point-ours" class="v800-point ours" onclick="v855AwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
-              <button id="v855-undo" class="v800-undo" onclick="v855UndoRally()">↶<span>Deshacer</span></button>
-              <button id="v855-point-opponent" class="v800-point rival" onclick="v855AwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
+              <button id="v855-point-ours" class="v800-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
+              <button id="v855-undo" class="v800-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
+              <button id="v855-point-opponent" class="v800-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
             </div>
             <div id="v855-match-status" class="v855-match-status">Modo Partido preparado.</div>
 
             <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · mismo motor que Scouting completo" onkeydown="if(event.key==='Enter'){event.preventDefault();v855AddCode()}">
-              <button id="v855-add-code-btn" class="primary" onclick="v855AddCode()">Añadir</button>
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · mismo motor que Scouting completo" onkeydown="if(event.key==='Enter'){event.preventDefault();v856AddCode()}">
+              <button id="v856-add-code-btn" class="primary" onclick="v856AddCode()">Añadir</button>
               <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
             <div id="v852-code-status" class="v852-code-status">Mismo motor de códigos que Scouting completo.</div>
@@ -4957,7 +4957,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.5', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.6', {
         updateViaCache: 'none'
       });
 
@@ -19982,6 +19982,390 @@ window.v855Diagnostics=()=>({
   save:typeof scoutSave,
   award:typeof window.v855AwardPoint,
   undo:typeof window.v855UndoRally
+});
+})();
+</script>
+
+
+
+<style id="v856-unified-scout-core-style">
+/* V8.5.6 · tipografía auxiliar más legible */
+#scout-match-mode button{font-size:max(10.5px, .72rem)}
+#scout-match-mode label>span,
+#scout-match-mode small,
+#scout-match-mode .pro-kicker{font-size:max(9px, .62rem)}
+#scout-match-mode select,
+#scout-match-mode input,
+#scout-match-mode textarea{font-size:max(11px, .74rem)}
+
+.v850-modal-head .pro-kicker{font-size:10px!important}
+.v850-modal-head p{font-size:11px!important}
+.v850-audit-head span{font-size:9.5px!important}
+.v850-audit-section h3{font-size:13px!important}
+.v850-six span{font-size:9.5px!important}
+.v850-six b{font-size:11.5px!important}
+.v850-six small{font-size:10px!important}
+.v850-audit-item{font-size:10.5px!important}
+.v850-bench span{font-size:10px!important}
+.v850-sub-history time{font-size:9.5px!important}
+.v850-sub-history span{font-size:10px!important}
+.v850-modal-foot>span{font-size:10px!important}
+
+.v850-note-form label span{font-size:9.5px!important}
+.v850-note-form input,
+.v850-note-form select,
+.v850-note-form textarea{font-size:11px!important}
+.v850-note-context{font-size:10px!important}
+#v850-note-link-status{font-size:10px!important}
+
+/* Chuleta en partido: evitar texto microscópico */
+.v841-cheat-head p{font-size:10px!important}
+.v841-cheat-tabs button{font-size:9px!important}
+.v841-cheat-section h3{font-size:13px!important}
+.v841-rule code{font-size:10px!important}
+.v841-rule span{font-size:9.5px!important}
+.v841-grid b{font-size:10px!important}
+.v841-grid span{font-size:9.5px!important}
+.v841-example code{font-size:10px!important}
+.v841-example span{font-size:9.5px!important}
+.v841-example button{font-size:9px!important}
+.v841-tip,.v841-order{font-size:9.5px!important}
+.v841-rally-seq code{font-size:10px!important}
+.v841-rally-seq span{font-size:9.5px!important}
+.v841-cheat-foot span{font-size:9px!important}
+
+/* Editor profesional */
+.scout-v840-edit-row input{font-size:11px!important}
+.scout-v840-edit-meta span{font-size:9px!important}
+.scout-v840-edit-tools button{font-size:9px!important}
+.scout-v840-editor-help{font-size:9.5px!important}
+.scout-v840-add input{font-size:11px!important}
+.scout-v840-codeguide code{font-size:10px!important}
+.scout-v840-codeguide span{font-size:9px!important}
+</style>
+
+
+<script id="v856-unified-scout-core">
+(()=>{
+'use strict';
+const VERSION='8.5.6';
+const $u=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+let pointBusy=false,undoBusy=false,codeBusy=false;
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function active(){
+  try{if(typeof scoutActive==='function'){const m=scoutActive();if(m)return m}}catch(_){}
+  try{return bridge()?.getActive?.()||null}catch(_){return null}
+}
+function selectedMatch(){
+  const id=Number($u('v800-match-select')?.value)||0;
+  let m=active();
+  if(id&&Number(m?.id)!==id){
+    try{bridge()?.activateMatch?.(id)}catch(_){}
+    m=active();
+  }
+  return m;
+}
+function setOf(m){
+  try{if(typeof scoutSet==='function')return scoutSet(m)}catch(_){}
+  try{return bridge()?.getCurrentSet?.(m)||null}catch(_){return null}
+}
+function matchModeStatus(msg,type=''){
+  const el=$u('v855-match-status');if(!el)return;
+  el.textContent=msg;el.className='v855-match-status'+(type?' '+type:'');
+}
+function codeStatus(msg,type=''){
+  const el=$u('v852-code-status');if(!el)return;
+  el.textContent=msg;el.className='v852-code-status'+(type?' '+type:'');
+}
+function liveCount(m){return arr(m?.liveRally?.actions).length}
+function rallyCount(s){return arr(s?.rallies).length}
+function scoreOf(s){return {us:Number(s?.scoreUs)||0,op:Number(s?.scoreOpponent)||0}}
+function renderAll(){
+  try{if(typeof scoutRender==='function')scoutRender()}catch(_){}
+  try{window.v800Render?.()}catch(_){}
+  try{
+    const m=selectedMatch()||active(),s=setOf(m);
+    window.v855RenderMatchState?.(m,s);
+  }catch(_){}
+}
+function stampMatchVideo(m,before){
+  const aa=arr(m?.liveRally?.actions);
+  if(aa.length<=before)return;
+  const a=aa[aa.length-1],media=window.VC_MATCH_MODE_MEDIA;
+  try{
+    if(media?.isReview?.()&&media?.loaded?.()){
+      a.videoTime=Number(media.current?.())||0;
+      a.videoSource=String(media.source?.()||'video');
+      try{if(typeof scoutSave==='function')scoutSave(false);else bridge()?.save?.()}catch(_){}
+      return;
+    }
+  }catch(_){}
+  try{
+    const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+    if(d?.active){
+      a.videoTime=Math.max(0,Number(d.elapsedMs||0)/1000);
+      a.videoSource='recording';
+      try{if(typeof scoutSave==='function')scoutSave(false);else bridge()?.save?.()}catch(_){}
+    }
+  }catch(_){}
+}
+
+/* ------------------------------------------------------------------
+   Remove anonymous listeners accumulated in V8.5.2 / V8.5.5.
+   cloneNode keeps markup/classes but drops addEventListener handlers.
+   ------------------------------------------------------------------ */
+function cleanControl(id,onclickCode,onkeydownCode=null){
+  const old=$u(id);if(!old)return null;
+  const fresh=old.cloneNode(true);
+  if('value' in old)fresh.value=old.value;
+  if(onclickCode)fresh.setAttribute('onclick',onclickCode);
+  else fresh.removeAttribute('onclick');
+  if(onkeydownCode)fresh.setAttribute('onkeydown',onkeydownCode);
+  else if(fresh.tagName==='INPUT')fresh.removeAttribute('onkeydown');
+  old.replaceWith(fresh);
+  return fresh;
+}
+cleanControl('v855-point-ours',"scoutAwardPoint('ours')");
+cleanControl('v855-point-opponent',"scoutAwardPoint('opponent')");
+cleanControl('v855-undo',"scoutUndoRally()");
+cleanControl('v856-add-code-btn',"v856AddCode()");
+cleanControl('v800-code',null,"if(event.key==='Enter'){event.preventDefault();v856AddCode()}");
+
+/* Capture the mature point/undo chain after all previous video, rotation,
+   backup, event and post-match wrappers are installed. */
+const completeAward=window.scoutAwardPoint;
+const completeUndo=window.scoutUndoRally;
+const originalPointValidator=window.scoutV680ValidateBeforePoint;
+
+/* ================================================================
+   CANONICAL CODE ENGINE
+   Both Scouting completo and Modo Partido call this exact function.
+   It uses the FINAL parser and FINAL scoutPushAction chain.
+   ================================================================ */
+function registerRawCode(raw,m){
+  raw=String(raw||'');
+  if(typeof scoutV690PreprocessCode==='function')raw=scoutV690PreprocessCode(raw);
+  raw=String(raw).trim();
+  if(!raw)return {ok:false,error:'Código vacío.'};
+  if(!m)return {ok:false,error:'No hay un scouting activo.'};
+  if(typeof scoutV6108ParseRaw!=='function'||typeof scoutPushAction!=='function'){
+    return {ok:false,error:'El motor de códigos no está disponible.'};
+  }
+  const before=liveCount(m);
+  const parsed=scoutV6108ParseRaw(raw,m,null);
+  if(parsed?.error||!parsed?.action)return {ok:false,error:parsed?.error||'Código no reconocido.',before,after:before};
+  const pushed=scoutPushAction(parsed.action);
+  const mm=selectedMatch()||active()||m,after=liveCount(mm);
+  if(after!==before+1)return {ok:false,error:'La acción no se ha añadido al rally.',before,after,pushed};
+  return {ok:true,before,after,match:mm,action:arr(mm.liveRally?.actions).slice(-1)[0],raw:String(raw).toUpperCase().replace(/\s+/g,'')};
+}
+
+window.scoutAddCode=function(){
+  const input=$u('scout-code-input'),m=active();
+  const result=registerRawCode(input?.value||'',m);
+  if(!result.ok){
+    if(result.error!=='Código vacío.')alert(result.error+'\n\nAbre “Chuleta” para revisar la sintaxis.');
+    input?.focus();return false;
+  }
+  if(input){
+    input.value='';
+    try{
+      if(typeof scoutV690Settings!=='function'||scoutV690Settings().autoFocus!==false)input.focus();
+    }catch(_){input.focus()}
+  }
+  return true;
+};
+
+window.v856AddCode=function(){
+  if(codeBusy)return false;
+  codeBusy=true;
+  try{
+    const input=$u('v800-code'),raw=String(input?.value||'');
+    if(!String(raw).trim()){codeStatus('Escribe un código o usa la chuleta.','wait');input?.focus();return false}
+    const m=selectedMatch()||active();
+    const result=registerRawCode(raw,m);
+    if(!result.ok){
+      codeStatus('✕ '+result.error,'bad');
+      input?.focus();renderAll();return false;
+    }
+    stampMatchVideo(result.match,result.before);
+    if(input)input.value='';
+    codeStatus(`✓ ${result.raw} guardado · rally actual: ${result.after} acción${result.after===1?'':'es'}.`,'ok');
+    matchModeStatus(`Acción guardada: ${result.raw}`,'ok');
+    renderAll();input?.focus();return true;
+  }finally{
+    setTimeout(()=>{codeBusy=false},80);
+  }
+};
+
+/* Preserve aliases used by presets/older Match Mode revisions. */
+window.v800AddCode=window.v856AddCode;
+window.v852AddCode=window.v856AddCode;
+window.v853AddCode=window.v856AddCode;
+window.v855AddCode=window.v856AddCode;
+
+/* ================================================================
+   UNIFIED POINT ENGINE
+   Strict lineup validation becomes a warning, not a scoring blocker.
+   ================================================================ */
+function lineupQuality(m){
+  const pos=['p1','p2','p3','p4','p5','p6'];
+  const ids=pos.map(p=>Number(m?.baseLineup?.ours?.[p]||m?.lineup?.ours?.[p])||0).filter(Boolean);
+  if(ids.length!==6)return 'Alineación incompleta: el punto se guarda, pero conviene configurar P1–P6.';
+  if(new Set(ids).size!==6)return 'Hay un jugador repetido en P1–P6: el punto se guarda, pero revisa la alineación.';
+  return '';
+}
+
+function directFallbackPoint(winner,m,s){
+  try{
+    if(typeof scoutEnsureRallyStart==='function')scoutEnsureRallyStart(m);
+    const before=m.liveRally?.startSnapshot ||
+      (typeof scoutCurrentRallySnapshot==='function'?scoutCurrentRallySnapshot(m):{
+        servingBefore:m.servingTeam,rotationBefore:m.rotationNo,opponentRotationBefore:m.opponentRotationNo,
+        lineupBefore:structuredClone(m.lineup||{}),scoreBefore:{us:Number(s.scoreUs)||0,opponent:Number(s.scoreOpponent)||0}
+      });
+    const clone=v=>{try{return structuredClone(v)}catch(_){return JSON.parse(JSON.stringify(v??null))}};
+    const oldUs=Number(s.scoreUs)||0,oldOp=Number(s.scoreOpponent)||0;
+    if(winner==='ours')s.scoreUs=oldUs+1;else s.scoreOpponent=oldOp+1;
+    const rally={
+      id:Number(m.liveRally?.id)||Date.now(),setNumber:Number(s.number)||Number(m.currentSet)||1,
+      servingBefore:before.servingBefore==='opponent'?'opponent':'ours',
+      rotationBefore:Number(before.rotationBefore)||Number(m.rotationNo)||1,
+      opponentRotationBefore:Number(before.opponentRotationBefore)||Number(m.opponentRotationNo)||1,
+      lineupBefore:clone(before.lineupBefore||m.lineup),baseLineupBefore:clone(m.baseLineup||null),
+      liberoBefore:clone(m.libero||null),lineupRolesBefore:clone(m.lineupRoles||null),
+      scoreBefore:clone(before.scoreBefore||{us:oldUs,opponent:oldOp}),
+      scoreAfter:{us:Number(s.scoreUs)||0,opponent:Number(s.scoreOpponent)||0},
+      winner:winner==='opponent'?'opponent':'ours',actions:clone(arr(m.liveRally?.actions)),
+      startedAt:m.liveRally?.startedAt||new Date().toISOString(),endedAt:new Date().toISOString(),
+      scoutStartMs:Number(m.liveRally?.scoutStartMs)||0,
+      scoutEndMs:typeof scoutElapsed==='function'?Number(scoutElapsed(m))||0:0
+    };
+    ['liveVideoSessionId','liveVideoStart','liveVideoEnd','liveVideoLinkedAt'].forEach(k=>{if(m.liveRally?.[k]!=null)rally[k]=m.liveRally[k]});
+    if(!Array.isArray(s.rallies))s.rallies=[];
+    s.rallies.push(rally);
+    if(winner==='ours'){
+      if(before.servingBefore==='opponent'){
+        try{if(typeof vcRotateBase==='function')vcRotateBase(m,1)}catch(_){}
+        m.rotationNo=typeof scoutV6107NextRotation==='function'?scoutV6107NextRotation(m.rotationNo,1):((Number(m.rotationNo||1)+4)%6)+1;
+      }
+      m.servingTeam='ours';
+    }else{
+      if(before.servingBefore==='ours'){
+        try{
+          if(typeof scoutRotateTeamLineup==='function'){
+            m.lineup=scoutRotateTeamLineup(m.lineup,'opponent',1);
+            if(m.baseLineup?.opponent)m.baseLineup.opponent=clone(m.lineup.opponent);
+          }
+        }catch(_){}
+        m.opponentRotationNo=typeof scoutV6107NextRotation==='function'?scoutV6107NextRotation(m.opponentRotationNo,1):((Number(m.opponentRotationNo||1)+4)%6)+1;
+      }
+      m.servingTeam='opponent';
+    }
+    try{if(typeof vcApplyAutoLibero==='function')vcApplyAutoLibero(m,true)}catch(_){}
+    try{
+      if(typeof scoutResetLiveRally==='function')scoutResetLiveRally(m);
+      else m.liveRally={id:Date.now(),actions:[],startedAt:new Date().toISOString(),scoutStartMs:0,startSnapshot:null};
+    }catch(_){}
+    try{
+      if(typeof scoutSetHasWinner==='function'&&scoutSetHasWinner(s)){
+        s.finished=true;s.winner=Number(s.scoreUs)>Number(s.scoreOpponent)?'ours':'opponent';s.endedAt=new Date().toISOString();
+      }
+    }catch(_){}
+    m.status='live';m.endedAt=null;m.updatedAt=new Date().toISOString();
+    try{if(typeof scoutSave==='function')scoutSave(false);else bridge()?.save?.()}catch(_){}
+    return true;
+  }catch(err){console.error('V8.5.6 fallback point',err);return false}
+}
+
+window.v856AwardPoint=function(winner){
+  winner=winner==='opponent'?'opponent':'ours';
+  if(pointBusy)return false;
+  pointBusy=true;
+  try{
+    const m=selectedMatch()||active(),s=setOf(m);
+    if(!m||!s){matchModeStatus('No hay un scouting activo.','bad');return false}
+    if(m.status==='finished'||s.finished){matchModeStatus('El set o scouting está cerrado.','warn');return false}
+
+    const beforeScore=scoreOf(s),beforeRallies=rallyCount(s),quality=lineupQuality(m);
+    const savedValidator=window.scoutV680ValidateBeforePoint;
+    window.scoutV680ValidateBeforePoint=()=>true;
+    let thrown=null;
+    try{
+      if(typeof completeAward==='function')completeAward.call(window,winner);
+    }catch(err){thrown=err}
+    finally{window.scoutV680ValidateBeforePoint=savedValidator||originalPointValidator}
+
+    let mm=selectedMatch()||active()||m,ss=setOf(mm)||s;
+    let afterScore=scoreOf(ss),afterRallies=rallyCount(ss);
+    const expectedUs=beforeScore.us+(winner==='ours'?1:0),expectedOp=beforeScore.op+(winner==='opponent'?1:0);
+    let correct=afterScore.us===expectedUs&&afterScore.op===expectedOp&&afterRallies===beforeRallies+1;
+
+    if(!correct){
+      if(afterRallies>beforeRallies||afterScore.us!==beforeScore.us||afterScore.op!==beforeScore.op){
+        try{
+          window.scoutV680ValidateBeforePoint=()=>true;
+          completeUndo?.call(window);
+        }catch(_){}
+        finally{window.scoutV680ValidateBeforePoint=savedValidator||originalPointValidator}
+        mm=selectedMatch()||active()||m;ss=setOf(mm)||s;
+      }
+      correct=directFallbackPoint(winner,mm,ss);
+      mm=selectedMatch()||active()||mm;ss=setOf(mm)||ss;
+      afterScore=scoreOf(ss);afterRallies=rallyCount(ss);
+      correct=correct&&afterScore.us===expectedUs&&afterScore.op===expectedOp&&afterRallies===beforeRallies+1;
+    }
+
+    if(!correct){
+      matchModeStatus('No se ha podido cerrar el rally. El estado se ha protegido para evitar sumar puntos dobles.','bad');
+      if(thrown)console.error(thrown);
+      renderAll();return false;
+    }
+    matchModeStatus(`✓ Punto guardado ${afterScore.us}-${afterScore.op} · rally ${afterRallies}${quality?' · '+quality:''}`,quality?'warn':'ok');
+    renderAll();return true;
+  }finally{setTimeout(()=>{pointBusy=false},120)}
+};
+
+window.v856UndoRally=function(){
+  if(undoBusy)return false;
+  undoBusy=true;
+  try{
+    const m=selectedMatch()||active(),s=setOf(m);
+    if(!m||!s){matchModeStatus('No hay un scouting activo.','bad');return false}
+    const before=rallyCount(s),beforeScore=scoreOf(s);
+    if(!before){matchModeStatus('No hay rallies cerrados para deshacer.','warn');return false}
+    let err=null;
+    try{if(typeof completeUndo==='function')completeUndo.call(window)}catch(e){err=e}
+    const mm=selectedMatch()||active()||m,ss=setOf(mm)||s,after=rallyCount(ss),score=scoreOf(ss);
+    if(after!==before-1){
+      matchModeStatus('No se ha podido deshacer el rally.','bad');
+      if(err)console.error(err);
+      renderAll();return false;
+    }
+    matchModeStatus(`↶ Rally deshecho · ${beforeScore.us}-${beforeScore.op} → ${score.us}-${score.op}`,'ok');
+    renderAll();return true;
+  }finally{setTimeout(()=>{undoBusy=false},120)}
+};
+
+/* BOTH interfaces now use the same final point/undo core. */
+window.scoutAwardPoint=window.v856AwardPoint;
+window.scoutUndoRally=window.v856UndoRally;
+
+window.v856Diagnostics=()=>({
+  version:VERSION,
+  activeId:(selectedMatch()||active())?.id||null,
+  canonicalParser:typeof scoutV6108ParseRaw,
+  canonicalPush:typeof scoutPushAction,
+  canonicalScoutAdd:window.scoutAddCode===window.scoutAddCode,
+  completeAward:typeof completeAward,
+  completeUndo:typeof completeUndo,
+  finalAward:window.scoutAwardPoint===window.v856AwardPoint,
+  finalUndo:window.scoutUndoRally===window.v856UndoRally,
+  matchPointButtons:[!!$u('v855-point-ours'),!!$u('v855-point-opponent')],
+  matchCodeInput:!!$u('v800-code'),
+  duplicateListenersRemoved:true
 });
 })();
 </script>
