@@ -1651,6 +1651,8 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
         <button id="v851-video-note-btn" class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
         <button id="v853-rally-editor-btn" class="ghost" onclick="v857OpenRallyEditor()">✎ Editar rallies</button>
+        <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
+        <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
         <button class="ghost" onclick="v841OpenCheatSheet()">⌨ Chuleta códigos</button>
         <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
@@ -1717,7 +1719,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             <div id="v855-match-status" class="v855-match-status">Modo Partido preparado.</div>
 
             <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · mismo motor que Scouting completo" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 3E+.2B>4C:Z4 · 12A#.4B>5D*DL" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
               <button id="v857-add-code-btn" class="primary" onclick="v857AddCode()">Añadir</button>
               <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
@@ -1859,7 +1861,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -1959,16 +1961,18 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         </section>
         <section class="scout-panel scout-console-panel">
           <div class="scout-panel-head"><div><span class="pro-kicker">CONSOLA DE SCOUT</span><h3>Registrar acción</h3></div><div class="scout-console-tools"><span class="scout-hint">Enter para guardar</span><button class="ghost" onclick="scoutV6100OpenCourt()">⌖ Pista</button><button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button></div></div>
-          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 7R#.6 · 6D+.5 · 4S+.1&gt;5"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
-          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. En recepción/defensa puedes añadir solo la zona: <b>7R#.6</b> / <b>6D+.5</b>. Para trayectoria completa usa <b>.origen&gt;destino</b>. Los sufijos <b>~ : * ^ @</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
-          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4&gt;1</span><i>Rival · dorsal · fundamento · valoración · trayectoria</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6</code> recepción perfecta #7 en Z6 · <code>6D+.5</code> defensa positiva #6 en Z5 · <code>4S+.1&gt;5</code> saque positivo #4 de Z1 a Z5 · <code>12A#.4&gt;5</code> ataque punto de Z4 a Z5 · <code>3E+:Z1</code> colocación a Z1 · <code>3E+:Z6</code> colocación a Z6 · <code>12A#.4&gt;5*DL</code> ataque diagonal larga · <code>7R#.6~JF</code> recepción perfecta en Z6 ante flotante en salto · <code>4B#.3@2&amp;12</code> bloqueo doble punto en Z3 sobre #12 · <code>R7R-.5</code> recepción negativa del rival #7 en Z5.</div></details>
+          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 7R#.6C · 3E+.2B&gt;4C · 12A#.4B&gt;5D"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
+          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. Las zonas admiten subzona opcional <b>A–D</b>: <b>7R#.6C</b>, <b>3E+.2B&gt;4C</b>, <b>12A#.4B&gt;5D</b>. Sin letra sigue funcionando como antes: <b>.4&gt;5</b>. Los sufijos <b>~ : * ^ @ &amp;</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
+          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4B&gt;1C</span><i>Rival · dorsal · fundamento · valoración · zona/subzona</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6C</code> recepción perfecta #7 en Z6C · <code>6D+.5A</code> defensa positiva #6 en Z5A · <code>4S+.1B&gt;5D</code> saque de Z1B a Z5D · <code>3E+.2B&gt;4C:Z4^K1</code> colocación desde 2B hacia 4C · <code>12A#.4B&gt;5D:Z4*DL^K1@2</code> ataque preciso 4B→5D · <code>4B#.3C@2&amp;12</code> bloqueo doble punto en Z3C sobre #12. Todos los códigos antiguos sin A–D siguen siendo válidos.</div></details>
           <div class="scout-action-grid">
             <label><span>Equipo</span><select id="scout-action-team" onchange="scoutRefreshActionPlayers()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
             <label><span>Jugador</span><select id="scout-action-player"></select></label>
             <label><span>Fundamento</span><select id="scout-action-skill" onchange="scoutUpdateAdvancedFields()"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label>
             <label><span>Valoración</span><select id="scout-action-eval"><option>#</option><option>+</option><option selected>!</option><option>-</option><option>/</option><option>=</option></select></label>
             <label id="scout-action-start-wrap"><span id="scout-action-start-label">Zona origen</span><select id="scout-action-start"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
+            <label id="scout-action-start-sub-wrap"><span id="scout-action-start-sub-label">Subzona origen</span><select id="scout-action-start-sub"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label>
             <label id="scout-action-end-wrap"><span id="scout-action-end-label">Zona destino</span><select id="scout-action-end"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
+            <label id="scout-action-end-sub-wrap"><span id="scout-action-end-sub-label">Subzona destino</span><select id="scout-action-end-sub"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label>
           </div>
           <div id="scout-advanced-fields" class="scout-advanced-fields">
             <div class="scout-advanced-head"><div><span class="pro-kicker">DETALLE TÁCTICO</span><strong id="scout-advanced-title">Saque</strong></div><span id="scout-advanced-context" class="scout-advanced-context">Completa solo lo que conozcas</span></div>
@@ -1988,7 +1992,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
       <div class="scout-bottom-grid">
         <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">SECUENCIA</span><h3>Rallies del set</h3></div><span id="scout-rally-count" class="small">0 rallies</span></div><div id="scout-rally-list" class="scout-rally-list"></div></section>
-        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
+        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div><div class="scout-v861-set-actions"><button class="ghost" onclick="scoutV861OpenFinishSet()">Finalizar set</button><button class="ghost" onclick="scoutV861OpenFinalResult()">Resultado final</button></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
         <section class="scout-panel" style="grid-column:1/-1"><div class="scout-panel-head scout-v6100-timeline-head"><div><span class="pro-kicker">MATCH TIMELINE</span><h3>Línea temporal del partido</h3></div><select id="scout-v6100-timeline-filter" onchange="scoutV6100RenderTimeline()"><option value="all">Todo</option><option value="rally">Rallies</option><option value="event">Eventos</option><option value="sub">Cambios / líbero</option></select></div><div id="scout-v6100-timeline" class="scout-v6100-timeline"></div></section>
       </div>
     </div>
@@ -4957,7 +4961,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.7', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.6.1', {
         updateViaCache: 'none'
       });
 
@@ -7405,6 +7409,54 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
     <div class="player-form-actions"><button class="ghost" onclick="scoutCloseNewMatch()">Cancelar</button><button class="primary" onclick="scoutCreateMatch()">Crear y configurar alineación</button></div>
   </div>
 </div>
+
+<div id="scout-v861-finish-set-modal" class="pro-modal" onclick="if(event.target===this)scoutV861CloseFinishSet()">
+  <div class="pro-modal-card scout-v861-result-card">
+    <div class="pro-modal-head">
+      <div><span class="pro-kicker">CIERRE MANUAL DE SET</span><h2 id="scout-v861-set-title">Finalizar set</h2><p>Corrige el marcador si te has saltado algún punto. No se crean rallies ni acciones ficticias.</p></div>
+      <button class="modal-close" onclick="scoutV861CloseFinishSet()">×</button>
+    </div>
+    <div id="scout-v861-set-warning" class="scout-v861-notice"></div>
+    <div class="scout-v861-score-grid">
+      <label><span id="scout-v861-set-us-label">Nuestro equipo</span><input id="scout-v861-set-us" type="number" min="0" max="99" inputmode="numeric"></label>
+      <div class="scout-v861-score-sep">–</div>
+      <label><span id="scout-v861-set-op-label">Rival</span><input id="scout-v861-set-op" type="number" min="0" max="99" inputmode="numeric"></label>
+    </div>
+    <div class="scout-v861-info">
+      <strong>Qué hará Volley Coach</strong>
+      <span>Guardará este marcador como resultado final del set y marcará quién lo ganó. Los rallies ya registrados se conservan exactamente como están.</span>
+    </div>
+    <div class="player-form-actions">
+      <button class="ghost" onclick="scoutV861CloseFinishSet()">Cancelar</button>
+      <button class="success" onclick="scoutV861FinishSet()">Finalizar set</button>
+    </div>
+  </div>
+</div>
+
+<div id="scout-v861-final-result-modal" class="pro-modal" onclick="if(event.target===this)scoutV861CloseFinalResult()">
+  <div class="pro-modal-card scout-v861-result-card">
+    <div class="pro-modal-head">
+      <div><span class="pro-kicker">RESULTADO FINAL</span><h2 id="scout-v861-result-title">Resultado del partido</h2><p>Introduce el resultado final en sets. No se inventarán rallies para completar lo que no hayas scoutado.</p></div>
+      <button class="modal-close" onclick="scoutV861CloseFinalResult()">×</button>
+    </div>
+    <div id="scout-v861-result-recorded" class="scout-v861-recorded"></div>
+    <div class="scout-v861-score-grid scout-v861-match-score">
+      <label><span id="scout-v861-result-us-label">Nuestro equipo</span><input id="scout-v861-result-us" type="number" min="0" max="5" inputmode="numeric"></label>
+      <div class="scout-v861-score-sep">–</div>
+      <label><span id="scout-v861-result-op-label">Rival</span><input id="scout-v861-result-op" type="number" min="0" max="5" inputmode="numeric"></label>
+    </div>
+    <div class="scout-v861-info">
+      <strong>Resultado oficial ≠ estadísticas inventadas</strong>
+      <span>El resultado en sets se utilizará en el resumen, PDFs y competición vinculada. Las estadísticas técnicas seguirán usando únicamente los rallies y acciones realmente registrados.</span>
+    </div>
+    <div class="player-form-actions scout-v861-result-actions">
+      <button class="ghost" onclick="scoutV861CloseFinalResult()">Cancelar</button>
+      <button class="ghost" onclick="scoutV861SaveFinalResult(false)">Guardar resultado</button>
+      <button class="success" onclick="scoutV861SaveFinalResult(true)">Guardar y finalizar scouting</button>
+    </div>
+  </div>
+</div>
+
 <div id="scout-lineup-modal" class="pro-modal" onclick="if(event.target===this)scoutCloseLineup()">
   <div class="pro-modal-card scout-lineup-modal-card">
     <div class="pro-modal-head"><div><span class="pro-kicker">ALINEACIÓN</span><h2>Seis jugadores en pista</h2><p>La fotografía de esta alineación se guardará en cada rally para poder analizar posteriormente cada rotación.</p></div><button class="modal-close" onclick="scoutCloseLineup()">×</button></div>
@@ -9711,7 +9763,7 @@ window.scoutV830RenderReception=function(){
   let rows=scoutActionRows(m,false).filter(a=>a.team===team&&a.skill==='R').map(a=>({...a,_serve:v830ReceptionServeType(m,a),_source:v830ReceptionSourceZone(m,a),_contact:String(a.contactZone||a.endZone||a.startZone||'')}));
   if(player)rows=rows.filter(a=>scoutPlayerKey(a)===player);
   if(serve)rows=rows.filter(a=>a._serve===serve);
-  if(zone)rows=rows.filter(a=>a._contact===zone);
+  if(zone)rows=rows.filter(a=>zone.length===1?String(a._contact||'').startsWith(zone):String(a._contact||'')===zone);
   const groups=new Map();
   rows.forEach(a=>{
     const key=`${a._serve||'UNK'}|${a._contact||'?'}`;
@@ -9983,7 +10035,7 @@ window.scoutV840RenderBlocking=function(){
   let rows=scoutActionRows(m,false).filter(a=>a.team===team&&a.skill==='B');
   if(player)rows=rows.filter(a=>v840PlayerKey(a)===player);
   if(size)rows=rows.filter(a=>String(a.blockers||'')===size);
-  if(zone)rows=rows.filter(a=>String(a.startZone||a.contactZone||'')===zone);
+  if(zone)rows=rows.filter(a=>zone.length===1?String(a.startZone||a.contactZone||'').startsWith(zone):String(a.startZone||a.contactZone||'')===zone);
   const point=rows.filter(a=>a.evaluation==='#').length,pos=rows.filter(a=>a.evaluation==='+').length,cont=rows.filter(a=>a.evaluation==='!').length,
     neg=rows.filter(a=>a.evaluation==='-').length,bo=rows.filter(a=>a.evaluation==='/').length,err=rows.filter(a=>a.evaluation==='=').length;
   const sizes=[1,2,3].map(n=>({n,total:rows.filter(a=>String(a.blockers)===String(n)).length,pts:rows.filter(a=>String(a.blockers)===String(n)&&a.evaluation==='#').length}));
@@ -11114,6 +11166,481 @@ window.v857Diagnostics=()=>({
   point:typeof window.scoutAwardPoint,
   undo:typeof window.scoutUndoRally,
   rallyEditor:typeof window.scoutV680OpenSetEditor
+});
+
+
+
+
+
+/* =====================================================================
+   V8.6.0 · 36 SUBZONES (1A–9D)
+   Lives inside scouting-pro-v600-script to share the real parser/state.
+   ===================================================================== */
+const V860_VERSION='8.6.0';
+const V860_SUBZONES=['A','B','C','D'];
+
+function v860ZoneToken(zone,sub=''){
+  zone=String(zone||'').trim().toUpperCase();
+  sub=String(sub||'').trim().toUpperCase();
+  if(!/^[1-9]$/.test(zone))return '';
+  return zone+(V860_SUBZONES.includes(sub)?sub:'');
+}
+function v860SplitZone(token){
+  const m=String(token||'').trim().toUpperCase().match(/^([1-9])([A-D])?$/);
+  return m?{zone:m[1],sub:m[2]||''}:{zone:'',sub:''};
+}
+function v860BaseZone(token){return v860SplitZone(token).zone}
+function v860SubZone(token){return v860SplitZone(token).sub}
+
+/* Parser wrapper:
+   12A#.4B>5D... -> temporarily parse as .4>5 using the mature V8.4 parser,
+   then restore the exact alphanumeric zones before normalize/build. */
+const v860ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const zm=original.match(/^((?:R)?\d+(?:S|R|E|A|B|D|F|C)(?:[#\+!\-\/=])?)\.([1-9])([A-D]?)(?:>([1-9])([A-D]?))?(.*)$/);
+  if(!zm||(!zm[3]&&!zm[5]))return v860ParseBase(original,m,oldAction);
+
+  const prefix=zm[1],z1=zm[2],s1=zm[3]||'',z2=zm[4]||'',s2=zm[5]||'',rest=zm[6]||'';
+  const cleaned=prefix+'.'+z1+(z2?('>'+z2):'')+rest;
+  const parsed=v860ParseBase(cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+
+  let a=parsed.action;
+  const full1=z1+s1,full2=z2?(z2+s2):'';
+  if(a.skill==='R'||a.skill==='D'){
+    if(full2){
+      a.startZone=full1;a.endZone=full2;a.contactZone=full2;a.sourceZone=full1;a.zoneInferred=false;
+    }else{
+      a.startZone='';a.endZone=full1;a.contactZone=full1;a.sourceZone='';a.zoneInferred=false;
+    }
+  }else if(a.skill==='B'){
+    a.startZone=full1;a.endZone='';a.contactZone=full1;
+  }else{
+    a.startZone=full1;a.endZone=full2;
+  }
+  a=scoutNormalizeAction(a);
+  a.code=scoutBuildCode(a);
+  return {action:a};
+};
+window.v680ParseCode=function(raw,m,oldAction=null){return scoutV6108ParseRaw(raw,m,oldAction)};
+
+/* Manual form: optional subzone selector is concatenated to the numeric zone. */
+window.scoutAddManualAction=function(){
+  const team=$('scout-action-team')?.value||'ours',
+    pv=$('scout-action-player')?.value||'',
+    skill=$('scout-action-skill')?.value||'S',
+    combo=$('scout-action-combo')?.value||'',
+    start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),
+    end=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||''),
+    serve=$('scout-action-serve-type')?.value||'',
+    direction=$('scout-action-direction')?.value||'',
+    blockers=$('scout-action-blockers')?.value??'',
+    target=String($('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3);
+
+  let zones=scoutV6108NormalizeZoneInput(skill,start,end);
+  if(skill==='B'){
+    const z=start||end;
+    zones={startZone:z,endZone:'',contactZone:z,sourceZone:'',zoneInferred:false};
+  }
+
+  scoutPushAction({
+    team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',
+    skill,evaluation:$('scout-action-eval')?.value||'!',...zones,
+    serveType:skill==='S'?serve:'',
+    receivedServeType:skill==='R'?serve:'',
+    phase:$('scout-action-phase')?.value||'',
+    setTarget:skill==='E'?combo:'',
+    attackCombo:skill==='A'?combo:'',
+    attackTempo:skill==='A'?($('scout-action-tempo')?.value||''):'',
+    attackDirection:skill==='A'?direction:'',
+    blockers:(skill==='A'||skill==='B')?String(blockers):'',
+    blockTargetNumber:skill==='B'?target:''
+  });
+};
+
+/* Precise manual preview. */
+window.scoutUpdateAdvancedCodePreview=function(){
+  const skill=$('scout-action-skill')?.value||'S',
+    ev=$('scout-action-eval')?.value||'!',
+    start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),
+    end=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||''),
+    serve=$('scout-action-serve-type')?.value||'',
+    phase=$('scout-action-phase')?.value||'',
+    combo=$('scout-action-combo')?.value||'',
+    direction=$('scout-action-direction')?.value||'',
+    blockers=$('scout-action-blockers')?.value??'',
+    target=String($('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3);
+
+  let c='N'+skill+ev;
+  if(skill==='B'){
+    const z=start||end;if(z)c+='.'+z;
+  }else if(start&&end)c+=`.${start}>${end}`;
+  else if(scoutV6108IsContactSkill(skill)&&(end||start))c+='.'+(end||start);
+
+  if((skill==='S'||skill==='R')&&serve)c+=`~${serve}`;
+  if((skill==='E'||skill==='A')&&combo)c+=`:${combo}`;
+  if(skill==='A'&&direction)c+=`*${direction}`;
+  if(phase)c+=`^${phase}`;
+  if((skill==='A'||skill==='B')&&blockers!=='')c+=`@${blockers}`;
+  if(skill==='B'&&target)c+=`&${target}`;
+  if($('scout-advanced-code-preview'))$('scout-advanced-code-preview').textContent='Código: '+c;
+};
+
+/* Labels/visibility for subzone selectors. */
+const v860FieldsBase=window.scoutUpdateAdvancedFields;
+window.scoutUpdateAdvancedFields=function(){
+  const out=v860FieldsBase?.();
+  const skill=$('scout-action-skill')?.value||'S';
+  const contact=scoutV6108IsContactSkill(skill);
+  const block=skill==='B';
+
+  const ss=$('scout-action-start-sub-wrap'),es=$('scout-action-end-sub-wrap');
+  if(ss)ss.classList.toggle('hidden',false);
+  if(es)es.classList.toggle('hidden',block);
+
+  const sl=$('scout-action-start-sub-label'),el=$('scout-action-end-sub-label');
+  if(sl)sl.textContent=block?'Subzona bloqueo':(contact?'Subzona origen (opc.)':'Subzona origen');
+  if(el)el.textContent=contact?(skill==='R'?'Subzona recepción':'Subzona defensa'):'Subzona destino';
+
+  scoutUpdateAdvancedCodePreview();
+  return out;
+};
+
+['scout-action-start-sub','scout-action-end-sub'].forEach(id=>{
+  $(id)?.addEventListener('change',()=>scoutUpdateAdvancedCodePreview());
+});
+['scout-action-start','scout-action-end','scout-action-skill','scout-action-eval','scout-action-serve-type','scout-action-phase','scout-action-combo','scout-action-tempo','scout-action-direction','scout-action-blockers','scout-v840-block-target'].forEach(id=>{
+  $(id)?.addEventListener('change',()=>scoutUpdateAdvancedCodePreview());
+});
+
+/* Base-zone filters also accept all four subzones; exact subzone filters can
+   be selected from the dynamically-added entries. */
+function v860AddSubzoneFilterOptions(id,bases){
+  const sel=$(id);if(!sel||sel.dataset.v860Subzones)return;
+  bases.forEach(z=>{
+    const group=document.createElement('optgroup');
+    group.label='Z'+z+' · subzonas';
+    V860_SUBZONES.forEach(s=>{
+      const o=document.createElement('option');
+      o.value=String(z)+s;o.textContent='Z'+z+s;group.appendChild(o);
+    });
+    sel.appendChild(group);
+  });
+  sel.dataset.v860Subzones='1';
+}
+v860AddSubzoneFilterOptions('scout-v830-rec-zone',['1','2','3','4','5','6','7','8','9']);
+v860AddSubzoneFilterOptions('scout-v840-block-zone',['2','3','4']);
+
+/* Helpful API for later heatmaps / exports. */
+window.VC_SUBZONES={
+  version:V860_VERSION,
+  letters:[...V860_SUBZONES],
+  parse:v860SplitZone,
+  compose:v860ZoneToken,
+  base:v860BaseZone,
+  sub:v860SubZone,
+  examples:[
+    '7R#.6C~JF',
+    '3E+.2B>4C:Z4^K1',
+    '12A#.4B>5D:Z4*DL^K1@2',
+    '4B#.3C@2&12'
+  ]
+};
+
+/* Refresh public core so external UI always reaches the FINAL parser. */
+if(window.VC_SCOUT_CORE){
+  window.VC_SCOUT_CORE.version=V860_VERSION;
+  window.VC_SCOUT_CORE.parse=(raw,m=scoutActive(),oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
+  window.VC_SCOUT_CORE.register=(raw,m=scoutActive())=>v857RegisterRaw(raw,m);
+}
+scoutUpdateAdvancedFields();
+
+
+
+
+
+/* =====================================================================
+   V8.6.1 · MANUAL SET END + FINAL MATCH RESULT
+   ===================================================================== */
+const V861_VERSION='8.6.1';
+
+function v861Int(id,max=99){
+  const n=Number.parseInt(String($(id)?.value??''),10);
+  return Number.isFinite(n)?Math.max(0,Math.min(max,n)):0;
+}
+function v861RecordedScore(m){
+  const done=scoutArr(m?.sets).filter(s=>s.finished);
+  return {
+    us:done.filter(s=>s.winner==='ours').length,
+    opponent:done.filter(s=>s.winner==='opponent').length
+  };
+}
+function v861SetDetail(m){
+  return scoutArr(m?.sets).map(s=>{
+    const suffix=s.manualFinished?' · cierre manual':'';
+    return `Set ${s.number}: ${s.scoreUs}-${s.scoreOpponent}${s.finished?suffix:' · en curso'}`;
+  }).join(' · ');
+}
+function v861ClearManualResult(m){
+  if(!m?.manualFinalResult?.active)return;
+  m.manualFinalResult={...m.manualFinalResult,active:false,clearedAt:scoutNow()};
+  m.resultComplete=false;
+  m.resultCompleteAt=null;
+}
+
+/* Preserve manual result metadata through every later normalization/reload. */
+const v861NormBase=scoutNormalizeMatch;
+scoutNormalizeMatch=function(m){
+  const x=v861NormBase(m);
+  const rawSets=scoutArr(m?.sets);
+  scoutArr(x.sets).forEach((s,i)=>{
+    const raw=rawSets.find(r=>Number(r?.number)===Number(s.number))||rawSets[i]||{};
+    s.manualFinished=!!raw?.manualFinished;
+    s.manualFinishedAt=raw?.manualFinishedAt?String(raw.manualFinishedAt):null;
+    s.manualScorePrevious=raw?.manualScorePrevious&&typeof raw.manualScorePrevious==='object'
+      ? {us:Number(raw.manualScorePrevious.us)||0,opponent:Number(raw.manualScorePrevious.opponent)||0}
+      : null;
+  });
+  x.manualFinalResult=m?.manualFinalResult&&typeof m.manualFinalResult==='object'
+    ? {
+        active:!!m.manualFinalResult.active,
+        us:Math.max(0,Number(m.manualFinalResult.us)||0),
+        opponent:Math.max(0,Number(m.manualFinalResult.opponent)||0),
+        savedAt:m.manualFinalResult.savedAt?String(m.manualFinalResult.savedAt):null,
+        finalizedAt:m.manualFinalResult.finalizedAt?String(m.manualFinalResult.finalizedAt):null,
+        clearedAt:m.manualFinalResult.clearedAt?String(m.manualFinalResult.clearedAt):null
+      }
+    : null;
+  x.dataVersion=V861_VERSION;
+  return x;
+};
+
+/* Result override affects match result only. Technical stats still read actual
+   rallies/actions and actual set objects. */
+const v861SetsScoreBase=scoutSetsScore;
+scoutSetsScore=function(m){
+  if(m?.manualFinalResult?.active){
+    return {
+      us:Math.max(0,Number(m.manualFinalResult.us)||0),
+      opponent:Math.max(0,Number(m.manualFinalResult.opponent)||0)
+    };
+  }
+  return v861SetsScoreBase(m);
+};
+window.scoutSetsScore=scoutSetsScore;
+
+window.scoutV861OpenFinishSet=function(){
+  const m=scoutActive(),s=scoutSet(m);
+  if(!m||!s){alert('No hay un scouting activo.');return}
+  if(m.status==='finished'){alert('El scouting está finalizado. Ábrelo de nuevo antes de corregir un set.');return}
+
+  $('scout-v861-set-title').textContent=`Finalizar Set ${s.number}`;
+  $('scout-v861-set-us-label').textContent=EQUIPOS?.[equipoActivo]?.nombre||'Nuestro equipo';
+  $('scout-v861-set-op-label').textContent=m.opponent||'Rival';
+  $('scout-v861-set-us').value=String(Number(s.scoreUs)||0);
+  $('scout-v861-set-op').value=String(Number(s.scoreOpponent)||0);
+
+  const pending=scoutArr(m.liveRally?.actions).length;
+  const warning=$('scout-v861-set-warning');
+  if(warning){
+    if(pending){
+      warning.className='scout-v861-notice bad';
+      warning.innerHTML=`Hay <b>${pending}</b> ${pending===1?'acción':'acciones'} en el rally actual sin cerrar. Marca el punto o borra esas acciones antes de finalizar el set.`;
+    }else{
+      warning.className='scout-v861-notice';
+      warning.innerHTML=s.finished
+        ? `El Set ${s.number} ya estaba cerrado en <b>${s.scoreUs}-${s.scoreOpponent}</b>. Puedes corregir aquí su marcador final.`
+        : `Marcador registrado actualmente: <b>${s.scoreUs}-${s.scoreOpponent}</b>. Puedes corregirlo si te falta algún punto.`;
+    }
+  }
+  $('scout-v861-finish-set-modal')?.classList.add('open');
+};
+window.scoutV861CloseFinishSet=function(){$('scout-v861-finish-set-modal')?.classList.remove('open')};
+
+window.scoutV861FinishSet=function(){
+  const m=scoutActive(),s=scoutSet(m);
+  if(!m||!s)return;
+  const pending=scoutArr(m.liveRally?.actions).length;
+  if(pending){
+    alert(`Hay ${pending} ${pending===1?'acción':'acciones'} en el rally actual. Cierra el rally con un punto o borra esas acciones antes de finalizar el set.`);
+    return;
+  }
+
+  const us=v861Int('scout-v861-set-us'),op=v861Int('scout-v861-set-op');
+  if(us===op){alert('Un set finalizado no puede quedar empatado.');return}
+  if(us===0&&op===0){alert('Introduce el marcador final del set.');return}
+
+  const regulatory=scoutSetHasWinner({number:s.number,scoreUs:us,scoreOpponent:op});
+  if(!regulatory&&!confirm(`El marcador ${us}-${op} no corresponde al cierre reglamentario habitual del Set ${s.number}. ¿Guardarlo igualmente como resultado final manual?`))return;
+
+  const prev={us:Number(s.scoreUs)||0,opponent:Number(s.scoreOpponent)||0};
+  s.scoreUs=us;
+  s.scoreOpponent=op;
+  s.finished=true;
+  s.winner=us>op?'ours':'opponent';
+  s.endedAt=scoutNow();
+  s.manualFinished=true;
+  s.manualFinishedAt=scoutNow();
+  s.manualScorePrevious=prev;
+
+  v861ClearManualResult(m);
+  const recorded=v861RecordedScore(m);
+  m.resultComplete=recorded.us>=3||recorded.opponent>=3;
+  m.resultCompleteAt=m.resultComplete?scoutNow():null;
+  m.status='live';
+  m.endedAt=null;
+  m.dataVersion=V861_VERSION;
+
+  scoutResetLiveRally(m);
+  scoutSave(false);
+  window.scoutV861CloseFinishSet();
+  scoutRender();
+  try{window.v800Render?.()}catch(_){}
+};
+
+window.scoutV861OpenFinalResult=function(){
+  const m=scoutActive();
+  if(!m){alert('No hay un scouting activo.');return}
+
+  const recorded=v861RecordedScore(m);
+  const current=m.manualFinalResult?.active
+    ? {us:Number(m.manualFinalResult.us)||0,opponent:Number(m.manualFinalResult.opponent)||0}
+    : recorded;
+
+  $('scout-v861-result-title').textContent=`${EQUIPOS?.[equipoActivo]?.nombre||'Equipo'} vs ${m.opponent||'Rival'}`;
+  $('scout-v861-result-us-label').textContent=EQUIPOS?.[equipoActivo]?.nombre||'Nuestro equipo';
+  $('scout-v861-result-op-label').textContent=m.opponent||'Rival';
+  $('scout-v861-result-us').value=String(current.us);
+  $('scout-v861-result-op').value=String(current.opponent);
+
+  const detail=v861SetDetail(m);
+  const info=$('scout-v861-result-recorded');
+  if(info){
+    info.innerHTML=`<strong>Registrado en el scouting: ${recorded.us}-${recorded.opponent} sets</strong>${detail?`<span>${esc(detail)}</span>`:''}${m.manualFinalResult?.active?`<span class="scout-v861-manual-tag">Resultado manual actual ${m.manualFinalResult.us}-${m.manualFinalResult.opponent}</span>`:''}`;
+  }
+  $('scout-v861-final-result-modal')?.classList.add('open');
+};
+window.scoutV861CloseFinalResult=function(){$('scout-v861-final-result-modal')?.classList.remove('open')};
+
+window.scoutV861SaveFinalResult=async function(finalize=false){
+  const m=scoutActive();
+  if(!m){alert('No hay un scouting activo.');return}
+  const us=v861Int('scout-v861-result-us',5),op=v861Int('scout-v861-result-op',5);
+  if(us===op){alert('El resultado final del partido no puede quedar empatado.');return}
+  if(us===0&&op===0){alert('Introduce el resultado final en sets.');return}
+
+  const now=scoutNow();
+  m.manualFinalResult={active:true,us,opponent:op,savedAt:now,finalizedAt:finalize?now:null,clearedAt:null};
+  m.resultComplete=true;
+  m.resultCompleteAt=now;
+  m.dataVersion=V861_VERSION;
+
+  if(finalize){
+    const pending=scoutArr(m.liveRally?.actions).length;
+    if(pending&&!confirm(`Hay ${pending} ${pending===1?'acción':'acciones'} en el rally actual sin cerrar. No se convertirán en un rally. ¿Finalizar igualmente el scouting?`))return;
+
+    m.status='finished';
+    m.finalizedByUser=true;
+    m.endedAt=now;
+    if(pending){
+      m.manualPendingActionsAtFinish=pending;
+    }
+  }else if(m.status!=='finished'){
+    m.status='live';
+    m.endedAt=null;
+  }
+
+  scoutSyncCompetition(m);
+  scoutSave(false);
+  window.scoutV861CloseFinalResult();
+
+  if(finalize){
+    try{if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup('manual-final-result',true)}catch(_){}
+    scoutingActiveId=null;
+    scoutSave(false);
+    try{scoutV6102ExitToArchive()}catch(_){showView('scout-dashboard',botonVista('scout-dashboard'))}
+  }else{
+    scoutRender();
+    try{window.v800Render?.()}catch(_){}
+  }
+};
+
+/* Starting/changing gameplay invalidates a previously-entered global manual result. */
+const v861AwardBase=window.scoutAwardPoint;
+window.scoutAwardPoint=function(winner){
+  const m=scoutActive();
+  if(m?.manualFinalResult?.active)v861ClearManualResult(m);
+  return v861AwardBase(winner);
+};
+const v861UndoBase=window.scoutUndoRally;
+window.scoutUndoRally=function(){
+  const m=scoutActive();
+  if(m?.manualFinalResult?.active)v861ClearManualResult(m);
+  return v861UndoBase();
+};
+const v861NextSetBase=window.scoutNextSet;
+window.scoutNextSet=function(serving){
+  const m=scoutActive();
+  if(m?.manualFinalResult?.active)v861ClearManualResult(m);
+  return v861NextSetBase(serving);
+};
+
+/* Make the end-of-set area aware of a stored manual final result. */
+const v861RenderEndedBase=scoutRenderEnded;
+scoutRenderEnded=window.scoutRenderEnded=function(m){
+  const box=$('scout-set-ended');
+  if(m?.manualFinalResult?.active&&box){
+    box.classList.remove('hidden');
+    const r=m.manualFinalResult;
+    if(m.status==='finished'){
+      box.innerHTML=`<strong>Partido finalizado · resultado manual ${r.us}-${r.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutV861OpenFinalResult()">Ver resultado</button></div>`;
+    }else{
+      box.innerHTML=`<strong>Resultado final manual guardado · ${r.us}-${r.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutV861OpenFinalResult()">Editar resultado</button><button class="success" onclick="scoutV861OpenFinalResult()">Finalizar scouting</button></div>`;
+    }
+    return;
+  }
+  return v861RenderEndedBase(m);
+};
+
+/* Add manual labels to set list while retaining professional rally editor. */
+window.scoutV861RenderSetList=function(m=scoutActive()){
+  const box=$('scout-set-list');if(!box||!m)return;
+  box.innerHTML=scoutArr(m.sets).map(s=>`
+    <div class="scout-set-row">
+      <strong>Set ${s.number}${s.manualFinished?'<span class="scout-v861-manual-tag">manual</span>':''}</strong>
+      <span>${s.finished?(s.winner==='ours'?'Ganado':s.winner==='opponent'?'Perdido':'Cerrado'):'En juego'} · ${s.rallies.length} rallies</span>
+      <b>${s.scoreUs}-${s.scoreOpponent}</b>
+      <button class="ghost scout-v680-set-edit" onclick="scoutV680OpenSetEditor(${s.number})">Editar rallies</button>
+    </div>`).join('');
+};
+
+const v861RenderBase=window.scoutRender;
+window.scoutRender=function(){
+  const out=v861RenderBase();
+  try{window.scoutV861RenderSetList(scoutActive())}catch(_){}
+  return out;
+};
+
+/* Update public bridges. */
+if(window.VC_SCOUT_CORE){
+  window.VC_SCOUT_CORE.version=V861_VERSION;
+  window.VC_SCOUT_CORE.finishSet=()=>window.scoutV861OpenFinishSet();
+  window.VC_SCOUT_CORE.finalResult=()=>window.scoutV861OpenFinalResult();
+}
+if(window.VC_SCOUT_REPORT_BRIDGE){
+  window.VC_SCOUT_REPORT_BRIDGE.setsScore=(m)=>scoutSetsScore(m);
+}
+
+window.scoutV861Diagnostics=()=>({
+  version:V861_VERSION,
+  activeId:scoutActive()?.id||null,
+  currentSet:scoutSet(scoutActive())?.number||null,
+  recorded:v861RecordedScore(scoutActive()),
+  displayed:scoutActive()?scoutSetsScore(scoutActive()):null,
+  manualResult:scoutActive()?.manualFinalResult||null,
+  finishSet:typeof window.scoutV861FinishSet,
+  finalResult:typeof window.scoutV861SaveFinalResult
 });
 
 
@@ -18844,6 +19371,22 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         </div>
       </section>
 
+      <section class="v841-cheat-section v860-subzone-section" data-cat="base" data-search="subzonas a b c d 36 zonas precision origen destino 1a 9d">
+        <h3>Subzonas A–D · 36 ubicaciones</h3>
+        <div class="v841-rule"><code>ZONA + LETRA</code><span>La letra es opcional. <b>4B</b> es más preciso que Z4; <b>5D</b> es más preciso que Z5.</span></div>
+        <div class="v860-subzone-key">
+          <span><b>A</b> subzona A</span><span><b>B</b> subzona B</span><span><b>C</b> subzona C</span><span><b>D</b> subzona D</span>
+        </div>
+        <div class="v841-grid">
+          <article><b>Trayectoria precisa</b><span><code>.4B&gt;5D</code> = origen Z4B → destino Z5D.</span></article>
+          <article><b>Contacto único</b><span><code>.6C</code> = recepción/defensa en Z6C.</span></article>
+          <article><b>Compatibilidad</b><span><code>.4&gt;5</code> continúa siendo válido si no quieres usar subzonas.</span></article>
+        </div>
+        <div class="v841-example" data-code="3E+.2B>4C:Z4^K1"><code>3E+.2B&gt;4C:Z4^K1</code><span>#3 coloca desde Z2B hacia Z4C, opción Z4, en K1.</span><button onclick="v841UseCode('3E+.2B>4C:Z4^K1')">Usar</button></div>
+        <div class="v841-example" data-code="12A#.4B>5D:Z4*DL^K1@2"><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 ataca desde Z4B y finaliza en Z5D, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4B>5D:Z4*DL^K1@2')">Usar</button></div>
+        <div class="v841-tip"><b>Regla:</b> solo se admite <code>A</code>, <code>B</code>, <code>C</code> o <code>D</code> inmediatamente después del número de zona.</div>
+      </section>
+
       <section class="v841-cheat-section" data-cat="serve" data-search="saque flotante salto potente seguridad origen destino zonas ace error">
         <h3>2. Saque</h3>
         <div class="v841-grid">
@@ -18858,7 +19401,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
       <section class="v841-cheat-section" data-cat="reception" data-search="recepcion profesional tipo saque recibido jf jp flotante positiva perfecta side out zona contacto">
         <h3>3. Recepción profesional</h3>
         <div class="v841-rule"><code>.ZONA = zona de contacto · ~TIPO = tipo de saque recibido</code></div>
-        <div class="v841-example" data-code="7R#.6~JF"><code>7R#.6~JF</code><span>#7 recepción perfecta en Z6 ante flotante en salto.</span><button onclick="v841UseCode('7R#.6~JF')">Usar</button></div>
+        <div class="v841-example" data-code="7R#.6C~JF"><code>7R#.6C~JF</code><span>#7 recepción perfecta en Z6C ante flotante en salto.</span><button onclick="v841UseCode('7R#.6C~JF')">Usar</button></div>
         <div class="v841-example" data-code="7R+.5~JP"><code>7R+.5~JP</code><span>#7 recepción positiva en Z5 ante salto potente.</span><button onclick="v841UseCode('7R+.5~JP')">Usar</button></div>
         <div class="v841-example" data-code="7R-.1~F"><code>7R-.1~F</code><span>#7 recepción negativa en Z1 ante flotante.</span><button onclick="v841UseCode('7R-.1~F')">Usar</button></div>
         <div class="v841-tip"><b>Automático:</b> si antes has puesto <code>R4S+.1&gt;6~JF</code> y luego escribes <code>7R#.6</code>, Volley Coach intenta inferir que el saque venía de Z1 y era JF.</div>
@@ -18871,7 +19414,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
           <article><b>Destinos</b><span><code>Z4</code> · <code>Z2</code> · <code>Z1</code> · <code>Z6</code> · <code>1T</code> · <code>31</code> · <code>BACK</code> · <code>PIPE</code> · <code>2T</code></span></article>
           <article><b>Fase</b><span><code>^K1</code> recepción/side-out · <code>^K2</code> saque/break point</span></article>
         </div>
-        <div class="v841-example" data-code="3E+:Z1^K1"><code>3E+:Z1^K1</code><span>#3 coloca positivo hacia Z1 en K1.</span><button onclick="v841UseCode('3E+:Z1^K1')">Usar</button></div>
+        <div class="v841-example" data-code="3E+.2B>4C:Z4^K1"><code>3E+.2B&gt;4C:Z4^K1</code><span>#3 coloca desde Z2B hacia Z4C, opción táctica Z4, en K1.</span><button onclick="v841UseCode('3E+.2B>4C:Z4^K1')">Usar</button></div>
         <div class="v841-example" data-code="3E#:PIPE^K1"><code>3E#:PIPE^K1</code><span>#3 colocación perfecta a pipe en K1.</span><button onclick="v841UseCode('3E#:PIPE^K1')">Usar</button></div>
         <div class="v841-example" data-code="3E+:1T^K2"><code>3E+:1T^K2</code><span>#3 coloca a primer tiempo en K2.</span><button onclick="v841UseCode('3E+:1T^K2')">Usar</button></div>
       </section>
@@ -18883,7 +19426,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
           <article><b>Dirección</b><span><code>*LIN</code> línea · <code>*DC</code> diagonal corta · <code>*DL</code> diagonal larga</span></article>
           <article><b>Bloqueo rival</b><span><code>@0</code> sin bloqueo · <code>@1</code> individual · <code>@2</code> doble · <code>@3</code> triple</span></article>
         </div>
-        <div class="v841-example" data-code="12A#.4>5:Z4*DL^K1@2"><code>12A#.4&gt;5:Z4*DL^K1@2</code><span>#12 punto desde Z4 a Z5, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4>5:Z4*DL^K1@2')">Usar</button></div>
+        <div class="v841-example" data-code="12A#.4B>5D:Z4*DL^K1@2"><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 punto desde Z4B a Z5D, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4B>5D:Z4*DL^K1@2')">Usar</button></div>
         <div class="v841-example" data-code="12A+.4>1*LIN^K1@1"><code>12A+.4&gt;1*LIN^K1@1</code><span>#12 ataque positivo por línea en K1 contra bloqueo individual.</span><button onclick="v841UseCode('12A+.4>1*LIN^K1@1')">Usar</button></div>
         <div class="v841-example" data-code="12A/.4>4*DC^K2@3"><code>12A/.4&gt;4*DC^K2@3</code><span>#12 ataque bloqueado, diagonal corta, K2, triple bloqueo.</span><button onclick="v841UseCode('12A/.4>4*DC^K2@3')">Usar</button></div>
       </section>
@@ -18896,7 +19439,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
           <article><b>Objetivo</b><span><code>&amp;12</code> = bloqueo sobre la atacante rival #12.</span></article>
           <article><b>Resultado</b><span><code>#</code> punto · <code>+</code> toque positivo · <code>!</code> continuidad · <code>-</code> negativo · <code>/</code> block-out · <code>=</code> error</span></article>
         </div>
-        <div class="v841-example" data-code="4B#.3@2&12"><code>4B#.3@2&amp;12</code><span>#4 punto de bloqueo doble en Z3 sobre #12.</span><button onclick="v841UseCode('4B#.3@2&12')">Usar</button></div>
+        <div class="v841-example" data-code="4B#.3C@2&12"><code>4B#.3C@2&amp;12</code><span>#4 punto de bloqueo doble en tu Z3C sobre #12.</span><button onclick="v841UseCode('4B#.3C@2&12')">Usar</button></div>
         <div class="v841-example" data-code="4B+.3@2&12"><code>4B+.3@2&amp;12</code><span>#4 toque positivo con bloqueo doble sobre #12.</span><button onclick="v841UseCode('4B+.3@2&12')">Usar</button></div>
         <div class="v841-example" data-code="4B/.4@1&9"><code>4B/.4@1&amp;9</code><span>#4 block-out en Z4 con bloqueo individual sobre #9.</span><button onclick="v841UseCode('4B/.4@1&9')">Usar</button></div>
       </section>
@@ -18904,7 +19447,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
       <section class="v841-cheat-section" data-cat="defense" data-search="defensa zona positiva negativa continuidad">
         <h3>7. Defensa</h3>
         <div class="v841-rule"><code>.ZONA = zona donde se produce la defensa</code></div>
-        <div class="v841-example" data-code="6D+.5"><code>6D+.5</code><span>#6 defensa positiva en Z5.</span><button onclick="v841UseCode('6D+.5')">Usar</button></div>
+        <div class="v841-example" data-code="6D+.5A"><code>6D+.5A</code><span>#6 defensa positiva en Z5A.</span><button onclick="v841UseCode('6D+.5A')">Usar</button></div>
         <div class="v841-example" data-code="6D!.6"><code>6D!.6</code><span>#6 defensa de continuidad en Z6.</span><button onclick="v841UseCode('6D!.6')">Usar</button></div>
         <div class="v841-example" data-code="6D=.1"><code>6D=.1</code><span>#6 error defensivo en Z1.</span><button onclick="v841UseCode('6D=.1')">Usar</button></div>
       </section>
@@ -18924,8 +19467,8 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         <div class="v841-rally-seq">
           <div><code>R4S+.1&gt;6~JF</code><span>Saque rival #4, positivo, Z1→Z6, flotante salto.</span></div>
           <div><code>7R#.6~JF</code><span>#7 recepción perfecta en Z6.</span></div>
-          <div><code>3E+:Z1^K1</code><span>#3 coloca a Z1 en K1.</span></div>
-          <div><code>12A#.4&gt;5:Z4*DL^K1@2</code><span>#12 punto de ataque diagonal larga contra doble bloqueo.</span></div>
+          <div><code>3E+.2B&gt;4C:Z4^K1</code><span>#3 coloca desde Z2B hacia Z4C, opción Z4, en K1.</span></div>
+          <div><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 punto desde Z4B hacia Z5D, diagonal larga, doble bloqueo.</span></div>
         </div>
       </section>
     </div>
@@ -19587,4 +20130,59 @@ document.addEventListener('keydown',e=>{
 .scout-v840-codeguide code{font-size:10px!important}
 .scout-v840-codeguide span{font-size:9px!important}
 </style>
+
+
+<style id="v860-subzones-style">
+#scout-action-start-sub-wrap select,
+#scout-action-end-sub-wrap select{font-weight:850}
+.v860-subzone-section{border-color:#cbd9e2!important}
+.v860-subzone-key{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:7px 0}
+.v860-subzone-key span{display:flex;align-items:center;justify-content:center;gap:5px;padding:7px;border:1px solid #dce4e9;border-radius:7px;background:#f7fafb;font-size:9.5px;color:#5d7180}
+.v860-subzone-key b{display:grid;place-items:center;width:24px;height:24px;border-radius:6px;background:#17324d;color:#fff;font-size:11px}
+#scout-action-start-sub-wrap.hidden,#scout-action-end-sub-wrap.hidden{display:none!important}
+@media(max-width:720px){
+  .v860-subzone-key{grid-template-columns:1fr 1fr}
+}
+</style>
+
+
+
+<style id="v861-manual-results-style">
+.scout-v861-set-actions{display:flex;gap:5px;flex-wrap:wrap}
+.scout-v861-set-actions button{font-size:9.5px!important;padding:7px 9px!important}
+.scout-v861-result-card{width:min(650px,96vw)!important}
+.scout-v861-notice,.scout-v861-recorded,.scout-v861-info{
+  border:1px solid #dfe6ea;border-radius:10px;padding:11px 12px;margin-bottom:13px;
+  background:#f8fafb;color:#556b7b;font-size:10.5px;line-height:1.5
+}
+.scout-v861-notice.warn{background:#fff6e8;border-color:#efdbb8;color:#7d5a21}
+.scout-v861-notice.bad{background:#fbeceb;border-color:#e8c5c2;color:#8b4844}
+.scout-v861-recorded strong,.scout-v861-info strong{display:block;color:#29475f;font-size:11px;margin-bottom:3px}
+.scout-v861-info span{display:block}
+.scout-v861-score-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:10px;align-items:end;
+  padding:14px 0 16px
+}
+.scout-v861-score-grid label{display:flex;flex-direction:column;gap:6px}
+.scout-v861-score-grid label span{
+  font-size:10px;font-weight:900;color:#627786;text-transform:uppercase;letter-spacing:.05em
+}
+.scout-v861-score-grid input{
+  min-height:58px;text-align:center;font-size:28px!important;font-weight:900;color:#102b43
+}
+.scout-v861-score-sep{display:grid;place-items:center;height:58px;font-size:28px;font-weight:900;color:#758794}
+.scout-v861-result-actions{flex-wrap:wrap}
+.scout-v861-result-actions button{font-size:10.5px!important;min-height:38px}
+.scout-v861-manual-tag{
+  display:inline-flex;align-items:center;padding:3px 6px;border-radius:999px;background:#fff1d7;
+  color:#815c1e;font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;margin-left:5px
+}
+@media(max-width:560px){
+  .scout-v861-score-grid{grid-template-columns:1fr 26px 1fr}
+  .scout-v861-score-grid input{font-size:24px!important}
+  .scout-v861-result-actions{display:grid!important;grid-template-columns:1fr}
+  .scout-v861-result-actions button{width:100%}
+}
+</style>
+
 </body></html>
