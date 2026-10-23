@@ -1710,17 +1710,22 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 
           <section class="v800-control-card">
             <div class="v800-point-row">
-              <button class="v800-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
-              <button class="v800-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
-              <button class="v800-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
+              <button id="v855-point-ours" class="v800-point ours" onclick="v855AwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
+              <button id="v855-undo" class="v800-undo" onclick="v855UndoRally()">↶<span>Deshacer</span></button>
+              <button id="v855-point-opponent" class="v800-point rival" onclick="v855AwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
             </div>
+            <div id="v855-match-status" class="v855-match-status">Modo Partido preparado.</div>
 
             <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · usa exactamente los mismos códigos que Scouting completo" onkeydown="if(event.key==='Enter'){event.preventDefault();v853AddCode()}">
-              <button id="v853-add-code-btn" class="primary" onclick="v853AddCode()">Añadir</button>
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · mismo motor que Scouting completo" onkeydown="if(event.key==='Enter'){event.preventDefault();v855AddCode()}">
+              <button id="v855-add-code-btn" class="primary" onclick="v855AddCode()">Añadir</button>
               <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
             <div id="v852-code-status" class="v852-code-status">Mismo motor de códigos que Scouting completo.</div>
+            <div class="v855-live-rally-box">
+              <div class="v855-live-rally-head"><b id="v855-live-rally-title">Rally actual · 0 acciones</b><span id="v855-live-rally-save">Sin cambios pendientes</span></div>
+              <div id="v855-live-actions" class="v855-live-actions"><span class="empty">Añade acciones antes de cerrar el punto.</span></div>
+            </div>
             <div class="v853-code-tools">
               <button class="ghost" onclick="showView('scouting',botonVista('scouting'));setTimeout(()=>document.getElementById('scout-code-input')?.focus(),50)">Abrir consola completa</button>
               <button class="ghost" onclick="v853OpenRallyEditor()">✎ Editor de rallies</button>
@@ -4952,7 +4957,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.4', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.5', {
         updateViaCache: 'none'
       });
 
@@ -16803,6 +16808,7 @@ function render(){
     $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
   }
   window.v850RenderMatchExtras?.(m,s);
+  window.v855RenderMatchState?.(m,s);
   syncVideo();renderREC();
 }
 window.v800Render=render;
@@ -19499,5 +19505,485 @@ window.v853CodeDiagnostics=()=>({
   }
 }
 </style>
+
+
+
+<style id="v855-stable-match-mode-style">
+/* Estado funcional de Modo Partido */
+.v855-match-status{
+  margin:8px 0 0;
+  padding:8px 10px;
+  border-radius:8px;
+  background:#eef3f6;
+  color:#526a79;
+  font-size:10px;
+  font-weight:750;
+  line-height:1.4;
+}
+.v855-match-status.ok{background:#e9f5ed;color:#2f6849}
+.v855-match-status.warn{background:#fff4e1;color:#865d20}
+.v855-match-status.bad{background:#faeae9;color:#934844}
+
+.v855-live-rally-box{
+  margin-top:8px;
+  border:1px solid #dce4e9;
+  border-radius:9px;
+  background:#fbfcfd;
+  padding:9px;
+}
+.v855-live-rally-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:6px;
+}
+.v855-live-rally-head b{
+  font-size:11px;
+  color:#29475f;
+}
+.v855-live-rally-head span{
+  font-size:9px;
+  color:#70818d;
+}
+.v855-live-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  min-height:28px;
+  align-items:center;
+}
+.v855-live-actions .action{
+  padding:6px 8px;
+  border-radius:7px;
+  background:#102b43;
+  color:#fff;
+  font:850 10px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.v855-live-actions .empty{
+  font-size:9.5px;
+  color:#85939c;
+}
+
+/* Control de alineación V8.5: ampliar toda la tipografía pequeña */
+.v850-modal-head .pro-kicker{font-size:9px!important}
+.v850-modal-head h2{font-size:20px!important}
+.v850-modal-head p{font-size:10.5px!important;line-height:1.45!important}
+.v850-modal-head button{font-size:10px!important;padding:8px 10px!important}
+.v850-modal-body{padding:14px!important}
+.v850-modal-foot{padding:11px 14px!important}
+.v850-modal-foot>span{font-size:9.5px!important}
+.v850-modal-foot button{font-size:10px!important;padding:8px 10px!important}
+
+.v850-audit-head{gap:8px!important;margin-bottom:10px!important}
+.v850-audit-head>div{padding:9px!important}
+.v850-audit-head span{font-size:8.5px!important}
+.v850-audit-head b{font-size:14px!important}
+
+.v850-audit-grid{gap:10px!important}
+.v850-audit-section{padding:11px!important}
+.v850-audit-section h3{font-size:12px!important;margin-bottom:8px!important}
+
+.v850-six{gap:7px!important}
+.v850-six>div{padding:9px!important}
+.v850-six span{font-size:8.5px!important}
+.v850-six b{font-size:10.5px!important;line-height:1.35!important}
+.v850-six small{font-size:9px!important;line-height:1.35!important}
+
+.v850-audit-list{gap:6px!important}
+.v850-audit-item{font-size:9.5px!important;padding:8px 9px!important;line-height:1.4!important}
+.v850-bench{gap:6px!important}
+.v850-bench span{font-size:9px!important;padding:6px 8px!important}
+.v850-sub-history{gap:6px!important}
+.v850-sub-history>div{grid-template-columns:100px 1fr!important;padding:6px 0!important}
+.v850-sub-history time{font-size:8.5px!important}
+.v850-sub-history span{font-size:9px!important;line-height:1.4!important}
+
+/* Modal clásico de alineación: texto y campos mayores */
+.scout-lineup-modal-card .pro-modal-head h2{font-size:20px!important}
+.scout-lineup-modal-card .pro-modal-head p{font-size:10.5px!important}
+.scout-lineup-columns h3{font-size:15px!important}
+.scout-lineup-field .scout-pos-meta b,
+.scout-lineup-field>b{font-size:11px!important}
+.scout-lineup-field .scout-pos-meta small{font-size:9px!important}
+.scout-lineup-field select,
+.scout-lineup-field input{font-size:12px!important;padding:9px!important;min-height:40px!important}
+.scout-lineup-role-select{font-size:11px!important;padding:8px!important;min-height:38px!important}
+.scout-pro-config-title span{font-size:9.5px!important}
+.scout-pro-config-title b{font-size:10.5px!important}
+.scout-pro-config-grid label>span,
+.scout-lineup-footer label>span{font-size:9.5px!important}
+.scout-pro-config-grid select,
+.scout-lineup-footer select{font-size:11.5px!important;min-height:38px!important}
+.scout-auto-check span{font-size:10.5px!important}
+.scout-central-chip{font-size:9.5px!important}
+.scout-pro-config-card p{font-size:10px!important}
+.scout-position-legend span{font-size:9.5px!important}
+.scout-position-legend b{font-size:12px!important}
+.scout-lineup-preview .slot .pos{font-size:8.5px!important}
+.scout-lineup-preview .slot strong{font-size:10.5px!important}
+.scout-lineup-preview .slot small{font-size:9px!important}
+.scout-lineup-footer button{font-size:11px!important;padding:9px 12px!important}
+
+/* Otros textos demasiado pequeños en Modo Partido */
+#scout-match-mode .v800-event-pill{font-size:9.5px!important}
+#scout-match-mode .v800-rec-copy{font-size:10px!important}
+#scout-match-mode .v800-last-actions span{font-size:9.5px!important}
+#scout-match-mode .v800-decision span{font-size:10px!important}
+#scout-match-mode .v800-kpis small{font-size:9px!important}
+#scout-match-mode .v850-context-strip small{font-size:9px!important}
+
+@media(max-width:650px){
+  .v855-live-rally-head{align-items:flex-start;flex-direction:column}
+  .v850-six{grid-template-columns:1fr 1fr!important}
+}
+</style>
+
+
+<script id="v855-stable-match-mode-core">
+(()=>{
+'use strict';
+const VERSION='8.5.5';
+const POS=['p1','p2','p3','p4','p5','p6'];
+const $s=id=>document.getElementById(id);
+const arr=v=>Array.isArray(v)?v:[];
+const clone=v=>{try{return structuredClone(v)}catch(_){try{return JSON.parse(JSON.stringify(v))}catch(__){return v}}};
+const iso=()=>new Date().toISOString();
+
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function status(msg,type=''){
+  const e=$s('v855-match-status');if(!e)return;
+  e.textContent=msg;e.className='v855-match-status'+(type?' '+type:'');
+}
+function codeStatus(msg,type=''){
+  const e=$s('v852-code-status');if(!e)return;
+  e.textContent=msg;e.className='v852-code-status'+(type?' '+type:'');
+}
+function active(){
+  try{if(typeof scoutActive==='function'){const m=scoutActive();if(m)return m}}catch(_){}
+  try{return bridge()?.getActive?.()||null}catch(_){return null}
+}
+function resolve(){
+  let m=active();
+  const selected=Number($s('v800-match-select')?.value)||0;
+  if(selected&&Number(m?.id)!==selected){
+    try{bridge()?.activateMatch?.(selected)}catch(_){}
+    m=active();
+  }
+  if(!m&&selected){
+    try{bridge()?.activateMatch?.(selected)}catch(_){}
+    m=active();
+  }
+  return m;
+}
+function setOf(m){
+  try{if(typeof scoutSet==='function')return scoutSet(m)}catch(_){}
+  try{const s=bridge()?.getCurrentSet?.(m);if(s)return s}catch(_){}
+  return arr(m?.sets).find(x=>Number(x.number)===Number(m?.currentSet))||arr(m?.sets)[0]||null;
+}
+function nowMs(m){
+  try{if(typeof scoutElapsed==='function')return Number(scoutElapsed(m))||0}catch(_){}
+  const t=Date.parse(m?.clockStartedAt||m?.createdAt||'');
+  return Number.isFinite(t)?Math.max(0,Date.now()-t):0;
+}
+function snapshot(m,s){
+  try{if(typeof scoutCurrentRallySnapshot==='function')return scoutCurrentRallySnapshot(m)}catch(_){}
+  return {
+    servingBefore:m?.servingTeam==='opponent'?'opponent':'ours',
+    rotationBefore:Number(m?.rotationNo)||1,
+    opponentRotationBefore:Number(m?.opponentRotationNo)||1,
+    lineupBefore:clone(m?.lineup||{ours:{},opponent:{}}),
+    scoreBefore:{us:Number(s?.scoreUs)||0,opponent:Number(s?.scoreOpponent)||0}
+  };
+}
+function ensureRally(m,s){
+  try{if(typeof scoutEnsureRallyStart==='function')scoutEnsureRallyStart(m)}catch(_){}
+  if(!m.liveRally){
+    m.liveRally={id:Date.now(),actions:[],startedAt:iso(),scoutStartMs:nowMs(m),startSnapshot:snapshot(m,s)};
+  }
+  if(!Array.isArray(m.liveRally.actions))m.liveRally.actions=[];
+  if(!m.liveRally.startSnapshot)m.liveRally.startSnapshot=snapshot(m,s);
+  return m.liveRally;
+}
+function save(render=true){
+  try{
+    if(typeof scoutSave==='function'){scoutSave(false)}
+    else bridge()?.save?.();
+  }catch(_){
+    try{bridge()?.save?.()}catch(__){}
+  }
+  if(render){
+    try{window.v800Render?.()}catch(_){}
+    setTimeout(()=>{try{window.v855RenderMatchState?.(resolve(),setOf(resolve()))}catch(_){}},0);
+  }
+}
+function lineupComplete(m){
+  const ids=POS.map(p=>Number(m?.baseLineup?.ours?.[p]||m?.lineup?.ours?.[p])||0).filter(Boolean);
+  return ids.length===6&&new Set(ids).size===6;
+}
+function rotateNumber(n){n=Math.min(6,Math.max(1,Number(n)||1));return ((n+4)%6)+1}
+function rotateOpponent(m){
+  try{
+    if(typeof scoutRotateTeamLineup==='function'){
+      m.lineup=scoutRotateTeamLineup(m.lineup,'opponent',1);
+      if(m.baseLineup?.opponent)m.baseLineup.opponent=clone(m.lineup.opponent);
+    }
+  }catch(_){}
+  m.opponentRotationNo=rotateNumber(m.opponentRotationNo);
+}
+function rotateOurs(m){
+  let rotated=false;
+  if(lineupComplete(m)){
+    try{
+      if(typeof vcRotateBase==='function'){vcRotateBase(m,1);rotated=true}
+    }catch(_){}
+  }
+  if(!rotated){
+    try{
+      if(typeof scoutRotateTeamLineup==='function'){
+        m.lineup=scoutRotateTeamLineup(m.lineup,'ours',1);
+        if(m.baseLineup?.ours)m.baseLineup.ours=clone(m.lineup.ours);
+      }
+    }catch(_){}
+  }
+  m.rotationNo=rotateNumber(m.rotationNo);
+}
+function setWinner(s){
+  try{
+    if(typeof scoutSetHasWinner==='function')return !!scoutSetHasWinner(s);
+  }catch(_){}
+  const target=Number(s?.number)===5?15:25,a=Number(s?.scoreUs)||0,b=Number(s?.scoreOpponent)||0;
+  return (a>=target||b>=target)&&Math.abs(a-b)>=2;
+}
+function resetLive(m){
+  try{if(typeof scoutResetLiveRally==='function'){scoutResetLiveRally(m);return}}catch(_){}
+  m.liveRally={id:Date.now(),actions:[],startedAt:iso(),scoutStartMs:nowMs(m),startSnapshot:null};
+}
+function normalizeLineup(x){
+  try{if(typeof scoutNormalizeLineup==='function')return scoutNormalizeLineup(x)}catch(_){}
+  return clone(x||{ours:{},opponent:{}});
+}
+
+function mediaStamp(action){
+  if(!action)return;
+  const media=window.VC_MATCH_MODE_MEDIA;
+  try{
+    if(media?.isReview?.()&&media?.loaded?.()){
+      action.videoTime=Number(media.current?.())||0;
+      action.videoSource=String(media.source?.()||'video');
+      return;
+    }
+  }catch(_){}
+  try{
+    const d=typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null;
+    if(d?.active){
+      action.videoTime=Math.max(0,Number(d.elapsedMs||0)/1000);
+      action.videoSource='recording';
+    }
+  }catch(_){}
+}
+
+/* ---------- ACTIONS: same parser/push layer as complete scouting ---------- */
+window.v855AddCode=function(){
+  const input=$s('v800-code'),btn=$s('v855-add-code-btn');
+  const raw=String(input?.value||'').trim().toUpperCase().replace(/\s+/g,'');
+  if(!raw){codeStatus('Escribe un código o usa la chuleta.','wait');input?.focus();return false}
+
+  const m=resolve(),s=setOf(m);
+  if(!m||!s){codeStatus('No hay un partido activo. Selecciona un scouting.','bad');return false}
+  if(m.status==='finished'||s.finished){codeStatus('El set está cerrado. Inicia/reabre un set para añadir acciones.','bad');return false}
+  if(typeof scoutV6108ParseRaw!=='function'||typeof scoutPushAction!=='function'){
+    codeStatus('No encuentro el motor del Scouting completo. Recarga con Ctrl+F5.','bad');return false;
+  }
+
+  btn?.classList.add('busy');
+  try{
+    const before=arr(m.liveRally?.actions).length;
+    const parsed=scoutV6108ParseRaw(raw,m,null);
+    if(parsed?.error||!parsed?.action){
+      codeStatus('✕ '+(parsed?.error||'Código no reconocido.'),'bad');input?.focus();return false;
+    }
+
+    const pushed=scoutPushAction(parsed.action);
+    const mm=resolve()||m;
+    const after=arr(mm.liveRally?.actions).length;
+    if(after<=before){
+      codeStatus('✕ La acción no ha entrado en el rally. Revisa dorsal y set activo.','bad');input?.focus();return false;
+    }
+
+    mediaStamp(mm.liveRally.actions[after-1]);
+    save(false);
+    if(input)input.value='';
+    codeStatus(`✓ ${raw} guardado. Rally actual: ${after} acción${after===1?'':'es'}.`,'ok');
+    status(`Acción guardada · ${after} en el rally actual.`,'ok');
+    window.v855RenderMatchState(mm,setOf(mm));
+    input?.focus();
+    return true;
+  }catch(err){
+    codeStatus('✕ '+String(err?.message||err),'bad');input?.focus();return false;
+  }finally{
+    btn?.classList.remove('busy');
+  }
+};
+
+/* ---------- POINTS: Match Mode never blocked by incomplete lineup ---------- */
+window.v855AwardPoint=function(winner){
+  winner=winner==='opponent'?'opponent':'ours';
+  const m=resolve(),s=setOf(m);
+  if(!m||!s){status('No hay un partido activo.','bad');return false}
+  if(m.status==='finished'){status('El scouting está finalizado.','bad');return false}
+  if(s.finished){status('El set está cerrado. Inicia el siguiente set o deshaz el último rally.','warn');return false}
+
+  try{if(typeof vcEnsureProMatch==='function')vcEnsureProMatch(m)}catch(_){}
+  const live=ensureRally(m,s);
+  const before=clone(live.startSnapshot||snapshot(m,s));
+  const actions=clone(arr(live.actions));
+
+  const oldUs=Number(s.scoreUs)||0,oldOp=Number(s.scoreOpponent)||0;
+  if(winner==='ours')s.scoreUs=oldUs+1; else s.scoreOpponent=oldOp+1;
+
+  const rally={
+    id:Number(live.id)||Date.now(),
+    setNumber:Number(s.number)||Number(m.currentSet)||1,
+    servingBefore:before.servingBefore==='opponent'?'opponent':'ours',
+    rotationBefore:Number(before.rotationBefore)||Number(m.rotationNo)||1,
+    opponentRotationBefore:Number(before.opponentRotationBefore)||Number(m.opponentRotationNo)||1,
+    lineupBefore:clone(before.lineupBefore||m.lineup),
+    baseLineupBefore:m.baseLineup?clone(m.baseLineup):null,
+    liberoBefore:m.libero?clone(m.libero):null,
+    lineupRolesBefore:m.lineupRoles?clone(m.lineupRoles):null,
+    scoreBefore:clone(before.scoreBefore||{us:oldUs,opponent:oldOp}),
+    scoreAfter:{us:Number(s.scoreUs)||0,opponent:Number(s.scoreOpponent)||0},
+    winner,
+    actions,
+    startedAt:live.startedAt||iso(),
+    endedAt:iso(),
+    scoutStartMs:Number(live.scoutStartMs)||0,
+    scoutEndMs:nowMs(m)
+  };
+  ['liveVideoSessionId','liveVideoStart','liveVideoEnd','liveVideoLinkedAt'].forEach(k=>{
+    if(live[k]!=null)rally[k]=live[k];
+  });
+
+  if(!Array.isArray(s.rallies))s.rallies=[];
+  s.rallies.push(rally);
+
+  const servingBefore=rally.servingBefore;
+  if(winner==='ours'){
+    if(servingBefore==='opponent')rotateOurs(m);
+    m.servingTeam='ours';
+  }else{
+    if(servingBefore==='ours')rotateOpponent(m);
+    m.servingTeam='opponent';
+  }
+
+  try{if(typeof vcApplyAutoLibero==='function'&&lineupComplete(m))vcApplyAutoLibero(m,true)}catch(_){}
+  resetLive(m);
+
+  if(setWinner(s)){
+    s.finished=true;s.winner=Number(s.scoreUs)>Number(s.scoreOpponent)?'ours':'opponent';s.endedAt=iso();
+  }
+  m.status='live';m.endedAt=null;m.updatedAt=iso();
+
+  save(false);
+  status(`✓ Rally guardado · ${s.scoreUs}-${s.scoreOpponent}${actions.length?` · ${actions.length} acciones`:''}.`,'ok');
+  codeStatus('Rally cerrado y guardado. Puedes empezar el siguiente.','ok');
+  try{window.v800Render?.()}catch(_){}
+  window.v855RenderMatchState(m,s);
+  return true;
+};
+
+/* ---------- UNDO: restore score + actions + rotations ---------- */
+window.v855UndoRally=function(){
+  const m=resolve(),s=setOf(m);
+  if(!m||!s){status('No hay un partido activo.','bad');return false}
+  if(!arr(s.rallies).length){status('No hay ningún rally cerrado para deshacer.','warn');return false}
+
+  const r=s.rallies.pop();
+  s.scoreUs=Number(r.scoreBefore?.us)||0;
+  s.scoreOpponent=Number(r.scoreBefore?.opponent)||0;
+  s.finished=false;s.winner=null;s.endedAt=null;
+  m.status='live';m.endedAt=null;
+  m.servingTeam=r.servingBefore==='opponent'?'opponent':'ours';
+  m.rotationNo=Number(r.rotationBefore)||1;
+  m.opponentRotationNo=Number(r.opponentRotationBefore)||1;
+  if(r.lineupBefore)m.lineup=normalizeLineup(r.lineupBefore);
+  if(r.baseLineupBefore)m.baseLineup=normalizeLineup(r.baseLineupBefore);
+  if(r.liberoBefore)m.libero=clone(r.liberoBefore);
+  if(r.lineupRolesBefore)m.lineupRoles=clone(r.lineupRolesBefore);
+
+  m.liveRally={
+    id:Number(r.id)||Date.now(),
+    actions:clone(arr(r.actions)),
+    startedAt:r.startedAt||iso(),
+    scoutStartMs:Number(r.scoutStartMs)||0,
+    startSnapshot:{
+      servingBefore:m.servingTeam,
+      rotationBefore:m.rotationNo,
+      opponentRotationBefore:m.opponentRotationNo,
+      lineupBefore:clone(m.lineup),
+      scoreBefore:{us:s.scoreUs,opponent:s.scoreOpponent}
+    }
+  };
+  ['liveVideoSessionId','liveVideoStart','liveVideoEnd','liveVideoLinkedAt'].forEach(k=>{
+    if(r[k]!=null)m.liveRally[k]=r[k];
+  });
+
+  save(false);
+  status(`↶ Rally deshecho · marcador ${s.scoreUs}-${s.scoreOpponent} · ${arr(m.liveRally.actions).length} acciones recuperadas.`,'ok');
+  codeStatus('Las acciones del último rally vuelven a estar abiertas para corregirlas.','ok');
+  try{window.v800Render?.()}catch(_){}
+  window.v855RenderMatchState(m,s);
+  return true;
+};
+
+window.v855RenderMatchState=function(m,s){
+  m=m||resolve();s=s||setOf(m);
+  if(!m||!s)return;
+  const actions=arr(m.liveRally?.actions);
+  const title=$s('v855-live-rally-title'),saveTxt=$s('v855-live-rally-save'),box=$s('v855-live-actions');
+  if(title)title.textContent=`Rally actual · ${actions.length} acción${actions.length===1?'':'es'}`;
+  if(saveTxt)saveTxt.textContent=actions.length?'Guardadas en la sesión':'Sin acciones pendientes';
+  if(box){
+    box.innerHTML=actions.length
+      ? actions.map(a=>`<span class="action">${String(a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||'')))}</span>`).join('')
+      : '<span class="empty">Añade acciones antes de cerrar el punto.</span>';
+  }
+};
+
+/* Route every Match Mode helper to the stable core. */
+window.v800AddCode=window.v855AddCode;
+window.v852AddCode=window.v855AddCode;
+window.v853AddCode=window.v855AddCode;
+
+/* Presets already call v800AddCode, so they now use V8.5.5 automatically. */
+$s('v855-add-code-btn')?.addEventListener('click',e=>{e.preventDefault();window.v855AddCode()});
+$s('v855-point-ours')?.addEventListener('click',e=>{e.preventDefault();window.v855AwardPoint('ours')});
+$s('v855-point-opponent')?.addEventListener('click',e=>{e.preventDefault();window.v855AwardPoint('opponent')});
+$s('v855-undo')?.addEventListener('click',e=>{e.preventDefault();window.v855UndoRally()});
+
+/* Opening Match Mode also paints the current live rally. */
+const openBase=window.v800Open;
+window.v800Open=function(...args){
+  const out=openBase?.apply(this,args);
+  setTimeout(()=>{const m=resolve();window.v855RenderMatchState(m,setOf(m))},30);
+  return out;
+};
+
+window.v855Diagnostics=()=>({
+  version:VERSION,
+  activeId:resolve()?.id||null,
+  set:setOf(resolve())?.number||null,
+  score:setOf(resolve())?`${setOf(resolve()).scoreUs}-${setOf(resolve()).scoreOpponent}`:null,
+  closedRallies:arr(setOf(resolve())?.rallies).length,
+  liveActions:arr(resolve()?.liveRally?.actions).length,
+  parser:typeof scoutV6108ParseRaw,
+  push:typeof scoutPushAction,
+  save:typeof scoutSave,
+  award:typeof window.v855AwardPoint,
+  undo:typeof window.v855UndoRally
+});
+})();
+</script>
 
 </body></html>
