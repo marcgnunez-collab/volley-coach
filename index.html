@@ -4952,7 +4952,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.3', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.5.4', {
         updateViaCache: 'none'
       });
 
@@ -19157,5 +19157,347 @@ window.v853CodeDiagnostics=()=>({
 });
 })();
 </script>
+
+
+
+<style id="v854-match-mode-legibility">
+/* V8.5.4 · Modo Partido más legible y táctil */
+#scout-match-mode{
+  font-size:11px;
+}
+
+/* Barra superior */
+#scout-match-mode .v800-top{
+  padding:16px 18px!important;
+  gap:14px!important;
+}
+#scout-match-mode .v800-top h2{
+  font-size:22px!important;
+}
+#scout-match-mode .v800-top p{
+  font-size:11px!important;
+  line-height:1.35!important;
+}
+#scout-match-mode .v800-top .pro-kicker{
+  font-size:9px!important;
+}
+#scout-match-mode .v800-top-actions{
+  gap:7px!important;
+}
+#scout-match-mode .v800-top-actions button,
+#scout-match-mode .v853-code-tools button{
+  font-size:10px!important;
+  padding:9px 11px!important;
+  min-height:36px!important;
+}
+#scout-match-mode .v800-match-picker{
+  min-width:240px!important;
+}
+#scout-match-mode .v800-match-picker>span{
+  font-size:8.5px!important;
+}
+#scout-match-mode .v800-match-picker select{
+  height:38px!important;
+  padding:7px 9px!important;
+  font-size:10px!important;
+}
+
+/* Marcador */
+#scout-match-mode .v800-scoreboard{
+  grid-template-columns:1fr 175px 1fr!important;
+}
+#scout-match-mode .v800-team{
+  padding:14px 16px!important;
+}
+#scout-match-mode .v800-team small{
+  font-size:12px!important;
+}
+#scout-match-mode .v800-team strong{
+  font-size:56px!important;
+}
+#scout-match-mode .v800-team span{
+  font-size:10px!important;
+}
+#scout-match-mode .v800-center-score>span{
+  font-size:9px!important;
+}
+#scout-match-mode .v800-center-score>b{
+  font-size:21px!important;
+}
+#scout-match-mode .v800-service{
+  font-size:9px!important;
+}
+
+/* Tarjetas y títulos */
+#scout-match-mode .v800-court-card,
+#scout-match-mode .v800-control-card,
+#scout-match-mode .v800-events-card,
+#scout-match-mode .v800-video-card,
+#scout-match-mode .v800-kpi-card,
+#scout-match-mode .v800-decision-card,
+#scout-match-mode .v800-last-card{
+  padding:12px!important;
+}
+#scout-match-mode .v800-card-head h3{
+  font-size:14px!important;
+}
+#scout-match-mode .pro-kicker{
+  font-size:8.5px!important;
+}
+#scout-match-mode .v800-chips span,
+#scout-match-mode .v800-status{
+  font-size:8.5px!important;
+  padding:5px 8px!important;
+}
+#scout-match-mode .v800-court-label{
+  font-size:8.5px!important;
+}
+
+/* Jugadoras en pista */
+#scout-match-mode .v800-pos{
+  font-size:9px!important;
+  padding:6px!important;
+}
+#scout-match-mode .v800-pos b{
+  font-size:11px!important;
+}
+#scout-match-mode .v800-pos small{
+  font-size:7.5px!important;
+}
+
+/* Botones principales de puntos */
+#scout-match-mode .v800-point-row{
+  grid-template-columns:1fr 86px 1fr!important;
+  gap:8px!important;
+}
+#scout-match-mode .v800-point-row button{
+  height:82px!important;
+}
+#scout-match-mode .v800-point b{
+  font-size:30px!important;
+}
+#scout-match-mode .v800-point span{
+  font-size:12px!important;
+}
+#scout-match-mode .v800-undo{
+  font-size:23px!important;
+}
+#scout-match-mode .v800-undo span{
+  font-size:8.5px!important;
+}
+
+/* Código rápido */
+#scout-match-mode .v800-code-row{
+  gap:7px!important;
+  margin-top:9px!important;
+}
+#scout-match-mode .v800-code-row input{
+  font-size:13px!important;
+  padding:11px 12px!important;
+  min-height:42px!important;
+}
+#scout-match-mode .v800-code-row button{
+  font-size:10.5px!important;
+  padding:9px 12px!important;
+  min-height:42px!important;
+}
+#scout-match-mode .v852-code-status{
+  font-size:9px!important;
+  padding:7px 9px!important;
+  line-height:1.4!important;
+}
+
+/* Presets y constructor */
+#scout-match-mode .v800-code-presets{
+  gap:6px!important;
+  margin-top:7px!important;
+}
+#scout-match-mode .v800-code-presets button{
+  font-size:10px!important;
+  padding:9px 8px!important;
+  min-height:38px!important;
+}
+#scout-match-mode .v800-preset-builder{
+  grid-template-columns:150px 115px 1fr!important;
+  gap:7px!important;
+  margin-top:8px!important;
+  padding-top:8px!important;
+}
+#scout-match-mode .v800-preset-builder label span{
+  font-size:8.5px!important;
+}
+#scout-match-mode .v800-preset-builder select,
+#scout-match-mode .v800-preset-builder input{
+  font-size:10.5px!important;
+  padding:8px!important;
+  min-height:38px!important;
+}
+#scout-match-mode .v800-preset-builder small{
+  font-size:9px!important;
+}
+
+/* Eventos */
+#scout-match-mode .v800-event-buttons{
+  gap:6px!important;
+}
+#scout-match-mode .v800-event-buttons button{
+  font-size:10px!important;
+  padding:10px 8px!important;
+  min-height:40px!important;
+}
+#scout-match-mode .v800-event-pill{
+  font-size:8.5px!important;
+  padding:5px 8px!important;
+}
+
+/* Vídeo */
+#scout-match-mode .v800-video-empty{
+  font-size:10px!important;
+}
+#scout-match-mode .v800-video-actions{
+  gap:6px!important;
+  margin-top:7px!important;
+}
+#scout-match-mode .v800-video-actions button{
+  font-size:10px!important;
+  padding:9px!important;
+  min-height:38px!important;
+}
+#scout-match-mode .v800-rec-copy{
+  font-size:9px!important;
+}
+
+/* KPIs */
+#scout-match-mode .v800-kpis{
+  gap:6px!important;
+}
+#scout-match-mode .v800-kpis>div{
+  padding:9px!important;
+}
+#scout-match-mode .v800-kpis span{
+  font-size:8.5px!important;
+}
+#scout-match-mode .v800-kpis b{
+  font-size:19px!important;
+}
+#scout-match-mode .v800-kpis small{
+  font-size:8px!important;
+}
+
+/* Decisiones y último rally */
+#scout-match-mode .v800-decision{
+  padding:8px 9px!important;
+}
+#scout-match-mode .v800-decision b{
+  font-size:10.5px!important;
+}
+#scout-match-mode .v800-decision span{
+  font-size:9px!important;
+  line-height:1.45!important;
+}
+#scout-match-mode .v800-last-rally{
+  font-size:9.5px!important;
+}
+#scout-match-mode .v800-last-actions span{
+  font-size:8.5px!important;
+  padding:5px 7px!important;
+}
+
+/* Marcador contextual */
+#scout-match-mode .v850-context-strip{
+  gap:7px!important;
+  padding:8px!important;
+}
+#scout-match-mode .v850-context-strip>div{
+  padding:8px 9px!important;
+}
+#scout-match-mode .v850-context-strip span{
+  font-size:7.5px!important;
+}
+#scout-match-mode .v850-context-strip b{
+  font-size:14px!important;
+}
+#scout-match-mode .v850-context-strip small{
+  font-size:8px!important;
+}
+
+/* Control de alineación */
+#scout-match-mode .v850-lineup-guard-head b{
+  font-size:10px!important;
+}
+#scout-match-mode .v850-lineup-guard-head span{
+  font-size:8.5px!important;
+}
+#scout-match-mode .v850-lineup-guard-head button{
+  font-size:9.5px!important;
+  padding:7px 9px!important;
+}
+#scout-match-mode .v850-lineup-chip{
+  font-size:8px!important;
+  padding:5px 8px!important;
+}
+
+/* Notas de vídeo */
+#scout-match-mode .v850-video-note{
+  padding:8px!important;
+}
+#scout-match-mode .v850-video-note time{
+  font-size:8px!important;
+}
+#scout-match-mode .v850-video-note b{
+  font-size:9.5px!important;
+}
+#scout-match-mode .v850-video-note small{
+  font-size:8.2px!important;
+}
+#scout-match-mode .v850-video-note button{
+  font-size:9px!important;
+  padding:6px 8px!important;
+}
+
+/* Vacío */
+#scout-match-mode .v800-empty{
+  font-size:11px!important;
+}
+#scout-match-mode .v800-empty strong{
+  font-size:16px!important;
+}
+#scout-match-mode .v800-empty button{
+  font-size:10.5px!important;
+  padding:9px 12px!important;
+}
+
+/* Tablet / móvil: mantener grande, sin desbordar */
+@media(max-width:700px){
+  #scout-match-mode .v800-scoreboard{
+    grid-template-columns:1fr 105px 1fr!important;
+  }
+  #scout-match-mode .v800-team strong{
+    font-size:42px!important;
+  }
+  #scout-match-mode .v800-team small{
+    font-size:10px!important;
+  }
+  #scout-match-mode .v800-top-actions button{
+    font-size:10px!important;
+    padding:9px 10px!important;
+  }
+  #scout-match-mode .v800-preset-builder{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #scout-match-mode .v800-code-presets{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #scout-match-mode .v800-event-buttons{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #scout-match-mode .v800-point-row{
+    grid-template-columns:1fr 74px 1fr!important;
+  }
+  #scout-match-mode .v800-point-row button{
+    height:76px!important;
+  }
+}
+</style>
 
 </body></html>
