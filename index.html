@@ -1486,6 +1486,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">SETTER DISTRIBUTION · V8.3</span><h3>Distribución profesional de colocadores</h3><p class="scout-v630-subtitle">Filtra por colocador, fase y calidad de recepción. Muestra volumen, uso, resultado del ataque y rendimiento del rally.</p></div><div class="scout-v830-toolbar"><label><span>Colocador</span><select id="scout-distribution-setter-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">Todos</option></select></label><label><span>Fase</span><select id="scout-distribution-phase-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">K1 + K2</option><option value="K1">K1</option><option value="K2">K2</option></select></label><label><span>Recepción</span><select id="scout-distribution-reception-filter" onchange="scoutRenderPerformanceAnalytics()"><option value="">Todas</option><option value="#"># Perfecta</option><option value="+">+ Positiva</option><option value="!">! Neutra</option><option value="-">- Negativa</option><option value="/">/ Muy negativa</option><option value="=">= Error</option></select></label></div></div><div id="scout-analysis-distribution"></div></section>
       <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">ATTACK DIRECTIONS · V8.3</span><h3>Direcciones de ataque</h3><p class="scout-v630-subtitle">Línea, diagonal corta y diagonal larga con kill%, error, bloqueo y eficiencia. La trayectoria de zonas (.4&gt;5) se conserva aparte.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v830-attack-team" onchange="scoutV830RenderAttackDirections()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v830-attack-player" onchange="scoutV830RenderAttackDirections()"><option value="">Todos</option></select></label><label><span>Rotación</span><select id="scout-v830-attack-rotation" onchange="scoutV830RenderAttackDirections()"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label><label><span>Fase</span><select id="scout-v830-attack-phase" onchange="scoutV830RenderAttackDirections()"><option value="">Todas</option><option value="K1">K1</option><option value="K2">K2</option></select></label></div></div><div id="scout-v830-attack-directions"></div></section>
       <section class="scout-analysis-panel wide scout-v830-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">PRO RECEPTION · V8.3</span><h3>Recepción profesional</h3><p class="scout-v630-subtitle">Cruza zona de recepción, tipo de saque recibido y conversión de side-out. Si antes codificas el saque rival, Volley Coach puede inferir el tipo y origen automáticamente.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v830-rec-team" onchange="scoutV830RenderReception()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v830-rec-player" onchange="scoutV830RenderReception()"><option value="">Todos</option></select></label><label><span>Saque recibido</span><select id="scout-v830-rec-serve" onchange="scoutV830RenderReception()"><option value="">Todos</option><option value="F">Flotante</option><option value="JF">Flotante salto</option><option value="JP">Salto potente</option><option value="U">Seguridad</option></select></label><label><span>Zona contacto</span><select id="scout-v830-rec-zone" onchange="scoutV830RenderReception()"><option value="">Todas</option><option value="1">Z1</option><option value="2">Z2</option><option value="3">Z3</option><option value="4">Z4</option><option value="5">Z5</option><option value="6">Z6</option><option value="7">Z7</option><option value="8">Z8</option><option value="9">Z9</option></select></label></div></div><div id="scout-v830-reception"></div></section>
+      <section class="scout-analysis-panel wide scout-v890-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">DATAVOLLEY TECHNICAL · V8.9</span><h3>Detalle técnico DataVolley</h3><p class="scout-v630-subtitle">Desglosa los campos avanzados que has codificado: tipo de recepción, contacto y trayectoria DV, tempo, attack/set codes, tipo de ataque/colocación, set type, zonas/conos, fases y bloqueo.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v890-team" onchange="scoutV890RenderDataVolleyAnalysis()"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label></div></div><div id="scout-v890-datavolley-detail"></div></section>
       <section class="scout-analysis-panel wide scout-v840-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">PRO BLOCK · V8.4</span><h3>Bloqueo profesional</h3><p class="scout-v630-subtitle">Analiza tamaño del bloqueo, zona, atacante objetivo y resultado real del contacto.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v840-block-team" onchange="scoutV840RenderBlocking()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="scout-v840-block-player" onchange="scoutV840RenderBlocking()"><option value="">Todos</option></select></label><label><span>Tamaño</span><select id="scout-v840-block-size" onchange="scoutV840RenderBlocking()"><option value="">Todos</option><option value="1">Individual</option><option value="2">Doble</option><option value="3">Triple</option></select></label><label><span>Zona</span><select id="scout-v840-block-zone" onchange="scoutV840RenderBlocking()"><option value="">Todas</option><option value="2">Z2</option><option value="3">Z3</option><option value="4">Z4</option></select></label></div></div><div id="scout-v840-blocking"></div></section>
       <section class="scout-analysis-panel wide scout-v840-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">BREAK POINT / SIDE-OUT · V8.4</span><h3>Fase avanzada</h3><p class="scout-v630-subtitle">No solo muestra K1/K2 global: separa side-out por receptora y calidad de recepción, y break point por sacadora y rotación.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v840-phase-team" onchange="scoutV840RenderPhaseAdvanced()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Set</span><select id="scout-v840-phase-set" onchange="scoutV840RenderPhaseAdvanced()"><option value="">Todos</option></select></label><label><span>Rotación</span><select id="scout-v840-phase-rotation" onchange="scoutV840RenderPhaseAdvanced()"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label></div></div><div id="scout-v840-phase-advanced"></div></section>
       <section class="scout-analysis-panel wide scout-v850-panel"><div class="scout-panel-head scout-v830-head"><div><span class="pro-kicker">CONTEXT SCORE · V8.5</span><h3>Marcador contextual</h3><p class="scout-v630-subtitle">Compara rendimiento al inicio, tramo medio, final, marcadores cerrados y puntos de set.</p></div><div class="scout-v830-toolbar"><label><span>Equipo</span><select id="scout-v850-context-team" onchange="scoutV850RenderContextAnalysis()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label><label><span>Set</span><select id="scout-v850-context-set" onchange="scoutV850RenderContextAnalysis()"><option value="">Todos</option></select></label></div></div><div id="scout-v850-context-analysis"></div></section>
@@ -1554,10 +1555,37 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 
 <div id="scout-v6100-court-modal" class="pro-modal" onclick="if(event.target===this)scoutV6100CloseCourt()">
-  <div class="pro-modal-card scout-v6100-court-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">SCOUTING INPUT PRO</span><h2>Pista interactiva</h2><p>En saque/ataque marca origen y destino. En recepción/defensa basta con una sola zona de contacto.</p></div><button class="modal-close" onclick="scoutV6100CloseCourt()">×</button></div>
-    <div class="scout-v6100-court-form"><label><span>Fundamento</span><select id="scout-v6100-court-skill"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A" selected>Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label><label><span>Valoración</span><select id="scout-v6100-court-eval"><option>#</option><option>+</option><option selected>!</option><option>-</option><option>/</option><option>=</option></select></label><label><span>Acción</span><div class="actions"><button class="ghost" onclick="scoutV6100CourtClear()">Limpiar zonas</button><button class="ghost" onclick="scoutV6100CourtApply(false)">Aplicar al formulario</button><button class="primary" onclick="scoutV6100CourtApply(true)">Registrar ahora</button></div></label></div>
-    <div class="scout-v6100-zone-layout"><section class="scout-v6100-zone-panel"><h3>Zona de origen</h3><div id="scout-v6100-origin-grid" class="scout-v6100-zone-grid"></div></section><section class="scout-v6100-zone-panel"><h3>Zona de destino</h3><div id="scout-v6100-dest-grid" class="scout-v6100-zone-grid"></div></section><div id="scout-v6100-path" class="scout-v6100-path">Origen — → Destino —</div></div>
+  <div class="pro-modal-card scout-v6100-court-card v880-court-card">
+    <div class="pro-modal-head">
+      <div><span class="pro-kicker">DATAVOLLEY COURT · V8.8</span><h2>Pista interactiva 1–9</h2><p id="scout-v880-court-help">Selecciona origen y destino con zonas DataVolley. Puedes trabajar por zona, subzona A–D o coordenada exacta.</p></div>
+      <button class="modal-close" onclick="scoutV6100CloseCourt()">×</button>
+    </div>
+    <div class="scout-v6100-court-form v880-court-form">
+      <label><span>Fundamento</span><select id="scout-v6100-court-skill"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A" selected>Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label>
+      <label><span>Valoración</span><select id="scout-v6100-court-eval"><option>#</option><option>+</option><option selected>!</option><option>-</option><option>/</option><option>=</option></select></label>
+      <label><span>Precisión</span><select id="scout-v880-court-precision"><option value="zone">Zona 1–9</option><option value="subzone" selected>Subzona A–D</option><option value="coordinate">Coordenada exacta</option></select></label>
+      <label id="scout-v880-court-attack-mode-wrap"><span>Ataque</span><select id="scout-v880-court-attack-mode"><option value="zones">Destino por zonas</option><option value="cones">Dirección por conos</option></select></label>
+      <label class="v880-court-actions"><span>Acción</span><div class="actions"><button class="ghost" onclick="scoutV6100CourtClear()">Limpiar</button><button class="ghost" onclick="scoutV6100CourtApply(false)">Aplicar</button><button class="primary" onclick="scoutV6100CourtApply(true)">Registrar</button></div></label>
+    </div>
+    <div class="v880-dv-orientation"><b>Orientación DataVolley · nuestro campo:</b><span>RED arriba · fondo abajo · 4-3-2 / 7-8-9 / 5-6-1</span></div>
+    <div class="scout-v6100-zone-layout v880-zone-layout">
+      <section id="scout-v880-origin-panel" class="scout-v6100-zone-panel v880-zone-panel">
+        <h3>Zona de origen</h3>
+        <div id="scout-v6100-origin-grid" class="scout-v6100-zone-grid v880-dv-grid" aria-label="Pista de origen"></div>
+        <div id="scout-v880-origin-detail" class="v880-location-detail">Origen —</div>
+      </section>
+      <section id="scout-v880-dest-panel" class="scout-v6100-zone-panel v880-zone-panel">
+        <h3>Zona de destino</h3>
+        <div id="scout-v6100-dest-grid" class="scout-v6100-zone-grid v880-dv-grid" aria-label="Pista de destino"></div>
+        <div id="scout-v880-cone-grid" class="v880-cone-grid hidden" aria-label="Conos de ataque"></div>
+        <div id="scout-v880-dest-detail" class="v880-location-detail">Destino —</div>
+      </section>
+      <div id="scout-v6100-path" class="scout-v6100-path v880-path">Origen — → Destino —</div>
+    </div>
+    <div class="v880-court-foot">
+      <span><b>Subzonas:</b> A = delante-izquierda · B = delante-derecha · D = fondo-izquierda · C = fondo-derecha (mirando hacia la red).</span>
+      <span><b>Recepción/defensa:</b> el toque físico se guarda como <code>contact_zone</code>; la trayectoria DataVolley se hereda automáticamente del saque/ataque anterior.</span>
+    </div>
   </div>
 </div>
 
@@ -1985,7 +2013,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <label id="scout-v870-subtype-wrap" class="hidden"><span id="scout-v870-subtype-label">Skill subtype</span><select id="scout-action-subtype"><option value="">— Sin especificar —</option></select></label>
               <label id="scout-v870-special-wrap"><span>Special code · motivo</span><input id="scout-action-special" maxlength="10" autocapitalize="characters" placeholder="NET / ANT / OL / BC…"></label>
               <label id="scout-v870-custom-wrap"><span>Custom code DV</span><input id="scout-action-custom" maxlength="5" autocapitalize="characters" placeholder="Máx. 5"></label>
-              <label id="scout-adv-tempo-wrap"><span id="scout-action-tempo-label">Tempo DataVolley</span><select id="scout-action-tempo"><option value="">— Sin especificar —</option><option value="Q">Q · Quick</option><option value="U">U · Super</option><option value="T">T · Fast</option><option value="M">M · Medium</option><option value="H">H · High</option><option value="O">O · Other</option></select></label><label id="scout-adv-direction-wrap"><span>Dirección de ataque · VC</span><select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select></label>
+              <label id="scout-adv-tempo-wrap"><span id="scout-action-tempo-label">Tempo DataVolley</span><select id="scout-action-tempo"><option value="">— Sin especificar —</option><option value="Q">Q · Quick</option><option value="U">U · Super</option><option value="T">T · Fast</option><option value="M">M · Medium</option><option value="H">H · High</option><option value="O">O · Other</option></select></label><label id="scout-adv-direction-wrap"><span>Dirección de ataque · VC</span><select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select></label><label id="scout-v880-location-mode-wrap" class="hidden"><span>Destino ataque · DataVolley</span><select id="scout-action-location-mode"><option value="zones">Zonas / subzonas</option><option value="cones">Conos 1–8</option></select></label><label id="scout-v880-cone-wrap" class="hidden"><span>Cono de ataque</span><select id="scout-action-end-cone"><option value="">—</option><option value="1">Cono 1</option><option value="2">Cono 2</option><option value="3">Cono 3</option><option value="4">Cono 4</option><option value="5">Cono 5</option><option value="6">Cono 6</option><option value="7">Cono 7</option><option value="8">Cono 8 · central</option></select></label>
               <label id="scout-adv-block-wrap"><span>Bloqueadores</span><select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select></label><label id="scout-v840-block-target-wrap" class="hidden"><span>Atacante objetivo</span><input id="scout-v840-block-target" inputmode="numeric" placeholder="Dorsal rival · ej. 12"></label>
             </div>
             <div id="scout-advanced-code-preview" class="scout-advanced-code-preview">Código: —</div>
@@ -4973,7 +5001,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.7.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.9.0', {
         updateViaCache: 'none'
       });
 
@@ -7795,6 +7823,52 @@ function v757OfficialHTML(m){
   <div class="legend"><span><b>FP</b> Fase punto</span><span><b>G-P</b> Ganados - perdidos</span><span><b>Pos%</b> Recepción +/#</span><span><b>Exc%</b> Recepción #</span><span><b>Pts%</b> Puntos / intentos</span></div>
   <div class="foot"><span>Volley Coach V7.5.7 · Hoja estadística</span><span>Datos calculados desde las acciones registradas.</span></div></div>`;
 }
+
+function v890PdfRows(m,team,skill){return scoutActionRows(m,false).filter(a=>a.team===team&&(!skill||a.skill===skill))}
+function v890PdfPct(n,d){return d?Math.round(Number(n||0)*100/d):0}
+function v890PdfTop(rows,getter){
+  const map=new Map();rows.forEach(a=>{const k=String(getter(a)||'').trim();if(k)map.set(k,(map.get(k)||0)+1)});
+  return [...map.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+}
+function v890PdfOutcome(rows){
+  const pts=rows.filter(a=>a.evaluation==='#').length,err=rows.filter(a=>a.evaluation==='=').length,blk=rows.filter(a=>a.evaluation==='/').length;
+  return {pts,err,blk,kill:v890PdfPct(pts,rows.length),eff:rows.length?Math.round((pts-err-blk)*100/rows.length):0};
+}
+function v890PdfRecSubtype(m,team){
+  const rows=v890PdfRows(m,team,'R'),labels={L:'On left',R:'On right',LOW:'Low',OH:'Overhand',MID:'Middle line','':'Sin tipo'};
+  return ['L','R','LOW','OH','MID',''].map(k=>{
+    const rr=rows.filter(a=>String(a.skillSubtype||'')===k),pos=rr.filter(a=>['#','+'].includes(a.evaluation)).length,
+      exc=rr.filter(a=>a.evaluation==='#').length,err=rr.filter(a=>a.evaluation==='=').length,so=rr.filter(a=>a.winner===team).length;
+    return {key:k,label:labels[k],total:rr.length,pos:v890PdfPct(pos,rr.length),exc:v890PdfPct(exc,rr.length),err,so:v890PdfPct(so,rr.length),
+      contact:v890PdfTop(rr,a=>a.contactZone||a.endZone||a.startZone),source:v890PdfTop(rr,a=>a.dvStartZone)};
+  }).filter(x=>x.total);
+}
+function v890PdfSetTempo(m,team){
+  const rows=v890PdfRows(m,team,'E'),labs={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other','':'Sin tempo'};
+  return ['Q','U','T','M','H','O',''].map(k=>{
+    const rr=rows.filter(a=>String(a.setTempo||'')===k),good=rr.filter(a=>['#','+'].includes(a.evaluation)).length,bad=rr.filter(a=>['-','/','='].includes(a.evaluation)).length;
+    return {key:k,label:k?`${k} · ${labs[k]}`:labs[k],total:rr.length,use:v890PdfPct(rr.length,rows.length),gp:good-bad,
+      call:v890PdfTop(rr,a=>a.setterCall),target:v890PdfTop(rr,a=>a.setTarget),type:v890PdfTop(rr,a=>a.dvSetType)};
+  }).filter(x=>x.total);
+}
+function v890PdfAttackTempo(m,team){
+  const rows=v890PdfRows(m,team,'A'),labs={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other','':'Sin tempo'};
+  return ['Q','U','T','M','H','O',''].map(k=>{
+    const rr=rows.filter(a=>String(a.attackTempo||'')===k),o=v890PdfOutcome(rr);
+    return {key:k,label:k?`${k} · ${labs[k]}`:labs[k],total:rr.length,use:v890PdfPct(rr.length,rows.length),...o,
+      code:v890PdfTop(rr,a=>a.attackCode),sub:v890PdfTop(rr,a=>a.skillSubtype),dest:v890PdfTop(rr,a=>a.endCone?`C${a.endCone}`:(a.startZone&&a.endZone?`${a.startZone}→${a.endZone}`:a.endZone))};
+  }).filter(x=>x.total);
+}
+function v890PdfAttackCodes(m,team){
+  const rows=v890PdfRows(m,team,'A'),map=new Map();rows.forEach(a=>{const k=String(a.attackCode||'Sin code');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,total:rr.length,use:v890PdfPct(rr.length,rows.length),...v890PdfOutcome(rr),
+    tempo:v890PdfTop(rr,a=>a.attackTempo),sub:v890PdfTop(rr,a=>a.skillSubtype),dest:v890PdfTop(rr,a=>a.endCone?`C${a.endCone}`:(a.startZone&&a.endZone?`${a.startZone}→${a.endZone}`:a.endZone))})).sort((a,b)=>b.total-a.total);
+}
+function v890PdfSimpleGroups(m,team,skill,field){
+  const rows=v890PdfRows(m,team,skill),map=new Map();rows.forEach(a=>{const k=String(a?.[field]||'Sin dato');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,total:rr.length,use:v890PdfPct(rr.length,rows.length),...v890PdfOutcome(rr)})).sort((a,b)=>b.total-a.total);
+}
+
 function v757ProPages(m){
   const a=scoutAnalysis(m),score=scoutSetsScore(m),ours=v757Rows(m,'ours'),rival=v757Rows(m,'opponent'),
     os=v757SkillRows(ours,'S'),or=v757SkillRows(ours,'R'),oa=v757SkillRows(ours,'A'),ob=v757SkillRows(ours,'B'),
@@ -7814,7 +7888,8 @@ function v757ProPages(m){
     leader?`Mayor G-P individual: ${leader.label}, ${v757Gp(leader._p.gp)}.`:''
   ].filter(Boolean);
   const common=`<style>.v757-pro{box-sizing:border-box;width:1120px;min-height:1500px;background:#fff;color:#17324d;font-family:Arial,Helvetica,sans-serif;padding:42px}.head{display:flex;justify-content:space-between;border-bottom:4px solid #102b43;padding-bottom:14px}.head h1{font-size:28px;margin:4px 0}.k{font-size:9px;font-weight:900;letter-spacing:.12em;color:#718394}.score{text-align:right}.score b{display:block;font-size:28px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.card{border:1px solid #dfe5e9;background:#f8fafb;padding:12px}.card span{display:block;font-size:8px;text-transform:uppercase;color:#72818d;font-weight:900}.card b{display:block;font-size:21px;margin:4px 0}.card small{font-size:8px;color:#7d8993}h2{font-size:16px;border-bottom:2px solid #294d69;padding-bottom:6px;margin-top:20px}.tbl{width:100%;border-collapse:collapse;font-size:9px}.tbl th,.tbl td{border-bottom:1px solid #e2e7ea;padding:6px;text-align:center}.tbl th{background:#edf2f5;font-size:8px}.tbl th:first-child,.tbl td:first-child{text-align:left}.ins{display:grid;gap:7px}.ins div{border:1px solid #dfe5e9;border-left:4px solid #597b95;padding:9px;background:#fafbfc;font-size:10px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}.foot{margin-top:25px;border-top:1px solid #dfe5e9;padding-top:7px;color:#788793;font-size:8px;display:flex;justify-content:space-between}</style>`;
-  const head=(title,page)=>`<div class="head"><div><div class="k">VOLLEY COACH · PROFESSIONAL MATCH REPORT · V7.5.7</div><h1>${v757Safe(title)}</h1><div>${v757Safe(EQUIPOS[equipoActivo].nombre)} vs ${v757Safe(m.opponent||'Rival')} · ${v757Safe(m.date||'')}</div></div><div class="score"><b>${score.us}-${score.opponent}</b><span>${page}/4</span></div></div>`;
+  const totalPages=6;
+  const head=(title,page)=>`<div class="head"><div><div class="k">VOLLEY COACH · PROFESSIONAL MATCH REPORT · V8.9</div><h1>${v757Safe(title)}</h1><div>${v757Safe(EQUIPOS[equipoActivo].nombre)} vs ${v757Safe(m.opponent||'Rival')} · ${v757Safe(m.date||'')}</div></div><div class="score"><b>${score.us}-${score.opponent}</b><span>${page}/${totalPages}</span></div></div>`;
   const playerTable=(list)=>`<table class="tbl"><thead><tr><th>Jugador</th><th>PTS</th><th>FP</th><th>G-P</th><th>SAQ #/=</th><th>REC</th><th>POS%</th><th>EXC%</th><th>ATQ</th><th>PTS</th><th>EFF%</th><th>BLQ</th></tr></thead><tbody>${list.map(x=>`<tr><td><b>${v757Safe(x.label)}</b></td><td>${x._p.won}</td><td>${x._p.fp}</td><td><b>${v757Gp(x._p.gp)}</b></td><td>${x._s.perfect}/${x._s.error}</td><td>${x._r.total||'·'}</td><td>${x._r.total?x._r.posPct+'%':'·'}</td><td>${x._r.total?x._r.perfPct+'%':'·'}</td><td>${x._a.total||'·'}</td><td>${x._a.perfect||'·'}</td><td>${x._a.total?x._a.effPct+'%':'·'}</td><td>${x._b.perfect||'·'}</td></tr>`).join('')}</tbody></table>`;
   const rotTable=(rot)=>`<table class="tbl"><thead><tr><th>Rot.</th><th>Rallies</th><th>Ganados</th><th>Global%</th><th>Side-out</th><th>Break</th></tr></thead><tbody>${rot.map(r=>`<tr><td><b>R${r.no}</b></td><td>${r.total}</td><td>${r.won}</td><td>${r.total?v757Pct(r.won,r.total)+'%':'·'}</td><td>${r.sideTotal?v757Pct(r.sideWon,r.sideTotal)+'% ('+r.sideWon+'/'+r.sideTotal+')':'·'}</td><td>${r.breakTotal?v757Pct(r.breakWon,r.breakTotal)+'% ('+r.breakWon+'/'+r.breakTotal+')':'·'}</td></tr>`).join('')}</tbody></table>`;
   const page1=`<div class="v757-pro">${common}${head('Informe técnico del partido',1)}<div class="cards">
@@ -7829,7 +7904,36 @@ function v757ProPages(m){
   const page3=`<div class="v757-pro">${common}${head('K1, K2 y rotaciones',3)}<div class="twocol"><div><h2>Nuestras rotaciones</h2>${rotTable(a.rotations)}</div><div><h2>Rotaciones rival</h2>${rotTable(a.opponentRotations)}</div></div><h2>Ataque según fase</h2><table class="tbl"><thead><tr><th>Fase</th><th>N Tot</th><th>N Pts</th><th>N Err</th><th>N Blq</th><th>N Pts%</th><th>R Tot</th><th>R Pts</th><th>R Err</th><th>R Blq</th><th>R Pts%</th></tr></thead><tbody>${labs.map((l,i)=>`<tr><td><b>${v757Safe(l)}</b></td><td>${pO[i].total}</td><td>${pO[i].pts}</td><td>${pO[i].err}</td><td>${pO[i].blq}</td><td>${pO[i].pct}%</td><td>${pR[i].total}</td><td>${pR[i].pts}</td><td>${pR[i].err}</td><td>${pR[i].blq}</td><td>${pR[i].pct}%</td></tr>`).join('')}</tbody></table><h2>K1 por calidad de recepción</h2><table class="tbl"><thead><tr><th>Recepción</th><th>Rallies</th><th>K1 ganados</th><th>Side-out</th></tr></thead><tbody>${seqO.byReception.map(x=>`<tr><td><b>${x.ev}</b></td><td>${x.total}</td><td>${x.won}</td><td>${x.total?x.pct+'%':'·'}</td></tr>`).join('')}</tbody></table><div class="foot"><span>K1 = recepción · K2 = saque.</span><span>Página 3 · Fases y rotaciones</span></div></div>`;
   const dist=scoutDistributionRows(m,'ours',''),counts={};dist.forEach(x=>{const k=x.target||'Sin destino';counts[k]=(counts[k]||0)+1});
   const page4=`<div class="v757-pro">${common}${head('Distribución y calidad de datos',4)}<div class="twocol"><div><h2>Distribución del colocador</h2><table class="tbl"><thead><tr><th>Destino / combinación</th><th>Total</th><th>Uso</th></tr></thead><tbody>${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td><b>${v757Safe(k)}</b></td><td>${v}</td><td>${dist.length?v757Pct(v,dist.length):0}%</td></tr>`).join('')||'<tr><td colspan="3">Sin distribución codificada.</td></tr>'}</tbody></table></div><div><h2>Comparativa de fundamentos</h2><table class="tbl"><thead><tr><th>Fundamento</th><th>Nosotros</th><th>Rival</th></tr></thead><tbody><tr><td><b>Saque ace/error</b></td><td>${os.perfect}/${os.error}</td><td>${rs.perfect}/${rs.error}</td></tr><tr><td><b>Recepción Pos%</b></td><td>${or.total?or.posPct+'%':'·'}</td><td>${rr.total?rr.posPct+'%':'·'}</td></tr><tr><td><b>Recepción Exc%</b></td><td>${or.total?or.perfPct+'%':'·'}</td><td>${rr.total?rr.perfPct+'%':'·'}</td></tr><tr><td><b>Ataque Pts%</b></td><td>${oa.total?oa.perfPct+'%':'·'}</td><td>${ra.total?ra.perfPct+'%':'·'}</td></tr><tr><td><b>Ataque EFF%</b></td><td>${oa.total?oa.effPct+'%':'·'}</td><td>${ra.total?ra.effPct+'%':'·'}</td></tr><tr><td><b>Bloqueos punto</b></td><td>${ob.perfect}</td><td>${rb.perfect}</td></tr></tbody></table></div></div><h2>Calidad de la muestra</h2><div class="ins"><div>Rallies cerrados: <b>${a.rallies.length}</b>. Acciones registradas: <b>${a.actions.length}</b>.</div><div>Las cifras que no tienen acciones registradas se muestran como “·” o “—”; no se convierten en cero.</div><div>Para interpretar rotaciones se recomienda una muestra mínima de 3 rallies y, preferiblemente, varias repeticiones por set.</div></div><div class="foot"><span>Informe descriptivo basado en el scouting registrado.</span><span>Página 4 · Distribución y metodología</span></div></div>`;
-  return [page1,page2,page3,page4];
+  const recO=v890PdfRecSubtype(m,'ours'),recR=v890PdfRecSubtype(m,'opponent'),
+    setO=v890PdfSetTempo(m,'ours'),setR=v890PdfSetTempo(m,'opponent'),
+    atkO=v890PdfAttackTempo(m,'ours'),atkR=v890PdfAttackTempo(m,'opponent'),
+    codeO=v890PdfAttackCodes(m,'ours'),codeR=v890PdfAttackCodes(m,'opponent'),
+    atkTypeO=v890PdfSimpleGroups(m,'ours','A','skillSubtype'),atkTypeR=v890PdfSimpleGroups(m,'opponent','A','skillSubtype'),
+    setGestureO=v890PdfSimpleGroups(m,'ours','E','skillSubtype'),setGestureR=v890PdfSimpleGroups(m,'opponent','E','skillSubtype'),
+    blockO=v890PdfSimpleGroups(m,'ours','B','skillSubtype'),blockR=v890PdfSimpleGroups(m,'opponent','B','skillSubtype');
+
+  const recTable=(rows)=>`<table class="tbl"><thead><tr><th>Tipo recepción</th><th>Tot</th><th>Pos%</th><th>Exc%</th><th>Err</th><th>SO%</th><th>Contacto</th><th>Origen DV</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${v757Safe(x.label)}</b></td><td>${x.total}</td><td>${x.pos}%</td><td>${x.exc}%</td><td>${x.err}</td><td>${x.so}%</td><td>${x.contact==='—'?'—':'Z'+v757Safe(x.contact)}</td><td>${x.source==='—'?'—':'Z'+v757Safe(x.source)}</td></tr>`).join('')||'<tr><td colspan="8">Sin subtype de recepción codificado.</td></tr>'}</tbody></table>`;
+  const setTempoTable=(rows)=>`<table class="tbl"><thead><tr><th>Tempo</th><th>Tot</th><th>Uso</th><th>G-P téc.</th><th>Set code</th><th>Destino VC</th><th>Set type</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${v757Safe(x.label)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${v757Gp(x.gp)}</td><td>${v757Safe(x.call)}</td><td>${v757Safe(x.target)}</td><td>${v757Safe(x.type)}</td></tr>`).join('')||'<tr><td colspan="7">Sin tempo de colocación codificado.</td></tr>'}</tbody></table>`;
+  const attackTempoTable=(rows)=>`<table class="tbl"><thead><tr><th>Tempo</th><th>Tot</th><th>Uso</th><th>Kill%</th><th>Err</th><th>Blq</th><th>EFF</th><th>Code</th><th>Tipo</th><th>Destino</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${v757Safe(x.label)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${x.kill}%</td><td>${x.err}</td><td>${x.blk}</td><td>${x.eff}%</td><td>${v757Safe(x.code)}</td><td>${v757Safe(x.sub)}</td><td>${v757Safe(x.dest)}</td></tr>`).join('')||'<tr><td colspan="10">Sin tempo de ataque codificado.</td></tr>'}</tbody></table>`;
+  const codeTable=(rows)=>`<table class="tbl"><thead><tr><th>Attack code</th><th>Tot</th><th>Uso</th><th>Kill%</th><th>Err</th><th>Blq</th><th>EFF</th><th>Tempo</th><th>Tipo</th><th>Destino</th></tr></thead><tbody>${rows.slice(0,14).map(x=>`<tr><td><b>${v757Safe(x.key)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${x.kill}%</td><td>${x.err}</td><td>${x.blk}</td><td>${x.eff}%</td><td>${v757Safe(x.tempo)}</td><td>${v757Safe(x.sub)}</td><td>${v757Safe(x.dest)}</td></tr>`).join('')||'<tr><td colspan="10">Sin attack_code codificado.</td></tr>'}</tbody></table>`;
+  const simpleTable=(rows,label)=>`<table class="tbl"><thead><tr><th>${v757Safe(label)}</th><th>Tot</th><th>Uso</th><th>Pts</th><th>Err</th><th>Blq</th><th>EFF</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${v757Safe(x.key)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${x.pts}</td><td>${x.err}</td><td>${x.blk}</td><td>${x.eff}%</td></tr>`).join('')||'<tr><td colspan="7">Sin datos codificados.</td></tr>'}</tbody></table>`;
+
+  const page5=`<div class="v757-pro">${common}${head('DataVolley · recepción y colocación',5)}
+    <h2>${v757Safe(EQUIPOS[equipoActivo].nombre)} · tipo de recepción</h2>${recTable(recO)}
+    <h2>${v757Safe(m.opponent||'Rival')} · tipo de recepción</h2>${recTable(recR)}
+    <div class="twocol"><div><h2>Nuestra colocación · tempo</h2>${setTempoTable(setO)}</div><div><h2>Colocación rival · tempo</h2>${setTempoTable(setR)}</div></div>
+    <div class="twocol"><div><h2>Nuestro gesto de colocación</h2>${simpleTable(setGestureO,'Gesto')}</div><div><h2>Gesto rival</h2>${simpleTable(setGestureR,'Gesto')}</div></div>
+    <div class="foot"><span>Recepción: subtype + contacto físico + origen DataVolley.</span><span>Página 5 · Recepción y colocación</span></div></div>`;
+
+  const page6=`<div class="v757-pro">${common}${head('DataVolley · ataque, bloqueo y destino',6)}
+    <div class="twocol"><div><h2>Nuestro ataque · tempo</h2>${attackTempoTable(atkO)}</div><div><h2>Ataque rival · tempo</h2>${attackTempoTable(atkR)}</div></div>
+    <h2>Nuestros attack codes</h2>${codeTable(codeO)}
+    <h2>Attack codes rival</h2>${codeTable(codeR)}
+    <div class="twocol"><div><h2>Tipo de ataque propio</h2>${simpleTable(atkTypeO,'Skill subtype')}</div><div><h2>Tipo de ataque rival</h2>${simpleTable(atkTypeR,'Skill subtype')}</div></div>
+    <div class="twocol"><div><h2>Bloqueo propio · subtype</h2>${simpleTable(blockO,'Block subtype')}</div><div><h2>Bloqueo rival · subtype</h2>${simpleTable(blockR,'Block subtype')}</div></div>
+    <div class="ins"><div><b>Destinos:</b> los ataques por zonas conservan origen→destino y los ataques por conos aparecen como C1–C8.</div><div><b>Campos no codificados:</b> se muestran como “Sin dato”; Volley Coach no los infiere artificialmente.</div></div>
+    <div class="foot"><span>Tempo Q/U/T/M/H/O · attack_code · skill_subtype · zonas/conos.</span><span>Página 6 · Ataque y bloqueo DataVolley</span></div></div>`;
+  return [page1,page2,page3,page4,page5,page6];
 }
 async function v757Canvas(markup,width=1180,scale=1.35){
   const wrap=document.createElement('div');wrap.style.cssText=`position:fixed;left:-30000px;top:0;width:${width}px;background:#fff;z-index:-1`;wrap.innerHTML=markup;document.body.appendChild(wrap);
@@ -11923,6 +12027,474 @@ if(window.VC_SCOUT_CORE){
   window.VC_SCOUT_CORE.register=(raw,m=scoutActive())=>v857RegisterRaw(raw,m);
 }
 scoutUpdateAdvancedFields();
+
+
+
+
+
+/* =====================================================================
+   V8.8.0 · DATAVOLLEY COURT SYSTEM
+   ===================================================================== */
+const V880_VERSION='8.8.0';
+const V880_ZONE_ORDER=[4,3,2,7,8,9,5,6,1];
+const V880_CONTACT_SKILLS=new Set(['R','D','B','C']);
+let v880OriginCoord=null,v880DestCoord=null,v880EndCone='';
+let v880CourtPrecision='subzone',v880AttackLocationMode='zones';
+
+function v880Clamp(v,min,max){return Math.max(min,Math.min(max,Number(v)||0))}
+function v880BaseToken(token){return String(token||'').match(/[1-9]/)?.[0]||''}
+function v880SubToken(token){return String(token||'').toUpperCase().match(/[A-D]/)?.[0]||''}
+function v880CoordClone(c){return c&&Number.isFinite(Number(c.x))&&Number.isFinite(Number(c.y))?{x:Number(c.x),y:Number(c.y)}:null}
+
+function v880XYToZone(x,y){
+  x=v880Clamp(x,0.5001,3.4999);y=v880Clamp(y,0.5001,3.4999);
+  const col=x<1.5?0:x<2.5?1:2,row=y>=2.5?0:y>=1.5?1:2;
+  return [[4,3,2],[7,8,9],[5,6,1]][row][col];
+}
+function v880ZoneBounds(zone){
+  const pos={4:[0.5,2.5],3:[1.5,2.5],2:[2.5,2.5],7:[0.5,1.5],8:[1.5,1.5],9:[2.5,1.5],5:[0.5,0.5],6:[1.5,0.5],1:[2.5,0.5]}[Number(zone)];
+  return pos?{x0:pos[0],y0:pos[1]}:null;
+}
+function v880XYToSubzone(x,y,zone=v880XYToZone(x,y)){
+  const b=v880ZoneBounds(zone);if(!b)return '';
+  const right=Number(x)>=b.x0+0.5,front=Number(y)>=b.y0+0.5;
+  if(front&&!right)return 'A';if(front&&right)return 'B';if(!front&&!right)return 'D';return 'C';
+}
+function v880XYToToken(x,y){const z=v880XYToZone(x,y);return String(z)+v880XYToSubzone(x,y,z)}
+function v880ZoneCenter(token){
+  const z=v880BaseToken(token),s=v880SubToken(token),b=v880ZoneBounds(z);if(!b)return null;
+  if(!s)return{x:b.x0+0.5,y:b.y0+0.5};
+  const off={A:[0.25,0.75],B:[0.75,0.75],D:[0.25,0.25],C:[0.75,0.25]}[s];
+  return{x:b.x0+off[0],y:b.y0+off[1]};
+}
+function v880FormatCoord(c){return c?`x ${Number(c.x).toFixed(2)} · y ${Number(c.y).toFixed(2)}`:'sin coordenada exacta'}
+
+function v880DataVolleyFields(action,m=scoutActive()){
+  const skill=action?.skill||'',start=String(action?.startZone||''),end=String(action?.endZone||'');
+  const contact=String(action?.contactZone||((skill==='R'||skill==='D')?(end||start):'')||'');
+  let dvStart=v880BaseToken(action?.dvStartZone||start),dvEnd=v880BaseToken(action?.dvEndZone||end),
+      dvEndSub=v880SubToken(action?.dvEndSubzone||end),sourceId=action?.dvSourceActionId!=null?Number(action.dvSourceActionId):null;
+
+  if(skill==='R'||skill==='D'){
+    const wanted=skill==='R'?'S':'A',other=action.team==='ours'?'opponent':'ours';
+    const prev=[...scoutArr(m?.liveRally?.actions)].reverse().find(a=>a.team===other&&a.skill===wanted);
+    if(prev){dvStart=v880BaseToken(prev.startZone);dvEnd=v880BaseToken(prev.endZone);dvEndSub=v880SubToken(prev.endZone);sourceId=Number(prev.id)||null}
+  }
+  const serving=m?.servingTeam==='opponent'?'opponent':'ours';
+  const pointPhase=action?.team===serving?'Breakpoint':'Sideout';
+  const dvPhase=skill==='S'?'Serve':(action?.phase==='K1'?'Reception':'Transition');
+  let attackPhase='';
+  if(skill==='A')attackPhase=action?.phase==='K1'?'Reception':(pointPhase==='Breakpoint'?'Transition breakpoint':'Transition sideout');
+
+  return {contactZone:contact,dvStartZone:dvStart,dvEndZone:action?.endCone?'':dvEnd,dvEndSubzone:action?.endCone?'':dvEndSub,
+    dvEndCone:action?.endCone?Number(action.endCone):null,dvSourceActionId:sourceId,dvPointPhase:pointPhase,dvPhase,dvAttackPhase:attackPhase};
+}
+
+const v880NormalizeBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v880NormalizeBase(a);
+  x.locationMode=a?.locationMode==='cones'?'cones':'zones';
+  x.endCone=a?.endCone!=null&&/^[1-8]$/.test(String(a.endCone))?Number(a.endCone):null;
+  x.startCoordinate=v880CoordClone(a?.startCoordinate);x.endCoordinate=v880CoordClone(a?.endCoordinate);x.contactCoordinate=v880CoordClone(a?.contactCoordinate);
+  x.contactZone=String(a?.contactZone||x.contactZone||'');x.dvStartZone=String(a?.dvStartZone||'');x.dvEndZone=String(a?.dvEndZone||'');x.dvEndSubzone=String(a?.dvEndSubzone||'');
+  x.dvEndCone=a?.dvEndCone!=null&&Number.isFinite(Number(a.dvEndCone))?Number(a.dvEndCone):null;x.dvSourceActionId=a?.dvSourceActionId!=null?Number(a.dvSourceActionId):null;
+  x.dvPointPhase=String(a?.dvPointPhase||'');x.dvPhase=String(a?.dvPhase||'');x.dvAttackPhase=String(a?.dvAttackPhase||'');
+  return x;
+};
+
+const v880PushBase=scoutPushAction;
+scoutPushAction=function(action){
+  const m=scoutActive();action={...action,...v880DataVolleyFields(action,m)};
+  const out=v880PushBase(action);
+  if(out&&m?.liveRally?.actions?.length){
+    const last=m.liveRally.actions[m.liveRally.actions.length-1];Object.assign(last,v880DataVolleyFields(last,m));
+    last.locationMode=last.endCone?'cones':(last.locationMode||'zones');scoutSave(false);
+  }
+  return out;
+};
+
+const v880BuildBase=scoutBuildCode;
+scoutBuildCode=function(a){
+  let code=v880BuildBase(a);
+  if(a?.skill==='A'&&a?.endCone&&a?.startZone){
+    const loc=`.${a.startZone}>C${a.endCone}`,prefixRe=/^((?:R)?(?:\d+|P)(?:S|R|E|A|B|D|F|C)[#\+!\-\/=])/;
+    if(!code.includes('>C'+a.endCone))code=code.replace(prefixRe,`$1${loc}`);
+  }
+  return code;
+};
+
+const v880ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const cm=original.match(/^((?:R)?\d+A[#\+!\-\/=]?)\.([1-9][A-D]?)>C([1-8])(.*)$/);
+  if(!cm)return v880ParseBase(original,m,oldAction);
+  const parsed=v880ParseBase(cm[1]+cm[4],m,oldAction);if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;a.startZone=cm[2];a.endZone='';a.contactZone='';a.locationMode='cones';a.endCone=Number(cm[3]);
+  a=scoutNormalizeAction({...a,...v880DataVolleyFields(a,m)});a.code=scoutBuildCode(a);return{action:a};
+};
+window.v680ParseCode=(raw,m,oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
+
+window.scoutAddManualAction=function(){
+  const team=$('scout-action-team')?.value||'ours',pv=$('scout-action-player')?.value||'',skill=$('scout-action-skill')?.value||'S',
+    combo=$('scout-action-combo')?.value||'',start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),
+    end=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||''),serve=$('scout-action-serve-type')?.value||'',
+    direction=$('scout-action-direction')?.value||'',blockers=$('scout-action-blockers')?.value??'',
+    target=String($('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3),
+    dvCode=v870CleanToken(v870FieldValue('scout-action-dv-code'),6),tempo=v870FieldValue('scout-action-tempo'),
+    subtype=v870FieldValue('scout-action-subtype'),setType=v870FieldValue('scout-action-set-type'),
+    special=v870CleanToken(v870FieldValue('scout-action-special'),10),custom=v870CleanToken(v870FieldValue('scout-action-custom'),5),
+    locationMode=skill==='A'?($('scout-action-location-mode')?.value||'zones'):'zones',
+    endCone=skill==='A'&&($('scout-action-location-mode')?.value==='cones')?Number($('scout-action-end-cone')?.value)||null:null;
+
+  let zones=scoutV6108NormalizeZoneInput(skill,start,end);
+  if(skill==='B'){const z=start||end;zones={startZone:z,endZone:'',contactZone:z,sourceZone:'',zoneInferred:false}}
+  if(skill==='A'&&locationMode==='cones'){
+    zones={...zones,startZone:start,endZone:'',contactZone:'',sourceZone:'',zoneInferred:false};
+    if(!start||!endCone){alert('Para ataque por conos selecciona zona de origen y cono de destino.');return}
+  }
+
+  const action={team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',skill,
+    evaluation:$('scout-action-eval')?.value||'!',...zones,serveType:skill==='S'?serve:'',receivedServeType:skill==='R'?serve:'',
+    phase:$('scout-action-phase')?.value||'',setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',
+    attackCode:skill==='A'?dvCode:'',setterCall:skill==='E'?dvCode:'',attackTempo:skill==='A'?tempo:'',setTempo:skill==='E'?tempo:'',
+    dvSetType:(skill==='A'||skill==='E')?setType:'',skillSubtype:subtype,specialCode:special,customCode:custom,
+    attackDirection:skill==='A'?direction:'',blockers:(skill==='A'||skill==='B')?String(blockers):'',blockTargetNumber:skill==='B'?target:'',
+    locationMode,endCone,startCoordinate:v880OriginCoord,endCoordinate:locationMode==='zones'?v880DestCoord:null,
+    contactCoordinate:V880_CONTACT_SKILLS.has(skill)?(v880DestCoord||v880OriginCoord):null};
+  Object.assign(action,v880DataVolleyFields(action,scoutActive()));scoutPushAction(action);
+};
+
+const v880FieldsBase=window.scoutUpdateAdvancedFields;
+window.scoutUpdateAdvancedFields=function(){
+  const out=v880FieldsBase?.(),skill=$('scout-action-skill')?.value||'S',mode=$('scout-action-location-mode')?.value||'zones';
+  $('scout-v880-location-mode-wrap')?.classList.toggle('hidden',skill!=='A');
+  $('scout-v880-cone-wrap')?.classList.toggle('hidden',!(skill==='A'&&mode==='cones'));
+  $('scout-action-end-wrap')?.classList.toggle('hidden',skill==='A'&&mode==='cones');
+  $('scout-action-end-sub-wrap')?.classList.toggle('hidden',skill==='A'&&mode==='cones');
+  const ctx=$('scout-advanced-context');if(ctx&&skill==='A'&&mode==='cones')ctx.textContent='Ataque DataVolley por conos · origen + end_cone; no se guarda end_zone';
+  return out;
+};
+$('scout-action-location-mode')?.addEventListener('change',()=>{scoutUpdateAdvancedFields();scoutUpdateAdvancedCodePreview()});
+$('scout-action-end-cone')?.addEventListener('change',()=>scoutUpdateAdvancedCodePreview());
+
+const v880PreviewBase=window.scoutUpdateAdvancedCodePreview;
+window.scoutUpdateAdvancedCodePreview=function(){
+  const skill=$('scout-action-skill')?.value||'S',mode=$('scout-action-location-mode')?.value||'zones';
+  if(skill!=='A'||mode!=='cones')return v880PreviewBase?.();
+  const start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),cone=Number($('scout-action-end-cone')?.value)||null,
+    ev=$('scout-action-eval')?.value||'!',combo=$('scout-action-combo')?.value||'',direction=$('scout-action-direction')?.value||'',
+    phase=$('scout-action-phase')?.value||'',blockers=$('scout-action-blockers')?.value??'',
+    dvCode=v870CleanToken(v870FieldValue('scout-action-dv-code'),6),tempo=v870FieldValue('scout-action-tempo'),
+    subtype=v870FieldValue('scout-action-subtype'),setType=v870FieldValue('scout-action-set-type'),
+    special=v870CleanToken(v870FieldValue('scout-action-special'),10),custom=v870CleanToken(v870FieldValue('scout-action-custom'),5);
+  let sample={team:'opponent',playerLabel:'N',skill:'A',evaluation:ev,startZone:start,endZone:'',attackCombo:combo,
+    attackCode:dvCode,attackTempo:tempo,dvSetType:setType,skillSubtype:subtype,specialCode:special,customCode:custom,
+    attackDirection:direction,phase,blockers:String(blockers),locationMode:'cones',endCone:cone};
+  sample=scoutNormalizeAction(sample);let c=scoutBuildCode(sample).replace(/^RN/,'N');
+  if($('scout-advanced-code-preview'))$('scout-advanced-code-preview').textContent='Código: '+c;
+};
+
+function v880Selection(which){return which==='origin'?v6100Origin:v6100Dest}
+function v880SetSelection(which,val){if(which==='origin')v6100Origin=String(val||'');else v6100Dest=String(val||'')}
+function v880SetCoord(which,c){if(which==='origin')v880OriginCoord=v880CoordClone(c);else v880DestCoord=v880CoordClone(c)}
+function v880SelectedCoord(which){return which==='origin'?v880OriginCoord:v880DestCoord}
+function v880ZoneCell(zone,which){
+  const selected=v880Selection(which),base=v880BaseToken(selected);
+  if(v880CourtPrecision==='zone')return `<div class="v880-zone-cell ${String(base)===String(zone)?'selected':''}"><button type="button" class="v880-zone-main ${String(base)===String(zone)?'selected':''}" onclick="scoutV880PickLocation('${which}','${zone}')">Z${zone}</button></div>`;
+  const letters=['A','B','D','C'];
+  return `<div class="v880-zone-cell ${String(base)===String(zone)?'selected':''}"><span class="v880-zone-number">${zone}</span><div class="v880-subgrid">${letters.map(s=>`<button type="button" class="${selected===String(zone)+s?'selected':''}" onclick="scoutV880PickLocation('${which}','${zone+s}')">${s}</button>`).join('')}</div></div>`;
+}
+function v880RenderCoordinateLayer(box,which){
+  const layer=document.createElement('div');layer.className='v880-coordinate-layer';
+  layer.addEventListener('click',ev=>{
+    const r=layer.getBoundingClientRect(),xf=v880Clamp((ev.clientX-r.left)/Math.max(1,r.width),0,1),yf=v880Clamp((ev.clientY-r.top)/Math.max(1,r.height),0,1);
+    const c={x:0.5+3*xf,y:3.5-3*yf};v880SetCoord(which,c);v880SetSelection(which,v880XYToToken(c.x,c.y));scoutV6100RenderPath();
+  });
+  const c=v880SelectedCoord(which);if(c){const marker=document.createElement('span');marker.className='v880-coordinate-marker';marker.style.left=`${((c.x-0.5)/3)*100}%`;marker.style.top=`${((3.5-c.y)/3)*100}%`;layer.appendChild(marker)}
+  box.appendChild(layer);
+}
+function v880RenderGrid(target,which){
+  const box=$(target);if(!box)return;box.innerHTML=V880_ZONE_ORDER.map(z=>v880ZoneCell(z,which)).join('');
+  if(v880CourtPrecision==='coordinate')v880RenderCoordinateLayer(box,which);
+}
+function v880RenderCones(){const box=$('scout-v880-cone-grid');if(!box)return;box.innerHTML=[1,2,3,4,5,6,7,8].map(c=>`<button type="button" class="${Number(v880EndCone)===c?'selected':''}" onclick="scoutV880PickCone(${c})">C${c}${c===8?'<small>central</small>':''}</button>`).join('')}
+window.scoutV880PickCone=function(c){v880EndCone=String(c);scoutV6100RenderPath()};
+window.scoutV880PickLocation=function(which,token){v880SetSelection(which,token);v880SetCoord(which,null);scoutV6100RenderPath()};
+
+scoutV6100RenderPath=function(){
+  const skill=$('scout-v6100-court-skill')?.value||'A';v880CourtPrecision=$('scout-v880-court-precision')?.value||'subzone';v880AttackLocationMode=$('scout-v880-court-attack-mode')?.value||'zones';
+  const isAttack=skill==='A',isRD=skill==='R'||skill==='D',isContact=V880_CONTACT_SKILLS.has(skill);
+  $('scout-v880-court-attack-mode-wrap')?.classList.toggle('hidden',!isAttack);
+  $('scout-v880-origin-panel')?.classList.toggle('hidden',isRD);
+  $('scout-v6100-dest-grid')?.classList.toggle('hidden',isAttack&&v880AttackLocationMode==='cones');
+  $('scout-v880-cone-grid')?.classList.toggle('hidden',!(isAttack&&v880AttackLocationMode==='cones'));
+  const heads=document.querySelectorAll('#scout-v6100-court-modal .v880-zone-panel h3');
+  if(heads[0])heads[0].textContent=skill==='B'?'Zona de bloqueo':isContact?'Zona de contacto / origen':'Zona de origen';
+  if(heads[1])heads[1].textContent=isRD?'Zona física de contacto':(isAttack&&v880AttackLocationMode==='cones'?'Dirección por cono':'Zona de destino');
+  v880RenderGrid('scout-v6100-origin-grid','origin');if(!(isAttack&&v880AttackLocationMode==='cones'))v880RenderGrid('scout-v6100-dest-grid','dest');else v880RenderCones();
+  const od=$('scout-v880-origin-detail'),dd=$('scout-v880-dest-detail'),path=$('scout-v6100-path');
+  if(od)od.textContent=`Origen ${v6100Origin||'—'} · ${v880FormatCoord(v880OriginCoord)}`;
+  if(dd)dd.textContent=isAttack&&v880AttackLocationMode==='cones'?`Destino DataVolley · ${v880EndCone?'cono '+v880EndCone:'—'}`:`Destino ${v6100Dest||'—'} · ${v880FormatCoord(v880DestCoord)}`;
+  if(path){
+    if(isRD)path.textContent=`Contacto físico ${v6100Dest||v6100Origin||'—'} · trayectoria DataVolley heredada del ${skill==='R'?'saque':'ataque'} anterior`;
+    else if(isAttack&&v880AttackLocationMode==='cones')path.textContent=`Origen ${v6100Origin||'—'} → Cono ${v880EndCone||'—'}`;
+    else if(skill==='B')path.textContent=`Bloqueo en ${v6100Origin||v6100Dest||'—'}`;
+    else path.textContent=`Origen ${v6100Origin||'—'} → Destino ${v6100Dest||'—'}`;
+  }
+  const help=$('scout-v880-court-help');if(help)help.textContent=v880CourtPrecision==='coordinate'?'Haz clic en el punto exacto. Volley Coach calcula automáticamente zona y subzona y conserva las coordenadas.':v880CourtPrecision==='subzone'?'Selecciona una de las 36 subzonas A–D.':'Selecciona una de las 9 zonas DataVolley.';
+};
+
+window.scoutV6100CourtClear=function(){v6100Origin='';v6100Dest='';v880OriginCoord=null;v880DestCoord=null;v880EndCone='';scoutV6100RenderPath()};
+window.scoutV6100OpenCourt=function(){
+  if(!scoutActive()){alert('Crea primero un scouting.');return}
+  v6100Origin=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||'');v6100Dest=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||'');
+  v880OriginCoord=null;v880DestCoord=null;v880EndCone=String($('scout-action-end-cone')?.value||'');
+  $('scout-v6100-court-skill').value=$('scout-action-skill')?.value||'A';$('scout-v6100-court-eval').value=$('scout-action-eval')?.value||'!';
+  $('scout-v880-court-attack-mode').value=$('scout-action-location-mode')?.value||'zones';scoutV6100RenderPath();$('scout-v6100-court-modal')?.classList.add('open');
+};
+window.scoutV6100CourtApply=function(register){
+  const skill=$('scout-v6100-court-skill')?.value||'A';
+  if(skill==='R'||skill==='D'){const z=v6100Dest||v6100Origin;v6100Origin='';v6100Dest=z}
+  if(skill==='B'&&!v6100Origin){v6100Origin=v6100Dest;v6100Dest=''}
+  const sp=v860SplitZone(v6100Origin),ep=v860SplitZone(v6100Dest);
+  $('scout-action-start').value=sp.zone;$('scout-action-start-sub').value=sp.sub;$('scout-action-end').value=ep.zone;$('scout-action-end-sub').value=ep.sub;
+  $('scout-action-skill').value=skill;$('scout-action-eval').value=$('scout-v6100-court-eval')?.value||'!';
+  $('scout-action-location-mode').value=skill==='A'?v880AttackLocationMode:'zones';$('scout-action-end-cone').value=skill==='A'&&v880AttackLocationMode==='cones'?v880EndCone:'';
+  scoutUpdateAdvancedFields();scoutUpdateAdvancedCodePreview();scoutV6100CloseCourt();if(register)scoutAddManualAction();
+};
+$('scout-v880-court-precision')?.addEventListener('change',()=>scoutV6100RenderPath());
+$('scout-v880-court-attack-mode')?.addEventListener('change',()=>scoutV6100RenderPath());
+$('scout-v6100-court-skill')?.addEventListener('change',()=>scoutV6100RenderPath());
+
+scoutV6100LiveIssues=function(m=scoutActive()){
+  if(!m)return[];const a=scoutArr(m.liveRally?.actions),issues=[];if(!a.length)return issues;
+  const receiver=m.servingTeam==='ours'?'opponent':'ours',hasR=a.some(x=>x.team===receiver&&x.skill==='R'),hasE=a.some(x=>x.team===receiver&&x.skill==='E'),atts=a.filter(x=>x.team===receiver&&x.skill==='A');
+  if((hasE||atts.length)&&!hasR)issues.push('Hay colocación/ataque sin recepción registrada en el equipo receptor.');
+  atts.forEach(x=>{if(!x.playerId&&!x.playerLabel)issues.push('Hay un ataque sin atacante identificado.');if(!x.startZone||(!x.endZone&&!x.endCone))issues.push('Hay un ataque sin destino: zona o cono.')});
+  if(a.filter(x=>x.skill==='S').length>1)issues.push('Hay más de un saque en el mismo rally.');return[...new Set(issues)];
+};
+
+window.scoutExportCSV=function(id){
+  const m=scoutExportMatch(id);if(!m){alert('No hay scouting seleccionado.');return}
+  const rows=scoutExportRows(m);
+  const headers=['fecha','equipo','rival','competicion','set','rally','marcador_antes','marcador_despues','saque_antes','rotacion_nuestra','rotacion_rival','secuencia','equipo_accion','jugador','fundamento','valoracion',
+    'contact_zone_vc','zona_origen_vc','zona_destino_vc','location_mode','dv_start_zone','dv_end_zone','dv_end_subzone','dv_end_cone',
+    'start_x','start_y','end_x','end_y','contact_x','contact_y','tipo_saque','tipo_saque_recibido','fase_vc','dv_phase','dv_point_phase','dv_attack_phase',
+    'destino_combinacion_vc','attack_code_dv','set_code_dv','tempo_dv','set_type_dv','skill_subtype_dv','special_code_dv','custom_code_dv','direccion_ataque_vc','bloqueadores','atacante_objetivo_vc','codigo','tiempo_scout','video_time'];
+  const data=rows.map(a=>{
+    const tempo=a.skill==='A'?a.attackTempo:(a.skill==='E'?a.setTempo:'');
+    return [m.date,EQUIPOS[equipoActivo].nombre,m.opponent,m.competition,a.set,a.rallyIndex,a.scoreBefore,a.scoreAfter,a.servingBefore==='ours'?'Nuestro':'Rival',a.rotation,a.opponentRotation,a.actionIndex,
+      a.team==='ours'?'Nuestro':'Rival',scoutActionPlayerLabel(a),SCOUT_SKILLS[a.skill]||a.skill,a.evaluation,a.contactZone||'',a.startZone||'',a.endZone||'',a.locationMode||'zones',
+      a.dvStartZone||'',a.dvEndZone||'',a.dvEndSubzone||'',a.dvEndCone??'',a.startCoordinate?.x??'',a.startCoordinate?.y??'',a.endCoordinate?.x??'',a.endCoordinate?.y??'',a.contactCoordinate?.x??'',a.contactCoordinate?.y??'',
+      V620_SERVE_LABELS[a.serveType]||a.serveType||'',V830_SERVE?.[a.receivedServeType]||a.receivedServeType||'',V620_PHASE_LABELS[a.phase]||a.phase||'',a.dvPhase||'',a.dvPointPhase||'',a.dvAttackPhase||'',
+      V620_COMBO_LABELS[a.setTarget||a.attackCombo]||a.setTarget||a.attackCombo||'',a.attackCode||'',a.setterCall||'',tempo||'',a.dvSetType||'',a.skillSubtype||'',a.specialCode||'',a.customCode||'',
+      V830_ATTACK_DIR?.[a.attackDirection]||a.attackDirection||'',a.blockers??'',a.blockTargetNumber||'',a.code,scoutFormatTime(a.scoutMs),a.videoTime==null?'':Number(a.videoTime)];
+  });
+  const csv='\uFEFF'+[headers,...data].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_acciones_datavolley_v880.csv`);
+};
+
+window.VC_DATAVOLLEY_COURT={version:V880_VERSION,zones:[...V880_ZONE_ORDER],subzones:['A','B','C','D'],
+  subzoneOrientation:{A:'front-left',B:'front-right',D:'rear-left',C:'rear-right'},xyToZone:v880XYToZone,xyToSubzone:v880XYToSubzone,xyToToken:v880XYToToken,zoneCenter:v880ZoneCenter,
+  coneSyntax:'>C1 ... >C8',note:'contactZone is separate from DataVolley trajectory for reception/dig'};
+if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=V880_VERSION;window.VC_SCOUT_CORE.datavolleyCourt=window.VC_DATAVOLLEY_COURT;window.VC_SCOUT_CORE.parse=(raw,m=scoutActive(),oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);window.VC_SCOUT_CORE.register=(raw,m=scoutActive())=>v857RegisterRaw(raw,m)}
+scoutUpdateAdvancedFields();
+
+
+
+
+
+/* =====================================================================
+   V8.9.0 · DATAVOLLEY TECHNICAL ANALYSIS
+   ===================================================================== */
+const V890_VERSION='8.9.0';
+const V890_REC_LABEL={L:'On left · izquierda',R:'On right · derecha',LOW:'Low · baja',OH:'Overhand · dedos',MID:'Middle line · línea media'};
+const V890_ATK_LABEL={HSP:'Hard spike · remate fuerte',SSP:'Soft spike / topspin',TIP:'Tip · finta'};
+const V890_SET_SUB_LABEL={'1H':'1 hand · una mano','2H':'2 hands · dos manos',BUMP:'Bump set · antebrazos',UND:'Underhand',OTH:'Other'};
+const V890_BLOCK_LABEL={AST:'Block assist',ATT:'Block attempt',SOFT:'Block on soft spike'};
+const V890_TEMPO_LABEL={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other'};
+const V890_SETTYPE_LABEL={F:'Front',C:'Centre',B:'Back',P:'Pipe',S:'Setter dump'};
+
+function v890Pct(n,d){return d?Math.round(Number(n||0)*100/d):0}
+function v890Rows(m,team,skill=''){return scoutActionRows(m,false).filter(a=>a.team===team&&(!skill||a.skill===skill))}
+function v890Gp(n){n=Number(n)||0;return n>0?`+${n}`:String(n)}
+function v890Top(rows,getter){
+  const map=new Map();
+  rows.forEach(a=>{const k=String(getter(a)||'').trim();if(k)map.set(k,(map.get(k)||0)+1)});
+  return [...map.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+}
+function v890ActionOutcome(rows){
+  const pts=rows.filter(a=>a.evaluation==='#').length,
+    err=rows.filter(a=>a.evaluation==='=').length,
+    blocked=rows.filter(a=>a.evaluation==='/').length;
+  return {pts,err,blocked,killPct:v890Pct(pts,rows.length),eff:rows.length?Math.round((pts-err-blocked)*100/rows.length):0};
+}
+function v890ReceptionGroups(m,team){
+  const rows=v890Rows(m,team,'R');
+  const keys=['L','R','LOW','OH','MID',''];
+  return keys.map(key=>{
+    const rr=rows.filter(a=>String(a.skillSubtype||'')===key);
+    const pos=rr.filter(a=>['#','+'].includes(a.evaluation)).length,
+      exc=rr.filter(a=>a.evaluation==='#').length,
+      err=rr.filter(a=>a.evaluation==='=').length,
+      so=rr.filter(a=>a.winner===team).length;
+    return {
+      key,label:key?(V890_REC_LABEL[key]||key):'Sin tipo especificado',
+      total:rr.length,pos,exc,err,so,posPct:v890Pct(pos,rr.length),excPct:v890Pct(exc,rr.length),
+      errPct:v890Pct(err,rr.length),soPct:v890Pct(so,rr.length),
+      contact:v890Top(rr,a=>a.contactZone||a.endZone||a.startZone),
+      source:v890Top(rr,a=>a.dvStartZone),
+      serve:v890Top(rr,a=>a.receivedServeType)
+    };
+  }).filter(x=>x.total);
+}
+function v890ReceptionZoneGroups(m,team){
+  const rows=v890Rows(m,team,'R'),map=new Map();
+  rows.forEach(a=>{
+    const k=String(a.contactZone||a.endZone||a.startZone||'Sin zona');
+    if(!map.has(k))map.set(k,[]);map.get(k).push(a);
+  });
+  return [...map.entries()].map(([key,rr])=>{
+    const pos=rr.filter(a=>['#','+'].includes(a.evaluation)).length,exc=rr.filter(a=>a.evaluation==='#').length,
+      err=rr.filter(a=>a.evaluation==='=').length,so=rr.filter(a=>a.winner===team).length;
+    return {key,total:rr.length,posPct:v890Pct(pos,rr.length),excPct:v890Pct(exc,rr.length),err,soPct:v890Pct(so,rr.length),
+      source:v890Top(rr,a=>a.dvStartZone),serve:v890Top(rr,a=>a.receivedServeType)};
+  }).sort((a,b)=>b.total-a.total);
+}
+function v890SetTempoGroups(m,team){
+  const rows=v890Rows(m,team,'E'),keys=['Q','U','T','M','H','O',''];
+  return keys.map(key=>{
+    const rr=rows.filter(a=>String(a.setTempo||'')===key);
+    const good=rr.filter(a=>['#','+'].includes(a.evaluation)).length,bad=rr.filter(a=>['-','/','='].includes(a.evaluation)).length;
+    return {key,label:key?`${key} · ${V890_TEMPO_LABEL[key]||key}`:'Sin tempo',total:rr.length,use:v890Pct(rr.length,rows.length),gp:good-bad,
+      topCall:v890Top(rr,a=>a.setterCall),topTarget:v890Top(rr,a=>a.setTarget),topType:v890Top(rr,a=>a.dvSetType)};
+  }).filter(x=>x.total);
+}
+function v890SetterCalls(m,team){
+  const rows=v890Rows(m,team,'E'),map=new Map();
+  rows.forEach(a=>{const k=String(a.setterCall||'Sin set_code');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,total:rr.length,use:v890Pct(rr.length,rows.length),
+    tempo:v890Top(rr,a=>a.setTempo),target:v890Top(rr,a=>a.setTarget),type:v890Top(rr,a=>a.dvSetType),
+    gesture:v890Top(rr,a=>a.skillSubtype)})).sort((a,b)=>b.total-a.total);
+}
+function v890SetSubtypes(m,team){
+  const rows=v890Rows(m,team,'E'),map=new Map();
+  rows.forEach(a=>{const k=String(a.skillSubtype||'');if(!k)return;if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,label:V890_SET_SUB_LABEL[key]||key,total:rr.length,use:v890Pct(rr.length,rows.length)})).sort((a,b)=>b.total-a.total);
+}
+function v890AttackTempoGroups(m,team){
+  const rows=v890Rows(m,team,'A'),keys=['Q','U','T','M','H','O',''];
+  return keys.map(key=>{
+    const rr=rows.filter(a=>String(a.attackTempo||'')===key),o=v890ActionOutcome(rr);
+    return {key,label:key?`${key} · ${V890_TEMPO_LABEL[key]||key}`:'Sin tempo',total:rr.length,use:v890Pct(rr.length,rows.length),
+      ...o,topCode:v890Top(rr,a=>a.attackCode),topType:v890Top(rr,a=>a.skillSubtype),topSetType:v890Top(rr,a=>a.dvSetType)};
+  }).filter(x=>x.total);
+}
+function v890AttackCodes(m,team){
+  const rows=v890Rows(m,team,'A'),map=new Map();
+  rows.forEach(a=>{const k=String(a.attackCode||'Sin attack_code');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,total:rr.length,use:v890Pct(rr.length,rows.length),...v890ActionOutcome(rr),
+    tempo:v890Top(rr,a=>a.attackTempo),subtype:v890Top(rr,a=>a.skillSubtype),setType:v890Top(rr,a=>a.dvSetType),
+    route:v890Top(rr,a=>a.endCone?`C${a.endCone}`:(a.startZone&&a.endZone?`${a.startZone}→${a.endZone}`:a.endZone||''))})).sort((a,b)=>b.total-a.total);
+}
+function v890AttackSubtypes(m,team){
+  const rows=v890Rows(m,team,'A'),keys=['HSP','SSP','TIP',''];
+  return keys.map(key=>{
+    const rr=rows.filter(a=>String(a.skillSubtype||'')===key),o=v890ActionOutcome(rr);
+    return {key,label:key?(V890_ATK_LABEL[key]||key):'Sin tipo especificado',total:rr.length,...o};
+  }).filter(x=>x.total);
+}
+function v890AttackLocation(m,team){
+  const rows=v890Rows(m,team,'A'),zones=rows.filter(a=>!a.endCone),cones=rows.filter(a=>a.endCone);
+  const coneMap=new Map();cones.forEach(a=>{const k=`C${a.endCone}`;if(!coneMap.has(k))coneMap.set(k,[]);coneMap.get(k).push(a)});
+  return {
+    zones:{total:zones.length,pct:v890Pct(zones.length,rows.length),top:v890Top(zones,a=>a.startZone&&a.endZone?`${a.startZone}→${a.endZone}`:a.endZone)},
+    cones:{total:cones.length,pct:v890Pct(cones.length,rows.length),top:v890Top(cones,a=>`C${a.endCone}`),
+      rows:[...coneMap.entries()].map(([key,rr])=>({key,total:rr.length,...v890ActionOutcome(rr)})).sort((a,b)=>b.total-a.total)}
+  };
+}
+function v890BlockGroups(m,team){
+  const rows=v890Rows(m,team,'B'),map=new Map();
+  rows.forEach(a=>{const k=String(a.skillSubtype||'Sin subtipo');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,label:V890_BLOCK_LABEL[key]||key,total:rr.length,points:rr.filter(a=>a.evaluation==='#').length,
+    zone:v890Top(rr,a=>a.contactZone||a.startZone),size:v890Top(rr,a=>a.blockers),target:v890Top(rr,a=>a.blockTargetNumber)})).sort((a,b)=>b.total-a.total);
+}
+function v890PhaseGroups(m,team){
+  const rows=scoutActionRows(m,false).filter(a=>a.team===team),map=new Map();
+  rows.forEach(a=>{const k=[a.dvPointPhase||'—',a.dvPhase||'—',a.dvAttackPhase||'—'].join('|');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>{const [point,phase,attack]=key.split('|');return {point,phase,attack,total:rr.length}}).sort((a,b)=>b.total-a.total);
+}
+
+function v890Table(headers,rows,empty='Sin datos codificados'){
+  return rows.length?`<div class="v890-table-wrap"><table class="v890-table"><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`:`<div class="v890-empty">${esc(empty)}</div>`;
+}
+function v890Card(title,sub,body,wide=false,count=''){
+  return `<section class="v890-card ${wide?'wide':''}"><div class="v890-card-head"><div><h4>${esc(title)}</h4><p>${esc(sub)}</p></div>${count!==''?`<span>${esc(count)}</span>`:''}</div>${body}</section>`;
+}
+
+window.scoutV890RenderDataVolleyAnalysis=function(){
+  const box=$('scout-v890-datavolley-detail'),m=scoutMatchForAnalysis();if(!box||!m)return;
+  const team=$('scout-v890-team')?.value||'ours',name=team==='ours'?(EQUIPOS[equipoActivo]?.nombre||'Nuestro equipo'):(m.opponent||'Rival');
+  const rec=v890ReceptionGroups(m,team),recZones=v890ReceptionZoneGroups(m,team),
+    st=v890SetTempoGroups(m,team),calls=v890SetterCalls(m,team),setSubs=v890SetSubtypes(m,team),
+    at=v890AttackTempoGroups(m,team),ac=v890AttackCodes(m,team),as=v890AttackSubtypes(m,team),
+    loc=v890AttackLocation(m,team),blocks=v890BlockGroups(m,team),ph=v890PhaseGroups(m,team);
+  const recRows=rec.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td class="${x.posPct>=60?'v890-good':''}">${x.posPct}%</td><td>${x.excPct}%</td><td class="${x.errPct>=20?'v890-bad':''}">${x.err}</td><td>${x.soPct}%</td><td>${x.contact==='—'?'—':'Z'+esc(x.contact)}</td><td>${x.source==='—'?'—':'Z'+esc(x.source)}</td><td>${esc(V830_SERVE?.[x.serve]||x.serve||'—')}</td></tr>`);
+  const recZoneRows=recZones.slice(0,16).map(x=>`<tr><td><b>${x.key==='Sin zona'?'—':'Z'+esc(x.key)}</b></td><td>${x.total}</td><td>${x.posPct}%</td><td>${x.excPct}%</td><td>${x.err}</td><td>${x.soPct}%</td><td>${x.source==='—'?'—':'Z'+esc(x.source)}</td><td>${esc(V830_SERVE?.[x.serve]||x.serve||'—')}</td></tr>`);
+  const setTempoRows=st.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${v890Gp(x.gp)}</td><td>${esc(x.topCall)}</td><td>${esc(x.topTarget)}</td><td>${esc(V890_SETTYPE_LABEL[x.topType]||x.topType)}</td></tr>`);
+  const callRows=calls.slice(0,16).map(x=>`<tr><td><b class="v890-code">${esc(x.key)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${esc(x.tempo||'—')}</td><td>${esc(x.target||'—')}</td><td>${esc(V890_SETTYPE_LABEL[x.type]||x.type||'—')}</td><td>${esc(V890_SET_SUB_LABEL[x.gesture]||x.gesture||'—')}</td></tr>`);
+  const atkTempoRows=at.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.use}%</td><td class="${x.killPct>=45?'v890-good':''}">${x.killPct}%</td><td>${x.err}</td><td>${x.blocked}</td><td class="${x.eff<0?'v890-bad':x.eff>=20?'v890-good':''}">${x.eff}%</td><td>${esc(x.topCode)}</td><td>${esc(V890_ATK_LABEL[x.topType]||x.topType||'—')}</td></tr>`);
+  const codeRows=ac.slice(0,18).map(x=>`<tr><td><b class="v890-code">${esc(x.key)}</b></td><td>${x.total}</td><td>${x.use}%</td><td>${x.killPct}%</td><td>${x.err}</td><td>${x.blocked}</td><td class="${x.eff<0?'v890-bad':x.eff>=20?'v890-good':''}">${x.eff}%</td><td>${esc(x.tempo||'—')}</td><td>${esc(x.route||'—')}</td></tr>`);
+  const atkSubtypeRows=as.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.killPct}%</td><td>${x.err}</td><td>${x.blocked}</td><td class="${x.eff<0?'v890-bad':x.eff>=20?'v890-good':''}">${x.eff}%</td></tr>`);
+  const blockRows=blocks.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.points}</td><td>${x.zone==='—'?'—':'Z'+esc(x.zone)}</td><td>${esc(x.size||'—')}</td><td>${esc(x.target||'—')}</td></tr>`);
+  const phaseRows=ph.slice(0,14).map(x=>`<tr><td><b>${esc(x.point)}</b></td><td>${esc(x.phase)}</td><td>${esc(x.attack)}</td><td>${x.total}</td></tr>`);
+  const setSubRows=setSubs.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.use}%</td></tr>`);
+  const coneRows=loc.cones.rows.map(x=>`<tr><td><b>${esc(x.key)}</b></td><td>${x.total}</td><td>${x.killPct}%</td><td>${x.err}</td><td>${x.blocked}</td><td>${x.eff}%</td></tr>`);
+
+  box.innerHTML=`<div class="v890-kpis">
+      <div><span>Equipo</span><b>${esc(name)}</b><small>filtro actual</small></div>
+      <div><span>Recepciones</span><b>${v890Rows(m,team,'R').length}</b><small>${rec.filter(x=>x.key).reduce((n,x)=>n+x.total,0)} con subtype</small></div>
+      <div><span>Colocaciones</span><b>${v890Rows(m,team,'E').length}</b><small>${st.filter(x=>x.key).reduce((n,x)=>n+x.total,0)} con tempo</small></div>
+      <div><span>Ataques</span><b>${v890Rows(m,team,'A').length}</b><small>${at.filter(x=>x.key).reduce((n,x)=>n+x.total,0)} con tempo</small></div>
+      <div><span>Destino ATQ</span><b>${loc.zones.total}/${loc.cones.total}</b><small>zonas / conos</small></div>
+    </div>
+    <div class="v890-grid">
+      ${v890Card('Recepción · tipo DataVolley','On left / On right / Low / Overhand / Middle line',v890Table(['Tipo','Tot','Pos%','Exc%','Err','SO%','Contacto','Origen DV','Saque'],recRows),true)}
+      ${v890Card('Recepción · contacto físico','Zona donde la receptora tocó realmente el balón; el origen DV se hereda del saque rival.',v890Table(['Contacto','Tot','Pos%','Exc%','Err','SO%','Origen DV','Saque'],recZoneRows),true)}
+      ${v890Card('Colocación · tempo','Q Quick · U Super · T Fast · M Medium · H High · O Other',v890Table(['Tempo','Tot','Uso','G-P técnico','Set code','Destino VC','Set type'],setTempoRows))}
+      ${v890Card('Colocación · setter calls','Set codes DataVolley y contexto más frecuente.',v890Table(['Set code','Tot','Uso','Tempo','Destino','Set type','Gesto'],callRows))}
+      ${v890Card('Colocación · tipo de gesto','1 hand, 2 hands, bump, underhand…',v890Table(['Gesto','Tot','Uso'],setSubRows))}
+      ${v890Card('Ataque · tempo','Rendimiento del ataque según velocidad/altura.',v890Table(['Tempo','Tot','Uso','Kill%','Err','Bloq','EFF','Attack code','Tipo'],atkTempoRows),true)}
+      ${v890Card('Ataque · attack codes','Combinaciones DataVolley realmente utilizadas.',v890Table(['Attack code','Tot','Uso','Kill%','Err','Bloq','EFF','Tempo','Destino'],codeRows),true)}
+      ${v890Card('Ataque · tipo de golpe','Hard spike / soft spike / tip.',v890Table(['Tipo','Tot','Kill%','Err','Bloq','EFF'],atkSubtypeRows))}
+      ${v890Card('Ataque · zonas vs conos',`Zonas ${loc.zones.total} (${loc.zones.pct}%) · conos ${loc.cones.total} (${loc.cones.pct}%). Zona dominante ${loc.zones.top}; cono dominante ${loc.cones.top}.`,v890Table(['Cono','Tot','Kill%','Err','Bloq','EFF'],coneRows,'No hay ataques por conos'))}
+      ${v890Card('Bloqueo · subtype DataVolley','Intento, asistencia, soft spike; además zona, tamaño y atacante objetivo.',v890Table(['Tipo','Tot','Pts','Zona','Tamaño','Objetivo'],blockRows))}
+      ${v890Card('Fases DataVolley','Point phase, phase y attack_phase guardados por acción.',v890Table(['Point phase','Phase','Attack phase','Acciones'],phaseRows))}
+    </div>
+    <div class="v890-legend"><b>Importante:</b> si un campo aparece como “Sin tipo” o “Sin tempo”, no se inventa. Solo se analiza lo que hayas codificado. En recepción, <b>contact_zone</b> es el contacto físico; <b>Origen DV</b> procede del saque rival enlazado.</div>`;
+};
+
+/* Extend the existing V8.3 reception analysis with DataVolley reception subtype. */
+const v890ReceptionBase=window.scoutV830RenderReception;
+window.scoutV830RenderReception=function(){
+  v890ReceptionBase?.();
+  const m=scoutMatchForAnalysis(),box=$('scout-v830-reception');if(!m||!box||box.querySelector('.v890-rec-detail'))return;
+  const team=$('scout-v830-rec-team')?.value||'ours',groups=v890ReceptionGroups(m,team);
+  if(!groups.length)return;
+  const rows=groups.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.posPct}%</td><td>${x.excPct}%</td><td>${x.err}</td><td>${x.soPct}%</td><td>${x.contact==='—'?'—':'Z'+esc(x.contact)}</td></tr>`);
+  box.insertAdjacentHTML('beforeend',`<div class="v890-rec-detail"><h4>Tipo de recepción DataVolley</h4>${v890Table(['Tipo','Total','Pos%','Exc%','Errores','Side-out%','Contacto habitual'],rows)}</div>`);
+};
+
+/* Final analysis hook inside the shared scouting engine. */
+const v890AnalysisBase=window.scoutRenderAnalysis;
+window.scoutRenderAnalysis=function(){
+  const out=v890AnalysisBase?.();
+  try{window.scoutV890RenderDataVolleyAnalysis()}catch(err){console.warn('V8.9 DataVolley analysis',err)}
+  return out;
+};
+if(window.VC_SCOUT_CORE){
+  window.VC_SCOUT_CORE.version=V890_VERSION;
+  window.VC_SCOUT_CORE.datavolleyAnalysis=()=>window.scoutV890RenderDataVolleyAnalysis();
+}
 
 
 })();
@@ -19765,6 +20337,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         <button data-cat="set" onclick="v841CheatTab('set',this)">Colocación</button>
         <button data-cat="attack" onclick="v841CheatTab('attack',this)">Ataque</button>
         <button data-cat="dv" onclick="v841CheatTab('dv',this)">DataVolley Pro</button>
+        <button data-cat="court" onclick="v841CheatTab('court',this)">Zonas DV</button>
         <button data-cat="block" onclick="v841CheatTab('block',this)">Bloqueo</button>
         <button data-cat="defense" onclick="v841CheatTab('defense',this)">Defensa</button>
       </div>
@@ -19805,6 +20378,44 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         <div class="v841-example" data-code="3E+.2B>4C:Z4^K1"><code>3E+.2B&gt;4C:Z4^K1</code><span>#3 coloca desde Z2B hacia Z4C, opción Z4, en K1.</span><button onclick="v841UseCode('3E+.2B>4C:Z4^K1')">Usar</button></div>
         <div class="v841-example" data-code="12A#.4B>5D:Z4*DL^K1@2"><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 ataca desde Z4B y finaliza en Z5D, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4B>5D:Z4*DL^K1@2')">Usar</button></div>
         <div class="v841-tip"><b>Regla:</b> solo se admite <code>A</code>, <code>B</code>, <code>C</code> o <code>D</code> inmediatamente después del número de zona.</div>
+      </section>
+
+      <section class="v841-cheat-section v880-court-cheat" data-cat="court" data-search="zonas datavolley 1 2 3 4 5 6 7 8 9 subzonas a b c d coordenadas conos contacto recepcion defensa">
+        <h3>Pista DataVolley · 9 zonas</h3>
+        <div class="v841-rule"><code>4-3-2 / 7-8-9 / 5-6-1</code><span>Mirando nuestro campo desde el fondo hacia la red.</span></div>
+        <div class="v880-cheat-court" aria-label="Distribución de zonas DataVolley">
+          <b>4</b><b>3</b><b>2</b><b>7</b><b>8</b><b>9</b><b>5</b><b>6</b><b>1</b>
+        </div>
+        <div class="v841-grid">
+          <article><b>Nivel 1 · Zona</b><span><code>.4&gt;5</code>. Cada zona representa aproximadamente 3×3 m.</span></article>
+          <article><b>Nivel 2 · Subzona</b><span><code>.4B&gt;5D</code>. Cada zona se divide en cuatro subzonas de aproximadamente 1,5×1,5 m.</span></article>
+          <article><b>Nivel 3 · Coordenada</b><span>Pulsa un punto exacto. Volley Coach conserva X/Y y calcula automáticamente zona y subzona.</span></article>
+        </div>
+        <div class="v880-subzone-diagram">
+          <div><b>A</b><span>delante<br>izquierda</span></div><div><b>B</b><span>delante<br>derecha</span></div>
+          <div><b>D</b><span>fondo<br>izquierda</span></div><div><b>C</b><span>fondo<br>derecha</span></div>
+        </div>
+        <div class="v841-tip"><b>Muy importante:</b> en recepción y defensa, DataVolley usa normalmente la trayectoria del saque/ataque correspondiente como <code>start_zone/end_zone</code>. Volley Coach conserva además <code>contact_zone</code> para saber dónde tocó físicamente el balón la receptora o defensora.</div>
+      </section>
+
+      <section class="v841-cheat-section v880-court-cheat" data-cat="court" data-search="ataque zonas conos end cone">
+        <h3>Ataque · zonas o conos</h3>
+        <div class="v841-grid">
+          <article><b>Zonas</b><span>Registra dónde termina el balón: <code>12A#.4B&gt;5D</code>.</span></article>
+          <article><b>Conos</b><span>Registra dirección. En Volley Coach <code>&gt;C5</code> representa <i>end_cone = 5</i>.</span></article>
+          <article><b>Regla</b><span>Conviene mantener el mismo sistema de destino de ataque durante un análisis: zonas o conos.</span></article>
+        </div>
+        <div class="v880-cone-cheat"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span><span>C6</span><span>C7</span><span>C8 · central</span></div>
+        <div class="v841-example" data-code="12A#.4B>C5::X5~T%HSP@2"><code>12A#.4B&gt;C5::X5~T%HSP@2</code><span>#12 ataca desde 4B, dirección cono 5, X5, Fast, hard spike y bloqueo doble.</span><button onclick="v841UseCode('12A#.4B>C5::X5~T%HSP@2')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section v880-court-cheat" data-cat="court" data-search="contact zone start zone end zone reception dig recepcion defensa">
+        <h3>Contacto físico vs trayectoria DataVolley</h3>
+        <div class="v841-grid">
+          <article><b>Recepción</b><span><code>7R#.6C~JF</code> = contacto físico en 6C. <code>dv_start_zone/dv_end_zone</code> se heredan del saque rival anterior.</span></article>
+          <article><b>Defensa</b><span><code>6D+.5A</code> = contacto físico en 5A. La trayectoria DV se hereda del ataque rival anterior.</span></article>
+          <article><b>Saque / ataque / freeball</b><span>La trayectoria marcada es también la trayectoria DV, salvo ataques por conos.</span></article>
+        </div>
       </section>
 
       <section class="v841-cheat-section" data-cat="serve" data-search="saque flotante salto potente seguridad origen destino zonas ace error">
@@ -20681,6 +21292,71 @@ document.addEventListener('keydown',e=>{
 #vc-recording-gallery-save{font-weight:850!important}
 #vc-recording-storage option[value="disk"]{font-weight:700}
 .vc-recording-help b{font-weight:900}
+</style>
+
+
+
+<style id="v880-datavolley-court-style">
+.v880-court-card{width:min(980px,97vw)!important}
+.v880-court-form{grid-template-columns:150px 120px 170px 170px minmax(230px,1fr)!important}
+.v880-dv-orientation{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;margin-bottom:10px;border:1px solid #dce4e9;border-radius:9px;background:#f7fafb;font-size:10px;color:#5d7180}
+.v880-zone-layout{align-items:start}.v880-zone-panel{min-width:0}
+.scout-v6100-zone-grid.v880-dv-grid{position:relative;display:grid!important;grid-template-columns:repeat(3,1fr)!important;grid-template-rows:repeat(3,1fr)!important;grid-template-areas:none!important;gap:5px!important;min-height:330px!important;padding:8px!important}
+.v880-zone-cell{position:relative;min-width:0;min-height:94px;border:1px solid rgba(255,255,255,.9);border-radius:8px;background:rgba(255,255,255,.17);overflow:hidden}
+.v880-zone-cell.selected{outline:3px solid #102b43;background:rgba(255,255,255,.34)}
+.v880-zone-main{width:100%;height:100%;min-height:94px;border:0;background:transparent;font-size:20px;font-weight:950;color:#17324d;cursor:pointer}
+.v880-zone-main.selected{background:#102b43;color:#fff}
+.v880-subgrid{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.v880-subgrid button{border:1px dashed rgba(255,255,255,.9);background:rgba(255,255,255,.08);font-size:10px;font-weight:950;color:#17324d;cursor:pointer}
+.v880-subgrid button.selected{background:#102b43;color:#fff;border-style:solid}
+.v880-zone-number{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;font-size:20px;font-weight:950;color:rgba(23,50,77,.28);z-index:3}
+.v880-coordinate-layer{position:absolute;inset:8px;z-index:6;cursor:crosshair;border-radius:7px}
+.v880-coordinate-marker{position:absolute;width:15px;height:15px;border:3px solid #fff;border-radius:50%;background:#102b43;transform:translate(-50%,-50%);box-shadow:0 0 0 2px rgba(16,43,67,.45);pointer-events:none}
+.v880-location-detail{margin-top:7px;padding:7px 8px;border:1px solid #e1e7eb;border-radius:7px;background:#fff;font:800 10px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;color:#405a6c}
+.v880-cone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;min-height:330px;align-content:center;padding:18px;background:#f3f7f9;border:1px solid #dce4e9;border-radius:9px}
+.v880-cone-grid button{min-height:62px;border:1px solid #cbd8df;border-radius:9px;background:#fff;font-weight:950;color:#17324d;cursor:pointer}
+.v880-cone-grid button.selected{background:#102b43;color:#fff}.v880-cone-grid small{display:block;font-size:7px}
+.v880-court-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.v880-court-foot span{padding:8px 10px;border:1px solid #e0e6ea;border-radius:8px;background:#f8fafb;font-size:9.5px;line-height:1.45;color:#5d7180}
+.v880-cheat-court{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:min(280px,100%);margin:8px auto;padding:7px;background:#e7a664;border:2px solid #b8c4ce}
+.v880-cheat-court b{display:grid;place-items:center;min-height:55px;border:1px solid rgba(255,255,255,.85);font-size:18px;color:#17324d}
+.v880-subzone-diagram{display:grid;grid-template-columns:1fr 1fr;width:min(260px,100%);margin:10px auto;border:1px solid #ccd8df}
+.v880-subzone-diagram div{padding:10px;border:1px solid #dbe3e8;text-align:center}.v880-subzone-diagram b{display:block;font-size:16px;color:#17324d}.v880-subzone-diagram span{font-size:8.5px;color:#70818c}
+.v880-cone-cheat{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0}.v880-cone-cheat span{padding:8px 5px;border:1px solid #d7e0e5;border-radius:7px;text-align:center;font-weight:900;font-size:9px}
+#scout-v880-location-mode-wrap.hidden,#scout-v880-cone-wrap.hidden,#scout-v880-court-attack-mode-wrap.hidden{display:none!important}
+@media(max-width:850px){.v880-court-form{grid-template-columns:1fr 1fr!important}.v880-court-actions{grid-column:1/-1}.v880-court-foot{grid-template-columns:1fr}}
+@media(max-width:620px){.scout-v6100-zone-grid.v880-dv-grid{min-height:300px!important}.v880-zone-cell{min-height:82px}.v880-cone-grid{grid-template-columns:1fr 1fr;min-height:260px}.v880-cone-cheat{grid-template-columns:1fr 1fr}}
+</style>
+
+
+
+<style id="v890-datavolley-analysis-style">
+.scout-v890-panel{overflow:hidden}
+.v890-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.v890-card{border:1px solid #e0e6ea;border-radius:11px;background:#fff;overflow:hidden;min-width:0}
+.v890-card.wide{grid-column:1/-1}
+.v890-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:11px 12px;background:#f7f9fb;border-bottom:1px solid #e3e8eb}
+.v890-card-head h4{margin:0!important;font-size:11.5px!important;color:#17324d!important}
+.v890-card-head p{margin:3px 0 0!important;font-size:8.5px!important;color:#768691!important;line-height:1.35}
+.v890-card-head span{font-size:8px;font-weight:900;color:#667c8c;white-space:nowrap}
+.v890-table-wrap{overflow:auto}
+.v890-table{width:100%;border-collapse:collapse;min-width:600px;font-variant-numeric:tabular-nums}
+.v890-table th{background:#102b43;color:#dfeaf2;padding:7px 6px;font-size:7.5px;text-transform:uppercase;letter-spacing:.05em;text-align:center;white-space:nowrap}
+.v890-table td{padding:7px 6px;border-bottom:1px solid #e8edf0;text-align:center;font-size:9px;color:#435765;white-space:nowrap}
+.v890-table th:first-child,.v890-table td:first-child{text-align:left}
+.v890-table td:first-child b{color:#17324d}
+.v890-good{color:#28704d!important;font-weight:900}.v890-bad{color:#a34843!important;font-weight:900}
+.v890-empty{padding:13px;color:#84919b;font-size:9px}
+.v890-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:10px}
+.v890-kpis>div{border:1px solid #e3e8eb;border-radius:8px;background:#fafbfc;padding:8px}
+.v890-kpis span{display:block;font-size:7px;text-transform:uppercase;font-weight:900;color:#81909a}
+.v890-kpis b{display:block;font-size:16px;color:#17324d;margin:2px 0}
+.v890-kpis small{font-size:7.5px;color:#83909a}
+.v890-legend{padding:8px 11px;background:#f8fafb;border-top:1px solid #e4e9ec;font-size:8px;color:#647885;line-height:1.45}
+.v890-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:850;color:#17324d}
+.v890-rec-detail{margin-top:10px;border-top:1px solid #e1e7ea;padding-top:10px}
+.v890-rec-detail h4{font-size:10.5px!important;margin:0 0 7px!important;color:#17324d!important}
+@media(max-width:800px){.v890-grid{grid-template-columns:1fr}.v890-card.wide{grid-column:auto}.v890-kpis{grid-template-columns:1fr 1fr}.v890-table{min-width:560px}}
 </style>
 
 </body></html>
