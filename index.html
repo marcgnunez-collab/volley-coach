@@ -1719,7 +1719,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             <div id="v855-match-status" class="v855-match-status">Modo Partido preparado.</div>
 
             <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 3E+.2B>4C:Z4 · 12A#.4B>5D*DL" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
+              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 3E+.2B>4C::K1~T · 12A#.4B>5D::X5~T" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
               <button id="v857-add-code-btn" class="primary" onclick="v857AddCode()">Añadir</button>
               <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
             </div>
@@ -1961,8 +1961,8 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         </section>
         <section class="scout-panel scout-console-panel">
           <div class="scout-panel-head"><div><span class="pro-kicker">CONSOLA DE SCOUT</span><h3>Registrar acción</h3></div><div class="scout-console-tools"><span class="scout-hint">Enter para guardar</span><button class="ghost" onclick="scoutV6100OpenCourt()">⌖ Pista</button><button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button></div></div>
-          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 7R#.6C · 3E+.2B&gt;4C · 12A#.4B&gt;5D"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
-          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración. Las zonas admiten subzona opcional <b>A–D</b>: <b>7R#.6C</b>, <b>3E+.2B&gt;4C</b>, <b>12A#.4B&gt;5D</b>. Sin letra sigue funcionando como antes: <b>.4&gt;5</b>. Los sufijos <b>~ : * ^ @ &amp;</b> son opcionales. Usa <b>R</b> delante del dorsal para el rival.</div>
+          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 3E+.2B&gt;4C::K1~T%2H · 12A#.4B&gt;5D::X5~T%HSP"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
+          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración + zonas. DataVolley Pro: <b>::X1</b> attack code / <b>::K1</b> setter call · <b>~Q/U/T/M/H/O</b> tempo en E/A · <b>%HSP</b> subtype · <b>|F/C/B/P/S</b> set type · <b>?NET</b> special · <b>$ABC</b> custom. Volley Coach: <b>*DL</b> dirección · <b>^K1</b> fase · <b>&amp;12</b> atacante objetivo. Todo es opcional y los códigos anteriores siguen funcionando.</div>
           <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4B&gt;1C</span><i>Rival · dorsal · fundamento · valoración · zona/subzona</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6C</code> recepción perfecta #7 en Z6C · <code>6D+.5A</code> defensa positiva #6 en Z5A · <code>4S+.1B&gt;5D</code> saque de Z1B a Z5D · <code>3E+.2B&gt;4C:Z4^K1</code> colocación desde 2B hacia 4C · <code>12A#.4B&gt;5D:Z4*DL^K1@2</code> ataque preciso 4B→5D · <code>4B#.3C@2&amp;12</code> bloqueo doble punto en Z3C sobre #12. Todos los códigos antiguos sin A–D siguen siendo válidos.</div></details>
           <div class="scout-action-grid">
             <label><span>Equipo</span><select id="scout-action-team" onchange="scoutRefreshActionPlayers()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
@@ -1980,7 +1980,12 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <label id="scout-adv-serve-wrap"><span id="scout-action-serve-label">Tipo de saque</span><select id="scout-action-serve-type"><option value="">— Sin especificar —</option><option value="F">Flotante</option><option value="JF">Flotante en salto</option><option value="JP">Salto potente</option><option value="U">Bajo / seguridad</option></select></label>
               <label id="scout-adv-phase-wrap"><span>Fase</span><select id="scout-action-phase"><option value="">Auto</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break point</option><option value="FB">Freeball</option><option value="TR">Transición</option></select></label>
               <label id="scout-adv-combo-wrap"><span>Combinación / destino</span><select id="scout-action-combo"><option value="">— Sin especificar —</option><option value="Z4">Zona 4</option><option value="Z2">Zona 2</option><option value="Z1">Zona 1</option><option value="Z6">Zona 6</option><option value="1T">Primer tiempo</option><option value="31">31</option><option value="BACK">Primer tiempo detrás</option><option value="PIPE">Pipe</option><option value="2T">Segundo toque</option><option value="OTR">Otra</option></select></label>
-              <label id="scout-adv-tempo-wrap"><span>Tempo de ataque</span><select id="scout-action-tempo"><option value="">—</option><option value="RAP">Rápido</option><option value="MED">Medio</option><option value="ALT">Alto</option></select></label><label id="scout-adv-direction-wrap"><span>Dirección de ataque</span><select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select></label>
+              <label id="scout-v870-dvcode-wrap" class="hidden"><span id="scout-v870-dvcode-label">Código DataVolley</span><input id="scout-action-dv-code" maxlength="6" autocapitalize="characters" placeholder="Ataque X1 / V5 / PP · Set K1 / KF"></label>
+              <label id="scout-v870-settype-wrap" class="hidden"><span>Set type DataVolley</span><select id="scout-action-set-type"><option value="">—</option><option value="F">F · Front</option><option value="C">C · Centre</option><option value="B">B · Back</option><option value="P">P · Pipe</option><option value="S">S · Setter dump</option></select></label>
+              <label id="scout-v870-subtype-wrap" class="hidden"><span id="scout-v870-subtype-label">Skill subtype</span><select id="scout-action-subtype"><option value="">— Sin especificar —</option></select></label>
+              <label id="scout-v870-special-wrap"><span>Special code · motivo</span><input id="scout-action-special" maxlength="10" autocapitalize="characters" placeholder="NET / ANT / OL / BC…"></label>
+              <label id="scout-v870-custom-wrap"><span>Custom code DV</span><input id="scout-action-custom" maxlength="5" autocapitalize="characters" placeholder="Máx. 5"></label>
+              <label id="scout-adv-tempo-wrap"><span id="scout-action-tempo-label">Tempo DataVolley</span><select id="scout-action-tempo"><option value="">— Sin especificar —</option><option value="Q">Q · Quick</option><option value="U">U · Super</option><option value="T">T · Fast</option><option value="M">M · Medium</option><option value="H">H · High</option><option value="O">O · Other</option></select></label><label id="scout-adv-direction-wrap"><span>Dirección de ataque · VC</span><select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select></label>
               <label id="scout-adv-block-wrap"><span>Bloqueadores</span><select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select></label><label id="scout-v840-block-target-wrap" class="hidden"><span>Atacante objetivo</span><input id="scout-v840-block-target" inputmode="numeric" placeholder="Dorsal rival · ej. 12"></label>
             </div>
             <div id="scout-advanced-code-preview" class="scout-advanced-code-preview">Código: —</div>
@@ -2312,13 +2317,18 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <label>
           <span>Guardado</span>
           <select id="vc-recording-storage" onchange="vcRecordingStorageChanged()">
-            <option value="disk">Directo al disco · recomendado</option>
+            <option value="disk">Modo cámara · archivo del dispositivo</option>
+            <option value="gallery">Fotos / Galería · móvil</option>
             <option value="browser">Navegador · recuperable</option>
           </select>
         </label>
         <label class="vc-recording-check">
           <input id="vc-recording-auto-set" type="checkbox" checked>
           <span>Marcar cambios de set</span>
+        </label>
+        <label class="vc-recording-check vc-recording-autosave">
+          <input id="vc-recording-autosave" type="checkbox" checked onchange="vcRecordingAutoSaveChanged()">
+          <span>Guardar automáticamente al finalizar</span>
         </label>
         <div class="vc-recording-main-actions">
           <button id="vc-recording-start" class="vc-rec-start" type="button" onclick="vcRecordingStart()">● Iniciar REC</button>
@@ -2338,15 +2348,17 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" type="button" onclick="vcRecordingAddMarker()">＋ Marcar set / bloque</button>
         <button class="ghost" type="button" onclick="vcRecordingAddMarker('Momento')">★ Marcar momento</button>
         <button class="ghost" type="button" onclick="vcRecordingRecover()">Recuperar grabaciones</button>
-        <a id="vc-recording-download" class="vc-recording-download hidden" href="#" download>Descargar última grabación</a>
+        <button id="vc-recording-gallery-save" class="ghost hidden" type="button" onclick="vcRecordingSaveToGallery()">Guardar en Fotos / Galería</button>
+        <a id="vc-recording-download" class="vc-recording-download hidden" href="#" download>Guardar archivo de vídeo</a>
         <span id="vc-recording-last" class="vc-recording-last"></span>
       </div>
 
       <div id="vc-recording-markers" class="vc-recording-markers"></div>
 
       <div class="vc-recording-help">
-        <b>Directo al disco:</b> recomendado en Chrome/Edge de ordenador para partidos largos; los fragmentos se escriben al archivo mientras grabas y no se acumula el vídeo completo en RAM.
-        <b>Navegador:</b> guarda fragmentos en IndexedDB para poder recuperar una grabación incluso si se interrumpe la sesión; al finalizar crea el archivo WebM.
+        <b>Modo cámara:</b> graba directamente a un archivo normal del dispositivo. Al iniciar eliges dónde guardarlo una sola vez y, al finalizar, el vídeo ya está allí. Volley Coach prioriza <b>MP4</b> si el navegador/dispositivo puede grabarlo.
+        <b>Fotos / Galería:</b> pensado para móvil. Al finalizar prepara el vídeo y abre el guardado/compartir nativo del sistema para pasarlo a Fotos o Galería. iOS/Android pueden exigir un último toque por seguridad.
+        <b>Navegador:</b> mantiene una copia recuperable en IndexedDB. Live Delay por sí solo no graba: debes pulsar <b>● Iniciar REC</b>.
       </div>
     </section>
 
@@ -4961,7 +4973,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.6.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.7.2', {
         updateViaCache: 'none'
       });
 
@@ -11644,6 +11656,275 @@ window.scoutV861Diagnostics=()=>({
 });
 
 
+
+
+
+/* =====================================================================
+   V8.7.0 · DATAVOLLEY PRO CODING
+   ===================================================================== */
+const V870_VERSION='8.7.0';
+const V870_TEMPO={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other'};
+const V870_SETTYPE={F:'Front',C:'Centre',B:'Back',P:'Pipe',S:'Setter dump'};
+const V870_SUBTYPE={
+  A:{HSP:'Hard spike',SSP:'Soft spike/topspin',TIP:'Tip'},
+  E:{'1H':'1 hand set','2H':'2 hands set',BUMP:'Bump set',UND:'Underhand set',OTH:'Other set'},
+  R:{L:'On left',R:'On right',LOW:'Low',OH:'Overhand',MID:'Middle line'},
+  B:{AST:'Block assist',ATT:'Block attempt',SOFT:'Block on soft spike'},
+  D:{COV:'Spike cover',AB:'After block',EMG:'Emergency',TIP:'Tip',SOFT:'Soft spike'}
+};
+const V870_LEGACY_TEMPO={RAP:'T',MED:'M',ALT:'H'};
+
+function v870CleanToken(v,max=10){
+  return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,max);
+}
+function v870SkillFromRaw(raw){
+  return String(raw||'').trim().toUpperCase().replace(/\s+/g,'').match(/^(?:R)?\d+(S|R|E|A|B|D|F|C)/)?.[1]||'';
+}
+
+const v870NormalizeBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v870NormalizeBase(a);
+  const rawTempo=v870CleanToken(a?.attackTempo||a?.setTempo||x.attackTempo||'',3);
+  const tempo=V870_TEMPO[rawTempo]?rawTempo:(V870_LEGACY_TEMPO[rawTempo]||'');
+  x.attackTempo=x.skill==='A'?tempo:'';
+  x.setTempo=x.skill==='E'?tempo:'';
+  x.attackCode=x.skill==='A'?v870CleanToken(a?.attackCode||'',6):'';
+  x.setterCall=x.skill==='E'?v870CleanToken(a?.setterCall||'',6):'';
+  x.dvSetType=(x.skill==='A'||x.skill==='E')&&V870_SETTYPE[String(a?.dvSetType||'').toUpperCase()]?String(a.dvSetType).toUpperCase():'';
+  const subtype=v870CleanToken(a?.skillSubtype||'',8);
+  x.skillSubtype=V870_SUBTYPE[x.skill]?.[subtype]?subtype:'';
+  x.specialCode=v870CleanToken(a?.specialCode||'',10);
+  x.customCode=v870CleanToken(a?.customCode||'',5);
+  return x;
+};
+
+const v870BuildBase=scoutBuildCode;
+scoutBuildCode=function(a){
+  let code=v870BuildBase(a);
+  const dvCode=a?.skill==='A'?a.attackCode:(a?.skill==='E'?a.setterCall:'');
+  const tempo=a?.skill==='A'?a.attackTempo:(a?.skill==='E'?a.setTempo:'');
+  if(dvCode)code+=`::${v870CleanToken(dvCode,6)}`;
+  if(tempo&&V870_TEMPO[tempo])code+=`~${tempo}`;
+  if(a?.skillSubtype)code+=`%${v870CleanToken(a.skillSubtype,8)}`;
+  if(a?.dvSetType&&V870_SETTYPE[a.dvSetType])code+=`|${a.dvSetType}`;
+  if(a?.specialCode)code+=`?${v870CleanToken(a.specialCode,10)}`;
+  if(a?.customCode)code+=`$${v870CleanToken(a.customCode,5)}`;
+  return code;
+};
+
+const v870ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const skill=v870SkillFromRaw(original);
+  let cleaned=original;
+
+  let dvCode=cleaned.match(/::([A-Z0-9]{1,6})/)?.[1]||'';
+  cleaned=cleaned.replace(/::[A-Z0-9]{1,6}/,'');
+
+  if(!dvCode&&(skill==='A'||skill==='E')){
+    const single=cleaned.match(/:([A-Z0-9]{1,6})/)?.[1]||'';
+    const vcCombos=['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'];
+    if(single&&!vcCombos.includes(single)){
+      dvCode=single;
+      cleaned=cleaned.replace(':'+single,'');
+    }
+  }
+
+  let tempo='';
+  if(skill==='A'||skill==='E'){
+    tempo=cleaned.match(/~([QUTMHO])/)?.[1]||'';
+    if(tempo)cleaned=cleaned.replace(/~[QUTMHO]/,'');
+  }
+
+  const subtype=cleaned.match(/%([A-Z0-9]{1,8})/)?.[1]||'';
+  if(subtype)cleaned=cleaned.replace(/%[A-Z0-9]{1,8}/,'');
+
+  const setType=cleaned.match(/\|([FCBPS])/)?.[1]||'';
+  if(setType)cleaned=cleaned.replace(/\|[FCBPS]/,'');
+
+  const special=cleaned.match(/\?([A-Z0-9]{1,10})/)?.[1]||'';
+  if(special)cleaned=cleaned.replace(/\?[A-Z0-9]{1,10}/,'');
+
+  const custom=cleaned.match(/\$([A-Z0-9]{1,5})/)?.[1]||'';
+  if(custom)cleaned=cleaned.replace(/\$[A-Z0-9]{1,5}/,'');
+
+  const parsed=v870ParseBase(cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+
+  let a=parsed.action;
+  if(a.skill==='A'){
+    a.attackCode=dvCode||String(oldAction?.attackCode||'');
+    a.attackTempo=tempo||String(oldAction?.attackTempo||'');
+  }else{
+    a.attackCode='';
+    if(a.skill==='E'){
+      a.setterCall=dvCode||String(oldAction?.setterCall||'');
+      a.setTempo=tempo||String(oldAction?.setTempo||'');
+    }else{
+      a.setterCall='';a.setTempo='';
+    }
+  }
+  a.skillSubtype=subtype||String(oldAction?.skillSubtype||'');
+  a.dvSetType=setType||String(oldAction?.dvSetType||'');
+  a.specialCode=special||String(oldAction?.specialCode||'');
+  a.customCode=custom||String(oldAction?.customCode||'');
+  a=scoutNormalizeAction(a);
+  a.code=scoutBuildCode(a);
+  return {action:a};
+};
+window.v680ParseCode=(raw,m,oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
+
+function v870FillSubtype(skill){
+  const sel=$('scout-action-subtype');if(!sel)return;
+  const old=sel.value,data=V870_SUBTYPE[skill]||{};
+  sel.innerHTML='<option value="">— Sin especificar —</option>'+Object.entries(data)
+    .map(([k,v])=>`<option value="${k}">${k} · ${esc(v)}</option>`).join('');
+  if(data[old])sel.value=old;
+}
+function v870FieldValue(id){return String($(id)?.value||'').trim().toUpperCase()}
+
+window.scoutAddManualAction=function(){
+  const team=$('scout-action-team')?.value||'ours',
+    pv=$('scout-action-player')?.value||'',skill=$('scout-action-skill')?.value||'S',
+    combo=$('scout-action-combo')?.value||'',
+    start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),
+    end=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||''),
+    serve=$('scout-action-serve-type')?.value||'',
+    direction=$('scout-action-direction')?.value||'',
+    blockers=$('scout-action-blockers')?.value??'',
+    target=String($('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3),
+    dvCode=v870CleanToken(v870FieldValue('scout-action-dv-code'),6),
+    tempo=v870FieldValue('scout-action-tempo'),
+    subtype=v870FieldValue('scout-action-subtype'),
+    setType=v870FieldValue('scout-action-set-type'),
+    special=v870CleanToken(v870FieldValue('scout-action-special'),10),
+    custom=v870CleanToken(v870FieldValue('scout-action-custom'),5);
+
+  let zones=scoutV6108NormalizeZoneInput(skill,start,end);
+  if(skill==='B'){
+    const z=start||end;
+    zones={startZone:z,endZone:'',contactZone:z,sourceZone:'',zoneInferred:false};
+  }
+
+  scoutPushAction({
+    team,playerId:team==='ours'?Number(pv)||null:null,playerLabel:team==='opponent'?pv:'',
+    skill,evaluation:$('scout-action-eval')?.value||'!',...zones,
+    serveType:skill==='S'?serve:'',receivedServeType:skill==='R'?serve:'',
+    phase:$('scout-action-phase')?.value||'',setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',
+    attackCode:skill==='A'?dvCode:'',setterCall:skill==='E'?dvCode:'',
+    attackTempo:skill==='A'?tempo:'',setTempo:skill==='E'?tempo:'',
+    dvSetType:(skill==='A'||skill==='E')?setType:'',skillSubtype:subtype,
+    specialCode:special,customCode:custom,attackDirection:skill==='A'?direction:'',
+    blockers:(skill==='A'||skill==='B')?String(blockers):'',blockTargetNumber:skill==='B'?target:''
+  });
+};
+
+window.scoutUpdateAdvancedCodePreview=function(){
+  const skill=$('scout-action-skill')?.value||'S',ev=$('scout-action-eval')?.value||'!',
+    start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),
+    end=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||''),
+    serve=$('scout-action-serve-type')?.value||'',phase=$('scout-action-phase')?.value||'',
+    combo=$('scout-action-combo')?.value||'',direction=$('scout-action-direction')?.value||'',
+    blockers=$('scout-action-blockers')?.value??'',
+    target=String($('scout-v840-block-target')?.value||'').replace(/\D/g,'').slice(0,3),
+    dvCode=v870CleanToken(v870FieldValue('scout-action-dv-code'),6),
+    tempo=v870FieldValue('scout-action-tempo'),subtype=v870FieldValue('scout-action-subtype'),
+    setType=v870FieldValue('scout-action-set-type'),
+    special=v870CleanToken(v870FieldValue('scout-action-special'),10),
+    custom=v870CleanToken(v870FieldValue('scout-action-custom'),5);
+
+  let sample={team:'opponent',playerLabel:'N',skill,evaluation:ev,startZone:start,endZone:end,
+    serveType:skill==='S'?serve:'',receivedServeType:skill==='R'?serve:'',phase,
+    setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',
+    attackCode:skill==='A'?dvCode:'',setterCall:skill==='E'?dvCode:'',
+    attackTempo:skill==='A'?tempo:'',setTempo:skill==='E'?tempo:'',
+    dvSetType:(skill==='A'||skill==='E')?setType:'',skillSubtype:subtype,
+    specialCode:special,customCode:custom,attackDirection:skill==='A'?direction:'',
+    blockers:(skill==='A'||skill==='B')?String(blockers):'',blockTargetNumber:skill==='B'?target:''};
+
+  if(skill==='R'||skill==='D'){sample.contactZone=end||start;sample.endZone=end||start;sample.startZone=start&&end?start:''}
+  if(skill==='B'){sample.contactZone=start||end;sample.startZone=start||end;sample.endZone=''}
+  sample=scoutNormalizeAction(sample);
+  let c=scoutBuildCode(sample).replace(/^RN/,'N');
+  if($('scout-advanced-code-preview'))$('scout-advanced-code-preview').textContent='Código: '+c;
+};
+
+const v870FieldsBase=window.scoutUpdateAdvancedFields;
+window.scoutUpdateAdvancedFields=function(){
+  const out=v870FieldsBase?.(),skill=$('scout-action-skill')?.value||'S',ea=skill==='E'||skill==='A';
+  $('scout-v870-dvcode-wrap')?.classList.toggle('hidden',!ea);
+  $('scout-adv-tempo-wrap')?.classList.toggle('hidden',!ea);
+  $('scout-v870-settype-wrap')?.classList.toggle('hidden',!ea);
+  $('scout-v870-subtype-wrap')?.classList.toggle('hidden',!V870_SUBTYPE[skill]);
+  v870FillSubtype(skill);
+  const dl=$('scout-v870-dvcode-label');if(dl)dl.textContent=skill==='A'?'Attack code DataVolley':skill==='E'?'Setter call DataVolley':'Código DataVolley';
+  const tl=$('scout-action-tempo-label');if(tl)tl.textContent=skill==='E'?'Tempo de colocación · DataVolley':'Tempo de ataque · DataVolley';
+  const sl=$('scout-v870-subtype-label');if(sl)sl.textContent=`Skill subtype · ${SCOUT_SKILLS[skill]||skill}`;
+  const ctx=$('scout-advanced-context');
+  if(ctx&&skill==='E')ctx.textContent='Destino + setter call DV + tempo Q/U/T/M/H/O + tipo de gesto';
+  if(ctx&&skill==='A')ctx.textContent='Attack code DV + tempo + subtype + set type + dirección + bloqueo';
+  scoutUpdateAdvancedCodePreview();
+  return out;
+};
+
+['scout-action-dv-code','scout-action-set-type','scout-action-subtype','scout-action-special','scout-action-custom'].forEach(id=>{
+  $(id)?.addEventListener('input',()=>scoutUpdateAdvancedCodePreview());
+  $(id)?.addEventListener('change',()=>scoutUpdateAdvancedCodePreview());
+});
+
+const v870MetaBase=scoutAdvancedMetaText;
+scoutAdvancedMetaText=function(a){
+  const parts=[],base=v870MetaBase(a);if(base)parts.push(base);
+  if(a?.skill==='A'&&a.attackCode)parts.push('DV ATQ '+a.attackCode);
+  if(a?.skill==='E'&&a.setterCall)parts.push('DV SET '+a.setterCall);
+  const tempo=a?.skill==='A'?a.attackTempo:(a?.skill==='E'?a.setTempo:'');
+  if(tempo)parts.push('Tempo '+tempo+' '+(V870_TEMPO[tempo]||''));
+  if(a?.dvSetType)parts.push('Set '+a.dvSetType+' '+(V870_SETTYPE[a.dvSetType]||''));
+  if(a?.skillSubtype)parts.push(V870_SUBTYPE[a.skill]?.[a.skillSubtype]||a.skillSubtype);
+  if(a?.specialCode)parts.push('Special '+a.specialCode);
+  if(a?.customCode)parts.push('Custom '+a.customCode);
+  return [...new Set(parts)].join(' · ');
+};
+
+window.scoutExportCSV=function(id){
+  const m=scoutExportMatch(id);if(!m){alert('No hay scouting seleccionado.');return}
+  const rows=scoutExportRows(m);
+  const headers=['fecha','equipo','rival','competicion','set','rally','marcador_antes','marcador_despues',
+    'saque_antes','rotacion_nuestra','rotacion_rival','secuencia','equipo_accion','jugador','fundamento',
+    'valoracion','zona_origen','zona_destino','tipo_saque','tipo_saque_recibido','fase_vc',
+    'destino_combinacion_vc','attack_code_dv','set_code_dv','tempo_dv','set_type_dv','skill_subtype_dv',
+    'special_code_dv','custom_code_dv','direccion_ataque_vc','bloqueadores','atacante_objetivo_vc',
+    'codigo','tiempo_scout','video_time'];
+  const data=rows.map(a=>{
+    const tempo=a.skill==='A'?a.attackTempo:(a.skill==='E'?a.setTempo:'');
+    return [m.date,EQUIPOS[equipoActivo].nombre,m.opponent,m.competition,a.set,a.rallyIndex,a.scoreBefore,
+      a.scoreAfter,a.servingBefore==='ours'?'Nuestro':'Rival',a.rotation,a.opponentRotation,a.actionIndex,
+      a.team==='ours'?'Nuestro':'Rival',scoutActionPlayerLabel(a),SCOUT_SKILLS[a.skill]||a.skill,a.evaluation,
+      a.startZone,a.endZone,V620_SERVE_LABELS[a.serveType]||a.serveType||'',
+      V830_SERVE?.[a.receivedServeType]||a.receivedServeType||'',V620_PHASE_LABELS[a.phase]||a.phase||'',
+      V620_COMBO_LABELS[a.setTarget||a.attackCombo]||a.setTarget||a.attackCombo||'',
+      a.attackCode||'',a.setterCall||'',tempo||'',a.dvSetType||'',a.skillSubtype||'',a.specialCode||'',
+      a.customCode||'',V830_ATTACK_DIR?.[a.attackDirection]||a.attackDirection||'',a.blockers??'',
+      a.blockTargetNumber||'',a.code,scoutFormatTime(a.scoutMs),a.videoTime==null?'':Number(a.videoTime)];
+  });
+  const csv='\uFEFF'+[headers,...data].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');
+  scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_acciones_datavolley_pro.csv`);
+};
+
+window.VC_DATAVOLLEY={
+  version:V870_VERSION,tempo:{...V870_TEMPO},setType:{...V870_SETTYPE},subtype:scoutClone(V870_SUBTYPE),
+  syntax:{attackCode:'::X1',setterCall:'::K1',tempo:'~Q/~U/~T/~M/~H/~O',subtype:'%HSP',
+    setType:'|F',special:'?NET',custom:'$ABC'}
+};
+if(window.VC_SCOUT_CORE){
+  window.VC_SCOUT_CORE.version=V870_VERSION;
+  window.VC_SCOUT_CORE.datavolley=window.VC_DATAVOLLEY;
+  window.VC_SCOUT_CORE.parse=(raw,m=scoutActive(),oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
+  window.VC_SCOUT_CORE.register=(raw,m=scoutActive())=>v857RegisterRaw(raw,m);
+}
+scoutUpdateAdvancedFields();
+
+
 })();
 </script>
 
@@ -16666,6 +16947,8 @@ const state={
   markers:[],
   lastSet:null,
   lastDownloadUrl:null,
+  lastGalleryFile:null,
+  lastGalleryName:'',
   blockCounter:0
 };
 
@@ -16702,27 +16985,38 @@ function sourceLabel(){
   return source==='remote'?'Móvil remoto':'Cámara local';
 }
 function getSourceStream(){
+  const selected=$('live-delay-source')?.value||'local';
   const direct=$('live-delay-live')?.srcObject;
-  if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
   const remote=window.VC_REMOTE_CAMERA?.getStream?.();
-  if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
+
+  if(selected==='remote'){
+    if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
+    if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
+  }else{
+    if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
+    if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
+  }
   return null;
 }
 function cloneSource(stream){
   const tracks=stream?.getTracks?.().filter(t=>t.readyState==='live')||[];
   return new MediaStream(tracks.map(t=>t.clone()));
 }
-function chooseMime(){
+function chooseMime(preferMp4=false){
   if(typeof MediaRecorder==='undefined')return '';
-  const candidates=[
+  const mp4=[
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4'
+  ];
+  const webm=[
     'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
     'video/webm;codecs=vp9',
     'video/webm;codecs=vp8',
-    'video/webm',
-    'video/mp4;codecs=avc1.42E01E',
-    'video/mp4'
+    'video/webm'
   ];
+  const candidates=preferMp4?[...mp4,...webm]:[...webm,...mp4];
   return candidates.find(x=>{try{return MediaRecorder.isTypeSupported?.(x)}catch(_){return false}})||'';
 }
 function extForMime(mime){return String(mime).startsWith('video/mp4')?'mp4':'webm'}
@@ -16859,16 +17153,23 @@ async function chooseDiskFile(filename,mime){
 function cleanupLastUrl(){
   if(state.lastDownloadUrl){try{URL.revokeObjectURL(state.lastDownloadUrl)}catch(_){}state.lastDownloadUrl=null}
 }
-function offerDownload(blob,filename){
+function offerDownload(blob,filename,autoSave=true){
   cleanupLastUrl();
   const url=URL.createObjectURL(blob);state.lastDownloadUrl=url;
   const a=$('vc-recording-download');
   if(a){
     a.href=url;a.download=filename;a.textContent='Descargar última grabación';a.classList.remove('hidden');
   }
-  try{
-    const auto=document.createElement('a');auto.href=url;auto.download=filename;document.body.appendChild(auto);auto.click();auto.remove();
-  }catch(_){}
+  let triggered=false;
+  if(autoSave){
+    try{
+      const auto=document.createElement('a');
+      auto.href=url;auto.download=filename;auto.style.display='none';
+      document.body.appendChild(auto);auto.click();auto.remove();
+      triggered=true;
+    }catch(_){}
+  }
+  return {url,triggered};
 }
 function metadataPayload(session){
   return {
@@ -16916,11 +17217,73 @@ window.vcRecordingAddMarker=function(label){
   addMarkerInternal(label,false);
 };
 
+function autosaveEnabled(){
+  const el=$('vc-recording-autosave');
+  return el?!!el.checked:true;
+}
+function saveAutosavePreference(){
+  try{localStorage.setItem('vc-recording-autosave',autosaveEnabled()?'1':'0')}catch(_){}
+}
+function restoreAutosavePreference(){
+  try{
+    const raw=localStorage.getItem('vc-recording-autosave');
+    if(raw!==null&&$('vc-recording-autosave'))$('vc-recording-autosave').checked=raw!=='0';
+  }catch(_){}
+}
+window.vcRecordingAutoSaveChanged=function(){
+  saveAutosavePreference();
+  const last=$('vc-recording-last');
+  if(last&&!state.active){
+    last.classList.remove('v871-saved','v871-warn');
+    last.textContent=autosaveEnabled()?'Guardado automático activado':'Guardado automático desactivado';
+  }
+};
+
+function galleryShareSupported(file=null){
+  if(typeof navigator.share!=='function')return false;
+  if(!file)return true;
+  try{return typeof navigator.canShare!=='function'||navigator.canShare({files:[file]})}catch(_){return false}
+}
+async function shareGalleryFile(file,filename,quiet=false){
+  if(!file)return false;
+  if(!galleryShareSupported(file)){
+    if(!quiet)alert('Este navegador no permite enviar directamente el vídeo a Fotos/Galería. Se dejará disponible como archivo de vídeo.');
+    return false;
+  }
+  try{
+    await navigator.share({files:[file],title:filename,text:'Grabación de Volley Coach'});
+    return true;
+  }catch(err){
+    if(err?.name==='AbortError')return false;
+    console.warn('V8.7.2 gallery share',err);
+    if(!quiet)alert('El sistema no ha permitido abrir Fotos/Galería automáticamente. Usa de nuevo “Guardar en Fotos / Galería”.');
+    return false;
+  }
+}
+window.vcRecordingSaveToGallery=async function(){
+  const file=state.lastGalleryFile;
+  if(!file){
+    alert('No hay una grabación preparada para guardar en Fotos/Galería.');
+    return false;
+  }
+  return shareGalleryFile(file,state.lastGalleryName||file.name,false);
+};
+
 window.vcRecordingStorageChanged=function(){
   const sel=$('vc-recording-storage');
-  if(sel?.value==='disk'&&typeof window.showSaveFilePicker!=='function'){
+  if(!sel)return;
+  if(sel.value==='disk'&&typeof window.showSaveFilePicker!=='function'){
+    if(galleryShareSupported()){
+      sel.value='gallery';
+      alert('Este dispositivo no permite grabar directamente a un archivo desde la web. Se usará Fotos/Galería.');
+    }else{
+      sel.value='browser';
+      alert('Este dispositivo no permite acceso directo a archivos ni a Fotos/Galería desde la web. Se usará el modo recuperable.');
+    }
+  }
+  if(sel.value==='gallery'&&!galleryShareSupported()){
     sel.value='browser';
-    alert('Este navegador no permite escritura directa al disco. Se usará el modo Navegador/IndexedDB.');
+    alert('Este navegador no permite abrir Fotos/Galería con un vídeo. Se usará el modo recuperable.');
   }
 };
 
@@ -16930,11 +17293,15 @@ window.vcRecordingStart=async function(){
   if(!source){alert('Primero inicia la cámara o conecta el móvil y activa Live Delay.');return}
   if(typeof MediaRecorder==='undefined'){alert('Este navegador no dispone de MediaRecorder.');return}
 
-  const mime=chooseMime();
-  if(!mime){alert('No se ha encontrado un formato de vídeo compatible para grabar.');return}
-
   let mode=$('vc-recording-storage')?.value||'disk';
-  if(mode==='disk'&&typeof window.showSaveFilePicker!=='function')mode='browser';
+  if(mode==='disk'&&typeof window.showSaveFilePicker!=='function'){
+    mode=galleryShareSupported()?'gallery':'browser';
+    if($('vc-recording-storage'))$('vc-recording-storage').value=mode;
+  }
+  if(mode==='gallery'&&!galleryShareSupported())mode='browser';
+
+  const mime=chooseMime(mode==='disk'||mode==='gallery');
+  if(!mime){alert('No se ha encontrado un formato de vídeo compatible para grabar.');return}
 
   const base=safeName($('vc-recording-name')?.value||defaultName());
   const filename=`${base}_${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}`;
@@ -16990,7 +17357,9 @@ window.vcRecordingStart=async function(){
     recorder.start(1000);
 
     cleanupLastUrl();
+    state.lastGalleryFile=null;state.lastGalleryName='';
     $('vc-recording-download')?.classList.add('hidden');
+    $('vc-recording-gallery-save')?.classList.add('hidden');
     if($('vc-recording-name'))$('vc-recording-name').value=base;
     setState('● REC','rec');
     if(state.lastSet)addMarkerInternal(`Set ${state.lastSet}`,true);
@@ -17032,20 +17401,54 @@ async function finalizeSession(){
   };
   await dbPutSession(session);
 
+  const autoSave=autosaveEnabled();
   if(state.mode==='disk'&&state.writer){
     await state.writer.close();
     state.writer=null;
-    const sidecar=`${state.filename}_marcadores.json`;
-    downloadJSON(metadataPayload(session),sidecar);
-    if($('vc-recording-last'))$('vc-recording-last').textContent=`Guardado en disco · ${fmtTime(durationMs)} · ${fmtBytes(state.bytes)}`;
+    const last=$('vc-recording-last');
+    if(last){
+      last.classList.remove('v871-warn');last.classList.add('v871-saved');
+      last.textContent=`✓ Vídeo guardado como archivo normal · ${state.filename}.${state.extension} · ${fmtTime(durationMs)} · ${fmtBytes(state.bytes)}`;
+    }
   }else{
     const chunks=await dbChunks(state.sessionId);
     if(!chunks.length)throw new Error('La grabación no contiene fragmentos recuperables.');
     const blob=new Blob(chunks.map(x=>x.blob),{type:state.mime||'video/webm'});
     const fullName=`${state.filename}.${state.extension}`;
-    offerDownload(blob,fullName);
-    downloadJSON(metadataPayload(session),`${state.filename}_marcadores.json`);
-    if($('vc-recording-last'))$('vc-recording-last').textContent=`Vídeo listo · ${fmtTime(durationMs)} · ${fmtBytes(blob.size)}`;
+
+    if(state.mode==='gallery'){
+      const file=new File([blob],fullName,{type:state.mime||blob.type||'video/webm',lastModified:Date.now()});
+      state.lastGalleryFile=file;
+      state.lastGalleryName=fullName;
+
+      cleanupLastUrl();
+      const url=URL.createObjectURL(blob);state.lastDownloadUrl=url;
+      const a=$('vc-recording-download');
+      if(a){a.href=url;a.download=fullName;a.textContent='Guardar archivo de vídeo';a.classList.remove('hidden')}
+      $('vc-recording-gallery-save')?.classList.remove('hidden');
+
+      let shared=false;
+      if(autoSave)shared=await shareGalleryFile(file,fullName,true);
+      const last=$('vc-recording-last');
+      if(last){
+        last.classList.remove('v871-saved','v871-warn');
+        last.classList.add(shared?'v871-saved':'v871-warn');
+        last.textContent=shared
+          ?`✓ Vídeo enviado al guardado nativo de Fotos/Galería · ${fullName}`
+          :`Vídeo preparado · pulsa “Guardar en Fotos / Galería” para añadirlo a la fototeca.`;
+      }
+    }else{
+      const dl=offerDownload(blob,fullName,autoSave);
+      if(autoSave)downloadJSON(metadataPayload(session),`${state.filename}_marcadores.json`);
+      const last=$('vc-recording-last');
+      if(last){
+        last.classList.remove('v871-saved','v871-warn');
+        last.classList.add(autoSave&&dl.triggered?'v871-saved':'v871-warn');
+        last.textContent=autoSave&&dl.triggered
+          ?`✓ Archivo de vídeo preparado/guardado · ${fullName} · ${fmtTime(durationMs)} · ${fmtBytes(blob.size)}`
+          :`Vídeo preparado · usa “Guardar archivo de vídeo” · ${fmtTime(durationMs)} · ${fmtBytes(blob.size)}`;
+      }
+    }
   }
   return session;
 }
@@ -17064,7 +17467,13 @@ window.vcRecordingStop=async function(silent=false){
     await stopped;
     const session=await finalizeSession();
     setState('GUARDADO','done');
-    if(!silent&&state.mode==='disk')alert('Grabación guardada correctamente en el archivo seleccionado.');
+    if(!silent){
+      if(state.mode==='disk')alert(`Grabación guardada como vídeo normal del dispositivo.\n\n${state.filename}.${state.extension}`);
+      else if(state.mode==='gallery'){
+        if(state.lastGalleryFile)alert('Grabación finalizada. Si el sistema no la ha añadido todavía a Fotos/Galería, pulsa “Guardar en Fotos / Galería”.');
+      }else if(autosaveEnabled())alert(`Grabación finalizada. Se ha preparado el archivo de vídeo.\n\n${state.filename}.${state.extension}`);
+      else alert('Grabación finalizada. Puedes guardarla con “Guardar archivo de vídeo”.');
+    }
     return session;
   }catch(err){
     console.error('V7.7 finalize',err);
@@ -17082,7 +17491,7 @@ window.vcRecordingStop=async function(silent=false){
 window.vcRecordingRecover=async function(){
   try{
     const sessions=await dbSessions();
-    const browserSessions=sessions.filter(s=>s.mode==='browser');
+    const browserSessions=sessions.filter(s=>s.mode==='browser'||s.mode==='gallery');
     let modal=document.getElementById('vc-rec-recovery');
     if(modal)modal.remove();
     modal=document.createElement('div');modal.id='vc-rec-recovery';modal.className='vc-rec-recovery';
@@ -17135,14 +17544,18 @@ window.vcRecordingDiagnostics=function(){
     diskDirectSupported:typeof window.showSaveFilePicker==='function',
     indexedDB:typeof indexedDB!=='undefined',
     mediaRecorder:typeof MediaRecorder!=='undefined',
-    sourceAvailable:!!getSourceStream()
+    sourceAvailable:!!getSourceStream(),
+    autoSave:autosaveEnabled(),
+    autoSaveMode:state.mode==='disk'?'device-file':state.mode==='gallery'?'system-gallery':'browser-file',
+    galleryShareSupported:galleryShareSupported(state.lastGalleryFile)
   };
 };
 
 (async()=>{
+  restoreAutosavePreference();
   if($('vc-recording-name')&&!$('vc-recording-name').value)$('vc-recording-name').value=defaultName();
   const storage=$('vc-recording-storage');
-  if(storage&&typeof window.showSaveFilePicker!=='function')storage.value='browser';
+  if(storage&&typeof window.showSaveFilePicker!=='function')storage.value=galleryShareSupported()?'gallery':'browser';
   updateUI();
   try{
     const sessions=await dbSessions();
@@ -19335,8 +19748,8 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
   <div class="v841-cheat-card">
     <div class="v841-cheat-head">
       <div>
-        <span class="pro-kicker">V8.4.1 · CHULETA DE CÓDIGOS</span>
-        <h2 id="v841-cheat-title">Scouting rápido</h2>
+        <span class="pro-kicker">V8.7 · CHULETA DATAVOLLEY PRO + VOLLEY COACH</span>
+        <h2 id="v841-cheat-title">Código completo de scouting</h2>
         <p>Busca por fundamento, símbolo o ejemplo. Puedes copiar cualquier código directamente al cuadro de Modo Partido.</p>
       </div>
       <button class="ghost" onclick="v841CloseCheatSheet()">Cerrar ×</button>
@@ -19351,6 +19764,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         <button data-cat="reception" onclick="v841CheatTab('reception',this)">Recepción</button>
         <button data-cat="set" onclick="v841CheatTab('set',this)">Colocación</button>
         <button data-cat="attack" onclick="v841CheatTab('attack',this)">Ataque</button>
+        <button data-cat="dv" onclick="v841CheatTab('dv',this)">DataVolley Pro</button>
         <button data-cat="block" onclick="v841CheatTab('block',this)">Bloqueo</button>
         <button data-cat="defense" onclick="v841CheatTab('defense',this)">Defensa</button>
       </div>
@@ -19367,7 +19781,7 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         </div>
         <div class="v841-order">
           <b>Orden recomendado de sufijos</b>
-          <code>.zonas → ~tipo saque → :destino/combinación → *dirección → ^fase → @bloqueadores → &objetivo</code>
+          <code>.zonas → :destino VC → ::código DV → ~tipo/tempo → %subtype → |set type → *dirección VC → ^fase VC → @bloqueadores → &objetivo VC → ?special → $custom</code>
         </div>
       </section>
 
@@ -19382,6 +19796,12 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
           <article><b>Contacto único</b><span><code>.6C</code> = recepción/defensa en Z6C.</span></article>
           <article><b>Compatibilidad</b><span><code>.4&gt;5</code> continúa siendo válido si no quieres usar subzonas.</span></article>
         </div>
+        <div class="v841-grid">
+          <article><b>Tempo DataVolley</b><span><code>~Q</code> Quick · <code>~U</code> Super · <code>~T</code> Fast · <code>~M</code> Medium · <code>~H</code> High · <code>~O</code> Other.</span></article>
+          <article><b>Setter call DV</b><span><code>::K1</code>, <code>::KF</code>… El código es configurable en el archivo/equipo DataVolley.</span></article>
+          <article><b>Tipo de gesto</b><span><code>%1H</code> una mano · <code>%2H</code> dos manos · <code>%BUMP</code> antebrazos · <code>%UND</code> underhand · <code>%OTH</code> otro.</span></article>
+        </div>
+        <div class="v841-example" data-code="3E+.2B>4C:Z4::K1~T%2H^K1"><code>3E+.2B&gt;4C:Z4::K1~T%2H^K1</code><span>#3 coloca desde 2B hacia 4C, destino VC Z4, setter call DV K1, tempo Fast y colocación a dos manos.</span><button onclick="v841UseCode('3E+.2B>4C:Z4::K1~T%2H^K1')">Usar</button></div>
         <div class="v841-example" data-code="3E+.2B>4C:Z4^K1"><code>3E+.2B&gt;4C:Z4^K1</code><span>#3 coloca desde Z2B hacia Z4C, opción Z4, en K1.</span><button onclick="v841UseCode('3E+.2B>4C:Z4^K1')">Usar</button></div>
         <div class="v841-example" data-code="12A#.4B>5D:Z4*DL^K1@2"><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 ataca desde Z4B y finaliza en Z5D, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4B>5D:Z4*DL^K1@2')">Usar</button></div>
         <div class="v841-tip"><b>Regla:</b> solo se admite <code>A</code>, <code>B</code>, <code>C</code> o <code>D</code> inmediatamente después del número de zona.</div>
@@ -19407,9 +19827,9 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         <div class="v841-tip"><b>Automático:</b> si antes has puesto <code>R4S+.1&gt;6~JF</code> y luego escribes <code>7R#.6</code>, Volley Coach intenta inferir que el saque venía de Z1 y era JF.</div>
       </section>
 
-      <section class="v841-cheat-section" data-cat="set" data-search="colocacion colocador distribucion z1 z2 z4 z6 pipe primer tiempo 31 back k1 k2">
+      <section class="v841-cheat-section" data-cat="set" data-search="colocacion colocador distribucion z1 z2 z4 z6 pipe primer tiempo 31 back k1 k2 tempo quick super fast medium high setter call datavolley">
         <h3>4. Colocación / distribución</h3>
-        <div class="v841-rule"><code>:DESTINO</code><span>Describe dónde decide colocar el balón.</span></div>
+        <div class="v841-rule"><code>:DESTINO VC · ::SET CALL DV · ~TEMPO DV</code><span>Separa el destino táctico de Volley Coach del setter call y del tempo compatibles conceptualmente con DataVolley.</span></div>
         <div class="v841-grid">
           <article><b>Destinos</b><span><code>Z4</code> · <code>Z2</code> · <code>Z1</code> · <code>Z6</code> · <code>1T</code> · <code>31</code> · <code>BACK</code> · <code>PIPE</code> · <code>2T</code></span></article>
           <article><b>Fase</b><span><code>^K1</code> recepción/side-out · <code>^K2</code> saque/break point</span></article>
@@ -19420,15 +19840,65 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
       </section>
 
       <section class="v841-cheat-section" data-cat="attack" data-search="ataque direccion linea diagonal corta larga zonas origen destino bloqueo kill eficiencia">
-        <h3>5. Ataque + dirección</h3>
+        <h3>5. Ataque · DataVolley + dirección Volley Coach</h3>
         <div class="v841-grid">
           <article><b>Trayectoria</b><span><code>.4&gt;5</code> = ataque desde Z4 hacia Z5.</span></article>
           <article><b>Dirección</b><span><code>*LIN</code> línea · <code>*DC</code> diagonal corta · <code>*DL</code> diagonal larga</span></article>
-          <article><b>Bloqueo rival</b><span><code>@0</code> sin bloqueo · <code>@1</code> individual · <code>@2</code> doble · <code>@3</code> triple</span></article>
+          <article><b>Bloqueo rival</b><span><code>@0</code> sin bloqueo · <code>@1</code> individual · <code>@2</code> doble · <code>@3</code> triple; equivale al número de bloqueadores registrado.</span></article>
+          <article><b>Attack code DV</b><span><code>::X1</code>, <code>::X5</code>, <code>::V5</code>, <code>::PP</code>… Son códigos de combinación configurables en DataVolley.</span></article>
+          <article><b>Tempo DV</b><span><code>~Q</code> Quick · <code>~U</code> Super · <code>~T</code> Fast · <code>~M</code> Medium · <code>~H</code> High · <code>~O</code> Other.</span></article>
+          <article><b>Skill subtype DV</b><span><code>%HSP</code> Hard spike · <code>%SSP</code> Soft spike/topspin · <code>%TIP</code> Tip.</span></article>
         </div>
         <div class="v841-example" data-code="12A#.4B>5D:Z4*DL^K1@2"><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 punto desde Z4B a Z5D, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4B>5D:Z4*DL^K1@2')">Usar</button></div>
         <div class="v841-example" data-code="12A+.4>1*LIN^K1@1"><code>12A+.4&gt;1*LIN^K1@1</code><span>#12 ataque positivo por línea en K1 contra bloqueo individual.</span><button onclick="v841UseCode('12A+.4>1*LIN^K1@1')">Usar</button></div>
         <div class="v841-example" data-code="12A/.4>4*DC^K2@3"><code>12A/.4&gt;4*DC^K2@3</code><span>#12 ataque bloqueado, diagonal corta, K2, triple bloqueo.</span><button onclick="v841UseCode('12A/.4>4*DC^K2@3')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section v870-dv-section" data-cat="dv" data-search="datavolley attack code set code setter call tempo quick super fast medium high other set type front centre back pipe setter dump">
+        <h3>DataVolley Pro · attack code, setter call y tempo</h3>
+        <div class="v841-rule"><code>::CÓDIGO · ~TEMPO · |SETTYPE</code><span>Volley Coach guarda estos conceptos por separado para acercarse a DataVolley sin perder nuestra sintaxis legible.</span></div>
+        <div class="v841-grid">
+          <article><b>Attack code</b><span>En ataque: <code>::X1</code>, <code>::X5</code>, <code>::V5</code>, <code>::PP</code>… Son códigos configurables por archivo/equipo.</span></article>
+          <article><b>Setter call</b><span>En colocación: <code>::K1</code>, <code>::KF</code>… Se guarda como concepto <i>set_code</i>.</span></article>
+          <article><b>Tempo</b><span><code>Q</code> Quick · <code>U</code> Super · <code>T</code> Fast · <code>M</code> Medium · <code>H</code> High · <code>O</code> Other.</span></article>
+          <article><b>Set type</b><span><code>|F</code> Front · <code>|C</code> Centre · <code>|B</code> Back · <code>|P</code> Pipe · <code>|S</code> Setter dump.</span></article>
+        </div>
+        <div class="v841-example" data-code="12A#.4B>5D::X5~T%HSP|F*DL^K1@2"><code>12A#.4B&gt;5D::X5~T%HSP|F*DL^K1@2</code><span>Ataque #12, 4B→5D, X5, Fast, hard spike, Front, diagonal larga, K1, doble bloqueo.</span><button onclick="v841UseCode('12A#.4B>5D::X5~T%HSP|F*DL^K1@2')">Usar</button></div>
+        <div class="v841-example" data-code="3E+.2B>4C::K1~T%2H|F^K1"><code>3E+.2B&gt;4C::K1~T%2H|F^K1</code><span>Colocación #3, setter call K1, Fast, dos manos, Front, fase K1.</span><button onclick="v841UseCode('3E+.2B>4C::K1~T%2H|F^K1')">Usar</button></div>
+      </section>
+
+      <section class="v841-cheat-section v870-dv-section" data-cat="dv" data-search="skill subtype hard spike soft topspin tip reception left right low overhand middle line set one hand two hands bump underhand dig emergency cover block attempt assist">
+        <h3>DataVolley Pro · skill_subtype</h3>
+        <div class="v841-rule"><code>%SUBTYPE</code><span><code>%</code> es nuestra sintaxis; el dato representa el concepto skill_subtype de DataVolley.</span></div>
+        <div class="v841-grid">
+          <article><b>Ataque</b><span><code>%HSP</code> Hard spike · <code>%SSP</code> Soft spike/topspin · <code>%TIP</code> Tip.</span></article>
+          <article><b>Colocación</b><span><code>%1H</code> 1 hand · <code>%2H</code> 2 hands · <code>%BUMP</code> bump · <code>%UND</code> underhand · <code>%OTH</code> other.</span></article>
+          <article><b>Recepción</b><span><code>%L</code> On left · <code>%R</code> On right · <code>%LOW</code> Low · <code>%OH</code> Overhand · <code>%MID</code> Middle line.</span></article>
+          <article><b>Defensa</b><span><code>%COV</code> Spike cover · <code>%AB</code> After block · <code>%EMG</code> Emergency · <code>%TIP</code> Tip · <code>%SOFT</code> Soft spike.</span></article>
+          <article><b>Bloqueo</b><span><code>%AST</code> Block assist · <code>%ATT</code> Block attempt · <code>%SOFT</code> Block on soft spike.</span></article>
+        </div>
+      </section>
+
+      <section class="v841-cheat-section v870-dv-section" data-cat="dv" data-search="special code error net antenna out long out side referee body unplayable custom code data volley">
+        <h3>DataVolley Pro · special_code y custom_code</h3>
+        <div class="v841-rule"><code>?SPECIAL · $CUSTOM</code><span>Los mnemónicos de special son legibles de Volley Coach; custom admite hasta 5 caracteres.</span></div>
+        <div class="v841-grid">
+          <article><b>Saque</b><span><code>?OL</code> fuera largo · <code>?OLE</code> fuera izquierda · <code>?ORI</code> fuera derecha · <code>?NET</code> red · <code>?REF</code> árbitro · <code>?LET</code> let.</span></article>
+          <article><b>Ataque</b><span><code>?OS</code> fuera lateral · <code>?OL</code> fuera largo · <code>?NET</code> red · <code>?NTC</code> contacto red · <code>?ANT</code> antena · <code>?BOS</code>/<code>?BOL</code> block-out · <code>?BF</code> block al suelo · <code>?DF</code> directo al suelo · <code>?BC</code> block control.</span></article>
+          <article><b>Recepción / Freeball</b><span><code>?UNP</code> unplayable · <code>?BODY</code> body error · <code>?POS</code> position error · <code>?REF</code> referee · <code>?EFF</code> lack of effort.</span></article>
+          <article><b>Colocación</b><span><code>?NOH</code> no se puede atacar · <code>?NET</code> toque de red · <code>?REF</code> doble/decisión arbitral.</span></article>
+          <article><b>Defensa</b><span><code>?UNP</code> unplayable · <code>?FLOOR</code> al suelo · <code>?OUT</code> fuera · <code>?EFF</code> falta de esfuerzo.</span></article>
+          <article><b>Custom</b><span><code>$ABC</code>, máximo 5 caracteres. El significado lo defines tú.</span></article>
+        </div>
+      </section>
+
+      <section class="v841-cheat-section v870-dv-section" data-cat="dv" data-search="diferencias volley coach datavolley phase k1 k2 direction target block video">
+        <h3>Qué es DataVolley y qué sigue siendo Volley Coach</h3>
+        <div class="v841-grid">
+          <article><b>DataVolley-like</b><span>Fundamento, evaluación, zonas/subzonas, attack_code, set_code, tempo, set_type, skill_subtype, nº bloqueadores, special_code, custom_code y tiempo de vídeo.</span></article>
+          <article><b>Volley Coach</b><span><code>*LIN/*DC/*DL</code> dirección legible · <code>^K1/^K2/^FB/^TR</code> fase táctica · <code>&amp;12</code> atacante objetivo del bloqueo · origen→destino explícito.</span></article>
+          <article><b>DataVolley real</b><span>Puede usar coordenadas continuas y conos de ataque. Volley Coach mantiene las 36 subzonas porque son más rápidas para scouting en directo.</span></article>
+        </div>
       </section>
 
       <section class="v841-cheat-section" data-cat="block" data-search="bloqueo profesional individual doble triple block out objetivo atacante rival toque positivo continuidad error">
@@ -19467,8 +19937,8 @@ window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:cu
         <div class="v841-rally-seq">
           <div><code>R4S+.1&gt;6~JF</code><span>Saque rival #4, positivo, Z1→Z6, flotante salto.</span></div>
           <div><code>7R#.6~JF</code><span>#7 recepción perfecta en Z6.</span></div>
-          <div><code>3E+.2B&gt;4C:Z4^K1</code><span>#3 coloca desde Z2B hacia Z4C, opción Z4, en K1.</span></div>
-          <div><code>12A#.4B&gt;5D:Z4*DL^K1@2</code><span>#12 punto desde Z4B hacia Z5D, diagonal larga, doble bloqueo.</span></div>
+          <div><code>3E+.2B&gt;4C:Z4::K1~T%2H|F^K1</code><span>#3 coloca 2B→4C, setter call K1, Fast, dos manos, Front, fase K1.</span></div>
+          <div><code>12A#.4B&gt;5D:Z4::X5~T%HSP|F*DL^K1@2</code><span>#12 punto 4B→5D, X5, Fast, hard spike, Front, diagonal larga, doble bloqueo.</span></div>
         </div>
       </section>
     </div>
@@ -20183,6 +20653,34 @@ document.addEventListener('keydown',e=>{
   .scout-v861-result-actions{display:grid!important;grid-template-columns:1fr}
   .scout-v861-result-actions button{width:100%}
 }
+</style>
+
+
+
+<style id="v870-datavolley-pro-style">
+#scout-v870-dvcode-wrap input,#scout-v870-special-wrap input,#scout-v870-custom-wrap input{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:800;text-transform:uppercase}
+.v870-dv-section{border-color:#bfcfd9!important}.v870-dv-section h3{font-size:13px!important}
+.v870-dv-section .v841-rule{background:#edf4f8!important}
+#scout-advanced-fields .hidden{display:none!important}
+@media(max-width:700px){#scout-advanced-fields .scout-advanced-grid{grid-template-columns:1fr 1fr!important}}
+@media(max-width:480px){#scout-advanced-fields .scout-advanced-grid{grid-template-columns:1fr!important}}
+</style>
+
+
+
+<style id="v871-recording-autosave-style">
+.vc-recording-autosave{min-width:210px}
+#vc-recording-last.v871-saved{background:#eaf5ee;border-color:#c9dfd1;color:#2f6849;font-weight:800;padding:6px 8px;border-radius:7px}
+#vc-recording-last.v871-warn{background:#fff5e5;border-color:#ecd5ad;color:#7d5a21;font-weight:800;padding:6px 8px;border-radius:7px}
+</style>
+
+
+
+<style id="v872-camera-save-style">
+#vc-recording-gallery-save{font-weight:850!important}
+#vc-recording-storage option[value="disk"]{font-weight:700}
+.vc-recording-help b{font-weight:900}
 </style>
 
 </body></html>
