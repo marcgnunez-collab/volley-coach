@@ -1108,7 +1108,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="scout-home-shell">
     <div class="scout-home-hero">
       <div><span class="pro-kicker">SCOUTING WORKSPACE</span><h2>Centro de scouting</h2><p>Partido en directo, próximos encuentros, archivo y lectura táctica desde una sola entrada.</p></div>
-      <div class="scout-home-actions"><button class="ghost" onclick="showView('competicion',botonVista('competicion'))">Partidos</button><button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button><button class="ghost" onclick="showView('scout-matchup',botonVista('scout-matchup'))">Match-up</button><button class="ghost" onclick="scoutV700OpenVideo('home')">🎥 Vídeo</button><button class="ghost scout-v891-recover-btn" onclick="scoutV891RecoverLostScoutings(true)">🛡 Recuperar scoutings</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-home-actions"><button class="ghost" onclick="showView('competicion',botonVista('competicion'))">Partidos</button><button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button><button class="ghost" onclick="showView('scout-matchup',botonVista('scout-matchup'))">Match-up</button><button class="ghost" onclick="scoutV700OpenVideo('home')">🎥 Vídeo</button><button class="ghost scout-v891-recover-btn" onclick="scoutV892OpenRecoveryCenter()">🛡 Recuperar scoutings</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v891-rescue-banner" class="scout-v891-rescue-banner hidden"></div>
     <div class="scout-home-kpis">
@@ -1645,6 +1645,26 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   </div>
 </div>
 
+
+<div id="scout-v892-recovery-modal" class="pro-modal" onclick="if(event.target===this)scoutV892CloseRecoveryCenter()">
+  <div class="pro-modal-card scout-v892-card">
+    <div class="pro-modal-head">
+      <div><span class="pro-kicker">V8.9.2 · RECUPERACIÓN AVANZADA</span><h2>Centro de recuperación de scoutings</h2><p>Busca copias en todas las fuentes locales sin sobrescribirlas.</p></div>
+      <button class="modal-close" onclick="scoutV892CloseRecoveryCenter()">×</button>
+    </div>
+    <div class="scout-v892-toolbar">
+      <button class="ghost" onclick="scoutV892ScanRecovery()">↻ Volver a buscar</button>
+      <button class="primary" onclick="scoutV892RestoreAll()">Restaurar recuperables</button>
+      <button class="ghost" onclick="document.getElementById('scout-v892-import').click()">Importar copia JSON</button>
+      <button class="ghost" onclick="scoutV892ExportInventory()">Exportar diagnóstico</button>
+      <input id="scout-v892-import" type="file" accept=".json,application/json" class="hidden" onchange="scoutV892ImportRecoveryFile(event)">
+    </div>
+    <div id="scout-v892-status" class="scout-v892-status">Preparando inventario…</div>
+    <div id="scout-v892-sources" class="scout-v892-sources"></div>
+    <div id="scout-v892-list" class="scout-v892-list"></div>
+    <div class="scout-v892-note"><b>No borres los datos del sitio.</b> Si el scouting no aparece aquí, este navegador ya no conserva una copia local recuperable. Entonces hará falta un JSON anterior, backup V7.9, nube con versión anterior u otro dispositivo.</div>
+  </div>
+</div>
 <div id="scout-v680-recovery-modal" class="pro-modal" onclick="if(event.target===this)scoutV680CloseRecovery()">
   <div class="pro-modal-card scout-v680-modal-card">
     <div class="pro-modal-head"><div><span class="pro-kicker">MATCH RELIABILITY · V6.8</span><h2>Centro de recuperación</h2><p>Estado local, integridad y copias independientes del scouting activo.</p></div><button class="modal-close" onclick="scoutV680CloseRecovery()">×</button></div>
@@ -2991,7 +3011,11 @@ function guardarEstadoLocalSinCloud(){
 }
 function guardarEquipoEnMemoria(){
   if(!equiposData)equiposData={};
+  /* V8.9.2 DATA-SAFETY */
+  const previo=equiposData[equipoActivo]&&typeof equiposData[equipoActivo]==='object'
+    ?clonar(equiposData[equipoActivo]):{};
   equiposData[equipoActivo]={
+    ...previo,
     sesionActual:clonar(sesionActual),
     meta:clonar({...meta,equipo:EQUIPOS[equipoActivo].nombre}),
     historial:clonar(historial),
@@ -5008,7 +5032,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.9.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.9.2', {
         updateViaCache: 'none'
       });
 
@@ -12656,7 +12680,97 @@ window.scoutV891Diagnostics=async function(){
 if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.version=V891_VERSION;
 
 /* Run once after all startup migrations in this IIFE. */
-setTimeout(()=>{window.scoutV891RecoverLostScoutings(false)},250);
+/* V8.9.2 supersedes the limited automatic V8.9.1 recovery. */
+
+
+
+
+
+/* =====================================================================
+   V8.9.2 · MULTI-SOURCE RECOVERY CENTER
+   ===================================================================== */
+const V892_VERSION='8.9.2';
+let v892Candidates=new Map(),v892Inventory={sources:{},candidates:[],scannedAt:null};
+
+function v892Counts(m){const sets=scoutArr(m?.sets),rallies=sets.reduce((n,s)=>n+scoutArr(s?.rallies).length,0),actions=sets.reduce((n,s)=>n+scoutArr(s?.rallies).reduce((x,r)=>x+scoutArr(r?.actions).length,0),0)+scoutArr(m?.liveRally?.actions).length;return{sets:sets.length,rallies,actions}}
+function v892Stamp(m){for(const v of [m?.updatedAt,m?.manualSavedAt,m?.resultCompleteAt,m?.endedAt,m?.createdAt,m?.date]){const t=Date.parse(v||'');if(Number.isFinite(t))return t}return 0}
+function v892TeamName(t){return EQUIPOS?.[t]?.nombre||String(t||'Equipo')}
+function v892Existing(team,id){return scoutArr(equiposData?.[team]?.scoutingMatches).find(m=>Number(m.id)===Number(id))||null}
+function v892State(candidate){const ex=v892Existing(candidate.teamId,candidate.match.id);if(!ex)return'missing';const c=v892Counts(candidate.match),e=v892Counts(ex);if(c.actions>e.actions||c.rallies>e.rallies)return'richer';if(c.actions===e.actions&&c.rallies===e.rallies&&v892Stamp(candidate.match)>v892Stamp(ex)+1500)return'richer';return'duplicate'}
+function v892AddCandidate(source,teamId,raw,meta={}){if(!raw||typeof raw!=='object')return;let m;try{m=scoutNormalizeMatch(raw)}catch(_){return}if(!Number(m.id))return;const team=EQUIPOS?.[teamId]?teamId:(meta.teamHint&&EQUIPOS?.[meta.teamHint]?meta.teamHint:equipoActivo),counts=v892Counts(m),key=`${source}|${team}|${m.id}|${meta.slot||''}`;const c={key,source,teamId:team,teamName:v892TeamName(team),match:m,counts,meta,state:'duplicate'};c.state=v892State(c);v892Candidates.set(key,c)}
+function v892ExtractMatches(obj,source,teamHint='',depth=0,path='root'){
+  if(depth>7||obj==null)return;
+  if(Array.isArray(obj)){if(obj.length&&obj.every(x=>x&&typeof x==='object')&&obj.some(x=>Number(x?.id)&&Array.isArray(x?.sets))){obj.forEach((m,i)=>v892AddCandidate(source,teamHint,m,{slot:`${path}[${i}]`,teamHint}));return}obj.forEach((x,i)=>v892ExtractMatches(x,source,teamHint,depth+1,`${path}[${i}]`));return}
+  if(typeof obj!=='object')return;
+  if(obj.match&&Number(obj.match?.id)&&Array.isArray(obj.match?.sets))v892AddCandidate(source,obj.teamId||teamHint,obj.match,{slot:path+'.match',teamHint});
+  if(Array.isArray(obj.scoutingMatches))obj.scoutingMatches.forEach((m,i)=>v892AddCandidate(source,teamHint,m,{slot:`${path}.scoutingMatches[${i}]`,teamHint}));
+  if(Array.isArray(obj.matches)&&obj.matches.some(m=>Number(m?.id)&&Array.isArray(m?.sets)))obj.matches.forEach((m,i)=>v892AddCandidate(source,obj.teamId||teamHint,m,{slot:`${path}.matches[${i}]`,teamHint}));
+  if(obj.equiposData&&typeof obj.equiposData==='object')Object.entries(obj.equiposData).forEach(([t,v])=>v892ExtractMatches(v,source,t,depth+1,`${path}.equiposData.${t}`));
+  for(const t of Object.keys(EQUIPOS||{}))if(obj[t]&&typeof obj[t]==='object')v892ExtractMatches(obj[t],source,t,depth+1,`${path}.${t}`);
+}
+function v892OpenDB(name,version=1){return new Promise((resolve,reject)=>{if(!('indexedDB'in window)){reject(new Error('IndexedDB no disponible'));return}const r=indexedDB.open(name,version);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('No se pudo abrir '+name))})}
+async function v892ReadAll(name,store){try{const db=await v892OpenDB(name,1);if(!db.objectStoreNames.contains(store)){db.close();return[]}const rows=await new Promise((resolve,reject)=>{const tx=db.transaction(store,'readonly'),r=tx.objectStore(store).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)});db.close();return rows}catch(err){console.warn('V8.9.2 read',name,err);return[]}}
+async function v892WriteV702(teamId,matches,activeId=null){try{const db=await v892OpenDB('VolleyCoachScoutingV702',1);if(!db.objectStoreNames.contains('scoutingByTeam')){db.close();return false}await new Promise((resolve,reject)=>{const tx=db.transaction('scoutingByTeam','readwrite');tx.objectStore('scoutingByTeam').put({teamId:String(teamId),version:V892_VERSION,savedAt:new Date().toISOString(),reason:'recovery-v892',activeId:activeId?Number(activeId):null,matches:scoutClone(matches)});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)});db.close();return true}catch(err){console.warn('V8.9.2 write V702',err);return false}}
+function v892ScanKnownLocalStorage(){
+  const sources={};
+  const inspect=(key,label)=>{try{const raw=localStorage.getItem(key);if(!raw)return;const obj=JSON.parse(raw);sources[label]=(sources[label]||0)+1;v892ExtractMatches(obj,label,'',0,key)}catch(_){}};
+  inspect('volleyCoachStateV43','Estado principal V43');inspect('volleyCoachTeamsV42','Estado antiguo V42');
+  for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i)||'';if(!/^(volleyCoach|volley_|volleyV)/i.test(key)||['volleyCoachStateV43','volleyCoachTeamsV42'].includes(key))continue;try{const raw=localStorage.getItem(key);if(!raw||raw.length<20||(!raw.startsWith('{')&&!raw.startsWith('[')))continue;const obj=JSON.parse(raw),before=v892Candidates.size;v892ExtractMatches(obj,'LocalStorage '+key,'',0,key);if(v892Candidates.size>before)sources['Otras copias localStorage']=(sources['Otras copias localStorage']||0)+1}catch(_){}}
+  return sources;
+}
+async function v892Collect(){
+  v892Candidates=new Map();const sources=v892ScanKnownLocalStorage();
+  const independent=await v892ReadAll('VolleyCoachScoutingV702','scoutingByTeam');
+  independent.forEach((row,ri)=>{const before=v892Candidates.size;scoutArr(row?.matches).forEach((m,i)=>v892AddCandidate('IndexedDB V7.0.2',row.teamId,m,{slot:`row${ri}.${i}`}));if(v892Candidates.size>before)sources['IndexedDB V7.0.2']=(sources['IndexedDB V7.0.2']||0)+1});
+  const rec=await v892ReadAll('volley-coach-match-recovery-v680','snapshots');
+  rec.forEach((row,i)=>{const value=row?.value||row;if(value?.match){v892AddCandidate('Snapshot V6.8',value.teamId||String(row?.key||'').split(':')[1],value.match,{slot:String(row?.key||i)});sources['Snapshots V6.8']=(sources['Snapshots V6.8']||0)+1}});
+  for(const team of Object.keys(EQUIPOS||{}))for(const which of ['current','previous']){try{const value=JSON.parse(localStorage.getItem(`volley_scout_recovery_v680_${which}_${team}`)||'null');if(value?.match){v892AddCandidate('Snapshot fallback',team,value.match,{slot:`${which}:${team}`});sources['Snapshot fallback']=(sources['Snapshot fallback']||0)+1}}catch(_){}}
+  const order={missing:0,richer:1,duplicate:2};
+  const rows=[...v892Candidates.values()].map(c=>({...c,state:v892State(c)})).sort((a,b)=>(order[a.state]-order[b.state])||(v892Stamp(b.match)-v892Stamp(a.match)));
+  v892Candidates=new Map(rows.map(c=>[c.key,c]));v892Inventory={sources,candidates:rows.map(c=>({key:c.key,source:c.source,teamId:c.teamId,teamName:c.teamName,id:c.match.id,opponent:c.match.opponent,date:c.match.date,status:c.match.status,counts:c.counts,state:c.state,updatedAt:c.match.updatedAt||null})),scannedAt:new Date().toISOString()};return rows;
+}
+function v892Render(rows){
+  const status=$('scout-v892-status'),list=$('scout-v892-list'),sources=$('scout-v892-sources');if(!status||!list||!sources)return;
+  const recoverable=rows.filter(x=>x.state!=='duplicate');status.className='scout-v892-status '+(recoverable.length?'ok':'warn');
+  status.innerHTML=recoverable.length?`<b>Se han encontrado ${recoverable.length} copias recuperables.</b> Ninguna fuente se modificará hasta que pulses Restaurar.`:`<b>No se ha encontrado una copia distinta a la lista actual.</b> Importa un JSON si tienes una copia externa.`;
+  sources.innerHTML=Object.entries(v892Inventory.sources).map(([k,v])=>`<span class="scout-v892-source">${esc(k)} · ${v}</span>`).join('')||'<span class="scout-v892-source">Sin fuentes con datos</span>';
+  list.innerHTML=rows.length?rows.map(c=>{const badge=c.state==='missing'?'FALTANTE':c.state==='richer'?'MÁS COMPLETA':'YA EXISTE';return `<article class="scout-v892-row ${c.state}"><div class="scout-v892-main"><b>${esc(c.teamName)} · ${esc(c.match.opponent||'Rival')}</b><small>${esc(c.match.date||'Sin fecha')} · ${esc(c.source)} · ID ${Number(c.match.id)}</small></div><div class="scout-v892-cell"><span>Contenido</span><b>${c.counts.rallies} rallies · ${c.counts.actions} acc.</b></div><div class="scout-v892-cell"><span>Estado</span><b>${esc(c.match.status||'—')}</b></div><div class="scout-v892-cell"><span>Actualizado</span><b>${c.match.updatedAt?new Date(c.match.updatedAt).toLocaleDateString('es-ES'):'—'}</b></div><div><span class="scout-v892-badge ${c.state}">${badge}</span></div><button class="${c.state==='duplicate'?'ghost':'primary'}" ${c.state==='duplicate'?'disabled':''} onclick="scoutV892RestoreCandidate('${esc(c.key)}')">Restaurar</button></article>`}).join(''):'<div class="match-empty">No hay scoutings en las fuentes locales inspeccionadas.</div>';
+}
+window.scoutV892ScanRecovery=async function(){const status=$('scout-v892-status');if(status){status.className='scout-v892-status';status.textContent='Buscando en todas las copias locales…'}const rows=await v892Collect();v892Render(rows);return rows};
+window.scoutV892OpenRecoveryCenter=function(){$('scout-v892-recovery-modal')?.classList.add('open');void window.scoutV892ScanRecovery()};
+window.scoutV892CloseRecoveryCenter=function(){$('scout-v892-recovery-modal')?.classList.remove('open')};
+function v892ProtectBeforeRestore(){try{const raw=localStorage.getItem(APP_STORAGE_KEY);if(raw)localStorage.setItem('volley_recovery_pre_v892',raw)}catch(_){}}
+window.scoutV892RestoreCandidate=async function(key){
+  const c=v892Candidates.get(String(key));if(!c||c.state==='duplicate')return false;
+  if(!confirm(`Restaurar ${c.teamName} vs ${c.match.opponent||'Rival'}?\n\n${c.counts.rallies} rallies · ${c.counts.actions} acciones\nFuente: ${c.source}`))return false;
+  v892ProtectBeforeRestore();const team=c.teamId,restored=scoutNormalizeMatch(c.match);if(!equiposData[team])equiposData[team]=estadoEquipoVacio(team);
+  const list=scoutArr(equiposData[team].scoutingMatches).map(scoutNormalizeMatch),idx=list.findIndex(m=>Number(m.id)===Number(restored.id));if(idx>=0)list[idx]=restored;else list.push(restored);equiposData[team].scoutingMatches=scoutClone(list);
+  if(team===equipoActivo){scoutingMatches=scoutClone(list).map(scoutNormalizeMatch);if(restored.status!=='finished')scoutingActiveId=Number(restored.id)||scoutingActiveId;equiposData[team].scoutingActiveId=scoutingActiveId||null;guardarEquipoEnMemoria()}
+  guardarEstadoLocalSinCloud();await v892WriteV702(team,list,equiposData[team].scoutingActiveId||null);try{scoutRenderHome();scoutRenderAnalysis();scoutRender()}catch(_){}
+  await window.scoutV892ScanRecovery();alert('Scouting restaurado y protegido de nuevo en la copia independiente.');return true;
+};
+window.scoutV892RestoreAll=async function(){
+  const rows=[...v892Candidates.values()].filter(c=>c.state!=='duplicate');if(!rows.length){alert('No hay scoutings recuperables en el inventario actual.');return}
+  if(!confirm(`Restaurar ${rows.length} copias recuperables?`))return;v892ProtectBeforeRestore();const byTeam=new Map();
+  for(const c of rows){const team=c.teamId,restored=scoutNormalizeMatch(c.match);if(!equiposData[team])equiposData[team]=estadoEquipoVacio(team);const list=byTeam.get(team)||scoutArr(equiposData[team].scoutingMatches).map(scoutNormalizeMatch);const idx=list.findIndex(m=>Number(m.id)===Number(restored.id));if(idx>=0)list[idx]=restored;else list.push(restored);byTeam.set(team,list)}
+  for(const [team,list] of byTeam){equiposData[team].scoutingMatches=scoutClone(list);await v892WriteV702(team,list,equiposData[team].scoutingActiveId||null)}
+  scoutingMatches=scoutArr(equiposData?.[equipoActivo]?.scoutingMatches).map(scoutNormalizeMatch);scoutingActiveId=Number(equiposData?.[equipoActivo]?.scoutingActiveId)||null;guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();try{scoutRenderHome();scoutRenderAnalysis();scoutRender()}catch(_){}
+  await window.scoutV892ScanRecovery();alert('Recuperación múltiple completada.');
+};
+function v892Download(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)}
+window.scoutV892ExportInventory=function(){v892Download({type:'volley-coach-recovery-inventory',version:V892_VERSION,...v892Inventory},`Volley_Coach_Recovery_Diagnostic_${new Date().toISOString().slice(0,10)}.json`)};
+window.scoutV892ImportRecoveryFile=async function(ev){
+  const file=ev?.target?.files?.[0];if(!file)return;
+  try{const obj=JSON.parse(await file.text()),before=v892Candidates.size;v892ExtractMatches(obj,'Archivo '+file.name,'',0,'file');
+    if(obj?.type==='volley-coach-backup'){Object.entries(obj.localStorage||{}).forEach(([k,v])=>{try{v892ExtractMatches(JSON.parse(v),'Backup V7.9 · '+k,'',0,k)}catch(_){}});scoutArr(obj.indexedDB?.VolleyCoachScoutingV702?.scoutingByTeam).forEach((row,ri)=>scoutArr(row?.matches).forEach((m,i)=>v892AddCandidate('Backup V7.9 · IndexedDB',row.teamId,m,{slot:`${ri}.${i}`})));scoutArr(obj.indexedDB?.['volley-coach-match-recovery-v680']?.snapshots).forEach((row,i)=>{const val=row?.value||row;if(val?.match)v892AddCandidate('Backup V7.9 · Snapshot',val.teamId,val.match,{slot:String(i)})})}
+    if(v892Candidates.size===before)throw new Error('El archivo no contiene scoutings reconocibles.');
+    const order={missing:0,richer:1,duplicate:2},rows=[...v892Candidates.values()].map(c=>({...c,state:v892State(c)})).sort((a,b)=>(order[a.state]-order[b.state])||(v892Stamp(b.match)-v892Stamp(a.match)));
+    v892Candidates=new Map(rows.map(c=>[c.key,c]));v892Inventory.candidates=rows.map(c=>({key:c.key,source:c.source,teamId:c.teamId,id:c.match.id,opponent:c.match.opponent,date:c.match.date,counts:c.counts,state:c.state}));v892Render(rows);alert('Copia importada al inventario. Ahora puedes restaurar solo el scouting que necesites.');
+  }catch(err){alert('No se pudo leer la copia: '+err.message)}finally{if(ev?.target)ev.target.value=''}
+};
+window.scoutV892Diagnostics=async function(){const rows=await v892Collect();return{version:V892_VERSION,sources:v892Inventory.sources,recoverable:rows.filter(x=>x.state!=='duplicate').map(x=>({source:x.source,team:x.teamId,id:x.match.id,opponent:x.match.opponent,counts:x.counts,state:x.state})),totalCandidates:rows.length}};
+if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.version=V892_VERSION;
+setTimeout(async()=>{try{const rows=await v892Collect(),n=rows.filter(x=>x.state!=='duplicate').length,box=$('scout-v891-rescue-banner');if(box&&n){box.className='scout-v891-rescue-banner ok';box.innerHTML=`<strong>Se han detectado ${n} ${n===1?'copia recuperable':'copias recuperables'}.</strong><span>Abre el Centro de recuperación para revisarlas antes de restaurar.</span><div class="actions"><button class="primary" onclick="scoutV892OpenRecoveryCenter()">Abrir recuperación</button></div>`}}catch(err){console.warn('V8.9.2 inventory',err)}},450);
 
 
 })();
@@ -13266,10 +13380,9 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
     };
   };
 
-  /* Restauración inicial y primera copia de seguridad. */
+  /* V8.9.2 SAFETY: restore, but never overwrite the independent copy on startup. */
   setTimeout(async () => {
     await restoreSnapshot();
-    await writeSnapshot('startup');
   }, 0);
 
   console.info('Volley Coach V7.0.2 · hotfix de vídeo y persistencia cargado');
@@ -21530,6 +21643,24 @@ document.addEventListener('keydown',e=>{
 .scout-v891-rescue-banner strong{display:block;font-size:10.5px;margin-bottom:2px}
 .scout-v891-rescue-banner .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .scout-v891-rescue-banner button{font-size:8.5px!important;padding:6px 8px!important}
+</style>
+
+
+
+<style id="v892-recovery-center-style">
+.scout-v892-card{width:min(1040px,97vw)!important;max-height:92vh;overflow:auto}
+.scout-v892-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.scout-v892-toolbar button{font-size:8.5px!important;padding:7px 9px!important}
+.scout-v892-status{padding:9px 10px;border:1px solid #dce4e8;border-radius:8px;background:#f7fafb;color:#506675;font-size:9px;line-height:1.45}
+.scout-v892-status.ok{background:#edf7f1;border-color:#c6ddcf;color:#315f48}.scout-v892-status.warn{background:#fff7e8;border-color:#ead09a;color:#765b25}
+.scout-v892-sources{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.scout-v892-source{border:1px solid #dfe6ea;border-radius:999px;padding:5px 8px;background:#fff;font-size:7.5px;color:#607482;font-weight:850}
+.scout-v892-list{display:grid;gap:7px;margin-top:8px}
+.scout-v892-row{display:grid;grid-template-columns:minmax(160px,1.25fr) 120px 120px 100px 90px auto;gap:8px;align-items:center;border:1px solid #e0e6ea;border-radius:10px;padding:9px 10px;background:#fff}
+.scout-v892-row.missing{border-left:4px solid #3d7a5b}.scout-v892-row.richer{border-left:4px solid #c48d2e}.scout-v892-row.duplicate{opacity:.64}
+.scout-v892-main b{display:block;color:#17324d;font-size:10px}.scout-v892-main small{display:block;color:#7d8a94;font-size:7.5px;margin-top:2px}
+.scout-v892-cell span{display:block;color:#85919a;font-size:6.5px;text-transform:uppercase;font-weight:900}.scout-v892-cell b{display:block;color:#3d5669;font-size:9px;margin-top:2px}
+.scout-v892-badge{display:inline-flex;border-radius:999px;padding:4px 7px;font-size:7px;font-weight:950}.scout-v892-badge.missing{background:#eaf5ee;color:#2f694b}.scout-v892-badge.richer{background:#fff2da;color:#7b5b22}.scout-v892-badge.duplicate{background:#eef2f4;color:#6b7b86}
+.scout-v892-row button{font-size:7.5px!important;padding:6px 8px!important}.scout-v892-note{margin-top:10px;padding:9px 10px;border:1px solid #e8d6ad;border-radius:8px;background:#fff9ed;color:#6d5a31;font-size:8.5px;line-height:1.5}
+@media(max-width:760px){.scout-v892-row{grid-template-columns:1fr 1fr}.scout-v892-main{grid-column:1/-1}.scout-v892-row>button{grid-column:1/-1}}
 </style>
 
 </body></html>
