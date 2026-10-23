@@ -852,8 +852,9 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
     </div>
     <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden">
       <button class="tab-btn" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
+      <button class="tab-btn" data-view="scout-workspace-v900" onclick="showView('scout-workspace-v900',this)">Workspace Pro</button>
       <button class="tab-btn" data-view="scout-match-mode" onclick="showView('scout-match-mode',this)">Modo partido</button>
-      <button class="tab-btn" data-view="scouting" onclick="showView('scouting',this)">En directo</button>
+      <button class="tab-btn" data-view="scouting" onclick="showView('scouting',this)">Clásico</button>
       <button class="tab-btn" data-view="competicion" onclick="showView('competicion',this)">Partidos</button>
       <button class="tab-btn" data-view="scout-video-hub" onclick="showView('scout-video-hub',this)">Vídeo Hub</button>
       <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
@@ -1933,6 +1934,235 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           </section>
         </aside>
       </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="scout-workspace-v900" class="view">
+  <div class="v900-shell">
+    <div class="v900-topbar">
+      <div class="v900-brand">
+        <span class="pro-kicker">VOLLEY COACH V9.0 · SCOUTING WORKSPACE</span>
+        <h2 id="v900-match-title">Scouting profesional</h2>
+        <p id="v900-match-meta">Preparar → Scoutar → Revisar → Analizar</p>
+      </div>
+      <div class="v900-top-actions">
+        <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Clásico</button>
+        <button class="ghost" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">Modo partido</button>
+        <button class="ghost" onclick="scoutV700OpenVideo('live')">Vídeo</button>
+        <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Caja fuerte</button>
+        <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
+      </div>
+    </div>
+
+    <div id="v900-no-match" class="v900-empty hidden">
+      <div><span class="pro-kicker">SIN PARTIDO ACTIVO</span><h3>Prepara el siguiente scouting</h3><p>El Workspace V9.0 no sustituye el motor antiguo. Crea o abre un scouting y volverás aquí con todos los datos intactos.</p></div>
+      <div class="v900-empty-actions">
+        <button class="primary" onclick="scoutOpenNewMatch()">＋ Crear scouting</button>
+        <button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Partidos guardados</button>
+        <button class="ghost" onclick="scoutV892OpenRecoveryCenter()">Recuperación</button>
+        <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Caja fuerte</button>
+      </div>
+    </div>
+
+    <div id="v900-live" class="hidden">
+      <div class="v900-statusbar">
+        <div class="v900-score-main">
+          <span id="v900-team-name">Equipo</span>
+          <b id="v900-score">0–0</b>
+          <span id="v900-opponent-name">Rival</span>
+        </div>
+        <div class="v900-status-item"><span>SET</span><b id="v900-set">1</b><small id="v900-sets">0–0 sets</small></div>
+        <div class="v900-status-item"><span>ROTACIÓN</span><b id="v900-rotation">R1</b><small id="v900-rival-rotation">Rival R1</small></div>
+        <div class="v900-status-item"><span>SAQUE</span><b id="v900-service">NUESTRO</b><small id="v900-phase">K2 · Break</small></div>
+        <div class="v900-status-item"><span>VÍDEO</span><b id="v900-video">OFF</b><small>sincronización</small></div>
+        <div class="v900-status-item secure"><span>GUARDADO</span><b id="v900-save">LOCAL ✓</b><small id="v900-vault">Caja fuerte…</small></div>
+      </div>
+
+      <div class="v900-phase-nav">
+        <button data-v900-phase="prepare" onclick="v900SetPhase('prepare')">1 · Preparar</button>
+        <button data-v900-phase="scout" class="active" onclick="v900SetPhase('scout')">2 · Scoutar</button>
+        <button data-v900-phase="review" onclick="v900SetPhase('review')">3 · Revisar</button>
+        <button data-v900-phase="analyze" onclick="v900SetPhase('analyze')">4 · Analizar</button>
+      </div>
+
+      <section id="v900-phase-prepare" class="v900-phase-panel hidden">
+        <div class="v900-prepare-grid">
+          <article class="v900-card">
+            <div class="v900-card-head"><div><span class="pro-kicker">PARTIDO</span><h3>Configuración</h3></div><span class="v900-step">01</span></div>
+            <div id="v900-prep-match" class="v900-prep-copy"></div>
+            <div class="v900-action-row">
+              <button class="primary" onclick="scoutOpenLineup()">Alineación y rotaciones</button>
+              <button class="ghost" onclick="scoutOpenSubstitution()">Cambios / Líbero</button>
+              <button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button>
+            </div>
+          </article>
+          <article class="v900-card">
+            <div class="v900-card-head"><div><span class="pro-kicker">PROTECCIÓN</span><h3>Antes de empezar</h3></div><span class="v900-step">02</span></div>
+            <div class="v900-safety-grid">
+              <div><span>Estado local</span><b id="v900-prep-local">Protegido</b></div>
+              <div><span>Caja fuerte</span><b id="v900-prep-vault">Comprobando</b></div>
+              <div><span>Recuperación</span><b>Disponible</b></div>
+              <div><span>Nube</span><b>Modo seguro</b></div>
+            </div>
+            <div class="v900-action-row">
+              <button class="primary" onclick="scoutV893CheckpointAll(true,'manual',true)">Crear checkpoint</button>
+              <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Abrir Caja fuerte</button>
+              <button class="ghost" onclick="scoutV893CloudReadOnly()">Comprobar nube</button>
+            </div>
+          </article>
+          <article class="v900-card wide">
+            <div class="v900-card-head"><div><span class="pro-kicker">SEXTETOS</span><h3>Vista previa de pista</h3></div><span class="v900-step">03</span></div>
+            <div class="v900-two-courts">
+              <div><span class="v900-court-label">NUESTRO EQUIPO</span><div id="v900-prep-own-court" class="v900-court"></div></div>
+              <div><span class="v900-court-label">RIVAL</span><div id="v900-prep-rival-court" class="v900-court rival"></div></div>
+            </div>
+            <div class="v900-action-row end">
+              <button class="primary" onclick="v900SetPhase('scout')">Empezar / continuar scouting →</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="v900-phase-scout" class="v900-phase-panel">
+        <div class="v900-live-grid">
+          <aside class="v900-column v900-courts-column">
+            <article class="v900-card sticky">
+              <div class="v900-card-head"><div><span class="pro-kicker">PISTA</span><h3>Alineaciones</h3></div><button class="text-btn" onclick="scoutOpenLineup()">Editar</button></div>
+              <div class="v900-court-stack">
+                <span class="v900-court-label rival">RIVAL · pulsa jugador</span>
+                <div id="v900-rival-court" class="v900-court rival"></div>
+                <div class="v900-net">RED</div>
+                <div id="v900-own-court" class="v900-court"></div>
+                <span class="v900-court-label">NUESTRO · pulsa jugador</span>
+              </div>
+              <div class="v900-court-actions">
+                <button class="ghost" onclick="scoutRotate(-1)">↶ Nuestro</button>
+                <button class="ghost" onclick="scoutRotate(1)">Nuestro ↷</button>
+                <button class="ghost" onclick="scoutRotateOpponent(-1)">↶ Rival</button>
+                <button class="ghost" onclick="scoutRotateOpponent(1)">Rival ↷</button>
+              </div>
+              <div class="v900-selected-player"><span>Jugador seleccionado</span><b id="v900-player-selected">—</b></div>
+            </article>
+          </aside>
+
+          <main class="v900-column v900-register-column">
+            <article class="v900-card">
+              <div class="v900-card-head">
+                <div><span class="pro-kicker">REGISTRO DE ACCIÓN</span><h3>Una acción, solo los campos necesarios</h3></div>
+                <div class="v900-mode-switch"><button id="v900-mode-visual" class="active" onclick="v900SetInputMode('visual')">Visual</button><button id="v900-mode-code" onclick="v900SetInputMode('code')">Código Pro</button></div>
+              </div>
+
+              <div id="v900-visual-builder">
+                <div class="v900-team-toggle"><button id="v900-team-ours" class="active" onclick="v900SetTeam('ours')">Nuestro</button><button id="v900-team-opponent" onclick="v900SetTeam('opponent')">Rival</button></div>
+                <div id="v900-player-buttons" class="v900-player-buttons"></div>
+
+                <div class="v900-skill-grid">
+                  <button data-skill="S" onclick="v900SetSkill('S')"><b>S</b><span>Saque</span></button>
+                  <button data-skill="R" class="active" onclick="v900SetSkill('R')"><b>R</b><span>Recepción</span></button>
+                  <button data-skill="E" onclick="v900SetSkill('E')"><b>E</b><span>Colocación</span></button>
+                  <button data-skill="A" onclick="v900SetSkill('A')"><b>A</b><span>Ataque</span></button>
+                  <button data-skill="B" onclick="v900SetSkill('B')"><b>B</b><span>Bloqueo</span></button>
+                  <button data-skill="D" onclick="v900SetSkill('D')"><b>D</b><span>Defensa</span></button>
+                  <button data-skill="F" onclick="v900SetSkill('F')"><b>F</b><span>Freeball</span></button>
+                  <button data-skill="C" onclick="v900SetSkill('C')"><b>C</b><span>Cobertura</span></button>
+                </div>
+
+                <div class="v900-eval-row">
+                  <span>Valoración</span>
+                  <button data-eval="#" onclick="v900SetEval('#')">#</button>
+                  <button data-eval="+" onclick="v900SetEval('+')">+</button>
+                  <button data-eval="!" class="active" onclick="v900SetEval('!')">!</button>
+                  <button data-eval="-" onclick="v900SetEval('-')">−</button>
+                  <button data-eval="/" onclick="v900SetEval('/')">/</button>
+                  <button data-eval="=" onclick="v900SetEval('=')">=</button>
+                </div>
+
+                <div id="v900-dynamic-fields" class="v900-dynamic-fields"></div>
+                <div id="v900-location-area" class="v900-location-area"></div>
+
+                <div class="v900-preview">
+                  <div><span>Código previsto</span><code id="v900-code-preview">—</code></div>
+                  <small id="v900-code-meaning">Selecciona jugador y completa la acción.</small>
+                </div>
+                <button id="v900-register-btn" class="success v900-register" onclick="v900RegisterVisual()">＋ Registrar acción</button>
+              </div>
+
+              <div id="v900-code-builder" class="hidden">
+                <div class="v900-code-entry">
+                  <input id="v900-code-input" autocomplete="off" autocapitalize="characters" placeholder="Ej. 7R#.6C~JF%OH · 12A#.4B>5D::X5~T%HSP|F@2" oninput="v900TranslateCode()" onkeydown="if(event.key==='Enter'){event.preventDefault();v900RegisterCode()}">
+                  <button class="primary" onclick="v900RegisterCode()">Registrar</button>
+                  <button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button>
+                </div>
+                <div id="v900-code-translation" class="v900-code-translation">Escribe un código para ver su lectura.</div>
+              </div>
+            </article>
+
+            <article class="v900-card">
+              <div class="v900-card-head"><div><span class="pro-kicker">RALLY EN CURSO</span><h3 id="v900-rally-title">0 acciones</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="scoutDeleteLastAction()">Borrar última</button><button class="ghost" onclick="v857OpenRallyEditor()">Editor</button></div></div>
+              <div id="v900-live-actions" class="v900-live-actions"></div>
+              <div class="v900-point-row">
+                <button class="v900-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
+                <button class="v900-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
+                <button class="v900-point opponent" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
+              </div>
+            </article>
+          </main>
+
+          <aside class="v900-column v900-intel-column">
+            <article class="v900-card sticky">
+              <div class="v900-card-head"><div><span class="pro-kicker">INTELIGENCIA EN DIRECTO</span><h3 id="v900-intel-title">Recepción</h3></div><span id="v900-intel-scope" class="v900-chip">PARTIDO</span></div>
+              <div id="v900-intel" class="v900-intel"></div>
+              <div class="v900-action-row">
+                <button class="ghost" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Análisis completo</button>
+                <button class="ghost" onclick="return scoutV752ExportAnalysisPDF()">PDF Pro</button>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </section>
+
+      <section id="v900-phase-review" class="v900-phase-panel hidden">
+        <div class="v900-review-grid">
+          <article class="v900-card wide">
+            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="v857OpenRallyEditor()">Editor de rallies</button><button class="ghost" onclick="scoutUndoRally()">Deshacer último rally</button></div></div>
+            <div id="v900-review-rallies" class="v900-review-rallies"></div>
+          </article>
+          <article class="v900-card">
+            <div class="v900-card-head"><div><span class="pro-kicker">CONTROL</span><h3>Set y resultado</h3></div></div>
+            <div class="v900-review-actions">
+              <button class="primary" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
+              <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
+              <button class="ghost" onclick="scoutOpenSubstitution()">Cambios / Líbero</button>
+              <button class="ghost" onclick="scoutV690OpenEvent()">Registrar evento</button>
+            </div>
+          </article>
+          <article class="v900-card">
+            <div class="v900-card-head"><div><span class="pro-kicker">SEGURIDAD</span><h3>Checkpoint</h3></div></div>
+            <div id="v900-review-save" class="v900-prep-copy"></div>
+            <div class="v900-review-actions">
+              <button class="primary" onclick="scoutV893CheckpointAll(true,'manual',true)">Crear checkpoint ahora</button>
+              <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Ver versiones</button>
+              <button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="v900-phase-analyze" class="v900-phase-panel hidden">
+        <div class="v900-analysis-hero">
+          <div><span class="pro-kicker">LECTURA INMEDIATA</span><h3>Análisis sin abandonar el Workspace</h3><p>Resumen calculado a partir de las acciones originales. El análisis completo y los PDF siguen usando el motor existente.</p></div>
+          <div class="v900-analysis-actions"><button class="primary" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Abrir Análisis Pro</button><button class="ghost" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button></div>
+        </div>
+        <div id="v900-analysis-kpis" class="v900-analysis-kpis"></div>
+        <div class="v900-analysis-grid">
+          <article class="v900-card"><div class="v900-card-head"><div><span class="pro-kicker">RECEPCIÓN</span><h3>Calidad</h3></div></div><div id="v900-analysis-reception"></div></article>
+          <article class="v900-card"><div class="v900-card-head"><div><span class="pro-kicker">ATAQUE</span><h3>Eficacia</h3></div></div><div id="v900-analysis-attack"></div></article>
+          <article class="v900-card"><div class="v900-card-head"><div><span class="pro-kicker">SAQUE</span><h3>Presión</h3></div></div><div id="v900-analysis-serve"></div></article>
+          <article class="v900-card"><div class="v900-card-head"><div><span class="pro-kicker">DATAVOLLEY</span><h3>Campos avanzados</h3></div></div><div id="v900-analysis-dv"></div></article>
+        </div>
+      </section>
     </div>
   </div>
 </section>
@@ -5097,7 +5327,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.9.3', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.0.0', {
         updateViaCache: 'none'
       });
 
@@ -12952,16 +13182,16 @@ setTimeout(()=>{try{void window.scoutV893CheckpointAll(false,'manual-startup-bas
 <script id="v610-workspace-script">
 (()=>{
 'use strict';
-const SCOUT_VIEWS=new Set(['scout-dashboard','scout-match-mode','scouting','competicion','scout-video-hub','scout-season','scout-postmatch','scout-analysis','scout-safe','scout-plan','scout-matchup']);
+const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-video-hub','scout-season','scout-postmatch','scout-analysis','scout-safe','scout-plan','scout-matchup']);
 let currentWorkspace=localStorage.getItem('volley_workspace_v610')==='scouting'?'scouting':'training';
 function applyWorkspace(mode){currentWorkspace=mode==='scouting'?'scouting':'training';localStorage.setItem('volley_workspace_v610',currentWorkspace);document.getElementById('training-nav')?.classList.toggle('hidden',currentWorkspace!=='training');document.getElementById('scouting-nav')?.classList.toggle('hidden',currentWorkspace!=='scouting');document.getElementById('workspace-training-btn')?.classList.toggle('active',currentWorkspace==='training');document.getElementById('workspace-scouting-btn')?.classList.toggle('active',currentWorkspace==='scouting');document.body.classList.toggle('workspace-scouting',currentWorkspace==='scouting')}
-window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scouting',botonVista('scouting'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
+window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scout-workspace-v900',botonVista('scout-workspace-v900'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
-window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-match-mode','scout-safe'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-safe'&&typeof window.scoutV893RenderVault==='function')window.scoutV893RenderVault();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
+window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-workspace-v900','scout-match-mode','scout-safe'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-safe'&&typeof window.scoutV893RenderVault==='function')window.scoutV893RenderVault();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
 /* Restaurar el área sin forzar una vista distinta en la carga inicial */
 applyWorkspace(currentWorkspace);
-if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scouting':'scout-dashboard';showView(target,botonVista(target))},0)}
+if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scout-workspace-v900':'scout-dashboard';showView(target,botonVista(target))},0)}
 })();
 </script>\n
 \n
@@ -21849,5 +22079,418 @@ document.addEventListener('keydown',e=>{
 @media(max-width:900px){.v893-safe-hero{align-items:flex-start;flex-direction:column}.v893-safe-kpis{grid-template-columns:1fr 1fr}.v893-version-row{grid-template-columns:1fr 1fr}.v893-version-main{grid-column:1/-1}.v893-version-row>button{grid-column:1/-1}.v893-security-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.v893-safe-kpis,.v893-security-grid{grid-template-columns:1fr}.v893-safe-head{align-items:flex-start;flex-direction:column}}
 </style>
+
+
+
+<style id="v900-professional-workspace-style">
+#scout-workspace-v900{background:#f3f6f8}
+.v900-shell{max-width:1700px;margin:0 auto;padding:18px}
+.v900-topbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px}
+.v900-brand h2{margin:2px 0 4px;color:#102b43;font-size:25px}.v900-brand p{margin:0;color:#6d7e8a;font-size:10px}
+.v900-top-actions,.v900-action-row,.v900-mini-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.v900-top-actions{justify-content:flex-end}
+.v900-statusbar{display:grid;grid-template-columns:minmax(280px,1.6fr) repeat(5,minmax(105px,.7fr));gap:7px;padding:8px;background:#102b43;border-radius:13px;color:#fff;box-shadow:0 9px 28px rgba(16,43,67,.12)}
+.v900-score-main{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:9px;padding:7px 10px;background:rgba(255,255,255,.07);border-radius:9px}
+.v900-score-main span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.v900-score-main span:last-child{text-align:right}.v900-score-main b{font-size:23px;white-space:nowrap}
+.v900-status-item{padding:7px 9px;border-left:1px solid rgba(255,255,255,.14)}.v900-status-item span{display:block;font-size:6.5px;letter-spacing:.09em;color:#a9bdca;font-weight:950}.v900-status-item b{display:block;font-size:13px;margin:2px 0}.v900-status-item small{display:block;font-size:7px;color:#c6d3dc}
+.v900-status-item.secure b{color:#9ee2b9}
+.v900-phase-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.v900-phase-nav button{border:1px solid #d7e0e5;background:#fff;border-radius:9px;padding:9px;font-size:9px;font-weight:950;color:#687a86;cursor:pointer}.v900-phase-nav button.active{background:#102b43;border-color:#102b43;color:#fff}
+.v900-empty{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:22px;border:1px dashed #cbd6dc;border-radius:13px;background:#fff}.v900-empty h3{margin:2px 0;color:#17324d}.v900-empty p{margin:0;color:#72818c;font-size:10px}.v900-empty-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.v900-live-grid{display:grid;grid-template-columns:minmax(265px,.9fr) minmax(520px,1.55fr) minmax(285px,.9fr);gap:10px;align-items:start}
+.v900-column{min-width:0}.v900-card{border:1px solid #dfe6ea;background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(38,62,79,.04);overflow:hidden}.v900-card+.v900-card{margin-top:10px}.v900-card.sticky{position:sticky;top:8px}
+.v900-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 12px;border-bottom:1px solid #e5eaed;background:#fbfcfd}.v900-card-head h3{margin:2px 0 0!important;font-size:13px!important;color:#17324d!important}.v900-card-head p{margin:3px 0 0!important}
+.v900-step{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#eef3f6;color:#526979;font-size:9px;font-weight:950}
+.v900-court-stack{padding:10px}.v900-court{display:grid;grid-template-columns:repeat(3,1fr);grid-template-areas:"p4 p3 p2" "p5 p6 p1";gap:5px;padding:7px;background:#d58c4a;border:2px solid #aebbc4;border-radius:9px}.v900-court.rival{background:#dfe6ea}
+.v900-court-slot{position:relative;min-height:68px;border:1px solid rgba(255,255,255,.82);border-radius:7px;background:rgba(255,255,255,.18);padding:7px 5px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer}.v900-court-slot:hover,.v900-court-slot.selected{outline:3px solid #102b43;background:rgba(255,255,255,.48)}.v900-court-slot small{font-size:6.5px;font-weight:950;color:#687987}.v900-court-slot b{font-size:9px;color:#17324d;line-height:1.25}.v900-court-slot span{font-size:6.5px;color:#607481;margin-top:2px}
+.v900-net{text-align:center;margin:5px 0;font-size:7px;font-weight:950;letter-spacing:.2em;color:#8a969e}.v900-court-label{display:block;font-size:7px;font-weight:950;color:#607481;margin:5px 0;text-transform:uppercase}.v900-court-label.rival{text-align:right}
+.v900-court-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 10px 10px}.v900-court-actions button{font-size:7px!important;padding:6px!important}
+.v900-selected-player{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-top:1px solid #e5eaed;background:#f8fafb}.v900-selected-player span{font-size:7px;color:#7e8d97;text-transform:uppercase;font-weight:950}.v900-selected-player b{font-size:8.5px;color:#17324d}
+.v900-mode-switch,.v900-team-toggle{display:flex;border:1px solid #dce4e8;border-radius:8px;overflow:hidden;background:#f4f7f9}.v900-mode-switch button,.v900-team-toggle button{border:0;background:transparent;padding:6px 9px;font-size:8px;font-weight:950;color:#6c7d88}.v900-mode-switch button.active,.v900-team-toggle button.active{background:#102b43;color:#fff}
+.v900-team-toggle{margin:11px 12px 7px;width:max-content}
+.v900-player-buttons{display:flex;gap:5px;overflow:auto;padding:0 12px 9px;scrollbar-width:thin}.v900-player-buttons button{min-width:max-content;border:1px solid #dce4e8;background:#fff;border-radius:999px;padding:6px 8px;font-size:7.5px;font-weight:850;color:#516979;cursor:pointer}.v900-player-buttons button.active{background:#e9f1f6;border-color:#7796aa;color:#17324d;box-shadow:inset 0 0 0 1px #7796aa}
+.v900-skill-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;padding:10px 12px;border-top:1px solid #edf0f2}.v900-skill-grid button{border:1px solid #dde5e9;background:#fff;border-radius:8px;padding:7px 3px;color:#617583;cursor:pointer}.v900-skill-grid button b{display:block;font-size:13px;color:#17324d}.v900-skill-grid button span{display:block;font-size:6.5px;font-weight:850}.v900-skill-grid button.active{background:#102b43;border-color:#102b43}.v900-skill-grid button.active b,.v900-skill-grid button.active span{color:#fff}
+.v900-eval-row{display:grid;grid-template-columns:auto repeat(6,1fr);gap:5px;align-items:center;padding:0 12px 10px}.v900-eval-row>span{font-size:7px;font-weight:950;color:#71828d;text-transform:uppercase}.v900-eval-row button{border:1px solid #dce4e8;background:#fff;border-radius:7px;padding:7px;font-size:12px;font-weight:950;color:#445d6e;cursor:pointer}.v900-eval-row button.active{background:#17324d;color:#fff;border-color:#17324d}
+.v900-dynamic-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:10px 12px;border-top:1px solid #edf0f2}.v900-field{display:flex;flex-direction:column;gap:3px}.v900-field span{font-size:6.5px;text-transform:uppercase;font-weight:950;color:#74848f}.v900-field select,.v900-field input{width:100%;border:1px solid #d9e2e7;border-radius:7px;background:#fff;padding:7px 8px;font-size:8px;color:#314c5f}
+.v900-location-area{padding:0 12px 10px}.v900-location-block{display:grid;grid-template-columns:1fr 1fr;gap:7px}.v900-location-card{border:1px solid #e0e6ea;border-radius:8px;padding:7px;background:#f9fbfc}.v900-location-card h4{margin:0 0 6px;font-size:8px;color:#17324d}.v900-zone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.v900-zone-grid button{border:1px solid #d7e0e5;border-radius:6px;background:#fff;padding:7px;font-size:8px;font-weight:950;color:#465e6e;cursor:pointer}.v900-zone-grid button.active{background:#102b43;color:#fff}.v900-subzone-row{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}.v900-subzone-row button{border:1px solid #dce4e8;border-radius:5px;background:#fff;padding:5px;font-size:7px;font-weight:900;color:#607482}.v900-subzone-row button.active{background:#dfeaf1;color:#17324d;border-color:#7d9aac}
+.v900-cone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.v900-cone-grid button{border:1px solid #dce4e8;border-radius:7px;background:#fff;padding:8px;font-size:8px;font-weight:950}.v900-cone-grid button.active{background:#102b43;color:#fff}
+.v900-preview{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid #e5eaed;background:#f6f9fa}.v900-preview span{display:block;font-size:6px;text-transform:uppercase;font-weight:950;color:#7b8b95}.v900-preview code{display:block;margin-top:2px;font-size:9px;color:#17324d;font-weight:900}.v900-preview small{font-size:7.5px;color:#72828c;text-align:right;max-width:45%}.v900-register{width:calc(100% - 24px);margin:10px 12px 12px;padding:10px!important;font-weight:950!important}
+.v900-code-entry{display:grid;grid-template-columns:1fr auto auto;gap:6px;padding:12px}.v900-code-entry input{border:1px solid #ccd8df;border-radius:8px;padding:10px;font:850 10px ui-monospace,SFMono-Regular,Menlo,monospace}.v900-code-translation{margin:0 12px 12px;padding:10px;border:1px solid #dfe6ea;border-radius:8px;background:#f8fafb;font-size:8.5px;line-height:1.5;color:#516879}
+.v900-live-actions{display:flex;gap:6px;overflow:auto;padding:10px 12px;min-height:60px}.v900-action-chip{min-width:max-content;border:1px solid #dbe4e8;border-radius:9px;background:#f9fbfc;padding:7px 8px}.v900-action-chip code{display:block;font-size:9px;font-weight:950;color:#17324d}.v900-action-chip span{display:block;font-size:6.5px;color:#778791;margin-top:2px}
+.v900-point-row{display:grid;grid-template-columns:1fr 72px 1fr;gap:6px;padding:0 12px 12px}.v900-point{border:0;border-radius:9px;padding:10px;color:#fff;cursor:pointer}.v900-point.ours{background:#2f7151}.v900-point.opponent{background:#8b4747}.v900-point b{display:block;font-size:17px}.v900-point span{font-size:7px;font-weight:950}.v900-undo{border:1px solid #dbe3e7;background:#fff;border-radius:9px;color:#607482;cursor:pointer}.v900-undo span{display:block;font-size:6.5px}
+.v900-intel{padding:10px}.v900-intel-kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}.v900-intel-kpis div{padding:8px;border:1px solid #e2e8eb;border-radius:8px;background:#fafcfd}.v900-intel-kpis span{display:block;font-size:6px;text-transform:uppercase;font-weight:950;color:#7d8c96}.v900-intel-kpis b{display:block;font-size:18px;color:#17324d}.v900-intel-kpis small{font-size:6.5px;color:#82909a}.v900-intel-list{margin-top:8px}.v900-intel-row{display:grid;grid-template-columns:1fr auto auto;gap:7px;padding:6px 2px;border-bottom:1px solid #edf1f3;font-size:7.5px}.v900-intel-row b{color:#17324d}.v900-intel-row span{color:#657986}.v900-chip{font-size:7px;font-weight:950;border:1px solid #d8e1e5;border-radius:999px;padding:4px 6px;color:#687c89;background:#fff}
+.v900-prepare-grid,.v900-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v900-card.wide{grid-column:1/-1}.v900-prep-copy{padding:12px;font-size:9px;color:#536b7b;line-height:1.55}.v900-safety-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px}.v900-safety-grid div{border:1px solid #e2e8eb;border-radius:8px;padding:8px}.v900-safety-grid span{display:block;font-size:6px;text-transform:uppercase;font-weight:950;color:#82909a}.v900-safety-grid b{display:block;font-size:10px;color:#315f48}.v900-action-row{padding:0 12px 12px}.v900-action-row.end{justify-content:flex-end}.v900-two-courts{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:12px}
+.v900-review-rallies{display:grid;gap:6px;padding:10px}.v900-review-rally{display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid #e1e7ea;border-radius:8px}.v900-review-rally>strong{font-size:11px;color:#17324d}.v900-review-rally div b{display:block;font-size:8px;color:#3c5769}.v900-review-rally div small{display:block;font-size:7px;color:#7d8c96;margin-top:2px}.v900-review-rally span{font-size:7px;font-weight:950}.v900-review-rally span.win{color:#2f7151}.v900-review-rally span.loss{color:#914949}.v900-review-actions{display:grid;gap:6px;padding:12px}
+.v900-analysis-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;padding:14px;border:1px solid #dfe6ea;border-radius:12px;background:#fff;margin-bottom:10px}.v900-analysis-hero h3{margin:2px 0;color:#17324d}.v900-analysis-hero p{margin:0;color:#72828c;font-size:9px}.v900-analysis-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.v900-analysis-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:10px}.v900-analysis-kpis>div{border:1px solid #dfe6ea;border-radius:9px;background:#fff;padding:9px}.v900-analysis-kpis span{display:block;font-size:6px;text-transform:uppercase;font-weight:950;color:#7c8d98}.v900-analysis-kpis b{display:block;font-size:17px;color:#17324d;margin:2px 0}.v900-analysis-kpis small{font-size:6.5px;color:#82909a}.v900-analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v900-metric-table{padding:10px}.v900-metric-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:6px 2px;border-bottom:1px solid #edf1f3;font-size:8px}.v900-metric-row b{color:#17324d}.v900-metric-row span{color:#657986}
+@media(max-width:1250px){.v900-statusbar{grid-template-columns:1.5fr repeat(3,1fr)}.v900-status-item:nth-last-child(-n+2){display:none}.v900-live-grid{grid-template-columns:260px minmax(500px,1fr)}.v900-intel-column{grid-column:1/-1}.v900-intel-column .sticky{position:static}.v900-intel-kpis{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:850px){.v900-shell{padding:10px}.v900-topbar,.v900-analysis-hero,.v900-empty{flex-direction:column}.v900-top-actions,.v900-empty-actions{justify-content:flex-start}.v900-statusbar{grid-template-columns:1fr 1fr}.v900-score-main{grid-column:1/-1}.v900-live-grid{grid-template-columns:1fr}.v900-card.sticky{position:static}.v900-skill-grid{grid-template-columns:repeat(4,1fr)}.v900-dynamic-fields{grid-template-columns:1fr 1fr}.v900-prepare-grid,.v900-review-grid,.v900-analysis-grid{grid-template-columns:1fr}.v900-card.wide{grid-column:auto}.v900-two-courts{grid-template-columns:1fr}.v900-analysis-kpis{grid-template-columns:1fr 1fr 1fr}.v900-phase-nav{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.v900-dynamic-fields{grid-template-columns:1fr}.v900-location-block{grid-template-columns:1fr}.v900-point-row{grid-template-columns:1fr 58px 1fr}.v900-analysis-kpis{grid-template-columns:1fr 1fr}.v900-intel-kpis{grid-template-columns:1fr 1fr}.v900-code-entry{grid-template-columns:1fr}.v900-eval-row{grid-template-columns:repeat(6,1fr)}.v900-eval-row>span{grid-column:1/-1}}
+</style>
+
+
+
+<script id="v900-professional-workspace-script">
+(()=>{
+'use strict';
+const VERSION='9.0.0';
+const SKILL_NAMES={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const REC_SUB={L:'On left · izquierda',R:'On right · derecha',LOW:'Low · baja',OH:'Overhand · dedos',MID:'Middle line'};
+const ATK_SUB={HSP:'Hard spike',SSP:'Soft spike / topspin',TIP:'Tip · finta'};
+const SET_SUB={'1H':'1 hand','2H':'2 hands',BUMP:'Bump set',UND:'Underhand',OTH:'Other'};
+const DEF_SUB={COV:'Spike cover',AB:'After block',EMG:'Emergency',TIP:'Tip',SOFT:'Soft spike'};
+const BLOCK_SUB={AST:'Block assist',ATT:'Block attempt',SOFT:'Soft spike'};
+const TEMPO={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other'};
+const SETTYPE={F:'Front',C:'Centre',B:'Back',P:'Pipe',S:'Setter dump'};
+const SERVE={F:'Flotante',JF:'Jump float',JP:'Jump spin',U:'Bajo / seguridad'};
+const COMBO={Z4:'Zona 4',Z2:'Zona 2',Z1:'Zona 1',Z6:'Zona 6','1T':'Primer tiempo','31':'31',BACK:'Primer tiempo detrás',PIPE:'Pipe','2T':'Segundo toque',OTR:'Otra'};
+const POS=['p4','p3','p2','p5','p6','p1'];
+
+const state={
+  phase:localStorage.getItem('v900_phase')||'scout',
+  mode:localStorage.getItem('v900_mode')||'visual',
+  team:'ours',player:'',playerLabel:'',skill:'R',evaluation:'!',
+  origin:'',originSub:'',destination:'',destinationSub:'',
+  serveType:'',phaseCode:'',combo:'',dvCode:'',tempo:'',setType:'',
+  subtype:'',direction:'',blockers:'',blockTarget:'',special:'',custom:'',
+  locationMode:'zones',cone:''
+};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function active(){try{return bridge()?.getActive?.()||null}catch(_){return null}}
+function players(){try{return bridge()?.getPlayers?.()||[]}catch(_){return[]}}
+function teamName(){try{return bridge()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function currentSet(m){return m?.sets?.find(s=>Number(s.number)===Number(m.currentSet))||null}
+function allActions(m){if(!m)return[];const closed=(m.sets||[]).flatMap(s=>(s.rallies||[]).flatMap(r=>(r.actions||[]).map(a=>({...a,_set:s.number,_winner:r.winner}))));return closed.concat((m.liveRally?.actions||[]).map(a=>({...a,_set:m.currentSet,_winner:null})))}
+function setActions(m){return allActions(m).filter(a=>Number(a._set)===Number(m?.currentSet))}
+function setsScore(m){const done=(m?.sets||[]).filter(s=>s.finished);if(m?.manualResult?.active)return{us:Number(m.manualResult.us)||0,opponent:Number(m.manualResult.opponent)||0};return{us:done.filter(s=>s.winner==='ours').length,opponent:done.filter(s=>s.winner==='opponent').length}}
+function pct(n,d){return d?Math.round(Number(n||0)*100/d):0}
+function playerById(id){return players().find(p=>Number(p.id)===Number(id))||null}
+function playerLabel(a){try{return bridge()?.playerLabel?.(a)||a?.playerLabel||'Jugador'}catch(_){return a?.playerLabel||'Jugador'}}
+function ownLabel(id){const p=playerById(id);if(!p)return '—';return `${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`}
+function opponentLabel(v,pos){return String(v||'').trim()||`Rival ${String(pos||'').toUpperCase()}`}
+function token(zone,sub){return String(zone||'')+String(sub||'')}
+function setVal(id,val){const el=$(id);if(!el)return;el.value=val??'';el.dispatchEvent(new Event('change',{bubbles:true}))}
+function safeText(id,text){const el=$(id);if(el)el.textContent=text}
+
+function ensurePlayer(){
+  const m=active();if(!m)return;
+  if(state.team==='ours'){
+    const ids=POS.map(p=>Number(m.lineup?.ours?.[p])).filter(Boolean);
+    if(!ids.includes(Number(state.player)))state.player=ids[0]?String(ids[0]):'';
+    state.playerLabel=state.player?ownLabel(state.player):'';
+  }else{
+    const vals=POS.map(p=>opponentLabel(m.lineup?.opponent?.[p],p));
+    if(!vals.includes(state.player))state.player=vals[0]||'';
+    state.playerLabel=state.player;
+  }
+}
+function locationRules(){
+  const s=state.skill;
+  if(s==='R'||s==='D')return{origin:false,destination:true,destLabel:'Contacto físico'};
+  if(s==='B')return{origin:true,destination:false,originLabel:'Zona de bloqueo'};
+  if(s==='A'&&state.locationMode==='cones')return{origin:true,destination:false,originLabel:'Origen ataque',cone:true};
+  return{origin:true,destination:true,originLabel:'Origen',destLabel:'Destino'};
+}
+function dynamicOptions(){
+  const s=state.skill,fields=[];
+  if(s==='S')fields.push(['serveType','Tipo de saque',SERVE]);
+  if(s==='R'){fields.push(['subtype','Tipo de recepción',REC_SUB],['serveType','Saque recibido',SERVE])}
+  if(s==='E'){fields.push(['dvCode','Set code','text'],['tempo','Tempo',TEMPO],['setType','Set type',SETTYPE],['subtype','Gesto',SET_SUB],['combo','Destino / combinación',COMBO])}
+  if(s==='A'){fields.push(['dvCode','Attack code','text'],['tempo','Tempo',TEMPO],['subtype','Tipo de ataque',ATK_SUB],['setType','Set type',SETTYPE],['combo','Combinación VC',COMBO],['direction','Dirección VC',{LIN:'Línea',DC:'Diagonal corta',DL:'Diagonal larga'}],['blockers','Bloqueadores',{0:'0 · sin bloqueo',1:'1',2:'2 · doble',3:'3 · triple'}],['locationMode','Destino DV',{zones:'Zonas / subzonas',cones:'Conos 1–8'}])}
+  if(s==='B'){fields.push(['subtype','Tipo de bloqueo',BLOCK_SUB],['blockers','Tamaño',{0:'0',1:'1',2:'2 · doble',3:'3 · triple'}],['blockTarget','Atacante objetivo','text'])}
+  if(s==='D')fields.push(['subtype','Tipo de defensa',DEF_SUB]);
+  if(['S','R','E','A','B','D'].includes(s))fields.push(['phaseCode','Fase',{K1:'K1 · Side-out',K2:'K2 · Break',FB:'Freeball',TR:'Transición'}]);
+  fields.push(['special','Special code','text'],['custom','Custom DV','text']);
+  return fields;
+}
+function fieldHtml([key,label,opts]){
+  if(opts==='text')return `<label class="v900-field"><span>${esc(label)}</span><input value="${esc(state[key]||'')}" oninput="v900SetField('${key}',this.value)" maxlength="${key==='custom'?5:10}"></label>`;
+  return `<label class="v900-field"><span>${esc(label)}</span><select onchange="v900SetField('${key}',this.value)"><option value="">—</option>${Object.entries(opts).map(([v,l])=>`<option value="${esc(v)}" ${String(state[key])===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
+}
+function zoneGrid(which){
+  const zone=which==='origin'?state.origin:state.destination,sub=which==='origin'?state.originSub:state.destinationSub;
+  const order=[4,3,2,7,8,9,5,6,1];
+  return `<div class="v900-zone-grid">${order.map(z=>`<button type="button" class="${String(zone)===String(z)?'active':''}" onclick="v900SetZone('${which}','${z}')">Z${z}</button>`).join('')}</div>
+  <div class="v900-subzone-row"><button type="button" class="${!sub?'active':''}" onclick="v900SetSubzone('${which}','')">—</button>${['A','B','C','D'].map(s=>`<button type="button" class="${sub===s?'active':''}" onclick="v900SetSubzone('${which}','${s}')">${s}</button>`).join('')}</div>`;
+}
+function renderLocations(){
+  const box=$('v900-location-area');if(!box)return;const r=locationRules();
+  if(r.cone){
+    box.innerHTML=`<div class="v900-location-block"><div class="v900-location-card"><h4>${esc(r.originLabel||'Origen')}</h4>${zoneGrid('origin')}</div><div class="v900-location-card"><h4>Cono DataVolley</h4><div class="v900-cone-grid">${[1,2,3,4,5,6,7,8].map(c=>`<button type="button" class="${Number(state.cone)===c?'active':''}" onclick="v900SetField('cone','${c}')">C${c}</button>`).join('')}</div></div></div>`;return;
+  }
+  const parts=[];
+  if(r.origin)parts.push(`<div class="v900-location-card"><h4>${esc(r.originLabel||'Origen')}</h4>${zoneGrid('origin')}</div>`);
+  if(r.destination)parts.push(`<div class="v900-location-card"><h4>${esc(r.destLabel||'Destino')}</h4>${zoneGrid('destination')}</div>`);
+  box.innerHTML=`<div class="v900-location-block">${parts.join('')}</div>`;
+}
+function renderBuilder(){
+  document.querySelectorAll('#v900-team-ours,#v900-team-opponent').forEach(b=>b.classList.remove('active'));
+  $(`v900-team-${state.team}`)?.classList.add('active');
+  document.querySelectorAll('#v900-phase-scout [data-skill]').forEach(b=>b.classList.toggle('active',b.dataset.skill===state.skill));
+  document.querySelectorAll('#v900-phase-scout [data-eval]').forEach(b=>b.classList.toggle('active',b.dataset.eval===state.evaluation));
+  const dyn=$('v900-dynamic-fields');if(dyn)dyn.innerHTML=dynamicOptions().map(fieldHtml).join('');
+  renderPlayers();renderLocations();updatePreview();renderIntel();
+}
+function renderPlayers(){
+  const box=$('v900-player-buttons');if(!box)return;ensurePlayer();const m=active();if(!m){box.innerHTML='';return}
+  let arr=[];
+  if(state.team==='ours'){
+    const seen=new Set();
+    arr=POS.map(pos=>Number(m.lineup?.ours?.[pos])).filter(id=>id&&!seen.has(id)&&(seen.add(id),true)).map(id=>({value:String(id),label:ownLabel(id)}));
+  }else{
+    arr=POS.map(pos=>({value:opponentLabel(m.lineup?.opponent?.[pos],pos),label:opponentLabel(m.lineup?.opponent?.[pos],pos)}));
+  }
+  box.innerHTML=arr.map(x=>`<button type="button" class="${String(state.player)===String(x.value)?'active':''}" onclick="v900SelectPlayer('${esc(String(x.value)).replace(/'/g,"\\'")}')">${esc(x.label)}</button>`).join('');
+  safeText('v900-player-selected',state.playerLabel||'—');
+}
+function renderCourt(target,team,prep=false){
+  const box=$(target),m=active();if(!box||!m)return;
+  box.innerHTML=POS.map(pos=>{
+    const isOurs=team==='ours',value=isOurs?m.lineup?.ours?.[pos]:m.lineup?.opponent?.[pos],label=isOurs?ownLabel(value):opponentLabel(value,pos);
+    const selected=state.team===team&&String(state.player)===String(isOurs?Number(value)||'':label);
+    const role=isOurs?(m.lineupRoles?.ours?.[pos]||''):m.lineupRoles?.opponent?.[pos]||'';
+    const click=prep?'':`onclick="v900SelectCourtPlayer('${team}','${esc(String(isOurs?Number(value)||'':label)).replace(/'/g,"\\'")}')"`;
+    return `<button type="button" style="grid-area:${pos}" class="v900-court-slot ${selected?'selected':''}" ${click}><small>${pos.toUpperCase()}</small><b>${esc(label)}</b><span>${esc(role||'')}</span></button>`;
+  }).join('');
+}
+function renderCourts(){
+  renderCourt('v900-own-court','ours');renderCourt('v900-rival-court','opponent');renderCourt('v900-prep-own-court','ours',true);renderCourt('v900-prep-rival-court','opponent',true);
+}
+function syncLegacy(){
+  ensurePlayer();
+  setVal('scout-action-team',state.team);
+  try{window.scoutRefreshActionPlayers?.()}catch(_){}
+  setVal('scout-action-player',state.player);
+  setVal('scout-action-skill',state.skill);
+  try{window.scoutUpdateAdvancedFields?.()}catch(_){}
+  setVal('scout-action-eval',state.evaluation);
+  const r=locationRules();
+  setVal('scout-action-start',r.origin?state.origin:'');setVal('scout-action-start-sub',r.origin?state.originSub:'');
+  setVal('scout-action-end',r.destination?state.destination:'');setVal('scout-action-end-sub',r.destination?state.destinationSub:'');
+  setVal('scout-action-serve-type',state.serveType);
+  setVal('scout-action-phase',state.phaseCode);
+  setVal('scout-action-combo',state.combo);
+  setVal('scout-action-dv-code',state.dvCode);
+  setVal('scout-action-tempo',state.tempo);
+  setVal('scout-action-set-type',state.setType);
+  setVal('scout-action-subtype',state.subtype);
+  setVal('scout-action-direction',state.direction);
+  setVal('scout-action-blockers',state.blockers);
+  setVal('scout-v840-block-target',state.blockTarget);
+  setVal('scout-action-special',state.special);
+  setVal('scout-action-custom',state.custom);
+  setVal('scout-action-location-mode',state.locationMode);
+  setVal('scout-action-end-cone',state.cone);
+  try{window.scoutUpdateAdvancedCodePreview?.()}catch(_){}
+}
+function buildPreview(){
+  const p=state.team==='opponent'?'R':'';
+  let num='';
+  if(state.team==='ours'){const pl=playerById(state.player);num=pl?.number??''}
+  else num=String(state.player||'').match(/\d+/)?.[0]||'';
+  let code=`${p}${num||'?'}${state.skill}${state.evaluation}`;
+  const r=locationRules(),o=token(state.origin,state.originSub),d=token(state.destination,state.destinationSub);
+  if(r.cone&&o&&state.cone)code+=`.${o}>C${state.cone}`;
+  else if(r.origin&&r.destination&&o&&d)code+=`.${o}>${d}`;
+  else if(state.skill==='B'&&o)code+=`.${o}`;
+  else if((state.skill==='R'||state.skill==='D')&&d)code+=`.${d}`;
+  if(state.serveType)code+=`~${state.serveType}`;
+  if(state.combo)code+=`:${state.combo}`;
+  if(state.dvCode)code+=`::${String(state.dvCode).toUpperCase()}`;
+  if(state.tempo)code+=`~${state.tempo}`;
+  if(state.subtype)code+=`%${state.subtype}`;
+  if(state.setType)code+=`|${state.setType}`;
+  if(state.direction)code+=`*${state.direction}`;
+  if(state.phaseCode)code+=`^${state.phaseCode}`;
+  if(state.blockers!=='')code+=`@${state.blockers}`;
+  if(state.skill==='B'&&state.blockTarget)code+=`&${state.blockTarget}`;
+  if(state.special)code+=`?${String(state.special).toUpperCase()}`;
+  if(state.custom)code+=`$${String(state.custom).toUpperCase()}`;
+  return code;
+}
+function meaning(){
+  const bits=[state.playerLabel||'Jugador',SKILL_NAMES[state.skill]||state.skill,`valoración ${state.evaluation}`];
+  if(state.skill==='R'&&state.subtype)bits.push(REC_SUB[state.subtype]||state.subtype);
+  if(state.skill==='A'&&state.subtype)bits.push(ATK_SUB[state.subtype]||state.subtype);
+  if(state.tempo)bits.push(TEMPO[state.tempo]||state.tempo);
+  if(state.dvCode)bits.push((state.skill==='E'?'set code ':'attack code ')+state.dvCode);
+  if(state.skill==='A'&&state.locationMode==='cones'&&state.cone)bits.push('cono C'+state.cone);
+  return bits.join(' · ');
+}
+function updatePreview(){safeText('v900-code-preview',buildPreview());safeText('v900-code-meaning',meaning())}
+
+function metricGroup(rows,getter){
+  const map=new Map();rows.forEach(a=>{const k=String(getter(a)||'').trim();if(k)map.set(k,(map.get(k)||0)+1)});
+  return [...map.entries()].sort((a,b)=>b[1]-a[1]);
+}
+function intelFor(rows,skill){
+  const total=rows.length,perfect=rows.filter(a=>a.evaluation==='#').length,positive=rows.filter(a=>['#','+'].includes(a.evaluation)).length,errors=rows.filter(a=>a.evaluation==='=').length,blocked=rows.filter(a=>a.evaluation==='/').length;
+  if(skill==='R'){
+    const groups=metricGroup(rows,a=>a.skillSubtype).slice(0,5);
+    return {kpis:[['Pos%',`${pct(positive,total)}%`,`${positive}/${total}`],['Exc%',`${pct(perfect,total)}%`,`${perfect}/${total}`],['Errores',errors,`${pct(errors,total)}%`],['Muestra',total,'recepciones']],rows:groups.map(([k,n])=>[REC_SUB[k]||k,n,pct(n,total)+'%'])};
+  }
+  if(skill==='A'){
+    const eff=total?Math.round((perfect-errors-blocked)*100/total):0,groups=metricGroup(rows,a=>a.attackTempo||'Sin tempo').slice(0,6);
+    return {kpis:[['Kill%',`${pct(perfect,total)}%`,`${perfect}/${total}`],['EFF',`${eff}%`,`G-P técnico ${perfect-errors-blocked>=0?'+':''}${perfect-errors-blocked}`],['Errores',errors,'ataque'],['Bloqueados',blocked,'ataque']],rows:groups.map(([k,n])=>[TEMPO[k]||k,n,pct(n,total)+'%'])};
+  }
+  if(skill==='S'){
+    return {kpis:[['Aces',perfect,`${pct(perfect,total)}%`],['Errores',errors,`${pct(errors,total)}%`],['Positivos',positive,`${pct(positive,total)}%`],['Saques',total,'total']],rows:metricGroup(rows,a=>a.serveType||'Sin tipo').slice(0,5).map(([k,n])=>[SERVE[k]||k,n,pct(n,total)+'%'])};
+  }
+  if(skill==='E'){
+    return {kpis:[['Pos/#',`${pct(positive,total)}%`,`${positive}/${total}`],['Perfectas',perfect,`${pct(perfect,total)}%`],['Errores',errors,'colocación'],['Total',total,'colocaciones']],rows:metricGroup(rows,a=>a.setTempo||'Sin tempo').slice(0,6).map(([k,n])=>[TEMPO[k]||k,n,pct(n,total)+'%'])};
+  }
+  if(skill==='B'){
+    return {kpis:[['Puntos',perfect,'bloqueo'],['Errores',errors,'bloqueo'],['Positivos',positive,'acciones'],['Total',total,'bloqueos']],rows:metricGroup(rows,a=>a.skillSubtype||'Sin tipo').slice(0,5).map(([k,n])=>[BLOCK_SUB[k]||k,n,pct(n,total)+'%'])};
+  }
+  return {kpis:[['Pos/#',`${pct(positive,total)}%`,`${positive}/${total}`],['Perfectas',perfect,'#'],['Errores',errors,'='],['Total',total,'acciones']],rows:metricGroup(rows,a=>a.skillSubtype||'Sin subtipo').slice(0,5).map(([k,n])=>[k,n,pct(n,total)+'%'])};
+}
+function renderIntel(){
+  const box=$('v900-intel'),m=active();if(!box||!m)return;
+  const rows=allActions(m).filter(a=>a.team===state.team&&a.skill===state.skill),d=intelFor(rows,state.skill);
+  safeText('v900-intel-title',SKILL_NAMES[state.skill]||state.skill);
+  box.innerHTML=`<div class="v900-intel-kpis">${d.kpis.map(([l,v,s])=>`<div><span>${esc(l)}</span><b>${esc(v)}</b><small>${esc(s)}</small></div>`).join('')}</div><div class="v900-intel-list">${d.rows.length?d.rows.map(([l,n,p])=>`<div class="v900-intel-row"><b>${esc(l)}</b><span>${n}</span><span>${esc(p)}</span></div>`).join(''):'<div class="v900-prep-copy">Todavía no hay muestra codificada para este fundamento.</div>'}</div>`;
+}
+function renderLiveActions(m){
+  const box=$('v900-live-actions'),arr=m?.liveRally?.actions||[];if(!box)return;
+  safeText('v900-rally-title',`Rally actual · ${arr.length} ${arr.length===1?'acción':'acciones'}`);
+  box.innerHTML=arr.length?arr.map(a=>`<div class="v900-action-chip"><code>${esc(a.code||'—')}</code><span>${esc(playerLabel(a))} · ${esc(SKILL_NAMES[a.skill]||a.skill)}</span></div>`).join(''):'<div class="v900-prep-copy">Añade acciones y cierra el rally con Punto nuestro / Punto rival.</div>';
+}
+function renderReview(m){
+  const box=$('v900-review-rallies'),s=currentSet(m);if(!box||!s)return;
+  const rr=[...(s.rallies||[])].slice(-15).reverse();
+  box.innerHTML=rr.length?rr.map(r=>`<div class="v900-review-rally"><strong>${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}</strong><div><b>R${r.rotationBefore||m.rotationNo} · ${(r.actions||[]).length} acciones</b><small>${esc((r.actions||[]).map(a=>a.code).join('  ')||'Sin códigos')}</small></div><span class="${r.winner==='ours'?'win':'loss'}">${r.winner==='ours'?'Punto nuestro':'Punto rival'}</span></div>`).join(''):'<div class="v900-prep-copy">Todavía no hay rallies cerrados en este set.</div>';
+  safeText('v900-review-save',$('scout-save-badge')?.textContent||'Guardado local activo');
+}
+function analysisBlock(rows,kind){
+  const total=rows.length,p=rows.filter(a=>a.evaluation==='#').length,pos=rows.filter(a=>['#','+'].includes(a.evaluation)).length,err=rows.filter(a=>a.evaluation==='=').length,blk=rows.filter(a=>a.evaluation==='/').length;
+  if(kind==='R')return [['Recepciones',total],['Pos%',pct(pos,total)+'%'],['Exc%',pct(p,total)+'%'],['Errores',err]];
+  if(kind==='A')return [['Ataques',total],['Kill%',pct(p,total)+'%'],['Errores',err],['Bloqueados',blk],['EFF',total?Math.round((p-err-blk)*100/total)+'%':'—']];
+  if(kind==='S')return [['Saques',total],['Aces',p],['Errores',err],['Ace%',pct(p,total)+'%']];
+  return [];
+}
+function renderAnalysis(m){
+  const rows=allActions(m),ours=rows.filter(a=>a.team==='ours'),closed=(m.sets||[]).flatMap(s=>s.rallies||[]),ss=setsScore(m);
+  const rec=ours.filter(a=>a.skill==='R'),atk=ours.filter(a=>a.skill==='A'),srv=ours.filter(a=>a.skill==='S');
+  const side=closed.filter(r=>r.servingBefore==='opponent'),br=closed.filter(r=>r.servingBefore==='ours');
+  const sideWon=side.filter(r=>r.winner==='ours').length,brWon=br.filter(r=>r.winner==='ours').length;
+  const k=$('v900-analysis-kpis');if(k)k.innerHTML=[
+    ['Sets',`${ss.us}–${ss.opponent}`,'resultado'],['Rallies',closed.length,'cerrados'],['Acciones',rows.length,'codificadas'],
+    ['Side-out',side.length?pct(sideWon,side.length)+'%':'—',`${sideWon}/${side.length}`],['Break',br.length?pct(brWon,br.length)+'%':'—',`${brWon}/${br.length}`],['G-P rally',`${closed.filter(r=>r.winner==='ours').length-closed.filter(r=>r.winner==='opponent').length>=0?'+':''}${closed.filter(r=>r.winner==='ours').length-closed.filter(r=>r.winner==='opponent').length}`,'partido']
+  ].map(([l,v,s])=>`<div><span>${l}</span><b>${v}</b><small>${s}</small></div>`).join('');
+  const fill=(id,data)=>{const b=$(id);if(b)b.innerHTML=`<div class="v900-metric-table">${data.map(([l,v])=>`<div class="v900-metric-row"><b>${esc(l)}</b><span>${esc(v)}</span></div>`).join('')}</div>`};
+  fill('v900-analysis-reception',analysisBlock(rec,'R'));fill('v900-analysis-attack',analysisBlock(atk,'A'));fill('v900-analysis-serve',analysisBlock(srv,'S'));
+  const dv=[
+    ['Recepción con subtype',`${rec.filter(a=>a.skillSubtype).length}/${rec.length}`],
+    ['Ataque con tempo',`${atk.filter(a=>a.attackTempo).length}/${atk.length}`],
+    ['Attack codes',new Set(atk.map(a=>a.attackCode).filter(Boolean)).size],
+    ['Ataques por conos',atk.filter(a=>a.endCone).length],
+    ['Coordenadas exactas',rows.filter(a=>a.startCoordinate||a.endCoordinate||a.contactCoordinate).length]
+  ];
+  fill('v900-analysis-dv',dv);
+}
+async function renderSafety(){
+  safeText('v900-save',$('scout-save-badge')?.textContent?.includes('protección')?'LOCAL ✓':'LOCAL ✓');
+  safeText('v900-video',$('scout-v740-video-badge')?.textContent?.replace('VÍDEO ','')||$('v800-video-status')?.textContent||'OFF');
+  try{
+    const d=await window.scoutV893Diagnostics?.();
+    const txt=d?.versions?`${d.versions} versiones`:'Protegida';
+    safeText('v900-vault',`Caja fuerte · ${txt}`);safeText('v900-prep-vault',txt);
+  }catch(_){safeText('v900-vault','Caja fuerte activa');safeText('v900-prep-vault','Activa')}
+}
+function renderStatus(m){
+  const s=currentSet(m),ss=setsScore(m);
+  safeText('v900-match-title',`${teamName()} vs ${m.opponent||'Rival'}`);
+  safeText('v900-match-meta',[m.date,m.competition,m.status==='finished'?'Finalizado':'En curso'].filter(Boolean).join(' · '));
+  safeText('v900-team-name',teamName());safeText('v900-opponent-name',m.opponent||'Rival');safeText('v900-score',`${s?.scoreUs||0}–${s?.scoreOpponent||0}`);
+  safeText('v900-set',String(m.currentSet||1));safeText('v900-sets',`${ss.us}–${ss.opponent} sets`);safeText('v900-rotation',`R${m.rotationNo||1}`);safeText('v900-rival-rotation',`Rival R${m.opponentRotationNo||1}`);
+  safeText('v900-service',m.servingTeam==='ours'?'NUESTRO':'RIVAL');safeText('v900-phase',m.servingTeam==='ours'?'K2 · Break':'K1 · Side-out');
+  const prep=$('v900-prep-match');if(prep)prep.innerHTML=`<b>${esc(teamName())} vs ${esc(m.opponent||'Rival')}</b><br>${esc(m.date||'Sin fecha')}${m.competition?' · '+esc(m.competition):''}<br>Set ${m.currentSet||1} · R${m.rotationNo||1} vs R${m.opponentRotationNo||1} · ${m.servingTeam==='ours'?'sacamos':'saca el rival'}`;
+}
+function render(){
+  const view=$('scout-workspace-v900');if(!view)return;const m=active(),none=$('v900-no-match'),live=$('v900-live');
+  if(!m){none?.classList.remove('hidden');live?.classList.add('hidden');safeText('v900-match-title','Scouting profesional');safeText('v900-match-meta','Preparar → Scoutar → Revisar → Analizar');return}
+  none?.classList.add('hidden');live?.classList.remove('hidden');ensurePlayer();renderStatus(m);renderCourts();renderBuilder();renderLiveActions(m);renderReview(m);renderAnalysis(m);void renderSafety();
+}
+function inputMode(mode){state.mode=mode==='code'?'code':'visual';localStorage.setItem('v900_mode',state.mode);$('v900-visual-builder')?.classList.toggle('hidden',state.mode!=='visual');$('v900-code-builder')?.classList.toggle('hidden',state.mode!=='code');$('v900-mode-visual')?.classList.toggle('active',state.mode==='visual');$('v900-mode-code')?.classList.toggle('active',state.mode==='code');if(state.mode==='code')setTimeout(()=>$('v900-code-input')?.focus(),30)}
+function phase(p){state.phase=['prepare','scout','review','analyze'].includes(p)?p:'scout';localStorage.setItem('v900_phase',state.phase);document.querySelectorAll('[data-v900-phase]').forEach(b=>b.classList.toggle('active',b.dataset.v900Phase===state.phase));['prepare','scout','review','analyze'].forEach(x=>$(`v900-phase-${x}`)?.classList.toggle('hidden',x!==state.phase));render()}
+
+window.v900SetPhase=phase;
+window.v900SetInputMode=inputMode;
+window.v900SetTeam=function(t){state.team=t==='opponent'?'opponent':'ours';state.player='';ensurePlayer();renderBuilder();renderCourts()};
+window.v900SelectPlayer=function(v){state.player=String(v);state.playerLabel=state.team==='ours'?ownLabel(v):String(v);renderPlayers();renderCourts();updatePreview()};
+window.v900SelectCourtPlayer=function(t,v){state.team=t==='opponent'?'opponent':'ours';state.player=String(v);state.playerLabel=state.team==='ours'?ownLabel(v):String(v);renderBuilder();renderCourts()};
+window.v900SetSkill=function(s){if(!SKILL_NAMES[s])return;state.skill=s;state.subtype='';state.dvCode='';state.tempo='';state.setType='';state.combo='';state.blockers='';state.blockTarget='';state.locationMode='zones';state.cone='';renderBuilder()};
+window.v900SetEval=function(e){state.evaluation=e;document.querySelectorAll('#v900-phase-scout [data-eval]').forEach(b=>b.classList.toggle('active',b.dataset.eval===e));updatePreview()};
+window.v900SetField=function(k,v){if(!(k in state))return;state[k]=String(v??'');if(k==='locationMode'){state.destination='';state.destinationSub='';state.cone=''}renderBuilder()};
+window.v900SetZone=function(which,v){if(which==='origin')state.origin=String(v);else state.destination=String(v);renderLocations();updatePreview()};
+window.v900SetSubzone=function(which,v){if(which==='origin')state.originSub=String(v);else state.destinationSub=String(v);renderLocations();updatePreview()};
+window.v900RegisterVisual=function(){
+  if(!active())return alert('No hay un scouting activo.');
+  ensurePlayer();if(!state.player)return alert('Selecciona un jugador.');
+  const r=locationRules();if(state.skill==='A'&&state.locationMode==='cones'&&(!state.origin||!state.cone))return alert('En ataque por conos selecciona origen y cono.');
+  syncLegacy();
+  try{window.scoutAddManualAction?.()}catch(err){console.error(err);alert('No se pudo registrar la acción: '+String(err?.message||err));return}
+  render();
+};
+window.v900RegisterCode=function(){
+  const input=$('v900-code-input'),raw=String(input?.value||'').trim();if(!raw)return;
+  const legacy=$('scout-code-input');if(!legacy)return alert('No encuentro la consola clásica.');
+  legacy.value=raw;
+  try{window.scoutAddCode?.();input.value='';safeText('v900-code-translation','Código registrado con el motor compartido.');render()}catch(err){console.error(err);alert('No se pudo registrar el código: '+String(err?.message||err))}
+};
+window.v900TranslateCode=function(){
+  const raw=String($('v900-code-input')?.value||'').trim().toUpperCase(),box=$('v900-code-translation');if(!box)return;if(!raw){box.textContent='Escribe un código para ver su lectura.';return}
+  const m=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?/);if(!m){box.textContent='Código todavía incompleto o no reconocido.';return}
+  const parts=[m[1]?'Rival':'Nuestro',`#${m[2]}`,SKILL_NAMES[m[3]]||m[3],`valoración ${m[4]||'!'}`];
+  const st=raw.match(/%(L|R|LOW|OH|MID|HSP|SSP|TIP|1H|2H|BUMP|UND|OTH|COV|AB|EMG|SOFT|AST|ATT)/)?.[1];if(st)parts.push(REC_SUB[st]||ATK_SUB[st]||SET_SUB[st]||DEF_SUB[st]||BLOCK_SUB[st]||st);
+  const tempo=raw.match(/~(Q|T|M|H|O)(?=$|[%|*^@?$])/)?.[1];if(tempo)parts.push(TEMPO[tempo]);
+  const cone=raw.match(/>C([1-8])/i)?.[1];if(cone)parts.push('cono '+cone);
+  box.textContent=parts.join(' · ');
+};
+window.v900Open=function(){phase(state.phase);inputMode(state.mode);render()};
+window.v900Render=render;
+
+/* Shared engines remain the source of truth. We only refresh this UI after them. */
+if(typeof window.scoutRender==='function'){
+  const base=window.scoutRender;
+  window.scoutRender=function(...args){const out=base.apply(this,args);try{render()}catch(err){console.warn('V9 workspace render',err)}return out};
+}
+if(typeof window.scoutOpenSaved==='function'){
+  const base=window.scoutOpenSaved;
+  window.scoutOpenSaved=function(id){const out=base.apply(this,arguments);setTimeout(()=>{try{showView('scout-workspace-v900',botonVista('scout-workspace-v900'))}catch(_){}},0);return out};
+}
+if(typeof window.scoutCreateMatch==='function'){
+  const base=window.scoutCreateMatch;
+  window.scoutCreateMatch=function(...args){const out=base.apply(this,args);setTimeout(()=>{if(active())try{showView('scout-workspace-v900',botonVista('scout-workspace-v900'))}catch(_){}},0);return out};
+}
+if(typeof window.showView==='function'){
+  const base=window.showView;
+  window.showView=function(id,btn){const out=base.apply(this,arguments);if(id==='scout-workspace-v900')setTimeout(()=>window.v900Open(),0);return out};
+}
+
+/* Safety baseline: checkpoint existing matches before first V9 use. */
+if(!localStorage.getItem('v900_safety_baseline_done')){
+  setTimeout(async()=>{try{await window.scoutV893CheckpointAll?.(false,'pre-v9.0',true);localStorage.setItem('v900_safety_baseline_done','1')}catch(err){console.warn('V9 safety baseline',err)}},500);
+}
+
+window.VC_V900_WORKSPACE={
+  version:VERSION,
+  render,
+  state:()=>({...state}),
+  diagnostics:()=>({
+    version:VERSION,
+    active:!!active(),
+    bridge:!!bridge(),
+    legacyManual:typeof window.scoutAddManualAction==='function',
+    legacyCode:typeof window.scoutAddCode==='function',
+    pointEngine:typeof window.scoutAwardPoint==='function',
+    vault:typeof window.scoutV893CheckpointAll==='function',
+    pdf:typeof window.scoutV752ExportAnalysisPDF==='function'
+  })
+};
+})();
+</script>
 
 </body></html>
