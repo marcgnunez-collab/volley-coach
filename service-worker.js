@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v8.7.2-camera-save-v1';
+const CACHE_NAME = 'volley-coach-v8.9.0-datavolley-analysis-v1';
 
 const APP_SHELL = [
   './',
