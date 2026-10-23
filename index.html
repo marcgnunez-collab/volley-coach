@@ -814,7 +814,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
     <hr class="cloud-separator">
     <div class="cloud-grid">
       <b>3. Sincronización</b>
-      <div class="cloud-help">Cuando inicies sesión con la misma cuenta en el portátil y el iPhone, se sincronizarán la biblioteca compartida y los datos de ambos equipos. Cada equipo mantiene separadas su sesión, planificación, historial y estadísticas.</div>
+      <div class="cloud-help">Modo seguro: iniciar sesión no descarga ni reemplaza automáticamente los datos. Usa “Descargar de la nube” para una fusión no destructiva o “Caja fuerte → Comprobar nube” para inspección solo lectura. Las subidas automáticas conservan primero una copia de lo que había en Supabase.</div>
       <div class="cloud-actions">
         <button class="success" onclick="subirNube(true)">⬆️ Subir este dispositivo</button>
         <button class="ghost" onclick="bajarNube(true)">⬇️ Descargar de la nube</button>
@@ -859,6 +859,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
       <button class="tab-btn" data-view="scout-postmatch" onclick="showView('scout-postmatch',this)">Postpartido</button>
       <button class="tab-btn" data-view="scout-analysis" onclick="showView('scout-analysis',this)">Análisis</button>
+      <button class="tab-btn" data-view="scout-safe" onclick="showView('scout-safe',this)">Caja fuerte</button>
       <button class="tab-btn" data-view="scout-plan" onclick="showView('scout-plan',this)">Plan de partido</button>
       <button class="tab-btn" data-view="scout-matchup" onclick="showView('scout-matchup',this)">Match-up</button>
     </div>
@@ -1108,7 +1109,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="scout-home-shell">
     <div class="scout-home-hero">
       <div><span class="pro-kicker">SCOUTING WORKSPACE</span><h2>Centro de scouting</h2><p>Partido en directo, próximos encuentros, archivo y lectura táctica desde una sola entrada.</p></div>
-      <div class="scout-home-actions"><button class="ghost" onclick="showView('competicion',botonVista('competicion'))">Partidos</button><button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button><button class="ghost" onclick="showView('scout-matchup',botonVista('scout-matchup'))">Match-up</button><button class="ghost" onclick="scoutV700OpenVideo('home')">🎥 Vídeo</button><button class="ghost scout-v891-recover-btn" onclick="scoutV892OpenRecoveryCenter()">🛡 Recuperar scoutings</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-home-actions"><button class="ghost" onclick="showView('competicion',botonVista('competicion'))">Partidos</button><button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button><button class="ghost" onclick="showView('scout-matchup',botonVista('scout-matchup'))">Match-up</button><button class="ghost" onclick="scoutV700OpenVideo('home')">🎥 Vídeo</button><button class="ghost scout-v891-recover-btn" onclick="scoutV892OpenRecoveryCenter()">🛡 Recuperar scoutings</button><button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">🔐 Caja fuerte</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v891-rescue-banner" class="scout-v891-rescue-banner hidden"></div>
     <div class="scout-home-kpis">
@@ -1503,6 +1504,36 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   </div>
 </section>
 
+
+
+<section id="scout-safe" class="view">
+  <div class="v893-safe-shell">
+    <div class="v893-safe-hero">
+      <div><span class="pro-kicker">SCOUTING SAFE · V8.9.3</span><h2>Caja fuerte de scoutings</h2><p>Historial independiente de versiones, recuperación selectiva y lectura de la nube sin sobrescribir datos.</p></div>
+      <div class="v893-safe-actions"><button class="ghost" onclick="scoutV893OpenRecoveryCenter()">Recuperación avanzada</button><button class="ghost" onclick="scoutV893CloudReadOnly()">☁ Comprobar nube · solo lectura</button><button class="ghost" onclick="scoutV893ExportVault()">Exportar caja fuerte</button><button class="primary" onclick="scoutV893CheckpointAll(true)">Crear checkpoint ahora</button></div>
+    </div>
+    <div class="v893-safe-kpis">
+      <div><span>Versiones</span><b id="v893-kpi-versions">0</b><small>copias independientes</small></div>
+      <div><span>Partidos protegidos</span><b id="v893-kpi-matches">0</b><small>con historial</small></div>
+      <div><span>Última copia</span><b id="v893-kpi-last">—</b><small id="v893-kpi-last-copy">sin checkpoint</small></div>
+      <div><span>Nube</span><b id="v893-kpi-cloud">—</b><small id="v893-kpi-cloud-copy">sin comprobar</small></div>
+    </div>
+    <section class="v893-safe-panel">
+      <div class="v893-safe-head"><div><span class="pro-kicker">PROTECCIÓN LOCAL</span><h3>Versiones guardadas</h3><p>Cada versión está fuera del estado principal. Un error de la lista de scoutings no borra este historial.</p></div><div class="v893-safe-tools"><select id="v893-team-filter" onchange="scoutV893RenderVault()"><option value="">Todos los equipos</option><option value="infantil">Infantil</option><option value="cadete">Cadete</option></select><select id="v893-reason-filter" onchange="scoutV893RenderVault()"><option value="">Todos los checkpoints</option><option value="manual">Manual</option><option value="autosave">Automático</option><option value="finalize">Finalización</option><option value="before-delete">Antes de borrar</option><option value="cloud">Nube</option><option value="restore">Restauración</option></select><button class="ghost" onclick="scoutV893RenderVault()">Actualizar</button></div></div>
+      <div id="v893-vault-status" class="v893-safe-status">Leyendo caja fuerte…</div>
+      <div id="v893-vault-list" class="v893-version-list"></div>
+    </section>
+    <section class="v893-safe-panel">
+      <div class="v893-safe-head"><div><span class="pro-kicker">SUPABASE · SOLO LECTURA</span><h3>Copias disponibles en nube</h3><p>Este botón solo hace SELECT. No aplica ni sube nada hasta que tú elijas restaurar un partido.</p></div><button class="primary" onclick="scoutV893CloudReadOnly()">Comprobar nube</button></div>
+      <div id="v893-cloud-status" class="v893-safe-status">Todavía no se ha consultado la nube.</div>
+      <div id="v893-cloud-list" class="v893-version-list"></div>
+    </section>
+    <section class="v893-safe-panel compact">
+      <div class="v893-safe-head"><div><span class="pro-kicker">REGLAS DE SEGURIDAD</span><h3>Cómo se protege un scouting</h3></div></div>
+      <div class="v893-security-grid"><article><b>1 · Estado normal</b><span>La lista habitual de partidos y scouting.</span></article><article><b>2 · Copia V7.0.2</b><span>Última copia completa por equipo en IndexedDB.</span></article><article><b>3 · Caja fuerte V8.9.3</b><span>Historial versionado; no se sobrescribe con cada guardado.</span></article><article><b>4 · Espejo nube</b><span>La última versión protegida de cada partido viaja también dentro del estado de Supabase.</span></article><article><b>5 · Pre-subida</b><span>Antes de subir a Supabase se lee y conserva localmente lo que había en nube.</span></article><article><b>6 · Backup V7.9</b><span>La exportación completa incluye también la Caja fuerte.</span></article></div>
+    </section>
+  </div>
+</section>
 
 <section id="scout-plan" class="view">
   <div class="scout-v660-shell">
@@ -3782,18 +3813,45 @@ const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKeyV2';
 const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
 function estadoLocal(){guardarEquipoEnMemoria();return {version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaIndependiente:clonar(baseDeDatos),bibliotecaBorrados:clonar(cargarBorradosBiblioteca()),bibliotecaVersion:1,equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}}
+function scoutGenericCounts(m){
+  const sets=Array.isArray(m?.sets)?m.sets:[],rallies=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.length:0),0),
+    actions=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.reduce((x,r)=>x+(Array.isArray(r?.actions)?r.actions.length:0),0):0),0)+(Array.isArray(m?.liveRally?.actions)?m.liveRally.actions.length:0);
+  return {rallies,actions};
+}
+function scoutGenericStamp(m){for(const x of [m?.updatedAt,m?.manualSavedAt,m?.resultCompleteAt,m?.endedAt,m?.createdAt,m?.date]){const t=Date.parse(x||'');if(Number.isFinite(t))return t}return 0}
+function fusionarScoutingsSeguros(localList,remoteList){
+  const map=new Map();
+  [...(Array.isArray(localList)?localList:[]),...(Array.isArray(remoteList)?remoteList:[])].forEach(m=>{
+    const id=Number(m?.id);if(!id)return;const prev=map.get(id);if(!prev){map.set(id,clonar(m));return}
+    const a=scoutGenericCounts(m),b=scoutGenericCounts(prev),use=a.actions>b.actions||a.rallies>b.rallies||(a.actions===b.actions&&a.rallies===b.rallies&&scoutGenericStamp(m)>scoutGenericStamp(prev));
+    if(use)map.set(id,clonar(m));
+  });
+  return [...map.values()].sort((a,b)=>scoutGenericStamp(b)-scoutGenericStamp(a));
+}
+function fusionarEspejoScouting(localMirror,remoteMirror){
+  const out={...(remoteMirror&&typeof remoteMirror==='object'?clonar(remoteMirror):{}),...(localMirror&&typeof localMirror==='object'?clonar(localMirror):{})};
+  Object.keys(out).forEach(k=>{const x=out[k];if(!x?.match)delete out[k]});return out;
+}
+
 function aplicarEstadoCloud(s){
   if(!s)return;
   cloudApplying=true;
   const eraAnterior=!(Array.isArray(s.bibliotecaCompartida)&&s.equiposData);
   const conv=convertirEstadoPersistido(s);
   if(!conv){cloudApplying=false;return}
+  const equiposAntes=clonar(equiposData||{});
   const bibliotecaAntes=clonar(baseDeDatos||[]),bibliotecaNube=fusionarBibliotecas(conv.bibliotecaCompartida||[],Array.isArray(s.bibliotecaIndependiente)?s.bibliotecaIndependiente:[]),tamNube=bibliotecaNube.length;
   if(Array.isArray(s.bibliotecaBorrados)&&s.bibliotecaBorrados.length){guardarBorradosBiblioteca([...cargarBorradosBiblioteca(),...s.bibliotecaBorrados])}
   baseDeDatos=bibliotecaFusionadaSegura(bibliotecaAntes,bibliotecaNube);migrarFundamentos();
   const agregadosPropios=asegurarEjerciciosPropios183()+asegurarEjerciciosPropios287Nuevos();
   equiposData=conv.equiposData;
-  ['infantil','cadete'].forEach(id=>equiposData[id]=limpiarEquipo(equiposData[id],id));
+  ['infantil','cadete'].forEach(id=>{
+    equiposData[id]=limpiarEquipo(equiposData[id],id);
+    const localTeam=equiposAntes?.[id]||{};
+    equiposData[id].scoutingMatches=fusionarScoutingsSeguros(localTeam.scoutingMatches,equiposData[id].scoutingMatches);
+    equiposData[id].scoutingSafeCloud=fusionarEspejoScouting(localTeam.scoutingSafeCloud,equiposData[id].scoutingSafeCloud);
+    if(!equiposData[id].scoutingActiveId&&localTeam.scoutingActiveId)equiposData[id].scoutingActiveId=localTeam.scoutingActiveId;
+  });
   const cambiosRecepcion=aplicarLimpiezaRecepcionV1();
   const cambiosColocacion=aplicarLimpiezaColocacionV1();
   const cambiosAtaque=aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();
@@ -3836,8 +3894,8 @@ async function initCloud(){
   if(!crearCloudClient()){setCloudUI('', 'Nube sin configurar');return}
   const {data:{session}}=await cloudClient.auth.getSession();
   cloudUser=session?.user||null;
-  if(cloudUser){setCloudUI('online','Nube conectada');await bajarNube(false)}else setCloudUI('', 'Nube lista · inicia sesión');
-  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada');if(event==='SIGNED_IN')await bajarNube(false)}else setCloudUI('', 'Nube desconectada')});
+  if(cloudUser){setCloudUI('online','Nube conectada · modo seguro')}else setCloudUI('', 'Nube lista · inicia sesión');
+  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada · modo seguro');if(event==='SIGNED_IN'&&typeof window.scoutV893CloudReadOnly==='function')setTimeout(()=>window.scoutV893CloudReadOnly(),60)}else setCloudUI('', 'Nube desconectada')});
 }
 async function cloudSignup(){
   if(!cloudClient&& !crearCloudClient()){alert('Primero configura Supabase.');return}
@@ -3856,7 +3914,7 @@ async function cloudLogin(){
   setCloudUI('syncing','Conectando…');
   const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
   if(error){setCloudUI('error','Error al entrar');alert(error.message);return}
-  cloudUser=data.user;await bajarNube(false);setCloudUI('online','Nube conectada');alert('Sincronización activada en este dispositivo.')
+  cloudUser=data.user;setCloudUI('online','Nube conectada · modo seguro');if(typeof window.scoutV893CloudReadOnly==='function')setTimeout(()=>window.scoutV893CloudReadOnly(),60);alert('Sesión iniciada. La nube no se ha aplicado automáticamente; puedes revisarla desde Caja fuerte.')
 }
 async function cloudLogout(){if(cloudClient)await cloudClient.auth.signOut();cloudUser=null;setCloudUI('', 'Nube desconectada')}
 async function actualizarEstadoCloud(){
@@ -3871,24 +3929,31 @@ function programarSubidaCloud(){
 }
 async function subirNube(manual=false){
   if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
+  setCloudUI('syncing','Protegiendo nube…');
+  if(typeof window.scoutV893CaptureRemoteBeforeUpload==='function'){
+    try{await window.scoutV893CaptureRemoteBeforeUpload()}catch(err){console.warn('V8.9.3 pre-cloud capture',err)}
+  }
   setCloudUI('syncing','Sincronizando…');
   const payload={user_id:cloudUser.id,state:estadoLocal(),updated_at:new Date().toISOString()};
   const {error}=await cloudClient.from('volley_state').upsert(payload,{onConflict:'user_id'});
   if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
   localStorage.setItem('volleyCloudLastSync',payload.updated_at);setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Guardado y sincronizado';
+  if(typeof window.scoutV893CheckpointAll==='function')try{void window.scoutV893CheckpointAll(false,'cloud-upload')}catch(_){}
   if(manual)alert('Datos subidos a la nube.')
 }
 async function bajarNube(manual=false){
   if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
+  if(typeof window.scoutV893CheckpointAll==='function')try{await window.scoutV893CheckpointAll(false,'before-cloud-download',true)}catch(_){}
   setCloudUI('syncing','Descargando…');
   const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
   if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
   if(!data){await subirNube(false);if(manual)alert('La nube estaba vacía. Se han subido los datos de este dispositivo.');return}
+  if(typeof window.scoutV893CaptureCloudState==='function')try{await window.scoutV893CaptureCloudState(data.state,'cloud-download',data.updated_at)}catch(_){}
   aplicarEstadoCloud(data.state);localStorage.setItem('volleyCloudLastSync',data.updated_at||'');setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Datos sincronizados';
   if(manual)alert('Datos descargados de la nube.')
 }
 window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)bajarNube(false)}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)actualizarEstadoCloud()}});
 
 
 // ===== V5.8.9 CLOUD LIBRARY : biblioteca independiente + PDF con porcentajes robustos =====
@@ -5032,7 +5097,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.9.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=8.9.3', {
         updateViaCache: 'none'
       });
 
@@ -12773,6 +12838,111 @@ if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.version=V892_VERSION;
 setTimeout(async()=>{try{const rows=await v892Collect(),n=rows.filter(x=>x.state!=='duplicate').length,box=$('scout-v891-rescue-banner');if(box&&n){box.className='scout-v891-rescue-banner ok';box.innerHTML=`<strong>Se han detectado ${n} ${n===1?'copia recuperable':'copias recuperables'}.</strong><span>Abre el Centro de recuperación para revisarlas antes de restaurar.</span><div class="actions"><button class="primary" onclick="scoutV892OpenRecoveryCenter()">Abrir recuperación</button></div>`}}catch(err){console.warn('V8.9.2 inventory',err)}},450);
 
 
+
+
+
+/* =====================================================================
+   V8.9.3 · SCOUTING SAFE / VERSIONED VAULT + CLOUD READ-ONLY RECOVERY
+   ===================================================================== */
+const V893_VERSION='8.9.3',V893_DB='VolleyCoachScoutingVaultV893',V893_STORE='versions';
+let v893VaultCache=[],v893CloudCandidates=new Map(),v893LastWrite=new Map(),v893CloudLastChecked=null;
+
+function v893Counts(m){const sets=scoutArr(m?.sets),rallies=sets.reduce((n,s)=>n+scoutArr(s?.rallies).length,0),actions=sets.reduce((n,s)=>n+scoutArr(s?.rallies).reduce((x,r)=>x+scoutArr(r?.actions).length,0),0)+scoutArr(m?.liveRally?.actions).length;return{sets:sets.length,rallies,actions}}
+function v893Stamp(m){for(const x of [m?.updatedAt,m?.manualSavedAt,m?.resultCompleteAt,m?.endedAt,m?.createdAt,m?.date]){const t=Date.parse(x||'');if(Number.isFinite(t))return t}return 0}
+function v893Sig(m){const c=v893Counts(m),s=scoutSetsScore(m);return `${m?.id}|${m?.status}|${c.rallies}|${c.actions}|${s.us}-${s.opponent}|${m?.currentSet||''}`}
+function v893ReasonGroup(reason){reason=String(reason||'');if(reason.includes('cloud'))return'cloud';if(reason.includes('delete')||reason.includes('final'))return'critical';if(reason.includes('manual'))return'manual';if(reason.includes('restore'))return'manual';return''}
+function v893ReasonLabel(r){const map={manual:'Manual',autosave:'Automático','before-delete':'Antes de borrar','before-finalize':'Antes de finalizar','after-finalize':'Finalizado','cloud-read':'Nube · lectura','cloud-before-upload':'Nube · antes de subir','cloud-download':'Nube · descarga','cloud-upload':'Tras subida','before-cloud-download':'Antes de descargar nube','restore':'Restauración','recovery-v892':'Recuperación'};return map[r]||String(r||'Checkpoint')}
+function v893OpenDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(V893_DB,1);r.onupgradeneeded=()=>{const db=r.result;if(!db.objectStoreNames.contains(V893_STORE))db.createObjectStore(V893_STORE,{keyPath:'key'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('No se pudo abrir la Caja fuerte'))})}
+async function v893All(){try{const db=await v893OpenDB(),rows=await new Promise((resolve,reject)=>{const tx=db.transaction(V893_STORE,'readonly'),r=tx.objectStore(V893_STORE).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)});db.close();return rows}catch(err){console.warn('V8.9.3 vault read',err);return[]}}
+async function v893Put(row){const db=await v893OpenDB();await new Promise((resolve,reject)=>{const tx=db.transaction(V893_STORE,'readwrite');tx.objectStore(V893_STORE).put(row);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)});db.close();return true}
+async function v893Delete(key){const db=await v893OpenDB();await new Promise((resolve,reject)=>{const tx=db.transaction(V893_STORE,'readwrite');tx.objectStore(V893_STORE).delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close()}
+function v893CloudMirror(teamId,m,reason,createdAt){
+  if(!equiposData?.[teamId]||!m)return;
+  const mirror=equiposData[teamId].scoutingSafeCloud&&typeof equiposData[teamId].scoutingSafeCloud==='object'?equiposData[teamId].scoutingSafeCloud:{};
+  mirror[String(m.id)]={savedAt:createdAt||new Date().toISOString(),reason,match:scoutClone(m)};equiposData[teamId].scoutingSafeCloud=mirror;
+}
+async function v893Prune(teamId,matchId){
+  const all=(await v893All()).filter(x=>String(x.teamId)===String(teamId)&&Number(x.matchId)===Number(matchId)).sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0));
+  if(all.length<=36)return;
+  const protectedReasons=new Set(['manual','before-delete','before-finalize','after-finalize','cloud-read','cloud-before-upload','restore','recovery-v892']);
+  let keep=36;for(const row of all.slice(36)){if(protectedReasons.has(row.reason))continue;if(keep<=36)await v893Delete(row.key);keep++}
+}
+async function v893CheckpointMatch(match,reason='autosave',force=false,teamId=equipoActivo,source='local'){
+  if(!match||!Number(match.id))return false;const m=scoutNormalizeMatch(match),counts=v893Counts(m),now=Date.now(),sig=v893Sig(m),last=v893LastWrite.get(`${teamId}:${m.id}`);
+  const major=counts.rallies>0&&(!last||counts.rallies!==last.rallies)&&counts.rallies%5===0;
+  if(!force&&last&&last.sig===sig)return false;
+  if(!force&&last&&!major&&now-last.at<60000)return false;
+  const createdAt=new Date().toISOString(),key=`${teamId}:${m.id}:${now}:${Math.random().toString(36).slice(2,7)}`;
+  const row={key,version:V893_VERSION,teamId:String(teamId),teamName:EQUIPOS?.[teamId]?.nombre||teamId,matchId:Number(m.id),opponent:m.opponent||'Rival',matchDate:m.date||'',createdAt,reason,source,signature:sig,counts,status:m.status||'',match:scoutClone(m)};
+  await v893Put(row);v893LastWrite.set(`${teamId}:${m.id}`,{sig,at:now,rallies:counts.rallies});
+  if(source==='local')v893CloudMirror(teamId,m,reason,createdAt);
+  void v893Prune(teamId,m.id);return true;
+}
+window.scoutV893CheckpointAll=async function(manual=true,reason='manual',force=true){
+  let saved=0;for(const teamId of Object.keys(EQUIPOS||{})){for(const m of scoutArr(equiposData?.[teamId]?.scoutingMatches)){if(await v893CheckpointMatch(m,reason,force,teamId,'local'))saved++}}
+  if(manual){guardarEstadoLocalSinCloud();alert(`Caja fuerte actualizada: ${saved} ${saved===1?'versión guardada':'versiones guardadas'}.`)}
+  try{await window.scoutV893RenderVault()}catch(_){}return saved;
+};
+
+function v893CurrentState(team,id){const ex=scoutArr(equiposData?.[team]?.scoutingMatches).find(m=>Number(m.id)===Number(id));return ex||null}
+function v893CandidateState(team,m){const ex=v893CurrentState(team,m.id);if(!ex)return'missing';const a=v893Counts(m),b=v893Counts(ex);if(a.actions>b.actions||a.rallies>b.rallies||(a.actions===b.actions&&a.rallies===b.rallies&&v893Stamp(m)>v893Stamp(ex)+1500))return'richer';return'duplicate'}
+async function v893RestoreMatch(teamId,raw,source='vault'){
+  const restored=scoutNormalizeMatch(raw);if(!restored?.id)return false;
+  const current=v893CurrentState(teamId,restored.id);if(current)await v893CheckpointMatch(current,'before-restore',true,teamId,'local');
+  if(!equiposData[teamId])equiposData[teamId]=estadoEquipoVacio(teamId);const list=scoutArr(equiposData[teamId].scoutingMatches).map(scoutNormalizeMatch),idx=list.findIndex(m=>Number(m.id)===Number(restored.id));if(idx>=0)list[idx]=restored;else list.push(restored);equiposData[teamId].scoutingMatches=scoutClone(list);
+  if(teamId===equipoActivo){scoutingMatches=scoutClone(list).map(scoutNormalizeMatch);if(restored.status!=='finished')scoutingActiveId=Number(restored.id)||scoutingActiveId;equiposData[teamId].scoutingActiveId=scoutingActiveId||null;guardarEquipoEnMemoria()}
+  guardarEstadoLocalSinCloud();try{await v892WriteV702(teamId,list,equiposData[teamId].scoutingActiveId||null)}catch(_){}
+  await v893CheckpointMatch(restored,'restore',true,teamId,'local');try{scoutRenderHome();scoutRenderAnalysis();scoutRender()}catch(_){}return true;
+}
+window.scoutV893RestoreVersion=async function(key){const row=(await v893All()).find(x=>x.key===key);if(!row)return alert('La versión ya no está disponible.');if(!confirm(`Restaurar esta versión?\n\n${row.teamName} vs ${row.opponent}\n${row.counts.rallies} rallies · ${row.counts.actions} acciones\n${new Date(row.createdAt).toLocaleString('es-ES')}`))return;await v893RestoreMatch(row.teamId,row.match,'vault');alert('Versión restaurada. La versión anterior también ha quedado protegida.');await window.scoutV893RenderVault()};
+window.scoutV893ExportVersion=async function(key){const row=(await v893All()).find(x=>x.key===key);if(!row)return;const blob=new Blob([JSON.stringify({type:'volley-coach-scout-vault-version',version:V893_VERSION,...row},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename((row.matchDate||'partido')+'_'+row.opponent)}_vault_${row.createdAt.replace(/[:.]/g,'-')}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)};
+window.scoutV893ExportVault=async function(){const rows=await v893All(),blob=new Blob([JSON.stringify({type:'volley-coach-scout-vault',version:V893_VERSION,createdAt:new Date().toISOString(),versions:rows},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`Volley_Coach_Scout_Vault_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)};
+
+window.scoutV893RenderVault=async function(){
+  const list=$('v893-vault-list'),status=$('v893-vault-status');if(!list||!status)return;const team=$('v893-team-filter')?.value||'',reason=$('v893-reason-filter')?.value||'';let rows=await v893All();v893VaultCache=rows;
+  const all=rows,matchKeys=new Set(all.map(x=>`${x.teamId}:${x.matchId}`)),latest=all.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0))[0];
+  $('v893-kpi-versions').textContent=all.length;$('v893-kpi-matches').textContent=matchKeys.size;$('v893-kpi-last').textContent=latest?new Date(latest.createdAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'—';$('v893-kpi-last-copy').textContent=latest?`${latest.teamName} · ${latest.opponent}`:'sin checkpoint';
+  rows=all.filter(x=>(!team||x.teamId===team)&&(!reason||(reason==='cloud'?String(x.reason).includes('cloud'):String(x.reason).includes(reason)))).sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0)).slice(0,120);
+  status.className='v893-safe-status '+(all.length?'ok':'warn');status.innerHTML=all.length?`<b>${all.length} versiones protegidas.</b> Se conservan fuera del estado principal y se limitan automáticamente los autosaves antiguos.`:'<b>Todavía no hay versiones.</b> Pulsa “Crear checkpoint ahora”.';
+  list.innerHTML=rows.length?rows.map(r=>`<article class="v893-version-row ${v893ReasonGroup(r.reason)}"><div class="v893-version-main"><b>${esc(r.teamName)} · ${esc(r.opponent)}</b><small>${esc(r.matchDate||'Sin fecha')} · ${esc(v893ReasonLabel(r.reason))} · ${esc(r.source||'local')}</small></div><div class="v893-version-cell"><span>Contenido</span><b>${r.counts.rallies} rallies · ${r.counts.actions} acc.</b></div><div class="v893-version-cell"><span>Fecha copia</span><b>${new Date(r.createdAt).toLocaleString('es-ES')}</b></div><div class="v893-version-cell"><span>Estado</span><b>${esc(r.status||'—')}</b></div><div><span class="v893-pill">${esc(v893ReasonLabel(r.reason))}</span></div><div><button class="ghost" onclick="scoutV893ExportVersion('${r.key}')">JSON</button> <button class="primary" onclick="scoutV893RestoreVersion('${r.key}')">Restaurar</button></div></article>`).join(''):'<div class="match-empty">No hay versiones con estos filtros.</div>';
+};
+
+function v893ExtractCloud(state){
+  const out=[];for(const teamId of Object.keys(EQUIPOS||{})){const team=state?.equiposData?.[teamId]||{};scoutArr(team.scoutingMatches).forEach(m=>out.push({teamId,source:'cloud-state',match:scoutNormalizeMatch(m)}));const mirror=team.scoutingSafeCloud&&typeof team.scoutingSafeCloud==='object'?team.scoutingSafeCloud:{};Object.values(mirror).forEach(x=>{if(x?.match)out.push({teamId,source:'cloud-safe-mirror',savedAt:x.savedAt,reason:x.reason,match:scoutNormalizeMatch(x.match)})})}return out;
+}
+window.scoutV893CaptureCloudState=async function(state,reason='cloud-read',remoteUpdatedAt=null){let saved=0;for(const item of v893ExtractCloud(state)){if(await v893CheckpointMatch(item.match,reason,true,item.teamId,'cloud'))saved++}return saved};
+window.scoutV893CaptureRemoteBeforeUpload=async function(){
+  if(!cloudClient||!cloudUser)return 0;const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();if(error||!data?.state)return 0;return window.scoutV893CaptureCloudState(data.state,'cloud-before-upload',data.updated_at);
+};
+window.scoutV893CloudReadOnly=async function(){
+  const status=$('v893-cloud-status'),list=$('v893-cloud-list');if(status){status.className='v893-safe-status';status.textContent='Consultando Supabase en modo solo lectura…'}if(list)list.innerHTML='';
+  try{
+    if(!cloudClient)crearCloudClient();if(!cloudClient)throw new Error('Supabase no está configurado en este dispositivo.');const ses=await cloudClient.auth.getSession();cloudUser=ses?.data?.session?.user||cloudUser;if(!cloudUser)throw new Error('Inicia sesión desde el botón Nube y vuelve a comprobar.');
+    const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();if(error)throw error;if(!data?.state)throw new Error('La nube no contiene un estado guardado.');
+    const items=v893ExtractCloud(data.state),dedup=new Map();items.forEach(x=>{const key=`${x.teamId}:${x.match.id}`;const prev=dedup.get(key);if(!prev||v893Counts(x.match).actions>v893Counts(prev.match).actions||v893Stamp(x.match)>v893Stamp(prev.match))dedup.set(key,x)});v893CloudCandidates=dedup;v893CloudLastChecked=data.updated_at||new Date().toISOString();
+    await window.scoutV893CaptureCloudState(data.state,'cloud-read',data.updated_at);
+    const rows=[...dedup.values()].sort((a,b)=>v893Stamp(b.match)-v893Stamp(a.match));$('v893-kpi-cloud').textContent=rows.length;$('v893-kpi-cloud-copy').textContent=data.updated_at?`actualizada ${new Date(data.updated_at).toLocaleString('es-ES')}`:'copia encontrada';
+    if(status){status.className='v893-safe-status ok';status.innerHTML=`<b>${rows.length} scoutings encontrados en Supabase.</b> La consulta ha sido solo lectura. Además se ha conservado una copia local en la Caja fuerte antes de cualquier posible subida.`}
+    if(list)list.innerHTML=rows.length?rows.map(x=>{const c=v893Counts(x.match),state=v893CandidateState(x.teamId,x.match),label=state==='missing'?'FALTANTE':state==='richer'?'MÁS COMPLETA':'YA LOCAL';return `<article class="v893-version-row cloud"><div class="v893-version-main"><b>${esc(EQUIPOS?.[x.teamId]?.nombre||x.teamId)} · ${esc(x.match.opponent||'Rival')}</b><small>${esc(x.match.date||'Sin fecha')} · ${esc(x.source)}</small></div><div class="v893-version-cell"><span>Contenido nube</span><b>${c.rallies} rallies · ${c.actions} acc.</b></div><div class="v893-version-cell"><span>Actualizado</span><b>${x.match.updatedAt?new Date(x.match.updatedAt).toLocaleString('es-ES'):'—'}</b></div><div class="v893-version-cell"><span>Estado local</span><b>${label}</b></div><div><span class="v893-pill ${state}">${label}</span></div><button class="${state==='duplicate'?'ghost':'primary'}" ${state==='duplicate'?'disabled':''} onclick="scoutV893RestoreCloud('${x.teamId}',${Number(x.match.id)})">Restaurar local</button></article>`}).join(''):'<div class="match-empty">La nube no contiene scoutings.</div>';
+    await window.scoutV893RenderVault();return rows;
+  }catch(err){if(status){status.className='v893-safe-status warn';status.innerHTML=`<b>No se pudo consultar la nube.</b> ${esc(err?.message||String(err))}`}$('v893-kpi-cloud').textContent='—';$('v893-kpi-cloud-copy').textContent='sin acceso';return[]}
+};
+window.scoutV893RestoreCloud=async function(teamId,id){const item=v893CloudCandidates.get(`${teamId}:${Number(id)}`);if(!item)return alert('Esa copia de nube ya no está cargada. Pulsa Comprobar nube.');const c=v893Counts(item.match);if(!confirm(`Restaurar SOLO este scouting desde nube?\n\n${item.match.opponent||'Rival'} · ${c.rallies} rallies · ${c.actions} acciones\n\nLa nube no se modificará.`))return;await v893RestoreMatch(teamId,item.match,'cloud-read');alert('Scouting restaurado localmente. Supabase no se ha modificado.');await window.scoutV893CloudReadOnly()};
+window.scoutV893OpenRecoveryCenter=function(){if(typeof window.scoutV892OpenRecoveryCenter==='function')window.scoutV892OpenRecoveryCenter()};
+
+/* Hook final save layer: current state remains in V7.0.2, while this vault keeps history. */
+const v893SaveBase=scoutSave;
+scoutSave=function(render=true){const out=v893SaveBase(render);try{const m=scoutActive();if(m)void v893CheckpointMatch(m,'autosave',false,equipoActivo,'local')}catch(_){}return out};
+
+/* Important lifecycle checkpoints. */
+if(typeof window.scoutDeleteSaved==='function'){const base=window.scoutDeleteSaved;window.scoutDeleteSaved=async function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(m)await v893CheckpointMatch(m,'before-delete',true,equipoActivo,'local');return base.apply(this,arguments)}}
+if(typeof window.scoutV6102FinalizeAndExit==='function'){const base=window.scoutV6102FinalizeAndExit;window.scoutV6102FinalizeAndExit=async function(){const m=scoutActive();if(m)await v893CheckpointMatch(m,'before-finalize',true,equipoActivo,'local');const out=await base.apply(this,arguments);if(m)await v893CheckpointMatch(m,'after-finalize',true,equipoActivo,'local');return out}}
+
+window.scoutV893Diagnostics=async function(){const rows=await v893All();return{version:V893_VERSION,versions:rows.length,matches:new Set(rows.map(x=>`${x.teamId}:${x.matchId}`)).size,last:rows.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0))[0]||null,cloudLastChecked:v893CloudLastChecked}};
+if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=V893_VERSION;window.VC_SCOUT_CORE.vault={checkpoint:window.scoutV893CheckpointAll,render:window.scoutV893RenderVault,cloudRead:window.scoutV893CloudReadOnly}}
+setTimeout(()=>{try{void window.scoutV893CheckpointAll(false,'manual-startup-baseline',true)}catch(_){ }},900);
+
+
 })();
 </script>
 
@@ -12782,13 +12952,13 @@ setTimeout(async()=>{try{const rows=await v892Collect(),n=rows.filter(x=>x.state
 <script id="v610-workspace-script">
 (()=>{
 'use strict';
-const SCOUT_VIEWS=new Set(['scout-dashboard','scout-match-mode','scouting','competicion','scout-video-hub','scout-season','scout-postmatch','scout-analysis','scout-plan','scout-matchup']);
+const SCOUT_VIEWS=new Set(['scout-dashboard','scout-match-mode','scouting','competicion','scout-video-hub','scout-season','scout-postmatch','scout-analysis','scout-safe','scout-plan','scout-matchup']);
 let currentWorkspace=localStorage.getItem('volley_workspace_v610')==='scouting'?'scouting':'training';
 function applyWorkspace(mode){currentWorkspace=mode==='scouting'?'scouting':'training';localStorage.setItem('volley_workspace_v610',currentWorkspace);document.getElementById('training-nav')?.classList.toggle('hidden',currentWorkspace!=='training');document.getElementById('scouting-nav')?.classList.toggle('hidden',currentWorkspace!=='scouting');document.getElementById('workspace-training-btn')?.classList.toggle('active',currentWorkspace==='training');document.getElementById('workspace-scouting-btn')?.classList.toggle('active',currentWorkspace==='scouting');document.body.classList.toggle('workspace-scouting',currentWorkspace==='scouting')}
 window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scouting',botonVista('scouting'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
-window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-match-mode'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
+window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-match-mode','scout-safe'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-safe'&&typeof window.scoutV893RenderVault==='function')window.scoutV893RenderVault();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
 /* Restaurar el área sin forzar una vista distinta en la carga inicial */
 applyWorkspace(currentWorkspace);
 if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scouting':'scout-dashboard';showView(target,botonVista(target))},0)}
@@ -19487,6 +19657,7 @@ function openKnownDB(name){
       if(name==='VolleyCoachScoutingV702'&&!db.objectStoreNames.contains('scoutingByTeam'))db.createObjectStore('scoutingByTeam',{keyPath:'teamId'});
       if(name==='volley-coach-match-recovery-v680'&&!db.objectStoreNames.contains('snapshots'))db.createObjectStore('snapshots',{keyPath:'key'});
       if(name==='VolleyCoachRecordingsV770'&&!db.objectStoreNames.contains('sessions'))db.createObjectStore('sessions',{keyPath:'id'});
+      if(name==='VolleyCoachScoutingVaultV893'&&!db.objectStoreNames.contains('versions'))db.createObjectStore('versions',{keyPath:'key'});
     };
     req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error(`No se pudo abrir ${name}`));
   });
@@ -19513,6 +19684,7 @@ async function buildBackup(){
   const scouting=await readStore('VolleyCoachScoutingV702','scoutingByTeam');
   const recovery=await readStore('volley-coach-match-recovery-v680','snapshots');
   const recordings=await readStore('VolleyCoachRecordingsV770','sessions');
+  const vault=await readStore('VolleyCoachScoutingVaultV893','versions');
   return {
     type:'volley-coach-backup',version:VERSION,createdAt:new Date().toISOString(),
     teamId:teamId(),teamName:teamName(),
@@ -19520,13 +19692,15 @@ async function buildBackup(){
       localStorage:'Datos de Volley Coach, preferencias y estado de equipos',
       scoutingIndexedDB:'Copias independientes de scoutings',
       recoveryIndexedDB:'Snapshots de recuperación de partido',
-      recordingMetadata:'Metadatos de Recording Studio, sin archivos de vídeo ni chunks'
+      recordingMetadata:'Metadatos de Recording Studio, sin archivos de vídeo ni chunks',
+      scoutingVault:'Historial versionado de la Caja fuerte de scoutings V8.9.3'
     },
     localStorage:storage,
     indexedDB:{
       VolleyCoachScoutingV702:{scoutingByTeam:scouting},
       'volley-coach-match-recovery-v680':{snapshots:recovery},
-      VolleyCoachRecordingsV770:{sessions:recordings}
+      VolleyCoachRecordingsV770:{sessions:recordings},
+      VolleyCoachScoutingVaultV893:{versions:vault}
     }
   };
 }
@@ -19547,7 +19721,7 @@ window.v790ExportBackup=async function(){
 window.v790InspectBackup=function(){
   document.getElementById('v790-backup-modal')?.remove();
   const modal=document.createElement('div');modal.id='v790-backup-modal';modal.className='v790-backup-modal';
-  modal.innerHTML=`<div class="v790-backup-card"><span class="pro-kicker">COPIA DE SEGURIDAD</span><h3>Qué incluye</h3><p>La copia está diseñada para reconstruir los datos de Volley Coach sin guardar credenciales de nube ni tokens de sesión.</p><ul><li>Equipos, jugadores, biblioteca, planificación, historial y entrenamientos.</li><li>Partidos, scoutings, rallies, acciones, estadísticas, clips y enlaces/referencias de vídeo.</li><li>Preferencias propias de Volley Coach.</li><li>Snapshots de recuperación y copia independiente de scouting de IndexedDB.</li><li>Metadatos de Recording Studio.</li></ul><p><b>No incluye los archivos de vídeo ni los chunks de grabaciones.</b> Esos archivos deben conservarse aparte porque pueden ocupar varios GB.</p><div class="actions"><button class="ghost" id="v790-backup-close">Cerrar</button><button class="primary" id="v790-backup-now">Exportar copia</button></div></div>`;
+  modal.innerHTML=`<div class="v790-backup-card"><span class="pro-kicker">COPIA DE SEGURIDAD</span><h3>Qué incluye</h3><p>La copia está diseñada para reconstruir los datos de Volley Coach sin guardar credenciales de nube ni tokens de sesión.</p><ul><li>Equipos, jugadores, biblioteca, planificación, historial y entrenamientos.</li><li>Partidos, scoutings, rallies, acciones, estadísticas, clips y enlaces/referencias de vídeo.</li><li>Preferencias propias de Volley Coach.</li><li>Snapshots de recuperación, copia independiente de scouting y Caja fuerte versionada V8.9.3.</li><li>Metadatos de Recording Studio.</li></ul><p><b>No incluye los archivos de vídeo ni los chunks de grabaciones.</b> Esos archivos deben conservarse aparte porque pueden ocupar varios GB.</p><div class="actions"><button class="ghost" id="v790-backup-close">Cerrar</button><button class="primary" id="v790-backup-now">Exportar copia</button></div></div>`;
   document.body.appendChild(modal);modal.onclick=e=>{if(e.target===modal)modal.remove()};$('v790-backup-close').onclick=()=>modal.remove();$('v790-backup-now').onclick=()=>{modal.remove();v790ExportBackup()};
 };
 function validateBackup(x){
@@ -19570,6 +19744,7 @@ window.v790RestoreBackup=async function(ev){
     await writeStore('VolleyCoachScoutingV702','scoutingByTeam',db.VolleyCoachScoutingV702?.scoutingByTeam||[]);
     await writeStore('volley-coach-match-recovery-v680','snapshots',db['volley-coach-match-recovery-v680']?.snapshots||[]);
     await writeStore('VolleyCoachRecordingsV770','sessions',db.VolleyCoachRecordingsV770?.sessions||[]);
+    await writeStore('VolleyCoachScoutingVaultV893','versions',db.VolleyCoachScoutingVaultV893?.versions||[]);
 
     alert('Copia restaurada. Volley Coach se recargará ahora.');
     location.reload();
@@ -21661,6 +21836,18 @@ document.addEventListener('keydown',e=>{
 .scout-v892-badge{display:inline-flex;border-radius:999px;padding:4px 7px;font-size:7px;font-weight:950}.scout-v892-badge.missing{background:#eaf5ee;color:#2f694b}.scout-v892-badge.richer{background:#fff2da;color:#7b5b22}.scout-v892-badge.duplicate{background:#eef2f4;color:#6b7b86}
 .scout-v892-row button{font-size:7.5px!important;padding:6px 8px!important}.scout-v892-note{margin-top:10px;padding:9px 10px;border:1px solid #e8d6ad;border-radius:8px;background:#fff9ed;color:#6d5a31;font-size:8.5px;line-height:1.5}
 @media(max-width:760px){.scout-v892-row{grid-template-columns:1fr 1fr}.scout-v892-main{grid-column:1/-1}.scout-v892-row>button{grid-column:1/-1}}
+</style>
+
+
+
+<style id="v893-scout-safe-style">
+.v893-safe-shell{display:grid;gap:11px}.v893-safe-hero{display:flex;justify-content:space-between;gap:15px;align-items:flex-end;background:linear-gradient(135deg,#071a2e,#153f5d);border-radius:14px;padding:15px 17px;color:#fff}.v893-safe-hero h2{color:#fff!important;margin:2px 0 4px!important}.v893-safe-hero p{margin:0;color:#b9cad6;font-size:8.5px}.v893-safe-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.v893-safe-actions .ghost{color:#fff!important;background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.16)!important}.v893-safe-actions button{font-size:7.5px!important;padding:6px 8px!important}
+.v893-safe-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.v893-safe-kpis>div{border:1px solid #dfe6ea;border-radius:10px;background:#fff;padding:10px}.v893-safe-kpis span{display:block;font-size:7px;font-weight:900;text-transform:uppercase;color:#81909a}.v893-safe-kpis b{display:block;font-size:18px;color:#17324d;margin:2px 0}.v893-safe-kpis small{font-size:7.5px;color:#84919a}
+.v893-safe-panel{border:1px solid #dfe5e9;border-radius:12px;background:#fff;padding:12px}.v893-safe-panel.compact{padding-bottom:13px}.v893-safe-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:9px}.v893-safe-head h3{margin:1px 0 2px!important;font-size:12px!important;color:#17324d!important}.v893-safe-head p{margin:0;font-size:8px;color:#788893;line-height:1.4}.v893-safe-tools{display:flex;gap:5px;flex-wrap:wrap}.v893-safe-tools select,.v893-safe-tools button{font-size:8px!important;min-height:30px}
+.v893-safe-status{padding:8px 10px;border:1px solid #dde5e9;border-radius:8px;background:#f8fafb;color:#607482;font-size:8.5px;line-height:1.45}.v893-safe-status.ok{background:#edf7f1;border-color:#c7ddcf;color:#315e47}.v893-safe-status.warn{background:#fff7e8;border-color:#ead09a;color:#765b25}.v893-version-list{display:grid;gap:6px;margin-top:8px}.v893-version-row{display:grid;grid-template-columns:minmax(180px,1.4fr) 130px 120px 105px 95px auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid #e2e7ea;border-radius:9px;background:#fff}.v893-version-row.cloud{border-left:4px solid #5d7da4}.v893-version-row.critical{border-left:4px solid #c38d2e}.v893-version-row.manual{border-left:4px solid #39765a}.v893-version-main b{display:block;font-size:9.5px;color:#17324d}.v893-version-main small{display:block;font-size:7.3px;color:#7d8b95;margin-top:2px}.v893-version-cell span{display:block;font-size:6.2px;text-transform:uppercase;font-weight:900;color:#8a979f}.v893-version-cell b{display:block;font-size:8.5px;color:#496070;margin-top:2px}.v893-version-row button{font-size:7px!important;padding:6px 7px!important}.v893-pill{display:inline-flex;border-radius:999px;padding:4px 6px;background:#eef3f6;font-size:6.7px;font-weight:900;color:#607482}.v893-pill.missing{background:#eaf5ee;color:#306a4b}.v893-pill.richer{background:#fff1d8;color:#79591f}
+.v893-security-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.v893-security-grid article{border:1px solid #e3e8eb;border-radius:9px;background:#fafbfc;padding:9px}.v893-security-grid b{display:block;font-size:8.5px;color:#17324d}.v893-security-grid span{display:block;font-size:7.5px;color:#788893;line-height:1.4;margin-top:3px}
+@media(max-width:900px){.v893-safe-hero{align-items:flex-start;flex-direction:column}.v893-safe-kpis{grid-template-columns:1fr 1fr}.v893-version-row{grid-template-columns:1fr 1fr}.v893-version-main{grid-column:1/-1}.v893-version-row>button{grid-column:1/-1}.v893-security-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.v893-safe-kpis,.v893-security-grid{grid-template-columns:1fr}.v893-safe-head{align-items:flex-start;flex-direction:column}}
 </style>
 
 </body></html>
