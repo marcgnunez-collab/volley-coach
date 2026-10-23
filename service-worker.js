@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v8.5.4-match-mode-legibility-v1';
+const CACHE_NAME = 'volley-coach-v8.5.5-stable-match-core-v1';
 
 const APP_SHELL = [
   './',
