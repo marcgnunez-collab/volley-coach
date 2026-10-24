@@ -850,7 +850,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" data-view="historial" onclick="showView('historial',this)">Historial</button>
       <button class="tab-btn" data-view="estadisticas" onclick="showView('estadisticas',this)">Estadísticas</button>
     </div>
-    <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden v910-scout-nav">
+    <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden v910-scout-nav v930-internal-nav">
       <button class="tab-btn v910-primary-tab" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
       <button class="tab-btn v910-primary-tab" data-view="scout-match-mode" onclick="showView('scout-match-mode',this)">Modo partido</button>
       <button class="tab-btn v910-primary-tab" data-view="scout-workspace-v900" onclick="showView('scout-workspace-v900',this)">Scouting Pro</button>
@@ -863,6 +863,28 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" data-view="scout-safe" onclick="showView('scout-safe',this)">Seguridad</button>
       <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
       <button class="tab-btn v910-fallback-tab" data-view="scouting" onclick="showView('scouting',this)">Clásico</button>
+    </div>
+
+    <div id="v930-unified-nav" class="v930-unified-nav hidden" aria-label="Scouting Pro">
+      <div class="v930-nav-primary">
+        <button data-v930-route="partido" onclick="v930Open('partido')"><b>Partido</b><span>marcador + pista</span></button>
+        <button data-v930-route="directo" onclick="v930Open('directo')"><b>Directo</b><span>registro visual</span></button>
+        <button data-v930-route="codigo" onclick="v930Open('codigo')"><b>Código</b><span>entrada rápida</span></button>
+        <button data-v930-route="video" onclick="v930Open('video')"><b>Vídeo</b><span>REC + cámara</span></button>
+        <button data-v930-route="revisar" onclick="v930Open('revisar')"><b>Revisar</b><span>rallies + edición</span></button>
+        <button data-v930-route="analisis" onclick="v930Open('analisis')"><b>Análisis</b><span>exhaustivo</span></button>
+        <button data-v930-route="seguridad" onclick="v930Open('seguridad')"><b>Seguridad</b><span>copias + nube</span></button>
+      </div>
+      <div class="v930-nav-secondary">
+        <button data-v930-route="preparar" onclick="v930Open('preparar')">Preparar</button>
+        <button data-v930-route="videoteca" onclick="v930Open('videoteca')">Vídeo análisis</button>
+        <button data-v930-route="plan" onclick="v930Open('plan')">Plan</button>
+        <button data-v930-route="matchup" onclick="v930Open('matchup')">Match-up</button>
+        <button data-v930-route="post" onclick="v930Open('post')">Postpartido</button>
+        <button data-v930-route="partidos" onclick="v930Open('partidos')">Partidos</button>
+        <button data-v930-route="temporada" onclick="v930Open('temporada')">Temporada</button>
+        <button class="compat" data-v930-route="clasico" onclick="v930Open('clasico')">Clásico</button>
+      </div>
     </div>
   </div>
   <div class="team-switcher compact-team-switcher" id="team-switcher">
@@ -1720,13 +1742,13 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div id="v800-shell" class="v800-shell">
     <div class="v800-top">
       <div class="v800-match-title">
-        <span class="pro-kicker">V9.1 · MODO PARTIDO · MOTOR OPTIMIZADO</span>
+        <span class="pro-kicker">V9.3 · PARTIDO · MOTOR COMPARTIDO</span>
         <h2 id="v800-title">Sin partido activo</h2>
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
       <div class="v800-top-actions">
         <label class="v800-match-picker"><span>Scouting</span><select id="v800-match-select" onchange="v800SelectMatch(this.value)"><option value="">Sin scouting</option></select></label>
-        <button class="ghost" onclick="showView('scout-workspace-v900',botonVista('scout-workspace-v900'))">Scouting Pro</button>
+        
         <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
         <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
@@ -1954,15 +1976,12 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="v900-shell">
     <div class="v900-topbar">
       <div class="v900-brand">
-        <span class="pro-kicker">VOLLEY COACH V9.0 · SCOUTING WORKSPACE</span>
+        <span class="pro-kicker">VOLLEY COACH V9.3 · UNIFIED SCOUTING</span>
         <h2 id="v900-match-title">Scouting profesional</h2>
-        <p id="v900-match-meta">Preparar → Scoutar → Revisar → Analizar</p>
+        <p id="v900-match-meta">Partido → Directo → Revisar → Analizar</p>
       </div>
       <div class="v900-top-actions">
-        <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Clásico</button>
-        <button class="ghost" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">Modo partido</button>
-        <button class="ghost" onclick="scoutV700OpenVideo('live')">Vídeo</button>
-        <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Caja fuerte</button>
+        <button class="ghost" onclick="v930Open('partidos')">Partidos guardados</button>
         <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
       </div>
     </div>
@@ -2137,7 +2156,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <section id="v900-phase-review" class="v900-phase-panel hidden">
         <div class="v900-review-grid">
           <article class="v900-card wide">
-            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="v901OpenRallyEditor()">Editar rallies y códigos</button><button class="ghost" onclick="scoutUndoRally()">Deshacer último rally</button></div></div>
+            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="primary" onclick="v901OpenRallyEditor()">Editar rallies y códigos</button><button class="ghost" onclick="scoutUndoRally()">Deshacer último rally</button></div></div>
             <div id="v900-review-rallies" class="v900-review-rallies"></div>
           </article>
           <article class="v900-card">
@@ -5338,7 +5357,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.1.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.3.0', {
         updateViaCache: 'none'
       });
 
@@ -7935,7 +7954,7 @@ function scoutOpponentLabel(v,pos=''){return String(v||'').trim()||`Rival ${pos.
    - Action-only change: lightweight UI render, no full app serialization.
    - Full state commit: after idle, and immediately on points/set/status changes.
    - Exhaustive analysis is NOT simplified; it remains on analysis/PDF paths. */
-const V902_JOURNAL_DB='VolleyCoachScoutJournalV902',V902_JOURNAL_STORE='liveMatches';
+const V902_JOURNAL_DB='VolleyCoachScoutJournalV902',V902_JOURNAL_STORE='liveMatches',V920_JOURNAL_LIVE_STORE='liveRallies';
 let v902CommitTimer=null,v902CommitBusy=false,v902CommitQueued=false,v902LastMutation=null,v902LastFullAt=0,v902RenderFrame=0;
 
 function v902MutationState(m){
@@ -7968,51 +7987,105 @@ function v902IsCritical(prev,next){
 function v902OpenJournal(){
   return new Promise((resolve,reject)=>{
     if(!('indexedDB'in window)){reject(new Error('IndexedDB no disponible'));return}
-    const req=indexedDB.open(V902_JOURNAL_DB,1);
-    req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(V902_JOURNAL_STORE))db.createObjectStore(V902_JOURNAL_STORE,{keyPath:'key'})};
+    const req=indexedDB.open(V902_JOURNAL_DB,2);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(V902_JOURNAL_STORE))db.createObjectStore(V902_JOURNAL_STORE,{keyPath:'key'});
+      if(!db.objectStoreNames.contains(V920_JOURNAL_LIVE_STORE))db.createObjectStore(V920_JOURNAL_LIVE_STORE,{keyPath:'key'});
+    };
     req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('No se pudo abrir journal'));
   });
 }
 async function v902JournalWrite(m,reason='change'){
   if(!m||!Number(m.id))return false;
+  const key=`${equipoActivo}:${Number(m.id)}`,savedAt=new Date().toISOString();
   try{
-    const db=await v902OpenJournal(),row={
-      key:`${equipoActivo}:${Number(m.id)}`,version:'9.0.2',teamId:String(equipoActivo),
-      matchId:Number(m.id),savedAt:new Date().toISOString(),reason,match:scoutClone(m)
-    };
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction(V902_JOURNAL_STORE,'readwrite');tx.objectStore(V902_JOURNAL_STORE).put(row);
-      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
-    });
+    const db=await v902OpenJournal();
+    if(reason==='action'){
+      /* V9.2: action-only journal stores the live rally, not the whole match. */
+      const row={
+        key,version:'9.2.0',teamId:String(equipoActivo),matchId:Number(m.id),savedAt,reason:'action-delta',
+        currentSet:Number(m.currentSet)||1,status:String(m.status||'live'),
+        liveRally:scoutClone(m.liveRally||{actions:[]})
+      };
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(V920_JOURNAL_LIVE_STORE,'readwrite');
+        tx.objectStore(V920_JOURNAL_LIVE_STORE).put(row);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+      });
+    }else{
+      const row={
+        key,version:'9.2.0',teamId:String(equipoActivo),matchId:Number(m.id),savedAt,reason,
+        match:scoutClone(m)
+      };
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction([V902_JOURNAL_STORE,V920_JOURNAL_LIVE_STORE],'readwrite');
+        tx.objectStore(V902_JOURNAL_STORE).put(row);
+        /* Critical snapshot already contains the latest live state. */
+        tx.objectStore(V920_JOURNAL_LIVE_STORE).delete(key);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+      });
+    }
     db.close();return true;
-  }catch(err){console.warn('V9.0.2 journal',err);return false}
+  }catch(err){console.warn('V9.2 journal',err);return false}
 }
 window.scoutV902JournalReadAll=async function(){
   try{
     const db=await v902OpenJournal();
-    const rows=await new Promise((resolve,reject)=>{
-      const tx=db.transaction(V902_JOURNAL_STORE,'readonly'),req=tx.objectStore(V902_JOURNAL_STORE).getAll();
-      req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
+    const [fullRows,liveRows]=await Promise.all([
+      new Promise((resolve,reject)=>{
+        const tx=db.transaction(V902_JOURNAL_STORE,'readonly'),req=tx.objectStore(V902_JOURNAL_STORE).getAll();
+        req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
+      }),
+      new Promise((resolve,reject)=>{
+        const tx=db.transaction(V920_JOURNAL_LIVE_STORE,'readonly'),req=tx.objectStore(V920_JOURNAL_LIVE_STORE).getAll();
+        req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
+      })
+    ]);
+    db.close();
+    const byKey=new Map(fullRows.map(r=>[r.key,r]));
+    liveRows.forEach(delta=>{
+      const base=byKey.get(delta.key);
+      if(!base?.match)return;
+      const match=scoutClone(base.match);
+      match.currentSet=Number(delta.currentSet)||Number(match.currentSet)||1;
+      match.status=delta.status||match.status;
+      match.liveRally=scoutClone(delta.liveRally||match.liveRally||{actions:[]});
+      match.updatedAt=delta.savedAt||match.updatedAt;
+      byKey.set(delta.key,{...base,version:'9.2.0',savedAt:delta.savedAt||base.savedAt,reason:'action-delta',match});
     });
-    db.close();return rows;
+    return [...byKey.values()];
   }catch(_){return[]}
 };
 function v902FastRender(m){
   if(!m)return;
-  try{scoutRenderCurrentActions(m)}catch(_){}
-  try{
-    const s=scoutSet(m);
-    if($('scout-kpi-actions'))$('scout-kpi-actions').textContent=scoutActionCount(m);
-    if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
-    if($('scout-save-badge'))$('scout-save-badge').textContent='Guardado rápido · consolidando…';
-  }catch(_){}
-  if($('scout-workspace-v900')?.classList.contains('active'))try{window.v900RenderFast?.()}catch(_){}
+  if(window.VC_SCOUT_RENDER_V92?.requestFast){
+    window.VC_SCOUT_RENDER_V92.requestFast('action-save');
+    return;
+  }
+  const classic=$('scouting')?.classList.contains('active'),
+    workspace=$('scout-workspace-v900')?.classList.contains('active'),
+    matchMode=$('scout-match-mode')?.classList.contains('active');
+  if(classic){
+    try{scoutRenderCurrentActions(m)}catch(_){}
+    try{
+      const s=scoutSet(m);
+      if($('scout-kpi-actions'))$('scout-kpi-actions').textContent=scoutActionCount(m);
+      if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
+      if($('scout-save-badge'))$('scout-save-badge').textContent='Guardado rápido · consolidando…';
+    }catch(_){}
+  }else if(matchMode){
+    try{window.v910MatchModeFastRender?.()}catch(_){}
+  }else if(workspace){
+    try{window.v900RenderFast?.()}catch(_){}
+  }
 }
 function v902RequestFullRender(){
+  if(window.VC_SCOUT_RENDER_V92?.request){window.VC_SCOUT_RENDER_V92.request('critical-save');return}
   if(v902RenderFrame)return;
   v902RenderFrame=requestAnimationFrame(()=>{
     v902RenderFrame=0;
-    try{scoutRender()}catch(err){console.warn('V9.0.2 full render',err)}
+    try{scoutRender()}catch(err){console.warn('V9.2 full render',err)}
   });
 }
 async function v902FullCommit(reason='idle',withCloud=true){
@@ -8047,7 +8120,7 @@ window.scoutV902PerformanceDiagnostics=()=>({
 
 function scoutSave(render=true){
   const m=scoutActive();
-  if(m){m.updatedAt=scoutNow();m.dataVersion='9.0.2'}
+  if(m){m.updatedAt=scoutNow();m.dataVersion='9.2.0'}
   const next=v902MutationState(m),prev=v902LastMutation,actionOnly=v902IsActionOnly(prev,next),critical=v902IsCritical(prev,next);
   v902LastMutation=next;
 
@@ -13331,6 +13404,26 @@ if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=V893_VERSION;window.VC_SCO
 setTimeout(()=>{try{void window.scoutV893CheckpointAll(false,'manual-startup-baseline',true)}catch(_){ }},900);
 
 
+
+/* V9.2 · minimal preparation bridge used by the fused render router. */
+window.VC_SCOUT_FAST_BRIDGE_V92={
+  getActive:()=>scoutActive(),
+  prepare:()=>{
+    const m=scoutActive();
+    if(m){
+      try{vcEnsureProMatch(m)}catch(_){}
+      try{vcApplyAutoLibero(m,false)}catch(_){}
+    }
+    return m;
+  },
+  renderClassicCurrent:()=>{
+    const m=scoutActive();
+    if(!m)return null;
+    try{scoutRenderCurrentActions(m)}catch(_){}
+    return m;
+  }
+};
+
 })();
 </script>
 
@@ -13346,7 +13439,7 @@ function applyWorkspace(mode){currentWorkspace=mode==='scouting'?'scouting':'tra
 window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scout-workspace-v900',botonVista('scout-workspace-v900'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
-window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-workspace-v900','scout-match-mode','scout-safe'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-safe'&&typeof window.scoutV893RenderVault==='function')window.scoutV893RenderVault();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();return out};
+window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-workspace-v900','scout-match-mode','scout-safe'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(window.VC_V930_UNIFIED?.afterView){window.VC_V930_UNIFIED.afterView(id)}else{if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-safe'&&typeof window.scoutV893RenderVault==='function')window.scoutV893RenderVault();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render()}return out};
 /* Restaurar el área sin forzar una vista distinta en la carga inicial */
 applyWorkspace(currentWorkspace);
 if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scout-workspace-v900':'scout-dashboard';showView(target,botonVista(target))},0)}
@@ -20918,7 +21011,7 @@ window.v800AddCode=function(){
   const value=String($('v800-code')?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!value)return;
   const target=$('scout-code-input');if(!target){alert('No encuentro la consola de códigos del scouting.');return}
   target.value=value;
-  try{window.scoutAddCode?.();stampLatestAction();$('v800-code').value='';v910FastMutation()}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
+  try{window.scoutAddCode?.();stampLatestAction();$('v800-code').value='';window.VC_SCOUT_RENDER_V92?.requestFast?.('match-code')}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
 };
 window.v800Preset=function(suffix){
   const n=String($('v800-code-number')?.value||'').trim();
@@ -20972,8 +21065,13 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
     const out=base.apply(this,args);
     Promise.resolve(out).finally(()=>{
       if(!$('scout-match-mode')?.classList.contains('active'))return;
-      if(name==='scoutAddCode'||name==='scoutAddManualAction')setTimeout(v910FastMutation,0);
-      else{v910InvalidateMatchCaches();setTimeout(render,0)}
+      if(name==='scoutAddCode'||name==='scoutAddManualAction'){
+        window.VC_SCOUT_RENDER_V92?.requestFast?.('match-action');
+      }else{
+        v910InvalidateMatchCaches();
+        if(window.VC_SCOUT_RENDER_V92?.request)window.VC_SCOUT_RENDER_V92.request('match-structural');
+        else setTimeout(render,0);
+      }
     });
     return out
   };
@@ -22655,7 +22753,7 @@ function renderStatus(m){
 let v900LastSafetyAt=0;
 function render(){
   const view=$('scout-workspace-v900');if(!view)return;const m=active(),none=$('v900-no-match'),live=$('v900-live');
-  if(!m){none?.classList.remove('hidden');live?.classList.add('hidden');safeText('v900-match-title','Scouting profesional');safeText('v900-match-meta','Preparar → Scoutar → Revisar → Analizar');return}
+  if(!m){none?.classList.remove('hidden');live?.classList.add('hidden');safeText('v900-match-title','Scouting profesional');safeText('v900-match-meta','Partido → Directo → Revisar → Analizar');return}
   none?.classList.add('hidden');live?.classList.remove('hidden');ensurePlayer();renderStatus(m);
 
   /* V9.0.2: render only the active workspace phase.
@@ -23116,7 +23214,7 @@ if(typeof showBase==='function'){
   window.showView=function(id,btn){
     if(id==='scout-analysis'||id==='scout-safe')try{void flush()}catch(_){}
     const out=showBase.apply(this,arguments);
-    if(id==='scout-analysis')setTimeout(()=>{try{window.scoutRenderAnalysis?.()}catch(_){}},0);
+    if(id==='scout-analysis'&&!window.VC_V930_UNIFIED)setTimeout(()=>{try{window.VC_SCOUT_RENDER_V92?.request?.('open-analysis')||window.scoutRenderAnalysis?.()}catch(_){}},0);
     return out;
   };
 }
@@ -23254,6 +23352,558 @@ window.VC_V910_CORE={
   })
 };
 updateSurface();
+})();
+</script>
+
+
+
+<script id="v920-fused-render-router">
+(()=>{
+'use strict';
+const VERSION='9.2.0';
+const legacyRender=window.scoutRender;
+const homeRender=window.scoutRenderHome;
+const analysisRender=window.scoutRenderAnalysis;
+const matchRender=window.v800Render;
+const workspaceRender=window.v900Render;
+
+let frame=0,fastFrame=0,rendering=false,lastSurface='',lastDuration=0,lastReason='',renderCount=0,fastCount=0;
+const queuedReasons=new Set();
+
+function activeSurface(){
+  const ids=['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-dashboard','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'];
+  return ids.find(id=>document.getElementById(id)?.classList.contains('active'))||'';
+}
+function prepare(){
+  try{return window.VC_SCOUT_FAST_BRIDGE_V92?.prepare?.()||window.VC_SCOUT_CORE?.getActive?.()||null}
+  catch(_){return window.VC_SCOUT_CORE?.getActive?.()||null}
+}
+function renderNow(reason='manual'){
+  if(rendering)return;
+  rendering=true;
+  const t0=performance.now(),s=activeSurface();
+  lastSurface=s;lastReason=reason;renderCount++;
+  try{
+    prepare();
+    if(s==='scout-match-mode'){
+      matchRender?.();
+    }else if(s==='scout-workspace-v900'){
+      workspaceRender?.();
+    }else if(s==='scout-analysis'){
+      analysisRender?.();
+    }else if(s==='scout-dashboard'){
+      homeRender?.();
+    }else if(s==='scouting'){
+      /* Full historical chain only where it is actually needed. */
+      legacyRender?.();
+    }else{
+      /* Other scouting views own their render lifecycle; do not repaint hidden UI. */
+    }
+  }catch(err){
+    console.error('V9.2 render router',err);
+    /* Safe fallback only when the visible surface really needs the legacy UI. */
+    if(s==='scouting')try{legacyRender?.()}catch(_){}
+  }finally{
+    lastDuration=Math.round((performance.now()-t0)*10)/10;
+    rendering=false;
+  }
+}
+function request(reason='mutation'){
+  queuedReasons.add(reason);
+  if(frame)return;
+  frame=requestAnimationFrame(()=>{
+    frame=0;
+    const why=[...queuedReasons].join(',');queuedReasons.clear();
+    renderNow(why||reason);
+  });
+}
+function renderFastNow(reason='action'){
+  const s=activeSurface();fastCount++;
+  try{
+    if(s==='scout-match-mode'){
+      window.v910MatchModeFastRender?.();
+    }else if(s==='scout-workspace-v900'){
+      window.v900RenderFast?.();
+    }else if(s==='scouting'){
+      const m=window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.();
+      if(m){
+        window.VC_SCOUT_FAST_BRIDGE_V92?.renderClassicCurrent?.();
+        const count=document.getElementById('scout-kpi-actions');
+        if(count){
+          let n=0;
+          try{
+            n=(m.sets||[]).reduce((a,set)=>a+(set.rallies||[]).reduce((b,r)=>b+(r.actions||[]).length,0),0)+(m.liveRally?.actions||[]).length;
+          }catch(_){}
+          count.textContent=String(n);
+        }
+      }
+    }
+  }catch(err){console.warn('V9.2 fast render',err)}
+}
+function requestFast(reason='action'){
+  if(fastFrame)return;
+  fastFrame=requestAnimationFrame(()=>{fastFrame=0;renderFastNow(reason)});
+}
+
+/* Replace the 10-wrapper path for modern surfaces.
+   legacyRender is still preserved and used by Clásico. */
+window.scoutRender=function(){request('scoutRender');return window.VC_SCOUT_CORE?.getActive?.()||null};
+
+/* Public diagnostic/manual hooks. */
+window.VC_SCOUT_RENDER_V92={
+  version:VERSION,
+  request,
+  requestFast,
+  now:renderNow,
+  legacy:()=>legacyRender?.(),
+  surface:activeSurface,
+  diagnostics:()=>({
+    version:VERSION,
+    surface:activeSurface(),
+    lastSurface,lastReason,lastDurationMs:lastDuration,
+    renderCount,fastCount,
+    fullLegacyChainOnlyForClassic:true,
+    historicalWrapperCount:10,
+    journalMode:'full-on-critical + live-rally-delta-on-action'
+  })
+};
+
+/* Navigation gets one consolidated render request after the view settles. */
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v920){
+  const wrapped=function(id,btn){
+    const out=showBase.apply(this,arguments);
+    if(['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-dashboard'].includes(id)&&!window.VC_V930_UNIFIED?.ownsView?.(id)){
+      request('navigation:'+id);
+    }
+    return out;
+  };
+  wrapped.__v920=true;window.showView=wrapped;
+}
+})();
+</script>
+
+
+
+<style id="v920-render-containment-style">
+/* Isolate the large scouting workspaces from the rest of the application layout. */
+#scout-match-mode.active,
+#scout-workspace-v900.active,
+#scouting.active,
+#scout-analysis.active{
+  contain:layout style paint;
+}
+#scout-match-mode:not(.active),
+#scout-workspace-v900:not(.active),
+#scouting:not(.active),
+#scout-analysis:not(.active){
+  pointer-events:none;
+}
+</style>
+
+
+
+<style id="v930-unified-scouting-style">
+/* Legacy scouting navigation remains in DOM for compatibility / botonVista(),
+   but users interact through one unified navigation only. */
+#scouting-nav.v930-internal-nav{display:none!important}
+
+#v930-unified-nav{
+  width:100%;
+  box-sizing:border-box;
+  padding:7px 10px 8px;
+  border-top:1px solid #dce4e8;
+  background:#f8fafb;
+}
+#v930-unified-nav.hidden{display:none!important}
+.v930-nav-primary{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(92px,1fr));
+  gap:5px;
+}
+.v930-nav-primary button{
+  border:1px solid #d9e2e7;
+  border-radius:9px;
+  background:#fff;
+  color:#536b7b;
+  padding:7px 6px;
+  min-width:0;
+  cursor:pointer;
+  text-align:left;
+}
+.v930-nav-primary button b{
+  display:block;
+  font-size:8.5px;
+  color:#17324d;
+  line-height:1.1;
+}
+.v930-nav-primary button span{
+  display:block;
+  margin-top:2px;
+  font-size:6.3px;
+  color:#82909a;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.v930-nav-primary button.active{
+  background:#102b43;
+  border-color:#102b43;
+}
+.v930-nav-primary button.active b,
+.v930-nav-primary button.active span{color:#fff}
+
+.v930-nav-secondary{
+  display:flex;
+  gap:4px;
+  flex-wrap:wrap;
+  padding-top:5px;
+}
+.v930-nav-secondary button{
+  border:0;
+  background:transparent;
+  color:#687b87;
+  padding:4px 7px;
+  border-radius:6px;
+  font-size:6.8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.v930-nav-secondary button:hover,
+.v930-nav-secondary button.active{background:#e9eff3;color:#17324d}
+.v930-nav-secondary button.compat{opacity:.62}
+.v930-nav-secondary button.compat:hover,
+.v930-nav-secondary button.compat.active{opacity:1}
+
+/* Scouting Pro phases are still present technically, but the global unified
+   navigation is now the single user-facing controller. */
+#scout-workspace-v900 .v900-phase-nav{display:none!important}
+
+/* Prevent duplicate navigation labels inside major modules. */
+#scout-workspace-v900 .v900-topbar{margin-top:4px}
+#scout-match-mode .v800-top{margin-top:4px}
+
+/* Large surfaces are isolated. Hidden surfaces are not interactive and modern
+   render router V9.2 does not repaint them. */
+#scout-match-mode,
+#scout-workspace-v900,
+#scout-analysis,
+#scout-video-hub,
+#scout-safe{content-visibility:auto;contain-intrinsic-size:900px}
+
+@media(max-width:1100px){
+  .v930-nav-primary{grid-template-columns:repeat(4,minmax(90px,1fr))}
+}
+@media(max-width:680px){
+  #v930-unified-nav{padding:6px}
+  .v930-nav-primary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v930-nav-primary button{padding:7px}
+  .v930-nav-secondary{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+  .v930-nav-secondary button{white-space:nowrap}
+}
+</style>
+
+
+
+<script id="v930-unified-scouting-runtime">
+(()=>{
+'use strict';
+const VERSION='9.3.0';
+
+const ROUTES={
+  partido:{view:'scout-match-mode',matchMode:'directo'},
+  directo:{view:'scout-workspace-v900',phase:'scout',input:'visual'},
+  codigo:{view:'scout-workspace-v900',phase:'scout',input:'code'},
+  video:{view:'scout-match-mode',matchMode:'video'},
+  revisar:{view:'scout-workspace-v900',phase:'review'},
+  analisis:{view:'scout-analysis'},
+  seguridad:{view:'scout-safe'},
+  preparar:{view:'scout-workspace-v900',phase:'prepare'},
+  videoteca:{view:'scout-video-hub'},
+  plan:{view:'scout-plan'},
+  matchup:{view:'scout-matchup'},
+  post:{view:'scout-postmatch'},
+  partidos:{view:'competicion'},
+  temporada:{view:'scout-season'},
+  clasico:{view:'scouting'}
+};
+
+const OWNED_VIEWS=new Set([
+  'scout-dashboard','scout-match-mode','scout-workspace-v900','scouting',
+  'scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup',
+  'scout-postmatch','scout-season','competicion'
+]);
+
+let currentRoute=localStorage.getItem('v930_route')||'directo';
+let navigating=false;
+let lastView='';
+let lastAfterView='';
+let lastAfterAt=0;
+let analysisCacheKey='';
+let analysisRenderCount=0;
+
+function $(id){return document.getElementById(id)}
+function activeView(){
+  return [...OWNED_VIEWS].find(id=>$(id)?.classList.contains('active'))||'';
+}
+function isScoutingView(id){
+  return OWNED_VIEWS.has(id);
+}
+function setNavVisible(visible){
+  $('v930-unified-nav')?.classList.toggle('hidden',!visible);
+}
+function routeForView(id){
+  if(id==='scout-match-mode'){
+    const mode=window.VC_V910_MATCH_VIEW?.get?.()||'directo';
+    return mode==='video'?'video':'partido';
+  }
+  if(id==='scout-workspace-v900'){
+    const st=window.VC_V900_WORKSPACE?.state?.()||{};
+    if(st.phase==='review')return'revisar';
+    if(st.phase==='prepare')return'preparar';
+    if(st.phase==='analyze')return'analisis';
+    return st.mode==='code'?'codigo':'directo';
+  }
+  return {
+    'scout-analysis':'analisis','scout-safe':'seguridad','scout-video-hub':'videoteca',
+    'scout-plan':'plan','scout-matchup':'matchup','scout-postmatch':'post',
+    'scout-season':'temporada','competicion':'partidos','scouting':'clasico'
+  }[id]||currentRoute;
+}
+function markRoute(route){
+  currentRoute=route||currentRoute;
+  localStorage.setItem('v930_route',currentRoute);
+  document.querySelectorAll('#v930-unified-nav [data-v930-route]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.v930Route===currentRoute)
+  });
+}
+function analysisKey(){
+  let m=null;
+  try{m=window.VC_SCOUT_CORE?.getActive?.()||window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.()||null}catch(_){}
+  const selected=$('scout-analysis-match')?.value||m?.id||'';
+  return [
+    selected,m?.updatedAt||'',m?.status||'',m?.currentSet||'',
+    (m?.sets||[]).length,(m?.liveRally?.actions||[]).length
+  ].join('|');
+}
+function renderAnalysisCached(force=false){
+  const key=analysisKey();
+  if(!force&&key&&analysisCacheKey===key)return false;
+  const fn=window.scoutRenderAnalysis;
+  if(typeof fn!=='function')return false;
+  const out=fn();
+  analysisRenderCount++;
+  if(out&&typeof out.then==='function'){
+    out.finally(()=>{analysisCacheKey=analysisKey()});
+  }else{
+    analysisCacheKey=analysisKey();
+  }
+  return true;
+}
+function invalidateAnalysis(){analysisCacheKey=''}
+
+function afterView(id){
+  const now=Date.now();
+  /* Several historical showView wrappers can reach this dispatcher during the
+     same navigation. Coalesce identical post-view work. */
+  if(lastAfterView===id&&now-lastAfterAt<40)return;
+  lastAfterView=id;lastAfterAt=now;
+  setNavVisible(isScoutingView(id));
+  if(!isScoutingView(id))return;
+
+  const inferred=routeForView(id);
+  if(!navigating)markRoute(inferred);
+
+  switch(id){
+    case 'scout-dashboard':
+      window.scoutRenderHome?.();
+      break;
+    case 'scout-match-mode':
+      window.v800Open?.();
+      break;
+    case 'scout-workspace-v900':
+      window.v900Open?.();
+      break;
+    case 'scout-video-hub':
+      window.v780Open?.();
+      break;
+    case 'scout-season':
+      window.v790Open?.();
+      break;
+    case 'scout-postmatch':
+      window.v820Open?.();
+      break;
+    case 'scout-analysis':
+      renderAnalysisCached(false);
+      break;
+    case 'scout-safe':
+      window.scoutV893RenderVault?.();
+      break;
+    case 'scout-plan':
+      window.scoutV660Render?.();
+      break;
+    case 'scout-matchup':
+      window.scoutV670Render?.();
+      break;
+    case 'scouting':
+      window.VC_SCOUT_RENDER_V92?.now?.('v930-classic');
+      break;
+    case 'competicion':
+      window.renderCompetition?.();
+      break;
+  }
+  lastView=id;
+}
+
+function sameRouteAlreadyReady(route,cfg){
+  const av=activeView();
+  if(av!==cfg.view)return false;
+  if(route==='directo'||route==='codigo'||route==='revisar'||route==='preparar'){
+    const st=window.VC_V900_WORKSPACE?.state?.()||{};
+    if(cfg.phase&&st.phase!==cfg.phase)return false;
+    if(cfg.input&&st.mode!==cfg.input)return false;
+  }
+  if(route==='partido'||route==='video'){
+    const mm=window.VC_V910_MATCH_VIEW?.get?.();
+    if(cfg.matchMode&&mm!==cfg.matchMode)return false;
+  }
+  return true;
+}
+
+async function open(route){
+  const cfg=ROUTES[route]||ROUTES.directo;
+  route=ROUTES[route]?route:'directo';
+  markRoute(route);
+  setNavVisible(true);
+
+  /* Do not run a full showView chain when the requested surface/mode is
+     already open. This removes a large class of duplicate renders. */
+  if(sameRouteAlreadyReady(route,cfg)){
+    if(route==='analisis')renderAnalysisCached(false);
+    else if(route==='seguridad')window.scoutV893RenderVault?.();
+    return;
+  }
+
+  navigating=true;
+  try{
+    if(cfg.view==='scout-workspace-v900'){
+      /* Set cheap internal state before opening so first render is already the
+         correct panel. */
+      if(cfg.phase)window.v900SetPhase?.(cfg.phase);
+      if(cfg.input)window.v900SetInputMode?.(cfg.input);
+    }
+    if(cfg.view==='scout-match-mode'&&cfg.matchMode){
+      window.v910SetMatchView?.(cfg.matchMode);
+    }
+
+    const btn=typeof window.botonVista==='function'?window.botonVista(cfg.view):null;
+    window.showView?.(cfg.view,btn);
+
+    /* showView dispatcher opens the actual module. The following operations
+       only correct internal mode if an old wrapper changed it. */
+    if(cfg.view==='scout-workspace-v900'){
+      if(cfg.phase)window.v900SetPhase?.(cfg.phase);
+      if(cfg.input)window.v900SetInputMode?.(cfg.input);
+    }else if(cfg.view==='scout-match-mode'&&cfg.matchMode){
+      window.v910SetMatchView?.(cfg.matchMode);
+    }
+  }finally{
+    navigating=false;
+    lastView=cfg.view;
+    markRoute(route);
+  }
+}
+
+/* Track every exhaustive analysis execution so reopening without data changes
+   can reuse the already-rendered DOM. Filters inside Analysis still call the
+   original function normally and therefore remain exhaustive. */
+const analysisBase=window.scoutRenderAnalysis;
+if(typeof analysisBase==='function'&&!analysisBase.__v930){
+  const wrapped=function(...args){
+    const out=analysisBase.apply(this,args);
+    analysisRenderCount++;
+    if(out&&typeof out.then==='function')out.finally(()=>{analysisCacheKey=analysisKey()});
+    else analysisCacheKey=analysisKey();
+    return out;
+  };
+  wrapped.__v930=true;
+  window.scoutRenderAnalysis=wrapped;
+}
+
+/* Any real match mutation changes updatedAt via scoutSave, but explicit
+   editor/restore operations may also invalidate analysis. */
+['scoutAwardPoint','scoutUndoRally','scoutAddCode','scoutAddManualAction',
+ 'scoutApplySubstitution','scoutSaveLineup','scoutNextSet','scoutFinishMatch'].forEach(name=>{
+  const base=window[name];
+  if(typeof base!=='function'||base.__v930)return;
+  const wrapped=function(...args){
+    invalidateAnalysis();
+    return base.apply(this,args);
+  };
+  wrapped.__v930=true;window[name]=wrapped;
+});
+
+const editorSave=window.v901SaveRallyEditor;
+if(typeof editorSave==='function'&&!editorSave.__v930){
+  const wrapped=async function(...args){
+    invalidateAnalysis();
+    return editorSave.apply(this,args);
+  };
+  wrapped.__v930=true;window.v901SaveRallyEditor=wrapped;
+}
+
+/* Replace legacy navigation destinations with Unified Scouting entry when a
+   saved/new match is opened. No data engine is changed. */
+const openSaved=window.scoutOpenSaved;
+if(typeof openSaved==='function'&&!openSaved.__v930){
+  const wrapped=function(...args){
+    const out=openSaved.apply(this,args);
+    setTimeout(()=>open('directo'),0);
+    return out;
+  };
+  wrapped.__v930=true;window.scoutOpenSaved=wrapped;
+}
+const createMatch=window.scoutCreateMatch;
+if(typeof createMatch==='function'&&!createMatch.__v930){
+  const wrapped=function(...args){
+    const out=createMatch.apply(this,args);
+    setTimeout(()=>{try{if(window.VC_SCOUT_CORE?.getActive?.())open('partido')}catch(_){}},0);
+    return out;
+  };
+  wrapped.__v930=true;window.scoutCreateMatch=wrapped;
+}
+
+window.v930Open=open;
+window.v930InvalidateAnalysis=invalidateAnalysis;
+window.VC_V930_UNIFIED={
+  version:VERSION,
+  routes:ROUTES,
+  open,
+  afterView,
+  ownsView:id=>OWNED_VIEWS.has(id),
+  invalidateAnalysis,
+  analysisKey,
+  diagnostics:()=>({
+    version:VERSION,
+    route:currentRoute,
+    view:activeView(),
+    lastView,
+    analysisCacheKey,
+    analysisRenderCount,
+    renderRouter:window.VC_SCOUT_RENDER_V92?.diagnostics?.()||null,
+    matchMode:window.VC_V910_MATCH_VIEW?.get?.()||null,
+    workspace:window.VC_V900_WORKSPACE?.state?.()||null,
+    dataModel:'scoutingMatches>sets>rallies>actions',
+    compatibilityClassic:true
+  })
+};
+
+/* Initial unified nav state after all scripts are loaded. */
+setTimeout(()=>{
+  const av=activeView();
+  setNavVisible(isScoutingView(av));
+  if(av)markRoute(routeForView(av));
+},0);
 })();
 </script>
 
