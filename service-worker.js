@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.0.0-professional-workspace-v1';
+const CACHE_NAME = 'volley-coach-v9.0.1-rally-code-editor-v1';
 
 const APP_SHELL = [
   './',
