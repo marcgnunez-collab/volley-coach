@@ -1803,6 +1803,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button id="v950-match-video-btn" class="primary" onclick="v940MatchView('video')">🎥 Vídeo Live / YouTube</button>
         <button id="v853-rally-editor-btn" class="ghost" onclick="v901OpenRallyEditor()">✎ Editar rallies y códigos</button>
         <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
+        <button id="v954-new-set-btn" class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button>
         <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
         <button class="ghost" onclick="v901OpenCodes()">⌨ Códigos</button>
@@ -2251,7 +2252,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="v901OpenCodes('classic')">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="v901OpenCodes('classic')">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button><button id="scout-v954-new-set-btn" class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -2387,7 +2388,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
       <div class="scout-bottom-grid">
         <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">SECUENCIA</span><h3>Rallies del set</h3></div><span id="scout-rally-count" class="small">0 rallies</span></div><div id="scout-rally-list" class="scout-rally-list"></div></section>
-        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div><div class="scout-v861-set-actions"><button class="ghost" onclick="scoutV861OpenFinishSet()">Finalizar set</button><button class="ghost" onclick="scoutV861OpenFinalResult()">Resultado final</button></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
+        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div><div class="scout-v861-set-actions"><button class="ghost" onclick="scoutV861OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button><button class="ghost" onclick="scoutV861OpenFinalResult()">Resultado final</button></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
         <section class="scout-panel" style="grid-column:1/-1"><div class="scout-panel-head scout-v6100-timeline-head"><div><span class="pro-kicker">MATCH TIMELINE</span><h3>Línea temporal del partido</h3></div><select id="scout-v6100-timeline-filter" onchange="scoutV6100RenderTimeline()"><option value="all">Todo</option><option value="rally">Rallies</option><option value="event">Eventos</option><option value="sub">Cambios / líbero</option></select></div><div id="scout-v6100-timeline" class="scout-v6100-timeline"></div></section>
       </div>
     </div>
@@ -5416,7 +5417,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.3', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.4', {
         updateViaCache: 'none'
       });
 
@@ -7884,6 +7885,55 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
     <div class="player-form-actions">
       <button class="ghost" onclick="scoutV861CloseFinishSet()">Cancelar</button>
       <button class="success" onclick="scoutV861FinishSet()">Finalizar set</button>
+    </div>
+  </div>
+</div>
+
+<div id="scout-v954-new-set-modal" class="pro-modal" onclick="if(event.target===this)v954CloseNewSet()">
+  <div class="pro-modal-card scout-v861-result-card">
+    <div class="pro-modal-head">
+      <div>
+        <span class="pro-kicker">SIGUIENTE SET</span>
+        <h2 id="scout-v954-new-set-title">Preparar nuevo set</h2>
+        <p>Define el primer saque y las rotaciones iniciales. Después se abrirá la alineación para revisar los seis jugadores.</p>
+      </div>
+      <button class="modal-close" onclick="v954CloseNewSet()">×</button>
+    </div>
+
+    <div id="scout-v954-new-set-summary" class="scout-v861-recorded"></div>
+
+    <div class="scout-v954-new-set-grid">
+      <label>
+        <span>Primer saque</span>
+        <select id="scout-v954-serving">
+          <option value="ours">Nuestro equipo</option>
+          <option value="opponent">Rival</option>
+        </select>
+      </label>
+      <label>
+        <span>Nuestra rotación inicial</span>
+        <select id="scout-v954-rotation">
+          <option value="1">R1</option><option value="2">R2</option><option value="3">R3</option>
+          <option value="4">R4</option><option value="5">R5</option><option value="6">R6</option>
+        </select>
+      </label>
+      <label>
+        <span>Rotación inicial rival</span>
+        <select id="scout-v954-opponent-rotation">
+          <option value="1">R1</option><option value="2">R2</option><option value="3">R3</option>
+          <option value="4">R4</option><option value="5">R5</option><option value="6">R6</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="scout-v861-info">
+      <strong>No se borra nada del set anterior</strong>
+      <span>El nuevo set empieza a 0–0. Se conservan todos los rallies, acciones, estadísticas, vídeo y resultado de los sets ya cerrados.</span>
+    </div>
+
+    <div class="player-form-actions">
+      <button class="ghost" onclick="v954CloseNewSet()">Cancelar</button>
+      <button class="primary" onclick="v954StartNewSet()">Crear siguiente set y revisar alineación</button>
     </div>
   </div>
 </div>
@@ -24452,6 +24502,7 @@ function renderContext(){
     h+=btn('Cambios / Líbero','scoutOpenSubstitution()');
     h+=btn('Evento','scoutV690OpenEvent()');
     h+=btn('Finalizar set','scoutV861OpenFinishSet()');
+    h+=btn('＋ Nuevo set','v954OpenNewSet()','primary');
     h+=btn('Resultado final','scoutV861OpenFinalResult()');
   }else if(area==='scouting'){
     h+=btn('Visual',"v940Route('directo')",'',route==='directo');
@@ -25227,5 +25278,207 @@ window.VC_V953_TRAINING_SYNC={
 .workspace-training #training-nav{position:relative;z-index:4}
 .planning-quick-create[open]{position:relative;z-index:20}
 </style>
+
+
+
+<style id="v954-new-set-style">
+.scout-v954-new-set-grid{
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1fr;
+  gap:10px;
+  margin:12px 0;
+}
+.scout-v954-new-set-grid label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.scout-v954-new-set-grid label>span{
+  font-size:7px;
+  font-weight:900;
+  color:#687b87;
+}
+.scout-v954-new-set-grid select{
+  min-height:38px;
+  border:1px solid #d7e0e5;
+  border-radius:8px;
+  background:#fff;
+  color:#17324d;
+  padding:7px 9px;
+  font-weight:800;
+}
+#v954-new-set-btn{
+  white-space:nowrap;
+}
+@media(max-width:720px){
+  .scout-v954-new-set-grid{grid-template-columns:1fr}
+}
+</style>
+
+
+
+<script id="v954-new-set-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.4';
+let openAfterFinish=false;
+
+function active(){
+  try{return window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.()||window.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}
+}
+function currentSet(m){
+  return (m?.sets||[]).find(s=>Number(s.number)===Number(m?.currentSet))||null;
+}
+function setsScore(m){
+  try{return window.scoutSetsScore?.(m)||{us:0,opponent:0}}catch(_){
+    return (m?.sets||[]).reduce((a,s)=>{
+      if(s?.finished&&s.winner==='ours')a.us++;
+      if(s?.finished&&s.winner==='opponent')a.opponent++;
+      return a;
+    },{us:0,opponent:0});
+  }
+}
+function openModal(){
+  const m=active(),s=currentSet(m);
+  if(!m||!s){alert('No hay un scouting activo.');return false}
+  if(m.status==='finished'){
+    alert('El partido está finalizado. Reabre el scouting si necesitas añadir otro set.');
+    return false;
+  }
+  if(!s.finished){
+    alert(`El Set ${s.number} todavía está en juego. Primero debes finalizarlo.`);
+    openAfterFinish=true;
+    window.scoutV861OpenFinishSet?.();
+    return false;
+  }
+
+  const next=Number(s.number||m.currentSet||1)+1;
+  const score=setsScore(m);
+  const title=document.getElementById('scout-v954-new-set-title');
+  const summary=document.getElementById('scout-v954-new-set-summary');
+  const serving=document.getElementById('scout-v954-serving');
+  const rot=document.getElementById('scout-v954-rotation');
+  const oppRot=document.getElementById('scout-v954-opponent-rotation');
+
+  if(title)title.textContent=`Preparar Set ${next}`;
+  if(summary)summary.innerHTML=`<strong>Set ${s.number} cerrado · ${Number(s.scoreUs)||0}-${Number(s.scoreOpponent)||0}</strong><span>Resultado del partido: ${score.us}-${score.opponent} sets · el siguiente comenzará 0-0.</span>`;
+  if(serving)serving.value=m.servingTeam==='opponent'?'opponent':'ours';
+  if(rot)rot.value=String(Math.min(6,Math.max(1,Number(m.rotationNo)||1)));
+  if(oppRot)oppRot.value=String(Math.min(6,Math.max(1,Number(m.opponentRotationNo)||1)));
+
+  document.getElementById('scout-v954-new-set-modal')?.classList.add('open');
+  return true;
+}
+window.v954OpenNewSet=function(){
+  openAfterFinish=false;
+  return openModal();
+};
+window.v954CloseNewSet=function(){
+  document.getElementById('scout-v954-new-set-modal')?.classList.remove('open');
+  openAfterFinish=false;
+};
+
+window.v954StartNewSet=async function(){
+  const m=active(),s=currentSet(m);
+  if(!m||!s){alert('No hay un scouting activo.');return}
+  if(!s.finished){
+    window.v954CloseNewSet();
+    alert('Primero debes finalizar el set actual.');
+    window.scoutV861OpenFinishSet?.();
+    return;
+  }
+  if(m.status==='finished'){
+    alert('El partido está finalizado.');
+    return;
+  }
+
+  const serving=document.getElementById('scout-v954-serving')?.value==='opponent'?'opponent':'ours';
+  const rotation=Math.min(6,Math.max(1,Number(document.getElementById('scout-v954-rotation')?.value)||1));
+  const opponentRotation=Math.min(6,Math.max(1,Number(document.getElementById('scout-v954-opponent-rotation')?.value)||1));
+  const previousSet=Number(m.currentSet)||Number(s.number)||1;
+
+  window.v954CloseNewSet();
+  window.scoutNextSet?.(serving);
+
+  const next=active();
+  if(!next||Number(next.currentSet)<=previousSet){
+    alert('No se ha podido iniciar el siguiente set. Comprueba que el set actual esté finalizado.');
+    return;
+  }
+
+  next.rotationNo=rotation;
+  next.opponentRotationNo=opponentRotation;
+  next.updatedAt=new Date().toISOString();
+
+  /* scoutNextSet already creates/saves the new set. Flush once more so the
+     selected starting rotations are durable before lineup configuration. */
+  try{await window.scoutV902Flush?.()}catch(_){}
+  try{window.VC_SCOUT_RENDER_V92?.request?.('v954-new-set')}catch(_){}
+  try{window.v800Render?.()}catch(_){}
+
+  /* scoutNextSet also opens the lineup. Re-open after rotations are applied
+     so its selectors definitely reflect the selected start rotation. */
+  setTimeout(()=>{try{window.scoutOpenLineup?.()}catch(_){}},80);
+};
+
+/* If Nuevo set was pressed while the current set was still live, closing it
+   successfully continues directly into the new-set configuration dialog. */
+const finishBase=window.scoutV861FinishSet;
+if(typeof finishBase==='function'&&!finishBase.__v954){
+  const wrapped=function(...args){
+    const before=active(),beforeNo=Number(before?.currentSet)||0;
+    const out=finishBase.apply(this,args);
+    setTimeout(()=>{
+      const m=active(),s=currentSet(m);
+      if(openAfterFinish&&m&&Number(m.currentSet)===beforeNo&&s?.finished){
+        openAfterFinish=false;
+        openModal();
+      }
+    },30);
+    return out;
+  };
+  wrapped.__v954=true;
+  window.scoutV861FinishSet=wrapped;
+}
+
+/* Make the button state self-explanatory without disabling it: pressing it
+   on a live set leads to Finalizar set first. */
+function updateButton(){
+  const m=active(),s=currentSet(m);
+  const labels=[
+    document.getElementById('v954-new-set-btn'),
+    document.getElementById('scout-v954-new-set-btn')
+  ].filter(Boolean);
+  labels.forEach(b=>{
+    if(!m||m.status==='finished'){
+      b.textContent='＋ Nuevo set';
+      b.title='No disponible con el partido finalizado';
+    }else if(s?.finished){
+      b.textContent=`＋ Iniciar Set ${Number(s.number||m.currentSet||1)+1}`;
+      b.title='Preparar saque, rotaciones y alineación del siguiente set';
+    }else{
+      b.textContent='＋ Nuevo set';
+      b.title='Finaliza primero el set actual y después prepara el siguiente';
+    }
+  });
+}
+setInterval(updateButton,5000);
+setTimeout(updateButton,0);
+
+window.VC_V954_NEW_SET={
+  version:VERSION,
+  open:window.v954OpenNewSet,
+  start:window.v954StartNewSet,
+  diagnostics:()=>({
+    version:VERSION,
+    activeMatchId:active()?.id||null,
+    currentSet:active()?.currentSet||null,
+    currentSetFinished:!!currentSet(active())?.finished,
+    modalOpen:document.getElementById('scout-v954-new-set-modal')?.classList.contains('open')||false,
+    openAfterFinish
+  })
+};
+})();
+</script>
 
 </body></html>
