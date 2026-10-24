@@ -1731,11 +1731,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
         <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
         <button id="v851-video-note-btn" class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
-        <button id="v853-rally-editor-btn" class="ghost" onclick="v857OpenRallyEditor()">✎ Editar rallies</button>
+        <button id="v853-rally-editor-btn" class="ghost" onclick="v901OpenRallyEditor()">✎ Editar rallies y códigos</button>
         <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
         <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
-        <button class="ghost" onclick="v841OpenCheatSheet()">⌨ Chuleta códigos</button>
+        <button class="ghost" onclick="v901OpenCodes()">⌨ Códigos</button>
         <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
       </div>
     </div>
@@ -2093,14 +2093,14 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
                 <div class="v900-code-entry">
                   <input id="v900-code-input" autocomplete="off" autocapitalize="characters" placeholder="Ej. 7R#.6C~JF%OH · 12A#.4B>5D::X5~T%HSP|F@2" oninput="v900TranslateCode()" onkeydown="if(event.key==='Enter'){event.preventDefault();v900RegisterCode()}">
                   <button class="primary" onclick="v900RegisterCode()">Registrar</button>
-                  <button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button>
+                  <button class="ghost" onclick="v901OpenCodes('v900')">Códigos</button>
                 </div>
                 <div id="v900-code-translation" class="v900-code-translation">Escribe un código para ver su lectura.</div>
               </div>
             </article>
 
             <article class="v900-card">
-              <div class="v900-card-head"><div><span class="pro-kicker">RALLY EN CURSO</span><h3 id="v900-rally-title">0 acciones</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="scoutDeleteLastAction()">Borrar última</button><button class="ghost" onclick="v857OpenRallyEditor()">Editor</button></div></div>
+              <div class="v900-card-head"><div><span class="pro-kicker">RALLY EN CURSO</span><h3 id="v900-rally-title">0 acciones</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="scoutDeleteLastAction()">Borrar última</button><button class="ghost" onclick="v901OpenRallyEditor()">Editar rallies y códigos</button></div></div>
               <div id="v900-live-actions" class="v900-live-actions"></div>
               <div class="v900-point-row">
                 <button class="v900-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
@@ -2126,7 +2126,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <section id="v900-phase-review" class="v900-phase-panel hidden">
         <div class="v900-review-grid">
           <article class="v900-card wide">
-            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="v857OpenRallyEditor()">Editor de rallies</button><button class="ghost" onclick="scoutUndoRally()">Deshacer último rally</button></div></div>
+            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="v901OpenRallyEditor()">Editar rallies y códigos</button><button class="ghost" onclick="scoutUndoRally()">Deshacer último rally</button></div></div>
             <div id="v900-review-rallies" class="v900-review-rallies"></div>
           </article>
           <article class="v900-card">
@@ -2171,7 +2171,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="scoutOpenCodeReference()">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="v901OpenCodes('classic')">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -5327,7 +5327,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.0.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.0.1', {
         updateViaCache: 'none'
       });
 
@@ -22488,6 +22488,299 @@ window.VC_V900_WORKSPACE={
     pointEngine:typeof window.scoutAwardPoint==='function',
     vault:typeof window.scoutV893CheckpointAll==='function',
     pdf:typeof window.scoutV752ExportAnalysisPDF==='function'
+  })
+};
+})();
+</script>
+
+
+
+<div id="v901-rally-editor-modal" class="v901-modal hidden" role="dialog" aria-modal="true">
+  <div class="v901-card">
+    <div class="v901-head">
+      <div>
+        <span class="pro-kicker">V9.0.1 · EDICIÓN SEGURA</span>
+        <h2>Editar rallies y códigos</h2>
+        <p id="v901-editor-subtitle">Selecciona un set y un rally. Solo se modifican las acciones.</p>
+      </div>
+      <button class="ghost" onclick="v901CloseRallyEditor()">Cerrar ×</button>
+    </div>
+
+    <div class="v901-toolbar">
+      <label><span>Set</span><select id="v901-set-select" onchange="v901EditorSetChanged()"></select></label>
+      <label><span>Rally</span><select id="v901-rally-select" onchange="v901EditorRallyChanged()"></select></label>
+      <button class="ghost" onclick="v901SelectLiveRally()">Rally actual</button>
+      <button class="ghost" onclick="v901OpenCodes('editor')">Referencia de códigos</button>
+      <button class="ghost" onclick="v901EditorCheckpoint()">Crear checkpoint</button>
+    </div>
+
+    <div id="v901-editor-info" class="v901-info"></div>
+    <div id="v901-editor-actions" class="v901-actions"></div>
+
+    <div class="v901-add">
+      <div>
+        <span>Añadir acción</span>
+        <input id="v901-new-code" placeholder="Ej. 3E+.2B>4C::K1~T%2H|F^K1" spellcheck="false"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();v901AddCode()}">
+      </div>
+      <button class="ghost" onclick="v901AddCode()">＋ Añadir código</button>
+    </div>
+
+    <div id="v901-validation" class="v901-validation">
+      Los códigos se validan con el parser actual de Volley Coach antes de guardar.
+    </div>
+
+    <div class="v901-foot">
+      <div>
+        <button class="ghost" onclick="v901CloseRallyEditor()">Cancelar</button>
+      </div>
+      <div>
+        <button class="ghost" onclick="v901ReloadEditor()">Descartar cambios</button>
+        <button class="primary" onclick="v901SaveRallyEditor()">Guardar corrección</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<style id="v901-rally-editor-style">
+.v901-modal{position:fixed;inset:0;z-index:130000;background:rgba(5,17,27,.76);display:grid;place-items:center;padding:14px}
+.v901-modal.hidden{display:none!important}
+.v901-card{width:min(1120px,97vw);max-height:94vh;overflow:auto;background:#fff;border-radius:15px;box-shadow:0 28px 80px rgba(0,0,0,.38)}
+.v901-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:14px 16px;background:linear-gradient(135deg,#0d263a,#234b66);color:#fff}
+.v901-head h2{margin:2px 0 4px!important;color:#fff!important;font-size:20px!important}.v901-head p{margin:0;color:#c4d1da;font-size:8.5px}.v901-head .pro-kicker{color:#9fb8c8}.v901-head .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.16)!important}
+.v901-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;padding:11px 14px;border-bottom:1px solid #e2e8eb;background:#f7f9fa}
+.v901-toolbar label{display:flex;flex-direction:column;gap:3px}.v901-toolbar label span{font-size:6.5px;text-transform:uppercase;font-weight:950;color:#758791}.v901-toolbar select{min-width:145px;padding:7px;border:1px solid #d7e0e5;border-radius:7px;background:#fff;font-size:8.5px}
+.v901-toolbar button{font-size:8px!important;padding:7px 9px!important}
+.v901-info{padding:10px 14px;border-bottom:1px solid #e7ecef;background:#fff;font-size:8.5px;color:#566d7d;line-height:1.45}
+.v901-info b{color:#17324d}
+.v901-actions{display:grid;gap:7px;padding:12px 14px}
+.v901-action{display:grid;grid-template-columns:32px minmax(220px,1fr) auto auto;gap:7px;align-items:center;border:1px solid #dfe6ea;border-radius:9px;padding:7px;background:#fbfcfd}
+.v901-action>span{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#eaf0f4;color:#17324d;font-size:8px;font-weight:950}
+.v901-action input{width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #ccd8df;border-radius:7px;background:#fff;font:850 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:#17324d}
+.v901-action small{max-width:230px;font-size:7px;color:#71828d;line-height:1.35}
+.v901-action button{font-size:7px!important;padding:6px 8px!important}
+.v901-action.invalid{border-color:#d69a9a;background:#fff7f7}.v901-action.invalid input{border-color:#c67777}
+.v901-add{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;padding:11px 14px;border-top:1px solid #e3e9ec;background:#f7f9fa}
+.v901-add>div{display:flex;flex-direction:column;gap:3px}.v901-add span{font-size:6.5px;text-transform:uppercase;font-weight:950;color:#74858f}.v901-add input{padding:9px;border:1px solid #ccd8df;border-radius:7px;font:850 9px ui-monospace,SFMono-Regular,Menlo,monospace}
+.v901-validation{margin:10px 14px;padding:8px 9px;border:1px solid #dce5e9;border-radius:7px;background:#f8fafb;color:#647783;font-size:8px}
+.v901-validation.ok{border-color:#bfd8c8;background:#eef7f1;color:#315f48}.v901-validation.bad{border-color:#e2b8b8;background:#fff3f3;color:#8a3f3f}
+.v901-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 14px;border-top:1px solid #dfe6ea;background:#fff}.v901-foot>div{display:flex;gap:6px;flex-wrap:wrap}
+.v901-code-modal-fix{z-index:140000!important}
+@media(max-width:760px){.v901-modal{padding:4px}.v901-card{width:99vw;max-height:98vh}.v901-head{padding:10px}.v901-action{grid-template-columns:28px 1fr auto}.v901-action small{grid-column:2/-1;max-width:none}.v901-add{grid-template-columns:1fr}.v901-foot{flex-direction:column;align-items:stretch}.v901-foot>div{justify-content:flex-end}}
+</style>
+
+
+
+<script id="v901-rally-code-editor-script">
+(()=>{
+'use strict';
+const VERSION='9.0.1';
+let ctx={setNo:null,rallyId:null,live:false,actions:[],original:[]};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone=x=>JSON.parse(JSON.stringify(x));
+function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
+function core(){return window.VC_SCOUT_CORE||null}
+function match(){try{return bridge()?.getActive?.()||core()?.getActive?.()||null}catch(_){return null}}
+function setOf(m,no){return (m?.sets||[]).find(s=>Number(s.number)===Number(no))||null}
+function rallyOf(m,setNo,id){return setOf(m,setNo)?.rallies?.find(r=>Number(r.id)===Number(id))||null}
+function codeOf(a){return String(a?.code||'').trim()}
+function detail(a){return [a?.team==='opponent'?'Rival':'Nuestro',a?.playerNumberSnapshot?`#${a.playerNumberSnapshot}`:'',a?.skill||'',a?.evaluation||'',a?.skillSubtype||'',a?.attackCode||a?.setterCall||'',a?.attackTempo||a?.setTempo||''].filter(Boolean).join(' · ')}
+
+async function checkpoint(reason='rally-edit-v901'){
+  try{
+    if(typeof window.scoutV893CheckpointAll==='function')await window.scoutV893CheckpointAll(false,reason,true);
+    else if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup(reason,true);
+  }catch(err){console.warn('V9.0.1 checkpoint',err)}
+}
+function saveEngine(){
+  try{
+    if(bridge()?.save){bridge().save();return true}
+    if(typeof window.scoutSave==='function'){window.scoutSave();return true}
+  }catch(err){console.error('V9.0.1 save',err)}
+  return false;
+}
+function parse(raw,oldAction=null){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  if(!raw)return{error:'Código vacío.'};
+  try{
+    const c=core();
+    if(c?.parse)return c.parse(raw,match(),oldAction);
+    if(typeof window.v680ParseCode==='function')return window.v680ParseCode(raw,match(),oldAction);
+  }catch(err){return{error:String(err?.message||err)}}
+  return{error:'El parser actual no está disponible.'};
+}
+function populateSets(){
+  const m=match(),sel=$('v901-set-select');if(!sel||!m)return;
+  sel.innerHTML=(m.sets||[]).map(s=>`<option value="${Number(s.number)}">Set ${Number(s.number)} · ${Number(s.scoreUs)||0}–${Number(s.scoreOpponent)||0} · ${(s.rallies||[]).length} rallies</option>`).join('');
+  if(ctx.setNo&&setOf(m,ctx.setNo))sel.value=String(ctx.setNo);else{ctx.setNo=Number(m.currentSet)||Number(m.sets?.[0]?.number)||1;sel.value=String(ctx.setNo)}
+}
+function populateRallies(){
+  const m=match(),s=setOf(m,ctx.setNo),sel=$('v901-rally-select');if(!sel||!s)return;
+  sel.innerHTML=(s.rallies||[]).slice().reverse().map(r=>`<option value="${Number(r.id)}">${Number(r.scoreAfter?.us)||0}–${Number(r.scoreAfter?.opponent)||0} · R${Number(r.rotationBefore)||1} · ${(r.actions||[]).length} acciones</option>`).join('');
+  if(!s.rallies?.length){sel.innerHTML='<option value="">Sin rallies cerrados</option>';ctx.rallyId=null;return}
+  if(ctx.rallyId&&rallyOf(m,ctx.setNo,ctx.rallyId))sel.value=String(ctx.rallyId);
+  else{ctx.rallyId=Number(s.rallies[s.rallies.length-1].id);sel.value=String(ctx.rallyId)}
+}
+function loadSelection(){
+  const m=match();if(!m)return;
+  let source=null,info='';
+  if(ctx.live){
+    source=m.liveRally;ctx.setNo=Number(m.currentSet)||1;ctx.rallyId=null;
+    info=`<b>Rally actual · Set ${ctx.setNo}</b> · ${(source?.actions||[]).length} acciones. Todavía no tiene punto asignado.`;
+  }else{
+    const r=rallyOf(m,ctx.setNo,ctx.rallyId);
+    source=r;
+    if(r)info=`<b>Set ${ctx.setNo} · ${Number(r.scoreAfter?.us)||0}–${Number(r.scoreAfter?.opponent)||0}</b> · R${Number(r.rotationBefore)||1} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · marcador/ganador/rotaciones bloqueados.`;
+  }
+  ctx.actions=clone(source?.actions||[]);ctx.original=clone(source?.actions||[]);
+  const inf=$('v901-editor-info');if(inf)inf.innerHTML=info||'<b>No hay rally seleccionado.</b>';
+  renderActions();validateAll(false);
+}
+function renderActions(){
+  const box=$('v901-editor-actions');if(!box)return;
+  box.innerHTML=ctx.actions.length?ctx.actions.map((a,i)=>`<div class="v901-action" id="v901-row-${i}">
+    <span>${i+1}</span>
+    <input id="v901-code-${i}" value="${esc(codeOf(a))}" spellcheck="false" oninput="v901ValidateAction(${i})"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();v901ValidateAction(${i});}">
+    <small>${esc(detail(a)||'Acción')}</small>
+    <button class="danger" onclick="v901RemoveAction(${i})">Eliminar</button>
+  </div>`).join(''):'<div class="match-empty">Este rally no tiene acciones. Puedes añadir una con el campo inferior.</div>';
+}
+function validateOne(i,show=true){
+  const input=$(`v901-code-${i}`),row=$(`v901-row-${i}`),raw=input?.value||'',old=ctx.actions[i],res=parse(raw,old);
+  row?.classList.toggle('invalid',!!res?.error);
+  if(show){
+    const v=$('v901-validation');
+    if(v){v.className='v901-validation '+(res?.error?'bad':'ok');v.textContent=res?.error?`Acción ${i+1}: ${res.error}`:`Acción ${i+1} válida · ${res.action?.code||raw}`;}
+  }
+  return res;
+}
+function validateAll(show=true){
+  const parsed=[];
+  for(let i=0;i<ctx.actions.length;i++){
+    const res=validateOne(i,false);
+    if(res?.error){
+      const v=$('v901-validation');if(show&&v){v.className='v901-validation bad';v.textContent=`Acción ${i+1}: ${res.error}`;}
+      return{error:res.error,index:i};
+    }
+    parsed.push(res.action);
+  }
+  const v=$('v901-validation');if(show&&v){v.className='v901-validation ok';v.textContent=`Todo correcto · ${parsed.length} acciones listas para guardar.`}
+  return{actions:parsed};
+}
+
+window.v901OpenRallyEditor=function(){
+  const m=match();if(!m){alert('No hay un scouting activo.');return false}
+  ctx={setNo:Number(m.currentSet)||1,rallyId:null,live:false,actions:[],original:[]};
+  $('v901-rally-editor-modal')?.classList.remove('hidden');
+  document.body.classList.add('v800-lock');
+  populateSets();populateRallies();loadSelection();
+  return true;
+};
+window.v901CloseRallyEditor=function(){
+  $('v901-rally-editor-modal')?.classList.add('hidden');
+  if(!document.fullscreenElement)document.body.classList.remove('v800-lock');
+};
+window.v901EditorSetChanged=function(){
+  ctx.live=false;ctx.setNo=Number($('v901-set-select')?.value)||ctx.setNo;ctx.rallyId=null;populateRallies();loadSelection();
+};
+window.v901EditorRallyChanged=function(){
+  ctx.live=false;ctx.rallyId=Number($('v901-rally-select')?.value)||null;loadSelection();
+};
+window.v901SelectLiveRally=function(){
+  const m=match();if(!m)return;ctx.live=true;ctx.setNo=Number(m.currentSet)||1;ctx.rallyId=null;
+  if($('v901-set-select'))$('v901-set-select').value=String(ctx.setNo);
+  loadSelection();
+};
+window.v901ReloadEditor=function(){loadSelection()};
+window.v901ValidateAction=function(i){return validateOne(Number(i),true)};
+window.v901RemoveAction=function(i){
+  i=Number(i);if(i<0||i>=ctx.actions.length)return;
+  ctx.actions.splice(i,1);renderActions();validateAll(false);
+};
+window.v901AddCode=function(){
+  const input=$('v901-new-code'),raw=String(input?.value||'').trim();if(!raw)return;
+  const res=parse(raw,null);
+  const v=$('v901-validation');
+  if(res?.error){if(v){v.className='v901-validation bad';v.textContent='Nuevo código: '+res.error}input?.focus();return}
+  const a=res.action;a.id=a.id||Date.now()+Math.floor(Math.random()*1000);a.createdAt=a.createdAt||new Date().toISOString();
+  ctx.actions.push(a);if(input)input.value='';renderActions();validateAll(true);setTimeout(()=>$('v901-new-code')?.focus(),20);
+};
+window.v901SaveRallyEditor=async function(){
+  const m=match();if(!m)return alert('No hay scouting activo.');
+  const checked=validateAll(true);if(checked.error){$(`v901-code-${checked.index}`)?.focus();return}
+  await checkpoint('before-rally-edit-v901');
+
+  if(ctx.live){
+    if(!m.liveRally)return alert('No existe el rally actual.');
+    m.liveRally.actions=checked.actions.map((a,i)=>({...a,seq:i+1}));
+  }else{
+    const r=rallyOf(m,ctx.setNo,ctx.rallyId);if(!r)return alert('No encuentro el rally seleccionado.');
+    /* CRITICAL: only action array changes. Score, winner, serve and rotations are untouched. */
+    r.actions=checked.actions.map((a,i)=>({...a,seq:i+1}));
+    r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1;
+  }
+
+  if(!saveEngine())return alert('No se pudo guardar la corrección.');
+  await checkpoint('after-rally-edit-v901');
+  try{window.v900Render?.()}catch(_){}
+  try{window.scoutRender?.()}catch(_){}
+  loadSelection();
+  const v=$('v901-validation');if(v){v.className='v901-validation ok';v.textContent='✓ Corrección guardada. Marcador, ganador y rotaciones no se han modificado.'}
+};
+window.v901EditorCheckpoint=async function(){
+  await checkpoint('manual-editor-v901');
+  const v=$('v901-validation');if(v){v.className='v901-validation ok';v.textContent='✓ Checkpoint creado en la Caja fuerte.'}
+};
+
+/* Stable code-reference entry point. No dependency on old wrapper chains. */
+const oldCodeOpen=window.scoutOpenCodeReference;
+window.v901OpenCodes=function(source=''){
+  const modal=$('scout-code-reference-modal');
+  if(modal){
+    modal.classList.add('open','v901-code-modal-fix');
+    modal.style.zIndex='140000';
+    return true;
+  }
+  if(typeof window.v841OpenCheatSheet==='function'){window.v841OpenCheatSheet();return true}
+  try{oldCodeOpen?.();return true}catch(err){console.error(err)}
+  alert('No se ha podido abrir la referencia de códigos.');
+  return false;
+};
+/* Make all legacy "Códigos/Chuleta" buttons benefit from the stable opener too. */
+window.scoutOpenCodeReference=function(){return window.v901OpenCodes('legacy')};
+
+/* Route historical rally-editor buttons through the current editor. */
+window.v857OpenRallyEditor=window.v901OpenRallyEditor;
+window.v853OpenRallyEditor=window.v901OpenRallyEditor;
+
+/* Keep the old modal reachable only as an emergency diagnostic fallback. */
+window.v901OpenLegacyRallyEditor=function(){
+  const m=match();if(!m)return false;
+  const setNo=Number(m.currentSet)||1;
+  if(typeof window.scoutV680OpenSetEditor==='function'){window.scoutV680OpenSetEditor(setNo);return true}
+  return false;
+};
+
+document.getElementById('v901-rally-editor-modal')?.addEventListener('click',e=>{
+  if(e.target?.id==='v901-rally-editor-modal')window.v901CloseRallyEditor();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('v901-rally-editor-modal')?.classList.contains('hidden')){e.preventDefault();window.v901CloseRallyEditor()}
+});
+
+window.VC_V901_EDITOR={
+  version:VERSION,
+  diagnostics:()=>({
+    active:!!match(),
+    parser:typeof core()?.parse,
+    save:typeof bridge()?.save,
+    vault:typeof window.scoutV893CheckpointAll,
+    modal:!!$('v901-rally-editor-modal'),
+    codeModal:!!$('scout-code-reference-modal')
   })
 };
 })();
