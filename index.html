@@ -5327,7 +5327,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.0.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.0.2', {
         updateViaCache: 'none'
       });
 
@@ -7918,7 +7918,146 @@ function scoutSet(m){return m?.sets?.find(s=>Number(s.number)===Number(m.current
 function scoutPlayer(id){return (jugadoresEquipo||[]).find(p=>Number(p.id)===Number(id))||null}
 function scoutPlayerName(id){const p=scoutPlayer(id);if(!p)return 'Sin asignar';const num=p.number!==''&&p.number!=null?`#${p.number} · `:'';return num+(p.name||'Jugador')}
 function scoutOpponentLabel(v,pos=''){return String(v||'').trim()||`Rival ${pos.toUpperCase()}`}
-function scoutSave(render=true){const m=scoutActive();if(m){m.updatedAt=scoutNow();m.dataVersion='7.0.1'}if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);equiposData[equipoActivo].scoutingActiveId=scoutingActiveId||null;guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();if(typeof window.scoutV680Backup==='function')window.scoutV680Backup('autosave');programarSubidaCloud();if(render)scoutRender();const b=$('scout-save-badge');if(b)b.textContent='Sesión abierta · auto-protección'}
+
+/* ===== V9.0.2 · PERFORMANCE SAFE SAVE ENGINE =====
+   - Every change: small independent IndexedDB journal of the active match.
+   - Action-only change: lightweight UI render, no full app serialization.
+   - Full state commit: after idle, and immediately on points/set/status changes.
+   - Exhaustive analysis is NOT simplified; it remains on analysis/PDF paths. */
+const V902_JOURNAL_DB='VolleyCoachScoutJournalV902',V902_JOURNAL_STORE='liveMatches';
+let v902CommitTimer=null,v902CommitBusy=false,v902CommitQueued=false,v902LastMutation=null,v902LastFullAt=0,v902RenderFrame=0;
+
+function v902MutationState(m){
+  const s=scoutSet(m),rallies=scoutArr(m?.sets).reduce((n,x)=>n+scoutArr(x?.rallies).length,0),
+    closedActions=scoutArr(m?.sets).reduce((n,x)=>n+scoutArr(x?.rallies).reduce((a,r)=>a+scoutArr(r?.actions).length,0),0),
+    liveActions=scoutArr(m?.liveRally?.actions).length;
+  return {
+    id:Number(m?.id)||0,currentSet:Number(m?.currentSet)||1,status:String(m?.status||''),
+    scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,rallies,closedActions,liveActions,
+    rotationNo:Number(m?.rotationNo)||1,opponentRotationNo:Number(m?.opponentRotationNo)||1,
+    servingTeam:String(m?.servingTeam||''),lineup:JSON.stringify(m?.lineup||{})
+  };
+}
+function v902IsActionOnly(prev,next){
+  if(!prev||!next||prev.id!==next.id)return false;
+  return prev.currentSet===next.currentSet&&prev.status===next.status&&
+    prev.scoreUs===next.scoreUs&&prev.scoreOpponent===next.scoreOpponent&&prev.rallies===next.rallies&&
+    prev.closedActions===next.closedActions&&prev.rotationNo===next.rotationNo&&
+    prev.opponentRotationNo===next.opponentRotationNo&&prev.servingTeam===next.servingTeam&&
+    prev.lineup===next.lineup&&prev.liveActions!==next.liveActions;
+}
+function v902IsCritical(prev,next){
+  if(!prev||!next||prev.id!==next.id)return true;
+  return prev.currentSet!==next.currentSet||prev.status!==next.status||
+    prev.scoreUs!==next.scoreUs||prev.scoreOpponent!==next.scoreOpponent||
+    prev.rallies!==next.rallies||prev.closedActions!==next.closedActions||
+    prev.rotationNo!==next.rotationNo||prev.opponentRotationNo!==next.opponentRotationNo||
+    prev.servingTeam!==next.servingTeam||prev.lineup!==next.lineup;
+}
+function v902OpenJournal(){
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB'in window)){reject(new Error('IndexedDB no disponible'));return}
+    const req=indexedDB.open(V902_JOURNAL_DB,1);
+    req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(V902_JOURNAL_STORE))db.createObjectStore(V902_JOURNAL_STORE,{keyPath:'key'})};
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('No se pudo abrir journal'));
+  });
+}
+async function v902JournalWrite(m,reason='change'){
+  if(!m||!Number(m.id))return false;
+  try{
+    const db=await v902OpenJournal(),row={
+      key:`${equipoActivo}:${Number(m.id)}`,version:'9.0.2',teamId:String(equipoActivo),
+      matchId:Number(m.id),savedAt:new Date().toISOString(),reason,match:scoutClone(m)
+    };
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(V902_JOURNAL_STORE,'readwrite');tx.objectStore(V902_JOURNAL_STORE).put(row);
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+    });
+    db.close();return true;
+  }catch(err){console.warn('V9.0.2 journal',err);return false}
+}
+window.scoutV902JournalReadAll=async function(){
+  try{
+    const db=await v902OpenJournal();
+    const rows=await new Promise((resolve,reject)=>{
+      const tx=db.transaction(V902_JOURNAL_STORE,'readonly'),req=tx.objectStore(V902_JOURNAL_STORE).getAll();
+      req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
+    });
+    db.close();return rows;
+  }catch(_){return[]}
+};
+function v902FastRender(m){
+  if(!m)return;
+  try{scoutRenderCurrentActions(m)}catch(_){}
+  try{
+    const s=scoutSet(m);
+    if($('scout-kpi-actions'))$('scout-kpi-actions').textContent=scoutActionCount(m);
+    if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
+    if($('scout-save-badge'))$('scout-save-badge').textContent='Guardado rápido · consolidando…';
+  }catch(_){}
+  try{window.v900RenderFast?.()}catch(_){}
+}
+function v902RequestFullRender(){
+  if(v902RenderFrame)return;
+  v902RenderFrame=requestAnimationFrame(()=>{
+    v902RenderFrame=0;
+    try{scoutRender()}catch(err){console.warn('V9.0.2 full render',err)}
+  });
+}
+async function v902FullCommit(reason='idle',withCloud=true){
+  clearTimeout(v902CommitTimer);v902CommitTimer=null;
+  if(v902CommitBusy){v902CommitQueued=true;return false}
+  v902CommitBusy=true;
+  try{
+    if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+    equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);
+    equiposData[equipoActivo].scoutingActiveId=scoutingActiveId||null;
+    guardarEquipoEnMemoria();
+    guardarEstadoLocalSinCloud();
+    v902LastFullAt=Date.now();
+    try{void window.scoutV680Backup?.('v902-'+reason)}catch(_){}
+    if(withCloud)try{programarSubidaCloud()}catch(_){}
+    const b=$('scout-save-badge');if(b)b.textContent='Sesión abierta · auto-protección ✓';
+    return true;
+  }finally{
+    v902CommitBusy=false;
+    if(v902CommitQueued){v902CommitQueued=false;setTimeout(()=>v902FullCommit('queued',withCloud),0)}
+  }
+}
+function v902ScheduleCommit(reason='idle',delay=1100){
+  clearTimeout(v902CommitTimer);
+  v902CommitTimer=setTimeout(()=>v902FullCommit(reason,true),Math.max(250,Number(delay)||1100));
+}
+window.scoutV902Flush=()=>v902FullCommit('manual-flush',true);
+window.scoutV902PerformanceDiagnostics=()=>({
+  version:'9.0.2',lastFullAt:v902LastFullAt,commitPending:!!v902CommitTimer,commitBusy:v902CommitBusy,
+  lastMutation:v902LastMutation,journalDb:V902_JOURNAL_DB
+});
+
+function scoutSave(render=true){
+  const m=scoutActive();
+  if(m){m.updatedAt=scoutNow();m.dataVersion='9.0.2'}
+  const next=v902MutationState(m),prev=v902LastMutation,actionOnly=v902IsActionOnly(prev,next),critical=v902IsCritical(prev,next);
+  v902LastMutation=next;
+
+  /* Immediate independent safety layer. Never waits for the full application save. */
+  if(m)void v902JournalWrite(m,actionOnly?'action':'critical');
+
+  if(critical){
+    /* Points, rotations, lineup/set/status changes stay fully durable immediately. */
+    void v902FullCommit('critical',true);
+    if(render)v902RequestFullRender();
+  }else{
+    /* Action within the same rally: fast UI now, full state after a short idle period. */
+    v902ScheduleCommit('action-idle',1100);
+    if(render)v902FastRender(m);
+  }
+}
+
+/* Flush pending full state whenever the page is backgrounded or closed. */
+window.addEventListener('pagehide',()=>{try{void v902FullCommit('pagehide',false)}catch(_){}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')try{void v902FullCommit('background',true)}catch(_){}});
+
 
 /* V7.0.1 · stable public bridge for video module */
 window.VC_SCOUT_VIDEO_BRIDGE={
@@ -13017,6 +13156,14 @@ async function v892Collect(){
   v892Candidates=new Map();const sources=v892ScanKnownLocalStorage();
   const independent=await v892ReadAll('VolleyCoachScoutingV702','scoutingByTeam');
   independent.forEach((row,ri)=>{const before=v892Candidates.size;scoutArr(row?.matches).forEach((m,i)=>v892AddCandidate('IndexedDB V7.0.2',row.teamId,m,{slot:`row${ri}.${i}`}));if(v892Candidates.size>before)sources['IndexedDB V7.0.2']=(sources['IndexedDB V7.0.2']||0)+1});
+  const journal=typeof window.scoutV902JournalReadAll==='function'?await window.scoutV902JournalReadAll():[];
+  journal.forEach((row,i)=>{
+    if(row?.match){
+      v892AddCandidate('Journal V9.0.2',row.teamId,row.match,{slot:`journal${i}`});
+      sources['Journal V9.0.2']=(sources['Journal V9.0.2']||0)+1;
+    }
+  });
+
   const rec=await v892ReadAll('volley-coach-match-recovery-v680','snapshots');
   rec.forEach((row,i)=>{const value=row?.value||row;if(value?.match){v892AddCandidate('Snapshot V6.8',value.teamId||String(row?.key||'').split(':')[1],value.match,{slot:String(row?.key||i)});sources['Snapshots V6.8']=(sources['Snapshots V6.8']||0)+1}});
   for(const team of Object.keys(EQUIPOS||{}))for(const which of ['current','previous']){try{const value=JSON.parse(localStorage.getItem(`volley_scout_recovery_v680_${which}_${team}`)||'null');if(value?.match){v892AddCandidate('Snapshot fallback',team,value.match,{slot:`${which}:${team}`});sources['Snapshot fallback']=(sources['Snapshot fallback']||0)+1}}catch(_){}}
@@ -22408,10 +22555,20 @@ function renderStatus(m){
   safeText('v900-service',m.servingTeam==='ours'?'NUESTRO':'RIVAL');safeText('v900-phase',m.servingTeam==='ours'?'K2 · Break':'K1 · Side-out');
   const prep=$('v900-prep-match');if(prep)prep.innerHTML=`<b>${esc(teamName())} vs ${esc(m.opponent||'Rival')}</b><br>${esc(m.date||'Sin fecha')}${m.competition?' · '+esc(m.competition):''}<br>Set ${m.currentSet||1} · R${m.rotationNo||1} vs R${m.opponentRotationNo||1} · ${m.servingTeam==='ours'?'sacamos':'saca el rival'}`;
 }
+let v900LastSafetyAt=0;
 function render(){
   const view=$('scout-workspace-v900');if(!view)return;const m=active(),none=$('v900-no-match'),live=$('v900-live');
   if(!m){none?.classList.remove('hidden');live?.classList.add('hidden');safeText('v900-match-title','Scouting profesional');safeText('v900-match-meta','Preparar → Scoutar → Revisar → Analizar');return}
-  none?.classList.add('hidden');live?.classList.remove('hidden');ensurePlayer();renderStatus(m);renderCourts();renderBuilder();renderLiveActions(m);renderReview(m);renderAnalysis(m);void renderSafety();
+  none?.classList.add('hidden');live?.classList.remove('hidden');ensurePlayer();renderStatus(m);
+
+  /* V9.0.2: render only the active workspace phase.
+     Exhaustive analysis is still computed in full when Analyze is open. */
+  if(state.phase==='prepare'){renderCourts()}
+  else if(state.phase==='scout'){renderCourts();renderBuilder();renderLiveActions(m)}
+  else if(state.phase==='review'){renderReview(m)}
+  else if(state.phase==='analyze'){renderAnalysis(m)}
+
+  if(Date.now()-v900LastSafetyAt>5000){v900LastSafetyAt=Date.now();void renderSafety()}
 }
 function inputMode(mode){state.mode=mode==='code'?'code':'visual';localStorage.setItem('v900_mode',state.mode);$('v900-visual-builder')?.classList.toggle('hidden',state.mode!=='visual');$('v900-code-builder')?.classList.toggle('hidden',state.mode!=='code');$('v900-mode-visual')?.classList.toggle('active',state.mode==='visual');$('v900-mode-code')?.classList.toggle('active',state.mode==='code');if(state.mode==='code')setTimeout(()=>$('v900-code-input')?.focus(),30)}
 function phase(p){state.phase=['prepare','scout','review','analyze'].includes(p)?p:'scout';localStorage.setItem('v900_phase',state.phase);document.querySelectorAll('[data-v900-phase]').forEach(b=>b.classList.toggle('active',b.dataset.v900Phase===state.phase));['prepare','scout','review','analyze'].forEach(x=>$(`v900-phase-${x}`)?.classList.toggle('hidden',x!==state.phase));render()}
@@ -22451,6 +22608,11 @@ window.v900TranslateCode=function(){
 };
 window.v900Open=function(){phase(state.phase);inputMode(state.mode);render()};
 window.v900Render=render;
+window.v900RenderFast=function(){
+  const m=active();if(!m)return;
+  renderStatus(m);
+  if(state.phase==='scout'){renderLiveActions(m);renderIntel()}
+};
 
 /* Shared engines remain the source of truth. We only refresh this UI after them. */
 if(typeof window.scoutRender==='function'){
@@ -22781,6 +22943,103 @@ window.VC_V901_EDITOR={
     vault:typeof window.scoutV893CheckpointAll,
     modal:!!$('v901-rally-editor-modal'),
     codeModal:!!$('scout-code-reference-modal')
+  })
+};
+})();
+</script>
+
+
+
+<script id="v902-performance-runtime-script">
+(()=>{
+'use strict';
+const VERSION='9.0.2';
+
+/* Integrity used to traverse the whole match on every render.
+   Keep the exact original checker, but throttle it instead of deleting it. */
+const fullIntegrity=window.scoutV680UpdateStatus;
+let lastIntegrity=0,integrityTimer=null;
+if(typeof fullIntegrity==='function'){
+  window.scoutV680UpdateStatus=function(force=false){
+    const now=Date.now();
+    const net=document.getElementById('scout-v680-network'),
+      local=document.getElementById('scout-v680-local'),
+      backup=document.getElementById('scout-v680-backup');
+    if(net){
+      const cloud=typeof cloudUser!=='undefined'&&cloudUser;
+      net.textContent=navigator.onLine?(cloud?'Online · nube disponible':'Online · local'):'Offline · local';
+      net.className='scout-v680-chip '+(navigator.onLine?'ok':'warn');
+    }
+    if(local){local.textContent='Local protegido';local.className='scout-v680-chip ok'}
+    if(backup&&window.VC_V902_PERFORMANCE?.lastJournalAt){
+      backup.textContent='Journal inmediato ✓';backup.className='scout-v680-chip ok';
+    }
+    if(force||now-lastIntegrity>3500){
+      lastIntegrity=now;
+      clearTimeout(integrityTimer);integrityTimer=null;
+      return fullIntegrity();
+    }
+    clearTimeout(integrityTimer);
+    integrityTimer=setTimeout(()=>{lastIntegrity=Date.now();try{fullIntegrity()}catch(_){}},900);
+  };
+}
+
+/* Cloud autosave remains exhaustive, but waits longer during rapid scouting input.
+   Manual cloud upload/download functions are unchanged. */
+if(typeof programarSubidaCloud==='function'){
+  const cloudScheduleBase=programarSubidaCloud;
+  let v902CloudTimer=null;
+  programarSubidaCloud=function(){
+    let active=false;
+    try{active=!!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){}
+    if(!active)return cloudScheduleBase();
+    if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
+    if(typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return;
+    clearTimeout(v902CloudTimer);
+    v902CloudTimer=setTimeout(()=>{try{cloudScheduleBase()}catch(_){}},2200);
+  };
+}
+
+/* Force pending local commit before analysis/PDF/export paths.
+   The analytical calculations themselves are untouched. */
+function flush(){try{return window.scoutV902Flush?.()}catch(_){return null}}
+['scoutV752ExportAnalysisPDF','scoutV757ExportAnalysisPDF','scoutV752ExportOfficialPDF','scoutV757ExportOfficialPDF','scoutExportCSV','scoutExportJSON'].forEach(name=>{
+  const base=window[name];if(typeof base!=='function'||base.__v902wrapped)return;
+  const wrapped=function(...args){
+    const p=flush();
+    if(p&&typeof p.then==='function')return p.then(()=>base.apply(this,args));
+    return base.apply(this,args);
+  };
+  wrapped.__v902wrapped=true;window[name]=wrapped;
+});
+
+const showBase=window.showView;
+if(typeof showBase==='function'){
+  window.showView=function(id,btn){
+    if(id==='scout-analysis'||id==='scout-safe')try{void flush()}catch(_){}
+    const out=showBase.apply(this,arguments);
+    if(id==='scout-analysis')setTimeout(()=>{try{window.scoutRenderAnalysis?.()}catch(_){}},0);
+    return out;
+  };
+}
+
+let lastJournalAt=0;
+const jr=window.scoutV902JournalReadAll;
+if(typeof jr==='function'){
+  const old=window.scoutV902JournalReadAll;
+  window.scoutV902JournalReadAll=async function(){const out=await old();return out};
+}
+window.VC_V902_PERFORMANCE={
+  version:VERSION,
+  get lastJournalAt(){return lastJournalAt},
+  exhaustiveAnalysis:true,
+  diagnostics:()=>({
+    version:VERSION,
+    exhaustiveAnalysis:true,
+    journal:typeof window.scoutV902JournalReadAll==='function',
+    flush:typeof window.scoutV902Flush==='function',
+    workspaceFastRender:typeof window.v900RenderFast==='function',
+    integrityThrottled:typeof fullIntegrity==='function'
   })
 };
 })();
