@@ -850,19 +850,19 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" data-view="historial" onclick="showView('historial',this)">Historial</button>
       <button class="tab-btn" data-view="estadisticas" onclick="showView('estadisticas',this)">Estadísticas</button>
     </div>
-    <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden">
-      <button class="tab-btn" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
-      <button class="tab-btn" data-view="scout-workspace-v900" onclick="showView('scout-workspace-v900',this)">Workspace Pro</button>
-      <button class="tab-btn" data-view="scout-match-mode" onclick="showView('scout-match-mode',this)">Modo partido</button>
-      <button class="tab-btn" data-view="scouting" onclick="showView('scouting',this)">Clásico</button>
-      <button class="tab-btn" data-view="competicion" onclick="showView('competicion',this)">Partidos</button>
-      <button class="tab-btn" data-view="scout-video-hub" onclick="showView('scout-video-hub',this)">Vídeo Hub</button>
-      <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
+    <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden v910-scout-nav">
+      <button class="tab-btn v910-primary-tab" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
+      <button class="tab-btn v910-primary-tab" data-view="scout-match-mode" onclick="showView('scout-match-mode',this)">Modo partido</button>
+      <button class="tab-btn v910-primary-tab" data-view="scout-workspace-v900" onclick="showView('scout-workspace-v900',this)">Scouting Pro</button>
+      <button class="tab-btn v910-primary-tab" data-view="scout-analysis" onclick="showView('scout-analysis',this)">Análisis</button>
+      <button class="tab-btn v910-primary-tab" data-view="scout-video-hub" onclick="showView('scout-video-hub',this)">Vídeo</button>
       <button class="tab-btn" data-view="scout-postmatch" onclick="showView('scout-postmatch',this)">Postpartido</button>
-      <button class="tab-btn" data-view="scout-analysis" onclick="showView('scout-analysis',this)">Análisis</button>
-      <button class="tab-btn" data-view="scout-safe" onclick="showView('scout-safe',this)">Caja fuerte</button>
-      <button class="tab-btn" data-view="scout-plan" onclick="showView('scout-plan',this)">Plan de partido</button>
+      <button class="tab-btn" data-view="competicion" onclick="showView('competicion',this)">Partidos</button>
+      <button class="tab-btn" data-view="scout-plan" onclick="showView('scout-plan',this)">Plan</button>
       <button class="tab-btn" data-view="scout-matchup" onclick="showView('scout-matchup',this)">Match-up</button>
+      <button class="tab-btn" data-view="scout-safe" onclick="showView('scout-safe',this)">Seguridad</button>
+      <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
+      <button class="tab-btn v910-fallback-tab" data-view="scouting" onclick="showView('scouting',this)">Clásico</button>
     </div>
   </div>
   <div class="team-switcher compact-team-switcher" id="team-switcher">
@@ -1720,13 +1720,13 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div id="v800-shell" class="v800-shell">
     <div class="v800-top">
       <div class="v800-match-title">
-        <span class="pro-kicker">V8.0 · MODO PARTIDO</span>
+        <span class="pro-kicker">V9.1 · MODO PARTIDO · MOTOR OPTIMIZADO</span>
         <h2 id="v800-title">Sin partido activo</h2>
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
       <div class="v800-top-actions">
         <label class="v800-match-picker"><span>Scouting</span><select id="v800-match-select" onchange="v800SelectMatch(this.value)"><option value="">Sin scouting</option></select></label>
-        <button class="ghost" onclick="showView('scouting',botonVista('scouting'))">Scouting completo</button>
+        <button class="ghost" onclick="showView('scout-workspace-v900',botonVista('scout-workspace-v900'))">Scouting Pro</button>
         <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
         <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
@@ -1764,6 +1764,17 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div><span>TRAMO ACTUAL</span><b id="v850-context-rate">—</b><small id="v850-context-rate-copy">Sin muestra</small></div>
         <div id="v850-pressure-box"><span>PRESIÓN</span><b id="v850-context-pressure">NORMAL</b><small id="v850-context-pressure-copy">Sin punto de set</small></div>
       </section>
+
+      <div id="v910-match-view-nav" class="v910-match-view-nav">
+        <div>
+          <span>VISTA DE TRABAJO</span>
+          <button data-v910-view="directo" class="active" onclick="v910SetMatchView('directo')">Directo</button>
+          <button data-v910-view="video" onclick="v910SetMatchView('video')">Vídeo</button>
+          <button data-v910-view="lectura" onclick="v910SetMatchView('lectura')">Lectura</button>
+          <button data-v910-view="todo" onclick="v910SetMatchView('todo')">Todo</button>
+        </div>
+        <small id="v910-match-view-copy">Directo prioriza marcador, pista, puntos y códigos.</small>
+      </div>
 
       <div class="v800-live-grid">
         <main class="v800-main">
@@ -5327,7 +5338,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.0.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.1.0', {
         updateViaCache: 'none'
       });
 
@@ -7995,7 +8006,7 @@ function v902FastRender(m){
     if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
     if($('scout-save-badge'))$('scout-save-badge').textContent='Guardado rápido · consolidando…';
   }catch(_){}
-  try{window.v900RenderFast?.()}catch(_){}
+  if($('scout-workspace-v900')?.classList.contains('active'))try{window.v900RenderFast?.()}catch(_){}
 }
 function v902RequestFullRender(){
   if(v902RenderFrame)return;
@@ -8463,7 +8474,7 @@ window.scoutV757PDFDirectDiagnostics=function(){
 const scoutRenderAnalysisV611Base=window.scoutRenderAnalysis;window.scoutRenderAnalysis=function(){scoutRenderAnalysisV611Base();scoutRenderPlayerAnalytics()};
 
 /* Extiende el render principal para mantener Inicio/Análisis actualizados */
-const scoutRenderV610=scoutRender;window.scoutRender=function(){scoutRenderV610();scoutRenderHome();if($('scout-analysis')?.classList.contains('active'))scoutRenderAnalysis()};
+const scoutRenderV610=scoutRender;window.scoutRender=function(){const out=scoutRenderV610();if($('scout-dashboard')?.classList.contains('active'))scoutRenderHome();if($('scout-analysis')?.classList.contains('active'))scoutRenderAnalysis();return out};
 
 /* Enter en consola */
 $('scout-code-input')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();scoutAddCode()}});
@@ -8693,7 +8704,7 @@ window.scoutV670PushToPlan=function(own,opp){const group=scoutV670SelectedGroup(
 window.scoutV670ExportCSV=function(){const g=scoutV670SelectedGroup();if(!g){alert('No hay rival seleccionado.');return}const matrix=scoutV670Matrix(),header=['Nuestra rotacion','Rotacion rival','Rallies','Puntos ganados','Puntos %','Side-out n','Side-out ganado','Side-out %','Break n','Break ganado','Break %','Ataques propios','Kill propio %','EFF propia %','Ataques rival','Kill rival %','EFF rival %'],rows=matrix.map(p=>[`R${p.own}`,`R${p.opp}`,p.total,p.won,p.pointPct,p.sideTotal,p.sideWon,p.sidePct,p.breakTotal,p.breakWon,p.breakPct,p.ourAttacks,p.ourKillPct,p.ourEff,p.oppAttacks,p.oppKillPct,p.oppEff]),csv=[header,...rows].map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename(g.name)}_matchup_rotaciones_v670.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)}
 const v670PrevTeam=window.cambiarEquipo;window.cambiarEquipo=function(id){const out=v670PrevTeam(id);scoutV670SelectedPair=null;scoutV670PopulateRivals(false);scoutV670Render();return out};
 
-vcUpgradeCodeReference();vcMigrateMatches();const lineModal=$('scout-lineup-modal');lineModal?.addEventListener('change',e=>{if(e.target?.id==='scout-lineup-libero'||e.target?.id==='scout-lineup-libero-auto'||String(e.target?.id||'').startsWith('scout-own-'))scoutRenderLineupPreview()});const renderBase=window.scoutRender;window.scoutRender=function(){const m=scoutActive();if(m){vcEnsureProMatch(m);vcApplyAutoLibero(m,false)}renderBase();if(m){vcRenderRotationStrip(m);scoutRenderLiveTactical(m);if($('scout-kpi-rotation'))$('scout-kpi-rotation').textContent=`R${m.rotationNo} · RIV R${m.opponentRotationNo||1}`;if($('scout-kpi-serve'))$('scout-kpi-serve').textContent=`${m.servingTeam==='ours'?'Saque nuestro':'Saque rival'}${m.libero?.activePosition?' · LIB '+m.libero.activePosition.toUpperCase():''}`}};const v620AnalysisBase=window.scoutRenderAnalysis;window.scoutRenderAnalysis=function(){v620AnalysisBase();scoutRenderPerformanceAnalytics();scoutRenderPlayerAnalytics();scoutV640RenderTendencies();scoutV650PopulateRivals(false);scoutV650PopulatePlayers(false);scoutV650Render();scoutV660PopulateRivals(false);scoutV660Render()};const v620CurrentActionsBase=scoutRenderCurrentActions;scoutRenderCurrentActions=function(m){v620CurrentActionsBase(m);document.querySelectorAll('#scout-current-actions .scout-action-item').forEach((row,i)=>{const a=m?.liveRally?.actions?.[i],meta=a?scoutAdvancedMetaText(a):'';if(meta){const small=row.querySelector('.scout-action-copy small');if(small)small.textContent+=(small.textContent?' · ':'')+meta}})};['scout-action-eval','scout-action-start','scout-action-end','scout-action-serve-type','scout-action-phase','scout-action-combo','scout-action-tempo','scout-action-blockers'].forEach(id=>$(id)?.addEventListener('change',scoutUpdateAdvancedCodePreview));$('scout-action-team')?.addEventListener('change',scoutUpdateAdvancedFields);scoutUpdateAdvancedFields();try{scoutV660PopulateRivals(false);scoutV660Render();scoutRender()}catch(err){console.warn('V6.6.0 match plan init',err)}
+vcUpgradeCodeReference();vcMigrateMatches();const lineModal=$('scout-lineup-modal');lineModal?.addEventListener('change',e=>{if(e.target?.id==='scout-lineup-libero'||e.target?.id==='scout-lineup-libero-auto'||String(e.target?.id||'').startsWith('scout-own-'))scoutRenderLineupPreview()});const renderBase=window.scoutRender;window.scoutRender=function(){const m=scoutActive();if(m){vcEnsureProMatch(m);vcApplyAutoLibero(m,false)}if(!$('scouting')?.classList.contains('active'))return m;renderBase();if(m){vcRenderRotationStrip(m);scoutRenderLiveTactical(m);if($('scout-kpi-rotation'))$('scout-kpi-rotation').textContent=`R${m.rotationNo} · RIV R${m.opponentRotationNo||1}`;if($('scout-kpi-serve'))$('scout-kpi-serve').textContent=`${m.servingTeam==='ours'?'Saque nuestro':'Saque rival'}${m.libero?.activePosition?' · LIB '+m.libero.activePosition.toUpperCase():''}`}};const v620AnalysisBase=window.scoutRenderAnalysis;window.scoutRenderAnalysis=function(){v620AnalysisBase();scoutRenderPerformanceAnalytics();scoutRenderPlayerAnalytics();scoutV640RenderTendencies();scoutV650PopulateRivals(false);scoutV650PopulatePlayers(false);scoutV650Render();scoutV660PopulateRivals(false);scoutV660Render()};const v620CurrentActionsBase=scoutRenderCurrentActions;scoutRenderCurrentActions=function(m){v620CurrentActionsBase(m);document.querySelectorAll('#scout-current-actions .scout-action-item').forEach((row,i)=>{const a=m?.liveRally?.actions?.[i],meta=a?scoutAdvancedMetaText(a):'';if(meta){const small=row.querySelector('.scout-action-copy small');if(small)small.textContent+=(small.textContent?' · ':'')+meta}})};['scout-action-eval','scout-action-start','scout-action-end','scout-action-serve-type','scout-action-phase','scout-action-combo','scout-action-tempo','scout-action-blockers'].forEach(id=>$(id)?.addEventListener('change',scoutUpdateAdvancedCodePreview));$('scout-action-team')?.addEventListener('change',scoutUpdateAdvancedFields);scoutUpdateAdvancedFields();try{scoutV660PopulateRivals(false);scoutV660Render();scoutRender()}catch(err){console.warn('V6.6.0 match plan init',err)}
 
 
 /* V6.8 relocated inside scouting core scope for runtime stability */
@@ -8829,7 +8840,7 @@ window.scoutV690OpenIssue=function(setNo,rallyId){scoutV690CloseReview();if(type
 window.scoutV690ExportQualityCSV=function(){const m=scoutActive();if(!m)return;const q=scoutV690Quality(m),head=['Set','Rally','Marcador','Tipo','Incidencia'],rows=q.issues.map(i=>[i.set,i.index,i.score,i.kind,i.text]),csv=[head,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\n'),blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename(m.opponent)}_calidad_scout_v690.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 
 function scoutV690RenderWorkflow(){const m=scoutV690EnsureMatch();scoutV690RenderQuality(m);scoutV690RenderEvents(m);scoutV690RenderTemplates();scoutV690UpdateCodeHelp()}
-const v690RenderBase=window.scoutRender;window.scoutRender=function(){const out=v690RenderBase();scoutV690RenderWorkflow();return out};
+const v690RenderBase=window.scoutRender;window.scoutRender=function(){const out=v690RenderBase();if($('scouting')?.classList.contains('active'))scoutV690RenderWorkflow();return out};
 const v690NextSetBase=window.scoutNextSet;window.scoutNextSet=function(serving){const out=v690NextSetBase(serving);const m=scoutV690EnsureMatch();scoutV690RenderWorkflow();return out};
 const v690CreateBase=window.scoutCreateMatch;window.scoutCreateMatch=function(){const out=v690CreateBase();const m=scoutV690EnsureMatch();if(m)scoutSave(false);scoutV690RenderWorkflow();return out};
 const v690FinishBase=window.scoutFinishMatch;window.scoutFinishMatch=function(){const m=scoutActive();if(m){const q=scoutV690Quality(m);if(q.n&&q.score<80){if(!confirm(`La calidad del scout es ${q.score}% y hay ${q.issues.length} incidencias. ¿Finalizar igualmente?`)){scoutV690OpenReview();return}}}return v690FinishBase()};
@@ -8916,7 +8927,7 @@ const v6100SaveSettingsBase=window.scoutV690SaveSettings;window.scoutV690SaveSet
 const v6100OpenLineupBase=window.scoutOpenLineup;window.scoutOpenLineup=function(){const out=v6100OpenLineupBase();scoutV6100ApplyRivalDatalist();SCOUT_POS.forEach(pos=>{const input=$(`scout-rival-${pos}`);if(input&&!input.dataset.v6100){input.dataset.v6100='1';input.addEventListener('change',()=>scoutV6100AutofillRivalRole(input))}});return out};
 
 // Keep timeline/quality current after actions, rallies, events and changes.
-const v6100RenderBase=window.scoutRender;window.scoutRender=function(){const out=v6100RenderBase();scoutV6100RenderFavorites();scoutV6100RenderLiveWarning();scoutV6100RenderTimeline();return out};
+const v6100RenderBase=window.scoutRender;window.scoutRender=function(){const out=v6100RenderBase();if($('scouting')?.classList.contains('active')){scoutV6100RenderFavorites();scoutV6100RenderLiveWarning();scoutV6100RenderTimeline()}return out};
 const v6100EventBase=window.scoutV690SaveEvent;window.scoutV690SaveEvent=function(){const out=v6100EventBase();scoutV6100RenderTimeline();return out};
 const v6100SubBase=window.scoutApplySubstitution;window.scoutApplySubstitution=function(){const out=v6100SubBase();scoutV6100RenderTimeline();return out};
 const v6100FinishBase=window.scoutFinishMatch;window.scoutFinishMatch=function(){const before=scoutActive(),id=before?.id,status=before?.status;const out=v6100FinishBase();const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(status!=='finished'&&m?.status==='finished')setTimeout(()=>scoutV6100OpenPostMatch(m),80);return out};
@@ -10036,7 +10047,7 @@ scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutingMatches.forEach
 
 // Add a direct video jump beside closed rallies in the live screen.
 function v700DecorateRallies(m){const set=scoutSet(m),rows=scoutArr(set?.rallies).slice().reverse(),cards=[...document.querySelectorAll('#scout-rally-list .scout-rally-item')];cards.forEach((card,i)=>{const r=rows[i];if(!r||card.querySelector('.scout-v700-rally-video'))return;const b=document.createElement('button');b.type='button';b.className='ghost scout-v700-rally-video';b.textContent='▶ Vídeo';b.onclick=()=>{scoutV700OpenVideo('live');setTimeout(()=>scoutV700PlayRally(set.number,r.id),0)};card.appendChild(b)})}
-const v700RenderBase=window.scoutRender;window.scoutRender=function(){const out=v700RenderBase();const m=scoutActive();if(m)v700DecorateRallies(m);return out};
+const v700RenderBase=window.scoutRender;window.scoutRender=function(){const out=v700RenderBase();if($('scouting')?.classList.contains('active')){const m=scoutActive();if(m)v700DecorateRallies(m)}return out};
 
 // Keep V7 version in saved state without changing session behavior.
 const v700SaveBase=scoutSave;scoutSave=function(render=true){const m=scoutActive();if(m)m.dataVersion=V700_VERSION;const out=v700SaveBase(render);if(m)m.dataVersion=V700_VERSION;return out};
@@ -12199,7 +12210,7 @@ window.scoutV861RenderSetList=function(m=scoutActive()){
 const v861RenderBase=window.scoutRender;
 window.scoutRender=function(){
   const out=v861RenderBase();
-  try{window.scoutV861RenderSetList(scoutActive())}catch(_){}
+  if($('scouting')?.classList.contains('active'))try{window.scoutV861RenderSetList(scoutActive())}catch(_){}
   return out;
 };
 
@@ -15632,7 +15643,7 @@ window.scoutUndoRally=function(...args){
 // Render wrapper: keep video status integrated with every scouting render.
 const baseRender=window.scoutRender;
 window.scoutRender=function(...args){
-  const out=baseRender?.apply(this,args);setTimeout(render,0);return out;
+  const out=baseRender?.apply(this,args);if(state.dockOpen||$('scouting')?.classList.contains('active'))setTimeout(render,0);return out;
 };
 
 // Keep linked markers after V6/V7 UI redraws.
@@ -20756,8 +20767,58 @@ function renderREC(){
     btn.textContent='● REC';btn.className='ghost';copy.textContent='Grabación detenida.';
   }
 }
+
+/* ===== V9.1 · MATCH MODE SELECTIVE RENDER ===== */
+let v910ViewMode=localStorage.getItem('v910_match_view')||'directo';
+let v910DecisionCache={key:'',rows:[]};
+
+function v910ViewNeeds(name){
+  if(v910ViewMode==='todo')return true;
+  if(v910ViewMode==='directo')return name==='directo'||name==='lectura-lite';
+  return v910ViewMode===name;
+}
+function v910ViewCopy(){
+  return v910ViewMode==='video'
+    ?'Vídeo carga únicamente cámara/replay/REC y evita cálculos tácticos innecesarios.'
+    :v910ViewMode==='lectura'
+      ?'Lectura recalcula K1/K2, G-P, decisiones y último rally.'
+      :v910ViewMode==='todo'
+        ?'Todo reproduce la distribución completa histórica de Modo partido.'
+        :'Directo prioriza marcador, pista, puntos, códigos y lectura esencial.';
+}
+function v910ApplyModeClass(){
+  const shell=$('v800-shell');if(!shell)return;
+  ['directo','video','lectura','todo'].forEach(x=>shell.classList.toggle(`v910-mode-${x}`,v910ViewMode===x));
+  document.querySelectorAll('#v910-match-view-nav [data-v910-view]').forEach(b=>b.classList.toggle('active',b.dataset.v910View===v910ViewMode));
+  const copy=$('v910-match-view-copy');if(copy)copy.textContent=v910ViewCopy();
+}
+function v910DecisionRows(m){
+  const rallies=allRallies(m),key=[m?.id,m?.currentSet,m?.rotationNo,rallies.length,rallies.slice(-1)[0]?.r?.id||0].join('|');
+  if(v910DecisionCache.key===key)return v910DecisionCache.rows;
+  const rows=decisionRows(m);v910DecisionCache={key,rows};return rows;
+}
+function v910InvalidateMatchCaches(){v910DecisionCache={key:'',rows:[]}}
+function v910FastMutation(){
+  const m=match();if(!m)return;
+  const s=setOf(m);
+  if($('v800-rally-chip'))$('v800-rally-chip').textContent=`Rally ${(s?.rallies?.length||0)+1} · ${arr(m?.liveRally?.actions).length} acc.`;
+  if($('v800-clock'))$('v800-clock').textContent=elapsed(m);
+  const badge=document.getElementById('scout-save-badge');
+  if(badge&&badge.textContent.includes('consolidando'))badge.title='Journal inmediato activo';
+}
+window.v910SetMatchView=function(mode){
+  if(!['directo','video','lectura','todo'].includes(mode))mode='directo';
+  v910ViewMode=mode;localStorage.setItem('v910_match_view',mode);v910ApplyModeClass();
+  if(mode==='video'||mode==='todo'){restoreMatchMedia();setSourceUi();syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus()}
+  render();
+};
+window.v910InvalidateMatchCaches=v910InvalidateMatchCaches;
+window.v910MatchModeFastRender=v910FastMutation;
+window.VC_V910_MATCH_VIEW={get:()=>v910ViewMode,set:window.v910SetMatchView,invalidate:v910InvalidateMatchCaches};
+
 function render(){
   populateMatchPicker();
+  v910ApplyModeClass();
   const m=match(),empty=$('v800-empty'),live=$('v800-live');
   if(!m){
     const saved=openMatches();
@@ -20767,8 +20828,9 @@ function render(){
     const resume=$('v800-resume-btn');if(resume)resume.classList.toggle('hidden',!saved.length);
     return;
   }
+
   empty?.classList.add('hidden');live?.classList.remove('hidden');
-  const s=setOf(m),sets=setsScore(m),st=currentSetStats(m,s),lh=lineupHealth(m);
+  const s=setOf(m),sets=setsScore(m),lh=lineupHealth(m);
   $('v800-title').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;
   $('v800-meta').textContent=`${m.date||''}${m.competition?' · '+m.competition:''} · ${m.status==='finished'?'Finalizado':'En directo'}`;
   $('v800-team-name').textContent=teamName();$('v800-opponent').textContent=m.opponent||'Rival';
@@ -20779,42 +20841,67 @@ function render(){
   $('v800-service-dot').style.background=m.servingTeam==='opponent'?'#b76458':'#68aa7f';
   $('v800-rotation-title').textContent=`R${m.rotationNo||1} · vs R${m.opponentRotationNo||1}`;
   $('v800-lineup-health').textContent=lh.text;$('v800-lineup-health').style.background=lh.ok?'#e7f4ec':'#faece8';$('v800-lineup-health').style.color=lh.ok?'#2b6543':'#8f453e';
-  $('v800-rally-chip').textContent=`Rally ${(s?.rallies?.length||0)+1}`;
-  renderCourt($('v800-court-own'),m.lineup?.ours,true);renderCourt($('v800-court-rival'),m.lineup?.opponent,false);
-  $('v800-k1').textContent=st.k1pct==null?'—':`${st.k1pct}%`;$('v800-k1-copy').textContent=`${st.k1w}/${st.k1}`;
-  $('v800-k2').textContent=st.k2pct==null?'—':`${st.k2pct}%`;$('v800-k2-copy').textContent=`${st.k2w}/${st.k2}`;
-  $('v800-gp').textContent=`${st.gp>0?'+':''}${st.gp}`;$('v800-gp-copy').textContent=`G ${st.g} · P ${st.p}`;$('v800-rallies').textContent=String(st.rallies);
-  const ev=quickEvents(m);$('v800-events').innerHTML=ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>';
-  const decisions=decisionRows(m);$('v800-decisions').innerHTML=decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${x.title}</b><span>${x.copy}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>';
-  const last=arr(s?.rallies).slice(-1)[0];
-  if(last){
-    $('v800-last-title').textContent=`${last.scoreAfter?.us??0}-${last.scoreAfter?.opponent??0} · ${last.winner==='ours'?'Punto nuestro':'Punto rival'}`;
-    $('v800-last-rally').innerHTML=`R${last.rotationBefore||1} · ${last.servingBefore==='ours'?'K2 / saque':'K1 / recepción'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||''))}</span>`).join('')}</div>`;
-  }else{
-    $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
+  $('v800-rally-chip').textContent=`Rally ${(s?.rallies?.length||0)+1} · ${arr(m?.liveRally?.actions).length} acc.`;
+
+  const needDirect=v910ViewNeeds('directo');
+  const needVideo=v910ViewNeeds('video');
+  const needRead=v910ViewNeeds('lectura')||v910ViewNeeds('lectura-lite');
+
+  if(needDirect){
+    renderCourt($('v800-court-own'),m.lineup?.ours,true);
+    renderCourt($('v800-court-rival'),m.lineup?.opponent,false);
+    const ev=quickEvents(m);
+    $('v800-events').innerHTML=ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>';
   }
-  window.v850RenderMatchExtras?.(m,s);
-  window.v855RenderMatchState?.(m,s);
-  syncVideo();renderREC();
+
+  if(needRead){
+    const st=currentSetStats(m,s);
+    $('v800-k1').textContent=st.k1pct==null?'—':`${st.k1pct}%`;$('v800-k1-copy').textContent=`${st.k1w}/${st.k1}`;
+    $('v800-k2').textContent=st.k2pct==null?'—':`${st.k2pct}%`;$('v800-k2-copy').textContent=`${st.k2w}/${st.k2}`;
+    $('v800-gp').textContent=`${st.gp>0?'+':''}${st.gp}`;$('v800-gp-copy').textContent=`G ${st.g} · P ${st.p}`;$('v800-rallies').textContent=String(st.rallies);
+
+    if(v910ViewMode==='lectura'||v910ViewMode==='todo'){
+      const decisions=v910DecisionRows(m);
+      $('v800-decisions').innerHTML=decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${x.title}</b><span>${x.copy}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>';
+    }
+
+    const last=arr(s?.rallies).slice(-1)[0];
+    if(last){
+      $('v800-last-title').textContent=`${last.scoreAfter?.us??0}-${last.scoreAfter?.opponent??0} · ${last.winner==='ours'?'Punto nuestro':'Punto rival'}`;
+      $('v800-last-rally').innerHTML=`R${last.rotationBefore||1} · ${last.servingBefore==='ours'?'K2 / saque':'K1 / recepción'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||''))}</span>`).join('')}</div>`;
+    }else{
+      $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
+    }
+  }
+
+  if(needDirect){
+    window.v850RenderMatchExtras?.(m,s);
+    window.v855RenderMatchState?.(m,s);
+  }
+
+  if(needVideo){
+    syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
+  }
 }
 window.v800Render=render;
 window.v800Open=function(){
   populateMatchPicker();
   ensureMatchForMode();
-  restoreMatchMedia();
+  v910ApplyModeClass();
+  if(v910ViewMode==='video'||v910ViewMode==='todo'){restoreMatchMedia();setSourceUi();renderMobileQR();refreshMobileStatus()}
   render();
-  setSourceUi();
-  renderMobileQR();refreshMobileStatus();
   clearInterval(ticker);
   ticker=setInterval(()=>{
     const view=$('scout-match-mode');
     if(view?.classList.contains('active')){
       const m=match();
       if(m)$('v800-clock').textContent=elapsed(m);
-      syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
-      if(!$('v803-mobile-link')?.value&&remotePublisherLink())renderMobileQR();
+      if(v910ViewMode==='video'||v910ViewMode==='todo'){
+        syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
+        if(!$('v803-mobile-link')?.value&&remotePublisherLink())renderMobileQR();
+      }
     }
-  },500)
+  },1000)
 };
 window.v800SelectMatch=function(id){
   if(!id)return;
@@ -20831,7 +20918,7 @@ window.v800AddCode=function(){
   const value=String($('v800-code')?.value||'').trim().toUpperCase().replace(/\s+/g,'');if(!value)return;
   const target=$('scout-code-input');if(!target){alert('No encuentro la consola de códigos del scouting.');return}
   target.value=value;
-  try{window.scoutAddCode?.();stampLatestAction();$('v800-code').value='';render()}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
+  try{window.scoutAddCode?.();stampLatestAction();$('v800-code').value='';v910FastMutation()}catch(err){alert('No se ha podido registrar el código.\n\n'+String(err?.message||err))}
 };
 window.v800Preset=function(suffix){
   const n=String($('v800-code-number')?.value||'').trim();
@@ -20876,10 +20963,20 @@ window.v800ToggleFullscreen=async function(){
 };
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){$('scout-match-mode')?.classList.remove('v800-full');document.body.classList.remove('v800-lock')}});
 
-/* Refresh Mode Partido after every core match mutation. */
+/* V9.1: refresh only the visible Mode Partido surface.
+   Actions inside the current rally use a lightweight refresh; structural
+   changes invalidate tactical caches and run the full visible render. */
 ['scoutAwardPoint','scoutUndoRally','scoutAddCode','scoutAddManualAction','scoutApplySubstitution','scoutSaveLineup','scoutNextSet','scoutFinishMatch'].forEach(name=>{
   const base=window[name];if(typeof base!=='function'||base.__v800)return;
-  const wrapped=function(...args){const out=base.apply(this,args);Promise.resolve(out).finally(()=>setTimeout(render,20));return out};
+  const wrapped=function(...args){
+    const out=base.apply(this,args);
+    Promise.resolve(out).finally(()=>{
+      if(!$('scout-match-mode')?.classList.contains('active'))return;
+      if(name==='scoutAddCode'||name==='scoutAddManualAction')setTimeout(v910FastMutation,0);
+      else{v910InvalidateMatchCaches();setTimeout(render,0)}
+    });
+    return out
+  };
   wrapped.__v800=true;window[name]=wrapped;
 });
 
@@ -22617,7 +22714,7 @@ window.v900RenderFast=function(){
 /* Shared engines remain the source of truth. We only refresh this UI after them. */
 if(typeof window.scoutRender==='function'){
   const base=window.scoutRender;
-  window.scoutRender=function(...args){const out=base.apply(this,args);try{render()}catch(err){console.warn('V9 workspace render',err)}return out};
+  window.scoutRender=function(...args){const out=base.apply(this,args);if($('scout-workspace-v900')?.classList.contains('active'))try{render()}catch(err){console.warn('V9 workspace render',err)}return out};
 }
 if(typeof window.scoutOpenSaved==='function'){
   const base=window.scoutOpenSaved;
@@ -22888,6 +22985,7 @@ window.v901SaveRallyEditor=async function(){
 
   if(!saveEngine())return alert('No se pudo guardar la corrección.');
   await checkpoint('after-rally-edit-v901');
+  try{window.v910InvalidateMatchCaches?.();if(document.getElementById('scout-match-mode')?.classList.contains('active'))window.v800Render?.()}catch(_){}
   try{window.v900Render?.()}catch(_){}
   try{window.scoutRender?.()}catch(_){}
   loadSelection();
@@ -23042,6 +23140,120 @@ window.VC_V902_PERFORMANCE={
     integrityThrottled:typeof fullIntegrity==='function'
   })
 };
+})();
+</script>
+
+
+
+<style id="v910-scouting-core-style">
+.v910-scout-nav{gap:4px!important}
+.v910-scout-nav .v910-primary-tab{font-weight:950!important}
+.v910-scout-nav .v910-primary-tab[data-view="scout-match-mode"]{border-color:#7899ad!important}
+.v910-scout-nav .v910-fallback-tab{opacity:.62}
+.v910-scout-nav .v910-fallback-tab:hover,.v910-scout-nav .v910-fallback-tab.active{opacity:1}
+
+.v910-match-view-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid #dce4e8;border-radius:10px;padding:7px 9px}
+.v910-match-view-nav>div{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.v910-match-view-nav span{font-size:6.2px;font-weight:950;letter-spacing:.08em;color:#7b8b95;margin-right:3px}
+.v910-match-view-nav button{border:1px solid #dce4e8;background:#f7f9fa;color:#587080;border-radius:7px;padding:6px 9px;font-size:7px;font-weight:950;cursor:pointer}
+.v910-match-view-nav button.active{background:#102b43;color:#fff;border-color:#102b43}
+.v910-match-view-nav small{font-size:6.7px;color:#7b8993;text-align:right}
+
+/* DIRECTO: same match workflow, without video/decision engine continually active. */
+#v800-shell.v910-mode-directo .v800-video-card,
+#v800-shell.v910-mode-directo .v800-decision-card{display:none!important}
+
+/* VIDEO: only media workflow; scoreboard/context remain visible. */
+#v800-shell.v910-mode-video .v800-main,
+#v800-shell.v910-mode-video .v800-kpi-card,
+#v800-shell.v910-mode-video .v800-decision-card,
+#v800-shell.v910-mode-video .v800-last-card{display:none!important}
+#v800-shell.v910-mode-video .v800-live-grid{grid-template-columns:1fr!important}
+#v800-shell.v910-mode-video .v800-side{grid-template-columns:1fr!important;max-width:1100px;width:100%;margin:0 auto}
+#v800-shell.v910-mode-video .v800-video-card{display:block!important}
+
+/* LECTURA: tactical/statistical live view; no court controls or media work. */
+#v800-shell.v910-mode-lectura .v800-main,
+#v800-shell.v910-mode-lectura .v800-video-card{display:none!important}
+#v800-shell.v910-mode-lectura .v800-live-grid{grid-template-columns:1fr!important}
+#v800-shell.v910-mode-lectura .v800-side{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#v800-shell.v910-mode-lectura .v800-kpi-card,
+#v800-shell.v910-mode-lectura .v800-decision-card,
+#v800-shell.v910-mode-lectura .v800-last-card{display:block!important}
+
+/* TODO intentionally keeps the historical all-at-once layout. */
+#v800-shell.v910-mode-todo .v800-live-grid{grid-template-columns:minmax(0,1.55fr) minmax(300px,.65fr)}
+
+@media(max-width:900px){
+  .v910-match-view-nav{align-items:flex-start;flex-direction:column}
+  .v910-match-view-nav small{text-align:left}
+  #v800-shell.v910-mode-lectura .v800-side{grid-template-columns:1fr!important}
+}
+</style>
+
+
+
+<script id="v910-scouting-core-runtime">
+(()=>{
+'use strict';
+const VERSION='9.1.0';
+let activeSurface='';
+let surfaceChangedAt=Date.now();
+
+function surface(){
+  const ids=['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-dashboard'];
+  return ids.find(id=>document.getElementById(id)?.classList.contains('active'))||'';
+}
+function updateSurface(){
+  const s=surface();
+  if(s!==activeSurface){activeSurface=s;surfaceChangedAt=Date.now()}
+  document.body.dataset.vcScoutSurface=s||'other';
+  return s;
+}
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v910){
+  const wrapped=function(id,btn){
+    const out=showBase.apply(this,arguments);
+    activeSurface=id;surfaceChangedAt=Date.now();document.body.dataset.vcScoutSurface=id;
+    return out;
+  };
+  wrapped.__v910=true;window.showView=wrapped;
+}
+
+/* The full analysis engine stays unchanged. These hooks only make sure
+   pending saves are consolidated before an exhaustive read/export. */
+function flush(){try{return window.scoutV902Flush?.()}catch(_){return null}}
+const analysisBase=window.scoutRenderAnalysis;
+if(typeof analysisBase==='function'&&!analysisBase.__v910){
+  const wrapped=function(...args){
+    const p=flush();
+    if(p&&typeof p.then==='function')return p.then(()=>analysisBase.apply(this,args));
+    return analysisBase.apply(this,args);
+  };
+  wrapped.__v910=true;window.scoutRenderAnalysis=wrapped;
+}
+
+/* Periodic UI status is intentionally cheap. */
+setInterval(()=>{if(document.visibilityState==='visible')updateSurface()},2500);
+
+window.VC_V910_CORE={
+  version:VERSION,
+  surface:()=>updateSurface(),
+  exhaustiveAnalysis:true,
+  dataModel:'scoutingMatches>sets>rallies>actions',
+  diagnostics:()=>({
+    version:VERSION,
+    surface:updateSurface(),
+    surfaceChangedAt,
+    matchView:window.VC_V910_MATCH_VIEW?.get?.()||null,
+    journal:typeof window.scoutV902JournalReadAll==='function',
+    vault:typeof window.scoutV893CheckpointAll==='function',
+    editor:typeof window.v901OpenRallyEditor==='function',
+    exhaustiveAnalysis:typeof window.scoutRenderAnalysis==='function',
+    matchMode:typeof window.v800Render==='function'
+  })
+};
+updateSurface();
 })();
 </script>
 
