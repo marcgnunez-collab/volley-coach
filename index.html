@@ -3441,7 +3441,17 @@ function sincronizarSesionConPlanVinculado(){
   planificacion[pos]={...previo,...snap,id,realizado:false,historialId:previo.historialId||null,creadoDesdePlanificacion:previo.creadoDesdePlanificacion!==false,actualizadoEnSesion:Date.now()};
   return true;
 }
-function save(){meta.equipo=EQUIPOS[equipoActivo].nombre;const vinculado=sincronizarSesionConPlanVinculado();guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();$('save-indicator').textContent=vinculado?'✓ Guardado automáticamente en Planificación':'✓ Guardado · '+EQUIPOS[equipoActivo].corto+' · biblioteca compartida';programarSubidaCloud();}
+function save(){
+  const now=new Date().toISOString();
+  meta.equipo=EQUIPOS[equipoActivo].nombre;
+  meta.updatedAt=now;
+  const vinculado=sincronizarSesionConPlanVinculado();
+  guardarEquipoEnMemoria();
+  if(equiposData?.[equipoActivo])equiposData[equipoActivo].trainingUpdatedAt=now;
+  guardarEstadoLocalSinCloud();
+  $('save-indicator').textContent=vinculado?'✓ Guardado automáticamente en Planificación':'✓ Guardado · '+EQUIPOS[equipoActivo].corto+' · biblioteca compartida';
+  programarSubidaCloud();
+}
 function showView(id,btn){if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));if($(id))$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='dashboard'){renderDashboard();if(typeof renderDashboardPlayers==='function')renderDashboardPlayers()}if(id==='entrenamiento'){renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster()}if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='jugadores'&&typeof renderPlayers==='function')renderPlayers();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();window.scrollTo({top:0,behavior:'smooth'});}
 function botonVista(id){const mapa={dashboard:0,entrenamiento:1,planificacion:2,ejercicios:3,jugadores:4,historial:5,estadisticas:6};return document.querySelectorAll('.tab-btn')[mapa[id]]||null}
 function abrirBibliotecaNormal(btn){renderConteoBiblioteca();const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();showView('ejercicios',btn);renderDestinoBiblioteca()}
@@ -3658,7 +3668,8 @@ function guardarSesionEnPlanificacion(limpiar=false){
     realizadoEn:anterior?.realizadoEn||null,
     historialId:anterior?.historialId||null,
     historialEliminado:anterior?.historialEliminado===true,
-    guardadoPlanificacionEn:new Date().toISOString()
+    guardadoPlanificacionEn:new Date().toISOString(),
+    updatedAt:new Date().toISOString()
   };
   if(pos>=0)planificacion[pos]={...anterior,...plan};else planificacion.push(plan);
   meta.planificacionId=id;
@@ -3712,7 +3723,7 @@ function marcarPlanRealizado(id){
     const ejercicios=ejerciciosHistorialDesdePlan(p),historialId=Date.now();
     ejercicios.forEach(s=>{const vivo=baseDeDatos.find(e=>Number(e.id)===Number(s.id));if(vivo)vivo.usos=(vivo.usos||0)+1});
     const duracion=Number(p.duracion)||ejercicios.reduce((a,e)=>a+(Number(e.tiempo)||0),0);
-    h={id:historialId,fecha:p.fecha||hoy,equipo:p.equipo||EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',playerIds:clonar(p.playerIds||[]),intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',notasBloques:clonar(p.notasBloques||{}),seccionesEjercicios:clonar(p.seccionesEjercicios||{}),planificacionId:p.id,duracion,pizarra:p.pizarra||null,ejercicios};
+    h={id:historialId,fecha:p.fecha||hoy,equipo:p.equipo||EQUIPOS[equipoActivo].nombre,jugadores:p.jugadores||'',playerIds:clonar(p.playerIds||[]),intensidad:p.intensidad||'Media',objetivo:p.objetivo||'',calentamiento:p.calentamiento||'',notas:p.notas||'',notasBloques:clonar(p.notasBloques||{}),seccionesEjercicios:clonar(p.seccionesEjercicios||{}),planificacionId:p.id,duracion,pizarra:p.pizarra||null,ejercicios,updatedAt:new Date().toISOString()};
     historial.unshift(h);
     p.historialId=historialId;
   }else{
@@ -3721,6 +3732,7 @@ function marcarPlanRealizado(id){
   }
   p.realizado=true;
   p.realizadoEn=new Date().toISOString();
+  p.updatedAt=new Date().toISOString();
   p.archivadoAutomaticamente=false;
   p.pendienteConfirmacionManual=false;
   save();renderPlanificacion();renderHistorial();renderStats();renderAvisoPlanHoy();
@@ -3749,7 +3761,7 @@ function finalizarEntrenamiento(){
   let hExistente=planVinculado?.historialId?historial.find(x=>Number(x.id)===Number(planVinculado.historialId)):null;
   if(!hExistente&&planId)hExistente=historial.find(x=>Number(x.planificacionId)===Number(planId));
   const historialId=hExistente?.id||Date.now();
-  const registro={id:historialId,...clonar(meta),calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notasBloques:clonar(mapaNotasBloques()),planificacionId:planId,duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto)};
+  const registro={id:historialId,...clonar(meta),calentamiento:mapaNotasBloques().activacion||meta.calentamiento||'',notasBloques:clonar(mapaNotasBloques()),planificacionId:planId,duracion,pizarra:null,ejercicios:ejercicios.map(snapshotEjercicioCompleto),updatedAt:new Date().toISOString()};
   if(hExistente){Object.assign(hExistente,registro)}else{
     ejercicios.forEach(e=>e.usos=(e.usos||0)+1);
     historial.unshift(registro);
@@ -3759,7 +3771,7 @@ function finalizarEntrenamiento(){
     if(posPlan>=0){
       const anterior=planificacion[posPlan];
       const sesionGuardada=construirPlanSesion(planId);
-      planificacion[posPlan]={...anterior,...sesionGuardada,realizado:anterior.realizado===true,realizadoEn:anterior.realizadoEn||null,historialId,historialGuardadoEn:new Date().toISOString(),archivadoAutomaticamente:false};
+      planificacion[posPlan]={...anterior,...sesionGuardada,realizado:anterior.realizado===true,realizadoEn:anterior.realizadoEn||null,historialId,historialGuardadoEn:new Date().toISOString(),archivadoAutomaticamente:false,updatedAt:new Date().toISOString()};
     }
   }
   reiniciarSesionActual();renderHistorial();renderStats();renderPlanificacion();
@@ -4023,7 +4035,7 @@ function crearSesionDesdePlanificacion(fechaForzada=''){
   const tieneSesion=sesionActual.length||String(meta.objetivo||'').trim()||Object.values(mapaNotasBloques()).some(v=>String(v||'').trim());
   if(tieneSesion&&!meta.planificacionId&&!confirm('Tienes una sesión en edición. ¿Quieres crear una nueva desde Planificación? La sesión actual solo se conservará si ya la habías guardado.'))return false;
   const objetivo=fechaForzada?'':($('plan-objetivo')?.value||'').trim(),duracion=fechaForzada?0:(+$('plan-duracion')?.value||0),intensidad=fechaForzada?'Media':($('plan-intensidad')?.value||'Media'),id=Date.now();
-  const plan={id,fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',objetivo,duracion,duracionObjetivo:duracion,intensidad,calentamiento:'',notas:'',ejercicios:[],notasBloques:{},seccionesEjercicios:{},realizado:false,historialId:null,creadoDesdePlanificacion:true,creadoEn:Date.now()};
+  const plan={id,fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',objetivo,duracion,duracionObjetivo:duracion,intensidad,calentamiento:'',notas:'',ejercicios:[],notasBloques:{},seccionesEjercicios:{},realizado:false,historialId:null,creadoDesdePlanificacion:true,creadoEn:Date.now(),updatedAt:new Date().toISOString()};
   planificacion.push(plan);
   sesionActual=[];meta={fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:duracion||'',intensidad,objetivo,calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},planificacionId:id,pizarra:null};
   save();
@@ -5404,7 +5416,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.2', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.3', {
         updateViaCache: 'none'
       });
 
@@ -13541,11 +13553,8 @@ function applyWorkspace(mode){
   document.body.classList.toggle('workspace-video',currentWorkspace==='video');
 }
 window.openWorkspace=function(mode){
-  const pending=typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession();
-  if(pending&&mode==='training'){
-    alert('Hay un scouting abierto. Puedes usar Vídeo sin cerrar el partido, pero para volver a Entrenamiento pulsa Guardar o Finalizar y guardar.');
-    applyWorkspace('scouting');showView('scout-match-mode',botonVista('scout-match-mode'));return
-  }
+  /* V9.5.3: workspaces are independent. A live/saved scouting is protected by
+     Journal/local/cloud and no longer blocks Training or Planning navigation. */
   applyWorkspace(mode);
   const target=mode==='scouting'?'scout-dashboard':mode==='video'?'scout-video-hub':'dashboard';
   showView(target,botonVista(target));
@@ -13553,11 +13562,7 @@ window.openWorkspace=function(mode){
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
 window.showView=function(id,btn){
-  const pending=typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession();
-  if(pending&&!['scouting','scout-workspace-v900','scout-match-mode','scout-video-hub','scout-analysis'].includes(id)){
-    alert('El scouting está abierto. Puedes usar Análisis y Vídeo sin cerrarlo. Para salir a otras áreas, guarda/finaliza primero.');
-    id='scout-match-mode';btn=botonVista('scout-match-mode')
-  }
+  /* V9.5.3: never redirect a Training/Planning button because a scouting exists. */
   const mode=VIDEO_VIEWS.has(id)?'video':SCOUT_VIEWS.has(id)?'scouting':'training';
   applyWorkspace(mode);
   const out=prevShow(id,btn||botonVista(id));
@@ -24977,5 +24982,250 @@ window.VC_V952_SESSION_FIX={
 };
 })();
 </script>
+
+
+
+<script id="v953-training-cloud-sync-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.3';
+let pulling=false;
+let lastRemoteSeen=localStorage.getItem('v953_remote_seen')||'';
+let pollTimer=null;
+
+const clone=v=>{try{return JSON.parse(JSON.stringify(v))}catch(_){return v}};
+const tsv=v=>{const n=Date.parse(v||'');return Number.isFinite(n)?n:0};
+function recordStamp(r){
+  if(!r||typeof r!=='object')return 0;
+  const vals=[
+    r.updatedAt,r.guardadoPlanificacionEn,r.historialGuardadoEn,r.realizadoEn,
+    r.updated_at,r.modifiedAt,r.lastModified,r.reopenedAt
+  ].map(tsv);
+  const numeric=[r.actualizadoEnSesion,r.creadoEn,r.id].map(Number).filter(n=>Number.isFinite(n)&&n>1e11);
+  return Math.max(0,...vals,...numeric);
+}
+function tombstoneMap(list){
+  const m=new Map();
+  (Array.isArray(list)?list:[]).forEach(x=>{
+    const id=Number(x?.id??x),at=Number(x?.at)||tsv(x?.updatedAt)||0;
+    if(id)m.set(id,Math.max(m.get(id)||0,at));
+  });
+  return m;
+}
+function mergeTombstones(a,b){
+  const m=new Map();
+  [...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])].forEach(x=>{
+    const id=Number(x?.id??x),at=Number(x?.at)||tsv(x?.updatedAt)||0;
+    if(id)m.set(id,Math.max(m.get(id)||0,at));
+  });
+  return [...m.entries()].map(([id,at])=>({id,at})).sort((x,y)=>y.at-x.at).slice(0,500);
+}
+function mergeRecords(local,remote,tombstones=[]){
+  const deleted=tombstoneMap(tombstones),map=new Map();
+  const add=(r,source)=>{
+    if(!r||r.id==null)return;
+    const id=Number(r.id),del=deleted.get(id)||0,stamp=recordStamp(r);
+    if(del&&del>=stamp)return;
+    const prev=map.get(id);
+    if(!prev){map.set(id,clone(r));return}
+    const ps=recordStamp(prev),use=stamp>ps||(stamp===ps&&source==='local');
+    if(use)map.set(id,clone(r));
+  };
+  (Array.isArray(remote)?remote:[]).forEach(r=>add(r,'remote'));
+  (Array.isArray(local)?local:[]).forEach(r=>add(r,'local'));
+  return [...map.values()].sort((a,b)=>(Number(b.id)||0)-(Number(a.id)||0));
+}
+function teamStamp(t){
+  if(!t)return 0;
+  return Math.max(tsv(t.trainingUpdatedAt),tsv(t.meta?.updatedAt),...((t.planificacion||[]).map(recordStamp)),...((t.historial||[]).map(recordStamp)));
+}
+function mergeTeam(local,remote){
+  local=local&&typeof local==='object'?local:{};
+  remote=remote&&typeof remote==='object'?remote:{};
+  const out={...clone(remote),...clone(local)};
+
+  out.v953DeletedPlanIds=mergeTombstones(local.v953DeletedPlanIds,remote.v953DeletedPlanIds);
+  out.v953DeletedHistoryIds=mergeTombstones(local.v953DeletedHistoryIds,remote.v953DeletedHistoryIds);
+  out.planificacion=mergeRecords(local.planificacion,remote.planificacion,out.v953DeletedPlanIds);
+  out.historial=mergeRecords(local.historial,remote.historial,out.v953DeletedHistoryIds);
+
+  /* Collections where IDs are stable and additions from either device must survive. */
+  out.plantillas=mergeRecords(local.plantillas,remote.plantillas);
+  out.jugadores=mergeRecords(local.jugadores,remote.jugadores);
+  out.partidos=mergeRecords(local.partidos,remote.partidos);
+
+  /* Current training is a single mutable workspace: newest device wins. */
+  const ls=teamStamp(local),rs=teamStamp(remote);
+  const newest=rs>ls?remote:local;
+  out.sesionActual=clone(newest.sesionActual||[]);
+  out.meta=clone(newest.meta||out.meta||{});
+  out.trainingUpdatedAt=(rs>ls?remote.trainingUpdatedAt:local.trainingUpdatedAt)||new Date(Math.max(ls,rs,Date.now())).toISOString();
+
+  /* Preserve module-specific fields from both sides. Local wins ties. */
+  ['seasonPlan','teamGoals','scoutingGamePlans','scoutLineupTemplatesV690','scoutRivalProfilesV6100'].forEach(k=>{
+    if(Array.isArray(local[k])||Array.isArray(remote[k]))out[k]=mergeRecords(local[k],remote[k]);
+  });
+  return out;
+}
+function mergeRemoteState(remoteState){
+  if(!remoteState||typeof remoteState!=='object')return remoteState;
+  try{guardarEquipoEnMemoria?.()}catch(_){}
+  const out=clone(remoteState);
+  out.equiposData=out.equiposData&&typeof out.equiposData==='object'?out.equiposData:{};
+  const localTeams=equiposData||{};
+  const ids=new Set([...Object.keys(localTeams),...Object.keys(out.equiposData)]);
+  ids.forEach(id=>out.equiposData[id]=mergeTeam(localTeams[id],out.equiposData[id]));
+  return out;
+}
+function markDeleted(team,key,id){
+  if(!team||!id)return;
+  const arr=Array.isArray(team[key])?team[key]:[];
+  const now=Date.now(),n=Number(id);
+  team[key]=mergeTombstones(arr,[{id:n,at:now}]);
+}
+function currentTeamObject(teamId=equipoActivo){
+  if(teamId===equipoActivo){
+    try{guardarEquipoEnMemoria()}catch(_){}
+  }
+  return equiposData?.[teamId]||null;
+}
+
+/* Deletions need tombstones so another device cannot resurrect deleted plans/history. */
+const deletePlanBase=window.eliminarPlan;
+if(typeof deletePlanBase==='function'&&!deletePlanBase.__v953){
+  const wrapped=function(id){
+    const team=currentTeamObject();
+    markDeleted(team,'v953DeletedPlanIds',id);
+    const out=deletePlanBase.apply(this,arguments);
+    try{guardarEstadoLocalSinCloud();programarSubidaCloud()}catch(_){}
+    return out;
+  };
+  wrapped.__v953=true;window.eliminarPlan=wrapped;
+}
+const deleteHistoryBase=window.borrarEntrenamientoHistorialEquipo;
+if(typeof deleteHistoryBase==='function'&&!deleteHistoryBase.__v953){
+  const wrapped=function(teamId,id){
+    const team=currentTeamObject(teamId);
+    markDeleted(team,'v953DeletedHistoryIds',id);
+    const out=deleteHistoryBase.apply(this,arguments);
+    try{guardarEstadoLocalSinCloud();programarSubidaCloud()}catch(_){}
+    return out;
+  };
+  wrapped.__v953=true;window.borrarEntrenamientoHistorialEquipo=wrapped;
+}
+
+/* Merge remote Training/Planning data before the normal cloud applier runs. */
+const applyBase=window.aplicarEstadoCloud;
+if(typeof applyBase==='function'&&!applyBase.__v953){
+  const wrapped=function(state){
+    const merged=mergeRemoteState(state);
+    return applyBase.call(this,merged);
+  };
+  wrapped.__v953=true;window.aplicarEstadoCloud=wrapped;
+}
+
+async function pullRemote({force=false,render=true}={}){
+  if(pulling||typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return false;
+  pulling=true;
+  try{
+    const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
+    if(error||!data?.state)return false;
+    const stamp=String(data.updated_at||'');
+    if(!force&&stamp&&stamp===lastRemoteSeen)return false;
+    const before=JSON.stringify({
+      p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
+      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)])
+    });
+    window.aplicarEstadoCloud?.(data.state);
+    lastRemoteSeen=stamp;
+    localStorage.setItem('v953_remote_seen',stamp);
+    localStorage.setItem('volleyCloudLastSync',stamp);
+    const after=JSON.stringify({
+      p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
+      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)])
+    });
+    if(render&&before!==after){
+      try{
+        cargarEquipoEnVariables(equipoActivo);
+        cargarMeta();renderizarSesion();renderPlanificacion();renderHistorial();renderStats();renderDashboard();
+        if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent='☁ Cambios recibidos de otro dispositivo';
+      }catch(err){console.warn('V9.5.3 render sync',err)}
+    }
+    return before!==after;
+  }catch(err){
+    console.warn('V9.5.3 pull',err);return false;
+  }finally{pulling=false}
+}
+
+/* Pull-before-push prevents a stale desktop from overwriting a new mobile training. */
+const uploadBase=window.subirNube;
+if(typeof uploadBase==='function'&&!uploadBase.__v953){
+  const wrapped=async function(manual=false){
+    if(!pulling)await pullRemote({force:true,render:true});
+    const out=await uploadBase.call(this,manual);
+    return out;
+  };
+  wrapped.__v953=true;window.subirNube=wrapped;
+}
+
+/* Manual download now means merge, not destructive replacement. */
+window.v953SyncNow=async function(){
+  const changed=await pullRemote({force:true,render:true});
+  if(typeof subirNube==='function')await subirNube(false);
+  if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent=changed?'✓ Nube fusionada · móvil/ordenador actualizados':'✓ Nube comprobada · sin cambios nuevos';
+  return changed;
+};
+
+/* Keep devices fresh without making rendering expensive. */
+function startPolling(){
+  clearInterval(pollTimer);
+  pollTimer=setInterval(()=>{
+    if(document.visibilityState==='visible')void pullRemote({force:false,render:true});
+  },15000);
+}
+startPolling();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible')void pullRemote({force:false,render:true});
+});
+
+/* Training/Planning buttons: normalize type and ensure the active view accepts clicks. */
+function repairButtons(){
+  ['entrenamiento','planificacion'].forEach(id=>{
+    const root=document.getElementById(id);if(!root)return;
+    root.style.pointerEvents='auto';
+    root.querySelectorAll('button').forEach(b=>{if(!b.hasAttribute('type'))b.setAttribute('type','button')});
+  });
+}
+repairButtons();
+setTimeout(repairButtons,0);
+
+window.VC_V953_TRAINING_SYNC={
+  version:VERSION,
+  mergeRecords,mergeTeam,mergeRemoteState,pullRemote,
+  diagnostics:()=>({
+    version:VERSION,
+    remoteSeen:lastRemoteSeen,
+    cloudConnected:(()=>{try{return!!cloudUser}catch(_){return false}})(),
+    online:navigator.onLine,
+    team:equipoActivo,
+    plans:(equiposData?.[equipoActivo]?.planificacion||[]).length,
+    history:(equiposData?.[equipoActivo]?.historial||[]).length,
+    pollingSeconds:15,
+    navigationBlockedByScouting:false
+  })
+};
+})();
+</script>
+
+
+
+<style id="v953-training-controls-style">
+#entrenamiento.active,
+#planificacion.active{pointer-events:auto!important}
+#entrenamiento button,
+#planificacion button{pointer-events:auto}
+.workspace-training #training-nav{position:relative;z-index:4}
+.planning-quick-create[open]{position:relative;z-index:20}
+</style>
 
 </body></html>
