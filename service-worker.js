@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.5.1-nav-analysis-fix-v1';
+const CACHE_NAME = 'volley-coach-v9.5.2-save-exit-fix-v1';
 
 const APP_SHELL = [
   './',
