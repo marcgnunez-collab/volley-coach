@@ -865,7 +865,49 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn v910-fallback-tab" data-view="scouting" onclick="showView('scouting',this)">Clásico</button>
     </div>
 
-    <div id="v930-unified-nav" class="v930-unified-nav hidden" aria-label="Scouting Pro">
+    
+    <div id="v940-professional-nav" class="v940-professional-nav hidden" aria-label="Centro profesional de scouting">
+      <div class="v940-nav-head">
+        <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
+          <span>VC</span>
+          <div><b>Scouting Center</b><small>Professional workspace · V9.4</small></div>
+        </button>
+
+        <div id="v940-match-context" class="v940-match-context">
+          <div><span>PARTIDO</span><b id="v940-context-match">Sin scouting activo</b></div>
+          <div><span>SET / MARCADOR</span><b id="v940-context-score">—</b></div>
+          <div><span>ROTACIÓN</span><b id="v940-context-rotation">—</b></div>
+          <div><span>PROTECCIÓN</span><b id="v940-context-save">Local ✓</b></div>
+        </div>
+
+        <span id="v940-perf-badge" class="v940-perf-badge" title="Respuesta de la última acción">⚡ — ms</span>
+      </div>
+
+      <div class="v940-main-nav">
+        <button data-v940-area="partido" onclick="v940Open('partido')">
+          <span class="v940-nav-icon">01</span><div><b>Partido</b><small>marcador · pista · rotaciones</small></div>
+        </button>
+        <button data-v940-area="scouting" onclick="v940Open('scouting')">
+          <span class="v940-nav-icon">02</span><div><b>Scouting</b><small>visual · código · DataVolley</small></div>
+        </button>
+        <button data-v940-area="revisar" onclick="v940Open('revisar')">
+          <span class="v940-nav-icon">03</span><div><b>Revisar</b><small>rallies · edición · correcciones</small></div>
+        </button>
+        <button data-v940-area="analisis" onclick="v940Open('analisis')">
+          <span class="v940-nav-icon">04</span><div><b>Análisis</b><small>lectura exhaustiva · PDF</small></div>
+        </button>
+        <button data-v940-area="video" onclick="v940Open('video')">
+          <span class="v940-nav-icon">05</span><div><b>Vídeo</b><small>REC · replay · clips</small></div>
+        </button>
+        <button data-v940-area="gestion" onclick="v940Open('gestion')">
+          <span class="v940-nav-icon">06</span><div><b>Gestión</b><small>seguridad · plan · temporada</small></div>
+        </button>
+      </div>
+
+      <div id="v940-context-toolbar" class="v940-context-toolbar"></div>
+    </div>
+
+<div id="v930-unified-nav" class="v930-unified-nav hidden v940-compat-nav" aria-label="Scouting Pro">
       <div class="v930-nav-primary">
         <button data-v930-route="partido" onclick="v930Open('partido')"><b>Partido</b><span>marcador + pista</span></button>
         <button data-v930-route="directo" onclick="v930Open('directo')"><b>Directo</b><span>registro visual</span></button>
@@ -884,6 +926,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
         <button data-v930-route="partidos" onclick="v930Open('partidos')">Partidos</button>
         <button data-v930-route="temporada" onclick="v930Open('temporada')">Temporada</button>
         <button class="compat" data-v930-route="clasico" onclick="v930Open('clasico')">Clásico</button>
+        <span id="v931-perf-badge" class="v931-perf-badge" title="Tiempo de respuesta de la última acción">⚡ — ms</span>
       </div>
     </div>
   </div>
@@ -1742,7 +1785,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div id="v800-shell" class="v800-shell">
     <div class="v800-top">
       <div class="v800-match-title">
-        <span class="pro-kicker">V9.3 · PARTIDO · MOTOR COMPARTIDO</span>
+        <span class="pro-kicker">PARTIDO · CONTROL EN DIRECTO</span>
         <h2 id="v800-title">Sin partido activo</h2>
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
@@ -1976,7 +2019,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="v900-shell">
     <div class="v900-topbar">
       <div class="v900-brand">
-        <span class="pro-kicker">VOLLEY COACH V9.3 · UNIFIED SCOUTING</span>
+        <span class="pro-kicker">SCOUTING · REGISTRO PROFESIONAL</span>
         <h2 id="v900-match-title">Scouting profesional</h2>
         <p id="v900-match-meta">Partido → Directo → Revisar → Analizar</p>
       </div>
@@ -3293,7 +3336,11 @@ function cargarEstadoLocal(){
   aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();
   baseDeDatos=aplicarBorradosBiblioteca(baseDeDatos);
   archivarPlanificacionesPasadasEnEquiposData();
-  guardarEstadoLocalSinCloud();
+  /* V9.3.1: avoid blocking first paint by serializing the whole application
+     immediately after loading it. Persist normalized state once the browser is idle. */
+  const persistNormalized=()=>{try{guardarEstadoLocalSinCloud()}catch(err){console.warn('V9.3.1 deferred startup save',err)}};
+  if('requestIdleCallback'in window)requestIdleCallback(persistNormalized,{timeout:2200});
+  else setTimeout(persistNormalized,1400);
 }
 function guardarEstadoLocalSinCloud(){
   localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:new Date().toISOString(),equiposData:clonar(equiposData)}));
@@ -5357,7 +5404,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.3.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.4.0', {
         updateViaCache: 'none'
       });
 
@@ -7958,12 +8005,15 @@ const V902_JOURNAL_DB='VolleyCoachScoutJournalV902',V902_JOURNAL_STORE='liveMatc
 let v902CommitTimer=null,v902CommitBusy=false,v902CommitQueued=false,v902LastMutation=null,v902LastFullAt=0,v902RenderFrame=0;
 
 function v902MutationState(m){
-  const s=scoutSet(m),rallies=scoutArr(m?.sets).reduce((n,x)=>n+scoutArr(x?.rallies).length,0),
-    closedActions=scoutArr(m?.sets).reduce((n,x)=>n+scoutArr(x?.rallies).reduce((a,r)=>a+scoutArr(r?.actions).length,0),0),
+  const s=scoutSet(m),
+    rallies=scoutArr(m?.sets).reduce((n,x)=>n+scoutArr(x?.rallies).length,0),
     liveActions=scoutArr(m?.liveRally?.actions).length;
+  /* V9.3.1: do not recount every closed action on every input.
+     Editing an old rally is already protected by Editor checkpoints and is
+     consolidated by the idle/full save path. */
   return {
     id:Number(m?.id)||0,currentSet:Number(m?.currentSet)||1,status:String(m?.status||''),
-    scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,rallies,closedActions,liveActions,
+    scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,rallies,liveActions,
     rotationNo:Number(m?.rotationNo)||1,opponentRotationNo:Number(m?.opponentRotationNo)||1,
     servingTeam:String(m?.servingTeam||''),lineup:JSON.stringify(m?.lineup||{})
   };
@@ -7972,7 +8022,7 @@ function v902IsActionOnly(prev,next){
   if(!prev||!next||prev.id!==next.id)return false;
   return prev.currentSet===next.currentSet&&prev.status===next.status&&
     prev.scoreUs===next.scoreUs&&prev.scoreOpponent===next.scoreOpponent&&prev.rallies===next.rallies&&
-    prev.closedActions===next.closedActions&&prev.rotationNo===next.rotationNo&&
+    prev.rotationNo===next.rotationNo&&
     prev.opponentRotationNo===next.opponentRotationNo&&prev.servingTeam===next.servingTeam&&
     prev.lineup===next.lineup&&prev.liveActions!==next.liveActions;
 }
@@ -7980,22 +8030,31 @@ function v902IsCritical(prev,next){
   if(!prev||!next||prev.id!==next.id)return true;
   return prev.currentSet!==next.currentSet||prev.status!==next.status||
     prev.scoreUs!==next.scoreUs||prev.scoreOpponent!==next.scoreOpponent||
-    prev.rallies!==next.rallies||prev.closedActions!==next.closedActions||
+    prev.rallies!==next.rallies||
     prev.rotationNo!==next.rotationNo||prev.opponentRotationNo!==next.opponentRotationNo||
     prev.servingTeam!==next.servingTeam||prev.lineup!==next.lineup;
 }
+let v931JournalDBPromise=null;
 function v902OpenJournal(){
-  return new Promise((resolve,reject)=>{
-    if(!('indexedDB'in window)){reject(new Error('IndexedDB no disponible'));return}
+  if(v931JournalDBPromise)return v931JournalDBPromise;
+  v931JournalDBPromise=new Promise((resolve,reject)=>{
+    if(!('indexedDB'in window)){v931JournalDBPromise=null;reject(new Error('IndexedDB no disponible'));return}
     const req=indexedDB.open(V902_JOURNAL_DB,2);
     req.onupgradeneeded=()=>{
       const db=req.result;
       if(!db.objectStoreNames.contains(V902_JOURNAL_STORE))db.createObjectStore(V902_JOURNAL_STORE,{keyPath:'key'});
       if(!db.objectStoreNames.contains(V920_JOURNAL_LIVE_STORE))db.createObjectStore(V920_JOURNAL_LIVE_STORE,{keyPath:'key'});
     };
-    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('No se pudo abrir journal'));
+    req.onsuccess=()=>{
+      const db=req.result;
+      db.onversionchange=()=>{try{db.close()}catch(_){}v931JournalDBPromise=null};
+      resolve(db);
+    };
+    req.onerror=()=>{v931JournalDBPromise=null;reject(req.error||new Error('No se pudo abrir journal'))};
   });
+  return v931JournalDBPromise;
 }
+window.scoutV931WarmJournal=async function(){try{await v902OpenJournal();return true}catch(_){return false}};
 async function v902JournalWrite(m,reason='change'){
   if(!m||!Number(m.id))return false;
   const key=`${equipoActivo}:${Number(m.id)}`,savedAt=new Date().toISOString();
@@ -8026,8 +8085,8 @@ async function v902JournalWrite(m,reason='change'){
         tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
       });
     }
-    db.close();return true;
-  }catch(err){console.warn('V9.2 journal',err);return false}
+    return true;
+  }catch(err){console.warn('V9.3.1 journal',err);return false}
 }
 window.scoutV902JournalReadAll=async function(){
   try{
@@ -8042,7 +8101,6 @@ window.scoutV902JournalReadAll=async function(){
         req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
       })
     ]);
-    db.close();
     const byKey=new Map(fullRows.map(r=>[r.key,r]));
     liveRows.forEach(delta=>{
       const base=byKey.get(delta.key);
@@ -8092,16 +8150,20 @@ async function v902FullCommit(reason='idle',withCloud=true){
   clearTimeout(v902CommitTimer);v902CommitTimer=null;
   if(v902CommitBusy){v902CommitQueued=true;return false}
   v902CommitBusy=true;
+  const t0=performance.now();
   try{
     if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
-    equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);
-    equiposData[equipoActivo].scoutingActiveId=scoutingActiveId||null;
-    guardarEquipoEnMemoria();
+    /* V9.3.1: scouting changes do not require cloning training history,
+       planning, templates, players, season, competition, goals, etc. */
+    const team=equiposData[equipoActivo];
+    team.scoutingMatches=scoutClone(scoutingMatches);
+    team.scoutingActiveId=scoutingActiveId||null;
     guardarEstadoLocalSinCloud();
     v902LastFullAt=Date.now();
-    try{void window.scoutV680Backup?.('v902-'+reason)}catch(_){}
+    try{void window.scoutV680Backup?.('v931-'+reason)}catch(_){}
     if(withCloud)try{programarSubidaCloud()}catch(_){}
     const b=$('scout-save-badge');if(b)b.textContent='Sesión abierta · auto-protección ✓';
+    try{window.VC_PERF_V931?.mark?.('full-save',performance.now()-t0)}catch(_){}
     return true;
   }finally{
     v902CommitBusy=false;
@@ -8114,13 +8176,13 @@ function v902ScheduleCommit(reason='idle',delay=1100){
 }
 window.scoutV902Flush=()=>v902FullCommit('manual-flush',true);
 window.scoutV902PerformanceDiagnostics=()=>({
-  version:'9.0.2',lastFullAt:v902LastFullAt,commitPending:!!v902CommitTimer,commitBusy:v902CommitBusy,
+  version:'9.3.1',lastFullAt:v902LastFullAt,commitPending:!!v902CommitTimer,commitBusy:v902CommitBusy,
   lastMutation:v902LastMutation,journalDb:V902_JOURNAL_DB
 });
 
 function scoutSave(render=true){
   const m=scoutActive();
-  if(m){m.updatedAt=scoutNow();m.dataVersion='9.2.0'}
+  if(m){m.updatedAt=scoutNow();m.dataVersion='9.3.1'}
   const next=v902MutationState(m),prev=v902LastMutation,actionOnly=v902IsActionOnly(prev,next),critical=v902IsCritical(prev,next);
   v902LastMutation=next;
 
@@ -8128,12 +8190,15 @@ function scoutSave(render=true){
   if(m)void v902JournalWrite(m,actionOnly?'action':'critical');
 
   if(critical){
-    /* Points, rotations, lineup/set/status changes stay fully durable immediately. */
-    void v902FullCommit('critical',true);
+    /* V9.3.1: the full match is already being written to IndexedDB journal above.
+       Defer the expensive whole-app localStorage serialization so the point /
+       rotation / lineup button can respond immediately. */
+    v902ScheduleCommit('critical-idle',480);
     if(render)v902RequestFullRender();
+    const b=$('scout-save-badge');if(b)b.textContent='Protegido · consolidando…';
   }else{
     /* Action within the same rally: fast UI now, full state after a short idle period. */
-    v902ScheduleCommit('action-idle',1100);
+    v902ScheduleCommit('action-idle',950);
     if(render)v902FastRender(m);
   }
 }
@@ -8947,7 +9012,7 @@ const v6100NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){con
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
 
 function scoutV6100ResolveOpponent(action,m=scoutActive()){if(action?.team!=='opponent')return action;const prof=scoutV6100Profile(m?.opponent),label=String(action.playerLabel||action.playerNameSnapshot||'').trim();if(!prof||!label)return action;const num=(label.match(/#?\s*(\d+)/)||[])[1]||'',name=label.replace(/#?\s*\d+\s*[·\-]?\s*/,'').trim().toLowerCase();let p=prof.players.find(x=>num&&String(x.number)===String(num));if(!p&&name)p=prof.players.find(x=>String(x.name||'').toLowerCase()===name);if(p){action.opponentPlayerUid=p.uid;action.playerNameSnapshot=action.playerNameSnapshot||p.name;action.playerNumberSnapshot=action.playerNumberSnapshot||p.number}return action}
-const v6100PushBase=scoutPushAction;scoutPushAction=function(action){scoutV6100ResolveOpponent(action);const out=v6100PushBase(action);setTimeout(()=>{scoutV6100RenderLiveWarning();scoutV6100RenderTimeline()},0);return out};
+const v6100PushBase=scoutPushAction;scoutPushAction=function(action){scoutV6100ResolveOpponent(action);const out=v6100PushBase(action);if($('scouting')?.classList.contains('active'))setTimeout(()=>{scoutV6100RenderLiveWarning();scoutV6100RenderTimeline()},0);return out};
 
 // Interactive court input.
 let v6100Origin='',v6100Dest='';
@@ -12657,7 +12722,9 @@ scoutPushAction=function(action){
   const out=v880PushBase(action);
   if(out&&m?.liveRally?.actions?.length){
     const last=m.liveRally.actions[m.liveRally.actions.length-1];Object.assign(last,v880DataVolleyFields(last,m));
-    last.locationMode=last.endCone?'cones':(last.locationMode||'zones');scoutSave(false);
+    last.locationMode=last.endCone?'cones':(last.locationMode||'zones');
+    /* Base push already scheduled journal + consolidation. The journal clone
+       happens asynchronously and therefore sees these final DV fields. */
   }
   return out;
 };
@@ -15671,7 +15738,10 @@ if(typeof scoutPushAction==='function'){
         mm.liveRally.liveVideoStart=s?Math.max(0,(Number(mm.liveRally.scoutStartMs)-Number(s.scoutMsAtStart))/1000):0;
         mm.liveRally.liveVideoSessionId=s?.id||null;
       }
-      mm.dataVersion=VERSION;save();render();
+      mm.dataVersion=VERSION;
+      /* Base push already initiated the action journal and idle consolidation.
+         Avoid a second save + full video render for the same click. */
+      if($('scout-match-mode')?.classList.contains('active')&&(window.VC_V910_MATCH_VIEW?.get?.()==='video'||window.VC_V910_MATCH_VIEW?.get?.()==='todo'))setTimeout(render,0);
     }
     return out;
   };
@@ -15707,7 +15777,8 @@ window.scoutAwardPoint=function(winner){
       const first=arr(found.r.actions).find(a=>String(a.liveVideoSessionId)===String(s.id));
       const effectiveStart=start!=null?Number(start):(first?.liveVideoTime!=null?Math.max(0,Number(first.liveVideoTime)-1):Math.max(0,end-8));
       linkRally(found.r,mm,effectiveStart,end);
-      mm.dataVersion=VERSION;save();render();
+      mm.dataVersion=VERSION;save();
+      if($('scout-match-mode')?.classList.contains('active')&&(window.VC_V910_MATCH_VIEW?.get?.()==='video'||window.VC_V910_MATCH_VIEW?.get?.()==='todo'))render();
       if($('scout-v740-auto-replay')?.checked){
         setTimeout(()=>window.scoutV740ReplayLastRally(true),800);
       }
@@ -22784,13 +22855,13 @@ window.v900RegisterVisual=function(){
   const r=locationRules();if(state.skill==='A'&&state.locationMode==='cones'&&(!state.origin||!state.cone))return alert('En ataque por conos selecciona origen y cono.');
   syncLegacy();
   try{window.scoutAddManualAction?.()}catch(err){console.error(err);alert('No se pudo registrar la acción: '+String(err?.message||err));return}
-  render();
+  window.VC_SCOUT_RENDER_V92?.requestFast?.('v931-visual-action');
 };
 window.v900RegisterCode=function(){
   const input=$('v900-code-input'),raw=String(input?.value||'').trim();if(!raw)return;
   const legacy=$('scout-code-input');if(!legacy)return alert('No encuentro la consola clásica.');
   legacy.value=raw;
-  try{window.scoutAddCode?.();input.value='';safeText('v900-code-translation','Código registrado con el motor compartido.');render()}catch(err){console.error(err);alert('No se pudo registrar el código: '+String(err?.message||err))}
+  try{window.scoutAddCode?.();input.value='';safeText('v900-code-translation','Código registrado con el motor compartido.');window.VC_SCOUT_RENDER_V92?.requestFast?.('v931-code-action')}catch(err){console.error(err);alert('No se pudo registrar el código: '+String(err?.message||err))}
 };
 window.v900TranslateCode=function(){
   const raw=String($('v900-code-input')?.value||'').trim().toUpperCase(),box=$('v900-code-translation');if(!box)return;if(!raw){box.textContent='Escribe un código para ver su lectura.';return}
@@ -23858,7 +23929,7 @@ const openSaved=window.scoutOpenSaved;
 if(typeof openSaved==='function'&&!openSaved.__v930){
   const wrapped=function(...args){
     const out=openSaved.apply(this,args);
-    setTimeout(()=>open('directo'),0);
+    setTimeout(()=>open('partido'),0);
     return out;
   };
   wrapped.__v930=true;window.scoutOpenSaved=wrapped;
@@ -23903,6 +23974,567 @@ setTimeout(()=>{
   const av=activeView();
   setNavVisible(isScoutingView(av));
   if(av)markRoute(routeForView(av));
+},0);
+})();
+</script>
+
+
+
+<style id="v931-performance-style">
+.v931-perf-badge{
+  margin-left:auto;
+  align-self:center;
+  border:1px solid #d9e2e7;
+  background:#fff;
+  color:#607482;
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:6.7px;
+  font-weight:950;
+  white-space:nowrap;
+}
+.v931-perf-badge.good{color:#2e6546;border-color:#bfd7c8;background:#f2f8f4}
+.v931-perf-badge.warn{color:#8b6231;border-color:#e1cfaf;background:#fffaf0}
+.v931-perf-badge.bad{color:#8a4242;border-color:#dfbbbb;background:#fff5f5}
+</style>
+
+
+
+<script id="v931-fast-start-performance-runtime">
+(()=>{
+'use strict';
+const VERSION='9.3.1';
+const samples=[];
+let last={name:'',syncMs:0,paintMs:0,at:0};
+
+function badge(ms){
+  const b=document.getElementById('v931-perf-badge');if(!b)return;
+  const n=Math.max(0,Math.round(Number(ms)||0));
+  b.textContent=`⚡ ${n} ms`;
+  b.className='v931-perf-badge '+(n<80?'good':n<180?'warn':'bad');
+}
+function record(name,syncMs,paintMs){
+  last={name,syncMs:Math.round(syncMs*10)/10,paintMs:Math.round(paintMs*10)/10,at:Date.now()};
+  samples.push(last);if(samples.length>40)samples.shift();
+  badge(paintMs);
+}
+function wrap(name){
+  const base=window[name];
+  if(typeof base!=='function'||base.__v931perf)return;
+  const wrapped=function(...args){
+    const t0=performance.now();
+    let out;
+    try{out=base.apply(this,args)}
+    finally{
+      const sync=performance.now()-t0;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>record(name,sync,performance.now()-t0)));
+    }
+    return out;
+  };
+  wrapped.__v931perf=true;window[name]=wrapped;
+}
+['scoutAddCode','scoutAddManualAction','scoutAwardPoint','scoutUndoRally','scoutRotate','scoutRotateOpponent'].forEach(wrap);
+
+window.VC_PERF_V931={
+  version:VERSION,
+  mark:(name,ms)=>{samples.push({name,syncMs:Number(ms)||0,paintMs:Number(ms)||0,at:Date.now()});if(samples.length>40)samples.shift()},
+  last:()=>({...last}),
+  report:()=>({
+    version:VERSION,
+    last:{...last},
+    averagePaintMs:samples.length?Math.round(samples.reduce((a,x)=>a+(Number(x.paintMs)||0),0)/samples.length):0,
+    slowest:samples.slice().sort((a,b)=>(b.paintMs||0)-(a.paintMs||0)).slice(0,8),
+    journal:window.scoutV902PerformanceDiagnostics?.()||null,
+    render:window.VC_SCOUT_RENDER_V92?.diagnostics?.()||null,
+    unified:window.VC_V930_UNIFIED?.diagnostics?.()||null
+  })
+};
+
+/* Warm the journal connection after first paint, not on the first scouting click. */
+const warm=()=>{try{void window.scoutV931WarmJournal?.()}catch(_){}};
+if('requestIdleCallback'in window)requestIdleCallback(warm,{timeout:1800});
+else setTimeout(warm,900);
+})();
+</script>
+
+
+
+<style id="v940-professional-reorganization-style">
+/* Only V9.4 is user-facing. Earlier navigations remain available internally. */
+#v930-unified-nav.v940-compat-nav,
+#v910-match-view-nav{display:none!important}
+
+#v940-professional-nav{
+  width:100%;
+  box-sizing:border-box;
+  background:#f5f7f9;
+  border-top:1px solid #dce3e7;
+  border-bottom:1px solid #d7e0e5;
+  padding:8px 10px;
+}
+#v940-professional-nav.hidden{display:none!important}
+
+.v940-nav-head{
+  display:grid;
+  grid-template-columns:minmax(180px,.9fr) minmax(500px,2.2fr) auto;
+  gap:9px;
+  align-items:stretch;
+  margin-bottom:7px;
+}
+.v940-home{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid #d9e2e7;
+  background:#fff;
+  border-radius:9px;
+  padding:7px 9px;
+  color:#17324d;
+  cursor:pointer;
+  text-align:left;
+}
+.v940-home>span{
+  display:grid;
+  place-items:center;
+  width:29px;height:29px;
+  border-radius:7px;
+  background:#102b43;
+  color:#fff;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.v940-home b{display:block;font-size:9px}
+.v940-home small{display:block;margin-top:1px;font-size:6.2px;color:#7b8b95}
+
+.v940-match-context{
+  display:grid;
+  grid-template-columns:1.45fr .8fr .65fr .75fr;
+  border:1px solid #dce4e8;
+  background:#fff;
+  border-radius:9px;
+  overflow:hidden;
+}
+.v940-match-context>div{
+  padding:7px 9px;
+  border-right:1px solid #e6ebee;
+  min-width:0;
+}
+.v940-match-context>div:last-child{border-right:0}
+.v940-match-context span{
+  display:block;
+  font-size:5.8px;
+  font-weight:950;
+  letter-spacing:.08em;
+  color:#87959e;
+}
+.v940-match-context b{
+  display:block;
+  margin-top:2px;
+  font-size:8px;
+  color:#17324d;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.v940-perf-badge{
+  display:grid;
+  place-items:center;
+  min-width:68px;
+  border:1px solid #d9e2e7;
+  border-radius:9px;
+  background:#fff;
+  color:#607482;
+  font-size:7px;
+  font-weight:950;
+  padding:0 8px;
+}
+.v940-perf-badge.good{color:#2e6546;background:#f2f8f4;border-color:#bfd7c8}
+.v940-perf-badge.warn{color:#8b6231;background:#fffaf0;border-color:#e1cfaf}
+.v940-perf-badge.bad{color:#8a4242;background:#fff5f5;border-color:#dfbbbb}
+
+.v940-main-nav{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(105px,1fr));
+  gap:5px;
+}
+.v940-main-nav>button{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  border:1px solid #d9e2e7;
+  background:#fff;
+  color:#536b7b;
+  border-radius:8px;
+  padding:7px 8px;
+  cursor:pointer;
+  text-align:left;
+}
+.v940-main-nav>button:hover{border-color:#aebdc6;background:#fbfcfd}
+.v940-main-nav>button.active{background:#102b43;border-color:#102b43;color:#fff}
+.v940-nav-icon{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:24px;height:24px;
+  border:1px solid #dbe3e7;
+  border-radius:6px;
+  font-size:6.2px;
+  font-weight:950;
+  color:#738590;
+  background:#f7f9fa;
+}
+.v940-main-nav>button.active .v940-nav-icon{
+  color:#fff;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08)
+}
+.v940-main-nav b{display:block;font-size:8.4px;color:#17324d}
+.v940-main-nav small{
+  display:block;
+  margin-top:1px;
+  font-size:5.9px;
+  color:#84929b;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.v940-main-nav>button.active b,.v940-main-nav>button.active small{color:#fff}
+
+.v940-context-toolbar{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  min-height:29px;
+  padding-top:6px;
+  overflow-x:auto;
+  scrollbar-width:thin;
+}
+.v940-context-toolbar:empty{display:none}
+.v940-context-toolbar .v940-context-label{
+  flex:0 0 auto;
+  padding:0 5px;
+  font-size:5.8px;
+  letter-spacing:.08em;
+  font-weight:950;
+  color:#87949d;
+}
+.v940-context-toolbar button{
+  flex:0 0 auto;
+  border:1px solid #dce4e8;
+  background:#fff;
+  color:#5c7180;
+  border-radius:6px;
+  padding:5px 8px;
+  font-size:6.7px;
+  font-weight:900;
+  cursor:pointer;
+}
+.v940-context-toolbar button:hover,
+.v940-context-toolbar button.active{background:#e9eff3;color:#17324d;border-color:#c8d4db}
+.v940-context-toolbar button.primary{background:#17324d;color:#fff;border-color:#17324d}
+.v940-context-toolbar .separator{width:1px;height:18px;background:#d9e1e5;margin:0 2px}
+
+/* Less GPU/paint work on desktop. Keep the visual hierarchy through borders,
+   spacing and typography rather than many blurred shadows. */
+#scout-match-mode .v800-card,
+#scout-match-mode [class*="v800-"][class*="-card"],
+#scout-workspace-v900 .v900-card,
+#scout-analysis .card,
+#scout-video-hub .card{
+  box-shadow:none!important;
+}
+#scout-match-mode .v800-card,
+#scout-workspace-v900 .v900-card{
+  border-color:#dde5e9!important;
+}
+
+/* The shell is the navigation; internal duplicate phase bars stay technical. */
+#scout-workspace-v900 .v900-phase-nav{display:none!important}
+
+/* Strong containment for the large desktop modules. */
+#scout-match-mode.active,
+#scout-workspace-v900.active,
+#scout-analysis.active,
+#scout-video-hub.active,
+#scout-safe.active{
+  contain:layout style paint;
+}
+
+/* Avoid long cosmetic transitions being perceived as control lag. */
+#v940-professional-nav button,
+#scout-match-mode button,
+#scout-workspace-v900 button{
+  transition:background-color .06s linear,border-color .06s linear,color .06s linear!important;
+}
+
+@media(max-width:1180px){
+  .v940-nav-head{grid-template-columns:180px 1fr auto}
+  .v940-match-context{grid-template-columns:1.4fr .8fr .7fr}
+  .v940-match-context>div:last-child{display:none}
+  .v940-main-nav{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:720px){
+  #v940-professional-nav{padding:6px}
+  .v940-nav-head{grid-template-columns:1fr auto}
+  .v940-match-context{grid-column:1/-1;grid-row:2;grid-template-columns:1.3fr .8fr .8fr}
+  .v940-home{min-width:0}
+  .v940-main-nav{grid-template-columns:repeat(2,1fr)}
+  .v940-main-nav small{display:none}
+  .v940-context-toolbar{padding-bottom:2px}
+}
+</style>
+
+
+
+<script id="v940-professional-reorganization-runtime">
+(()=>{
+'use strict';
+const VERSION='9.4.0';
+
+const AREA_DEFAULT={
+  inicio:'inicio',
+  partido:'partido',
+  scouting:'directo',
+  revisar:'revisar',
+  analisis:'analisis',
+  video:'video',
+  gestion:'seguridad'
+};
+const ROUTE_AREA={
+  inicio:'inicio',
+  partido:'partido',
+  directo:'scouting',codigo:'scouting',preparar:'scouting',
+  revisar:'revisar',
+  analisis:'analisis',
+  video:'video',videoteca:'video',
+  seguridad:'gestion',plan:'gestion',matchup:'gestion',post:'gestion',
+  partidos:'gestion',temporada:'gestion',clasico:'gestion'
+};
+let area=localStorage.getItem('v940_area')||'partido';
+let managementRoute=localStorage.getItem('v940_management_route')||'seguridad';
+let routeBusy=false;
+let statusFrame=0;
+let contextFrame=0;
+
+const $=id=>document.getElementById(id);
+function activeMatch(){
+  try{return window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.()||window.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}
+}
+function teamName(){
+  try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Equipo'}catch(_){return'Equipo'}
+}
+function setObj(m){return (m?.sets||[]).find(s=>Number(s.number)===Number(m?.currentSet))||null}
+function setArea(next){
+  area=next||area;
+  localStorage.setItem('v940_area',area);
+  document.querySelectorAll('#v940-professional-nav [data-v940-area]').forEach(b=>b.classList.toggle('active',b.dataset.v940Area===area));
+}
+function perfBadge(){
+  const old=$('v931-perf-badge'),b=$('v940-perf-badge');
+  if(!b)return;
+  const last=window.VC_PERF_V931?.last?.();
+  const ms=Math.max(0,Math.round(Number(last?.paintMs)||0));
+  b.textContent=last?.at?`⚡ ${ms} ms`:'⚡ — ms';
+  b.className='v940-perf-badge '+(!last?.at?'':ms<80?'good':ms<180?'warn':'bad');
+  if(old)old.style.display='none';
+}
+function updateStatus(){
+  const m=activeMatch(),s=setObj(m);
+  if(!m){
+    if($('v940-context-match'))$('v940-context-match').textContent='Sin scouting activo';
+    if($('v940-context-score'))$('v940-context-score').textContent='—';
+    if($('v940-context-rotation'))$('v940-context-rotation').textContent='—';
+  }else{
+    if($('v940-context-match'))$('v940-context-match').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;
+    if($('v940-context-score'))$('v940-context-score').textContent=`S${m.currentSet||1} · ${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
+    if($('v940-context-rotation'))$('v940-context-rotation').textContent=`R${m.rotationNo||1} · rival R${m.opponentRotationNo||1}`;
+  }
+  const save=$('scout-save-badge')?.textContent||'Local ✓';
+  if($('v940-context-save'))$('v940-context-save').textContent=/consolidando/i.test(save)?'Consolidando…':'Protegido ✓';
+  perfBadge();
+}
+function scheduleStatus(){
+  if(statusFrame)return;
+  statusFrame=requestAnimationFrame(()=>{statusFrame=0;updateStatus()});
+}
+function btn(label,action,cls='',active=false){
+  return `<button class="${cls}${active?' active':''}" onclick="${action}">${label}</button>`;
+}
+function renderContext(){
+  const box=$('v940-context-toolbar');if(!box)return;
+  const route=window.VC_V930_UNIFIED?.diagnostics?.().route||'';
+  let h='<span class="v940-context-label">HERRAMIENTAS</span>';
+  if(area==='partido'){
+    h+=btn('En directo',"v940Route('partido')",'',route==='partido');
+    h+=btn('Lectura',"v940MatchView('lectura')");
+    h+=btn('Todo',"v940MatchView('todo')");
+    h+='<span class="separator"></span>';
+    h+=btn('Alineación','scoutOpenLineup()');
+    h+=btn('Cambios / Líbero','scoutOpenSubstitution()');
+    h+=btn('Evento','scoutV690OpenEvent()');
+    h+=btn('Finalizar set','scoutV861OpenFinishSet()');
+    h+=btn('Resultado final','scoutV861OpenFinalResult()');
+  }else if(area==='scouting'){
+    h+=btn('Visual',"v940Route('directo')",'',route==='directo');
+    h+=btn('Código Pro',"v940Route('codigo')",'',route==='codigo');
+    h+=btn('Preparar',"v940Route('preparar')",'',route==='preparar');
+    h+='<span class="separator"></span>';
+    h+=btn('Referencia códigos',"v901OpenCodes('v940')");
+    h+=btn('Alineación','scoutOpenLineup()');
+  }else if(area==='revisar'){
+    h+=btn('Rallies',"v940Route('revisar')",'',true);
+    h+=btn('Editar rallies y códigos','v901OpenRallyEditor()','primary');
+    h+=btn('Deshacer último','scoutUndoRally()');
+    h+=btn('Checkpoint',"scoutV893CheckpointAll(true,'manual-v940',true)");
+  }else if(area==='analisis'){
+    h+=btn('Análisis exhaustivo',"v940Route('analisis')",'',true);
+    h+=btn('PDF Pro','scoutV752ExportAnalysisPDF()','primary');
+    h+=btn('Hoja oficial','scoutV752ExportOfficialPDF()');
+    h+=btn('Actualizar','v940RefreshAnalysis()');
+  }else if(area==='video'){
+    h+=btn('Vídeo en directo',"v940Route('video')",'',route==='video');
+    h+=btn('Videoteca / análisis',"v940Route('videoteca')",'',route==='videoteca');
+    h+=btn('REC','scoutV700OpenVideo(\'live\')');
+  }else if(area==='gestion'){
+    h+=btn('Seguridad',"v940Route('seguridad')",'',route==='seguridad');
+    h+=btn('Plan',"v940Route('plan')",'',route==='plan');
+    h+=btn('Match-up',"v940Route('matchup')",'',route==='matchup');
+    h+=btn('Partidos',"v940Route('partidos')",'',route==='partidos');
+    h+=btn('Temporada',"v940Route('temporada')",'',route==='temporada');
+    h+=btn('Postpartido',"v940Route('post')",'',route==='post');
+    h+='<span class="separator"></span>';
+    h+=btn('Clásico',"v940Route('clasico')",'',route==='clasico');
+  }
+  box.innerHTML=h;
+}
+function scheduleContext(){
+  if(contextFrame)return;
+  contextFrame=requestAnimationFrame(()=>{contextFrame=0;renderContext();scheduleStatus()});
+}
+async function routeTo(route){
+  if(routeBusy)return;
+  routeBusy=true;
+  try{
+    if(ROUTE_AREA[route]){
+      setArea(ROUTE_AREA[route]);
+      if(ROUTE_AREA[route]==='gestion')managementRoute=route,localStorage.setItem('v940_management_route',route);
+    }
+    await window.v930Open?.(route);
+  }finally{
+    routeBusy=false;scheduleContext();
+  }
+}
+async function open(nextArea){
+  if(nextArea==='inicio'){
+    setArea('inicio');
+    const btn=typeof window.botonVista==='function'?window.botonVista('scout-dashboard'):null;
+    window.showView?.('scout-dashboard',btn);
+    scheduleContext();
+    return;
+  }
+  nextArea=AREA_DEFAULT[nextArea]?nextArea:'partido';
+  setArea(nextArea);
+  const route=nextArea==='gestion'?managementRoute:AREA_DEFAULT[nextArea];
+  await routeTo(route);
+}
+async function matchView(mode){
+  setArea('partido');
+  await routeTo('partido');
+  window.v910SetMatchView?.(mode);
+  scheduleContext();
+}
+function refreshAnalysis(){
+  window.v930InvalidateAnalysis?.();
+  window.scoutRenderAnalysis?.();
+  scheduleStatus();
+}
+function showShell(show){
+  $('v940-professional-nav')?.classList.toggle('hidden',!show);
+}
+function activeScoutingSurface(){
+  const ids=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'];
+  return ids.find(id=>$(id)?.classList.contains('active'))||'';
+}
+
+/* Keep V9.4 synchronized even when an old compatible control navigates. */
+const base930=window.v930Open;
+if(typeof base930==='function'&&!base930.__v940){
+  const wrapped=async function(route,...rest){
+    const out=await base930.call(this,route,...rest);
+    if(ROUTE_AREA[route]){
+      setArea(ROUTE_AREA[route]);
+      if(ROUTE_AREA[route]==='gestion'){managementRoute=route;localStorage.setItem('v940_management_route',route)}
+    }
+    showShell(true);scheduleContext();return out;
+  };
+  wrapped.__v940=true;window.v930Open=wrapped;
+}
+
+/* showView can also be called from legacy buttons/modals. */
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v940){
+  const wrapped=function(id,btn){
+    const out=showBase.apply(this,arguments);
+    const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'].includes(id);
+    showShell(scouting);
+    if(scouting)setTimeout(()=>{const d=window.VC_V930_UNIFIED?.diagnostics?.();if(d?.route&&ROUTE_AREA[d.route])setArea(ROUTE_AREA[d.route]);scheduleContext()},0);
+    return out;
+  };
+  wrapped.__v940=true;window.showView=wrapped;
+}
+
+/* Cheap status refreshes after structural match changes. No full render here. */
+['scoutAwardPoint','scoutUndoRally','scoutRotate','scoutRotateOpponent','scoutNextSet','scoutFinishMatch','scoutSaveLineup','scoutApplySubstitution'].forEach(name=>{
+  const base=window[name];if(typeof base!=='function'||base.__v940)return;
+  const wrapped=function(...args){
+    const out=base.apply(this,args);
+    Promise.resolve(out).finally(scheduleStatus);
+    return out;
+  };
+  wrapped.__v940=true;window[name]=wrapped;
+});
+
+/* Mirror the performance badge without another interval. */
+if(window.VC_PERF_V931){
+  const oldMark=window.VC_PERF_V931.mark;
+  window.VC_PERF_V931.mark=function(...args){const out=oldMark?.apply(this,args);scheduleStatus();return out};
+}
+
+window.v940Open=open;
+window.v940Route=routeTo;
+window.v940MatchView=matchView;
+window.v940RefreshAnalysis=refreshAnalysis;
+window.VC_V940_PRO={
+  version:VERSION,
+  open,route:routeTo,matchView,refreshAnalysis,
+  diagnostics:()=>({
+    version:VERSION,
+    area,
+    managementRoute,
+    route:window.VC_V930_UNIFIED?.diagnostics?.().route||null,
+    activeView:activeScoutingSurface(),
+    performance:window.VC_PERF_V931?.report?.()||null,
+    dataModel:'scoutingMatches>sets>rallies>actions',
+    compatibility:{
+      matchMode:typeof window.v800Open==='function',
+      scoutingPro:typeof window.v900Open==='function',
+      classic:!!$('scouting'),
+      editor:typeof window.v901OpenRallyEditor==='function',
+      video:typeof window.scoutV700OpenVideo==='function',
+      analysis:typeof window.scoutRenderAnalysis==='function',
+      vault:typeof window.scoutV893CheckpointAll==='function'
+    }
+  })
+};
+
+setTimeout(()=>{
+  const surface=activeScoutingSurface();
+  showShell(!!surface);
+  const r=window.VC_V930_UNIFIED?.diagnostics?.().route;
+  if(r&&ROUTE_AREA[r])setArea(ROUTE_AREA[r]);
+  else setArea(area);
+  renderContext();updateStatus();
 },0);
 })();
 </script>
