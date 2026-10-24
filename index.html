@@ -877,7 +877,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <div class="v940-nav-head">
         <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
           <span>VC</span>
-          <div><b>Scouting Center</b><small>Professional workspace · V9.4</small></div>
+          <div><b>Scouting Center</b><small>Professional workspace · V9.5.1</small></div>
         </button>
 
         <div id="v940-match-context" class="v940-match-context">
@@ -903,11 +903,8 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
         <button data-v940-area="analisis" onclick="v940Open('analisis')">
           <span class="v940-nav-icon">04</span><div><b>Análisis</b><small>lectura exhaustiva · PDF</small></div>
         </button>
-        <button data-v940-area="video" onclick="v940Open('video')">
-          <span class="v940-nav-icon">05</span><div><b>Vídeo</b><small>REC · replay · clips</small></div>
-        </button>
         <button data-v940-area="gestion" onclick="v940Open('gestion')">
-          <span class="v940-nav-icon">06</span><div><b>Gestión</b><small>seguridad · plan · temporada</small></div>
+          <span class="v940-nav-icon">05</span><div><b>Gestión</b><small>nube · recuperación · plan</small></div>
         </button>
       </div>
 
@@ -5407,7 +5404,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.1', {
         updateViaCache: 'none'
       });
 
@@ -13536,8 +13533,8 @@ window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view
 const prevShow=window.showView;
 window.showView=function(id,btn){
   const pending=typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession();
-  if(pending&&!['scouting','scout-workspace-v900','scout-match-mode','scout-video-hub'].includes(id)){
-    alert('El scouting está abierto. Guarda o finaliza antes de salir del partido. La sección Vídeo sí se puede usar sin cerrar el scouting.');
+  if(pending&&!['scouting','scout-workspace-v900','scout-match-mode','scout-video-hub','scout-analysis'].includes(id)){
+    alert('El scouting está abierto. Puedes usar Análisis y Vídeo sin cerrarlo. Para salir a otras áreas, guarda/finaliza primero.');
     id='scout-match-mode';btn=botonVista('scout-match-mode')
   }
   const mode=VIDEO_VIEWS.has(id)?'video':SCOUT_VIEWS.has(id)?'scouting':'training';
@@ -24740,6 +24737,129 @@ window.VC_V950_SAVE={
     matchVideo:!!document.getElementById('v802-youtube-url'),
     youtube:typeof window.v802LoadYouTube==='function',
     live:typeof window.openLiveDelay==='function'
+  })
+};
+})();
+</script>
+
+
+
+<style id="v951-navigation-analysis-fix-style">
+/* V9.5.1: Scouting has five areas. Video is now only a top-level workspace,
+   except for the in-match video controls inside Partido. */
+body.workspace-scouting .workspace-navigation{
+  flex-direction:column!important;
+  gap:6px!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+body.workspace-scouting .workspace-switch{
+  width:100%;
+  padding-bottom:0!important;
+}
+body.workspace-scouting #v940-professional-nav{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+body.workspace-scouting #v940-professional-nav .v940-main-nav{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+body.workspace-scouting #v940-professional-nav .v940-main-nav>button{
+  min-width:0!important;
+}
+body.workspace-scouting .compact-team-switcher{
+  align-self:flex-start!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:3!important;
+}
+body.workspace-scouting .workspace-toolbar{
+  align-items:flex-start!important;
+  gap:10px!important;
+}
+
+/* The separate top-level Video workspace remains available. */
+body.workspace-video #video-nav{display:flex!important}
+
+/* Analysis must always be interactive while an active match is open. */
+#scout-analysis.active{
+  pointer-events:auto!important;
+}
+
+@media(max-width:1180px){
+  body.workspace-scouting #v940-professional-nav .v940-main-nav{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:860px){
+  body.workspace-scouting .workspace-toolbar{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  body.workspace-scouting .compact-team-switcher{
+    width:100%!important;
+    justify-content:space-between!important;
+  }
+  body.workspace-scouting #v940-professional-nav .v940-main-nav{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+</style>
+
+
+
+<script id="v951-analysis-navigation-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.1';
+
+/* Analysis reads the active/saved scouting and does not change team/session
+   ownership. It is safe to open while the match is live or merely saved. */
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v951){
+  const wrapped=function(id,btn){
+    if(id==='scout-analysis'){
+      /* Bypass historical "pending session" navigation wrappers by temporarily
+         marking this transition as an allowed scouting surface. The actual
+         showView chain already has scout-analysis in its allowlist above. */
+      const out=showBase.apply(this,arguments);
+      try{
+        window.VC_V930_UNIFIED?.invalidateAnalysis?.();
+        window.VC_SCOUT_RENDER_V92?.request?.('v951-open-analysis');
+      }catch(_){}
+      return out;
+    }
+    return showBase.apply(this,arguments);
+  };
+  wrapped.__v951=true;window.showView=wrapped;
+}
+
+/* If an old button routes directly through V9.4, Analysis still uses the same
+   exhaustive engine; this only fixes navigation state. */
+const open940=window.v940Open;
+if(typeof open940==='function'&&!open940.__v951){
+  const wrapped=async function(area,...rest){
+    if(area==='analisis'){
+      try{
+        document.getElementById('v940-professional-nav')?.classList.remove('hidden');
+      }catch(_){}
+    }
+    return open940.call(this,area,...rest);
+  };
+  wrapped.__v951=true;window.v940Open=wrapped;
+}
+
+window.VC_V951_FIX={
+  version:VERSION,
+  diagnostics:()=>({
+    version:VERSION,
+    videoTopLevel:!!document.getElementById('workspace-video-btn'),
+    videoRemovedFromScoutingNav:!document.querySelector('#v940-professional-nav [data-v940-area="video"]'),
+    managementVisible:!!document.querySelector('#v940-professional-nav [data-v940-area="gestion"]'),
+    analysisAllowedWhileOpen:true,
+    activeView:['scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub']
+      .find(id=>document.getElementById(id)?.classList.contains('active'))||null
   })
 };
 })();
