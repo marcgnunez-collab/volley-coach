@@ -5404,7 +5404,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.2', {
         updateViaCache: 'none'
       });
 
@@ -9230,7 +9230,12 @@ window.scoutOpenSaved=function(id){
 
 
 /* ===== V6.10.5 · BUTTON AUDIT FIX ===== */
-window.scoutV6103HasPendingSession=function(){const m=scoutActive();return !!(m&&m.status!=='finished')};
+window.scoutV6103HasPendingSession=function(){
+  const id=Number(scoutingActiveId)||0;
+  if(!id)return false;
+  const m=scoutingMatches.find(x=>Number(x.id)===id)||null;
+  return !!(m&&m.status!=='finished');
+};
 function scoutV6103StayLive(message){
   if(message)alert(message);
   if(document.body.classList.contains('scout-v690-compact')===false&&typeof window.scoutV690ToggleCompact==='function'){}
@@ -9335,6 +9340,13 @@ function scoutV6106PinKey(){return V6106_PIN_PREFIX+String(equipoActivo||'equipo
 function scoutV6106PinnedId(){try{return Number(localStorage.getItem(scoutV6106PinKey()))||null}catch(_){return null}}
 function scoutV6106Pin(id){try{if(id)localStorage.setItem(scoutV6106PinKey(),String(id));else localStorage.removeItem(scoutV6106PinKey())}catch(_){}}
 function scoutV6106Unpin(){try{localStorage.removeItem(scoutV6106PinKey())}catch(_){}}
+window.scoutV6106DetachActive=function(){
+  scoutingActiveId=null;
+  if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+  equiposData[equipoActivo].scoutingActiveId=null;
+  scoutV6106Unpin();
+  return true;
+};
 
 const v6106ScoutActiveBase=scoutActive;
 scoutActive=function(){
@@ -9407,8 +9419,17 @@ window.scoutV6102SaveAndExit=async function(){
   const recovered=scoutActive();
   if(!recovered){alert('No hay un scouting activo para guardar.');return}
   v6106SuppressActiveRecovery=true;
-  try{return await v6106SaveExitBase()}
-  finally{scoutV6106Unpin();v6106SuppressActiveRecovery=false}
+  try{
+    return await v6106SaveExitBase()
+  }finally{
+    /* V9.5.2: Save means "saved and no longer active".
+       Clear every recovery source BEFORE automatic recovery is re-enabled. */
+    scoutingActiveId=null;
+    if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+    equiposData[equipoActivo].scoutingActiveId=null;
+    scoutV6106Unpin();
+    v6106SuppressActiveRecovery=false;
+  }
 };
 
 const v6106FinalizeBase=window.scoutV6102FinalizeAndExit;
@@ -24707,7 +24728,9 @@ window.v950OpenMatchVideo=function(){
   if(typeof base!=='function'||base.__v950)return;
   const wrapped=async function(...args){
     const out=await base.apply(this,args);
+    if(name==='scoutV6102SaveAndExit')window.scoutV6106DetachActive?.();
     await forceSave(true);
+    if(name==='scoutV6102SaveAndExit')window.scoutV6106DetachActive?.();
     return out;
   };
   wrapped.__v950=true;window[name]=wrapped;
@@ -24860,6 +24883,96 @@ window.VC_V951_FIX={
     analysisAllowedWhileOpen:true,
     activeView:['scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub']
       .find(id=>document.getElementById(id)?.classList.contains('active'))||null
+  })
+};
+})();
+</script>
+
+
+
+<script id="v952-save-exit-fix-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.2';
+
+function ts(v){const n=Date.parse(v||'');return Number.isFinite(n)?n:0}
+function activeById(){
+  try{
+    const id=Number(typeof scoutingActiveId!=='undefined'?scoutingActiveId:0)||0;
+    if(!id)return null;
+    return (scoutingMatches||[]).find(m=>Number(m.id)===id)||null;
+  }catch(_){return null}
+}
+function detach(){
+  try{
+    if(typeof window.scoutV6106DetachActive==='function')window.scoutV6106DetachActive();
+    else{
+      scoutingActiveId=null;
+      if(equiposData?.[equipoActivo])equiposData[equipoActivo].scoutingActiveId=null;
+      try{localStorage.removeItem('volleyScoutPinnedV6106:'+String(equipoActivo||'equipo'))}catch(_){}
+    }
+    return true;
+  }catch(err){console.warn('V9.5.2 detach',err);return false}
+}
+function migrateStuckSavedSession(){
+  const m=activeById();if(!m||m.status==='finished'||!m.manualSavedAt)return false;
+  /* A genuinely reopened saved scouting has reopenedAt newer than manualSavedAt.
+     The V9.5.1 bug had an active id/pin but no real reopen after Save. */
+  const saved=ts(m.manualSavedAt),reopened=ts(m.reopenedAt);
+  if(saved && (!reopened || saved>=reopened)){
+    detach();
+    try{
+      if(equiposData?.[equipoActivo]){
+        equiposData[equipoActivo].scoutingMatches=(scoutingMatches||[]).map(x=>JSON.parse(JSON.stringify(x)));
+        equiposData[equipoActivo].scoutingActiveId=null;
+      }
+      if(typeof guardarEstadoLocalSinCloud==='function')guardarEstadoLocalSinCloud();
+    }catch(_){}
+    return true;
+  }
+  return false;
+}
+
+/* Repair a session that V9.5.1 may have resurrected after pressing Guardar. */
+setTimeout(()=>migrateStuckSavedSession(),0);
+
+/* Last-line guard: once Save finishes, Training is immediately accessible.
+   We do not mark the match as finished; it remains saved/editable in the archive. */
+const saveBase=window.scoutV6102SaveAndExit;
+if(typeof saveBase==='function'&&!saveBase.__v952){
+  const wrapped=async function(...args){
+    const out=await saveBase.apply(this,args);
+    detach();
+    try{
+      if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();
+    }catch(_){}
+    detach();
+    return out;
+  };
+  wrapped.__v952=true;window.scoutV6102SaveAndExit=wrapped;
+}
+
+/* Pending-session check must remain side-effect free even if an older wrapper
+   overwrites it in an unusual cached load order. */
+window.scoutV6103HasPendingSession=function(){
+  try{
+    const id=Number(scoutingActiveId)||0;
+    if(!id)return false;
+    const m=(scoutingMatches||[]).find(x=>Number(x.id)===id)||null;
+    return !!(m&&m.status!=='finished');
+  }catch(_){return false}
+};
+
+window.VC_V952_SESSION_FIX={
+  version:VERSION,
+  detach,
+  migrateStuckSavedSession,
+  diagnostics:()=>({
+    version:VERSION,
+    activeId:(()=>{try{return Number(scoutingActiveId)||null}catch(_){return null}})(),
+    teamActiveId:(()=>{try{return Number(equiposData?.[equipoActivo]?.scoutingActiveId)||null}catch(_){return null}})(),
+    pending:window.scoutV6103HasPendingSession?.()||false,
+    pinned:(()=>{try{return localStorage.getItem('volleyScoutPinnedV6106:'+String(equipoActivo||'equipo'))||null}catch(_){return null}})()
   })
 };
 })();
