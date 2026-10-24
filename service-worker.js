@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.3.0-unified-scouting-v1';
+const CACHE_NAME = 'volley-coach-v9.4.0-professional-reorganization-v1';
 
 const APP_SHELL = [
   './',
