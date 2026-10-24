@@ -839,7 +839,8 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="workspace-navigation">
     <div class="workspace-switch" role="tablist" aria-label="Área de trabajo">
       <button id="workspace-training-btn" class="workspace-switch-btn active" onclick="openWorkspace('training')"><span>ENTRENAMIENTO</span><small>Equipo · sesiones · desarrollo</small></button>
-      <button id="workspace-scouting-btn" class="workspace-switch-btn" onclick="openWorkspace('scouting')"><span>SCOUTING</span><small>Partido · directo · análisis · vídeo</small></button>
+      <button id="workspace-scouting-btn" class="workspace-switch-btn" onclick="openWorkspace('scouting')"><span>SCOUTING</span><small>Partido · directo · análisis</small></button>
+      <button id="workspace-video-btn" class="workspace-switch-btn" onclick="openWorkspace('video')"><span>VÍDEO</span><small>Live · YouTube · análisis · clips</small></button>
     </div>
     <div id="training-nav" class="tabs app-tabs workspace-nav">
       <button class="tab-btn active" data-view="dashboard" onclick="showView('dashboard',this)">Inicio</button>
@@ -849,6 +850,12 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" data-view="jugadores" onclick="showPlayersView(this)">Jugadores</button>
       <button class="tab-btn" data-view="historial" onclick="showView('historial',this)">Historial</button>
       <button class="tab-btn" data-view="estadisticas" onclick="showView('estadisticas',this)">Estadísticas</button>
+    </div>
+    <div id="video-nav" class="tabs app-tabs workspace-nav hidden v950-video-nav">
+      <button class="tab-btn active" data-view="scout-video-hub" onclick="showView('scout-video-hub',this)">Centro de vídeo</button>
+      <button class="tab-btn" type="button" onclick="scoutV700OpenVideo('analysis')">Análisis y clips</button>
+      <button class="tab-btn" type="button" onclick="openLiveDelay('training')">Live Delay</button>
+      <button class="tab-btn" type="button" onclick="v950OpenMatchVideo()">Vídeo de partido</button>
     </div>
     <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden v910-scout-nav v930-internal-nav">
       <button class="tab-btn v910-primary-tab" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
@@ -877,7 +884,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
           <div><span>PARTIDO</span><b id="v940-context-match">Sin scouting activo</b></div>
           <div><span>SET / MARCADOR</span><b id="v940-context-score">—</b></div>
           <div><span>ROTACIÓN</span><b id="v940-context-rotation">—</b></div>
-          <div><span>PROTECCIÓN</span><b id="v940-context-save">Local ✓</b></div>
+          <div><span>GUARDADO</span><b id="v940-context-save">Local + nube</b></div>
         </div>
 
         <span id="v940-perf-badge" class="v940-perf-badge" title="Respuesta de la última acción">⚡ — ms</span>
@@ -1796,11 +1803,14 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
         <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
         <button id="v851-video-note-btn" class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
+        <button id="v950-match-video-btn" class="primary" onclick="v940MatchView('video')">🎥 Vídeo Live / YouTube</button>
         <button id="v853-rally-editor-btn" class="ghost" onclick="v901OpenRallyEditor()">✎ Editar rallies y códigos</button>
         <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
         <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
         <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
         <button class="ghost" onclick="v901OpenCodes()">⌨ Códigos</button>
+        <button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button>
+        <button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button>
         <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
       </div>
     </div>
@@ -2074,15 +2084,15 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <article class="v900-card">
             <div class="v900-card-head"><div><span class="pro-kicker">PROTECCIÓN</span><h3>Antes de empezar</h3></div><span class="v900-step">02</span></div>
             <div class="v900-safety-grid">
-              <div><span>Estado local</span><b id="v900-prep-local">Protegido</b></div>
-              <div><span>Caja fuerte</span><b id="v900-prep-vault">Comprobando</b></div>
+              <div><span>Estado local</span><b id="v900-prep-local">Guardado automático</b></div>
+              <div><span>Journal</span><b id="v900-prep-vault">Activo</b></div>
               <div><span>Recuperación</span><b>Disponible</b></div>
-              <div><span>Nube</span><b>Modo seguro</b></div>
+              <div><span>Nube</span><b>Sincronización automática</b></div>
             </div>
             <div class="v900-action-row">
-              <button class="primary" onclick="scoutV893CheckpointAll(true,'manual',true)">Crear checkpoint</button>
-              <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Abrir Caja fuerte</button>
-              <button class="ghost" onclick="scoutV893CloudReadOnly()">Comprobar nube</button>
+              <button class="primary" onclick="v950ForceSave()">Guardar ahora</button>
+              <button class="ghost" onclick="abrirCloud()">Nube</button>
+              <button class="ghost" onclick="scoutV892OpenRecoveryCenter()">Recuperación</button>
             </div>
           </article>
           <article class="v900-card wide">
@@ -2212,12 +2222,12 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             </div>
           </article>
           <article class="v900-card">
-            <div class="v900-card-head"><div><span class="pro-kicker">SEGURIDAD</span><h3>Checkpoint</h3></div></div>
+            <div class="v900-card-head"><div><span class="pro-kicker">GUARDADO</span><h3>Local + nube</h3></div></div>
             <div id="v900-review-save" class="v900-prep-copy"></div>
             <div class="v900-review-actions">
-              <button class="primary" onclick="scoutV893CheckpointAll(true,'manual',true)">Crear checkpoint ahora</button>
-              <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Ver versiones</button>
-              <button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button>
+              <button class="primary" onclick="v950ForceSave()">Guardar ahora</button>
+              <button class="ghost" onclick="abrirCloud()">Estado de nube</button>
+              <button class="ghost" onclick="scoutV892OpenRecoveryCenter()">Recuperación</button>
             </div>
           </article>
         </div>
@@ -4156,7 +4166,7 @@ function aplicarEstadoCloud(s){
     equiposData[id]=limpiarEquipo(equiposData[id],id);
     const localTeam=equiposAntes?.[id]||{};
     equiposData[id].scoutingMatches=fusionarScoutingsSeguros(localTeam.scoutingMatches,equiposData[id].scoutingMatches);
-    equiposData[id].scoutingSafeCloud=fusionarEspejoScouting(localTeam.scoutingSafeCloud,equiposData[id].scoutingSafeCloud);
+    delete equiposData[id].scoutingSafeCloud;
     if(!equiposData[id].scoutingActiveId&&localTeam.scoutingActiveId)equiposData[id].scoutingActiveId=localTeam.scoutingActiveId;
   });
   const cambiosRecepcion=aplicarLimpiezaRecepcionV1();
@@ -4221,7 +4231,7 @@ async function cloudLogin(){
   setCloudUI('syncing','Conectando…');
   const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
   if(error){setCloudUI('error','Error al entrar');alert(error.message);return}
-  cloudUser=data.user;setCloudUI('online','Nube conectada · modo seguro');if(typeof window.scoutV893CloudReadOnly==='function')setTimeout(()=>window.scoutV893CloudReadOnly(),60);alert('Sesión iniciada. La nube no se ha aplicado automáticamente; puedes revisarla desde Caja fuerte.')
+  cloudUser=data.user;setCloudUI('online','Nube conectada · guardado automático');programarSubidaCloud();alert('Sesión iniciada. El guardado automático en la nube está activo.')
 }
 async function cloudLogout(){if(cloudClient)await cloudClient.auth.signOut();cloudUser=null;setCloudUI('', 'Nube desconectada')}
 async function actualizarEstadoCloud(){
@@ -4236,26 +4246,19 @@ function programarSubidaCloud(){
 }
 async function subirNube(manual=false){
   if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
-  setCloudUI('syncing','Protegiendo nube…');
-  if(typeof window.scoutV893CaptureRemoteBeforeUpload==='function'){
-    try{await window.scoutV893CaptureRemoteBeforeUpload()}catch(err){console.warn('V8.9.3 pre-cloud capture',err)}
-  }
   setCloudUI('syncing','Sincronizando…');
   const payload={user_id:cloudUser.id,state:estadoLocal(),updated_at:new Date().toISOString()};
   const {error}=await cloudClient.from('volley_state').upsert(payload,{onConflict:'user_id'});
   if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
   localStorage.setItem('volleyCloudLastSync',payload.updated_at);setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Guardado y sincronizado';
-  if(typeof window.scoutV893CheckpointAll==='function')try{void window.scoutV893CheckpointAll(false,'cloud-upload')}catch(_){}
   if(manual)alert('Datos subidos a la nube.')
 }
 async function bajarNube(manual=false){
   if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
-  if(typeof window.scoutV893CheckpointAll==='function')try{await window.scoutV893CheckpointAll(false,'before-cloud-download',true)}catch(_){}
   setCloudUI('syncing','Descargando…');
   const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
   if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
   if(!data){await subirNube(false);if(manual)alert('La nube estaba vacía. Se han subido los datos de este dispositivo.');return}
-  if(typeof window.scoutV893CaptureCloudState==='function')try{await window.scoutV893CaptureCloudState(data.state,'cloud-download',data.updated_at)}catch(_){}
   aplicarEstadoCloud(data.state);localStorage.setItem('volleyCloudLastSync',data.updated_at||'');setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Datos sincronizados';
   if(manual)alert('Datos descargados de la nube.')
 }
@@ -5404,7 +5407,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.4.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.0', {
         updateViaCache: 'none'
       });
 
@@ -8876,7 +8879,10 @@ window.scoutV680Integrity=function(m=scoutActive()){const errors=[],warnings=[];
 
 window.scoutV680UpdateStatus=function(){const m=scoutActive(),net=document.getElementById('scout-v680-network'),backup=document.getElementById('scout-v680-backup'),integ=document.getElementById('scout-v680-integrity'),local=document.getElementById('scout-v680-local'),warn=document.getElementById('scout-v680-last-warning');if(net){net.textContent=navigator.onLine?(cloudUser?'Online · nube disponible':'Online · local'):'Offline · local';net.className='scout-v680-chip '+(navigator.onLine?'ok':'warn')}if(local){local.textContent='Local protegido';local.className='scout-v680-chip ok'}if(backup){backup.textContent=v680LastBackupAt?`Backup ${Math.max(0,Math.round((Date.now()-v680LastBackupAt)/1000))} s`:'Backup pendiente';backup.className='scout-v680-chip '+(v680LastBackupAt?'ok':'warn')}if(integ){const x=scoutV680Integrity(m);integ.textContent=!m?'Integridad —':x.errors.length?`${x.errors.length} errores`:x.warnings.length?`${x.warnings.length} avisos`:'Integridad OK';integ.className='scout-v680-chip '+(!m?'':x.errors.length?'error':x.warnings.length?'warn':'ok')}if(warn)warn.textContent=v680LastWarning||(!navigator.onLine?'Sin conexión: el scouting continúa guardándose localmente y se sincronizará cuando vuelva la red.':'Sin incidencias recientes detectadas.')};
 window.addEventListener('online',scoutV680UpdateStatus);window.addEventListener('offline',scoutV680UpdateStatus);
-window.addEventListener('beforeunload',()=>{try{scoutV680Backup('beforeunload')}catch(_){}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')scoutV680Backup('background')});setInterval(()=>{const m=scoutActive();if(m&&m.status!=='finished')scoutV680Backup('heartbeat');scoutV680UpdateStatus()},10000);
+/* V9.5: no heartbeat/background snapshot duplicado. El Journal V9.2 protege las acciones.
+   V680 queda disponible para Guardar/Finalizar y recuperación manual. */
+window.addEventListener('beforeunload',()=>{try{window.scoutV902Flush?.()}catch(_){}});
+setInterval(()=>{try{scoutV680UpdateStatus()}catch(_){}},30000);
 
 async function v680SnapshotCard(snap,which){if(!snap)return `<div class="scout-v680-snapshot"><h4>${which==='current'?'Última copia':'Checkpoint anterior'}</h4><p>No hay copia disponible en este dispositivo.</p></div>`;const c=v680Counts(snap.match);return `<div class="scout-v680-snapshot"><h4>${which==='current'?'Última copia':'Checkpoint anterior'}</h4><p><b>${v680Esc(snap.match?.opponent||'Rival')}</b> · ${v680Esc(snap.match?.date||'—')}</p><p>${c.rallies} rallies · ${c.actions} acciones · ${v680When(snap.savedAt)}</p><p>Motivo: ${v680Esc(snap.reason||'auto')} · formato ${v680Esc(snap.version||'—')}</p><div class="scout-v680-snapshot-actions"><button class="primary" onclick="scoutV680RestoreSnapshot('${which}')">Restaurar</button></div></div>`}
 window.scoutV680OpenRecovery=async function(){document.getElementById('scout-v680-recovery-modal')?.classList.add('open');const m=scoutActive(),current=await v680DBGet(v680Key('current')),previous=await v680DBGet(v680Key('previous')),c=m?v680Counts(m):{rallies:0,actions:0},integrity=scoutV680Integrity(m),status=document.getElementById('scout-v680-recovery-status'),snaps=document.getElementById('scout-v680-recovery-snapshots'),issues=document.getElementById('scout-v680-issues');if(status)status.innerHTML=`<div class="scout-v680-status-card"><span>Conexión</span><b>${navigator.onLine?'Online':'Offline'}</b></div><div class="scout-v680-status-card"><span>Partido activo</span><b>${m?v680Esc(m.opponent):'—'}</b></div><div class="scout-v680-status-card"><span>Rallies / acciones</span><b>${c.rallies} / ${c.actions}</b></div><div class="scout-v680-status-card"><span>Integridad</span><b>${integrity.errors.length?integrity.errors.length+' errores':integrity.warnings.length?integrity.warnings.length+' avisos':'OK'}</b></div>`;if(snaps)snaps.innerHTML=(await v680SnapshotCard(current,'current'))+(await v680SnapshotCard(previous,'previous'));if(issues){const all=[...integrity.errors.map(x=>({x,cls:'error'})),...integrity.warnings.map(x=>({x,cls:'warn'}))];issues.innerHTML=all.length?all.slice(0,40).map(i=>`<div class="scout-v680-issue ${i.cls}">${v680Esc(i.x)}</div>`).join(''):'<div class="scout-v680-issue">No se han detectado incoherencias en el partido activo.</div>'}};
@@ -13460,15 +13466,15 @@ window.scoutV893OpenRecoveryCenter=function(){if(typeof window.scoutV892OpenReco
 
 /* Hook final save layer: current state remains in V7.0.2, while this vault keeps history. */
 const v893SaveBase=scoutSave;
-scoutSave=function(render=true){const out=v893SaveBase(render);try{const m=scoutActive();if(m)void v893CheckpointMatch(m,'autosave',false,equipoActivo,'local')}catch(_){}return out};
+/* V9.5: Caja fuerte V8.9.3 queda en modo legado. No intercepta cada scoutSave. */
 
 /* Important lifecycle checkpoints. */
-if(typeof window.scoutDeleteSaved==='function'){const base=window.scoutDeleteSaved;window.scoutDeleteSaved=async function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(m)await v893CheckpointMatch(m,'before-delete',true,equipoActivo,'local');return base.apply(this,arguments)}}
-if(typeof window.scoutV6102FinalizeAndExit==='function'){const base=window.scoutV6102FinalizeAndExit;window.scoutV6102FinalizeAndExit=async function(){const m=scoutActive();if(m)await v893CheckpointMatch(m,'before-finalize',true,equipoActivo,'local');const out=await base.apply(this,arguments);if(m)await v893CheckpointMatch(m,'after-finalize',true,equipoActivo,'local');return out}}
+/* V9.5: sin checkpoint automático antes de borrar; recuperación principal = Journal + nube. */
+/* V9.5: finalizar no crea versiones duplicadas en Caja fuerte. */
 
 window.scoutV893Diagnostics=async function(){const rows=await v893All();return{version:V893_VERSION,versions:rows.length,matches:new Set(rows.map(x=>`${x.teamId}:${x.matchId}`)).size,last:rows.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0))[0]||null,cloudLastChecked:v893CloudLastChecked}};
 if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=V893_VERSION;window.VC_SCOUT_CORE.vault={checkpoint:window.scoutV893CheckpointAll,render:window.scoutV893RenderVault,cloudRead:window.scoutV893CloudReadOnly}}
-setTimeout(()=>{try{void window.scoutV893CheckpointAll(false,'manual-startup-baseline',true)}catch(_){ }},900);
+/* V9.5: baseline automático de Caja fuerte desactivado. */
 
 
 
@@ -13500,16 +13506,63 @@ window.VC_SCOUT_FAST_BRIDGE_V92={
 <script id="v610-workspace-script">
 (()=>{
 'use strict';
-const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-video-hub','scout-season','scout-postmatch','scout-analysis','scout-safe','scout-plan','scout-matchup']);
-let currentWorkspace=localStorage.getItem('volley_workspace_v610')==='scouting'?'scouting':'training';
-function applyWorkspace(mode){currentWorkspace=mode==='scouting'?'scouting':'training';localStorage.setItem('volley_workspace_v610',currentWorkspace);document.getElementById('training-nav')?.classList.toggle('hidden',currentWorkspace!=='training');document.getElementById('scouting-nav')?.classList.toggle('hidden',currentWorkspace!=='scouting');document.getElementById('workspace-training-btn')?.classList.toggle('active',currentWorkspace==='training');document.getElementById('workspace-scouting-btn')?.classList.toggle('active',currentWorkspace==='scouting');document.body.classList.toggle('workspace-scouting',currentWorkspace==='scouting')}
-window.openWorkspace=function(mode){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()){if(mode!=='scouting')alert('Hay un scouting abierto. Pulsa Guardar o Finalizar y guardar antes de salir del área de scouting.');applyWorkspace('scouting');showView('scout-workspace-v900',botonVista('scout-workspace-v900'));return}applyWorkspace(mode);const target=mode==='scouting'?'scout-dashboard':'dashboard';showView(target,botonVista(target))};
+const VIDEO_VIEWS=new Set(['scout-video-hub']);
+const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-season','scout-postmatch','scout-analysis','scout-plan','scout-matchup']);
+const savedWorkspace=localStorage.getItem('volley_workspace_v610');
+let currentWorkspace=['training','scouting','video'].includes(savedWorkspace)?savedWorkspace:'training';
+function applyWorkspace(mode){
+  currentWorkspace=['training','scouting','video'].includes(mode)?mode:'training';
+  localStorage.setItem('volley_workspace_v610',currentWorkspace);
+  document.getElementById('training-nav')?.classList.toggle('hidden',currentWorkspace!=='training');
+  document.getElementById('scouting-nav')?.classList.toggle('hidden',currentWorkspace!=='scouting');
+  document.getElementById('video-nav')?.classList.toggle('hidden',currentWorkspace!=='video');
+  document.getElementById('workspace-training-btn')?.classList.toggle('active',currentWorkspace==='training');
+  document.getElementById('workspace-scouting-btn')?.classList.toggle('active',currentWorkspace==='scouting');
+  document.getElementById('workspace-video-btn')?.classList.toggle('active',currentWorkspace==='video');
+  document.body.classList.toggle('workspace-scouting',currentWorkspace==='scouting');
+  document.body.classList.toggle('workspace-video',currentWorkspace==='video');
+}
+window.openWorkspace=function(mode){
+  const pending=typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession();
+  if(pending&&mode==='training'){
+    alert('Hay un scouting abierto. Puedes usar Vídeo sin cerrar el partido, pero para volver a Entrenamiento pulsa Guardar o Finalizar y guardar.');
+    applyWorkspace('scouting');showView('scout-match-mode',botonVista('scout-match-mode'));return
+  }
+  applyWorkspace(mode);
+  const target=mode==='scouting'?'scout-dashboard':mode==='video'?'scout-video-hub':'dashboard';
+  showView(target,botonVista(target));
+};
 window.botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
 const prevShow=window.showView;
-window.showView=function(id,btn){if(typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession()&&!['scouting','scout-workspace-v900','scout-match-mode','scout-safe'].includes(id)){alert('El scouting está abierto. Para no perder el contexto del partido, guarda o finaliza la sesión antes de cambiar de pantalla.');id='scouting';btn=botonVista('scouting')}applyWorkspace(SCOUT_VIEWS.has(id)?'scouting':'training');const out=prevShow(id,btn||botonVista(id));if(window.VC_V930_UNIFIED?.afterView){window.VC_V930_UNIFIED.afterView(id)}else{if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();if(id==='scout-safe'&&typeof window.scoutV893RenderVault==='function')window.scoutV893RenderVault();if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render()}return out};
+window.showView=function(id,btn){
+  const pending=typeof window.scoutV6103HasPendingSession==='function'&&window.scoutV6103HasPendingSession();
+  if(pending&&!['scouting','scout-workspace-v900','scout-match-mode','scout-video-hub'].includes(id)){
+    alert('El scouting está abierto. Guarda o finaliza antes de salir del partido. La sección Vídeo sí se puede usar sin cerrar el scouting.');
+    id='scout-match-mode';btn=botonVista('scout-match-mode')
+  }
+  const mode=VIDEO_VIEWS.has(id)?'video':SCOUT_VIEWS.has(id)?'scouting':'training';
+  applyWorkspace(mode);
+  const out=prevShow(id,btn||botonVista(id));
+  if(window.VC_V930_UNIFIED?.afterView){window.VC_V930_UNIFIED.afterView(id)}
+  else{
+    if(id==='scout-dashboard'&&typeof window.scoutRenderHome==='function')window.scoutRenderHome();
+    if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();
+    if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();
+    if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();
+    if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();
+    if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();
+    if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();
+    if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();
+  }
+  return out
+};
 /* Restaurar el área sin forzar una vista distinta en la carga inicial */
 applyWorkspace(currentWorkspace);
-if(currentWorkspace==='scouting'){setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scout-workspace-v900':'scout-dashboard';showView(target,botonVista(target))},0)}
+if(currentWorkspace==='scouting'){
+  setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scout-match-mode':'scout-dashboard';showView(target,botonVista(target))},0)
+}else if(currentWorkspace==='video'){
+  setTimeout(()=>showView('scout-video-hub',botonVista('scout-video-hub')),0)
+}
 })();
 </script>\n
 \n
@@ -22804,13 +22857,10 @@ function renderAnalysis(m){
   fill('v900-analysis-dv',dv);
 }
 async function renderSafety(){
-  safeText('v900-save',$('scout-save-badge')?.textContent?.includes('protección')?'LOCAL ✓':'LOCAL ✓');
+  safeText('v900-save','LOCAL ✓');
   safeText('v900-video',$('scout-v740-video-badge')?.textContent?.replace('VÍDEO ','')||$('v800-video-status')?.textContent||'OFF');
-  try{
-    const d=await window.scoutV893Diagnostics?.();
-    const txt=d?.versions?`${d.versions} versiones`:'Protegida';
-    safeText('v900-vault',`Caja fuerte · ${txt}`);safeText('v900-prep-vault',txt);
-  }catch(_){safeText('v900-vault','Caja fuerte activa');safeText('v900-prep-vault','Activa')}
+  safeText('v900-vault','Journal + nube');
+  safeText('v900-prep-vault','Activo');
 }
 function renderStatus(m){
   const s=currentSet(m),ss=setsScore(m);
@@ -22900,7 +22950,7 @@ if(typeof window.showView==='function'){
 
 /* Safety baseline: checkpoint existing matches before first V9 use. */
 if(!localStorage.getItem('v900_safety_baseline_done')){
-  setTimeout(async()=>{try{await window.scoutV893CheckpointAll?.(false,'pre-v9.0',true);localStorage.setItem('v900_safety_baseline_done','1')}catch(err){console.warn('V9 safety baseline',err)}},500);
+  localStorage.setItem('v900_safety_baseline_done','1');
 }
 
 window.VC_V900_WORKSPACE={
@@ -23019,9 +23069,9 @@ function detail(a){return [a?.team==='opponent'?'Rival':'Nuestro',a?.playerNumbe
 
 async function checkpoint(reason='rally-edit-v901'){
   try{
-    if(typeof window.scoutV893CheckpointAll==='function')await window.scoutV893CheckpointAll(false,reason,true);
+    if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();
     else if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup(reason,true);
-  }catch(err){console.warn('V9.0.1 checkpoint',err)}
+  }catch(err){console.warn('V9.5 editor save',err)}
 }
 function saveEngine(){
   try{
@@ -23263,7 +23313,11 @@ if(typeof programarSubidaCloud==='function'){
     if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
     if(typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return;
     clearTimeout(v902CloudTimer);
-    v902CloudTimer=setTimeout(()=>{try{cloudScheduleBase()}catch(_){}},2200);
+    v902CloudTimer=setTimeout(()=>{
+      const send=()=>{try{void subirNube(false)}catch(_){}};
+      if('requestIdleCallback'in window)requestIdleCallback(send,{timeout:900});
+      else send();
+    },1400);
   };
 }
 
@@ -24299,7 +24353,7 @@ const AREA_DEFAULT={
   revisar:'revisar',
   analisis:'analisis',
   video:'video',
-  gestion:'seguridad'
+  gestion:'partidos'
 };
 const ROUTE_AREA={
   inicio:'inicio',
@@ -24312,7 +24366,7 @@ const ROUTE_AREA={
   partidos:'gestion',temporada:'gestion',clasico:'gestion'
 };
 let area=localStorage.getItem('v940_area')||'partido';
-let managementRoute=localStorage.getItem('v940_management_route')||'seguridad';
+let managementRoute=localStorage.getItem('v940_management_route')||'partidos';
 let routeBusy=false;
 let statusFrame=0;
 let contextFrame=0;
@@ -24366,7 +24420,8 @@ function renderContext(){
   const route=window.VC_V930_UNIFIED?.diagnostics?.().route||'';
   let h='<span class="v940-context-label">HERRAMIENTAS</span>';
   if(area==='partido'){
-    h+=btn('En directo',"v940Route('partido')",'',route==='partido');
+    h+=btn('En directo',"v940Route('partido')",'',route==='partido'&&window.VC_V910_MATCH_VIEW?.get?.()!=='video');
+    h+=btn('Vídeo Live / YouTube',"v940MatchView('video')",'primary',window.VC_V910_MATCH_VIEW?.get?.()==='video');
     h+=btn('Lectura',"v940MatchView('lectura')");
     h+=btn('Todo',"v940MatchView('todo')");
     h+='<span class="separator"></span>';
@@ -24386,7 +24441,7 @@ function renderContext(){
     h+=btn('Rallies',"v940Route('revisar')",'',true);
     h+=btn('Editar rallies y códigos','v901OpenRallyEditor()','primary');
     h+=btn('Deshacer último','scoutUndoRally()');
-    h+=btn('Checkpoint',"scoutV893CheckpointAll(true,'manual-v940',true)");
+    h+=btn('Guardar ahora',"v950ForceSave()",'primary');
   }else if(area==='analisis'){
     h+=btn('Análisis exhaustivo',"v940Route('analisis')",'',true);
     h+=btn('PDF Pro','scoutV752ExportAnalysisPDF()','primary');
@@ -24397,7 +24452,9 @@ function renderContext(){
     h+=btn('Videoteca / análisis',"v940Route('videoteca')",'',route==='videoteca');
     h+=btn('REC','scoutV700OpenVideo(\'live\')');
   }else if(area==='gestion'){
-    h+=btn('Seguridad',"v940Route('seguridad')",'',route==='seguridad');
+    h+=btn('Nube',"abrirCloud()",'primary');
+    h+=btn('Recuperación',"scoutV892OpenRecoveryCenter()");
+    h+='<span class="separator"></span>';
     h+=btn('Plan',"v940Route('plan')",'',route==='plan');
     h+=btn('Match-up',"v940Route('matchup')",'',route==='matchup');
     h+=btn('Partidos',"v940Route('partidos')",'',route==='partidos');
@@ -24536,6 +24593,155 @@ setTimeout(()=>{
   else setArea(area);
   renderContext();updateStatus();
 },0);
+})();
+</script>
+
+
+
+<style id="v950-video-cloud-save-style">
+/* Third top-level workspace. */
+.workspace-switch{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+body.workspace-video #v940-professional-nav{display:none!important}
+body.workspace-video #scouting-nav{display:none!important}
+body.workspace-video #training-nav{display:none!important}
+.v950-video-nav{width:100%}
+
+/* Modo Partido video view is a first-class screen. */
+#v800-shell.v910-mode-video .v800-video-card{
+  display:block!important;
+  min-height:560px;
+}
+#v800-shell.v910-mode-video .v800-video-frame{
+  min-height:420px;
+}
+#v950-match-video-btn{white-space:nowrap}
+
+/* Caja fuerte is legacy only: retain source/data but no visible navigation. */
+#scout-safe{display:none!important}
+
+@media(max-width:720px){
+  .workspace-switch{grid-template-columns:1fr 1fr 1fr!important}
+  .workspace-switch-btn small{display:none!important}
+}
+</style>
+
+
+
+<script id="v950-video-cloud-save-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.0';
+
+function stripVaultMirror(){
+  try{
+    let changed=false;
+    Object.values(equiposData||{}).forEach(team=>{
+      if(team&&Object.prototype.hasOwnProperty.call(team,'scoutingSafeCloud')){
+        delete team.scoutingSafeCloud;changed=true;
+      }
+    });
+    return changed;
+  }catch(_){return false}
+}
+
+/* Keep old IndexedDB Vault untouched, but remove its duplicated mirror from the
+   active application state so JSON serialization/cloud payloads stay smaller. */
+if(!localStorage.getItem('v950_vault_mirror_detached')){
+  const changed=stripVaultMirror();
+  localStorage.setItem('v950_vault_mirror_detached','1');
+  if(changed){
+    const save=()=>{try{guardarEstadoLocalSinCloud()}catch(_){}};
+    if('requestIdleCallback'in window)requestIdleCallback(save,{timeout:2000});
+    else setTimeout(save,1000);
+  }
+}
+
+/* Cloud downloads from older versions may contain the retired mirror. Strip it
+   after application. */
+const applyCloudBase=window.aplicarEstadoCloud;
+if(typeof applyCloudBase==='function'&&!applyCloudBase.__v950){
+  const wrapped=function(state){
+    const out=applyCloudBase.apply(this,arguments);
+    stripVaultMirror();
+    return out;
+  };
+  wrapped.__v950=true;window.aplicarEstadoCloud=wrapped;
+}
+
+async function forceSave(silent=false){
+  try{
+    if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();
+    else if(typeof guardarEstadoLocalSinCloud==='function')guardarEstadoLocalSinCloud();
+    try{clearTimeout(cloudSaveTimer);cloudSaveTimer=null}catch(_){}
+    if(typeof subirNube==='function'&&typeof cloudUser!=='undefined'&&cloudUser&&navigator.onLine){
+      await subirNube(false);
+      if(!silent){
+        const b=document.getElementById('scout-save-badge');
+        if(b)b.textContent='Guardado local + nube ✓';
+      }
+    }else if(!silent){
+      const b=document.getElementById('scout-save-badge');
+      if(b)b.textContent='Guardado local ✓ · nube no conectada';
+    }
+    return true;
+  }catch(err){
+    console.warn('V9.5 force save',err);
+    return false;
+  }
+}
+window.v950ForceSave=()=>forceSave(false);
+
+window.v950OpenMatchVideo=function(){
+  try{
+    window.openWorkspace?.('scouting');
+    setTimeout(async()=>{
+      try{
+        await window.v940Open?.('partido');
+        window.v940MatchView?.('video');
+      }catch(err){console.warn('V9.5 match video',err)}
+    },0);
+  }catch(err){console.warn('V9.5 video workspace',err)}
+};
+
+/* Manual Save and Finalize become explicit durable commits:
+   local consolidation + immediate cloud upload. */
+['scoutV6102SaveAndExit','scoutV6102FinalizeAndExit'].forEach(name=>{
+  const base=window[name];
+  if(typeof base!=='function'||base.__v950)return;
+  const wrapped=async function(...args){
+    const out=await base.apply(this,args);
+    await forceSave(true);
+    return out;
+  };
+  wrapped.__v950=true;window[name]=wrapped;
+});
+window.scoutFinishMatch=window.scoutV6102FinalizeAndExit;
+
+/* V9.4 status text reflects the new model. */
+const status=()=>{
+  const el=document.getElementById('v940-context-save');if(!el)return;
+  let cloud=false;
+  try{cloud=!!cloudUser&&navigator.onLine}catch(_){}
+  el.textContent=cloud?'Nube auto ✓':'Local ✓';
+};
+setInterval(status,10000);setTimeout(status,0);
+
+window.VC_V950_SAVE={
+  version:VERSION,
+  forceSave,
+  stripVaultMirror,
+  diagnostics:()=>({
+    version:VERSION,
+    cloudConnected:(()=>{try{return!!cloudUser}catch(_){return false}})(),
+    online:navigator.onLine,
+    vaultAutoDisabled:true,
+    vaultMirrorInActiveState:Object.values(equiposData||{}).some(t=>t&&Object.prototype.hasOwnProperty.call(t,'scoutingSafeCloud')),
+    journal:typeof window.scoutV902Flush==='function',
+    matchVideo:!!document.getElementById('v802-youtube-url'),
+    youtube:typeof window.v802LoadYouTube==='function',
+    live:typeof window.openLiveDelay==='function'
+  })
+};
 })();
 </script>
 
