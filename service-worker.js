@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.5.4-new-set-workflow-v1';
+const CACHE_NAME = 'volley-coach-v9.5.5-long-live-delay-v1';
 
 const APP_SHELL = [
   './',
