@@ -2570,6 +2570,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <option value="15">15 s</option>
           <option value="20">20 s</option>
           <option value="30">30 s</option>
+          <option value="45">45 s</option>
+          <option value="60">1 min</option>
+          <option value="90">1 min 30 s</option>
+          <option value="120">2 min</option>
+          <option value="180">3 min</option>
         </select>
       </label>
       <label class="live-delay-field">
@@ -2579,6 +2584,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <option value="120" selected>2 min</option>
           <option value="180">3 min</option>
           <option value="300">5 min</option>
+          <option value="600">10 min</option>
         </select>
       </label>
       <div class="live-delay-main-actions">
@@ -2641,6 +2647,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <div class="vc-remote-help"><b>Flujo:</b> ordenador genera QR → móvil abre Volley Coach en modo cámara → pulsa “Iniciar transmisión” → vuelve al ordenador y pulsa “Iniciar cámara” para aplicar el delay.</div>
     </section>
 
+    <div class="live-delay-long-note"><b>Delay largo:</b> 2–3 minutos necesita acumular primero ese tiempo de vídeo. Para 3 min, Volley Coach reserva automáticamente al menos 5 min de búfer temporal.</div>
     <div id="live-delay-support" class="live-delay-support">
       <b>Preparado.</b> La cámara no se envía a ningún servidor; el búfer temporal permanece en este dispositivo.
     </div>
@@ -5417,7 +5424,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.4', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.5', {
         updateViaCache: 'none'
       });
 
@@ -15077,8 +15084,13 @@ function setState(id,text,on=false){
 }
 function fmtSec(v){
   v=Number(v);if(!Number.isFinite(v)||v<0)return '—';
+  if(v>=60){
+    const m=Math.floor(v/60),s=Math.round(v%60);
+    return s?`${m} min ${s} s`:`${m} min`;
+  }
   return v<10?`${v.toFixed(1)} s`:`${Math.round(v)} s`;
 }
+function delayLabel(v){return fmtSec(Number(v)||0)}
 function delayed(){return $('live-delay-delayed')}
 function live(){return $('live-delay-live')}
 function bufferedRange(){
@@ -15098,16 +15110,18 @@ function savePrefs(){
 function loadPrefs(){
   try{
     const x=JSON.parse(localStorage.getItem('volley_live_delay_v730')||'{}');
-    if([3,5,8,10,15,20,30].includes(Number(x.delay)))state.delay=Number(x.delay);
-    if([60,120,180,300].includes(Number(x.maxBuffer)))state.maxBuffer=Number(x.maxBuffer);
+    if([3,5,8,10,15,20,30,45,60,90,120,180].includes(Number(x.delay)))state.delay=Number(x.delay);
+    if([60,120,180,300,600].includes(Number(x.maxBuffer)))state.maxBuffer=Number(x.maxBuffer);
+    if(state.delay>=180&&state.maxBuffer<300)state.maxBuffer=300;
+    else if(state.delay>=120&&state.maxBuffer<180)state.maxBuffer=180;
     state.lastCameraId=String(x.cameraId||'');
   }catch(_){}
 }
 function updateUi(){
   if($('live-delay-seconds'))$('live-delay-seconds').value=String(state.delay);
   if($('live-delay-buffer'))$('live-delay-buffer').value=String(state.maxBuffer);
-  if($('live-delay-review-title'))$('live-delay-review-title').textContent=`Retraso · ${state.delay} s`;
-  if($('live-delay-delay-badge'))$('live-delay-delay-badge').textContent=`−${state.delay} s`;
+  if($('live-delay-review-title'))$('live-delay-review-title').textContent=`Retraso · ${delayLabel(state.delay)}`;
+  if($('live-delay-delay-badge'))$('live-delay-delay-badge').textContent=`−${delayLabel(state.delay)}`;
   if($('live-delay-context'))$('live-delay-context').textContent=state.context==='scouting'?'Scouting':'Entrenamiento';
   if($('live-delay-context-note'))$('live-delay-context-note').textContent=state.context==='scouting'?'revisión durante partido':'corrección técnica';
   if($('live-delay-subtitle'))$('live-delay-subtitle').textContent=state.context==='scouting'
@@ -15332,7 +15346,7 @@ window.startLiveDelay=async function(){
     await createMse();
     state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
     await startRecorder();startTicker();updateUi();updateMetrics();
-    setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'móvil remoto':'cámara local'} · ${state.delay} s de retraso · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la captura continúa.`, 'good');
+    setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'móvil remoto':'cámara local'} · ${delayLabel(state.delay)} de retraso · búfer ${delayLabel(state.maxBuffer)} · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la captura continúa.`, 'good');
   }catch(err){
     console.error('Live Delay start',err);
     stopLiveDelay(true);
@@ -15358,15 +15372,28 @@ window.stopLiveDelay=function(silent=false){
   if(!silent)setStatus('<b>Live Delay detenido.</b> El búfer temporal se ha eliminado.','');
 };
 window.liveDelaySetDelay=function(v){
-  const n=Math.max(1,Math.min(60,Number(v)||10));state.delay=n;savePrefs();updateUi();
-  if(state.running){state.mode='delay';maintainDelay(true)}
+  const n=Math.max(1,Math.min(180,Number(v)||10));
+  state.delay=n;
+  if(n>=180&&state.maxBuffer<300)state.maxBuffer=300;
+  else if(n>=120&&state.maxBuffer<180)state.maxBuffer=180;
+  savePrefs();updateUi();
+  if(state.running){
+    state.mode='delay';
+    pruneBuffer(false);
+    maintainDelay(true);
+    setStatus(`<b>Delay actualizado.</b> Retraso: ${delayLabel(state.delay)} · búfer máximo: ${delayLabel(state.maxBuffer)}.`,'good');
+  }
 };
 window.liveDelaySetBuffer=function(v){
-  state.maxBuffer=Math.max(30,Math.min(600,Number(v)||120));savePrefs();pruneBuffer(true);updateUi()
+  let requested=Math.max(30,Math.min(600,Number(v)||120));
+  const minimum=state.delay>=180?300:state.delay>=120?180:Math.max(30,state.delay+30);
+  if(requested<minimum)requested=minimum;
+  state.maxBuffer=requested;savePrefs();pruneBuffer(true);updateUi();
+  setStatus(`<b>Búfer actualizado.</b> Historial temporal: ${delayLabel(state.maxBuffer)}.`,'good')
 };
 window.liveDelayReturn=function(){
   if(!state.running)return;
-  state.mode='delay';updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${state.delay} s del directo.`,'good')
+  state.mode='delay';updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${delayLabel(state.delay)} del directo.`,'good')
 };
 window.liveDelayJump=function(delta){
   if(!state.running)return;
@@ -25480,5 +25507,21 @@ window.VC_V954_NEW_SET={
 };
 })();
 </script>
+
+
+
+<style id="v955-long-delay-style">
+.live-delay-long-note{
+  margin:8px 0;
+  padding:8px 10px;
+  border:1px solid #dce4e8;
+  border-radius:8px;
+  background:#f7f9fa;
+  color:#61737f;
+  font-size:7px;
+  line-height:1.35;
+}
+.live-delay-long-note b{color:#17324d}
+</style>
 
 </body></html>
