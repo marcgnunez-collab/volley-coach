@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.5.5-long-live-delay-v1';
+const CACHE_NAME = 'volley-coach-v9.5.6-scout-sync-mobile-v1';
 
 const APP_SHELL = [
   './',
