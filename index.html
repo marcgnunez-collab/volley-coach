@@ -1536,7 +1536,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="v956SyncScoutingsNow()">↕ Sincronizar</button><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="v957SyncScoutingsNow()">↕ Sincronizar scoutings</button><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -1824,7 +1824,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v800-team ours"><small id="v800-team-name">Equipo</small><strong id="v800-score-us">0</strong><span id="v800-sets-us">0 sets</span></div>
         <div class="v800-center-score">
           <span id="v800-set-label">SET 1</span>
-          <b id="v800-clock">00:00</b>
+          <b id="v800-clock" title="Tiempo activo dentro de este scouting. Se pausa al salir.">00:00</b>
           <div class="v800-service"><i id="v800-service-dot"></i><span id="v800-service-copy">Saque nuestro</span></div>
         </div>
         <div class="v800-team rival"><small id="v800-opponent">Rival</small><strong id="v800-score-op">0</strong><span id="v800-sets-op">0 sets</span></div>
@@ -2032,7 +2032,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <p id="v900-match-meta">Partido → Directo → Revisar → Analizar</p>
       </div>
       <div class="v900-top-actions">
-        <button class="ghost" onclick="v956SyncScoutingsNow()">↕ Sincronizar</button>
+        <button class="ghost" onclick="v957SyncScoutingsNow()">↕ Sincronizar scoutings</button>
         <button class="ghost" onclick="v930Open('partidos')">Partidos guardados</button>
         <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
         <span id="v956-scout-sync-status" class="v956-scout-sync-status">— scoutings</span>
@@ -4148,7 +4148,14 @@ const CLOUD_URL_KEY='volleyCoachSupabaseUrlV2';
 const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKeyV2';
 const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
-function estadoLocal(){guardarEquipoEnMemoria();return {version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaIndependiente:clonar(baseDeDatos),bibliotecaBorrados:clonar(cargarBorradosBiblioteca()),bibliotecaVersion:1,equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}}
+function estadoLocal(){
+  guardarEquipoEnMemoria();
+  const scoutingSyncIndex={};
+  Object.keys(equiposData||{}).forEach(id=>{
+    scoutingSyncIndex[id]=clonar(equiposData?.[id]?.scoutingMatches||[]);
+  });
+  return {version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaIndependiente:clonar(baseDeDatos),bibliotecaBorrados:clonar(cargarBorradosBiblioteca()),bibliotecaVersion:1,equiposData:clonar(equiposData),scoutingSyncIndex,updatedAt:new Date().toISOString()}
+}
 function scoutGenericCounts(m){
   const sets=Array.isArray(m?.sets)?m.sets:[],rallies=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.length:0),0),
     actions=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.reduce((x,r)=>x+(Array.isArray(r?.actions)?r.actions.length:0),0):0),0)+(Array.isArray(m?.liveRally?.actions)?m.liveRally.actions.length:0);
@@ -4180,6 +4187,13 @@ function aplicarEstadoCloud(s){
   if(Array.isArray(s.bibliotecaBorrados)&&s.bibliotecaBorrados.length){guardarBorradosBiblioteca([...cargarBorradosBiblioteca(),...s.bibliotecaBorrados])}
   baseDeDatos=bibliotecaFusionadaSegura(bibliotecaAntes,bibliotecaNube);migrarFundamentos();
   const agregadosPropios=asegurarEjerciciosPropios183()+asegurarEjerciciosPropios287Nuevos();
+  if(s.scoutingSyncIndex&&typeof s.scoutingSyncIndex==='object'){
+    conv.equiposData=conv.equiposData||{};
+    Object.keys(s.scoutingSyncIndex).forEach(id=>{
+      if(!conv.equiposData[id])conv.equiposData[id]=estadoEquipoVacio(id);
+      conv.equiposData[id].scoutingMatches=fusionarScoutingsSeguros(conv.equiposData[id].scoutingMatches,s.scoutingSyncIndex[id]);
+    });
+  }
   equiposData=conv.equiposData;
   ['infantil','cadete'].forEach(id=>{
     equiposData[id]=limpiarEquipo(equiposData[id],id);
@@ -4231,7 +4245,7 @@ async function initCloud(){
   const {data:{session}}=await cloudClient.auth.getSession();
   cloudUser=session?.user||null;
   if(cloudUser){setCloudUI('online','Nube conectada · modo seguro')}else setCloudUI('', 'Nube lista · inicia sesión');
-  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada · modo seguro');if(event==='SIGNED_IN'&&typeof window.scoutV893CloudReadOnly==='function')setTimeout(()=>window.scoutV893CloudReadOnly(),60)}else setCloudUI('', 'Nube desconectada')});
+  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada · sincronización activa');if(event==='SIGNED_IN')setTimeout(()=>{try{window.v957SyncScoutingsNow?.()}catch(_){}},250)}else setCloudUI('', 'Nube desconectada')});
 }
 async function cloudSignup(){
   if(!cloudClient&& !crearCloudClient()){alert('Primero configura Supabase.');return}
@@ -5426,7 +5440,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.6', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.7', {
         updateViaCache: 'none'
       });
 
@@ -8058,7 +8072,7 @@ function scoutNormalizeLibero(raw){return {enabled:!!raw?.enabled,auto:raw?.auto
 function scoutNormalizeAction(a){return {id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0),videoTime:a?.videoTime==null?null:Number(a.videoTime),videoSource:String(a?.videoSource||'')}}
 function scoutNormalizeRally(r){return {id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)}}
 function scoutNormalizeSet(s,i=0){return {number:Number(s?.number)||i+1,scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,finished:!!s?.finished,winner:s?.winner==='opponent'?'opponent':s?.winner==='ours'?'ours':null,rallies:scoutArr(s?.rallies).map(scoutNormalizeRally),startedAt:String(s?.startedAt||scoutNow()),endedAt:s?.endedAt?String(s.endedAt):null}}
-function scoutNormalizeMatch(m){const sets=scoutArr(m?.sets).map(scoutNormalizeSet);return {dataVersion:String(m?.dataVersion||'6.8.0'),id:Number(m?.id)||Date.now(),linkedMatchId:m?.linkedMatchId?Number(m.linkedMatchId):null,date:String(m?.date||fechaLocalISO()),opponent:String(m?.opponent||'Rival'),competition:String(m?.competition||''),status:m?.status==='finished'?'finished':'live',currentSet:Math.max(1,Number(m?.currentSet)||1),servingTeam:m?.servingTeam==='opponent'?'opponent':'ours',rotationNo:Math.min(6,Math.max(1,Number(m?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(m?.opponentRotationNo)||1)),lineup:scoutNormalizeLineup(m?.lineup),baseLineup:scoutNormalizeLineup(m?.baseLineup||m?.lineup),lineupRoles:scoutNormalizeRoles(m?.lineupRoles),libero:scoutNormalizeLibero(m?.libero),sets:sets.length?sets:[scoutEmptySet(1)],events:scoutArr(m?.events).map(e=>({id:Number(e?.id)||Date.now(),type:['libero','libero_auto','substitution'].includes(e?.type)?e.type:'substitution',team:e?.team==='opponent'?'opponent':'ours',setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,position:String(e?.position||''),outPlayerId:e?.outPlayerId!=null?Number(e.outPlayerId):null,inPlayerId:e?.inPlayerId!=null?Number(e.inPlayerId):null,outLabel:String(e?.outLabel||''),inLabel:String(e?.inLabel||''),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0)})),clockStartedAt:String(m?.clockStartedAt||m?.createdAt||scoutNow()),liveRally:{id:Number(m?.liveRally?.id)||Date.now(),actions:scoutArr(m?.liveRally?.actions).map(scoutNormalizeAction),startedAt:String(m?.liveRally?.startedAt||scoutNow()),scoutStartMs:Math.max(0,Number(m?.liveRally?.scoutStartMs)||0),startSnapshot:m?.liveRally?.startSnapshot?scoutClone(m.liveRally.startSnapshot):null},createdAt:String(m?.createdAt||scoutNow()),updatedAt:String(m?.updatedAt||scoutNow()),endedAt:m?.endedAt?String(m.endedAt):null}}
+function scoutNormalizeMatch(m){const sets=scoutArr(m?.sets).map(scoutNormalizeSet);return {dataVersion:String(m?.dataVersion||'6.8.0'),id:Number(m?.id)||Date.now(),linkedMatchId:m?.linkedMatchId?Number(m.linkedMatchId):null,date:String(m?.date||fechaLocalISO()),opponent:String(m?.opponent||'Rival'),competition:String(m?.competition||''),status:m?.status==='finished'?'finished':'live',currentSet:Math.max(1,Number(m?.currentSet)||1),servingTeam:m?.servingTeam==='opponent'?'opponent':'ours',rotationNo:Math.min(6,Math.max(1,Number(m?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(m?.opponentRotationNo)||1)),lineup:scoutNormalizeLineup(m?.lineup),baseLineup:scoutNormalizeLineup(m?.baseLineup||m?.lineup),lineupRoles:scoutNormalizeRoles(m?.lineupRoles),libero:scoutNormalizeLibero(m?.libero),sets:sets.length?sets:[scoutEmptySet(1)],events:scoutArr(m?.events).map(e=>({id:Number(e?.id)||Date.now(),type:['libero','libero_auto','substitution'].includes(e?.type)?e.type:'substitution',team:e?.team==='opponent'?'opponent':'ours',setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,position:String(e?.position||''),outPlayerId:e?.outPlayerId!=null?Number(e.outPlayerId):null,inPlayerId:e?.inPlayerId!=null?Number(e.inPlayerId):null,outLabel:String(e?.outLabel||''),inLabel:String(e?.inLabel||''),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0)})),clockStartedAt:String(m?.clockStartedAt||m?.createdAt||scoutNow()),clockAccumulatedMs:Math.max(0,Number(m?.clockAccumulatedMs)||0),clockMode:'active-only',liveRally:{id:Number(m?.liveRally?.id)||Date.now(),actions:scoutArr(m?.liveRally?.actions).map(scoutNormalizeAction),startedAt:String(m?.liveRally?.startedAt||scoutNow()),scoutStartMs:Math.max(0,Number(m?.liveRally?.scoutStartMs)||0),startSnapshot:m?.liveRally?.startSnapshot?scoutClone(m.liveRally.startSnapshot):null},createdAt:String(m?.createdAt||scoutNow()),updatedAt:String(m?.updatedAt||scoutNow()),endedAt:m?.endedAt?String(m.endedAt):null}}
 let scoutingMatches=scoutArr(equiposData?.[equipoActivo]?.scoutingMatches).map(scoutNormalizeMatch);
 let scoutingActiveId=Number(equiposData?.[equipoActivo]?.scoutingActiveId)||null;
 function scoutActive(){return scoutingMatches.find(m=>Number(m.id)===Number(scoutingActiveId))||null}
@@ -8290,13 +8304,27 @@ window.VC_SCOUT_VIDEO_BRIDGE={
   teamName:()=>EQUIPOS?.[equipoActivo]?.nombre||'Equipo',
   getTeamId:()=>String(equipoActivo||'equipo'),
   getPlayers:()=>scoutClone(jugadoresEquipo||[]),
+  elapsedMs:(m=scoutActive())=>scoutElapsed(m),
+  resumeClock:(m=scoutActive())=>scoutClockResume(m),
+  pauseClock:(m=scoutActive())=>scoutClockPause(m),
+  replaceMatches:(list,activeId=scoutingActiveId)=>{
+    const current=scoutActive();if(current)scoutClockPause(current);
+    scoutingMatches=scoutArr(list).map(scoutNormalizeMatch);
+    const wanted=Number(activeId)||0;
+    scoutingActiveId=wanted&&scoutingMatches.some(x=>Number(x.id)===wanted&&x.status!=='finished')?wanted:null;
+    if(!equiposData[equipoActivo])equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+    equiposData[equipoActivo].scoutingMatches=scoutClone(scoutingMatches);
+    equiposData[equipoActivo].scoutingActiveId=scoutingActiveId;
+    return scoutClone(scoutingMatches);
+  },
   activateMatch:(id)=>{
     const m=scoutingMatches.find(x=>Number(x.id)===Number(id));
     if(!m||m.status==='finished')return null;
     const current=scoutActive();
-    if(current&&Number(current.id)!==Number(m.id))scoutSave(false);
+    if(current&&Number(current.id)!==Number(m.id)){scoutClockPause(current);scoutSave(false)}
     scoutingActiveId=m.id;
     m.status='live';m.endedAt=null;m.reopenedAt=scoutNow();m.updatedAt=scoutNow();
+    scoutClockResume(m);
     scoutSave(false);
     return m;
   },
@@ -8317,7 +8345,55 @@ function scoutRotateTeamLineup(lineup,team='ours',dir=1){const l=scoutNormalizeL
 function scoutRotateLineup(lineup,dir=1){return scoutRotateTeamLineup(lineup,'ours',dir)}
 window.scoutRotate=function(dir=1){const m=scoutActive();if(!m||m.status==='finished')return;m.lineup=scoutRotateTeamLineup(m.lineup,'ours',dir);m.rotationNo=((m.rotationNo-1+(dir>=0?-1:1)+6)%6)+1;scoutSave()};
 window.scoutRotateOpponent=function(dir=1){const m=scoutActive();if(!m||m.status==='finished')return;m.lineup=scoutRotateTeamLineup(m.lineup,'opponent',dir);m.opponentRotationNo=((m.opponentRotationNo-1+(dir>=0?-1:1)+6)%6)+1;scoutSave()};
-function scoutElapsed(m){const t=Date.parse(m?.clockStartedAt||m?.createdAt||scoutNow());return Math.max(0,Date.now()-(Number.isFinite(t)?t:Date.now()))}
+const scoutClockRuntime=new Map();
+function scoutClockRecordedMax(m){
+  let max=0;
+  scoutArr(m?.sets).forEach(s=>scoutArr(s?.rallies).forEach(r=>{
+    max=Math.max(max,Number(r?.scoutEndMs)||0,Number(r?.scoutStartMs)||0);
+    scoutArr(r?.actions).forEach(a=>max=Math.max(max,Number(a?.scoutMs)||0));
+  }));
+  scoutArr(m?.liveRally?.actions).forEach(a=>max=Math.max(max,Number(a?.scoutMs)||0));
+  scoutArr(m?.events).forEach(e=>max=Math.max(max,Number(e?.scoutMs)||0));
+  return Math.max(0,max);
+}
+function scoutClockEnsure(m){
+  if(!m)return 0;
+  if(!Number.isFinite(Number(m.clockAccumulatedMs))||Number(m.clockAccumulatedMs)<0)m.clockAccumulatedMs=0;
+  /* Migration: old versions used Date.now-clockStartedAt. Use the largest
+     actually recorded scouting timestamp instead, so days outside the scout
+     are not counted as match time. */
+  if(!m.clockMode){
+    m.clockAccumulatedMs=Math.max(Number(m.clockAccumulatedMs)||0,scoutClockRecordedMax(m));
+    m.clockMode='active-only';
+  }
+  return Math.max(0,Number(m.clockAccumulatedMs)||0);
+}
+function scoutClockResume(m){
+  if(!m||m.status==='finished')return false;
+  scoutClockEnsure(m);
+  const id=Number(m.id)||0;if(!id)return false;
+  if(!scoutClockRuntime.has(id))scoutClockRuntime.set(id,Date.now());
+  return true;
+}
+function scoutClockPause(m){
+  if(!m)return false;
+  const id=Number(m.id)||0,start=scoutClockRuntime.get(id);
+  scoutClockEnsure(m);
+  if(start){
+    m.clockAccumulatedMs=Math.max(0,Number(m.clockAccumulatedMs)||0)+Math.max(0,Date.now()-start);
+    scoutClockRuntime.delete(id);
+    m.updatedAt=scoutNow();
+    try{void v902JournalWrite(m,'critical')}catch(_){}
+    try{v902ScheduleCommit('clock-pause',300)}catch(_){}
+    return true;
+  }
+  return false;
+}
+function scoutElapsed(m){
+  if(!m)return 0;
+  const base=scoutClockEnsure(m),start=scoutClockRuntime.get(Number(m.id)||0);
+  return base+(start?Math.max(0,Date.now()-start):0);
+}
 function scoutCurrentRallySnapshot(m){const s=scoutSet(m);return {servingBefore:m.servingTeam,rotationBefore:m.rotationNo,opponentRotationBefore:m.opponentRotationNo,lineupBefore:scoutClone(m.lineup),scoreBefore:{us:s?.scoreUs||0,opponent:s?.scoreOpponent||0}}}
 function scoutEnsureRallyStart(m){if(!m.liveRally.startSnapshot)m.liveRally.startSnapshot=scoutCurrentRallySnapshot(m)}
 function scoutResetLiveRally(m){m.liveRally={id:Date.now(),actions:[],startedAt:scoutNow(),scoutStartMs:scoutElapsed(m),startSnapshot:null}}
@@ -8343,11 +8419,11 @@ window.scoutFinishMatch=function(){const m=scoutActive();if(!m)return;if(m.statu
 window.scoutOpenNewMatch=function(){const sel=$('scout-new-linked');if(sel){sel.innerHTML='<option value="">Sin vincular · crear manualmente</option>'+scoutArr(partidosEquipo).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(p=>`<option value="${p.id}">${esc((p.date||'')+' · '+(p.opponent||'Rival')+(p.competition?' · '+p.competition:''))}</option>`).join('')}$('scout-new-date').value=fechaLocalISO();$('scout-new-opponent').value='';$('scout-new-competition').value='';$('scout-new-serving').value='ours';$('scout-new-rotation').value='1';$('scout-new-modal')?.classList.add('open')};
 window.scoutCloseNewMatch=function(){$('scout-new-modal')?.classList.remove('open')};
 window.scoutLinkedMatchChanged=function(){const id=Number($('scout-new-linked')?.value),p=(partidosEquipo||[]).find(x=>Number(x.id)===id);if(!p)return;$('scout-new-date').value=p.date||fechaLocalISO();$('scout-new-opponent').value=p.opponent||'';$('scout-new-competition').value=p.competition||''};
-window.scoutCreateMatch=function(){const opponent=String($('scout-new-opponent')?.value||'').trim();if(!opponent){alert('Escribe el rival.');return}const id=Date.now(),now=scoutNow(),m=scoutNormalizeMatch({id,linkedMatchId:Number($('scout-new-linked')?.value)||null,date:$('scout-new-date')?.value||fechaLocalISO(),opponent,competition:String($('scout-new-competition')?.value||'').trim(),servingTeam:$('scout-new-serving')?.value||'ours',rotationNo:Number($('scout-new-rotation')?.value)||1,opponentRotationNo:1,lineup:scoutEmptyLineup(),sets:[scoutEmptySet(1)],events:[],currentSet:1,status:'live',clockStartedAt:now,createdAt:now,updatedAt:now});scoutingMatches.push(m);scoutingActiveId=id;scoutCloseNewMatch();scoutSave();showView('scouting',botonVista('scouting'));scoutOpenLineup()};
+window.scoutCreateMatch=function(){const opponent=String($('scout-new-opponent')?.value||'').trim();if(!opponent){alert('Escribe el rival.');return}const id=Date.now(),now=scoutNow(),m=scoutNormalizeMatch({id,linkedMatchId:Number($('scout-new-linked')?.value)||null,date:$('scout-new-date')?.value||fechaLocalISO(),opponent,competition:String($('scout-new-competition')?.value||'').trim(),servingTeam:$('scout-new-serving')?.value||'ours',rotationNo:Number($('scout-new-rotation')?.value)||1,opponentRotationNo:1,lineup:scoutEmptyLineup(),sets:[scoutEmptySet(1)],events:[],currentSet:1,status:'live',clockStartedAt:now,clockAccumulatedMs:0,clockMode:'active-only',createdAt:now,updatedAt:now});scoutingMatches.push(m);scoutingActiveId=id;scoutClockResume(m);scoutCloseNewMatch();scoutSave();showView('scouting',botonVista('scouting'));scoutOpenLineup()};
 window.scoutOpenLineup=function(){const m=scoutActive();if(!m){alert('Crea primero un scouting.');return}const own=$('scout-lineup-own'),rival=$('scout-lineup-rival');if(own)own.innerHTML=SCOUT_POS.map(pos=>`<label class="scout-lineup-field"><b>${pos.toUpperCase()}</b><select id="scout-own-${pos}"><option value="">— Sin asignar —</option>${(jugadoresEquipo||[]).map(p=>`<option value="${p.id}" ${Number(m.lineup.ours[pos])===Number(p.id)?'selected':''}>${esc((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador'))}</option>`).join('')}</select></label>`).join('');if(rival)rival.innerHTML=SCOUT_POS.map(pos=>`<label class="scout-lineup-field"><b>${pos.toUpperCase()}</b><input id="scout-rival-${pos}" value="${esc(m.lineup.opponent[pos]||'')}" placeholder="Ej. #7 García"></label>`).join('');$('scout-lineup-rotation').value=String(m.rotationNo||1);if($('scout-lineup-rival-rotation'))$('scout-lineup-rival-rotation').value=String(m.opponentRotationNo||1);$('scout-lineup-modal')?.classList.add('open')};
 window.scoutCloseLineup=function(){$('scout-lineup-modal')?.classList.remove('open')};
 window.scoutSaveLineup=function(){const m=scoutActive();if(!m)return;const ids=SCOUT_POS.map(pos=>Number($(`scout-own-${pos}`)?.value)||null).filter(Boolean);if(ids.length!==6){alert('Debes asignar exactamente seis jugadores a las posiciones P1–P6.');return}if(new Set(ids).size!==ids.length){alert('Un mismo jugador no puede ocupar dos posiciones a la vez.');return}SCOUT_POS.forEach(pos=>{m.lineup.ours[pos]=Number($(`scout-own-${pos}`)?.value)||null;m.lineup.opponent[pos]=String($(`scout-rival-${pos}`)?.value||'').trim()});m.rotationNo=Number($('scout-lineup-rotation')?.value)||1;m.opponentRotationNo=Number($('scout-lineup-rival-rotation')?.value)||1;scoutCloseLineup();scoutRefreshActionPlayers();scoutSave()};
-window.scoutOpenSaved=function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(!m)return;scoutingActiveId=m.id;scoutSave();showView('scouting',botonVista('scouting'))};
+window.scoutOpenSaved=function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(!m)return;const prev=scoutActive();if(prev&&Number(prev.id)!==Number(m.id))scoutClockPause(prev);scoutingActiveId=m.id;scoutClockResume(m);scoutSave();showView('scouting',botonVista('scouting'))};
 window.scoutDeleteSaved=function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(!m)return;if(!confirm(`¿Eliminar definitivamente el scouting contra ${m.opponent}?`))return;scoutingMatches=scoutingMatches.filter(x=>Number(x.id)!==Number(id));if(Number(scoutingActiveId)===Number(id))scoutingActiveId=null;scoutSave()};
 function scoutCourtSlot(m,pos,team){let name='Sin asignar',sub='';if(team==='ours'){const id=m?.lineup?.ours?.[pos],p=scoutPlayer(id);name=p?((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador')):'Sin asignar';sub=p&&typeof ppPositions==='function'?ppPositions(p).join(' · '):''}else{name=scoutOpponentLabel(m?.lineup?.opponent?.[pos],pos)}return `<div class="scout-court-slot ${pos}"><b>${pos.toUpperCase()}</b><strong>${esc(name)}</strong>${sub?`<small>${esc(sub)}</small>`:''}</div>`}
 function scoutRenderCourt(m){const own=$('scout-own-court'),rival=$('scout-rival-court');if(own)own.innerHTML=SCOUT_POS.map(p=>scoutCourtSlot(m,p,'ours')).join('');if(rival)rival.innerHTML=SCOUT_POS.map(p=>scoutCourtSlot(m,p,'opponent')).join('');if($('scout-own-label'))$('scout-own-label').textContent=EQUIPOS[equipoActivo].nombre;if($('scout-rival-label'))$('scout-rival-label').textContent=m.opponent;if($('scout-own-rotation-label'))$('scout-own-rotation-label').textContent=`Rotación R${m.rotationNo}`;if($('scout-rival-rotation-label'))$('scout-rival-rotation-label').textContent=`Rotación R${m.opponentRotationNo||1}`}
@@ -20674,9 +20750,9 @@ function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s.rallies).map(r=>({s,
 function allActions(m){return allRallies(m).flatMap(x=>arr(x.r.actions).map(a=>({...x,a})))}
 function pct(n,d){return d?Math.round(n*100/d):null}
 function elapsed(m){
-  const start=Date.parse(m?.clockStartedAt||m?.createdAt||'');
-  if(!Number.isFinite(start))return '00:00';
-  const sec=Math.max(0,Math.floor((Date.now()-start)/1000)),h=Math.floor(sec/3600),min=Math.floor((sec%3600)/60),s=sec%60;
+  let ms=0;
+  try{ms=Number(br()?.elapsedMs?.(m))||0}catch(_){ms=Math.max(0,Number(m?.clockAccumulatedMs)||0)}
+  const sec=Math.max(0,Math.floor(ms/1000)),h=Math.floor(sec/3600),min=Math.floor((sec%3600)/60),s=sec%60;
   return h?`${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 function currentSetStats(m,s){
@@ -25069,7 +25145,7 @@ window.VC_V952_SESSION_FIX={
 (()=>{
 'use strict';
 const VERSION='9.5.3';
-let pulling=false;
+let pulling=false,pullPromise=null;
 let lastRemoteSeen=localStorage.getItem('v953_remote_seen')||'';
 let pollTimer=null;
 
@@ -25258,43 +25334,51 @@ if(typeof applyBase==='function'&&!applyBase.__v953){
 }
 
 async function pullRemote({force=false,render=true}={}){
-  if(pulling||typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return false;
+  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return false;
+  if(pullPromise)return pullPromise;
   pulling=true;
-  try{
-    const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
-    if(error||!data?.state)return false;
-    const stamp=String(data.updated_at||'');
-    if(!force&&stamp&&stamp===lastRemoteSeen)return false;
-    const before=JSON.stringify({
-      p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
-      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
-      s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
-    });
-    window.aplicarEstadoCloud?.(data.state);
-    lastRemoteSeen=stamp;
-    localStorage.setItem('v953_remote_seen',stamp);
-    localStorage.setItem('volleyCloudLastSync',stamp);
-    const after=JSON.stringify({
-      p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
-      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
-      s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
-    });
-    if(render&&before!==after){
-      try{
-        cargarEquipoEnVariables(equipoActivo);
-        cargarMeta();renderizarSesion();renderPlanificacion();renderHistorial();renderStats();renderDashboard();
-        try{window.scoutRenderHome?.()}catch(_){}
-        try{window.scoutRender?.()}catch(_){}
-        if(document.getElementById('scout-analysis')?.classList.contains('active')){
-          try{window.scoutRenderAnalysis?.()}catch(_){}
-        }
-        if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent='☁ Cambios recibidos de otro dispositivo';
-      }catch(err){console.warn('V9.5.3 render sync',err)}
+  pullPromise=(async()=>{
+    try{
+      const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
+      if(error||!data?.state)return false;
+      const stamp=String(data.updated_at||'');
+      const localScoutSig=JSON.stringify(scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[]));
+      const remoteScoutSource=data.state?.scoutingSyncIndex?.[equipoActivo]||data.state?.equiposData?.[equipoActivo]?.scoutingMatches||[];
+      const remoteScoutSig=JSON.stringify(scoutSyncSignature956(remoteScoutSource));
+      if(!force&&stamp&&stamp===lastRemoteSeen&&localScoutSig===remoteScoutSig)return false;
+      const before=JSON.stringify({
+        p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
+        h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
+        s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
+      });
+      window.aplicarEstadoCloud?.(data.state);
+      lastRemoteSeen=stamp;
+      localStorage.setItem('v953_remote_seen',stamp);
+      localStorage.setItem('volleyCloudLastSync',stamp);
+      const after=JSON.stringify({
+        p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
+        h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
+        s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
+      });
+      if(render&&before!==after){
+        try{
+          cargarEquipoEnVariables(equipoActivo);
+          cargarMeta();renderizarSesion();renderPlanificacion();renderHistorial();renderStats();renderDashboard();
+          try{window.scoutRenderHome?.()}catch(_){}
+          try{window.scoutRender?.()}catch(_){}
+          if(document.getElementById('scout-analysis')?.classList.contains('active')){
+            try{window.scoutRenderAnalysis?.()}catch(_){}
+          }
+          if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent='☁ Cambios recibidos de otro dispositivo';
+        }catch(err){console.warn('V9.5.7 render sync',err)}
+      }
+      return before!==after;
+    }catch(err){
+      console.warn('V9.5.7 pull',err);return false;
     }
-    return before!==after;
-  }catch(err){
-    console.warn('V9.5.3 pull',err);return false;
-  }finally{pulling=false}
+  })();
+  try{return await pullPromise}
+  finally{pulling=false;pullPromise=null}
 }
 
 /* Pull-before-push prevents a stale desktop from overwriting a new mobile training. */
@@ -25658,11 +25742,7 @@ window.v956SyncScoutingsNow=syncNow;
 
 /* One repair pass after startup/login state has settled. This fixes the
    current "laptop has 2 / mobile has 1" state without deleting either copy. */
-setTimeout(()=>{
-  try{
-    if(typeof cloudUser!=='undefined'&&cloudUser&&navigator.onLine)void syncNow();
-  }catch(_){}
-},1800);
+/* V9.5.7 uses one canonical scouting sync engine. Old V9.5.6 startup sync disabled. */
 
 function countLabel(){
   const el=document.getElementById('v956-scout-sync-status');if(!el)return;
@@ -26067,6 +26147,270 @@ window.VC_V956_SCOUT_SYNC={
     grid-template-columns:1fr!important;
   }
   #scout-analysis .scout-analysis-toolbar select{grid-column:auto!important}
+}
+</style>
+
+
+
+<script id="v957-canonical-scout-sync-clock-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.7';
+let syncPromise=null;
+let lastCanonicalSignature='';
+
+const clone=v=>{try{return JSON.parse(JSON.stringify(v))}catch(_){return v}};
+const ts=v=>{const n=Date.parse(v||'');return Number.isFinite(n)?n:0};
+function counts(m){
+  const sets=Array.isArray(m?.sets)?m.sets:[];
+  const rallies=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.length:0),0);
+  const actions=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.reduce((a,r)=>a+(Array.isArray(r?.actions)?r.actions.length:0),0):0),0)
+    +(Array.isArray(m?.liveRally?.actions)?m.liveRally.actions.length:0);
+  return {sets:sets.length,rallies,actions,finishedSets:sets.filter(s=>s?.finished).length};
+}
+function stamp(m){
+  return Math.max(
+    ts(m?.syncModifiedAt),ts(m?.updatedAt),ts(m?.manualSavedAt),
+    ts(m?.resultCompleteAt),ts(m?.endedAt),ts(m?.reopenedAt),
+    ts(m?.createdAt),(Number(m?.id)>1e11?Number(m.id):0)
+  );
+}
+function richness(m){
+  const c=counts(m);
+  return c.actions*1000000+c.rallies*10000+c.finishedSets*100+c.sets;
+}
+function tombMap(...lists){
+  const map=new Map();
+  lists.flat().filter(Boolean).forEach(x=>{
+    const id=Number(x?.id??x),at=Number(x?.at)||ts(x?.updatedAt)||0;
+    if(id)map.set(id,Math.max(map.get(id)||0,at));
+  });
+  return map;
+}
+function tombList(map){
+  return [...map.entries()].map(([id,at])=>({id,at})).sort((a,b)=>b.at-a.at).slice(0,500);
+}
+function mergeScoutLists(lists,tombs){
+  const deleted=tombMap(tombs),map=new Map();
+  lists.forEach((list,listIndex)=>{
+    (Array.isArray(list)?list:[]).forEach(m=>{
+      const id=Number(m?.id)||0;if(!id)return;
+      const del=deleted.get(id)||0;
+      if(del&&del>=stamp(m))return;
+      const prev=map.get(id);
+      if(!prev){map.set(id,clone(m));return}
+      const r=richness(m),pr=richness(prev),s=stamp(m),ps=stamp(prev);
+      /* Data-loss prevention first, recency second. This fixes missing matches
+         while still allowing a newer equally-complete copy to win. */
+      if(r>pr||(r===pr&&s>ps)||(r===pr&&s===ps&&listIndex===0))map.set(id,clone(m));
+    });
+  });
+  return [...map.values()].sort((a,b)=>stamp(b)-stamp(a));
+}
+function canonicalSignature(index){
+  const out={};
+  Object.keys(index||{}).sort().forEach(team=>{
+    out[team]=(index[team]||[]).map(m=>{
+      const c=counts(m);return [Number(m.id)||0,stamp(m),c.sets,c.rallies,c.actions,m.status||''];
+    }).sort((a,b)=>a[0]-b[0]);
+  });
+  return JSON.stringify(out);
+}
+function currentLocalLists(teamId){
+  const lists=[];
+  if(teamId===String(equipoActivo||'')){
+    try{lists.push(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[])}catch(_){}
+  }
+  try{lists.push(equiposData?.[teamId]?.scoutingMatches||[])}catch(_){}
+  return lists;
+}
+function collectCanonical(remoteState){
+  try{guardarEquipoEnMemoria?.()}catch(_){}
+  const remoteTeams=remoteState?.equiposData||{};
+  const remoteIndex=remoteState?.scoutingSyncIndex||{};
+  const ids=new Set([
+    ...Object.keys(equiposData||{}),
+    ...Object.keys(remoteTeams||{}),
+    ...Object.keys(remoteIndex||{})
+  ]);
+  const index={},tombsByTeam={};
+  ids.forEach(teamId=>{
+    const lt=equiposData?.[teamId]||{},rt=remoteTeams?.[teamId]||{};
+    const tombs=tombMap(lt.v956DeletedScoutIds||[],rt.v956DeletedScoutIds||[]);
+    tombsByTeam[teamId]=tombList(tombs);
+    index[teamId]=mergeScoutLists(
+      [...currentLocalLists(teamId),rt.scoutingMatches||[],remoteIndex?.[teamId]||[]],
+      tombsByTeam[teamId]
+    );
+  });
+  return {index,tombsByTeam};
+}
+function installCanonical(canonical){
+  const activeId=Number(window.VC_SCOUT_VIDEO_BRIDGE?.getActiveId?.())||null;
+  Object.keys(canonical.index).forEach(teamId=>{
+    if(!equiposData[teamId])equiposData[teamId]=estadoEquipoVacio(teamId);
+    equiposData[teamId].scoutingMatches=clone(canonical.index[teamId]);
+    equiposData[teamId].v956DeletedScoutIds=clone(canonical.tombsByTeam[teamId]||[]);
+  });
+  const own=canonical.index?.[equipoActivo]||[];
+  try{window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(own,activeId)}catch(_){}
+  try{guardarEstadoLocalSinCloud?.()}catch(_){}
+  try{window.scoutRenderHome?.()}catch(_){}
+  try{window.scoutRender?.()}catch(_){}
+  if(document.getElementById('scout-analysis')?.classList.contains('active')){
+    try{window.scoutRenderAnalysis?.()}catch(_){}
+  }
+  return own.length;
+}
+async function readRemote(){
+  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return null;
+  const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
+  if(error)throw error;
+  return data||null;
+}
+async function uploadCanonical(canonical,remoteState){
+  const state=typeof estadoLocal==='function'?estadoLocal():clone(remoteState||{});
+  state.scoutingSyncIndex=clone(canonical.index);
+  state.equiposData=state.equiposData||{};
+  Object.keys(canonical.index).forEach(teamId=>{
+    if(!state.equiposData[teamId])state.equiposData[teamId]=clone(equiposData?.[teamId]||{});
+    state.equiposData[teamId].scoutingMatches=clone(canonical.index[teamId]);
+    state.equiposData[teamId].v956DeletedScoutIds=clone(canonical.tombsByTeam[teamId]||[]);
+  });
+  const updatedAt=new Date().toISOString();
+  const {error}=await cloudClient.from('volley_state').upsert(
+    {user_id:cloudUser.id,state,updated_at:updatedAt},
+    {onConflict:'user_id'}
+  );
+  if(error)throw error;
+  localStorage.setItem('volleyCloudLastSync',updatedAt);
+  localStorage.setItem('v957_scout_signature',canonicalSignature(canonical.index));
+  lastCanonicalSignature=canonicalSignature(canonical.index);
+}
+async function syncCanonical({upload=true,quiet=false}={}){
+  if(syncPromise)return syncPromise;
+  syncPromise=(async()=>{
+    const status=document.getElementById('v956-scout-sync-status');
+    if(status&&!quiet)status.textContent='Sincronizando scoutings…';
+    try{
+      if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine){
+        if(status&&!quiet)status.textContent='Nube no conectada';
+        return false;
+      }
+      const remote=await readRemote();
+      const canonical=collectCanonical(remote?.state||{});
+      const before=lastCanonicalSignature||localStorage.getItem('v957_scout_signature')||'';
+      const after=canonicalSignature(canonical.index);
+      const count=installCanonical(canonical);
+      if(upload&&after!==before)await uploadCanonical(canonical,remote?.state||{});
+      else if(upload&&remote?.state){
+        /* Compare against the RAW remote scouting archive, not a merge that also
+           contains local data. Otherwise a remote list missing one match could
+           look equal after collectCanonical() had already re-added the local one. */
+        const rawRemoteIndex={};
+        const remoteTeams=remote.state.equiposData||{};
+        const remoteIdx=remote.state.scoutingSyncIndex||{};
+        const ids=new Set([...Object.keys(remoteTeams),...Object.keys(remoteIdx)]);
+        ids.forEach(teamId=>{
+          rawRemoteIndex[teamId]=mergeScoutLists([remoteIdx?.[teamId]||[],remoteTeams?.[teamId]?.scoutingMatches||[]],remoteTeams?.[teamId]?.v956DeletedScoutIds||[]);
+        });
+        const remoteSig=canonicalSignature(rawRemoteIndex);
+        if(remoteSig!==after||!remote.state.scoutingSyncIndex)await uploadCanonical(canonical,remote.state);
+      }
+      lastCanonicalSignature=after;
+      localStorage.setItem('v957_scout_signature',after);
+      if(status)status.textContent=`${count} scouting${count===1?'':'s'} · sincronizados ✓`;
+      try{setCloudUI?.('online','Nube sincronizada')}catch(_){}
+      return true;
+    }catch(err){
+      console.warn('V9.5.7 canonical scouting sync',err);
+      if(status&&!quiet)status.textContent='Error al sincronizar scoutings';
+      return false;
+    }
+  })();
+  try{return await syncPromise}finally{syncPromise=null}
+}
+window.v957SyncScoutingsNow=()=>syncCanonical({upload:true,quiet:false});
+window.v956SyncScoutingsNow=window.v957SyncScoutingsNow;
+
+/* Automatic canonical pull is lightweight and never overlaps itself. */
+setTimeout(()=>void syncCanonical({upload:true,quiet:true}),1200);
+const canonicalTimer=setInterval(()=>{
+  if(document.visibilityState==='visible')void syncCanonical({upload:true,quiet:true});
+},12000);
+
+/* ---- Clock lifecycle: only count while an editing surface of that scouting is open. ---- */
+const editingViews=new Set(['scout-match-mode','scout-workspace-v900','scouting']);
+function activeView(){
+  return [...editingViews].find(id=>document.getElementById(id)?.classList.contains('active'))||null;
+}
+function pauseClock(){
+  try{return window.VC_SCOUT_VIDEO_BRIDGE?.pauseClock?.()}catch(_){return false}
+}
+function resumeClock(){
+  if(document.visibilityState!=='visible'||!activeView())return false;
+  try{return window.VC_SCOUT_VIDEO_BRIDGE?.resumeClock?.()}catch(_){return false}
+}
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v957clock){
+  const wrapped=function(id,btn){
+    if(!editingViews.has(id))pauseClock();
+    const out=showBase.apply(this,arguments);
+    if(editingViews.has(id))setTimeout(resumeClock,0);
+    return out;
+  };
+  wrapped.__v957clock=true;window.showView=wrapped;
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden')pauseClock();
+  else if(activeView())resumeClock();
+});
+window.addEventListener('pagehide',pauseClock);
+
+/* When selecting another match inside Modo Partido, the bridge itself pauses the
+   previous one and resumes the selected one. */
+setTimeout(()=>{if(activeView())resumeClock();else pauseClock()},0);
+
+window.VC_V957_SYNC_CLOCK={
+  version:VERSION,
+  sync:window.v957SyncScoutingsNow,
+  diagnostics:()=>({
+    version:VERSION,
+    cloudConnected:(()=>{try{return!!cloudUser}catch(_){return false}})(),
+    online:navigator.onLine,
+    syncing:!!syncPromise,
+    localCount:window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0,
+    teamCount:equiposData?.[equipoActivo]?.scoutingMatches?.length||0,
+    canonicalSignature:lastCanonicalSignature||localStorage.getItem('v957_scout_signature')||'',
+    activeView:activeView(),
+    activeId:window.VC_SCOUT_VIDEO_BRIDGE?.getActiveId?.()||null,
+    elapsedMs:window.VC_SCOUT_VIDEO_BRIDGE?.elapsedMs?.()||0,
+    clockCountsOnlyInEditingView:true
+  })
+};
+})();
+</script>
+
+
+
+<style id="v957-clock-sync-style">
+#v800-clock::after{
+  content:" ACTIVO";
+  font-size:5px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:#8a99a3;
+  margin-left:4px;
+  vertical-align:middle;
+}
+@media(max-width:760px){
+  #v800-clock::after{content:"";margin:0}
+  #scout-workspace-v900 .v900-top-actions button[onclick*="v957SyncScoutingsNow"],
+  #scout-analysis .scout-analysis-toolbar button[onclick*="v957SyncScoutingsNow"]{
+    min-width:0!important;
+    white-space:normal!important;
+    line-height:1.15!important;
+  }
 }
 </style>
 
