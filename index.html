@@ -1536,7 +1536,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="v956SyncScoutingsNow()">↕ Sincronizar</button><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
     <div class="scout-analysis-kpis">
       <div class="scout-analysis-kpi"><span>Side-out</span><b id="scout-analysis-sideout">—</b><small id="scout-analysis-sideout-copy">0/0</small></div>
       <div class="scout-analysis-kpi"><span>Break point</span><b id="scout-analysis-break">—</b><small id="scout-analysis-break-copy">0/0</small></div>
@@ -2032,8 +2032,10 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <p id="v900-match-meta">Partido → Directo → Revisar → Analizar</p>
       </div>
       <div class="v900-top-actions">
+        <button class="ghost" onclick="v956SyncScoutingsNow()">↕ Sincronizar</button>
         <button class="ghost" onclick="v930Open('partidos')">Partidos guardados</button>
         <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
+        <span id="v956-scout-sync-status" class="v956-scout-sync-status">— scoutings</span>
       </div>
     </div>
 
@@ -5424,7 +5426,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.5', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.6', {
         updateViaCache: 'none'
       });
 
@@ -25113,6 +25115,51 @@ function mergeRecords(local,remote,tombstones=[]){
   (Array.isArray(local)?local:[]).forEach(r=>add(r,'local'));
   return [...map.values()].sort((a,b)=>(Number(b.id)||0)-(Number(a.id)||0));
 }
+function scoutStamp956(m){
+  if(!m||typeof m!=='object')return 0;
+  const dates=[m.updatedAt,m.manualSavedAt,m.resultCompleteAt,m.endedAt,m.reopenedAt,m.createdAt,m.date];
+  const parsed=dates.map(tsv);
+  const id=Number(m.id)||0;
+  return Math.max(0,...parsed,(id>1e11?id:0));
+}
+function scoutCounts956(m){
+  const sets=Array.isArray(m?.sets)?m.sets:[];
+  const rallies=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.length:0),0);
+  const actions=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.reduce((a,r)=>a+(Array.isArray(r?.actions)?r.actions.length:0),0):0),0)
+    +(Array.isArray(m?.liveRally?.actions)?m.liveRally.actions.length:0);
+  const finishedSets=sets.filter(s=>s?.finished).length;
+  const events=(Array.isArray(m?.events)?m.events.length:0)+(Array.isArray(m?.substitutions)?m.substitutions.length:0);
+  return {sets:sets.length,rallies,actions,finishedSets,events};
+}
+function scoutRichness956(m){
+  const c=scoutCounts956(m);
+  return c.actions*100000+c.rallies*1000+c.finishedSets*100+c.sets*10+c.events;
+}
+function mergeScoutings956(local,remote,tombstones=[]){
+  const deleted=tombstoneMap(tombstones),map=new Map();
+  const add=(m,source)=>{
+    if(!m||m.id==null)return;
+    const id=Number(m.id);if(!id)return;
+    const stamp=scoutStamp956(m),del=deleted.get(id)||0;
+    if(del&&del>=stamp)return;
+    const prev=map.get(id);
+    if(!prev){map.set(id,clone(m));return}
+    const richness=scoutRichness956(m),prevRichness=scoutRichness956(prev);
+    const use=richness>prevRichness
+      ||(richness===prevRichness&&stamp>scoutStamp956(prev))
+      ||(richness===prevRichness&&stamp===scoutStamp956(prev)&&source==='local');
+    if(use)map.set(id,clone(m));
+  };
+  (Array.isArray(remote)?remote:[]).forEach(m=>add(m,'remote'));
+  (Array.isArray(local)?local:[]).forEach(m=>add(m,'local'));
+  return [...map.values()].sort((a,b)=>scoutStamp956(b)-scoutStamp956(a));
+}
+function scoutSyncSignature956(list){
+  return (Array.isArray(list)?list:[]).map(m=>{
+    const c=scoutCounts956(m);
+    return [Number(m?.id)||0,scoutStamp956(m),c.sets,c.rallies,c.actions,m?.status||''];
+  }).sort((a,b)=>a[0]-b[0]);
+}
 function teamStamp(t){
   if(!t)return 0;
   return Math.max(tsv(t.trainingUpdatedAt),tsv(t.meta?.updatedAt),...((t.planificacion||[]).map(recordStamp)),...((t.historial||[]).map(recordStamp)));
@@ -25124,8 +25171,16 @@ function mergeTeam(local,remote){
 
   out.v953DeletedPlanIds=mergeTombstones(local.v953DeletedPlanIds,remote.v953DeletedPlanIds);
   out.v953DeletedHistoryIds=mergeTombstones(local.v953DeletedHistoryIds,remote.v953DeletedHistoryIds);
+  out.v956DeletedScoutIds=mergeTombstones(local.v956DeletedScoutIds,remote.v956DeletedScoutIds);
   out.planificacion=mergeRecords(local.planificacion,remote.planificacion,out.v953DeletedPlanIds);
   out.historial=mergeRecords(local.historial,remote.historial,out.v953DeletedHistoryIds);
+
+  /* V9.5.6: scouting must be explicitly unioned here. The previous {...remote,...local}
+     spread allowed a one-match mobile list to overwrite a two-match cloud list before
+     the legacy scouting merge could see it. */
+  out.scoutingMatches=mergeScoutings956(local.scoutingMatches,remote.scoutingMatches,out.v956DeletedScoutIds);
+  const localActive=Number(local.scoutingActiveId)||0;
+  out.scoutingActiveId=localActive&&out.scoutingMatches.some(m=>Number(m.id)===localActive&&m.status!=='finished')?localActive:null;
 
   /* Collections where IDs are stable and additions from either device must survive. */
   out.plantillas=mergeRecords(local.plantillas,remote.plantillas);
@@ -25212,7 +25267,8 @@ async function pullRemote({force=false,render=true}={}){
     if(!force&&stamp&&stamp===lastRemoteSeen)return false;
     const before=JSON.stringify({
       p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
-      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)])
+      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
+      s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
     });
     window.aplicarEstadoCloud?.(data.state);
     lastRemoteSeen=stamp;
@@ -25220,12 +25276,18 @@ async function pullRemote({force=false,render=true}={}){
     localStorage.setItem('volleyCloudLastSync',stamp);
     const after=JSON.stringify({
       p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
-      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)])
+      h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
+      s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
     });
     if(render&&before!==after){
       try{
         cargarEquipoEnVariables(equipoActivo);
         cargarMeta();renderizarSesion();renderPlanificacion();renderHistorial();renderStats();renderDashboard();
+        try{window.scoutRenderHome?.()}catch(_){}
+        try{window.scoutRender?.()}catch(_){}
+        if(document.getElementById('scout-analysis')?.classList.contains('active')){
+          try{window.scoutRenderAnalysis?.()}catch(_){}
+        }
         if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent='☁ Cambios recibidos de otro dispositivo';
       }catch(err){console.warn('V9.5.3 render sync',err)}
     }
@@ -25288,6 +25350,7 @@ window.VC_V953_TRAINING_SYNC={
     team:equipoActivo,
     plans:(equiposData?.[equipoActivo]?.planificacion||[]).length,
     history:(equiposData?.[equipoActivo]?.historial||[]).length,
+    scoutings:(equiposData?.[equipoActivo]?.scoutingMatches||[]).length,
     pollingSeconds:15,
     navigationBlockedByScouting:false
   })
@@ -25522,6 +25585,489 @@ window.VC_V954_NEW_SET={
   line-height:1.35;
 }
 .live-delay-long-note b{color:#17324d}
+</style>
+
+
+
+<script id="v956-scouting-sync-mobile-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.6';
+
+function team(){
+  try{guardarEquipoEnMemoria?.()}catch(_){}
+  return equiposData?.[equipoActivo]||null;
+}
+function mergeTombs(list,id){
+  const map=new Map();
+  (Array.isArray(list)?list:[]).forEach(x=>{
+    const n=Number(x?.id??x),at=Number(x?.at)||0;
+    if(n)map.set(n,Math.max(map.get(n)||0,at));
+  });
+  const n=Number(id)||0;if(n)map.set(n,Date.now());
+  return [...map.entries()].map(([id,at])=>({id,at})).sort((a,b)=>b.at-a.at).slice(0,500);
+}
+
+/* Delete on one device must not be resurrected by the other one. */
+const deleteBase=window.scoutDeleteSaved;
+if(typeof deleteBase==='function'&&!deleteBase.__v956){
+  const wrapped=function(id){
+    const before=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[];
+    const existed=before.some(m=>Number(m.id)===Number(id));
+    const out=deleteBase.apply(this,arguments);
+    const after=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[];
+    if(existed&&!after.some(m=>Number(m.id)===Number(id))){
+      const t=team();
+      if(t){
+        t.v956DeletedScoutIds=mergeTombs(t.v956DeletedScoutIds,id);
+        t.scoutingMatches=JSON.parse(JSON.stringify(after));
+        if(Number(t.scoutingActiveId)===Number(id))t.scoutingActiveId=null;
+      }
+      try{guardarEstadoLocalSinCloud?.();programarSubidaCloud?.()}catch(_){}
+    }
+    return out;
+  };
+  wrapped.__v956=true;window.scoutDeleteSaved=wrapped;
+}
+
+async function syncNow(){
+  const status=document.getElementById('v956-scout-sync-status');
+  if(status)status.textContent='Sincronizando…';
+  try{
+    let changed=false;
+    if(window.VC_V953_TRAINING_SYNC?.pullRemote){
+      changed=await window.VC_V953_TRAINING_SYNC.pullRemote({force:true,render:true});
+    }
+    if(typeof window.subirNube==='function')await window.subirNube(false);
+    try{cargarEquipoEnVariables?.(equipoActivo)}catch(_){}
+    try{window.scoutRenderHome?.()}catch(_){}
+    try{window.scoutRender?.()}catch(_){}
+    if(document.getElementById('scout-analysis')?.classList.contains('active')){
+      try{window.scoutRenderAnalysis?.()}catch(_){}
+    }
+    const count=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
+    if(status)status.textContent=`${count} scouting${count===1?'':'s'} · nube ✓`;
+    return changed;
+  }catch(err){
+    console.warn('V9.5.6 scouting sync',err);
+    if(status)status.textContent='Error de sincronización';
+    return false;
+  }
+}
+window.v956SyncScoutingsNow=syncNow;
+
+/* One repair pass after startup/login state has settled. This fixes the
+   current "laptop has 2 / mobile has 1" state without deleting either copy. */
+setTimeout(()=>{
+  try{
+    if(typeof cloudUser!=='undefined'&&cloudUser&&navigator.onLine)void syncNow();
+  }catch(_){}
+},1800);
+
+function countLabel(){
+  const el=document.getElementById('v956-scout-sync-status');if(!el)return;
+  const count=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
+  if(!/Sincronizando|Error/.test(el.textContent||''))el.textContent=`${count} scouting${count===1?'':'s'}`;
+}
+setInterval(countLabel,15000);setTimeout(countLabel,0);
+
+window.VC_V956_SCOUT_SYNC={
+  version:VERSION,
+  syncNow,
+  diagnostics:()=>({
+    version:VERSION,
+    localCount:window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0,
+    teamCount:equiposData?.[equipoActivo]?.scoutingMatches?.length||0,
+    deleted:equiposData?.[equipoActivo]?.v956DeletedScoutIds?.length||0,
+    online:navigator.onLine,
+    cloudConnected:(()=>{try{return!!cloudUser}catch(_){return false}})()
+  })
+};
+})();
+</script>
+
+
+
+<style id="v956-mobile-scout-analysis-style">
+.v956-scout-sync-status{
+  align-self:center;
+  font-size:7px;
+  font-weight:850;
+  color:#71838f;
+  white-space:nowrap;
+}
+
+/* ---------- Mobile Scouting Center ---------- */
+@media(max-width:760px){
+  body.workspace-scouting .workspace-toolbar{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:6px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+  body.workspace-scouting .workspace-navigation{
+    width:100%!important;
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  body.workspace-scouting .compact-team-switcher{
+    position:static!important;
+    z-index:auto!important;
+    width:100%!important;
+    max-width:none!important;
+    align-self:stretch!important;
+    order:2;
+    box-sizing:border-box!important;
+  }
+
+  #v940-professional-nav{
+    padding:6px!important;
+    border-radius:10px;
+  }
+  #v940-professional-nav .v940-nav-head{
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    gap:6px!important;
+    margin-bottom:6px!important;
+  }
+  #v940-professional-nav .v940-home{
+    display:none!important;
+  }
+  #v940-professional-nav .v940-match-context{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    display:grid!important;
+    grid-template-columns:1.5fr .8fr .85fr!important;
+    border-radius:8px!important;
+  }
+  #v940-professional-nav .v940-match-context>div{
+    display:block!important;
+    padding:6px 7px!important;
+  }
+  #v940-professional-nav .v940-match-context>div:nth-child(4){
+    display:none!important;
+  }
+  #v940-professional-nav .v940-match-context span{font-size:7px!important}
+  #v940-professional-nav .v940-match-context b{font-size:10px!important}
+  #v940-professional-nav .v940-perf-badge{
+    grid-column:2!important;
+    grid-row:1!important;
+    min-height:32px!important;
+  }
+
+  #v940-professional-nav .v940-main-nav{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:4px!important;
+    overflow-x:auto!important;
+    padding:1px 0 5px!important;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+  }
+  #v940-professional-nav .v940-main-nav>button{
+    flex:0 0 108px!important;
+    min-height:42px!important;
+    padding:7px 9px!important;
+    border-radius:8px!important;
+    scroll-snap-align:start;
+  }
+  #v940-professional-nav .v940-nav-icon{display:none!important}
+  #v940-professional-nav .v940-main-nav b{font-size:11px!important}
+  #v940-professional-nav .v940-main-nav small{display:none!important}
+
+  #v940-context-toolbar{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    gap:4px!important;
+    min-height:39px!important;
+    padding-top:5px!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #v940-context-toolbar .v940-context-label{display:none!important}
+  #v940-context-toolbar button{
+    flex:0 0 auto!important;
+    min-height:38px!important;
+    padding:7px 10px!important;
+    font-size:10px!important;
+  }
+
+  /* Scouting Pro: action registration is the primary mobile task. */
+  #scout-workspace-v900 .v900-shell{padding:6px!important}
+  #scout-workspace-v900 .v900-topbar{
+    gap:8px!important;
+    padding:4px 1px!important;
+  }
+  #scout-workspace-v900 .v900-brand h2{
+    font-size:18px!important;
+    line-height:1.15!important;
+  }
+  #scout-workspace-v900 .v900-brand p{font-size:10px!important}
+  #scout-workspace-v900 .v900-top-actions{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:5px!important;
+  }
+  #scout-workspace-v900 .v900-top-actions button{
+    width:100%!important;
+    min-height:42px!important;
+    font-size:10px!important;
+  }
+  #scout-workspace-v900 .v956-scout-sync-status{
+    grid-column:1/-1;
+    text-align:right;
+    padding-right:2px;
+    font-size:9px;
+  }
+
+  #scout-workspace-v900 .v900-statusbar{
+    display:flex!important;
+    grid-template-columns:none!important;
+    overflow-x:auto!important;
+    gap:1px!important;
+    padding:0!important;
+    border-radius:9px!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #scout-workspace-v900 .v900-score-main{
+    flex:0 0 165px!important;
+    grid-column:auto!important;
+    padding:9px!important;
+  }
+  #scout-workspace-v900 .v900-status-item{
+    display:block!important;
+    flex:0 0 104px!important;
+    padding:9px 8px!important;
+  }
+  #scout-workspace-v900 .v900-status-item span{font-size:7px!important}
+  #scout-workspace-v900 .v900-status-item b{font-size:14px!important}
+
+  #scout-workspace-v900 .v900-live-grid{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:7px!important;
+  }
+  #scout-workspace-v900 .v900-register-column{order:1!important}
+  #scout-workspace-v900 .v900-courts-column{order:2!important}
+  #scout-workspace-v900 .v900-intel-column{order:3!important}
+  #scout-workspace-v900 .v900-card{
+    border-radius:10px!important;
+    overflow:hidden!important;
+  }
+  #scout-workspace-v900 .v900-card-head{
+    padding:10px!important;
+    flex-wrap:wrap!important;
+  }
+  #scout-workspace-v900 .v900-card-head h3{
+    font-size:14px!important;
+    line-height:1.2!important;
+  }
+  #scout-workspace-v900 .v900-mode-switch{
+    width:100%!important;
+  }
+  #scout-workspace-v900 .v900-mode-switch button{
+    flex:1!important;
+    min-height:39px!important;
+    font-size:10px!important;
+  }
+  #scout-workspace-v900 .v900-team-toggle button{
+    min-height:42px!important;
+    font-size:11px!important;
+  }
+  #scout-workspace-v900 .v900-player-buttons{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  #scout-workspace-v900 .v900-player-buttons button{
+    min-height:42px!important;
+    padding:6px!important;
+    font-size:9px!important;
+  }
+  #scout-workspace-v900 .v900-skill-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  #scout-workspace-v900 .v900-skill-grid button{
+    min-height:52px!important;
+    padding:7px 4px!important;
+  }
+  #scout-workspace-v900 .v900-skill-grid button b{font-size:15px!important}
+  #scout-workspace-v900 .v900-skill-grid button span{font-size:8px!important}
+  #scout-workspace-v900 .v900-eval-row button{
+    min-height:44px!important;
+    font-size:16px!important;
+  }
+  #scout-workspace-v900 .v900-dynamic-fields{
+    grid-template-columns:1fr!important;
+  }
+  #scout-workspace-v900 .v900-dynamic-fields select,
+  #scout-workspace-v900 .v900-dynamic-fields input,
+  #scout-workspace-v900 .v900-code-entry input,
+  #scout-workspace-v900 .v900-code-entry button{
+    min-height:43px!important;
+    font-size:12px!important;
+  }
+  #scout-workspace-v900 .v900-register{
+    width:100%!important;
+    min-height:50px!important;
+    font-size:13px!important;
+    font-weight:950!important;
+  }
+  #scout-workspace-v900 .v900-court-slot{
+    min-height:52px!important;
+    padding:5px 3px!important;
+  }
+  #scout-workspace-v900 .v900-court-slot b{font-size:8px!important}
+  #scout-workspace-v900 .v900-court-actions button{
+    min-height:37px!important;
+    font-size:9px!important;
+  }
+
+  /* ---------- Analysis mobile ---------- */
+  #scout-analysis .scout-analysis-shell{
+    gap:8px!important;
+    min-width:0!important;
+  }
+  #scout-analysis .scout-analysis-header{
+    padding:13px!important;
+    border-radius:10px!important;
+    gap:10px!important;
+  }
+  #scout-analysis .scout-analysis-header h2{
+    font-size:18px!important;
+    line-height:1.15!important;
+  }
+  #scout-analysis .scout-analysis-header p{
+    font-size:10.5px!important;
+    line-height:1.45!important;
+  }
+  #scout-analysis .scout-analysis-toolbar{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:5px!important;
+  }
+  #scout-analysis .scout-analysis-toolbar select{
+    grid-column:1/-1!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:42px!important;
+    font-size:11px!important;
+  }
+  #scout-analysis .scout-analysis-toolbar button{
+    width:100%!important;
+    min-height:40px!important;
+    padding:7px 5px!important;
+    font-size:9px!important;
+  }
+  #scout-analysis .scout-analysis-toolbar span{
+    grid-column:1/-1!important;
+  }
+  #scout-analysis .scout-analysis-kpis{
+    grid-template-columns:1fr 1fr!important;
+    gap:6px!important;
+  }
+  #scout-analysis .scout-analysis-kpi{
+    padding:10px!important;
+    border-radius:9px!important;
+  }
+  #scout-analysis .scout-analysis-kpi b{font-size:19px!important}
+
+  #scout-analysis .scout-analysis-grid{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  #scout-analysis .scout-analysis-panel,
+  #scout-analysis .scout-v750-pro-panel{
+    grid-column:auto!important;
+    min-width:0!important;
+    padding:10px!important;
+    border-radius:10px!important;
+  }
+  #scout-analysis .scout-player-analysis-panel{padding:0!important}
+  #scout-analysis .scout-panel-head,
+  #scout-analysis .scout-v750-pro-head,
+  #scout-analysis .scout-v830-head{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:8px!important;
+  }
+  #scout-analysis .scout-panel-head h3,
+  #scout-analysis .scout-v750-pro-head h3{
+    font-size:14px!important;
+  }
+
+  #scout-analysis .scout-player-toolbar,
+  #scout-analysis .scout-v830-toolbar,
+  #scout-analysis .scout-sequence-toolbar{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:5px!important;
+  }
+  #scout-analysis .scout-player-toolbar select,
+  #scout-analysis .scout-v830-toolbar select,
+  #scout-analysis .scout-sequence-toolbar select{
+    min-width:0!important;
+    width:100%!important;
+    min-height:39px!important;
+    font-size:10px!important;
+  }
+  #scout-analysis .scout-v830-toolbar label{
+    min-width:0!important;
+  }
+  #scout-analysis .scout-v830-toolbar label>span{
+    font-size:8px!important;
+  }
+
+  /* Detailed stats stay complete; use a deliberate horizontal table viewport. */
+  #scout-analysis .scout-dv-table-wrap,
+  #scout-analysis .v890-table-wrap,
+  #scout-analysis [class*="table-wrap"]{
+    max-width:100%!important;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:auto;
+    border-radius:7px;
+  }
+  #scout-analysis .scout-dv-table{
+    min-width:900px!important;
+  }
+  #scout-analysis .v890-table{
+    min-width:520px!important;
+  }
+  #scout-analysis .scout-dv-table th:first-child,
+  #scout-analysis .scout-dv-table td:first-child{
+    position:sticky!important;
+    left:0!important;
+    z-index:4!important;
+  }
+  #scout-analysis .scout-dv-table td:first-child{background:#fff!important}
+  #scout-analysis .scout-dv-table th{font-size:7px!important;padding:7px 5px!important}
+  #scout-analysis .scout-dv-table td{font-size:8.5px!important;padding:7px 5px!important}
+  #scout-analysis .v890-grid{grid-template-columns:1fr!important}
+  #scout-analysis .v890-kpis{grid-template-columns:1fr 1fr!important}
+  #scout-analysis .v890-card-head{
+    flex-direction:column!important;
+    gap:4px!important;
+  }
+}
+
+@media(max-width:390px){
+  #scout-workspace-v900 .v900-player-buttons{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #scout-analysis .scout-analysis-toolbar,
+  #scout-analysis .scout-player-toolbar,
+  #scout-analysis .scout-v830-toolbar{
+    grid-template-columns:1fr!important;
+  }
+  #scout-analysis .scout-analysis-toolbar select{grid-column:auto!important}
+}
 </style>
 
 </body></html>
