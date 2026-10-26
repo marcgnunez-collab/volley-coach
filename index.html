@@ -2755,7 +2755,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 
       <div id="vc-recording-markers" class="vc-recording-markers"></div>
 
-      <div class="vc-recording-help">
+      <div class="v959-rec-health-note"><b>Protección V9.5.9:</b> REC comprueba fotogramas LIVE, intenta recuperar la señal si se corta y detiene el archivo si no vuelve para evitar grabaciones largas congeladas.</div><div class="vc-recording-help">
         <b>Modo cámara:</b> graba directamente a un archivo normal del dispositivo. Al iniciar eliges dónde guardarlo una sola vez y, al finalizar, el vídeo ya está allí. Volley Coach prioriza <b>MP4</b> si el navegador/dispositivo puede grabarlo.
         <b>Fotos / Galería:</b> pensado para móvil. Al finalizar prepara el vídeo y abre el guardado/compartir nativo del sistema para pasarlo a Fotos o Galería. iOS/Android pueden exigir un último toque por seguridad.
         <b>Navegador:</b> mantiene una copia recuperable en IndexedDB. Live Delay por sí solo no graba: debes pulsar <b>● Iniciar REC</b>.
@@ -5440,7 +5440,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.8', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.9', {
         updateViaCache: 'none'
       });
 
@@ -17963,6 +17963,10 @@ const state={
   recordingSourceStream:null,
   recordingFrameHandle:null,
   recordingFrameMode:'',
+  recordingLastFrameAt:0,
+  recordingFrameCount:0,
+  recordingDrawErrors:0,
+  recordingRefreshBusy:false,
   wakeLock:null
 };
 
@@ -18320,35 +18324,44 @@ function vcDelayCanvasSpec(video){
     height:landscape?720:1280
   };
 }
-function vcDrawDelayNormalizedFrame(){
-  const canvas=state.delayCanvas,ctx=state.delayCtx,video=state.delaySourceVideo;
-  if(!canvas||!ctx||!video)return;
-  const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
-  if(sw&&sh){
-    const spec=vcDelayCanvasSpec(video);
-    /* Keep the canvas dimensions stable for the current delay session.
-       Orientation/view changes should be made before starting Live Delay. */
-    const cw=canvas.width,ch=canvas.height;
-    const r=((spec.rotation%360)+360)%360;
-    const quarter=r===90||r===270;
-    const rw=quarter?sh:sw,rh=quarter?sw:sh;
-    const scale=Math.min(cw/rw,ch/rh);
-    ctx.save();
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle='#000';
-    ctx.fillRect(0,0,cw,ch);
-    ctx.translate(cw/2,ch/2);
-    ctx.rotate(spec.rotation*Math.PI/180);
-    ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
-    ctx.restore();
-  }
-
-  if(typeof video.requestVideoFrameCallback==='function'){
+function vcScheduleDelayFrame(video){
+  if(!state.delayCanvas||!state.delayCtx||!state.delaySourceVideo)return;
+  if(typeof video?.requestVideoFrameCallback==='function'){
     state.delayFrameMode='rvfc';
     state.delayFrameHandle=video.requestVideoFrameCallback(()=>vcDrawDelayNormalizedFrame());
   }else{
     state.delayFrameMode='raf';
     state.delayFrameHandle=requestAnimationFrame(()=>vcDrawDelayNormalizedFrame());
+  }
+}
+function vcDrawDelayNormalizedFrame(){
+  const canvas=state.delayCanvas,ctx=state.delayCtx,video=state.delaySourceVideo;
+  if(!canvas||!ctx||!video)return;
+  try{
+    const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
+    if(sw&&sh&&video.readyState>=2){
+      const spec=vcDelayCanvasSpec(video);
+      const cw=canvas.width,ch=canvas.height;
+      const r=((spec.rotation%360)+360)%360;
+      const quarter=r===90||r===270;
+      const rw=quarter?sh:sw,rh=quarter?sw:sh;
+      const scale=Math.min(cw/rw,ch/rh);
+      ctx.save();
+      try{
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.fillStyle='#000';
+        ctx.fillRect(0,0,cw,ch);
+        ctx.translate(cw/2,ch/2);
+        ctx.rotate(spec.rotation*Math.PI/180);
+        ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
+      }finally{
+        try{ctx.restore()}catch(_){}
+      }
+    }
+  }catch(err){
+    console.warn('V9.5.9 delay frame transient error',err);
+  }finally{
+    vcScheduleDelayFrame(state.delaySourceVideo);
   }
 }
 function vcCreateHiddenLiveVideo(sourceStream,label='vc-hidden-live'){
@@ -18358,7 +18371,7 @@ function vcCreateHiddenLiveVideo(sourceStream,label='vc-hidden-live'){
   const video=document.createElement('video');
   video.dataset.vcRole=label;
   video.autoplay=true;video.muted=true;video.playsInline=true;
-  video.style.cssText='position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;opacity:.001;pointer-events:none';
+  video.style.cssText='position:fixed;left:0;top:0;width:2px;height:2px;opacity:.001;pointer-events:none;z-index:-1';
   document.body.appendChild(video);
   video.srcObject=cloned;
   return {video,stream:cloned};
@@ -18416,7 +18429,7 @@ window.VC_REMOTE_CAMERA.stopDelayNormalizedStream=window.vcStopDelayNormalizer;
 /* ---------- V9.5.8 · LIVE recording normalizer ----------
    Recording is fed from the RAW LIVE WebRTC MediaStream, never from MediaSource
    and never from the delayed <video>. */
-function vcStopLiveRecordingNormalizer(){
+function vcCancelRecordingFrame(){
   const video=state.recordingSourceVideo;
   try{
     if(state.recordingFrameMode==='rvfc'&&video?.cancelVideoFrameCallback&&state.recordingFrameHandle!=null){
@@ -18426,40 +18439,21 @@ function vcStopLiveRecordingNormalizer(){
     }
   }catch(_){}
   state.recordingFrameHandle=null;state.recordingFrameMode='';
+}
+function vcStopLiveRecordingNormalizer(){
+  const video=state.recordingSourceVideo;
+  vcCancelRecordingFrame();
   try{state.recordingStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
   try{state.recordingSourceStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
   try{if(video){video.pause();video.srcObject=null;video.remove()}}catch(_){}
   state.recordingCanvas=null;state.recordingCtx=null;state.recordingStream=null;
   state.recordingSourceVideo=null;state.recordingSourceStream=null;
+  state.recordingLastFrameAt=0;state.recordingFrameCount=0;
+  state.recordingRefreshBusy=false;
 }
-function vcDrawLiveRecordingFrame(){
-  const canvas=state.recordingCanvas,ctx=state.recordingCtx,video=state.recordingSourceVideo;
-  if(!canvas||!ctx||!video)return;
-  const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
-  if(sw&&sh){
-    /* Volleyball recording output is horizontal 16:9.
-       If the phone/WebRTC track arrives portrait, rotate the LIVE frame here.
-       This canvas receives RAW LIVE frames and is independent from Delay. */
-    let rotation=0;
-    const pref=state.viewOrientation||'horizontal';
-    if(pref==='right')rotation=90;
-    else if(pref==='left')rotation=-90;
-    else if(sh>sw)rotation=90;
-
-    const cw=canvas.width,ch=canvas.height;
-    const quarter=Math.abs(rotation)%180===90;
-    const rw=quarter?sh:sw,rh=quarter?sw:sh;
-    const scale=Math.min(cw/rw,ch/rh);
-
-    ctx.save();
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);
-    ctx.translate(cw/2,ch/2);
-    ctx.rotate(rotation*Math.PI/180);
-    ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
-    ctx.restore();
-  }
-  if(typeof video.requestVideoFrameCallback==='function'){
+function vcScheduleLiveRecordingFrame(video){
+  if(!state.recordingCanvas||!state.recordingCtx||!state.recordingSourceVideo)return;
+  if(typeof video?.requestVideoFrameCallback==='function'){
     state.recordingFrameMode='rvfc';
     state.recordingFrameHandle=video.requestVideoFrameCallback(()=>vcDrawLiveRecordingFrame());
   }else{
@@ -18467,32 +18461,107 @@ function vcDrawLiveRecordingFrame(){
     state.recordingFrameHandle=requestAnimationFrame(()=>vcDrawLiveRecordingFrame());
   }
 }
-async function vcCreateLiveRecordingStream(sourceStream){
-  vcStopLiveRecordingNormalizer();
+function vcDrawLiveRecordingFrame(){
+  const canvas=state.recordingCanvas,ctx=state.recordingCtx,video=state.recordingSourceVideo;
+  if(!canvas||!ctx||!video)return;
+  try{
+    const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
+    if(sw&&sh&&video.readyState>=2){
+      let rotation=0;
+      const pref=state.viewOrientation||'horizontal';
+      if(pref==='right')rotation=90;
+      else if(pref==='left')rotation=-90;
+      else if(sh>sw)rotation=90;
+
+      const cw=canvas.width,ch=canvas.height;
+      const quarter=Math.abs(rotation)%180===90;
+      const rw=quarter?sh:sw,rh=quarter?sw:sh;
+      const scale=Math.min(cw/rw,ch/rh);
+
+      ctx.save();
+      try{
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);
+        ctx.translate(cw/2,ch/2);
+        ctx.rotate(rotation*Math.PI/180);
+        ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
+        state.recordingLastFrameAt=Date.now();
+        state.recordingFrameCount++;
+      }finally{
+        try{ctx.restore()}catch(_){}
+      }
+    }
+  }catch(err){
+    state.recordingDrawErrors++;
+    console.warn('V9.5.9 recording frame transient error',err);
+  }finally{
+    vcScheduleLiveRecordingFrame(state.recordingSourceVideo);
+  }
+}
+async function vcAttachLiveRecordingSource(sourceStream){
   const hidden=vcCreateHiddenLiveVideo(sourceStream,'vc-recording-live-source');
+  const oldVideo=state.recordingSourceVideo,oldStream=state.recordingSourceStream;
+  vcCancelRecordingFrame();
   state.recordingSourceVideo=hidden.video;
   state.recordingSourceStream=hidden.stream;
   await hidden.video.play().catch(()=>{});
   await vcWaitForVideoDimensions(hidden.video,3000);
+  state.recordingLastFrameAt=Date.now();
+  try{oldStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  try{if(oldVideo){oldVideo.pause();oldVideo.srcObject=null;oldVideo.remove()}}catch(_){}
+  vcDrawLiveRecordingFrame();
+  return true;
+}
+async function vcRefreshLiveRecordingSource(sourceStream){
+  if(state.recordingRefreshBusy)return false;
+  state.recordingRefreshBusy=true;
+  try{
+    const tracks=sourceStream?.getVideoTracks?.().filter(t=>t.readyState==='live')||[];
+    if(!tracks.length)return false;
+    await vcAttachLiveRecordingSource(sourceStream);
+    return true;
+  }catch(err){
+    console.warn('V9.5.9 recording source refresh',err);
+    return false;
+  }finally{
+    state.recordingRefreshBusy=false;
+  }
+}
+async function vcCreateLiveRecordingStream(sourceStream){
+  vcStopLiveRecordingNormalizer();
 
   const canvas=document.createElement('canvas');
   canvas.width=1280;canvas.height=720;
   const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
   if(!ctx)throw new Error('No se pudo crear la salida horizontal de grabación.');
   state.recordingCanvas=canvas;state.recordingCtx=ctx;
-  vcDrawLiveRecordingFrame();
+  state.recordingLastFrameAt=Date.now();
+  state.recordingFrameCount=0;state.recordingDrawErrors=0;
+
+  await vcAttachLiveRecordingSource(sourceStream);
 
   const stream=canvas.captureStream(30);
+  /* Preserve audio if a future LIVE source provides it. */
+  sourceStream?.getAudioTracks?.().filter(t=>t.readyState==='live').forEach(t=>{
+    try{stream.addTrack(t.clone())}catch(_){}
+  });
   state.recordingStream=stream;
   return stream;
 }
 window.VC_REMOTE_CAMERA.createLiveRecordingStream=vcCreateLiveRecordingStream;
+window.VC_REMOTE_CAMERA.refreshLiveRecordingSource=vcRefreshLiveRecordingSource;
 window.VC_REMOTE_CAMERA.stopLiveRecordingStream=vcStopLiveRecordingNormalizer;
 window.VC_REMOTE_CAMERA.getLiveRecordingDiagnostics=()=>({
   active:!!state.recordingStream,
   source:'RAW LIVE WebRTC',
   output:'1280x720',
-  independentFromDelay:true
+  independentFromDelay:true,
+  lastFrameAt:state.recordingLastFrameAt||0,
+  lastFrameAgeMs:state.recordingLastFrameAt?Math.max(0,Date.now()-state.recordingLastFrameAt):null,
+  frameCount:state.recordingFrameCount||0,
+  drawErrors:state.recordingDrawErrors||0,
+  sourceTracks:state.recordingSourceStream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[],
+  outputTracks:state.recordingStream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]
 });
 
 
@@ -18929,7 +18998,13 @@ const state={
   lastGalleryName:'',
   blockCounter:0,
   sourceLabelAtStart:'',
-  sourceKind:''
+  sourceKind:'',
+  writeError:null,
+  recorderError:null,
+  healthTimer:null,
+  healthRecovering:false,
+  sourceFailureSince:0,
+  wakeLock:null
 };
 
 function nowIso(){return new Date().toISOString()}
@@ -19177,11 +19252,20 @@ function downloadJSON(obj,name){
 async function writeChunk(blob){
   state.bytes+=blob.size;
   const idx=state.chunkIndex++;
-  if(state.mode==='disk'&&state.writer){
-    state.writeQueue=state.writeQueue.then(()=>state.writer.write(blob));
-  }else{
-    state.writeQueue=state.writeQueue.then(()=>dbPutChunk(state.sessionId,idx,blob));
-  }
+  const task=async()=>{
+    if(state.mode==='disk'&&state.writer)await state.writer.write(blob);
+    else await dbPutChunk(state.sessionId,idx,blob);
+  };
+  /* Always continue from the previous task, even if it failed, so one failed
+     write does not permanently poison every later chunk in the promise chain. */
+  state.writeQueue=state.writeQueue
+    .catch(()=>{})
+    .then(task)
+    .catch(err=>{
+      if(!state.writeError)state.writeError=err;
+      console.error('V9.5.9 chunk write',err);
+      setState('ERROR DE GUARDADO','bad');
+    });
   updateUI();
 }
 function addMarkerInternal(label,automatic=false){
@@ -19270,6 +19354,75 @@ window.vcRecordingStorageChanged=function(){
   }
 };
 
+async function requestRecordingWakeLock(){
+  try{
+    if('wakeLock'in navigator&&!state.wakeLock)state.wakeLock=await navigator.wakeLock.request('screen');
+  }catch(err){console.warn('V9.5.9 recording wake lock',err)}
+}
+async function releaseRecordingWakeLock(){
+  try{await state.wakeLock?.release?.()}catch(_){}
+  state.wakeLock=null;
+}
+function stopRecordingHealth(){
+  clearInterval(state.healthTimer);state.healthTimer=null;
+  state.healthRecovering=false;state.sourceFailureSince=0;
+}
+async function recoverRemoteRecordingSource(){
+  if(state.healthRecovering||state.sourceKind!=='remote'||!state.active)return false;
+  state.healthRecovering=true;
+  try{
+    const raw=window.VC_REMOTE_CAMERA?.getStream?.();
+    const tracks=raw?.getVideoTracks?.().filter(t=>t.readyState==='live')||[];
+    if(!tracks.length)return false;
+    const ok=await window.VC_REMOTE_CAMERA?.refreshLiveRecordingSource?.(raw);
+    if(ok){
+      state.sourceFailureSince=0;
+      setState('● REC','rec');
+      const note=$('vc-recording-status-note');
+      if(note)note.textContent='Señal LIVE recuperada · REC continúa en el mismo archivo';
+      return true;
+    }
+    return false;
+  }catch(err){
+    console.warn('V9.5.9 source recovery',err);return false;
+  }finally{state.healthRecovering=false}
+}
+function startRecordingHealth(){
+  stopRecordingHealth();
+  state.healthTimer=setInterval(async()=>{
+    if(!state.active)return;
+    const rec=state.recorder;
+    if(rec&&rec.state==='inactive'&&!state.recorderError){
+      state.recorderError=new Error('MediaRecorder se ha detenido inesperadamente.');
+    }
+
+    if(state.sourceKind==='remote'){
+      const d=window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||{};
+      const age=Number(d.lastFrameAgeMs);
+      if(Number.isFinite(age)&&age>3500){
+        if(!state.sourceFailureSince)state.sourceFailureSince=Date.now();
+        setState('REC · RECUPERANDO LIVE','pause');
+        if(age>4000)await recoverRemoteRecordingSource();
+        const failedFor=Date.now()-state.sourceFailureSince;
+        if(failedFor>10000&&state.active){
+          const note=$('vc-recording-status-note');
+          if(note)note.textContent='Se perdió la señal LIVE. Cerrando la grabación para evitar vídeo congelado.';
+          state.recorderError=state.recorderError||new Error('Señal LIVE sin fotogramas durante más de 10 segundos.');
+          setTimeout(()=>window.vcRecordingStop(false),0);
+        }
+      }else{
+        state.sourceFailureSince=0;
+      }
+    }
+
+    if(state.writeError&&state.active){
+      const note=$('vc-recording-status-note');
+      if(note)note.textContent='Error al guardar un fragmento. Cerrando la grabación para conservar lo ya escrito.';
+      setTimeout(()=>window.vcRecordingStop(false),0);
+    }
+  },2000);
+}
+
 window.vcRecordingStart=async function(){
   if(state.active)return;
   const source=getSourceStream();
@@ -19312,7 +19465,8 @@ window.vcRecordingStart=async function(){
       active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
       sessionId,filename,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
       writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0,
-      sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'?'LIVE móvil directo · 16:9 · independiente del Delay':'LIVE cámara local · independiente del Delay'
+      sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'?'LIVE móvil directo · 16:9 · independiente del Delay':'LIVE cámara local · independiente del Delay',
+      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0
     });
 
     const initialSession={
@@ -19341,10 +19495,15 @@ window.vcRecordingStart=async function(){
       });
     });
     recorder.addEventListener('error',e=>{
-      console.error('V7.7 recorder',e);
-      setState('ERROR','bad');
+      console.error('V9.5.9 recorder',e);
+      state.recorderError=e?.error||new Error('MediaRecorder ha informado de un error.');
+      setState('ERROR DE GRABACIÓN','bad');
+      setTimeout(()=>{if(state.active)window.vcRecordingStop(false)},0);
     });
+    recorder.addEventListener('start',()=>setState('● REC','rec'),{once:true});
     recorder.start(1000);
+    await requestRecordingWakeLock();
+    startRecordingHealth();
 
     cleanupLastUrl();
     state.lastGalleryFile=null;state.lastGalleryName='';
@@ -19360,7 +19519,8 @@ window.vcRecordingStart=async function(){
     try{await writer?.abort?.()}catch(_){}
     try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
     try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
-    Object.assign(state,{active:false,recorder:null,stream:null,writer:null,fileHandle:null,sourceKind:'',sourceLabelAtStart:''});
+    stopRecordingHealth();await releaseRecordingWakeLock();
+    Object.assign(state,{active:false,recorder:null,stream:null,writer:null,fileHandle:null,sourceKind:'',sourceLabelAtStart:'',writeError:null,recorderError:null});
     setState('ERROR','bad');
     alert('No se ha podido iniciar la grabación.\n\n'+String(err?.message||err));
   }
@@ -19385,14 +19545,18 @@ async function finalizeSession(){
   await state.writeQueue;
   const endedAt=nowIso(),durationMs=recordingElapsed();
   const m=currentMatch();
-  const session={
+  const baseSession={
     id:state.sessionId,filename:state.filename,startedAt:new Date(state.startedAt).toISOString(),
     endedAt,durationMs,bytes:state.bytes,mime:state.mime,mode:state.mode,source:sourceLabel(),
-    markers:state.markers,completed:true,match:m?{id:m.id,date:m.date,opponent:m.opponent}:null
+    markers:state.markers,completed:false,match:m?{id:m.id,date:m.date,opponent:m.opponent}:null,
+    error:state.writeError?String(state.writeError?.message||state.writeError):state.recorderError?String(state.recorderError?.message||state.recorderError):null
   };
-  await dbPutSession(session);
+  /* Persist an incomplete state first. It becomes completed only after the
+     output file/blob has actually been closed/prepared successfully. */
+  await dbPutSession(baseSession);
 
   const autoSave=autosaveEnabled();
+  let finalBytes=state.bytes;
   if(state.mode==='disk'&&state.writer){
     await state.writer.close();
     state.writer=null;
@@ -19405,6 +19569,7 @@ async function finalizeSession(){
     const chunks=await dbChunks(state.sessionId);
     if(!chunks.length)throw new Error('La grabación no contiene fragmentos recuperables.');
     const blob=new Blob(chunks.map(x=>x.blob),{type:state.mime||'video/webm'});
+    finalBytes=blob.size;
     const fullName=`${state.filename}.${state.extension}`;
 
     if(state.mode==='gallery'){
@@ -19429,8 +19594,9 @@ async function finalizeSession(){
           :`Vídeo preparado · pulsa “Guardar en Fotos / Galería” para añadirlo a la fototeca.`;
       }
     }else{
+      const provisional={...baseSession,bytes:finalBytes};
       const dl=offerDownload(blob,fullName,autoSave);
-      if(autoSave)downloadJSON(metadataPayload(session),`${state.filename}_marcadores.json`);
+      if(autoSave)downloadJSON(metadataPayload(provisional),`${state.filename}_marcadores.json`);
       const last=$('vc-recording-last');
       if(last){
         last.classList.remove('v871-saved','v871-warn');
@@ -19441,6 +19607,12 @@ async function finalizeSession(){
       }
     }
   }
+
+  if(state.writeError)throw new Error('Se produjo un error al escribir uno o más fragmentos. El vídeo puede estar incompleto.');
+  if(state.recorderError)throw new Error('MediaRecorder informó de un error durante la grabación.');
+
+  const session={...baseSession,bytes:finalBytes,completed:true,error:null};
+  await dbPutSession(session);
   return session;
 }
 window.vcRecordingStop=async function(silent=false){
@@ -19454,7 +19626,10 @@ window.vcRecordingStop=async function(silent=false){
     :Promise.resolve();
 
   try{
-    if(recorder&&recorder.state!=='inactive')recorder.stop();
+    if(recorder&&recorder.state!=='inactive'){
+      try{if(recorder.state==='recording')recorder.requestData?.()}catch(_){}
+      recorder.stop();
+    }
     await stopped;
     const session=await finalizeSession();
     setState('GUARDADO','done');
@@ -19472,9 +19647,11 @@ window.vcRecordingStop=async function(silent=false){
     if(!silent)alert('La grabación se ha detenido, pero ha ocurrido un error al finalizarla.\nPuedes intentar recuperarla desde “Recuperar grabaciones”.\n\n'+String(err?.message||err));
     return null;
   }finally{
+    stopRecordingHealth();
+    await releaseRecordingWakeLock();
     try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
     try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
-    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:''});
+    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:'',writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0});
     updateUI();
   }
 };
@@ -19529,6 +19706,9 @@ window.addEventListener('beforeunload',e=>{
   if(!state.active)return;
   e.preventDefault();e.returnValue='';
 });
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&state.active&&!state.wakeLock)void requestRecordingWakeLock();
+});
 
 window.vcRecordingDiagnostics=function(){
   return {
@@ -19545,7 +19725,12 @@ window.vcRecordingDiagnostics=function(){
     sourceAvailable:!!getSourceStream(),
     autoSave:autosaveEnabled(),
     autoSaveMode:state.mode==='disk'?'device-file':state.mode==='gallery'?'system-gallery':'browser-file',
-    galleryShareSupported:galleryShareSupported(state.lastGalleryFile)
+    galleryShareSupported:galleryShareSupported(state.lastGalleryFile),
+    writeError:state.writeError?String(state.writeError?.message||state.writeError):null,
+    recorderError:state.recorderError?String(state.recorderError?.message||state.recorderError):null,
+    healthActive:!!state.healthTimer,
+    sourceFailureSince:state.sourceFailureSince||0,
+    liveFrames:window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||null
   };
 };
 
@@ -26701,5 +26886,22 @@ window.VC_V958_VIDEO_PIPELINE={
 };
 })();
 </script>
+
+
+
+<style id="v959-recording-health-style">
+#vc-recording-state.bad,
+#vc-recording-state.error{font-weight:950}
+.v959-rec-health-note{
+  margin-top:7px;
+  padding:7px 9px;
+  border:1px solid #dce4e8;
+  border-radius:8px;
+  background:#f7f9fa;
+  color:#627480;
+  font-size:7px;
+  line-height:1.4;
+}
+</style>
 
 </body></html>
