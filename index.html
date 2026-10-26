@@ -5440,7 +5440,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.7', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.8', {
         updateViaCache: 'none'
       });
 
@@ -15367,7 +15367,7 @@ async function startRecorder(){
      visually-correct LIVE image to a canvas first and record that normalized canvas. */
   if(sourceMode==='remote'&&typeof window.VC_REMOTE_CAMERA?.createDelayNormalizedStream==='function'){
     try{
-      const normalized=await window.VC_REMOTE_CAMERA.createDelayNormalizedStream(live());
+      const normalized=await window.VC_REMOTE_CAMERA.createDelayNormalizedStream(state.stream);
       if(normalized?.getVideoTracks?.().some(t=>t.readyState==='live')){
         recorderStream=normalized;
         state.recorderStream=normalized;
@@ -15424,7 +15424,7 @@ window.startLiveDelay=async function(){
     await createMse();
     state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
     await startRecorder();startTicker();updateUi();updateMetrics();
-    setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'móvil remoto':'cámara local'} · ${delayLabel(state.delay)} de retraso · búfer ${delayLabel(state.maxBuffer)} · ${state.mime.split(';')[0]}. Puedes pausar o retroceder la revisión mientras la captura continúa.`, 'good');
+    setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'LIVE móvil WebRTC':'cámara local'} · ${delayLabel(state.delay)} de retraso · búfer ${delayLabel(state.maxBuffer)}. El Delay es solo monitor/replay; la grabación REC sigue tomando LIVE directo.`, 'good');
   }catch(err){
     console.error('Live Delay start',err);
     stopLiveDelay(true);
@@ -17943,6 +17943,7 @@ const state={
   publisherFacing:'environment',
   publisherQuality:'720',
   publisherOrientation:null,
+  publisherOrientationPreference:'horizontal',
   orientationTimer:null,
   orientationBusy:false,
   viewOrientation:'auto',
@@ -17951,8 +17952,17 @@ const state={
   delayCtx:null,
   delayStream:null,
   delaySourceVideo:null,
+  delaySourceStream:null,
+  delaySourceOwned:false,
   delayFrameHandle:null,
   delayFrameMode:'',
+  recordingCanvas:null,
+  recordingCtx:null,
+  recordingStream:null,
+  recordingSourceVideo:null,
+  recordingSourceStream:null,
+  recordingFrameHandle:null,
+  recordingFrameMode:'',
   wakeLock:null
 };
 
@@ -18341,6 +18351,18 @@ function vcDrawDelayNormalizedFrame(){
     state.delayFrameHandle=requestAnimationFrame(()=>vcDrawDelayNormalizedFrame());
   }
 }
+function vcCreateHiddenLiveVideo(sourceStream,label='vc-hidden-live'){
+  const tracks=sourceStream?.getVideoTracks?.().filter(t=>t.readyState==='live')||[];
+  if(!tracks.length)throw new Error('No existe una pista LIVE activa.');
+  const cloned=new MediaStream(tracks.map(t=>t.clone()));
+  const video=document.createElement('video');
+  video.dataset.vcRole=label;
+  video.autoplay=true;video.muted=true;video.playsInline=true;
+  video.style.cssText='position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;opacity:.001;pointer-events:none';
+  document.body.appendChild(video);
+  video.srcObject=cloned;
+  return {video,stream:cloned};
+}
 window.vcStopDelayNormalizer=function(){
   const video=state.delaySourceVideo;
   try{
@@ -18352,15 +18374,31 @@ window.vcStopDelayNormalizer=function(){
   }catch(_){}
   state.delayFrameHandle=null;state.delayFrameMode='';
   try{state.delayStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
-  state.delayStream=null;state.delayCanvas=null;state.delayCtx=null;state.delaySourceVideo=null;
+  try{state.delaySourceStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  try{if(state.delaySourceOwned&&video){video.pause();video.srcObject=null;video.remove()}}catch(_){}
+  state.delayStream=null;state.delayCanvas=null;state.delayCtx=null;
+  state.delaySourceVideo=null;state.delaySourceStream=null;state.delaySourceOwned=false;
 };
-async function vcCreateDelayNormalizedStream(video){
+async function vcCreateDelayNormalizedStream(source){
   window.vcStopDelayNormalizer();
-  if(!video)throw new Error('No existe el vídeo DIRECTO para normalizar.');
+  if(!source)throw new Error('No existe la señal LIVE para crear el Delay.');
   if(typeof HTMLCanvasElement==='undefined'||typeof document.createElement('canvas').captureStream!=='function'){
     throw new Error('Este navegador no permite normalizar el vídeo mediante canvas.');
   }
-  await vcWaitForVideoDimensions(video,2500);
+
+  let video=source;
+  if(typeof MediaStream!=='undefined'&&source instanceof MediaStream){
+    const hidden=vcCreateHiddenLiveVideo(source,'vc-delay-live-source');
+    video=hidden.video;
+    state.delaySourceStream=hidden.stream;
+    state.delaySourceOwned=true;
+    await video.play().catch(()=>{});
+  }else{
+    state.delaySourceOwned=false;
+    state.delaySourceStream=null;
+  }
+
+  await vcWaitForVideoDimensions(video,3000);
   const spec=vcDelayCanvasSpec(video);
   const canvas=document.createElement('canvas');
   canvas.width=spec.width;canvas.height=spec.height;
@@ -18374,6 +18412,89 @@ async function vcCreateDelayNormalizedStream(video){
 }
 window.VC_REMOTE_CAMERA.createDelayNormalizedStream=vcCreateDelayNormalizedStream;
 window.VC_REMOTE_CAMERA.stopDelayNormalizedStream=window.vcStopDelayNormalizer;
+
+/* ---------- V9.5.8 · LIVE recording normalizer ----------
+   Recording is fed from the RAW LIVE WebRTC MediaStream, never from MediaSource
+   and never from the delayed <video>. */
+function vcStopLiveRecordingNormalizer(){
+  const video=state.recordingSourceVideo;
+  try{
+    if(state.recordingFrameMode==='rvfc'&&video?.cancelVideoFrameCallback&&state.recordingFrameHandle!=null){
+      video.cancelVideoFrameCallback(state.recordingFrameHandle);
+    }else if(state.recordingFrameMode==='raf'&&state.recordingFrameHandle!=null){
+      cancelAnimationFrame(state.recordingFrameHandle);
+    }
+  }catch(_){}
+  state.recordingFrameHandle=null;state.recordingFrameMode='';
+  try{state.recordingStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  try{state.recordingSourceStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  try{if(video){video.pause();video.srcObject=null;video.remove()}}catch(_){}
+  state.recordingCanvas=null;state.recordingCtx=null;state.recordingStream=null;
+  state.recordingSourceVideo=null;state.recordingSourceStream=null;
+}
+function vcDrawLiveRecordingFrame(){
+  const canvas=state.recordingCanvas,ctx=state.recordingCtx,video=state.recordingSourceVideo;
+  if(!canvas||!ctx||!video)return;
+  const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
+  if(sw&&sh){
+    /* Volleyball recording output is horizontal 16:9.
+       If the phone/WebRTC track arrives portrait, rotate the LIVE frame here.
+       This canvas receives RAW LIVE frames and is independent from Delay. */
+    let rotation=0;
+    const pref=state.viewOrientation||'horizontal';
+    if(pref==='right')rotation=90;
+    else if(pref==='left')rotation=-90;
+    else if(sh>sw)rotation=90;
+
+    const cw=canvas.width,ch=canvas.height;
+    const quarter=Math.abs(rotation)%180===90;
+    const rw=quarter?sh:sw,rh=quarter?sw:sh;
+    const scale=Math.min(cw/rw,ch/rh);
+
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);
+    ctx.translate(cw/2,ch/2);
+    ctx.rotate(rotation*Math.PI/180);
+    ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
+    ctx.restore();
+  }
+  if(typeof video.requestVideoFrameCallback==='function'){
+    state.recordingFrameMode='rvfc';
+    state.recordingFrameHandle=video.requestVideoFrameCallback(()=>vcDrawLiveRecordingFrame());
+  }else{
+    state.recordingFrameMode='raf';
+    state.recordingFrameHandle=requestAnimationFrame(()=>vcDrawLiveRecordingFrame());
+  }
+}
+async function vcCreateLiveRecordingStream(sourceStream){
+  vcStopLiveRecordingNormalizer();
+  const hidden=vcCreateHiddenLiveVideo(sourceStream,'vc-recording-live-source');
+  state.recordingSourceVideo=hidden.video;
+  state.recordingSourceStream=hidden.stream;
+  await hidden.video.play().catch(()=>{});
+  await vcWaitForVideoDimensions(hidden.video,3000);
+
+  const canvas=document.createElement('canvas');
+  canvas.width=1280;canvas.height=720;
+  const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
+  if(!ctx)throw new Error('No se pudo crear la salida horizontal de grabación.');
+  state.recordingCanvas=canvas;state.recordingCtx=ctx;
+  vcDrawLiveRecordingFrame();
+
+  const stream=canvas.captureStream(30);
+  state.recordingStream=stream;
+  return stream;
+}
+window.VC_REMOTE_CAMERA.createLiveRecordingStream=vcCreateLiveRecordingStream;
+window.VC_REMOTE_CAMERA.stopLiveRecordingStream=vcStopLiveRecordingNormalizer;
+window.VC_REMOTE_CAMERA.getLiveRecordingDiagnostics=()=>({
+  active:!!state.recordingStream,
+  source:'RAW LIVE WebRTC',
+  output:'1280x720',
+  independentFromDelay:true
+});
+
 
 /* ---------- Fullscreen ---------- */
 async function fullscreenElement(el,video){
@@ -18416,13 +18537,18 @@ function publisherParams(){
   const streamId=q.get('vcCamera')||'',room=q.get('vcRoom')||'',key=q.get('vcKey')||'',quality=q.get('vcQuality')||'720';
   return {streamId,room,key,quality};
 }
-function publisherOrientation(){
+function publisherSensorOrientation(){
   try{
     const type=screen.orientation?.type||'';
     if(type.startsWith('landscape'))return 'landscape';
     if(type.startsWith('portrait'))return 'portrait';
   }catch(_){}
   return window.innerWidth>window.innerHeight?'landscape':'portrait';
+}
+function publisherOrientation(){
+  if(state.publisherOrientationPreference==='horizontal')return 'landscape';
+  if(state.publisherOrientationPreference==='vertical')return 'portrait';
+  return publisherSensorOrientation();
 }
 function setPublisherOrientationBadge(orientation=publisherOrientation()){
   const el=$('vc-publisher-orientation');
@@ -18472,7 +18598,11 @@ window.vcPublisherStart=async function(){
     state.publisherStream=await requestPublisherCamera(captureOrientation);
     state.publisherOrientation=captureOrientation;
     const preview=$('vc-publisher-video');
-    if(preview){preview.srcObject=state.publisherStream;preview.muted=true;await preview.play().catch(()=>{})}
+    if(preview){
+      preview.srcObject=state.publisherStream;preview.muted=true;await preview.play().catch(()=>{});
+      ['loadedmetadata','resize','playing'].forEach(ev=>preview.addEventListener(ev,vcPublisherApplyPreviewOrientation));
+      setTimeout(vcPublisherApplyPreviewOrientation,80);
+    }
     $('vc-publisher-empty')?.classList.add('hidden');
 
     const cfg=qualityConfig(state.publisherQuality,state.publisherOrientation||publisherOrientation());
@@ -18546,6 +18676,7 @@ async function vcPublisherReplaceVideoTrack(reason='orientation'){
       preview.srcObject=state.publisherStream;
       preview.muted=true;
       await preview.play().catch(()=>{});
+      setTimeout(vcPublisherApplyPreviewOrientation,80);
     }
     next.getTracks().filter(t=>t!==newTrack).forEach(t=>t.stop());
 
@@ -18570,6 +18701,8 @@ async function vcPublisherReplaceVideoTrack(reason='orientation'){
 function schedulePublisherOrientationRefresh(){
   const orientation=publisherOrientation();
   setPublisherOrientationBadge(orientation);
+  setTimeout(vcPublisherApplyPreviewOrientation,0);
+  if(state.publisherOrientationPreference!=='auto')return;
   if(!state.publisher||!state.publisherStream){
     state.publisherOrientation=orientation;
     return;
@@ -18584,6 +18717,45 @@ function schedulePublisherOrientationRefresh(){
 }
 window.vcPublisherRefreshOrientation=()=>vcPublisherReplaceVideoTrack('orientation');
 
+function vcPublisherApplyPreviewOrientation(){
+  const video=$('vc-publisher-video'),frame=video?.parentElement;
+  if(!video||!frame)return;
+  const desired=publisherOrientation();
+  const w=Number(video.videoWidth)||0,h=Number(video.videoHeight)||0;
+  const portrait=!!(w&&h&&h>w),landscape=!!(w&&h&&w>=h);
+  const rotate=(desired==='landscape'&&portrait)?90:(desired==='portrait'&&landscape)?90:0;
+  frame.style.aspectRatio=desired==='landscape'?'16 / 9':'9 / 16';
+  video.style.position='absolute';
+  video.style.left='50%';video.style.top='50%';
+  video.style.maxWidth='none';video.style.maxHeight='none';
+  video.style.objectFit='contain';video.style.transformOrigin='center center';
+  const fw=Math.max(1,frame.clientWidth||window.innerWidth),fh=Math.max(1,frame.clientHeight||window.innerHeight);
+  if(Math.abs(rotate)===90){
+    video.style.width=`${fh}px`;video.style.height=`${fw}px`;
+    video.style.transform=`translate(-50%,-50%) rotate(${rotate}deg)`;
+  }else{
+    video.style.width='100%';video.style.height='100%';
+    video.style.transform='translate(-50%,-50%)';
+  }
+}
+window.vcPublisherOrientationChanged=async function(value){
+  const allowed=['auto','horizontal','vertical'];
+  state.publisherOrientationPreference=allowed.includes(value)?value:'horizontal';
+  try{localStorage.setItem('volley_publisher_orientation',state.publisherOrientationPreference)}catch(_){}
+  const orientation=publisherOrientation();
+  setPublisherOrientationBadge(orientation);
+  try{
+    if(state.publisherOrientationPreference==='horizontal'){
+      await screen.orientation?.lock?.('landscape').catch?.(()=>{});
+    }else if(state.publisherOrientationPreference==='vertical'){
+      await screen.orientation?.lock?.('portrait').catch?.(()=>{});
+    }else{
+      try{screen.orientation?.unlock?.()}catch(_){}
+    }
+  }catch(_){}
+  if(state.publisher&&state.publisherStream)await vcPublisherReplaceVideoTrack('orientation');
+  setTimeout(vcPublisherApplyPreviewOrientation,80);
+};
 window.vcPublisherSwitchCamera=async function(){
   state.publisherFacing=state.publisherFacing==='environment'?'user':'environment';
   const btn=$('vc-publisher-switch');
@@ -18607,6 +18779,10 @@ function initPublisherMode(){
   const p=publisherParams();
   if(!p.streamId||!p.room||!p.key)return false;
   state.publisherQuality=p.quality==='1080'?'1080':'720';
+  try{
+    const saved=localStorage.getItem('volley_publisher_orientation');
+    if(['auto','horizontal','vertical'].includes(saved))state.publisherOrientationPreference=saved;
+  }catch(_){}
   document.body.classList.add('vc-remote-publisher-mode');
   const el=document.createElement('div');
   el.id='vc-publisher-overlay';el.className='vc-publisher-overlay';
@@ -18614,6 +18790,7 @@ function initPublisherMode(){
   <div class="vc-publisher-video"><video id="vc-publisher-video" autoplay muted playsinline></video><div id="vc-publisher-empty" class="vc-publisher-empty">Pulsa “Iniciar transmisión” y permite el acceso a la cámara.<br>Para menor latencia, mantén esta página visible.</div></div>
   <div class="vc-publisher-bottom">
     <label>Calidad<select id="vc-publisher-quality" onchange="vcPublisherQualityChanged(this.value)"><option value="720">720p · 30 fps</option><option value="1080">1080p · 30 fps</option></select></label>
+    <label>Orientación<select id="vc-publisher-orientation-select" onchange="vcPublisherOrientationChanged(this.value)"><option value="horizontal">Horizontal 16:9</option><option value="auto">Automática</option><option value="vertical">Vertical 9:16</option></select></label>
     <div class="vc-publisher-buttons">
       <button id="vc-publisher-start" class="start" type="button" onclick="vcPublisherStart()">Iniciar transmisión</button>
       <button id="vc-publisher-stop" class="stop hidden" type="button" onclick="vcPublisherStop()">Detener</button>
@@ -18624,6 +18801,7 @@ function initPublisherMode(){
   </div>`;
   document.body.appendChild(el);
   $('vc-publisher-quality').value=state.publisherQuality;
+  if($('vc-publisher-orientation-select'))$('vc-publisher-orientation-select').value=state.publisherOrientationPreference;
   setPublisherOrientationBadge(publisherOrientation());
   state.publisherOrientation=publisherOrientation();
   return true;
@@ -18749,7 +18927,9 @@ const state={
   lastDownloadUrl:null,
   lastGalleryFile:null,
   lastGalleryName:'',
-  blockCounter:0
+  blockCounter:0,
+  sourceLabelAtStart:'',
+  sourceKind:''
 };
 
 function nowIso(){return new Date().toISOString()}
@@ -18781,14 +18961,17 @@ function setState(text,kind=''){
   el.textContent=text;el.className=`vc-recording-state ${kind}`;
 }
 function sourceLabel(){
+  if(state.active&&state.sourceLabelAtStart)return state.sourceLabelAtStart;
   const source=$('live-delay-source')?.value||'local';
-  return source==='remote'?'Móvil remoto':'Cámara local';
+  return source==='remote'?'LIVE móvil directo':'LIVE cámara local';
 }
 function getSourceStream(){
   const selected=$('live-delay-source')?.value||'local';
   const direct=$('live-delay-live')?.srcObject;
   const remote=window.VC_REMOTE_CAMERA?.getStream?.();
 
+  /* IMPORTANT: this function never reads live-delay-delayed.
+     Recording always originates from the raw LIVE receiver/camera. */
   if(selected==='remote'){
     if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
     if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
@@ -18842,8 +19025,8 @@ function updateUI(){
   if($('vc-recording-marker-count'))$('vc-recording-marker-count').textContent=String(state.markers.length);
   if($('vc-recording-status-note')){
     $('vc-recording-status-note').textContent=state.active
-      ? (state.paused?'Grabación pausada':state.mode==='disk'?'Escribiendo directamente al archivo':'Guardando fragmentos recuperables')
-      : 'Cámara preparada';
+      ? (state.paused?'Grabación pausada':`REC desde ${state.sourceLabelAtStart||'LIVE directo'} · ${state.mode==='disk'?'archivo directo':'fragmentos recuperables'}`)
+      : 'Cámara preparada · REC siempre toma LIVE, nunca Delay';
   }
   $('vc-recording-start')?.classList.toggle('hidden',state.active);
   $('vc-recording-pause')?.classList.toggle('hidden',!state.active);
@@ -19114,15 +19297,22 @@ window.vcRecordingStart=async function(){
       writer=await handle.createWritable();
     }
 
-    const recStream=cloneSource(source);
-    const videoTracks=recStream.getVideoTracks();
-    if(!videoTracks.length)throw new Error('No hay ninguna pista de vídeo activa.');
+    const selectedSource=$('live-delay-source')?.value||'local';
+    let recStream=null;
+    if(selectedSource==='remote'&&typeof window.VC_REMOTE_CAMERA?.createLiveRecordingStream==='function'){
+      recStream=await window.VC_REMOTE_CAMERA.createLiveRecordingStream(source);
+    }else{
+      recStream=cloneSource(source);
+    }
+    const videoTracks=recStream?.getVideoTracks?.()||[];
+    if(!videoTracks.length)throw new Error('No hay ninguna pista LIVE de vídeo activa.');
 
     const sessionId=makeId(),m=currentMatch();
     Object.assign(state,{
       active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
       sessionId,filename,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
-      writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0
+      writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0,
+      sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'?'LIVE móvil directo · 16:9 · independiente del Delay':'LIVE cámara local · independiente del Delay'
     });
 
     const initialSession={
@@ -19169,7 +19359,8 @@ window.vcRecordingStart=async function(){
     console.error('V7.7 start',err);
     try{await writer?.abort?.()}catch(_){}
     try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
-    Object.assign(state,{active:false,recorder:null,stream:null,writer:null,fileHandle:null});
+    try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
+    Object.assign(state,{active:false,recorder:null,stream:null,writer:null,fileHandle:null,sourceKind:'',sourceLabelAtStart:''});
     setState('ERROR','bad');
     alert('No se ha podido iniciar la grabación.\n\n'+String(err?.message||err));
   }
@@ -19282,7 +19473,8 @@ window.vcRecordingStop=async function(silent=false){
     return null;
   }finally{
     try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
-    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0});
+    try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
+    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:''});
     updateUI();
   }
 };
@@ -19324,8 +19516,10 @@ window.vcRecordingDeleteRecovered=async function(id){
 /* ---------- Integration / safeguards ---------- */
 const baseStopLive=window.stopLiveDelay;
 window.stopLiveDelay=function(...args){
-  if(state.active){
-    /* Start finalization before stopping the camera source. The recording uses cloned tracks. */
+  /* V9.5.8: REC is independent from the Delay buffer.
+     In remote mode, stopping/changing Delay must never stop the LIVE recording. */
+  const remoteIndependent=state.active&&state.sourceKind==='remote';
+  if(state.active&&!remoteIndependent){
     window.vcRecordingStop(true).catch(()=>{});
   }
   return baseStopLive?.apply(this,args);
@@ -19343,6 +19537,10 @@ window.vcRecordingDiagnostics=function(){
     bytes:state.bytes,elapsedMs:recordingElapsed(),markers:state.markers,
     diskDirectSupported:typeof window.showSaveFilePicker==='function',
     indexedDB:typeof indexedDB!=='undefined',
+    sourceKind:state.sourceKind,
+    sourceLabel:sourceLabel(),
+    recordsFromLive:true,
+    independentFromDelay:state.sourceKind==='remote',
     mediaRecorder:typeof MediaRecorder!=='undefined',
     sourceAvailable:!!getSourceStream(),
     autoSave:autosaveEnabled(),
@@ -26413,5 +26611,95 @@ window.VC_V957_SYNC_CLOCK={
   }
 }
 </style>
+
+
+
+<style id="v958-live-first-video-style">
+.vc-publisher-bottom>label{
+  min-width:150px;
+}
+#vc-publisher-orientation-select{
+  min-width:135px;
+}
+.vc-publisher-video{
+  overflow:hidden;
+}
+.vc-publisher-video video{
+  transform-origin:center center;
+}
+#vc-recording-status-note::before{
+  content:"LIVE → REC · ";
+  font-weight:950;
+  color:#2c6844;
+}
+.live-delay-review-head::after{
+  content:"DELAY = solo revisión";
+  margin-left:auto;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#fff3dd;
+  color:#875d20;
+  font-size:7px;
+  font-weight:950;
+}
+@media(max-width:720px){
+  .vc-publisher-bottom{
+    gap:7px!important;
+  }
+  .vc-publisher-bottom>label{
+    flex:1 1 145px;
+    min-width:0;
+  }
+  #vc-publisher-orientation-select{
+    width:100%;
+    min-width:0;
+  }
+}
+</style>
+
+
+
+<script id="v958-live-first-safety-runtime">
+(()=>{
+'use strict';
+const VERSION='9.5.8';
+
+function preferRemoteHorizontal(){
+  try{
+    const source=document.getElementById('live-delay-source')?.value;
+    if(source==='remote'){
+      const saved=localStorage.getItem('volley_remote_view_orientation');
+      if(!saved||saved==='auto'){
+        localStorage.setItem('volley_remote_view_orientation','horizontal');
+        window.vcRemoteSetViewOrientation?.('horizontal');
+      }
+    }
+  }catch(_){}
+}
+setTimeout(preferRemoteHorizontal,0);
+
+const sourceBase=window.vcRemoteSourceChanged;
+if(typeof sourceBase==='function'&&!sourceBase.__v958){
+  const wrapped=function(value){
+    const out=sourceBase.apply(this,arguments);
+    if(value==='remote')setTimeout(preferRemoteHorizontal,0);
+    return out;
+  };
+  wrapped.__v958=true;window.vcRemoteSourceChanged=wrapped;
+}
+
+window.VC_V958_VIDEO_PIPELINE={
+  version:VERSION,
+  diagnostics:()=>({
+    version:VERSION,
+    remoteConnected:window.VC_REMOTE_CAMERA?.isConnected?.()||false,
+    liveRecording:window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||null,
+    recording:window.vcRecordingDiagnostics?.()||null,
+    delay:window.liveDelayDiagnostics?.()||null,
+    rule:'RAW LIVE -> REC | RAW LIVE -> Delay buffer | Delay never -> REC'
+  })
+};
+})();
+</script>
 
 </body></html>
