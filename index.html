@@ -5440,7 +5440,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.5.9', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.6.0', {
         updateViaCache: 'none'
       });
 
@@ -17943,7 +17943,7 @@ const state={
   publisherFacing:'environment',
   publisherQuality:'720',
   publisherOrientation:null,
-  publisherOrientationPreference:'horizontal',
+  publisherOrientationPreference:'auto',
   orientationTimer:null,
   orientationBusy:false,
   viewOrientation:'auto',
@@ -17967,6 +17967,9 @@ const state={
   recordingFrameCount:0,
   recordingDrawErrors:0,
   recordingRefreshBusy:false,
+  recordingOutputOrientation:'landscape',
+  recordingOutputWidth:1280,
+  recordingOutputHeight:720,
   wakeLock:null
 };
 
@@ -18143,6 +18146,8 @@ window.vcRemoteSourceChanged=function(value){
 };
 window.VC_REMOTE_CAMERA={
   getStream:()=>state.stream,
+  getPublisherOrientation:()=>state.publisherOrientation||null,
+  getPublisherOrientationPreference:()=>state.publisherOrientationPreference||'auto',
   isConnected:()=>state.connected&&!!state.stream?.getVideoTracks?.().some(t=>t.readyState==='live'),
   prepare:window.vcRemotePrepare,
   disconnect:window.vcRemoteDisconnect,
@@ -18467,16 +18472,16 @@ function vcDrawLiveRecordingFrame(){
   try{
     const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
     if(sw&&sh&&video.readyState>=2){
+      const outputOrientation=state.recordingOutputOrientation||'landscape';
       let rotation=0;
-      const pref=state.viewOrientation||'horizontal';
-      if(pref==='right')rotation=90;
-      else if(pref==='left')rotation=-90;
-      else if(sh>sw)rotation=90;
+      const sourcePortrait=sh>sw;
+      if(outputOrientation==='landscape'&&sourcePortrait)rotation=90;
+      else if(outputOrientation==='portrait'&&!sourcePortrait)rotation=90;
 
       const cw=canvas.width,ch=canvas.height;
       const quarter=Math.abs(rotation)%180===90;
       const rw=quarter?sh:sw,rh=quarter?sw:sh;
-      const scale=Math.min(cw/rw,ch/rh);
+      const scale=Math.max(cw/rw,ch/rh);
 
       ctx.save();
       try{
@@ -18530,15 +18535,28 @@ async function vcRefreshLiveRecordingSource(sourceStream){
 async function vcCreateLiveRecordingStream(sourceStream){
   vcStopLiveRecordingNormalizer();
 
+  /* First attach the RAW LIVE source, then choose the output dimensions from
+     the decoded video. This is the reliable cross-device equivalent of the
+     native phone camera orientation. */
   const canvas=document.createElement('canvas');
   canvas.width=1280;canvas.height=720;
   const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
-  if(!ctx)throw new Error('No se pudo crear la salida horizontal de grabación.');
+  if(!ctx)throw new Error('No se pudo crear la salida de grabación.');
   state.recordingCanvas=canvas;state.recordingCtx=ctx;
   state.recordingLastFrameAt=Date.now();
   state.recordingFrameCount=0;state.recordingDrawErrors=0;
 
   await vcAttachLiveRecordingSource(sourceStream);
+
+  const liveVideo=state.recordingSourceVideo;
+  const sw=Number(liveVideo?.videoWidth)||1280;
+  const sh=Number(liveVideo?.videoHeight)||720;
+  const outputOrientation=sh>sw?'portrait':'landscape';
+  state.recordingOutputOrientation=outputOrientation;
+  state.recordingOutputWidth=outputOrientation==='portrait'?720:1280;
+  state.recordingOutputHeight=outputOrientation==='portrait'?1280:720;
+  canvas.width=state.recordingOutputWidth;
+  canvas.height=state.recordingOutputHeight;
 
   const stream=canvas.captureStream(30);
   /* Preserve audio if a future LIVE source provides it. */
@@ -18554,7 +18572,8 @@ window.VC_REMOTE_CAMERA.stopLiveRecordingStream=vcStopLiveRecordingNormalizer;
 window.VC_REMOTE_CAMERA.getLiveRecordingDiagnostics=()=>({
   active:!!state.recordingStream,
   source:'RAW LIVE WebRTC',
-  output:'1280x720',
+  output:`${state.recordingOutputWidth||1280}x${state.recordingOutputHeight||720}`,
+  outputOrientation:state.recordingOutputOrientation||'landscape',
   independentFromDelay:true,
   lastFrameAt:state.recordingLastFrameAt||0,
   lastFrameAgeMs:state.recordingLastFrameAt?Math.max(0,Date.now()-state.recordingLastFrameAt):null,
@@ -18771,37 +18790,42 @@ function schedulePublisherOrientationRefresh(){
   const orientation=publisherOrientation();
   setPublisherOrientationBadge(orientation);
   setTimeout(vcPublisherApplyPreviewOrientation,0);
-  if(state.publisherOrientationPreference!=='auto')return;
   if(!state.publisher||!state.publisherStream){
     state.publisherOrientation=orientation;
     return;
   }
+  if(state.publisherOrientationPreference!=='auto')return;
   if(orientation===state.publisherOrientation)return;
   clearTimeout(state.orientationTimer);
   state.orientationTimer=setTimeout(async()=>{
-    if(publisherOrientation()!==state.publisherOrientation){
-      await vcPublisherReplaceVideoTrack('orientation');
+    const fresh=publisherOrientation();
+    if(fresh!==state.publisherOrientation){
+      await vcPublisherReplaceVideoTrack('device-rotation');
+      setTimeout(vcPublisherApplyPreviewOrientation,80);
     }
-  },600);
+  },250);
 }
 window.vcPublisherRefreshOrientation=()=>vcPublisherReplaceVideoTrack('orientation');
 
 function vcPublisherApplyPreviewOrientation(){
   const video=$('vc-publisher-video'),frame=video?.parentElement;
   if(!video||!frame)return;
-  const desired=publisherOrientation();
+  const desired=state.publisherOrientationPreference==='auto'
+    ?publisherSensorOrientation()
+    :publisherOrientation();
   const w=Number(video.videoWidth)||0,h=Number(video.videoHeight)||0;
   const portrait=!!(w&&h&&h>w),landscape=!!(w&&h&&w>=h);
   const rotate=(desired==='landscape'&&portrait)?90:(desired==='portrait'&&landscape)?90:0;
   frame.style.aspectRatio=desired==='landscape'?'16 / 9':'9 / 16';
+  frame.dataset.orientation=desired;
   video.style.position='absolute';
   video.style.left='50%';video.style.top='50%';
   video.style.maxWidth='none';video.style.maxHeight='none';
-  video.style.objectFit='contain';video.style.transformOrigin='center center';
+  video.style.objectFit='cover';video.style.transformOrigin='center center';
   const fw=Math.max(1,frame.clientWidth||window.innerWidth),fh=Math.max(1,frame.clientHeight||window.innerHeight);
   if(Math.abs(rotate)===90){
     video.style.width=`${fh}px`;video.style.height=`${fw}px`;
-    video.style.transform=`translate(-50%,-50%) rotate(${rotate}deg)`;
+    video.style.transform='translate(-50%,-50%) rotate(90deg)';
   }else{
     video.style.width='100%';video.style.height='100%';
     video.style.transform='translate(-50%,-50%)';
@@ -18809,7 +18833,7 @@ function vcPublisherApplyPreviewOrientation(){
 }
 window.vcPublisherOrientationChanged=async function(value){
   const allowed=['auto','horizontal','vertical'];
-  state.publisherOrientationPreference=allowed.includes(value)?value:'horizontal';
+  state.publisherOrientationPreference=allowed.includes(value)?value:'auto';
   try{localStorage.setItem('volley_publisher_orientation',state.publisherOrientationPreference)}catch(_){}
   const orientation=publisherOrientation();
   setPublisherOrientationBadge(orientation);
@@ -18851,6 +18875,7 @@ function initPublisherMode(){
   try{
     const saved=localStorage.getItem('volley_publisher_orientation');
     if(['auto','horizontal','vertical'].includes(saved))state.publisherOrientationPreference=saved;
+    else state.publisherOrientationPreference='auto';
   }catch(_){}
   document.body.classList.add('vc-remote-publisher-mode');
   const el=document.createElement('div');
@@ -18859,7 +18884,7 @@ function initPublisherMode(){
   <div class="vc-publisher-video"><video id="vc-publisher-video" autoplay muted playsinline></video><div id="vc-publisher-empty" class="vc-publisher-empty">Pulsa “Iniciar transmisión” y permite el acceso a la cámara.<br>Para menor latencia, mantén esta página visible.</div></div>
   <div class="vc-publisher-bottom">
     <label>Calidad<select id="vc-publisher-quality" onchange="vcPublisherQualityChanged(this.value)"><option value="720">720p · 30 fps</option><option value="1080">1080p · 30 fps</option></select></label>
-    <label>Orientación<select id="vc-publisher-orientation-select" onchange="vcPublisherOrientationChanged(this.value)"><option value="horizontal">Horizontal 16:9</option><option value="auto">Automática</option><option value="vertical">Vertical 9:16</option></select></label>
+    <label>Orientación<select id="vc-publisher-orientation-select" onchange="vcPublisherOrientationChanged(this.value)"><option value="auto">Automática · como la cámara del móvil</option><option value="horizontal">Forzar horizontal 16:9</option><option value="vertical">Forzar vertical 9:16</option></select></label>
     <div class="vc-publisher-buttons">
       <button id="vc-publisher-start" class="start" type="button" onclick="vcPublisherStart()">Iniciar transmisión</button>
       <button id="vc-publisher-stop" class="stop hidden" type="button" onclick="vcPublisherStop()">Detener</button>
@@ -19465,7 +19490,9 @@ window.vcRecordingStart=async function(){
       active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
       sessionId,filename,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
       writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0,
-      sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'?'LIVE móvil directo · 16:9 · independiente del Delay':'LIVE cámara local · independiente del Delay',
+      sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'
+        ?`LIVE móvil directo · ${window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()?.outputOrientation==='portrait'?'vertical 9:16':'horizontal 16:9'} · independiente del Delay`
+        :'LIVE cámara local · independiente del Delay',
       writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0
     });
 
@@ -26849,29 +26876,12 @@ window.VC_V957_SYNC_CLOCK={
 'use strict';
 const VERSION='9.5.8';
 
-function preferRemoteHorizontal(){
-  try{
-    const source=document.getElementById('live-delay-source')?.value;
-    if(source==='remote'){
-      const saved=localStorage.getItem('volley_remote_view_orientation');
-      if(!saved||saved==='auto'){
-        localStorage.setItem('volley_remote_view_orientation','horizontal');
-        window.vcRemoteSetViewOrientation?.('horizontal');
-      }
-    }
-  }catch(_){}
-}
-setTimeout(preferRemoteHorizontal,0);
-
-const sourceBase=window.vcRemoteSourceChanged;
-if(typeof sourceBase==='function'&&!sourceBase.__v958){
-  const wrapped=function(value){
-    const out=sourceBase.apply(this,arguments);
-    if(value==='remote')setTimeout(preferRemoteHorizontal,0);
-    return out;
-  };
-  wrapped.__v958=true;window.vcRemoteSourceChanged=wrapped;
-}
+/* V9.6.0: no se fuerza horizontal desde el ordenador.
+   La orientación sigue físicamente al móvil en modo Automático. */
+try{
+  const saved=localStorage.getItem('volley_remote_view_orientation');
+  if(!saved)localStorage.setItem('volley_remote_view_orientation','auto');
+}catch(_){}
 
 window.VC_V958_VIDEO_PIPELINE={
   version:VERSION,
@@ -26881,7 +26891,7 @@ window.VC_V958_VIDEO_PIPELINE={
     liveRecording:window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||null,
     recording:window.vcRecordingDiagnostics?.()||null,
     delay:window.liveDelayDiagnostics?.()||null,
-    rule:'RAW LIVE -> REC | RAW LIVE -> Delay buffer | Delay never -> REC'
+    rule:'MOBILE ORIENTATION -> RAW LIVE -> REC | RAW LIVE -> Delay buffer | Delay never -> REC'
   })
 };
 })();
@@ -26903,5 +26913,42 @@ window.VC_V958_VIDEO_PIPELINE={
   line-height:1.4;
 }
 </style>
+
+
+
+<style id="v960-normal-camera-orientation-style">
+.vc-publisher-bottom::before{
+  content:"ORIENTACIÓN NORMAL";
+  display:block;width:100%;
+  font-size:7px;font-weight:950;letter-spacing:.08em;color:#6d7d87;
+}
+#vc-publisher-orientation-select{font-weight:850}
+</style>
+
+
+
+<script id="v960-normal-camera-orientation-runtime">
+(()=>{
+'use strict';
+const VERSION='9.6.0';
+try{
+  if(!localStorage.getItem('v960_orientation_migrated')){
+    localStorage.setItem('volley_publisher_orientation','auto');
+    localStorage.setItem('volley_remote_view_orientation','auto');
+    localStorage.setItem('v960_orientation_migrated','1');
+  }
+}catch(_){}
+window.VC_V960_CAMERA_ORIENTATION={
+  version:VERSION,
+  diagnostics:()=>({
+    version:VERSION,
+    publisherPreference:window.VC_REMOTE_CAMERA?.getPublisherOrientationPreference?.()||null,
+    publisherOrientation:window.VC_REMOTE_CAMERA?.getPublisherOrientation?.()||null,
+    recording:window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||null,
+    behavior:'AUTO sigue la orientación física del móvil. REC fija 16:9 o 9:16 al iniciar el archivo.'
+  })
+};
+})();
+</script>
 
 </body></html>
