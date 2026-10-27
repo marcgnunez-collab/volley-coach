@@ -24,8 +24,8 @@ html.v118-booting body,html.v139-booting body{visibility:hidden!important}
 </style>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link rel="preload" href="./core-training-v141.js" as="script">
-<link rel="preload" href="./core-scouting-v141.js" as="script">
+<link rel="preload" href="./core-training-v150.js" as="script">
+<link rel="preload" href="./core-scouting-v150.js" as="script">
 
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--text:#172033;--muted:#687386;--blue:#1f4e79;--green:#39715b;--orange:#9a6a2f;--red:#9f3a38;--line:#d8dde5;--navy:#132b44}
@@ -3252,7 +3252,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 </div>
 
 
-<script id="core-training-v141" src="./core-training-v141.js"></script>
+<script id="core-training-v141" src="./core-training-v150.js"></script>
 
 
 <script id="players-pro-v2-script">
@@ -4165,7 +4165,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=14.1.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=15.0.0', {
         updateViaCache: 'none'
       });
 
@@ -6644,7 +6644,7 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="scouting-pro-v600-script" src="./core-scouting-v141.js"></script>
+<script id="scouting-pro-v600-script" src="./core-scouting-v150.js"></script>
 
 
 
@@ -22296,7 +22296,7 @@ window.VC_V140={version:VERSION,openPlanning,openTools,diagnostics:()=>({version
 
 
 <style id="v141-performance-responsive-style">
-/* V14.1 · performance + responsive final pass */
+/* V15.0 · performance + responsive baseline */
 html{scroll-behavior:auto}
 body.v11-shell{overscroll-behavior-y:auto}
 body.v11-shell .view:not(.active){display:none!important}
@@ -22384,7 +22384,7 @@ body.v11-shell table{max-width:none}
 <script id="v141-performance-responsive-runtime">
 (()=>{
 'use strict';
-const VERSION='14.1.0';
+const VERSION='15.0.0';
 const PDF_SOURCES=[
   ['html2canvas','https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',()=>!!window.html2canvas],
   ['jspdf','https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',()=>!!window.jspdf?.jsPDF]
@@ -22409,11 +22409,11 @@ async function ensureCloud(){
   if(window.supabase?.createClient)return true;
   if(cloudPromise)return cloudPromise;
   const [id,src,test]=CLOUD_SOURCE;
-  cloudPromise=loadScript(id,src,test).then(()=>{try{window.initCloud?.()}catch(err){console.warn('V14.1 cloud init',err)};try{window.VC_DEVICE_SYNC?.connect?.()}catch(_){};return true}).catch(err=>{cloudPromise=null;throw err});
+  cloudPromise=loadScript(id,src,test).then(()=>{try{window.initCloud?.()}catch(err){console.warn('V15 cloud init',err)};try{window.VC_DEVICE_SYNC?.connect?.()}catch(_){};return true}).catch(err=>{cloudPromise=null;throw err});
   return cloudPromise;
 }
 window.v141EnsureCloudLibrary=ensureCloud;
-function warmCloud(){if(!navigator.onLine)return;const run=()=>ensureCloud().catch(err=>console.warn('V14.1 cloud library',err));if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1800});else setTimeout(run,500)}
+function warmCloud(){if(!navigator.onLine)return;const run=()=>ensureCloud().catch(err=>console.warn('V15 cloud library',err));if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1800});else setTimeout(run,500)}
 window.addEventListener('online',warmCloud,{passive:true});
 warmCloud();
 
@@ -22448,11 +22448,54 @@ window.addEventListener('resize',()=>{cancelAnimationFrame(resizeRAF);resizeRAF=
 
 const perf={version:VERSION,bootAt:performance.now(),longTasks:0,longTaskMs:0};
 try{if('PerformanceObserver'in window){const po=new PerformanceObserver(list=>{for(const e of list.getEntries()){perf.longTasks++;perf.longTaskMs+=e.duration}});po.observe({type:'longtask',buffered:true})}}catch(_){}
-function diagnostics(){const nav=performance.getEntriesByType('navigation')[0];return {version:VERSION,htmlBytesApprox:document.documentElement.outerHTML.length,domNodes:document.getElementsByTagName('*').length,viewport:document.documentElement.dataset.v141Viewport||'',pdfLoaded:!!(window.html2canvas&&window.jspdf?.jsPDF),cloudLibraryLoaded:!!window.supabase?.createClient,splitCoreScripts:[...document.scripts].filter(s=>/core-(training|scouting)-v141/.test(s.src)).map(s=>s.src.split('/').pop()),longTasks:perf.longTasks,longTaskMs:Math.round(perf.longTaskMs),domContentLoadedMs:nav?Math.round(nav.domContentLoadedEventEnd):null,loadMs:nav?Math.round(nav.loadEventEnd):null};}
+function diagnostics(){const nav=performance.getEntriesByType('navigation')[0];return {version:VERSION,htmlBytesApprox:document.documentElement.outerHTML.length,domNodes:document.getElementsByTagName('*').length,viewport:document.documentElement.dataset.v141Viewport||'',pdfLoaded:!!(window.html2canvas&&window.jspdf?.jsPDF),cloudLibraryLoaded:!!window.supabase?.createClient,splitCoreScripts:[...document.scripts].filter(s=>/core-(training|scouting)-v150/.test(s.src)).map(s=>s.src.split('/').pop()),longTasks:perf.longTasks,longTaskMs:Math.round(perf.longTaskMs),domContentLoadedMs:nav?Math.round(nav.domContentLoadedEventEnd):null,loadMs:nav?Math.round(nav.loadEventEnd):null};}
 window.VC_PERFORMANCE={version:VERSION,ensurePdf,diagnostics};
 
 document.documentElement.dataset.v141Viewport=innerWidth<621?'mobile':innerWidth<951?'tablet':'desktop';
 try{if(window.MatchState)window.MatchState.schema='vc.match-state/14.1'}catch(_){}
 })();
 </script>
-</body></html>
+\n<style id="v150-planning-stable-style">
+/* V15.0 · planning repair: week/month are normal visible surfaces, independent of legacy layers. */
+#planificacion #week-grid.planning-week:not(.hidden){display:grid!important;visibility:visible!important;min-height:230px}
+#planificacion #month-grid.planning-month:not(.hidden){display:grid!important;visibility:visible!important;min-height:360px}
+#planificacion #season-grid:not(.hidden){display:block!important;visibility:visible!important}
+#planificacion .planning-toolbar,#planificacion .planning-header{position:relative!important;z-index:3}
+#planificacion .planning-week,#planificacion .planning-month{opacity:1!important}
+@media(max-width:650px){#planificacion #week-grid.planning-week:not(.hidden){grid-template-columns:repeat(7,minmax(165px,1fr))!important;overflow-x:auto!important}#planificacion #month-grid.planning-month:not(.hidden){grid-template-columns:repeat(7,minmax(86px,1fr))!important;overflow-x:auto!important}}
+</style>\n\n<script id="v150-planning-stable-runtime">
+(()=>{
+'use strict';
+const VERSION='15.0.0';
+const byId=id=>document.getElementById(id);
+const html=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const oldRender=typeof window.renderPlanificacion==='function'?window.renderPlanificacion:null;
+function localIso(d){const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
+function mondayOf(d){const x=new Date(d);x.setHours(12,0,0,0);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
+function safePlans(){try{return Array.isArray(planificacion)?planificacion:[]}catch(_){return[]}}
+function safeMatches(){try{return Array.isArray(partidosEquipo)?partidosEquipo:[]}catch(_){return[]}}
+function safeBase(){try{return semanaBase instanceof Date&&!Number.isNaN(semanaBase.getTime())?semanaBase:new Date()}catch(_){return new Date()}}
+function safeView(){try{return ['semana','mes','temporada'].includes(vistaPlanificacion)?vistaPlanificacion:'semana'}catch(_){return 'semana'}}
+function setViewValue(v){try{vistaPlanificacion=v}catch(_){}}
+function setBaseValue(d){try{semanaBase=d}catch(_){}}
+function planState(p,today){try{return typeof estadoPlanificacion==='function'?estadoPlanificacion(p,today):{clase:p?.realizado?'done':p?.fecha<=today?'pending':'future',texto:p?.realizado?'Realizado':p?.fecha<=today?'Pendiente':'Planificado'}}catch(_){return {clase:'future',texto:'Planificado'}}}
+function trainingCard(p,today){try{if(typeof tarjetaPlanProHTML==='function')return tarjetaPlanProHTML(p,today)}catch(_){}const st=planState(p,today);return `<article class="plan-pro-card ${st.clase||''}"><div class="plan-pro-status">${html(st.texto||'Entrenamiento')}</div><div class="plan-pro-title">${html(p?.objetivo||'Entrenamiento')}</div><div class="plan-pro-meta">${Number(p?.duracion||p?.duracionObjetivo)||0} min · ${html(p?.intensidad||'Media')}</div></article>`}
+function matchCard(m,today){try{if(typeof tarjetaPartidoPlanHTML==='function')return tarjetaPartidoPlanHTML(m,today)}catch(_){}return `<article class="plan-pro-card match"><div class="plan-pro-status">Partido</div><div class="plan-pro-title">vs ${html(m?.opponent||'Rival')}</div><div class="plan-pro-meta">${html(m?.time||'')}${m?.competition?' · '+html(m.competition):''}</div></article>`}
+function monthTraining(p,today){const st=planState(p,today);return `<button type="button" class="month-plan ${st.clase||''}" onclick="typeof editarEntrenamientoPlanificacion==='function'&&editarEntrenamientoPlanificacion(${Number(p?.id)||0})">${html(p?.objetivo||'Sesión')} · ${Number(p?.duracion||p?.duracionObjetivo)||0}m</button>`}
+function monthMatch(m){try{if(typeof monthMatchHTML==='function')return monthMatchHTML(m)}catch(_){}return `<button type="button" class="month-plan match" onclick="typeof abrirPartidoModal==='function'&&abrirPartidoModal(${Number(m?.id)||0})">🏐 ${html(m?.opponent||'Rival')}</button>`}
+function showOnly(view){const week=byId('week-grid'),month=byId('month-grid'),season=byId('season-grid');week?.classList.toggle('hidden',view!=='semana');month?.classList.toggle('hidden',view!=='mes');season?.classList.toggle('hidden',view!=='temporada');byId('plan-view-week')?.classList.toggle('active',view==='semana');byId('plan-view-month')?.classList.toggle('active',view==='mes');byId('plan-view-season')?.classList.toggle('active',view==='temporada')}
+function renderWeek(){const week=byId('week-grid'),label=byId('week-label');if(!week)return false;const base=safeBase(),mon=mondayOf(base),end=new Date(mon);end.setDate(mon.getDate()+6);if(label)label.textContent=`${mon.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} — ${end.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}`;const today=localIso(new Date()),plans=safePlans(),matches=safeMatches(),days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];week.innerHTML=days.map((name,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);const date=localIso(d),ps=plans.filter(p=>p?.fecha===date).sort((a,b)=>(Number(a?.id)||0)-(Number(b?.id)||0)),ms=matches.filter(m=>m?.date===date).sort((a,b)=>String(a?.time||'').localeCompare(String(b?.time||''))),body=[...ms.map(m=>matchCard(m,today)),...ps.map(p=>trainingCard(p,today))].join('')||'<div class="planning-event-empty">Sin eventos</div>';return `<div class="planning-day${date===today?' is-today':''}"><div class="planning-day-head"><strong>${name}</strong><div class="planning-day-date"><b>${d.getDate()}</b><button type="button" class="plan-day-add" onclick="typeof abrirEventoDiaPlanificacion==='function'&&abrirEventoDiaPlanificacion('${date}')" title="Añadir evento este día">+</button></div></div><div class="planning-day-events">${body}</div></div>`}).join('');return true}
+function renderMonth(){const month=byId('month-grid'),label=byId('week-label');if(!month)return false;const base=safeBase(),firstMonth=new Date(base.getFullYear(),base.getMonth(),1),year=firstMonth.getFullYear(),mon=firstMonth.getMonth();if(label)label.textContent=firstMonth.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());const first=mondayOf(firstMonth),last=new Date(year,mon+1,0),end=mondayOf(last);end.setDate(end.getDate()+6);const today=localIso(new Date()),plans=safePlans(),matches=safeMatches();let cells=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="month-weekday">${x}</div>`).join('');for(let d=new Date(first);d<=end;d.setDate(d.getDate()+1)){const date=localIso(d),outside=d.getMonth()!==mon,ps=plans.filter(p=>p?.fecha===date),ms=matches.filter(m=>m?.date===date).sort((a,b)=>String(a?.time||'').localeCompare(String(b?.time||'')));cells+=`<div class="month-cell${outside?' outside':''}${date===today?' today':''}"><div class="month-day-head"><div class="month-day-num">${d.getDate()}</div><button type="button" class="month-day-add" onclick="typeof abrirEventoDiaPlanificacion==='function'&&abrirEventoDiaPlanificacion('${date}')" title="Añadir evento este día">+</button></div>${ms.map(monthMatch).join('')}${ps.map(p=>monthTraining(p,today)).join('')}</div>`}month.innerHTML=cells;return true}
+function render(){const view=safeView();showOnly(view);if(view==='temporada'){try{if(oldRender&&oldRender!==render)oldRender()}catch(err){console.warn('V15 season planning fallback',err)}showOnly('temporada');return true}const ok=view==='mes'?renderMonth():renderWeek();try{typeof renderAvisoPlanHoy==='function'&&renderAvisoPlanHoy()}catch(_){}return ok}
+function setView(v){const next=['semana','mes','temporada'].includes(v)?v:'semana';setViewValue(next);render()}
+function changePeriod(dir){const view=safeView(),d=safeBase();if(view==='temporada'){try{seasonViewOffset+=Number(dir)||0}catch(_){};render();return}if(view==='mes')d.setMonth(d.getMonth()+(Number(dir)||0),1);else d.setDate(d.getDate()+(Number(dir)||0)*7);setBaseValue(d);render()}
+function today(){setBaseValue(new Date());try{seasonViewOffset=0}catch(_){}render()}
+window.renderPlanificacion=render;window.setVistaPlanificacion=setView;window.cambiarPeriodoPlan=changePeriod;window.irHoyPlanificacion=today;
+function openPlanning(){try{window.openWorkspace?.('training')}catch(_){};try{window.showView?.('planificacion',window.botonVista?.('planificacion')||null)}catch(_){};requestAnimationFrame(()=>{render();const root=byId('planificacion');root?.classList.add('active');root?.removeAttribute('hidden')})}
+window.v150OpenPlanning=openPlanning;
+const oldV140=window.v140OpenPlanning;window.v140OpenPlanning=openPlanning;
+function repair(){const root=byId('planificacion');if(!root)return;root.querySelectorAll('button').forEach(b=>{if(!b.type)b.type='button'});if(root.classList.contains('active'))render()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{repair();setTimeout(repair,150)},{once:true});else{repair();setTimeout(repair,150)}
+window.VC_V150={version:VERSION,planning:{render,setView,changePeriod,today,open:openPlanning},diagnostics:()=>({version:VERSION,view:safeView(),weekChildren:byId('week-grid')?.children.length||0,monthChildren:byId('month-grid')?.children.length||0,weekHidden:byId('week-grid')?.classList.contains('hidden'),monthHidden:byId('month-grid')?.classList.contains('hidden')})};
+})();
+</script>\n</body></html>
