@@ -2599,7 +2599,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 
 <section id="scouting" class="view v124-legacy-engine" aria-hidden="true" inert>
   <div id="v124-legacy-engine-stubs" hidden aria-hidden="true">
-    <!-- V12.4: minimal compatibility DOM only. No legacy scouting UI is rendered. -->
+    <!-- V12.5: minimal compatibility DOM only. Classic scouting rendering is retired. -->
     <button id="scout-v690-live-btn" type="button"></button>
     <button id="scout-v740-live-video-btn" type="button"></button>
     <button id="scout-v861-finish-set-btn" type="button"></button>
@@ -3459,7 +3459,7 @@ function fechaLocalISO(d=new Date()){const x=new Date(d),y=x.getFullYear(),m=Str
 let equipoActivo=localStorage.getItem(ACTIVE_TEAM_KEY)||localStorage.getItem(OLD_ACTIVE_TEAM_KEY)||'infantil';
 if(!EQUIPOS[equipoActivo])equipoActivo='infantil';
 let sesionActual=[],planificacion=[],historial=[],plantillas=[],jugadoresEquipo=[];
-let semanaBase=new Date(); let pizarraParaEjercicio=null;
+
 let meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[]};
 let equiposData=null;
 
@@ -3840,7 +3840,7 @@ function guardarSesionMeta(){const roster=(typeof rosterSeleccionados==='functio
 function añadirASesion(id){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const mapa=mapaSeccionesSesion(),key=String(id),destino=seccionDestinoSesion||seccionNaturalEjercicio(e);if(sesionActual.includes(id)){const actual=seccionEjercicioSesion(id,e);if(seccionDestinoSesion&&actual!==destino){mapa[key]=destino;$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[destino].titulo;}else{sesionActual=sesionActual.filter(x=>x!==id);delete mapa[key];$('save-indicator').textContent='✓ Quitado de '+EQUIPOS[equipoActivo].corto;}}else{sesionActual.push(id);mapa[key]=destino;$('save-indicator').textContent='✓ Añadido a '+SECCIONES_ENTRENO[destino].titulo;}meta.seccionesEjercicios=mapa;save();renderizarSesion();filtrarEjercicios();}
 function quitarDeSesion(i){const id=sesionActual[i];sesionActual.splice(i,1);if(id!=null)delete mapaSeccionesSesion()[String(id)];save();renderizarSesion();filtrarEjercicios()}
 function quitarDeSesionId(id){const i=sesionActual.indexOf(id);if(i>=0)quitarDeSesion(i)}
-function moverSesion(i,dir){let j=i+dir;if(j<0||j>=sesionActual.length)return;[sesionActual[i],sesionActual[j]]=[sesionActual[j],sesionActual[i]];save();renderizarSesion();}
+/* V12.5 removed unreachable function: moverSesion */
 function moverSesionEnBloque(id,dir){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const slug=seccionEjercicioSesion(id,e);const ids=sesionActual.filter(x=>{const ex=baseDeDatos.find(z=>z.id===x);return ex&&seccionEjercicioSesion(x,ex)===slug});const pos=ids.indexOf(id),dest=pos+dir;if(pos<0||dest<0||dest>=ids.length)return;const a=sesionActual.indexOf(ids[pos]),b=sesionActual.indexOf(ids[dest]);[sesionActual[a],sesionActual[b]]=[sesionActual[b],sesionActual[a]];save();renderizarSesion()}
 function moverEjercicioAFase(id,slug){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;slug=normalizarSeccionEntreno(slug,e);mapaSeccionesSesion()[String(id)]=slug;save();renderizarSesion();$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[slug].titulo}
 function snapshotEjercicioCompleto(e){
@@ -4113,19 +4113,14 @@ function finalizarEntrenamiento(){
 function fundamentosSesion(h){
   const fs=[];(h.ejercicios||[]).forEach(e=>normalizarFundamentos(e).forEach(f=>{if(!fs.includes(f))fs.push(f)}));return fs;
 }
-function notasBloquesHistorial(h){const notas=normalizarNotasEntreno(h?.notasBloques||{},h?.calentamiento||'');return ORDEN_SECCIONES_ENTRENO.map(slug=>{const txt=String(notas[slug]||'').trim();return txt?`<p><b>${esc(SECCIONES_ENTRENO[slug].titulo)}:</b> ${esc(txt)}</p>`:''}).join('')}
+/* V12.5 removed unreachable function: notasBloquesHistorial */
 function toggleTrainingDetail(team,id){const el=$('training-'+team+'-'+id);if(el)el.classList.toggle('open')}
 function repetirSesionEquipo(team,id){
   if(team!==equipoActivo)cambiarEquipo(team);
   let h=historial.find(x=>x.id===id);if(!h)return;
   sesionActual=h.ejercicios.map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));const secciones={};(h.ejercicios||[]).forEach(x=>{if(x.id!=null&&sesionActual.includes(x.id))secciones[String(x.id)]=normalizarSeccionEntreno(x.seccionSesion,baseDeDatos.find(e=>e.id===x.id))});meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:h.jugadores||'',duracionObjetivo:h.duracionObjetivo||'',intensidad:h.intensidad||'Media',objetivo:h.objetivo||'',calentamiento:h.calentamiento||'',notas:'',seccionesEjercicios:secciones,notasBloques:normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||''),planificacionId:null};save();cargarMeta();renderizarSesion();filtrarEjercicios();document.querySelectorAll('.tab-btn')[0].click();
 }
-function borrarHistorialEquipo(team){
-  // Compatibilidad interna: el historial completo ya no se borra desde la interfaz.
-  if(!confirm('¿Borrar todo el historial de '+EQUIPOS[team].nombre+'?'))return;
-  if(team===equipoActivo){historial=[];save();}else{equiposData[team].historial=[];guardarEstadoLocalSinCloud();programarSubidaCloud();}
-  renderHistorial();renderStats();renderDashboard();
-}
+/* V12.5 removed unreachable function: borrarHistorialEquipo */
 function borrarEntrenamientoHistorialEquipo(team,entrenamientoId){
   if(!EQUIPOS[team])return;
   guardarEquipoEnMemoria();
@@ -4188,8 +4183,8 @@ function renderHistorial(){
   };
   $('historial-list').innerHTML=column('cadete')+column('infantil');
 }
-function repetirSesion(id){repetirSesionEquipo(equipoActivo,id)}
-function borrarHistorial(){borrarHistorialEquipo(equipoActivo)}
+/* V12.5 removed unreachable function: repetirSesion */
+/* V12.5 removed unreachable function: borrarHistorial */
 function renderStats(){
   let mins=historial.reduce((a,h)=>a+(h.duracion||0),0);
   $('stat-sesiones').textContent=historial.length;
@@ -4255,7 +4250,7 @@ function renderStats(){
 function exportarDatos(){guardarEquipoEnMemoria();let payload={version:5.5,equipoActivo,bibliotecaCompartida:clonar(baseDeDatos),equiposData:clonar(equiposData)};let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Volley_Coach_Copia_V55.json';a.click();URL.revokeObjectURL(a.href)}
 $('import-file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result),conv=convertirEstadoPersistido(d);if(!conv)throw 0;baseDeDatos=bibliotecaFusionadaSegura(baseDeDatos||[],conv.bibliotecaCompartida||[]);migrarFundamentos();asegurarEjerciciosPropios183();asegurarEjerciciosPropios287Nuevos();equiposData=conv.equiposData;['infantil','cadete'].forEach(id=>equiposData[id]=limpiarEquipo(equiposData[id],id));aplicarLimpiezaRecepcionV1();aplicarLimpiezaColocacionV1();aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();equipoActivo=EQUIPOS[d.equipoActivo]?d.equipoActivo:equipoActivo;guardarEstadoLocalSinCloud();cargarEquipoEnVariables(equipoActivo);actualizarSelectorEquipo();save();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();alert('✅ Copia restaurada. Biblioteca compartida y equipos cargados.');}catch(err){console.error(err);alert('❌ Archivo no válido.')}};r.readAsText(f)});
 if($('import-library-file'))$('import-library-file').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];importarBibliotecaDesdeArchivo(f);e.target.value='';});
-async function exportarImagen(){try{let c=await html2canvas($('export-area'),{backgroundColor:'#eef2f6',scale:2});let a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='Entrenamiento_Volei.png';a.click()}catch{alert('No se pudo generar la imagen.')}}
+/* V12.5 removed unreachable function: exportarImagen */
 function limpiarTextoPDF(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
 function datosSesionActualParaPDF(){
   guardarSesionMeta();
@@ -4354,13 +4349,13 @@ function generarPDFEntrenamiento(h,equipoNombre){
 
 // Pizarra táctica eliminada de la interfaz.
 // Se mantienen estas funciones vacías para compatibilidad con sesiones antiguas guardadas en local/Supabase.
-function serializarPizarra(){return null}
-function aplicarPizarra(){return}
-function limpiarPizarra(){return}
-function guardarPizarraSesion(){return}
-function cargarPizarraSesion(){return}
-function marcarPizarraParaEjercicio(){return}
-function cargarPizarraEjercicio(){return}
+/* V12.5 removed unreachable function: serializarPizarra */
+/* V12.5 removed unreachable function: aplicarPizarra */
+/* V12.5 removed unreachable function: limpiarPizarra */
+/* V12.5 removed unreachable function: guardarPizarraSesion */
+/* V12.5 removed unreachable function: cargarPizarraSesion */
+/* V12.5 removed unreachable function: marcarPizarraParaEjercicio */
+/* V12.5 removed unreachable function: cargarPizarraEjercicio */
 function lunesDeSemana(d){let x=new Date(d);let day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}
 function isoDate(d){return fechaLocalISO(d)}
 function crearSesionDesdePlanificacion(fechaForzada=''){
@@ -4379,7 +4374,7 @@ function crearSesionDesdePlanificacion(fechaForzada=''){
 }
 function crearSesionDiaPlanificacion(fecha){crearSesionDesdePlanificacion(fecha)}
 function guardarPlan(){return crearSesionDesdePlanificacion('')}
-function cambiarSemana(n){semanaBase.setDate(semanaBase.getDate()+n);renderPlanificacion()}
+/* V12.5 removed unreachable function: cambiarSemana */
 function eliminarPlan(id){if(meta.planificacionId===id)meta.planificacionId=null;planificacion=planificacion.filter(x=>x.id!==id);save();renderPlanificacion();renderAvisoPlanHoy()}
 function usarPlan(id){
   const p=planificacion.find(x=>x.id===id);if(!p)return;const esRealizado=!!p.realizado;
@@ -4494,10 +4489,7 @@ function fusionarScoutingsSeguros(localList,remoteList){
   });
   return [...map.values()].sort((a,b)=>scoutGenericStamp(b)-scoutGenericStamp(a));
 }
-function fusionarEspejoScouting(localMirror,remoteMirror){
-  const out={...(remoteMirror&&typeof remoteMirror==='object'?clonar(remoteMirror):{}),...(localMirror&&typeof localMirror==='object'?clonar(localMirror):{})};
-  Object.keys(out).forEach(k=>{const x=out[k];if(!x?.match)delete out[k]});return out;
-}
+/* V12.5 removed unreachable function: fusionarEspejoScouting */
 
 function aplicarEstadoCloud(s){
   if(!s)return;
@@ -4652,7 +4644,7 @@ renderizarSesion=function(){
 function setVistaPlanificacion(v){vistaPlanificacion=v==='mes'?'mes':'semana';$('plan-view-week')?.classList.toggle('active',vistaPlanificacion==='semana');$('plan-view-month')?.classList.toggle('active',vistaPlanificacion==='mes');renderPlanificacion()}
 function cambiarPeriodoPlan(dir){if(vistaPlanificacion==='mes')semanaBase.setMonth(semanaBase.getMonth()+dir,1);else semanaBase.setDate(semanaBase.getDate()+dir*7);renderPlanificacion()}
 function irHoyPlanificacion(){semanaBase=new Date();renderPlanificacion()}
-function cambiarSemana(n){semanaBase.setDate(semanaBase.getDate()+n);renderPlanificacion()}
+/* V12.5 removed unreachable function: cambiarSemana */
 function estadoPlanificacion(p,hoy){if(p.realizado)return {clase:'done',texto:'Realizado'};if(Number(meta.planificacionId)===Number(p.id))return {clase:'editing',texto:'En edición'};if(p.historialId)return {clase:'pending',texto:'En Historial · pendiente de marcar'};if(p.fecha<=hoy)return {clase:'pending',texto:'Pendiente'};return {clase:'future',texto:'Planificado'}}
 function editarEntrenamientoPlanificacion(id){
   const p=planificacion.find(x=>Number(x.id)===Number(id));if(!p)return;
@@ -4901,7 +4893,6 @@ const PLAYER_EVAL_SCHEMA={
 };
 const PLAYER_OBS_TAGS=['Buen entrenamiento','Mejora técnica','Fatiga','Molestia','Concentración','Buena comunicación','Competitivo','A revisar'];
 
-const PLAYER_POSITION_OPTIONS=['Colocador','Receptor','Central','Opuesto','Líbero','Universal'];
 function ppPositions(p){
   const arr=[p?.position,...(Array.isArray(p?.positions)?p.positions:[]),p?.position2].filter(Boolean);
   return [...new Set(arr.map(String))];
@@ -6026,7 +6017,7 @@ function vcNormalizeMatchRosterStatus(m,teamId=equipoActivo){
   const called=new Set(vcUniqueNumbers(m?.playerIds));
   return vcTeamPlayers(teamId).map(p=>({id:Number(p.id),status:called.has(Number(p.id))?'Convocado':'No convocado',reason:'',name:String(p.name||''),number:p.number??'',positions:typeof ppPositions==='function'?ppPositions(p):[]}));
 }
-function vcMatchRosterStateMap(m,teamId=equipoActivo){return new Map(vcNormalizeMatchRosterStatus(m,teamId).map(r=>[Number(r.id),r]))}
+/* V12.5 removed unreachable function: vcMatchRosterStateMap */
 function vcMatchRosterStatusChange(sel){const row=sel.closest('.match-roster-pro-row'),input=row?.querySelector('.match-roster-reason');if(!input)return;input.classList.toggle('hidden',sel.value!=='No disponible');if(sel.value!=='No disponible')input.value=''}
 function matchRosterOptions(selected=[],rosterStatus=[]){
   const box=$('match-roster-list');if(!box)return;const selectedSet=new Set(vcUniqueNumbers(selected)),state=new Map(vcSafeArray(rosterStatus).map(r=>[Number(r.id),r]));
@@ -8392,18 +8383,9 @@ function v902FastRender(m){
     window.VC_SCOUT_RENDER_V92.requestFast('action-save');
     return;
   }
-  const classic=$('scouting')?.classList.contains('active'),
-    workspace=$('scout-workspace-v900')?.classList.contains('active'),
+  const workspace=$('scout-workspace-v900')?.classList.contains('active'),
     matchMode=$('scout-match-mode')?.classList.contains('active');
-  if(classic){
-    try{scoutRenderCurrentActions(m)}catch(_){}
-    try{
-      const s=scoutSet(m);
-      if($('scout-kpi-actions'))$('scout-kpi-actions').textContent=scoutActionCount(m);
-      if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
-      if($('scout-save-badge'))$('scout-save-badge').textContent='Guardado rápido · consolidando…';
-    }catch(_){}
-  }else if(matchMode){
+  if(matchMode){
     try{window.v910MatchModeFastRender?.()}catch(_){}
   }else if(workspace){
     try{window.v900RenderFast?.()}catch(_){}
@@ -8523,12 +8505,11 @@ const scoutPrevMem=guardarEquipoEnMemoria;guardarEquipoEnMemoria=function(){scou
 const scoutPrevLoad=cargarEquipoEnVariables;cargarEquipoEnVariables=function(id){const out=scoutPrevLoad(id);scoutingMatches=scoutArr(equiposData?.[id]?.scoutingMatches).map(scoutNormalizeMatch);scoutingActiveId=Number(equiposData?.[id]?.scoutingActiveId)||null;return out};
 /* Enrutado */
 botonVista=function(id){return document.querySelector(`.tab-btn[data-view="${id}"]`)||null};
-const scoutPrevShow=showView;showView=function(id,btn){const out=scoutPrevShow(id,btn);if(id==='scouting')scoutRender();return out};
 const scoutPrevTeam=window.cambiarEquipo;window.cambiarEquipo=function(id){const out=scoutPrevTeam(id);scoutingMatches=scoutArr(equiposData?.[equipoActivo]?.scoutingMatches).map(scoutNormalizeMatch);scoutingActiveId=Number(equiposData?.[equipoActivo]?.scoutingActiveId)||null;scoutRender();return out};
 function scoutSetsScore(m){const done=scoutArr(m?.sets).filter(s=>s.finished);return {us:done.filter(s=>s.winner==='ours').length,opponent:done.filter(s=>s.winner==='opponent').length}}
 function scoutActionCount(m){return scoutArr(m?.sets).reduce((n,s)=>n+scoutArr(s.rallies).reduce((a,r)=>a+scoutArr(r.actions).length,0),0)+scoutArr(m?.liveRally?.actions).length}
 function scoutRotateTeamLineup(lineup,team='ours',dir=1){const l=scoutNormalizeLineup(lineup),key=team==='opponent'?'opponent':'ours',vals=SCOUT_POS.map(p=>l[key][p]);const rotated=dir>=0?vals.slice(1).concat(vals[0]):[vals[5]].concat(vals.slice(0,5));SCOUT_POS.forEach((p,i)=>l[key][p]=rotated[i]);return l}
-function scoutRotateLineup(lineup,dir=1){return scoutRotateTeamLineup(lineup,'ours',dir)}
+/* V12.5 removed unreachable function: scoutRotateLineup */
 window.scoutRotate=function(dir=1){const m=scoutActive();if(!m||m.status==='finished')return;m.lineup=scoutRotateTeamLineup(m.lineup,'ours',dir);m.rotationNo=((m.rotationNo-1+(dir>=0?-1:1)+6)%6)+1;scoutSave()};
 window.scoutRotateOpponent=function(dir=1){const m=scoutActive();if(!m||m.status==='finished')return;m.lineup=scoutRotateTeamLineup(m.lineup,'opponent',dir);m.opponentRotationNo=((m.opponentRotationNo-1+(dir>=0?-1:1)+6)%6)+1;scoutSave()};
 const scoutClockRuntime=new Map();
@@ -8633,7 +8614,6 @@ window.scoutRenderHome=function(){const total=$('scout-home-total'),actions=$('s
 window.scoutRenderAnalysis=function(){const sel=$('scout-analysis-match');if(!sel)return;const current=Number(sel.value)||Number(scoutingActiveId)||Number(scoutingMatches[0]?.id)||0;sel.innerHTML=scoutingMatches.length?scoutingMatches.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(m=>`<option value="${m.id}" ${Number(m.id)===current?'selected':''}>${esc(m.date+' · '+m.opponent)}</option>`).join(''):'<option value="">Sin scoutings</option>';if(current)sel.value=String(current);const m=scoutMatchForAnalysis();const empty='<div class="match-empty">No hay datos suficientes.</div>';if(!m){['scout-analysis-rotations','scout-analysis-skills','scout-analysis-events'].forEach(id=>{if($(id))$(id).innerHTML=empty});return}const a=scoutAnalysis(m);$('scout-analysis-sideout').textContent=a.sidePct!=null?a.sidePct+'%':'—';$('scout-analysis-sideout-copy').textContent=`${a.sideWon}/${a.sideTotal}`;$('scout-analysis-break').textContent=a.breakPct!=null?a.breakPct+'%':'—';$('scout-analysis-break-copy').textContent=`${a.breakWon}/${a.breakTotal}`;$('scout-analysis-rallies').textContent=a.rallies.length;$('scout-analysis-actions').textContent=a.actions.length;$('scout-analysis-rotations').innerHTML=`<div class="scout-rotation-section-title">Nuestro equipo</div><div class="scout-rotation-table"><div class="head"><b>Rotación</b><b>Side-out</b><b>Break</b><b>Puntos</b></div>${a.rotations.map(r=>`<div><strong>R${r.no}</strong><span>${r.sideTotal?(scoutPercent(r.sideWon,r.sideTotal)+'% · '+r.sideWon+'/'+r.sideTotal):'—'}</span><span>${r.breakTotal?(scoutPercent(r.breakWon,r.breakTotal)+'% · '+r.breakWon+'/'+r.breakTotal):'—'}</span><span>${r.total?r.won+'/'+r.total:'—'}</span></div>`).join('')}</div><div class="scout-rotation-section-title rival">Rival</div><div class="scout-rotation-table"><div class="head"><b>Rotación</b><b>Side-out</b><b>Break</b><b>Puntos</b></div>${a.opponentRotations.map(r=>`<div><strong>R${r.no}</strong><span>${r.sideTotal?(scoutPercent(r.sideWon,r.sideTotal)+'% · '+r.sideWon+'/'+r.sideTotal):'—'}</span><span>${r.breakTotal?(scoutPercent(r.breakWon,r.breakTotal)+'% · '+r.breakWon+'/'+r.breakTotal):'—'}</span><span>${r.total?r.won+'/'+r.total:'—'}</span></div>`).join('')}</div>`;const skillRows=Object.entries(a.skills).filter(([,v])=>v.total).map(([k,v])=>`<div class="stats-list-row"><div><strong>${esc(SCOUT_SKILLS[k])}</strong><small>${v.perfect} # · ${v.error} errores</small></div><div class="stats-list-value">${v.total} acc. · ${scoutPercent(v.positive,v.total)||0}% +/#</div></div>`).join('');$('scout-analysis-skills').innerHTML=skillRows||empty;const events=scoutArr(m.events).slice().reverse();$('scout-analysis-events').innerHTML=events.length?events.map(e=>`<div class="scout-event"><b>Set ${e.setNumber} · ${e.scoreUs}–${e.scoreOpponent}</b><span>${e.type==='libero'?'Líbero':'Sustitución'} · ${e.team==='ours'?'Nuestro':'Rival'} · ${String(e.position||'').toUpperCase()}</span><small>${esc(e.outLabel||'—')} → ${esc(e.inLabel||'—')}</small></div>`).join(''):empty};
 
 /* ===== V6.1.1 · ANALÍTICA INDIVIDUAL + EXPORT (base) ===== */
-const SCOUT_EVAL_ORDER=['#','+','!','-','/','='];
 let scoutPlayerDetailContext=null;
 function scoutOwnActionName(a){const p=scoutPlayer(a?.playerId);const number=p?.number??a?.playerNumberSnapshot??'',name=p?.name||a?.playerNameSnapshot||`Jugador ${a?.playerId||''}`;return `${number!==''&&number!=null?'#'+number+' · ':''}${name}`.trim()}
 function scoutActionRows(m,includeLive=true){if(!m)return[];const rows=[];scoutArr(m.sets).forEach(set=>scoutArr(set.rallies).forEach((r,ri)=>scoutArr(r.actions).forEach((a,ai)=>rows.push({matchId:m.id,set:set.number,rallyIndex:ri+1,scoreBefore:`${r.scoreBefore.us}–${r.scoreBefore.opponent}`,scoreAfter:`${r.scoreAfter.us}–${r.scoreAfter.opponent}`,servingBefore:r.servingBefore,rotation:r.rotationBefore,opponentRotation:r.opponentRotationBefore||1,winner:r.winner,actionIndex:ai+1,...a}))));if(includeLive&&m.liveRally?.actions?.length){const set=scoutSet(m),snap=m.liveRally.startSnapshot||scoutCurrentRallySnapshot(m);scoutArr(m.liveRally.actions).forEach((a,ai)=>rows.push({matchId:m.id,set:set?.number||m.currentSet,rallyIndex:(set?.rallies?.length||0)+1,scoreBefore:`${snap.scoreBefore?.us||0}–${snap.scoreBefore?.opponent||0}`,scoreAfter:'En curso',servingBefore:snap.servingBefore||m.servingTeam,rotation:snap.rotationBefore||m.rotationNo,opponentRotation:snap.opponentRotationBefore||m.opponentRotationNo||1,winner:'',actionIndex:ai+1,live:true,...a}))}return rows}
@@ -9267,7 +9247,6 @@ window.scoutV680CloseRallyEditor=function(){document.getElementById('scout-v680-
 const v680RenderRalliesBase=window.scoutRenderRallies;window.scoutRenderRallies=function(m){const s=scoutSet(m),box=document.getElementById('scout-rally-list');if(!box)return v680RenderRalliesBase(m);const rallies=scoutArr(s?.rallies).slice().reverse();box.innerHTML=rallies.length?rallies.map(r=>`<div class="scout-rally-item"><div class="scout-rally-score">${r.scoreAfter.us}–${r.scoreAfter.opponent}</div><div class="scout-rally-copy"><strong>R${r.rotationBefore} · ${r.actions.length} acciones${r.editCount?' · editado':''}</strong><small>${r.servingBefore==='ours'?'Saque nuestro':'Saque rival'}${r.actions.length?' · '+r.actions.map(a=>v680Esc(a.code)).join('  '):''}</small></div><span class="scout-rally-winner ${r.winner==='ours'?'ours':''}">${r.winner==='ours'?'Punto nuestro':'Punto rival'}</span><button class="ghost scout-v680-rally-edit" onclick="scoutV680OpenRallyEditor(${s.number},${r.id})">Editar</button></div>`).join(''):'<div class="scout-action-empty">Aún no hay rallies cerrados en este set.</div>';if(document.getElementById('scout-rally-count'))document.getElementById('scout-rally-count').textContent=`${rallies.length} rallies`};
 const v680RenderSetsBase=window.scoutRenderSets;window.scoutRenderSets=function(m){const box=document.getElementById('scout-set-list');if(!box)return v680RenderSetsBase(m);box.innerHTML=scoutArr(m.sets).map(s=>`<div class="scout-set-row"><strong>Set ${s.number}</strong><span>${s.finished?(s.winner==='ours'?'Ganado':s.winner==='opponent'?'Perdido':'Cerrado'):'En juego'} · ${s.rallies.length} rallies</span><b>${s.scoreUs}–${s.scoreOpponent}</b><button class="ghost scout-v680-set-edit" onclick="scoutV680OpenSetEditor(${s.number})">Editar rallies</button></div>`).join('')};
 const v680RenderBase=window.scoutRender;window.scoutRender=function(){const out=v680RenderBase();scoutV680UpdateStatus();return out};
-const v680ShowBase=window.showView;window.showView=function(id,btn){const out=v680ShowBase(id,btn);if(id==='scouting'){scoutV680UpdateStatus();scoutV680CheckRecoveryOpportunity()}return out};
 window.scoutV680CheckRecoveryOpportunity=async function(){const notice=document.getElementById('scout-v680-recovery-notice'),copy=document.getElementById('scout-v680-recovery-notice-copy'),snap=await v680DBGet(v680Key('current')),m=scoutActive();if(!notice)return;if(!snap?.match||snap.match.status==='finished'){notice.classList.add('hidden');return}const snapT=Date.parse(snap.savedAt||0)||0,curT=Date.parse(m?.updatedAt||0)||0,needs=!m||Number(m.id)!==Number(snap.match.id)||snapT>curT+2000;if(needs){notice.classList.remove('hidden');if(copy)copy.textContent=`${snap.match.opponent||'Rival'} · ${window.scoutV680When(snap.savedAt)} · ${window.scoutV680Counts(snap.match).rallies} rallies.`}else notice.classList.add('hidden')};
 
 // V6.10.5 · Puente seguro para capas posteriores de Session Control.
@@ -9355,7 +9334,7 @@ const v690FinishBase=window.scoutFinishMatch;window.scoutFinishMatch=function(){
 const v690TeamBase=window.cambiarEquipo;window.cambiarEquipo=function(id){const out=v690TeamBase(id);scoutV690EnsureTeam();scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutV690RenderWorkflow();return out};
 
 function scoutV690KeyId(e){if(e.altKey&&e.key==='ArrowUp')return'ALT_UP';if(e.altKey&&e.key==='ArrowDown')return'ALT_DOWN';if(e.ctrlKey&&e.key==='ArrowUp')return'CTRL_UP';if(e.ctrlKey&&e.key==='ArrowDown')return'CTRL_DOWN';if(e.altKey&&String(e.key).toLowerCase()==='z')return'ALT_Z';if(e.ctrlKey&&e.shiftKey&&String(e.key).toLowerCase()==='z')return'CTRL_SHIFT_Z';if(e.altKey&&String(e.key).toLowerCase()==='c')return'ALT_C';if(e.ctrlKey&&String(e.key).toLowerCase()==='k')return'CTRL_K';return''}
-function scoutV690AppendEval(char){const i=$('scout-code-input');if(!i)return;let v=String(i.value||'');const re=/([#\+!\-\/=])(?=\.|~|:|\^|@|$)/;v=re.test(v)?v.replace(re,char):v+char;i.value=v;i.focus()}
+/* V12.5 removed unreachable function: scoutV690AppendEval */
 /* V12.3: shortcuts migrated from the Classic view to Scouting Pro. */
 function v123AppendEval(char){const i=$('v900-code-input');if(!i)return;let v=String(i.value||'');const re=/([#\+!\-\/=])(?=\.|~|:|\^|@|$)/;v=re.test(v)?v.replace(re,char):v+char;i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));i.focus()}
 document.addEventListener('keydown',e=>{const proActive=document.getElementById('scout-workspace-v900')?.classList.contains('active');if(!proActive)return;const code=$('v900-code-input');if(e.target===code&&/^F[1-6]$/.test(e.key)){e.preventDefault();const map={F1:'#',F2:'+',F3:'!',F4:'-',F5:'/',F6:'='};v123AppendEval(map[e.key]);return}if(e.target?.matches?.('input,textarea,select')&&e.target!==code)return;const id=scoutV690KeyId(e),settings=scoutV690Settings();if(!id)return;if(id===settings.keyOurs){e.preventDefault();window.v121Point?.('ours')}else if(id===settings.keyRival){e.preventDefault();window.v121Point?.('opponent')}else if(id===settings.keyUndo){e.preventDefault();window.v121UndoRally?.()}else if(id===settings.keyCode){e.preventDefault();window.scoutV690FocusCode?.()}});
@@ -9431,13 +9410,12 @@ window.scoutV6100ClosePostMatch=function(){$('scout-v6100-post-modal')?.classLis
 
 // Hook workflow settings for favourites.
 const v6100OpenWorkflowBase=window.scoutV690OpenWorkflow;window.scoutV690OpenWorkflow=function(){const out=v6100OpenWorkflowBase();if($('scout-v6100-favorite-codes'))$('scout-v6100-favorite-codes').value=scoutV690Settings().favoriteCodes||'';return out};
-const v6100SaveSettingsBase=window.scoutV690SaveSettings;window.scoutV690SaveSettings=function(){const current=scoutV690Settings();const fav=$('scout-v6100-favorite-codes')?.value||'';const keyOurs=$('scout-v690-key-ours')?.value||current.keyOurs,keyRival=$('scout-v690-key-rival')?.value||current.keyRival,keyUndo=$('scout-v690-key-undo')?.value||current.keyUndo,keyCode=$('scout-v690-key-code')?.value||current.keyCode,autoFocus=$('scout-v690-auto-focus')?.checked!==false,compactDefault=!!$('scout-v690-compact-default')?.checked,skillAliases=$('scout-v690-skill-aliases')?.value||'',comboAliases=$('scout-v690-combo-aliases')?.value||'';scoutV690SetSettings({keyOurs,keyRival,keyUndo,keyCode,autoFocus,compactDefault,skillAliases,comboAliases,favoriteCodes:fav});scoutV690CloseWorkflow();scoutV690ApplyCompactDefault();scoutV690UpdateCodeHelp();scoutV6100RenderFavorites()};
+window.scoutV690SaveSettings=function(){const current=scoutV690Settings();const fav=$('scout-v6100-favorite-codes')?.value||'';const keyOurs=$('scout-v690-key-ours')?.value||current.keyOurs,keyRival=$('scout-v690-key-rival')?.value||current.keyRival,keyUndo=$('scout-v690-key-undo')?.value||current.keyUndo,keyCode=$('scout-v690-key-code')?.value||current.keyCode,autoFocus=$('scout-v690-auto-focus')?.checked!==false,compactDefault=!!$('scout-v690-compact-default')?.checked,skillAliases=$('scout-v690-skill-aliases')?.value||'',comboAliases=$('scout-v690-combo-aliases')?.value||'';scoutV690SetSettings({keyOurs,keyRival,keyUndo,keyCode,autoFocus,compactDefault,skillAliases,comboAliases,favoriteCodes:fav});scoutV690CloseWorkflow();scoutV690ApplyCompactDefault();scoutV690UpdateCodeHelp();scoutV6100RenderFavorites()};
 
 // Enrich lineup with persistent opponent database.
 const v6100OpenLineupBase=window.scoutOpenLineup;window.scoutOpenLineup=function(){const out=v6100OpenLineupBase();scoutV6100ApplyRivalDatalist();SCOUT_POS.forEach(pos=>{const input=$(`scout-rival-${pos}`);if(input&&!input.dataset.v6100){input.dataset.v6100='1';input.addEventListener('change',()=>scoutV6100AutofillRivalRole(input))}});return out};
 
 // Keep timeline/quality current after actions, rallies, events and changes.
-const v6100RenderBase=window.scoutRender;window.scoutRender=function(){const out=v6100RenderBase();if($('scouting')?.classList.contains('active')){scoutV6100RenderFavorites();scoutV6100RenderLiveWarning();scoutV6100RenderTimeline()}return out};
 const v6100EventBase=window.scoutV690SaveEvent;window.scoutV690SaveEvent=function(){const out=v6100EventBase();scoutV6100RenderTimeline();return out};
 const v6100SubBase=window.scoutApplySubstitution;window.scoutApplySubstitution=function(){const out=v6100SubBase();scoutV6100RenderTimeline();return out};
 const v6100FinishBase=window.scoutFinishMatch;window.scoutFinishMatch=function(){const before=scoutActive(),id=before?.id,status=before?.status;const out=v6100FinishBase();const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(status!=='finished'&&m?.status==='finished')setTimeout(()=>scoutV6100OpenPostMatch(m),80);return out};
@@ -10338,7 +10316,6 @@ scoutV690UpdateCodeHelp();scoutUpdateAdvancedFields();
    Mantiene todos los módulos propios (tendencias, rival, match-up, etc.).
 */
 const V6109_VERSION='6.10.9';
-const V61010_VERSION='6.10.10';
 function scoutV6109Skill(st,skill){
   const x=st?.skills?.[skill]||scoutEmptySkillStat(),e=x.evals||{};
   return {total:Number(x.total)||0,perfect:Number(e['#'])||0,positive:(Number(e['#'])||0)+(Number(e['+'])||0),neutral:Number(e['!'])||0,minus:Number(e['-'])||0,blocked:Number(e['/'])||0,error:Number(e['='])||0,failed:(Number(e['-'])||0)+(Number(e['/'])||0)+(Number(e['='])||0)};
@@ -10363,7 +10340,7 @@ function scoutV6109WonBreakdown(m,team){
   won.forEach(x=>{const acts=scoutArr(x.rallyData?.actions),mine=acts.filter(a=>a.team===team),lastPoint=[...mine].reverse().find(a=>a.evaluation==='#'&&['S','A','B'].includes(a.skill));if(lastPoint?.skill==='S')serve++;else if(lastPoint?.skill==='A')attack++;else if(lastPoint?.skill==='B')block++;else oppErr++});
   return {total:won.length,serve,attack,block,oppErr,lost:seq.length-won.length,gp:won.length-(seq.length-won.length)};
 }
-function scoutV6109MetricLabel(metric){return ({P_PTS:'Puntos · total',P_BP:'Puntos · break point',P_GP:'Puntos · G-P',S_GP:'Saque · G-P',R_POS:'Recepción · positivas',R_PERF:'Recepción · excelentes',A_GP:'Ataque · G-P',D_GP:'Defensa · G-P',E_GP:'Colocación · G-P'})[metric]||scoutV630MetricLabel(metric)}
+/* V12.5 removed unreachable function: scoutV6109MetricLabel */
 const scoutV6109MetricLabelBase=scoutV630MetricLabel;scoutV630MetricLabel=function(metric){return ({P_PTS:'Puntos · total',P_BP:'Puntos · break point',P_GP:'Puntos · G-P',S_GP:'Saque · G-P',A_GP:'Ataque · G-P',D_GP:'Defensa · G-P',E_GP:'Colocación · G-P'})[metric]||scoutV6109MetricLabelBase(metric)};
 function scoutV6109ImpactRows(rows,metric,team){
   if(metric==='P_PTS')return rows.filter(a=>a.evaluation==='#'&&['S','A','B'].includes(a.skill));
@@ -10390,7 +10367,6 @@ function scoutV6109CSVRow(m,team,st,isTeam=false){const s=scoutV6109Skill(st,'S'
 window.scoutExportStatsCSV=function(){const m=scoutMatchForAnalysis();if(!m){alert('No hay scouting seleccionado.');return}const team=$('scout-player-team-scope')?.value||'ours',data=scoutV630Stats(m,team),f=scoutV630Filters(),headers=['jugador','formacion_set1','formacion_set2','formacion_set3','formacion_set4','formacion_set5','acciones','puntos_total','puntos_bp','puntos_g_p','saque_total','saque_err','saque_ace','saque_g_p','recepcion_total','recepcion_err','recepcion_pos','recepcion_exc','ataque_total','ataque_err','ataque_bloqueado','ataque_puntos','ataque_g_p','bloqueo_puntos','defensa_ganadas','defensa_perdidas','defensa_g_p','colocacion_ganadas','colocacion_perdidas','colocacion_g_p','k1_ganados','k1_perdidos','k1_g_p','k2_ganados','k2_perdidos','k2_g_p'],rows=[scoutV6109CSVRow(m,team,data.teamStat,true),...data.players.map(st=>scoutV6109CSVRow(m,team,st))],meta=[['partido',`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent}`],['fecha',m.date],['equipo_analizado',team==='ours'?EQUIPOS[equipoActivo].nombre:'Rival'],['set',f.set||'todos'],['rotacion',f.rotation?`R${f.rotation}`:'todas'],['fase',f.phase||'K1+K2'],['criterio_g_p','Puntos directos ganados menos pérdidas directas. Saque: ACE-ERR. Ataque: PTS-ERR-BLO.'],[]],csv='\uFEFF'+[...meta,headers,...rows].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_estadistica_GP.csv`)};
 window.scoutExportPDF=async function(id){const m=scoutExportMatch(id);if(!m){alert('No hay scouting seleccionado.');return}if(!window.html2canvas||!window.jspdf?.jsPDF){alert('No se ha podido cargar el motor PDF.');return}scoutExportNotice(true,'Preparando informe PDF…');try{const team='ours',data=scoutV6109FullStats(m,team),sets=scoutArr(m.sets),score=scoutSetsScore(m),w=scoutV6109WonBreakdownAll(m,team),seq=scoutSequenceSummary(m,team),dist=scoutDistributionRows(m,team,'');const report=document.createElement('div');report.style.cssText='position:fixed;left:-25000px;top:0;width:1500px;background:#fff;color:#17324d;padding:42px;font-family:Arial,Helvetica,sans-serif;z-index:-1';const rows=[data.teamStat,...data.players];report.innerHTML=`<div style="border-bottom:4px solid #102b43;padding-bottom:18px;margin-bottom:18px"><div style="font-size:11px;font-weight:900;letter-spacing:.14em;color:#718394">VOLLEY COACH · DATA SHEET G-P</div><h1 style="font-size:29px;margin:6px 0;color:#102b43">${esc(EQUIPOS[equipoActivo].nombre)} vs ${esc(m.opponent)}</h1><div style="color:#697b89;font-size:13px">${esc(m.date)}${m.competition?' · '+esc(m.competition):''} · Resultado ${score.us}–${score.opponent} sets</div></div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:18px"><div style="padding:10px;border:1px solid #dfe6eb"><small>PUNTOS GANADOS</small><b style="display:block;font-size:22px">${w.total}</b></div><div style="padding:10px;border:1px solid #dfe6eb"><small>SAQUE</small><b style="display:block;font-size:22px">${w.serve}</b></div><div style="padding:10px;border:1px solid #dfe6eb"><small>ATAQUE</small><b style="display:block;font-size:22px">${w.attack}</b></div><div style="padding:10px;border:1px solid #dfe6eb"><small>BLOQUEO</small><b style="display:block;font-size:22px">${w.block}</b></div><div style="padding:10px;border:1px solid #dfe6eb"><small>ERROR RIVAL</small><b style="display:block;font-size:22px">${w.oppErr}</b></div><div style="padding:10px;border:1px solid #dfe6eb"><small>RALLY G-P</small><b style="display:block;font-size:18px">${scoutV6109GpText(w.gp,w.total,w.lost)}</b></div></div><h2 style="font-size:17px;border-bottom:1px solid #dfe6eb;padding-bottom:7px">Estadística individual · conteos</h2><table class="scout-v6109-pdf-table"><thead><tr><th>Jugador</th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>PTS</th><th>BP</th><th>G-P</th><th>SAQ T</th><th>ERR</th><th>ACE</th><th>REC T</th><th>ERR</th><th>POS</th><th>EXC</th><th>ATQ T</th><th>ERR</th><th>BLO</th><th>PTS</th><th>G-P</th><th>BLQ</th><th>DEF G-P</th><th>COL G-P</th><th>K1 G-P</th><th>K2 G-P</th></tr></thead><tbody>${rows.map((st,i)=>{const s=scoutV6109Skill(st,'S'),r=scoutV6109Skill(st,'R'),a=scoutV6109Skill(st,'A'),b=scoutV6109Skill(st,'B'),d=scoutV6109Skill(st,'D'),e=scoutV6109Skill(st,'E'),p=scoutV6109PointMetrics(st,team),k1=scoutV6109Phase(m,team,st.key,'K1'),k2=scoutV6109Phase(m,team,st.key,'K2'),form=i===0?['—','','','','']:[1,2,3,4,5].map(n=>scoutV6109InitialPos(m,team,st,n));return `<tr class="${i===0?'scout-v6109-pdf-team':''}"><td><b>${esc(i===0?'TOTAL EQUIPO':st.label)}</b></td>${form.map(x=>`<td>${esc(x||'')}</td>`).join('')}<td>${p.won}</td><td>${p.bp}</td><td>${p.gp>0?'+':''}${p.gp}</td><td>${s.total}</td><td>${s.error}</td><td>${s.perfect}</td><td>${r.total}</td><td>${r.error}</td><td>${r.positive}</td><td>${r.perfect}</td><td>${a.total}</td><td>${a.error}</td><td>${a.blocked}</td><td>${a.perfect}</td><td>${a.perfect-a.error-a.blocked}</td><td>${b.perfect}</td><td>${scoutV6109GpText(d.positive-d.failed,d.positive,d.failed)}</td><td>${scoutV6109GpText(e.positive-e.failed,e.positive,e.failed)}</td><td>${k1.total?scoutV6109GpText(k1.gp,k1.won,k1.lost):'—'}</td><td>${k2.total?scoutV6109GpText(k2.gp,k2.won,k2.lost):'—'}</td></tr>`}).join('')}</tbody></table><div style="font-size:9px;color:#718394;margin:9px 0 18px">G-P = puntos directos ganados − pérdidas directas. Formación inicial: 1–6 = posición inicial; * = participó sin estar en la formación inicial guardada.</div><h2 style="font-size:17px;border-bottom:1px solid #dfe6eb;padding-bottom:7px">Sets</h2><table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:18px"><tbody>${sets.map(s=>`<tr><td style="padding:6px;border-bottom:1px solid #edf0f2"><b>Set ${s.number}</b></td><td style="padding:6px;border-bottom:1px solid #edf0f2">${s.finished?(s.winner==='ours'?'Ganado':'Perdido'):'En curso'}</td><td style="padding:6px;border-bottom:1px solid #edf0f2;text-align:right"><b>${s.scoreUs}–${s.scoreOpponent}</b></td></tr>`).join('')}</tbody></table><h2 style="font-size:17px;border-bottom:1px solid #dfe6eb;padding-bottom:7px">K1 / K2 por conteos</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="padding:11px;border:1px solid #dfe6eb"><small>K1 · SIDE-OUT</small><b style="display:block;font-size:19px">${scoutV6109GpText(seq.k1Won-(seq.k1.length-seq.k1Won),seq.k1Won,seq.k1.length-seq.k1Won)}</b></div><div style="padding:11px;border:1px solid #dfe6eb"><small>K2 · BREAK</small><b style="display:block;font-size:19px">${scoutV6109GpText(seq.k2Won-(seq.k2.length-seq.k2Won),seq.k2Won,seq.k2.length-seq.k2Won)}</b></div></div><h2 style="font-size:17px;border-bottom:1px solid #dfe6eb;padding-bottom:7px">Distribución del colocador · volumen</h2><table style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#f1f4f6"><th style="padding:7px;text-align:left">Destino</th><th>Total</th></tr></thead><tbody>${Object.entries(dist.reduce((o,x)=>{o[x.target]=(o[x.target]||0)+1;return o},{})).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td style="padding:7px;border-bottom:1px solid #e9edf0"><b>${esc(V620_COMBO_LABELS[k]||k)}</b></td><td style="text-align:center;border-bottom:1px solid #e9edf0">${v}</td></tr>`).join('')||'<tr><td colspan="2" style="padding:10px;color:#84919b">Sin distribución codificada.</td></tr>'}</tbody></table><div style="margin-top:24px;padding-top:10px;border-top:1px solid #dfe6eb;color:#84919b;font-size:9px">Generado por Volley Coach · V6.10.9 · Estadística principal por conteos G-P; las tendencias tácticas se conservan como análisis adicional.</div>`;document.body.appendChild(report);const canvas=await html2canvas(report,{scale:1.25,backgroundColor:'#ffffff',logging:false,useCORS:true});report.remove();const {jsPDF}=window.jspdf,pdf=new jsPDF('l','mm','a4'),margin=8,pageW=297-margin*2,pageH=210-margin*2,imgW=pageW,imgH=canvas.height*imgW/canvas.width,img=canvas.toDataURL('image/jpeg',.92);let y=margin,remaining=imgH;pdf.addImage(img,'JPEG',margin,y,imgW,imgH);remaining-=pageH;while(remaining>0){pdf.addPage();y=margin-(imgH-remaining);pdf.addImage(img,'JPEG',margin,y,imgW,imgH);remaining-=pageH}pdf.save(`${scoutSafeFilename(m.date+'_'+m.opponent)}_DataSheet_GP.pdf`)}catch(err){console.error(err);alert('No se ha podido generar el PDF.')}finally{scoutExportNotice(false)}};
 // Postpartido: sustituir rendimiento porcentual por conteos G/P/G-P, manteniendo calidad como indicador propio.
-const scoutV6109PostBase=window.scoutV6100OpenPostMatch;
 window.scoutV6100OpenPostMatch=function(m=scoutActive()){
   if(!m||m.status!=='finished'||!m.finalizedByUser)return;
   const t=scoutV6100MatchTotals(m),q=scoutV690Quality(m),stats=scoutV6109FullStats(m,'ours'),pm=scoutV6109PointMetrics(stats.teamStat,'ours'),w=scoutV6109WonBreakdownAll(m,'ours');
@@ -10426,7 +10402,7 @@ scoutingMatches.forEach(m=>{m.dataVersion=V6109_VERSION});const v6109Active=scou
    Volley Coach extras remain available in a second table / second PDF page.
 */
 function scoutV61010Pct(n,d){n=Number(n)||0;d=Number(d)||0;return d?Math.round((n/d)*100):null}
-function scoutV61010PctText(n,d){const v=scoutV61010Pct(n,d);return v==null?'—':`${v}%`}
+/* V12.5 removed unreachable function: scoutV61010PctText */
 function scoutV61010Gp(v){v=Number(v)||0;return `${v>0?'+':''}${v}`}
 function scoutV61010Skill(st,skill){return scoutV6109Skill(st,skill)}
 function scoutV61010TerminalLoss(a){return !!a&&((a.evaluation==='=')||(a.skill==='A'&&a.evaluation==='/'))}
@@ -10541,7 +10517,7 @@ function v700Match(){const id=Number(v700$('scout-v700-match')?.value)||0;return
 function v700Meta(m){if(!m)return null;const raw=m.video&&typeof m.video==='object'?m.video:{};m.video={syncOffset:raw.syncOffset==null?null:Number(raw.syncOffset),source:String(raw.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll ?? 2)),postRoll:Math.max(0,Number(raw.postRoll ?? 2)),clips:scoutArr(raw.clips)};return m.video}
 function v700Persist(){try{scoutSave(false)}catch(err){console.error('V7 video persist',err)}}
 function v700Fmt(sec){if(sec==null||!Number.isFinite(Number(sec)))return '—';sec=Math.max(0,Number(sec));const m=Math.floor(sec/60),s=sec-m*60;return `${String(m).padStart(2,'0')}:${s.toFixed(1).padStart(4,'0')}`}
-function v700FileSize(n){n=Number(n)||0;if(!n)return '—';if(n<1024*1024)return `${Math.round(n/1024)} KB`;return `${(n/1024/1024).toFixed(n>1024*1024*1024?0:1)} MB`}
+/* V12.5 removed unreachable function: v700FileSize */
 function v700Mapped(m,ms){const meta=v700Meta(m);if(meta?.syncOffset==null)return null;return Math.max(0,(Number(ms)||0)/1000+Number(meta.syncOffset))}
 function v700RallyStartMs(r){const a=scoutArr(r?.actions);return a.length?(Number(a[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0)}
 function v700RallyEndMs(r){const a=scoutArr(r?.actions);return a.length?(Number(a[a.length-1].scoutMs)||Number(r?.scoutEndMs)||v700RallyStartMs(r)):(Number(r?.scoutEndMs)||v700RallyStartMs(r))}
@@ -10577,8 +10553,7 @@ const v700NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){cons
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutingMatches.forEach(m=>{if(m.video?.syncOffset!=null)v700ApplyMapping(m)});
 
 // Add a direct video jump beside closed rallies in the live screen.
-function v700DecorateRallies(m){const set=scoutSet(m),rows=scoutArr(set?.rallies).slice().reverse(),cards=[...document.querySelectorAll('#scout-rally-list .scout-rally-item')];cards.forEach((card,i)=>{const r=rows[i];if(!r||card.querySelector('.scout-v700-rally-video'))return;const b=document.createElement('button');b.type='button';b.className='ghost scout-v700-rally-video';b.textContent='▶ Vídeo';b.onclick=()=>{scoutV700OpenVideo('live');setTimeout(()=>scoutV700PlayRally(set.number,r.id),0)};card.appendChild(b)})}
-const v700RenderBase=window.scoutRender;window.scoutRender=function(){const out=v700RenderBase();if($('scouting')?.classList.contains('active')){const m=scoutActive();if(m)v700DecorateRallies(m)}return out};
+/* V12.5 removed unreachable function: v700DecorateRallies */
 
 // Keep V7 version in saved state without changing session behavior.
 const v700SaveBase=scoutSave;scoutSave=function(render=true){const m=scoutActive();if(m)m.dataVersion=V700_VERSION;const out=v700SaveBase(render);if(m)m.dataVersion=V700_VERSION;return out};
@@ -10648,7 +10623,6 @@ window.V620_COMBO_LABELS=V620_COMBO_LABELS;
 
 
 /* ===== INTEGRATED V8.3 TACTICAL ===== */
-const V830_VERSION='8.3.0';
 const V830_ATTACK_DIR={LIN:'Línea',DC:'Diagonal corta',DL:'Diagonal larga'};
 const V830_SERVE={F:'Flotante',JF:'Flotante salto',JP:'Salto potente',U:'Seguridad'};
 const $v=id=>document.getElementById(id);
@@ -10938,7 +10912,6 @@ window.scoutExportCSV=function(id){
 scoutUpdateAdvancedFields();
 
 /* ===== INTEGRATED V8.4 PRO RALLY/BLOCK/PHASE ===== */
-const V840_VERSION='8.4.0';
 const $84=id=>document.getElementById(id);
 const a84=v=>Array.isArray(v)?v:[];
 const pct84=(n,d)=>d?Math.round(Number(n||0)*100/Number(d||0)):0;
@@ -11298,7 +11271,6 @@ window.scoutExportCSV=function(id){
 scoutUpdateAdvancedFields();
 
 /* ===== INTEGRATED V8.5 CONTEXT/LINEUP/VIDEO NOTES ===== */
-const V850_VERSION='8.5.0';
 const $85=id=>document.getElementById(id);
 const a85=v=>Array.isArray(v)?v:[];
 const pct85=(n,d)=>d?Math.round(Number(n||0)*100/Number(d||0)):0;
@@ -12738,12 +12710,6 @@ window.scoutV861RenderSetList=function(m=scoutActive()){
     </div>`).join('');
 };
 
-const v861RenderBase=window.scoutRender;
-window.scoutRender=function(){
-  const out=v861RenderBase();
-  if($('scouting')?.classList.contains('active'))try{window.scoutV861RenderSetList(scoutActive())}catch(_){}
-  return out;
-};
 
 /* Update public bridges. */
 if(window.VC_SCOUT_CORE){
@@ -13852,7 +13818,6 @@ window.scoutV893RestoreCloud=async function(teamId,id){const item=v893CloudCandi
 window.scoutV893OpenRecoveryCenter=function(){if(typeof window.scoutV892OpenRecoveryCenter==='function')window.scoutV892OpenRecoveryCenter()};
 
 /* Hook final save layer: current state remains in V7.0.2, while this vault keeps history. */
-const v893SaveBase=scoutSave;
 /* V9.5: Caja fuerte V8.9.3 queda en modo legado. No intercepta cada scoutSave. */
 
 /* Important lifecycle checkpoints. */
@@ -13876,12 +13841,6 @@ window.VC_SCOUT_FAST_BRIDGE_V92={
     }
     return m;
   },
-  renderClassicCurrent:()=>{
-    const m=scoutActive();
-    if(!m)return null;
-    try{scoutRenderCurrentActions(m)}catch(_){}
-    return m;
-  }
 };
 
 })();
@@ -15456,12 +15415,7 @@ function chooseMime(){
     try{return (!mr.isTypeSupported||mr.isTypeSupported(t))&&(!ms.isTypeSupported||ms.isTypeSupported(t))}catch(_){return false}
   })||'';
 }
-function resetMediaPipeline(){
-  try{state.recorder?.stop()}catch(_){}
-  state.recorder=null;
-  state.appendQueue=[];
-  state.appendBusy=false
-}
+/* V12.5 removed unreachable function: resetMediaPipeline */
 function destroyMse(){
   const v=delayed();
   try{if(state.sourceBuffer&&state.mediaSource?.readyState==='open')state.mediaSource.endOfStream()}catch(_){}
@@ -15812,16 +15766,6 @@ const state={
   compact:false,
   exporting:false
 };
-const MOVE_IDS=[
-  'live-delay-toolbar',
-  'live-delay-support',
-  'live-delay-grid',
-  'live-delay-metrics',
-  'live-delay-controls',
-  'live-delay-training-tools',
-  'live-delay-help'
-];
-
 function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
 function setOf(m){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}catch(_){return null}}
 function save(){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(err){console.error('V7.4 save',err)}}
@@ -16372,11 +16316,7 @@ function v750DurationClock(sec){
   const m=Math.floor(sec/60),s=Math.round(sec-m*60);
   return `${m}.${String(s).padStart(2,'0')}`;
 }
-function v750DurationLong(sec){
-  if(sec==null||!Number.isFinite(sec))return '—';
-  const m=Math.floor(sec/60),s=Math.round(sec-m*60);
-  return `${m} min ${String(s).padStart(2,'0')} s`;
-}
+/* V12.5 removed unreachable function: v750DurationLong */
 function v750Checkpoints(set){
   const thresholds=Number(set?.number)===5?[5,10,12]:[8,16,21];
   const rallies=v750Arr(set?.rallies);
@@ -20093,7 +20033,7 @@ function currentMatch(){const id=Number($('v780-match')?.value)||activeId();retu
 function video(){return $('v780-player-video')}
 
 function youtubeWrap(){return $('v782-youtube-wrap')}
-function youtubeElement(){return $('v782-youtube-player')}
+/* V12.5 removed unreachable function: youtubeElement */
 function isYouTube(){return state.mediaType==='youtube'}
 function mediaLoaded(){
   const m=currentMatch();
@@ -23253,7 +23193,7 @@ function players(){try{return bridge()?.getPlayers?.()||[]}catch(_){return[]}}
 function teamName(){try{return bridge()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
 function currentSet(m){return m?.sets?.find(s=>Number(s.number)===Number(m.currentSet))||null}
 function allActions(m){if(!m)return[];const closed=(m.sets||[]).flatMap(s=>(s.rallies||[]).flatMap(r=>(r.actions||[]).map(a=>({...a,_set:s.number,_winner:r.winner}))));return closed.concat((m.liveRally?.actions||[]).map(a=>({...a,_set:m.currentSet,_winner:null})))}
-function setActions(m){return allActions(m).filter(a=>Number(a._set)===Number(m?.currentSet))}
+/* V12.5 removed unreachable function: setActions */
 function setsScore(m){const done=(m?.sets||[]).filter(s=>s.finished);if(m?.manualResult?.active)return{us:Number(m.manualResult.us)||0,opponent:Number(m.manualResult.opponent)||0};return{us:done.filter(s=>s.winner==='ours').length,opponent:done.filter(s=>s.winner==='opponent').length}}
 function pct(n,d){return d?Math.round(Number(n||0)*100/d):0}
 function playerById(id){return players().find(p=>Number(p.id)===Number(id))||null}
@@ -23261,7 +23201,7 @@ function playerLabel(a){try{return bridge()?.playerLabel?.(a)||a?.playerLabel||'
 function ownLabel(id){const p=playerById(id);if(!p)return '—';return `${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`}
 function opponentLabel(v,pos){return String(v||'').trim()||`Rival ${String(pos||'').toUpperCase()}`}
 function token(zone,sub){return String(zone||'')+String(sub||'')}
-function setVal(id,val){const el=$(id);if(!el)return;el.value=val??'';el.dispatchEvent(new Event('change',{bubbles:true}))}
+/* V12.5 removed unreachable function: setVal */
 function safeText(id,text){const el=$(id);if(el)el.textContent=text}
 
 function ensurePlayer(){
@@ -23348,33 +23288,7 @@ function renderCourt(target,team,prep=false){
 function renderCourts(){
   renderCourt('v900-own-court','ours');renderCourt('v900-rival-court','opponent');renderCourt('v900-prep-own-court','ours',true);renderCourt('v900-prep-rival-court','opponent',true);
 }
-function syncLegacy(){
-  ensurePlayer();
-  setVal('scout-action-team',state.team);
-  try{window.scoutRefreshActionPlayers?.()}catch(_){}
-  setVal('scout-action-player',state.player);
-  setVal('scout-action-skill',state.skill);
-  try{window.scoutUpdateAdvancedFields?.()}catch(_){}
-  setVal('scout-action-eval',state.evaluation);
-  const r=locationRules();
-  setVal('scout-action-start',r.origin?state.origin:'');setVal('scout-action-start-sub',r.origin?state.originSub:'');
-  setVal('scout-action-end',r.destination?state.destination:'');setVal('scout-action-end-sub',r.destination?state.destinationSub:'');
-  setVal('scout-action-serve-type',state.serveType);
-  setVal('scout-action-phase',state.phaseCode);
-  setVal('scout-action-combo',state.combo);
-  setVal('scout-action-dv-code',state.dvCode);
-  setVal('scout-action-tempo',state.tempo);
-  setVal('scout-action-set-type',state.setType);
-  setVal('scout-action-subtype',state.subtype);
-  setVal('scout-action-direction',state.direction);
-  setVal('scout-action-blockers',state.blockers);
-  setVal('scout-v840-block-target',state.blockTarget);
-  setVal('scout-action-special',state.special);
-  setVal('scout-action-custom',state.custom);
-  setVal('scout-action-location-mode',state.locationMode);
-  setVal('scout-action-end-cone',state.cone);
-  try{window.scoutUpdateAdvancedCodePreview?.()}catch(_){}
-}
+/* V12.5 removed unreachable function: syncLegacy */
 function buildPreview(){
   const p=state.team==='opponent'?'R':'';
   let num='';
@@ -24071,7 +23985,7 @@ let activeSurface='';
 let surfaceChangedAt=Date.now();
 
 function surface(){
-  const ids=['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-dashboard'];
+  const ids=['scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','scout-safe','scout-dashboard'];
   return ids.find(id=>document.getElementById(id)?.classList.contains('active'))||'';
 }
 function updateSurface(){
@@ -24133,7 +24047,6 @@ updateSurface();
 (()=>{
 'use strict';
 const VERSION='9.2.0';
-const legacyRender=window.scoutRender;
 const homeRender=window.scoutRenderHome;
 const analysisRender=window.scoutRenderAnalysis;
 const matchRender=window.v800Render;
@@ -24143,7 +24056,7 @@ let frame=0,fastFrame=0,rendering=false,lastSurface='',lastDuration=0,lastReason
 const queuedReasons=new Set();
 
 function activeSurface(){
-  const ids=['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-dashboard','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion'];
+  const ids=['scout-match-mode','scout-workspace-v900','scout-analysis','scout-dashboard','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion'];
   return ids.find(id=>document.getElementById(id)?.classList.contains('active'))||'';
 }
 function prepare(){
@@ -24165,16 +24078,11 @@ function renderNow(reason='manual'){
       analysisRender?.();
     }else if(s==='scout-dashboard'){
       homeRender?.();
-    }else if(s==='scouting'){
-      /* Full historical chain only where it is actually needed. */
-      legacyRender?.();
     }else{
       /* Other scouting views own their render lifecycle; do not repaint hidden UI. */
     }
   }catch(err){
     console.error('V9.2 render router',err);
-    /* Safe fallback only when the visible surface really needs the legacy UI. */
-    if(s==='scouting')try{legacyRender?.()}catch(_){}
   }finally{
     lastDuration=Math.round((performance.now()-t0)*10)/10;
     rendering=false;
@@ -24196,19 +24104,6 @@ function renderFastNow(reason='action'){
       window.v910MatchModeFastRender?.();
     }else if(s==='scout-workspace-v900'){
       window.v900RenderFast?.();
-    }else if(s==='scouting'){
-      const m=window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.();
-      if(m){
-        window.VC_SCOUT_FAST_BRIDGE_V92?.renderClassicCurrent?.();
-        const count=document.getElementById('scout-kpi-actions');
-        if(count){
-          let n=0;
-          try{
-            n=(m.sets||[]).reduce((a,set)=>a+(set.rallies||[]).reduce((b,r)=>b+(r.actions||[]).length,0),0)+(m.liveRally?.actions||[]).length;
-          }catch(_){}
-          count.textContent=String(n);
-        }
-      }
     }
   }catch(err){console.warn('V9.2 fast render',err)}
 }
@@ -24217,8 +24112,7 @@ function requestFast(reason='action'){
   fastFrame=requestAnimationFrame(()=>{fastFrame=0;renderFastNow(reason)});
 }
 
-/* Replace the 10-wrapper path for modern surfaces.
-   legacyRender is still preserved and used by Clásico. */
+/* V12.5: modern surfaces use one fused render path; classic rendering has been retired. */
 window.scoutRender=function(){request('scoutRender');return window.VC_SCOUT_CORE?.getActive?.()||null};
 
 /* Public diagnostic/manual hooks. */
@@ -24227,15 +24121,13 @@ window.VC_SCOUT_RENDER_V92={
   request,
   requestFast,
   now:renderNow,
-  legacy:()=>legacyRender?.(),
   surface:activeSurface,
   diagnostics:()=>({
     version:VERSION,
     surface:activeSurface(),
     lastSurface,lastReason,lastDurationMs:lastDuration,
     renderCount,fastCount,
-    fullLegacyChainOnlyForClassic:true,
-    historicalWrapperCount:10,
+    classicRenderRetired:true,
     journalMode:'full-on-critical + live-rally-delta-on-action'
   })
 };
@@ -24245,7 +24137,7 @@ const showBase=window.showView;
 if(typeof showBase==='function'&&!showBase.__v920){
   const wrapped=function(id,btn){
     const out=showBase.apply(this,arguments);
-    if(['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-dashboard'].includes(id)&&!window.VC_V930_UNIFIED?.ownsView?.(id)){
+    if(['scout-match-mode','scout-workspace-v900','scout-analysis','scout-dashboard'].includes(id)&&!window.VC_V930_UNIFIED?.ownsView?.(id)){
       request('navigation:'+id);
     }
     return out;
@@ -24261,13 +24153,11 @@ if(typeof showBase==='function'&&!showBase.__v920){
 /* Isolate the large scouting workspaces from the rest of the application layout. */
 #scout-match-mode.active,
 #scout-workspace-v900.active,
-#scouting.active,
 #scout-analysis.active{
   contain:layout style paint;
 }
 #scout-match-mode:not(.active),
 #scout-workspace-v900:not(.active),
-#scouting:not(.active),
 #scout-analysis:not(.active){
   pointer-events:none;
 }
@@ -24287,9 +24177,9 @@ if(typeof showBase==='function'&&!showBase.__v920){
 <script id="v124-professional-route-compat">
 (()=>{
 'use strict';
-const VERSION='12.4.0';
+const VERSION='12.5.0';
 const owned=new Set(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion']);
-const show=(id)=>{try{return window.showView?.(id,window.botonVista?.(id)||null)}catch(e){console.warn('V12.4 route',id,e)}};
+const show=(id)=>{try{return window.showView?.(id,window.botonVista?.(id)||null)}catch(e){console.warn('V12.5 route',id,e)}};
 const workspace=(phase='scout')=>{show('scout-workspace-v900');try{window.v900SetPhase?.(phase)}catch(_){};return true};
 async function route(route){
   switch(String(route||'')){
@@ -24309,7 +24199,7 @@ async function route(route){
     default: return workspace('scout');
   }
 }
-function invalidateAnalysis(){try{window.VC_SCOUT_RENDER_V92?.request?.('v124-invalidate')}catch(_){try{window.scoutRenderAnalysis?.()}catch(__){}}}
+function invalidateAnalysis(){try{window.VC_SCOUT_RENDER_V92?.request?.('v125-invalidate')}catch(_){try{window.scoutRenderAnalysis?.()}catch(__){}}}
 function afterView(id){
   try{
     switch(id){
@@ -24324,7 +24214,7 @@ function afterView(id){
       case 'scout-matchup': window.scoutV670Render?.(); break;
       case 'competicion': window.renderCompetition?.(); break;
     }
-  }catch(err){console.warn('V12.4 afterView',id,err)}
+  }catch(err){console.warn('V12.5 afterView',id,err)}
 }
 window.v930Open=route;
 window.v930InvalidateAnalysis=invalidateAnalysis;
@@ -25978,10 +25868,9 @@ window.v956SyncScoutingsNow=window.v957SyncScoutingsNow;
 
 /* V9.6.2: automatic Supabase traffic is centralized below.
    V9.5.7 canonical merge functions remain available for compatibility/manual recovery. */
-const canonicalTimer=null;
 
 /* ---- Clock lifecycle: only count while an editing surface of that scouting is open. ---- */
-const editingViews=new Set(['scout-match-mode','scout-workspace-v900','scouting']);
+const editingViews=new Set(['scout-match-mode','scout-workspace-v900']);
 function activeView(){
   return [...editingViews].find(id=>document.getElementById(id)?.classList.contains('active'))||null;
 }
@@ -26438,7 +26327,6 @@ function onOnline(){
 }
 
 /* Replace all future autosave scheduling with one batching queue. */
-const legacySchedule=window.programarSubidaCloud;
 const efficientSchedule=function(){return markDirty('autosave')};
 window.programarSubidaCloud=efficientSchedule;
 try{programarSubidaCloud=efficientSchedule}catch(_){}
@@ -26468,7 +26356,7 @@ window.v956SyncScoutingsNow=()=>sync({reason:'manual-scout',manual:true,allowWri
 window.v957SyncScoutingsNow=window.v956SyncScoutingsNow;
 
 /* One passive timer only. No 12 s + 15 s duplicate polling. */
-const passiveTimer=setInterval(()=>{
+setInterval(()=>{
   if(document.visibilityState==='visible'&&connected()){
     if(dirty)void sync({reason:'passive-dirty',manual:false,allowWrite:true});
     else void sync({reason:'passive',manual:false,allowWrite:true});
@@ -26673,7 +26561,6 @@ const VIEW_META={
   estadisticas:['training','ENTRENAMIENTO / ESTADÍSTICAS','Estadísticas de entrenamiento'],
   'scout-dashboard':['scout-home','SCOUTING / CENTRO','Centro de scouting'],
   'scout-workspace-v900':['scouting','SCOUTING / CODIFICACIÓN','Scouting Pro'],
-  scouting:['scouting','SCOUTING / CLÁSICO','Scouting'],
   'scout-match-mode':['match','SCOUTING / PARTIDO','Modo Partido'],
   'scout-analysis':['analysis','SCOUTING / ANÁLISIS','Análisis y estadísticas'],
   'scout-video-hub':['video','VÍDEO / REVIEW','Vídeo Review'],
@@ -26700,7 +26587,7 @@ function updatePage(id){
 function moveProfessionalNav(id){
   const nav=$('v940-professional-nav'),slot=$('v11-context-slot');
   if(!nav||!slot)return;
-  const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion'].includes(id);
+  const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion'].includes(id);
   if(nav.parentElement!==slot)slot.appendChild(nav);
   nav.classList.toggle('hidden',!scouting);
 }
@@ -27595,7 +27482,6 @@ window.VC_V114_ANALYSIS={version:VERSION,render:renderChrome,selectedMatch,offic
 body.workspace-scouting.v11-shell #v11-context-slot{display:none!important}
 body.v11-shell:has(#scout-dashboard.active) #v11-context-slot,
 body.v11-shell:has(#scout-workspace-v900.active) #v11-context-slot,
-body.v11-shell:has(#scouting.active) #v11-context-slot,
 body.v11-shell:has(#scout-match-mode.active) #v11-context-slot,
 body.v11-shell:has(#scout-analysis.active) #v11-context-slot,
 body.v11-shell:has(#scout-postmatch.active) #v11-context-slot,
@@ -28413,7 +28299,7 @@ body.v11-shell #v11-context-slot:empty{display:none!important}
 <script id="v124-cleanup-runtime">
 (()=>{
 'use strict';
-const VERSION='12.4.0';
+const VERSION='12.5.0';
 /* Postpartido V8.2 is retired: every old route resolves to the current Analysis view. */
 const showBase=window.showView;if(typeof showBase==='function'&&!showBase.__v124){const wrapped=function(id,btn){if(id==='scouting')id='scout-workspace-v900';if(id==='scout-postmatch')id='scout-analysis';const out=showBase.call(this,id,id==='scout-workspace-v900'?(window.botonVista?.(id)||btn):btn);return out};wrapped.__v124=true;window.showView=wrapped}
 function boot(){document.body.classList.add('v124-clean');try{document.documentElement.classList.remove('v118-booting')}catch(_){}}
@@ -28421,4 +28307,266 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 window.VC_V124={version:VERSION,diagnostics:()=>({version:VERSION,legacyScoutingVisible:getComputedStyle(document.getElementById('scouting')).display!=='none',legacyModalStubs:document.querySelectorAll('.v124-legacy-modal-stub').length,postmatchExists:!!document.getElementById('scout-postmatch'),oldScoutingNavExists:!!document.getElementById('scouting-nav'),oldV930NavExists:!!document.getElementById('v930-unified-nav'),oldV940NavExists:!!document.getElementById('v940-professional-nav'),activeView:document.querySelector('.view.active')?.id||''})};
 })();
 </script>
+
+
+<style id="v130-match-state-style">
+.v130-readonly-banner{display:none;align-items:center;justify-content:space-between;gap:12px;margin:-2px 0 10px;padding:9px 12px;border:1px solid #e2d5b5;border-radius:10px;background:#fffaf0;color:#69552d;font-size:8px}.v130-readonly-banner b{display:block;font-size:9px;color:#5e4922}.v130-readonly-banner span{display:block;margin-top:2px;color:#88734b}.v130-readonly-banner .actions{display:flex;gap:6px;flex-wrap:wrap}.v130-readonly-banner button{padding:7px 9px!important;font-size:7px!important}
+body.v130-readonly-match .v130-readonly-banner{display:flex}
+body.v130-readonly-match #v121-live-control .v121-score-actions>button,
+body.v130-readonly-match #v121-live-control .v121-score-actions .tools button,
+body.v130-readonly-match #v119-lineup-modal button.primary,
+body.v130-readonly-match #v119-new-match-modal~* .v119-action{opacity:.48}
+body.v130-readonly-match #v121-live-control .v121-score-actions>button,
+body.v130-readonly-match #v121-live-control .v121-score-actions .tools button{pointer-events:none}
+.v130-state-debug{display:none}
+@media(max-width:760px){.v130-readonly-banner{align-items:flex-start;flex-direction:column}.v130-readonly-banner .actions{width:100%}.v130-readonly-banner .actions button{flex:1}}
+</style>
+<script id="v130-match-state-core">
+(()=>{
+'use strict';
+const VERSION='13.0.0';
+const $=id=>document.getElementById(id);
+const clone=x=>{try{return JSON.parse(JSON.stringify(x))}catch(_){return x}};
+const bus=new EventTarget();
+let revision=0,lastReason='boot',lastSignature='';
+
+function list(){try{return Array.isArray(scoutingMatches)?scoutingMatches.filter(Boolean):window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]}catch(_){return[]}}
+function byId(id){id=Number(id)||0;return list().find(m=>Number(m?.id)===id)||null}
+function active(){try{return typeof scoutActive==='function'?scoutActive():window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
+function setOf(m=active()){try{return typeof scoutSet==='function'?scoutSet(m):window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}catch(_){return null}}
+function setsScore(m=active()){try{return typeof scoutSetsScore==='function'?scoutSetsScore(m):{us:0,opponent:0}}catch(_){return{us:0,opponent:0}}}
+function actionCount(m=active()){try{return typeof scoutActionCount==='function'?scoutActionCount(m):0}catch(_){return 0}}
+function isReadonly(m=active()){return !!m&&String(m.status||'')==='finished'}
+function signature(m=active()){
+  if(!m)return 'none';const s=setOf(m),ss=setsScore(m);
+  return [m.id,m.status,m.currentSet,s?.scoreUs,s?.scoreOpponent,m.rotationNo,m.opponentRotationNo,m.servingTeam,ss.us,ss.opponent,actionCount(m),m.updatedAt].join('|');
+}
+function snapshot(m=active()){
+  if(!m)return null;const s=setOf(m),ss=setsScore(m);
+  return {
+    schema:'vc.match-state/13.0',revision,matchId:Number(m.id)||0,readonly:isReadonly(m),status:String(m.status||''),
+    info:{date:m.date||'',opponent:m.opponent||'',competition:m.competition||'',linkedMatchId:m.linkedMatchId??null},
+    currentSet:Number(m.currentSet)||1,score:{us:Number(s?.scoreUs)||0,opponent:Number(s?.scoreOpponent)||0,setsUs:Number(ss.us)||0,setsOpponent:Number(ss.opponent)||0},
+    rotations:{us:Number(m.rotationNo)||1,opponent:Number(m.opponentRotationNo)||1},service:m.servingTeam==='opponent'?'opponent':'ours',
+    phase:m.servingTeam==='opponent'?'K1':'K2',lineup:clone(m.lineup||{}),baseLineup:clone(m.baseLineup||{}),libero:clone(m.libero||{}),
+    liveRally:clone(m.liveRally||{}),sets:clone(m.sets||[]),events:clone(m.events||[]),workflow:clone(m.workflow||{}),
+    actions:actionCount(m),updatedAt:m.updatedAt||null
+  };
+}
+function emit(reason='change',detail={}){
+  revision++;lastReason=reason;lastSignature=signature();
+  try{bus.dispatchEvent(new CustomEvent('change',{detail:{reason,revision,snapshot:snapshot(),...detail}}))}catch(_){}
+  try{document.dispatchEvent(new CustomEvent('vc:matchstatechange',{detail:{reason,revision,matchId:Number(active()?.id)||null}}))}catch(_){}
+  refreshReadonly();
+}
+function sync(reason='legacy-sync'){
+  const sig=signature();if(sig!==lastSignature){emit(reason);return true}refreshReadonly();return false;
+}
+async function persistSelection(){
+  try{
+    if(typeof equiposData!=='undefined'&&typeof equipoActivo!=='undefined'){
+      if(!equiposData[equipoActivo]&&typeof estadoEquipoVacio==='function')equiposData[equipoActivo]=estadoEquipoVacio(equipoActivo);
+      const team=equiposData[equipoActivo];if(team){team.scoutingActiveId=Number(active()?.id)||null;if(typeof scoutClone==='function')team.scoutingMatches=scoutClone(list())}
+    }
+    if(typeof guardarEstadoLocalSinCloud==='function')guardarEstadoLocalSinCloud();
+    else await window.scoutV902Flush?.();
+  }catch(err){console.warn('V13.0 persist selection',err)}
+}
+async function select(id,{saveCurrent=true,openWorkspace=true}={}){
+  id=Number(id)||0;const target=byId(id);if(!target)throw new Error('No se encuentra el scouting seleccionado.');
+  const current=active();if(Number(current?.id)===id){refreshReadonly();return target}
+  if(saveCurrent&&current){try{await window.scoutV902Flush?.()}catch(_){try{window.scoutSave?.(false)}catch(__){}}}
+  if(current&&String(current.status||'')!=='finished'){try{window.VC_SCOUT_VIDEO_BRIDGE?.pauseClock?.(current)}catch(_){}}
+  let selected=null;
+  if(String(target.status||'')==='finished'){
+    /* A finished match is selectable for review, but is never silently reopened. */
+    try{scoutingActiveId=target.id;selected=target}catch(_){selected=target}
+    await persistSelection();
+  }else{
+    selected=window.VC_SCOUT_VIDEO_BRIDGE?.activateMatch?.(id)||null;
+    if(!selected){try{scoutingActiveId=target.id;selected=target;window.VC_SCOUT_VIDEO_BRIDGE?.resumeClock?.(target);await persistSelection()}catch(_){}}
+  }
+  if(!selected)throw new Error('No se ha podido activar el scouting seleccionado.');
+  emit('match:selected',{previousId:Number(current?.id)||null,matchId:id});
+  if(openWorkspace){try{window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900')||null)}catch(_){} }
+  refreshProfessionalUi();
+  return selected;
+}
+function mutate(mutator,reason='mutation',{save=true}={}){
+  const m=active();if(!m)throw new Error('No hay scouting activo.');if(isReadonly(m))throw new Error('Este scouting está finalizado y se ha abierto en modo solo lectura.');
+  const result=mutator(m,setOf(m));m.updatedAt=typeof scoutNow==='function'?scoutNow():new Date().toISOString();
+  if(save)try{window.scoutSave?.(false)}catch(_){}
+  emit(reason);return result;
+}
+function subscribe(fn){if(typeof fn!=='function')return()=>{};const h=e=>fn(e.detail);bus.addEventListener('change',h);return()=>bus.removeEventListener('change',h)}
+function ensureReadonlyBanner(){
+  if($('v130-readonly-banner'))return;const bar=$('v123-scout-switchbar')||$('v900-live');if(!bar)return;
+  const node=document.createElement('div');node.id='v130-readonly-banner';node.className='v130-readonly-banner';node.innerHTML='<div><b>Partido finalizado · modo solo lectura</b><span>Puedes revisar el scouting y cambiar de partido sin reabrir ni modificar este resultado.</span></div><div class="actions"><button type="button" class="ghost" onclick="v11Navigate(\'analysis\')">Abrir análisis</button><button type="button" class="ghost" onclick="v122OpenMatchSwitcher()">Cambiar scouting</button></div>';
+  if(bar.id==='v123-scout-switchbar')bar.insertAdjacentElement('afterend',node);else bar.prepend(node);
+}
+function refreshReadonly(){
+  ensureReadonlyBanner();const ro=isReadonly();document.body.classList.toggle('v130-readonly-match',ro);
+  const selectors=['#v121-live-control .v121-score-actions>button','#v121-live-control .v121-score-actions .tools button'];
+  document.querySelectorAll(selectors.join(',')).forEach(b=>{b.disabled=ro;b.setAttribute('aria-disabled',ro?'true':'false');if(ro)b.title='Partido finalizado · solo lectura';else if(b.title==='Partido finalizado · solo lectura')b.removeAttribute('title')});
+}
+function refreshProfessionalUi(){
+  try{window.VC_V123?.render?.()}catch(_){}try{window.v119RefreshPro?.()}catch(_){}try{window.v120RenderManagement?.()}catch(_){}try{window.VC_V121?.render?.()}catch(_){}try{window.v900Open?.()}catch(_){}refreshReadonly();
+}
+async function switchFromUi(id){
+  id=Number(id)||0;if(!id)return false;const controls=[$('v123-match-select'),$('v119-match-picker')].filter(Boolean);controls.forEach(x=>x.disabled=true);
+  try{await select(id,{saveCurrent:true,openWorkspace:true});refreshProfessionalUi();return true}
+  catch(err){console.error('V13.0 switch scouting',err);alert(String(err?.message||'No se ha podido cambiar de scouting.'));refreshProfessionalUi();return false}
+  finally{controls.forEach(x=>x.disabled=false)}
+}
+
+const MatchState={
+  version:VERSION,schema:'vc.match-state/13.0',list,getById:byId,getActive:active,getSet:setOf,getSnapshot:snapshot,isReadonly,
+  select,mutate,subscribe,sync,get revision(){return revision},get lastReason(){return lastReason},
+  diagnostics:()=>({version:VERSION,schema:'vc.match-state/13.0',revision,lastReason,activeId:Number(active()?.id)||null,readonly:isReadonly(),matches:list().length,signature:signature()})
+};
+window.MatchState=MatchState;window.VC_MATCH_STATE=MatchState;
+window.v130SwitchMatch=switchFromUi;
+/* Every visible switcher now uses the same state transition. */
+window.v119SwitchMatch=switchFromUi;window.v122SwitchMatch=async id=>{const ok=await switchFromUi(id);if(ok)try{window.v122CloseMatchSwitcher?.()}catch(_){}return ok};window.v123SwitchMatch=switchFromUi;
+window.scoutOpenSaved=id=>switchFromUi(id);
+
+/* Compatibility bridge: old modules keep reading the canonical legacy object, while V13 exposes it as one state. */
+window.VC_MATCH_STATE_ADAPTER={
+  legacyMatches:()=>list(),legacyActiveId:()=>Number(active()?.id)||null,legacyActive:()=>active(),
+  currentSet:()=>setOf(),snapshot:()=>snapshot(),select:id=>select(id)
+};
+
+function boot(){
+  document.body.classList.add('v130-match-state');lastSignature=signature();ensureReadonlyBanner();refreshReadonly();
+  /* v900 is already the central professional render point; use it to detect legacy mutations without changing their logic. */
+  try{const base=window.v900Render;if(typeof base==='function'&&!base.__v130){const wrapped=function(...args){const out=base.apply(this,args);queueMicrotask(()=>sync('workspace-render'));return out};wrapped.__v130=true;window.v900Render=wrapped}}catch(_){}
+  try{const teamBase=window.cambiarEquipo;if(typeof teamBase==='function'&&!teamBase.__v130){const wrapped=function(...args){const out=teamBase.apply(this,args);queueMicrotask(()=>emit('team:changed'));return out};wrapped.__v130=true;window.cambiarEquipo=wrapped}}catch(_){}
+  refreshProfessionalUi();emit('boot');
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
+
+
+
+<style id="v131-match-state-adapters-style">
+.v131-state-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid #d8e4ea;border-radius:999px;background:#f7fafc;color:#4b687a;font-size:6.5px;font-weight:900;letter-spacing:.06em;white-space:nowrap}.v131-state-chip::before{content:'●';color:#3f8b65}.v131-state-chip.readonly::before{color:#b48a3e}.v131-state-chip.busy::before{color:#4f7ca0}
+</style>
+<script id="v131-match-state-adapters">
+(()=>{
+'use strict';
+const VERSION='13.1.0';
+const State=window.MatchState||window.VC_MATCH_STATE;
+if(!State){console.warn('V13.1: MatchState no disponible');return}
+const $=id=>document.getElementById(id);
+const captured={
+  point:window.v121AwardPoint,
+  undo:window.v121UndoRally,
+  lineup:window.v119SaveLineup,
+  change:window.v120SaveChange,
+  liberoAuto:window.v120ToggleLiberoAuto,
+  liberoEnter:window.v120LiberoEnter,
+  liberoExit:window.v120LiberoExit,
+  event:window.v120SaveEvent,
+  finishSet:window.v120FinishSet,
+  newSet:window.v121StartNewSet,
+  finalResult:window.v120SaveFinalResult,
+  matchQuickEvent:window.v800QuickEvent,
+  matchCode:window.v800AddCode,
+  proCode:window.v900RegisterCode,
+  proVisual:window.v900RegisterVisual
+};
+let operationSeq=0,lastOperation='boot',renderQueued=false;
+function ensureMutable(){const m=State.getActive?.();if(!m)throw new Error('No hay un scouting activo.');if(State.isReadonly?.(m))throw new Error('Este scouting está finalizado y está abierto en modo solo lectura.');return m}
+function updateChip(){
+  let chip=$('v131-state-chip');const host=$('v123-scout-switchbar')||document.querySelector('#scout-workspace-v900 .v119-probar');
+  if(!chip&&host){chip=document.createElement('span');chip.id='v131-state-chip';chip.className='v131-state-chip';host.appendChild(chip)}
+  if(!chip)return;const snap=State.getSnapshot?.();chip.classList.toggle('readonly',!!snap?.readonly);chip.textContent=snap?(snap.readonly?'MATCHSTATE · SOLO LECTURA':'MATCHSTATE · SINCRONIZADO'):'MATCHSTATE · SIN PARTIDO';chip.title=`V${VERSION} · ${lastOperation} · rev ${State.revision||0}`;
+}
+function scheduleConsumers(reason='state'){
+  lastOperation=reason;updateChip();if(renderQueued)return;renderQueued=true;
+  const run=()=>{renderQueued=false;
+    try{window.VC_V123?.render?.()}catch(_){}
+    try{window.v119RefreshPro?.()}catch(_){}
+    try{window.v120RenderManagement?.()}catch(_){}
+    try{window.VC_V121?.render?.()}catch(_){}
+    try{if($('scout-workspace-v900')?.classList.contains('active'))window.v900Render?.()}catch(_){}
+    try{if($('scout-match-mode')?.classList.contains('active'))window.v800Render?.()}catch(_){}
+    try{if($('v850-lineup-control')?.classList.contains('open'))window.v850RenderLineupControl?.()}catch(_){}
+    updateChip();
+  };
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(run);else setTimeout(run,0)
+}
+async function throughState(name,fn,args=[],opts={}){
+  if(typeof fn!=='function')throw new Error(`La operación ${name} no está disponible.`);
+  if(!opts.allowReadonly)ensureMutable();
+  const seq=++operationSeq;lastOperation=name;updateChip();$('v131-state-chip')?.classList.add('busy');
+  try{
+    const out=await Promise.resolve(fn(...args));
+    State.sync?.(`v13.1:${name}`);
+    scheduleConsumers(name);
+    return out;
+  }catch(err){console.error(`V13.1 ${name}`,err);throw err}
+  finally{if(seq===operationSeq)$('v131-state-chip')?.classList.remove('busy')}
+}
+const commands={
+  awardPoint:winner=>throughState('score:point',captured.point,[winner]),
+  undoRally:()=>throughState('score:undo',captured.undo,[]),
+  saveLineup:()=>throughState('lineup:save',captured.lineup,[]),
+  saveChange:()=>throughState('lineup:substitution',captured.change,[]),
+  liberoAuto:()=>throughState('lineup:libero-auto',captured.liberoAuto,[]),
+  liberoEnter:()=>throughState('lineup:libero-enter',captured.liberoEnter,[]),
+  liberoExit:()=>throughState('lineup:libero-exit',captured.liberoExit,[]),
+  saveEvent:()=>throughState('event:add',captured.event,[]),
+  finishSet:()=>throughState('set:finish',captured.finishSet,[]),
+  startNewSet:()=>throughState('set:new',captured.newSet,[]),
+  saveFinalResult:finalize=>throughState(finalize?'match:finish':'match:result',captured.finalResult,[!!finalize]),
+  quickEvent:type=>throughState('event:quick',captured.matchQuickEvent,[type]),
+  matchCode:()=>throughState('action:match-code',captured.matchCode,[]),
+  proCode:()=>throughState('action:pro-code',captured.proCode,[]),
+  proVisual:()=>throughState('action:pro-visual',captured.proVisual,[])
+};
+State.commands=Object.assign(State.commands||{},commands);
+State.version=VERSION;State.schema='vc.match-state/13.1';
+
+/* User-facing mutations now enter through MatchState. The lower-level scout* functions remain engine adapters during migration. */
+window.v121AwardPoint=commands.awardPoint;window.v121Point=commands.awardPoint;
+window.v121UndoRally=commands.undoRally;
+window.v119SaveLineup=commands.saveLineup;
+window.v120SaveChange=commands.saveChange;
+window.v120ToggleLiberoAuto=commands.liberoAuto;
+window.v120LiberoEnter=commands.liberoEnter;
+window.v120LiberoExit=commands.liberoExit;
+window.v120SaveEvent=commands.saveEvent;
+window.v120FinishSet=commands.finishSet;
+window.v121StartNewSet=commands.startNewSet;
+window.v120SaveFinalResult=commands.saveFinalResult;
+window.v800QuickEvent=commands.quickEvent;
+window.v800AddCode=commands.matchCode;
+window.v900RegisterCode=commands.proCode;
+window.v900RegisterVisual=commands.proVisual;
+
+/* Match Mode selects exactly the same canonical match as Scouting Pro. */
+window.v800SelectMatch=async function(id){
+  id=Number(id)||0;if(!id)return false;
+  try{await State.select(id,{saveCurrent:true,openWorkspace:false});scheduleConsumers('match:selected-from-mode');return true}
+  catch(err){console.error('V13.1 mode select',err);alert(String(err?.message||'No se ha podido cambiar de scouting.'));return false}
+};
+window.v800ResumeSelected=async function(){const id=Number($('v800-match-select')?.value)||Number(State.list?.().find(m=>m.status!=='finished')?.id)||0;if(!id)return alert('No hay ningún scouting guardado.');return window.v800SelectMatch(id)};
+
+/* Keep public professional API pointing to the state layer. */
+if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=VERSION;window.VC_SCOUT_CORE.professionalPoint=commands.awardPoint;window.VC_SCOUT_CORE.professionalUndo=commands.undoRally}
+if(window.VC_V121){window.VC_V121.version=VERSION;window.VC_V121.point=commands.awardPoint;window.VC_V121.undo=commands.undoRally}
+if(window.VC_V119){window.VC_V119.version=VERSION}
+if(window.VC_V120){window.VC_V120.version=VERSION}
+
+const unsubscribe=State.subscribe?.(d=>scheduleConsumers(d?.reason||'state:change'))||(()=>{});
+const baseDiag=typeof State.diagnostics==='function'?State.diagnostics.bind(State):()=>({});
+State.diagnostics=()=>({...baseDiag(),version:VERSION,schema:'vc.match-state/13.1',adapter:'v13.1',lastOperation,operations:operationSeq,consumers:{scoutingPro:!!$('scout-workspace-v900')?.classList.contains('active'),matchMode:!!$('scout-match-mode')?.classList.contains('active')}});
+window.VC_V131={version:VERSION,state:State,commands,diagnostics:()=>State.diagnostics(),dispose:unsubscribe};
+function boot(){document.body.classList.add('v131-match-state-adapters');updateChip();State.sync?.('v13.1:boot');scheduleConsumers('boot')}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
+
 </body></html>
