@@ -753,7 +753,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 
 <style id="v6109-gp-style">
-/* ===== V10.3 · ANALYSIS + VIDEO + REPORTS ===== */
+/* ===== V10.4 · LIGHT PROFESSIONAL STRUCTURE ===== */
 .scout-v630-table{min-width:2050px!important}.scout-v6109-gp{font-weight:950}.scout-v6109-gp.good{color:#24704d}.scout-v6109-gp.bad{color:#a14440}.scout-v6109-form{font-weight:900;color:#29475f}.scout-v6109-points-strip{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 0 2px}.scout-v6109-points-strip span{display:inline-flex;gap:4px;align-items:center;padding:4px 7px;border:1px solid #dfe6eb;border-radius:999px;background:#fff;color:#5f707d}.scout-v6109-points-strip b{color:#17324d}.scout-v6109-note{font-size:8.5px;color:#6f7e89}.scout-v6109-pdf-table{width:100%;border-collapse:collapse;font-size:8px}.scout-v6109-pdf-table th,.scout-v6109-pdf-table td{padding:5px 4px;border-bottom:1px solid #e7ecef;text-align:center;white-space:nowrap}.scout-v6109-pdf-table th{background:#102b43;color:#fff}.scout-v6109-pdf-table td:first-child,.scout-v6109-pdf-table th:first-child{text-align:left}.scout-v6109-pdf-team td{background:#edf3f7;font-weight:800}
 </style>
 
@@ -5590,7 +5590,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=10.3.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=10.4.0', {
         updateViaCache: 'none'
       });
 
@@ -29731,6 +29731,359 @@ window.VC_V103_ANALYSIS_VIDEO_REPORTS={
   })
 };
 setTimeout(()=>{renderReportPreview();window.v103SelectReport('analysis')},0);
+})();
+</script>
+
+
+
+<style id="v104-light-professional-style">
+/* =========================================================
+   V10.4 · LIGHT PROFESSIONAL STRUCTURE
+   Lighter palette + stronger structural hierarchy.
+   No logic/data changes.
+   ========================================================= */
+body.v101-professional-ui.v104-light-pro{
+  --vc-bg:#eef4f8;
+  --vc-bg-2:#f7fbfe;
+  --vc-panel:#ffffff;
+  --vc-panel-2:#f8fbfd;
+  --vc-panel-3:#f2f7fb;
+  --vc-line:#d7e3ec;
+  --vc-line-soft:#e6eef4;
+  --vc-text:#163147;
+  --vc-text-2:#345168;
+  --vc-muted:#6d8396;
+  --vc-blue:#2a78b8;
+  --vc-blue-2:#43a0e6;
+  --vc-cyan:#4cb8da;
+  --vc-green:#2f996d;
+  --vc-orange:#d58a38;
+  --vc-red:#ca5f63;
+  --vc-purple:#7a6bdb;
+  --vc-shadow:0 20px 38px rgba(29,68,96,.10);
+  --vc-shadow-soft:0 8px 24px rgba(29,68,96,.08);
+  background:
+    radial-gradient(circle at 100% -10%,rgba(67,160,230,.10),transparent 25%),
+    radial-gradient(circle at 0 20%,rgba(76,184,218,.08),transparent 20%),
+    linear-gradient(180deg,#f7fbfe,#edf4f8)!important;
+  color:var(--vc-text)!important;
+}
+body.v101-professional-ui.v104-light-pro::before{
+  background-image:linear-gradient(rgba(22,49,71,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(22,49,71,.03) 1px,transparent 1px);
+}
+body.v101-professional-ui.v104-light-pro main{color:var(--vc-text)!important}
+
+/* Header */
+body.v101-professional-ui.v104-light-pro header{
+  background:rgba(248,251,253,.92)!important;
+  border-bottom:1px solid #d9e5ee!important;
+  box-shadow:0 10px 26px rgba(29,68,96,.08)!important;
+}
+body.v101-professional-ui.v104-light-pro h1{color:#163147!important}
+body.v101-professional-ui.v104-light-pro h1 small{
+  background:#eaf5fd!important;border-color:#c9e3f5!important;color:#2c6f9f!important;
+}
+body.v101-professional-ui.v104-light-pro .brand-subtitle,
+body.v101-professional-ui.v104-light-pro .save-indicator{color:#6e8596!important}
+body.v101-professional-ui.v104-light-pro header .ghost{
+  background:#ffffff!important;color:#35536a!important;border-color:#d6e2eb!important;
+}
+body.v101-professional-ui.v104-light-pro header .ghost:hover{
+  background:#f0f7fc!important;color:#163147!important;border-color:#bdd6e7!important;
+}
+
+/* Workspace toolbar */
+body.v101-professional-ui.v104-light-pro .app-toolbar.workspace-toolbar{
+  background:rgba(250,252,254,.94)!important;
+  border:1px solid #d8e4ed!important;
+  box-shadow:0 14px 28px rgba(29,68,96,.08)!important;
+}
+body.v101-professional-ui.v104-light-pro .workspace-switch,
+body.v101-professional-ui.v104-light-pro .compact-team-switcher,
+body.v101-professional-ui.v104-light-pro .team-switcher{
+  background:#fff!important;border-color:#d6e2eb!important;
+}
+body.v101-professional-ui.v104-light-pro .workspace-switch-btn,
+body.v101-professional-ui.v104-light-pro .tab-btn,
+body.v101-professional-ui.v104-light-pro .team-btn{
+  color:#6f8697!important;
+}
+body.v101-professional-ui.v104-light-pro .workspace-switch-btn small,
+body.v101-professional-ui.v104-light-pro .team-kicker{color:#8ba0b0!important}
+body.v101-professional-ui.v104-light-pro .workspace-switch-btn:hover,
+body.v101-professional-ui.v104-light-pro .tab-btn:hover,
+body.v101-professional-ui.v104-light-pro .team-btn:hover{
+  background:#f2f8fc!important;color:#24435a!important;border-color:#cadeeb!important;
+}
+body.v101-professional-ui.v104-light-pro .workspace-switch-btn.active,
+body.v101-professional-ui.v104-light-pro .tab-btn.active,
+body.v101-professional-ui.v104-light-pro .team-btn.active{
+  background:linear-gradient(135deg,#2d7fbe,#4babeb)!important;border-color:#65b6ef!important;color:#fff!important;
+  box-shadow:0 8px 18px rgba(67,160,230,.18)!important;
+}
+body.v101-professional-ui.v104-light-pro .workspace-switch-btn.active small{color:#e7f5ff!important}
+body.v101-professional-ui.v104-light-pro .team-name{color:#21425a!important}
+
+/* Global buttons / inputs */
+body.v101-professional-ui.v104-light-pro button,
+body.v101-professional-ui.v104-light-pro .btn{
+  box-shadow:none!important;
+}
+body.v101-professional-ui.v104-light-pro .ghost,
+body.v101-professional-ui.v104-light-pro .btn{
+  background:#fff!important;color:#36546b!important;border-color:#d7e2eb!important;
+}
+body.v101-professional-ui.v104-light-pro .ghost:hover,
+body.v101-professional-ui.v104-light-pro .btn:hover{background:#f1f7fb!important;color:#17324a!important;border-color:#bfd5e6!important}
+body.v101-professional-ui.v104-light-pro .primary{
+  background:linear-gradient(135deg,#3a89c8,#53afea)!important;border-color:#69baf0!important;color:#fff!important;box-shadow:0 10px 22px rgba(67,160,230,.16)!important;
+}
+body.v101-professional-ui.v104-light-pro .success{background:#eaf7ef!important;color:#236b4d!important;border-color:#b9dec9!important}
+body.v101-professional-ui.v104-light-pro .warn{background:#fff3e5!important;color:#9a5d18!important;border-color:#ecd2a8!important}
+body.v101-professional-ui.v104-light-pro .danger{background:#fff0f1!important;color:#973a45!important;border-color:#efc1c7!important}
+body.v101-professional-ui.v104-light-pro input,
+body.v101-professional-ui.v104-light-pro select,
+body.v101-professional-ui.v104-light-pro textarea{
+  background:#fff!important;color:#17324a!important;border:1px solid #d7e2eb!important;box-shadow:none!important;
+}
+body.v101-professional-ui.v104-light-pro input::placeholder,
+body.v101-professional-ui.v104-light-pro textarea::placeholder{color:#8ca0af!important}
+
+/* Card system */
+body.v101-professional-ui.v104-light-pro .panel,
+body.v101-professional-ui.v104-light-pro .card,
+body.v101-professional-ui.v104-light-pro .modal-card,
+body.v101-professional-ui.v104-light-pro .pro-panel,
+body.v101-professional-ui.v104-light-pro .pro-card,
+body.v101-professional-ui.v104-light-pro .v900-card,
+body.v101-professional-ui.v104-light-pro .v800-court-card,
+body.v101-professional-ui.v104-light-pro .v800-control-card,
+body.v101-professional-ui.v104-light-pro .v800-events-card,
+body.v101-professional-ui.v104-light-pro .v780-video-panel,
+body.v101-professional-ui.v104-light-pro .v780-side>section,
+body.v101-professional-ui.v104-light-pro .scout-analysis-panel,
+body.v101-professional-ui.v104-light-pro .scout-v750-pro-panel,
+body.v101-professional-ui.v104-light-pro .live-delay-card,
+body.v101-professional-ui.v104-light-pro #scout-v720-studio{
+  background:#fff!important;
+  border:1px solid #dbe6ee!important;
+  border-radius:14px!important;
+  box-shadow:0 10px 26px rgba(29,68,96,.08)!important;
+  color:#17324a!important;
+}
+body.v101-professional-ui.v104-light-pro .pro-kicker,
+body.v101-professional-ui.v104-light-pro .brand-subtitle,
+body.v101-professional-ui.v104-light-pro .v900-card-head p,
+body.v101-professional-ui.v104-light-pro .v800-match-title p,
+body.v101-professional-ui.v104-light-pro .scout-v630-subtitle,
+body.v101-professional-ui.v104-light-pro .scout-panel-head p,
+body.v101-professional-ui.v104-light-pro .v780-hero p,
+body.v101-professional-ui.v104-light-pro .v103-report-head p{color:#71879a!important}
+body.v101-professional-ui.v104-light-pro h2,
+body.v101-professional-ui.v104-light-pro h3,
+body.v101-professional-ui.v104-light-pro h4,
+body.v101-professional-ui.v104-light-pro strong,
+body.v101-professional-ui.v104-light-pro b{color:#17324a!important}
+
+/* Match Mode stronger structure */
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-top,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-topbar,
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-analysis-header,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-hero,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .pro-modal-head{
+  background:linear-gradient(180deg,#ffffff,#f4f8fb)!important;
+  border:1px solid #dbe6ee!important;
+  box-shadow:0 12px 28px rgba(29,68,96,.09)!important;
+}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-match-title h2,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-brand h2,
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-analysis-header h2,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-hero h2,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .pro-modal-head h2{color:#14314a!important}
+
+body.v101-professional-ui.v104-light-pro .v102-match-command-bar,
+body.v101-professional-ui.v104-light-pro .v103-analysis-nav,
+body.v101-professional-ui.v104-light-pro .v103-video-nav,
+body.v101-professional-ui.v104-light-pro #v800-shell .v850-context-strip,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-statusbar,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-toolbar,
+body.v101-professional-ui.v104-light-pro .v780-sync-panel,
+body.v101-professional-ui.v104-light-pro .v780-ruler-wrap,
+body.v101-professional-ui.v104-light-pro .scout-v830-toolbar,
+body.v101-professional-ui.v104-light-pro .scout-player-toolbar,
+body.v101-professional-ui.v104-light-pro .scout-v640-toolbar,
+body.v101-professional-ui.v104-light-pro .scout-v650-toolbar,
+body.v101-professional-ui.v104-light-pro .v103-report-center,
+body.v101-professional-ui.v104-light-pro .v103-report-description,
+body.v101-professional-ui.v104-light-pro .v900-team-toggle,
+body.v101-professional-ui.v104-light-pro .v900-preview,
+body.v101-professional-ui.v104-light-pro .v900-live-actions,
+body.v101-professional-ui.v104-light-pro .v900-intel,
+body.v101-professional-ui.v104-light-pro .v900-court-stack,
+body.v101-professional-ui.v104-light-pro .v900-selected-player,
+body.v101-professional-ui.v104-light-pro .v781-set-map-panel,
+body.v101-professional-ui.v104-light-pro .scout-dv-legend,
+body.v101-professional-ui.v104-light-pro .v961-data-integrity,
+body.v101-professional-ui.v104-light-pro #vc-recording-studio{
+  background:#f8fbfd!important;
+  border:1px solid #dce7ef!important;
+  color:#17324a!important;
+  box-shadow:none!important;
+}
+
+/* Professional scoreboard */
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-scoreboard{
+  background:linear-gradient(180deg,#ffffff,#f6fafc)!important;border:1px solid #dbe6ee!important;box-shadow:0 12px 26px rgba(29,68,96,.08)!important;
+}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-team.ours{background:linear-gradient(90deg,rgba(74,157,222,.10),transparent)!important;border-right:1px solid #dbe6ee!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-team.rival{background:linear-gradient(270deg,rgba(202,95,99,.08),transparent)!important;border-left:1px solid #dbe6ee!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-team small{color:#35526a!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-team strong{color:#18334a!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-team span{color:#7890a2!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-center-score{background:#f8fbfd!important;border-color:#dbe6ee!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-center-score>span{color:#c27b2b!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-center-score>b{color:#4e6679!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-service{background:#ffffff!important;border-color:#dce6ee!important;color:#5c7487!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v850-context-strip>div,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-score-main,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-status-item{
+  background:#fff!important;
+}
+body.v101-professional-ui.v104-light-pro #v800-shell .v850-context-strip span,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-status-item span{color:#869bab!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v850-context-strip b,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-status-item b{color:#17324a!important}
+body.v101-professional-ui.v104-light-pro #v800-shell .v850-context-strip small{color:#8499a9!important}
+
+/* Nav bars buttons */
+body.v101-professional-ui.v104-light-pro .v102-match-command-bar button,
+body.v101-professional-ui.v104-light-pro .v103-analysis-nav button,
+body.v101-professional-ui.v104-light-pro .v103-video-nav button{
+  color:#698193!important;
+}
+body.v101-professional-ui.v104-light-pro .v102-match-command-bar button>span,
+body.v101-professional-ui.v104-light-pro .v103-video-nav button span{color:#8ba2b3!important}
+body.v101-professional-ui.v104-light-pro .v102-match-command-bar button:hover,
+body.v101-professional-ui.v104-light-pro .v103-analysis-nav button:hover,
+body.v101-professional-ui.v104-light-pro .v103-video-nav button:hover{
+  background:#eef6fb!important;color:#24425a!important
+}
+body.v101-professional-ui.v104-light-pro .v102-match-command-bar button.active,
+body.v101-professional-ui.v104-light-pro .v103-analysis-nav button.active,
+body.v101-professional-ui.v104-light-pro .v103-video-nav button.active{
+  background:linear-gradient(135deg,#2e7fbe,#49aae8)!important;border-color:#66b7ef!important;color:#fff!important;box-shadow:0 8px 18px rgba(67,160,230,.18)!important;
+}
+body.v101-professional-ui.v104-light-pro .v102-match-command-bar button.active>span,
+body.v101-professional-ui.v104-light-pro .v103-video-nav button.active span{color:#ecf8ff!important}
+
+/* Match cards controls */
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-point.ours,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-point.ours{
+  background:linear-gradient(135deg,#3d8cc9,#5db8ec)!important;border-color:#75c2f0!important;color:#fff!important
+}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-point.rival,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-point.opponent{
+  background:linear-gradient(135deg,#c96a71,#de8a90)!important;border-color:#e7a6ab!important;color:#fff!important
+}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-undo,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-undo,
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-code-presets button,
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-event-buttons button,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-player-buttons button,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-eval-row button{
+  background:#fff!important;border-color:#d8e3eb!important;color:#4b667a!important
+}
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-code,
+body.v101-professional-ui.v104-light-pro #v800-shell #v800-code,
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-preview code{
+  color:#2477b1!important;
+}
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-register{
+  background:linear-gradient(135deg,#2f9a70,#53c391)!important;border-color:#73cfa6!important;color:#fff!important;box-shadow:0 12px 22px rgba(47,153,109,.14)!important
+}
+
+/* Skill buttons softened but structured */
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-skill-grid button{border-color:transparent!important}
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-skill-grid button span{color:rgba(255,255,255,.92)!important}
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-skill-grid button.active{box-shadow:0 0 0 2px #fff inset,0 0 0 2px #5eb6ea!important}
+
+/* Analysis structure */
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-analysis-kpi,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-status-grid>div{
+  background:#fff!important;border-color:#dbe6ee!important;box-shadow:0 8px 20px rgba(29,68,96,.06)!important
+}
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-analysis-kpi b,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-status-grid b{color:#17324a!important}
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-analysis-kpi span,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-status-grid span{color:#748b9c!important}
+body.v101-professional-ui.v104-light-pro .v103-report-head{border-bottom-color:#dde8ef!important}
+body.v101-professional-ui.v104-light-pro .v103-report-ready{background:#e8f7ee!important;border-color:#badbc7!important;color:#2b8a5f!important}
+body.v101-professional-ui.v104-light-pro .v103-report-options button{background:#fff!important;border-color:#dbe6ee!important;color:#5b7588!important}
+body.v101-professional-ui.v104-light-pro .v103-report-options button:hover{background:#f3f8fb!important;border-color:#cbdde9!important}
+body.v101-professional-ui.v104-light-pro .v103-report-options button.active{background:#eef7fd!important;border-color:#b7d8ee!important;box-shadow:inset 3px 0 0 #43a0e6!important}
+body.v101-professional-ui.v104-light-pro .v103-report-icon{background:#edf7fd!important;color:#2d7dbe!important}
+body.v101-professional-ui.v104-light-pro .v103-report-options b,
+body.v101-professional-ui.v104-light-pro .v103-report-description h4,
+body.v101-professional-ui.v104-light-pro .v103-report-description p,
+body.v101-professional-ui.v104-light-pro .v103-report-description>span{color:#17324a!important}
+body.v101-professional-ui.v104-light-pro .v103-report-options small{color:#7e93a3!important}
+body.v101-professional-ui.v104-light-pro .v103-report-options em{background:#e8f7ee!important;color:#2b8a5f!important}
+body.v101-professional-ui.v104-light-pro .v103-report-paper{box-shadow:0 18px 38px rgba(29,68,96,.14)!important}
+body.v101-professional-ui.v104-light-pro .v103-report-tags span{background:#f1f7fb!important;color:#517087!important;border-color:#d8e4ec!important}
+
+/* Video structure */
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-video-frame,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .live-delay-video-frame{border-color:#d8e4ec!important;border-radius:10px!important}
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-playlist-grid button,
+body.v101-professional-ui.v104-light-pro #scout-v720-studio .scout-v720-marker,
+body.v101-professional-ui.v104-light-pro #scout-v720-studio .scout-v720-clip,
+body.v101-professional-ui.v104-light-pro #scout-v720-studio .scout-v720-tag{
+  background:#f8fbfd!important;border-color:#dce7ef!important;color:#17324a!important
+}
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-playlist-grid button small,
+body.v101-professional-ui.v104-light-pro #scout-v720-studio .scout-v720-head small,
+body.v101-professional-ui.v104-light-pro #scout-v720-studio .scout-v720-copy small,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .pro-modal-head p{color:#73899a!important}
+
+/* Modal surfaces */
+body.v101-professional-ui.v104-light-pro .modal,
+body.v101-professional-ui.v104-light-pro .overlay{backdrop-filter:blur(8px)}
+body.v101-professional-ui.v104-light-pro #live-delay-modal .live-delay-card{background:#fff!important;border-color:#dbe6ee!important}
+body.v101-professional-ui.v104-light-pro #live-delay-modal .live-delay-toolbar,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .live-delay-pane,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .live-delay-metrics>div,
+body.v101-professional-ui.v104-light-pro #live-delay-modal .vc-recording-metrics>div{
+  background:#f8fbfd!important;border-color:#dde8ef!important;color:#17324a!important
+}
+
+/* Layout polish */
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-live-grid,
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-live-grid,
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-analysis-grid,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-main{gap:12px!important}
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-card,
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-court-card,
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-control-card,
+body.v101-professional-ui.v104-light-pro #v800-shell .v800-events-card,
+body.v101-professional-ui.v104-light-pro .scout-v750-pro-panel,
+body.v101-professional-ui.v104-light-pro .scout-analysis-panel,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-video-panel,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-side>section{padding:14px!important}
+body.v101-professional-ui.v104-light-pro #scout-workspace-v900 .v900-card-head,
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-v750-pro-head,
+body.v101-professional-ui.v104-light-pro #scout-analysis .scout-panel-head,
+body.v101-professional-ui.v104-light-pro #scout-video-hub .v780-section-head{border-bottom:1px solid #e3ecf2!important;padding-bottom:10px!important;margin-bottom:10px!important}
+
+@media(max-width:760px){
+  body.v101-professional-ui.v104-light-pro main{padding:0 12px 42px!important}
+  body.v101-professional-ui.v104-light-pro header{padding:10px 12px!important}
+}
+</style>
+<script id="v104-light-professional-runtime">
+(()=>{
+  const body=document.body;
+  if(body && body.classList.contains('v101-professional-ui')) body.classList.add('v104-light-pro');
+  window.VC_V104_LIGHT_PRO={version:'10.4.0',diagnostics:()=>({version:'10.4.0',classApplied:document.body?.classList.contains('v104-light-pro')||false,changesLogic:false})};
 })();
 </script>
 
