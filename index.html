@@ -753,7 +753,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 
 <style id="v6109-gp-style">
-/* ===== V11 · PROFESSIONAL WORKSPACE ===== */
+/* ===== V11.2 · MATCH MODE ===== */
 .scout-v630-table{min-width:2050px!important}.scout-v6109-gp{font-weight:950}.scout-v6109-gp.good{color:#24704d}.scout-v6109-gp.bad{color:#a14440}.scout-v6109-form{font-weight:900;color:#29475f}.scout-v6109-points-strip{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 0 2px}.scout-v6109-points-strip span{display:inline-flex;gap:4px;align-items:center;padding:4px 7px;border:1px solid #dfe6eb;border-radius:999px;background:#fff;color:#5f707d}.scout-v6109-points-strip b{color:#17324d}.scout-v6109-note{font-size:8.5px;color:#6f7e89}.scout-v6109-pdf-table{width:100%;border-collapse:collapse;font-size:8px}.scout-v6109-pdf-table th,.scout-v6109-pdf-table td{padding:5px 4px;border-bottom:1px solid #e7ecef;text-align:center;white-space:nowrap}.scout-v6109-pdf-table th{background:#102b43;color:#fff}.scout-v6109-pdf-table td:first-child,.scout-v6109-pdf-table th:first-child{text-align:left}.scout-v6109-pdf-team td{background:#edf3f7;font-weight:800}
 </style>
 
@@ -2031,8 +2031,8 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <div><button id="v800-resume-btn" class="primary hidden" onclick="v800ResumeSelected()">▶ Continuar scouting guardado</button><button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button><button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Ir a Scouting</button></div>
     </div>
 
-    <div id="v800-live" class="hidden">
-      <section class="v800-scoreboard">
+    <div id="v800-live" class="hidden v112-match-live">
+      <section class="v800-scoreboard v112-scoreboard">
         <div class="v800-team ours"><small id="v800-team-name">Equipo</small><strong id="v800-score-us">0</strong><span id="v800-sets-us">0 sets</span></div>
         <div class="v800-center-score">
           <span id="v800-set-label">SET 1</span>
@@ -2042,7 +2042,16 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v800-team rival"><small id="v800-opponent">Rival</small><strong id="v800-score-op">0</strong><span id="v800-sets-op">0 sets</span></div>
       </section>
 
-      <section id="v850-context-strip" class="v850-context-strip">
+      <nav class="v112-match-commandbar" aria-label="Comandos de partido">
+        <button class="active" data-v112-tab="live" onclick="v112MatchTab('live')"><span>◆</span><b>Directo</b><small>Puntos + código</small></button>
+        <button data-v112-tab="lineup" onclick="v112MatchTab('lineup')"><span>⌘</span><b>Alineación</b><small>Rotación y cambios</small></button>
+        <button data-v112-tab="video" onclick="v112MatchTab('video')"><span>▶</span><b>Vídeo</b><small>Live / archivo / YouTube</small></button>
+        <button data-v112-tab="rally" onclick="v112MatchTab('rally')"><span>≡</span><b>Rally</b><small>Acciones y editor</small></button>
+        <button data-v112-tab="stats" onclick="v112MatchTab('stats')"><span>▥</span><b>Lectura LIVE</b><small>K1 · K2 · G-P</small></button>
+        <button data-v112-tab="set" onclick="v112MatchTab('set')"><span>✓</span><b>Set</b><small>Nuevo / finalizar</small></button>
+      </nav>
+
+      <section id="v850-context-strip" class="v850-context-strip v112-context-strip">
         <div><span>CONTEXTO</span><b id="v850-context-stage">Inicio</b><small id="v850-context-copy">0-0</small></div>
         <div><span>DIFERENCIA</span><b id="v850-context-diff">0</b><small id="v850-context-close">Marcador igualado</small></div>
         <div><span>FASE</span><b id="v850-context-phase">K2</b><small id="v850-context-phase-copy">Saque / Break Point</small></div>
@@ -2050,168 +2059,91 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div id="v850-pressure-box"><span>PRESIÓN</span><b id="v850-context-pressure">NORMAL</b><small id="v850-context-pressure-copy">Sin punto de set</small></div>
       </section>
 
-      <div id="v910-match-view-nav" class="v910-match-view-nav">
-        <div>
-          <span>VISTA DE TRABAJO</span>
-          <button data-v910-view="directo" class="active" onclick="v910SetMatchView('directo')">Directo</button>
-          <button data-v910-view="video" onclick="v910SetMatchView('video')">Vídeo</button>
-          <button data-v910-view="lectura" onclick="v910SetMatchView('lectura')">Lectura</button>
-          <button data-v910-view="todo" onclick="v910SetMatchView('todo')">Todo</button>
-        </div>
-        <small id="v910-match-view-copy">Directo prioriza marcador, pista, puntos y códigos.</small>
+      <div id="v910-match-view-nav" class="v910-match-view-nav v112-legacy-view-nav">
+        <div><span>VISTA DE TRABAJO</span><button data-v910-view="directo" class="active" onclick="v910SetMatchView('directo')">Directo</button><button data-v910-view="video" onclick="v910SetMatchView('video')">Vídeo</button><button data-v910-view="lectura" onclick="v910SetMatchView('lectura')">Lectura</button><button data-v910-view="todo" onclick="v910SetMatchView('todo')">Todo</button></div><small id="v910-match-view-copy">Directo prioriza marcador, pista, puntos y códigos.</small>
       </div>
 
-      <div class="v800-live-grid">
-        <main class="v800-main">
-          <section class="v800-court-card">
-            <div class="v800-card-head">
-              <div><span class="pro-kicker">SEXTETO ACTUAL</span><h3 id="v800-rotation-title">R1 · vs R1</h3></div>
-              <div class="v800-chips"><span id="v800-lineup-health">Alineación —</span><span id="v800-rally-chip">Rally —</span></div>
-            </div>
-            <div class="v800-courts">
-              <div>
-                <span class="v800-court-label">NUESTRO EQUIPO</span>
-                <div id="v800-court-own" class="v800-court"></div>
-              </div>
-              <div>
-                <span class="v800-court-label">RIVAL</span>
-                <div id="v800-court-rival" class="v800-court rival"></div>
-              </div>
-            </div>
-            <div id="v850-lineup-guard" class="v850-lineup-guard">
-              <div class="v850-lineup-guard-head">
-                <div><b>Control de alineación</b><span id="v850-lineup-summary">Comprobando…</span></div>
-                <button class="ghost" onclick="v851OpenLineupControl()">Ver control completo</button>
-              </div>
-              <div id="v850-lineup-mini" class="v850-lineup-mini"></div>
-            </div>
-          </section>
-
-          <section class="v800-control-card">
-            <div class="v800-point-row">
+      <div class="v800-live-grid v112-live-grid">
+        <main class="v800-main v112-main">
+          <section class="v800-control-card v112-control-card">
+            <div class="v112-section-head"><div><span>CONTROL DE RALLY</span><h3>Marcador y código rápido</h3></div><span id="v855-match-status" class="v855-match-status">Modo Partido preparado.</span></div>
+            <div class="v800-point-row v112-point-row">
               <button id="v855-point-ours" class="v800-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
               <button id="v855-undo" class="v800-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
               <button id="v855-point-opponent" class="v800-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
             </div>
-            <div id="v855-match-status" class="v855-match-status">Modo Partido preparado.</div>
 
-            <div class="v800-code-row v841-code-row">
-              <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Código rápido · ej. 3E+.2B>4C::K1~T · 12A#.4B>5D::X5~T" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
-              <button id="v857-add-code-btn" class="primary" onclick="v857AddCode()">Añadir</button>
-              <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
+            <div class="v112-code-block">
+              <div class="v112-code-label"><span>CÓDIGO RÁPIDO</span><button class="text-btn" onclick="v841OpenCheatSheet()">Chuleta de códigos →</button></div>
+              <div class="v800-code-row v841-code-row">
+                <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Ej. 3E+.2B>4C::K1~T · 12A#.4B>5D::X5~T" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
+                <button id="v857-add-code-btn" class="primary" onclick="v857AddCode()">Añadir</button>
+                <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
+              </div>
+              <div id="v852-code-status" class="v852-code-status">Motor compartido Scouting/Modo Partido · V8.5.7</div>
+
+              <div class="v800-code-presets v112-code-presets">
+                <button onclick="v800Preset('S#')">Saque #</button><button onclick="v800Preset('S=')">Saque =</button>
+                <button onclick="v800Preset('R#')">Recepción #</button><button onclick="v800Preset('R-')">Recepción −</button>
+                <button onclick="v800Preset('A#')">Ataque #</button><button onclick="v800Preset('A=')">Ataque =</button>
+                <button onclick="v800Preset('B#')">Bloqueo #</button><button onclick="v800Preset('D+')">Defensa +</button>
+              </div>
+              <div class="v800-preset-builder v112-preset-builder">
+                <label><span>Equipo</span><select id="v800-code-team"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
+                <label><span>Dorsal</span><input id="v800-code-number" inputmode="numeric" placeholder="7"></label>
+                <small>Selecciona equipo + dorsal y pulsa una valoración rápida.</small>
+              </div>
             </div>
-            <div id="v852-code-status" class="v852-code-status">Motor compartido Scouting/Modo Partido · V8.5.7</div>
-            <div class="v855-live-rally-box">
+
+            <div class="v855-live-rally-box v112-live-rally-box">
               <div class="v855-live-rally-head"><b id="v855-live-rally-title">Rally actual · 0 acciones</b><span id="v855-live-rally-save">Sin cambios pendientes</span></div>
               <div id="v855-live-actions" class="v855-live-actions"><span class="empty">Añade acciones antes de cerrar el punto.</span></div>
-            </div>
-            <div class="v853-code-tools">
-              <button class="ghost" onclick="showView('scouting',botonVista('scouting'));setTimeout(()=>document.getElementById('scout-code-input')?.focus(),50)">Abrir consola completa</button>
-              <button class="ghost" onclick="v857OpenRallyEditor()">✎ Editor de rallies</button>
-            </div>
-            <div class="v800-code-presets">
-              <button onclick="v800Preset('S#')">Saque #</button><button onclick="v800Preset('S=')">Saque =</button>
-              <button onclick="v800Preset('R#')">Recepción #</button><button onclick="v800Preset('R-')">Recepción −</button>
-              <button onclick="v800Preset('A#')">Ataque #</button><button onclick="v800Preset('A=')">Ataque =</button>
-              <button onclick="v800Preset('B#')">Bloqueo #</button><button onclick="v800Preset('D+')">Defensa +</button>
-            </div>
-            <div class="v800-preset-builder">
-              <label><span>Equipo</span><select id="v800-code-team"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
-              <label><span>Dorsal</span><input id="v800-code-number" inputmode="numeric" placeholder="7"></label>
-              <small>Selecciona equipo + dorsal y pulsa una valoración rápida.</small>
+              <div class="v853-code-tools">
+                <button class="ghost" onclick="showView('scouting',botonVista('scouting'));setTimeout(()=>document.getElementById('scout-code-input')?.focus(),50)">Consola completa</button>
+                <button class="ghost" onclick="v857OpenRallyEditor()">✎ Editor de rallies</button>
+              </div>
             </div>
           </section>
 
-          <section class="v800-events-card">
-            <div class="v800-card-head"><div><span class="pro-kicker">GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div></div>
+          <section class="v800-court-card v112-court-card">
+            <div class="v800-card-head v112-section-head">
+              <div><span>ALINEACIÓN EN PISTA</span><h3 id="v800-rotation-title">R1 · vs R1</h3></div>
+              <div class="v800-chips"><span id="v800-lineup-health">Alineación —</span><span id="v800-rally-chip">Rally —</span></div>
+            </div>
+            <div class="v800-courts v112-courts">
+              <div><span class="v800-court-label">NUESTRO EQUIPO</span><div id="v800-court-own" class="v800-court"></div></div>
+              <div><span class="v800-court-label">RIVAL</span><div id="v800-court-rival" class="v800-court rival"></div></div>
+            </div>
+            <div id="v850-lineup-guard" class="v850-lineup-guard">
+              <div class="v850-lineup-guard-head"><div><b>Control de alineación</b><span id="v850-lineup-summary">Comprobando…</span></div><button class="ghost" onclick="v851OpenLineupControl()">Control completo</button></div>
+              <div id="v850-lineup-mini" class="v850-lineup-mini"></div>
+            </div>
+            <div class="v112-lineup-actions">
+              <button class="ghost" onclick="scoutOpenLineup()">⌘ Alineación</button>
+              <button class="ghost" onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
+              <button class="ghost" onclick="v851OpenLineupControl()">Control de rotación</button>
+            </div>
+          </section>
+
+          <section class="v800-events-card v112-events-card">
+            <div class="v800-card-head v112-section-head"><div><span>GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div><button class="text-btn" onclick="scoutV690OpenEvent()">＋ Otro evento</button></div>
             <div class="v800-event-buttons">
               <button onclick="v800QuickEvent('timeout_ours')">⏱ Tiempo nuestro</button>
               <button onclick="v800QuickEvent('timeout_opponent')">⏱ Tiempo rival</button>
               <button onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
               <button onclick="scoutOpenLineup()">⌘ Alineación</button>
-              <button onclick="v851OpenVideoNote()">📝 Nota ligada a vídeo</button>
-              <button onclick="scoutV690OpenEvent()">＋ Otro evento</button>
+              <button onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
+              <button onclick="scoutV690OpenEvent()">＋ Evento</button>
             </div>
             <div id="v800-events" class="v800-events"></div>
             <div id="v850-video-notes" class="v850-video-notes"></div>
           </section>
         </main>
 
-        <aside class="v800-side">
-          <section class="v800-video-card">
-            <div class="v800-card-head">
-              <div><span class="pro-kicker">VÍDEO DE SCOUTING</span><h3 id="v802-video-title">Directo</h3></div>
-              <div class="v802-video-badges"><span id="v802-sync-badge" class="v800-status">SIN VINCULAR</span><span id="v800-video-status" class="v800-status">OFF</span></div>
-            </div>
-
-            <div class="v802-source-tabs">
-              <button id="v802-source-live" class="active" onclick="v802SetSource('live')">● Directo</button>
-              <button id="v802-source-local" onclick="v802SetSource('local')">▣ Archivo</button>
-              <button id="v802-source-youtube" onclick="v802SetSource('youtube')">▶ YouTube</button>
-            </div>
-
-            <div id="v803-mobile-tools" class="v803-mobile-tools">
-              <div class="v803-mobile-head">
-                <div><b>Cámara móvil</b><span>Conecta el móvil aquí y graba mientras haces el scouting.</span></div>
-                <span id="v803-mobile-status" class="v800-status">SIN CONECTAR</span>
-              </div>
-              <div class="v803-mobile-body">
-                <div id="v803-mobile-qr" class="v803-mobile-qr"><span>Pulsa “Generar QR”.</span></div>
-                <div class="v803-mobile-connect">
-                  <div class="v803-mobile-actions">
-                    <button class="primary" type="button" onclick="v803PrepareMobile(false)">Generar QR / conectar</button>
-                    <button class="ghost" type="button" onclick="v803PrepareMobile(true)">Nuevo QR</button>
-                    <button class="ghost" type="button" onclick="v803CopyMobileLink()">Copiar enlace</button>
-                    <button class="danger" type="button" onclick="v803DisconnectMobile()">Desconectar</button>
-                  </div>
-                  <input id="v803-mobile-link" type="text" readonly placeholder="Aquí aparecerá el enlace para el móvil">
-                  <small id="v803-mobile-note">Escanea el QR en el móvil, abre la cámara y pulsa “Iniciar transmisión”. La imagen aparecerá en la pantalla grande.</small>
-                </div>
-              </div>
-            </div>
-
-            <div id="v802-local-tools" class="v802-source-tools hidden">
-              <button class="primary" onclick="document.getElementById('v802-local-file').click()">Abrir vídeo guardado</button>
-              <input id="v802-local-file" class="hidden" type="file" accept="video/*,.webm,.mp4,.mov,.m4v" onchange="v802LoadLocal(event)">
-              <span id="v802-local-name">Ningún archivo seleccionado</span>
-            </div>
-
-            <div id="v802-youtube-tools" class="v802-source-tools hidden">
-              <input id="v802-youtube-url" type="url" inputmode="url" placeholder="Pega aquí el enlace de YouTube">
-              <button class="primary" onclick="v802LoadYouTube()">Abrir</button>
-            </div>
-
-            <div id="v800-video-frame" class="v800-video-frame">
-              <video id="v800-live-video" muted autoplay playsinline></video>
-              <video id="v802-local-video" class="hidden" controls playsinline preload="metadata"></video>
-              <div id="v802-youtube-wrap" class="v802-youtube-wrap hidden"><div id="v802-youtube-player"></div></div>
-              <div id="v800-video-empty" class="v800-video-empty">Inicia Live Delay para ver la cámara aquí.</div>
-              <div id="v802-video-overlay" class="v802-video-overlay hidden"></div>
-            </div>
-
-            <div id="v802-playback" class="v802-playback hidden">
-              <button class="ghost" onclick="v802Jump(-10)">−10 s</button>
-              <button class="ghost" onclick="v802Jump(-5)">−5 s</button>
-              <button class="primary" onclick="v802TogglePlay()">▶ / ❚❚</button>
-              <button class="ghost" onclick="v802Jump(5)">+5 s</button>
-              <button class="ghost" onclick="v802Jump(10)">+10 s</button>
-              <label><span>Velocidad</span><select id="v802-speed" onchange="v802SetSpeed(this.value)"><option value=".5">0,5×</option><option value=".75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
-              <button id="v802-sync-btn" class="ghost" onclick="v802SyncNow()">⛓ Vincular tiempo</button>
-            </div>
-
-            <div class="v800-video-actions">
-              <button class="primary" onclick="v802PrimaryReplay()">▶ Último rally</button>
-              <button class="ghost" onclick="v802SecondaryReplay()">Última acción</button>
-              <button id="v802-live-delay-btn" class="ghost" onclick="openLiveDelay('match')">Live Delay</button>
-              <button id="v800-rec-btn" class="ghost" onclick="v800ToggleREC()">● REC</button>
-            </div>
-            <div id="v802-video-help" class="v802-video-help">En Directo, el vídeo viene de Live Delay. Para scoutar un partido grabado, elige Archivo o YouTube.</div>
-            <div id="v800-rec-copy" class="v800-rec-copy">Grabación detenida.</div>
-          </section>
-
-          <section class="v800-kpi-card">
-            <div class="v800-card-head"><div><span class="pro-kicker">SET ACTUAL</span><h3>Lectura rápida</h3></div></div>
-            <div class="v800-kpis">
+        <aside class="v800-side v112-side">
+          <section class="v800-kpi-card v112-kpi-card">
+            <div class="v800-card-head v112-section-head"><div><span>LECTURA LIVE</span><h3>Set actual</h3></div><button class="text-btn" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Análisis →</button></div>
+            <div class="v800-kpis v112-kpis">
               <div><span>K1</span><b id="v800-k1">—</b><small id="v800-k1-copy">0/0</small></div>
               <div><span>K2</span><b id="v800-k2">—</b><small id="v800-k2-copy">0/0</small></div>
               <div><span>G-P</span><b id="v800-gp">0</b><small id="v800-gp-copy">G 0 · P 0</small></div>
@@ -2219,18 +2151,48 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             </div>
           </section>
 
-          <section class="v800-decision-card">
-            <div class="v800-card-head"><div><span class="pro-kicker">DECISIONES EN DIRECTO</span><h3>Qué mirar ahora</h3></div></div>
+          <section class="v800-last-card v112-last-card">
+            <div class="v800-card-head v112-section-head"><div><span>ÚLTIMO RALLY</span><h3 id="v800-last-title">Todavía sin rallies</h3></div><button class="text-btn" onclick="v857OpenRallyEditor()">Editar →</button></div>
+            <div id="v800-last-rally" class="v800-last-rally"></div>
+          </section>
+
+          <section class="v800-decision-card v112-decision-card">
+            <div class="v800-card-head v112-section-head"><div><span>LECTURA DEL BANQUILLO</span><h3>Qué mirar ahora</h3></div></div>
             <div id="v800-decisions" class="v800-decisions"></div>
           </section>
 
-          <section class="v800-last-card">
-            <div class="v800-card-head"><div><span class="pro-kicker">ÚLTIMO RALLY</span><h3 id="v800-last-title">Todavía sin rallies</h3></div></div>
-            <div id="v800-last-rally" class="v800-last-rally"></div>
+          <section class="v112-set-card">
+            <div class="v112-section-head"><div><span>CONTROL DE SET</span><h3>Set y resultado</h3></div></div>
+            <div class="v112-set-actions">
+              <button class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button>
+              <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
+              <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
+              <button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button>
+            </div>
           </section>
         </aside>
       </div>
 
+      <section id="v112-video-drawer" class="v112-video-drawer">
+        <div class="v112-video-drawer-head"><div><span>VÍDEO DE PARTIDO</span><h3>Live · archivo · YouTube</h3></div><button class="ghost" onclick="v112ToggleVideo(false)">Cerrar vídeo</button></div>
+        <section class="v800-video-card v112-video-card">
+          <div class="v800-card-head">
+            <div><span class="pro-kicker">VÍDEO DE SCOUTING</span><h3 id="v802-video-title">Directo</h3></div>
+            <div class="v802-video-badges"><span id="v802-sync-badge" class="v800-status">SIN VINCULAR</span><span id="v800-video-status" class="v800-status">OFF</span></div>
+          </div>
+          <div class="v802-source-tabs"><button id="v802-source-live" class="active" onclick="v802SetSource('live')">● Directo</button><button id="v802-source-local" onclick="v802SetSource('local')">▣ Archivo</button><button id="v802-source-youtube" onclick="v802SetSource('youtube')">▶ YouTube</button></div>
+          <div id="v803-mobile-tools" class="v803-mobile-tools">
+            <div class="v803-mobile-head"><div><b>Cámara móvil</b><span>Conecta el móvil aquí y graba mientras haces el scouting.</span></div><span id="v803-mobile-status" class="v800-status">SIN CONECTAR</span></div>
+            <div class="v803-mobile-body"><div id="v803-mobile-qr" class="v803-mobile-qr"><span>Pulsa “Generar QR”.</span></div><div class="v803-mobile-connect"><div class="v803-mobile-actions"><button class="primary" type="button" onclick="v803PrepareMobile(false)">Generar QR / conectar</button><button class="ghost" type="button" onclick="v803PrepareMobile(true)">Nuevo QR</button><button class="ghost" type="button" onclick="v803CopyMobileLink()">Copiar enlace</button><button class="danger" type="button" onclick="v803DisconnectMobile()">Desconectar</button></div><input id="v803-mobile-link" type="text" readonly placeholder="Aquí aparecerá el enlace para el móvil"><small id="v803-mobile-note">Escanea el QR en el móvil, abre la cámara y pulsa “Iniciar transmisión”. La imagen aparecerá en la pantalla grande.</small></div></div>
+          </div>
+          <div id="v802-local-tools" class="v802-source-tools hidden"><button class="primary" onclick="document.getElementById('v802-local-file').click()">Abrir vídeo guardado</button><input id="v802-local-file" class="hidden" type="file" accept="video/*,.webm,.mp4,.mov,.m4v" onchange="v802LoadLocal(event)"><span id="v802-local-name">Ningún archivo seleccionado</span></div>
+          <div id="v802-youtube-tools" class="v802-source-tools hidden"><input id="v802-youtube-url" type="url" inputmode="url" placeholder="Pega aquí el enlace de YouTube"><button class="primary" onclick="v802LoadYouTube()">Abrir</button></div>
+          <div id="v800-video-frame" class="v800-video-frame"><video id="v800-live-video" muted autoplay playsinline></video><video id="v802-local-video" class="hidden" controls playsinline preload="metadata"></video><div id="v802-youtube-wrap" class="v802-youtube-wrap hidden"><div id="v802-youtube-player"></div></div><div id="v800-video-empty" class="v800-video-empty">Inicia Live Delay para ver la cámara aquí.</div><div id="v802-video-overlay" class="v802-video-overlay hidden"></div></div>
+          <div id="v802-playback" class="v802-playback hidden"><button class="ghost" onclick="v802Jump(-10)">−10 s</button><button class="ghost" onclick="v802Jump(-5)">−5 s</button><button class="primary" onclick="v802TogglePlay()">▶ / ❚❚</button><button class="ghost" onclick="v802Jump(5)">+5 s</button><button class="ghost" onclick="v802Jump(10)">+10 s</button><label><span>Velocidad</span><select id="v802-speed" onchange="v802SetSpeed(this.value)"><option value=".5">0,5×</option><option value=".75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button id="v802-sync-btn" class="ghost" onclick="v802SyncNow()">⛓ Vincular tiempo</button></div>
+          <div class="v800-video-actions"><button class="primary" onclick="v802PrimaryReplay()">▶ Último rally</button><button class="ghost" onclick="v802SecondaryReplay()">Última acción</button><button id="v802-live-delay-btn" class="ghost" onclick="openLiveDelay('match')">Live Delay</button><button id="v800-rec-btn" class="ghost" onclick="v800ToggleREC()">● REC</button></div>
+          <div id="v802-video-help" class="v802-video-help">En Directo, el vídeo viene de Live Delay. Para scoutar un partido grabado, elige Archivo o YouTube.</div><div id="v800-rec-copy" class="v800-rec-copy">Grabación detenida.</div>
+        </section>
+      </section>
       <section id="v1000-intelligence" class="v1000-intelligence">
         <div class="v1000-head">
           <div><span class="pro-kicker">MATCH INTELLIGENCE · V10</span><h2>Lectura táctica en directo</h2><p>Rotaciones, Side-out, Break, G-P, recepción, ataque y patrones del rival usando la misma base oficial que Análisis y PDF.</p></div>
@@ -2356,71 +2318,112 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         </div>
       </section>
 
-      <section id="v900-phase-scout" class="v900-phase-panel">
-        <div class="v900-live-grid">
-          <aside class="v900-column v900-courts-column">
-            <article class="v900-card sticky">
-              <div class="v900-card-head"><div><span class="pro-kicker">PISTA</span><h3>Alineaciones</h3></div><button class="text-btn" onclick="scoutOpenLineup()">Editar</button></div>
-              <div class="v900-court-stack">
-                <span class="v900-court-label rival">RIVAL · pulsa jugador</span>
-                <div id="v900-rival-court" class="v900-court rival"></div>
-                <div class="v900-net">RED</div>
-                <div id="v900-own-court" class="v900-court"></div>
-                <span class="v900-court-label">NUESTRO · pulsa jugador</span>
-              </div>
-              <div class="v900-court-actions">
-                <button class="ghost" onclick="scoutRotate(-1)">↶ Nuestro</button>
-                <button class="ghost" onclick="scoutRotate(1)">Nuestro ↷</button>
-                <button class="ghost" onclick="scoutRotateOpponent(-1)">↶ Rival</button>
-                <button class="ghost" onclick="scoutRotateOpponent(1)">Rival ↷</button>
-              </div>
-              <div class="v900-selected-player"><span>Jugador seleccionado</span><b id="v900-player-selected">—</b></div>
-            </article>
-          </aside>
 
-          <main class="v900-column v900-register-column">
-            <article class="v900-card">
-              <div class="v900-card-head">
-                <div><span class="pro-kicker">REGISTRO DE ACCIÓN</span><h3>Una acción, solo los campos necesarios</h3></div>
-                <div class="v900-mode-switch"><button id="v900-mode-visual" class="active" onclick="v900SetInputMode('visual')">Visual</button><button id="v900-mode-code" onclick="v900SetInputMode('code')">Código Pro</button></div>
+      <section id="v900-phase-scout" class="v900-phase-panel v111-scout-phase">
+        <nav class="v111-scout-nav" aria-label="Herramientas de scouting">
+          <button class="active" data-v111-nav="coding" onclick="v111ScoutNav('coding')"><span>⌁</span><b>Codificación</b></button>
+          <button data-v111-nav="lineup" onclick="v111ScoutNav('lineup')"><span>⌘</span><b>Alineación</b></button>
+          <button data-v111-nav="stats" onclick="v111ScoutNav('stats')"><span>▥</span><b>Estadísticas LIVE</b></button>
+          <button data-v111-nav="rally" onclick="v111ScoutNav('rally')"><span>≡</span><b>Rally</b></button>
+          <button data-v111-nav="video" onclick="v111ScoutNav('video')"><span>▶</span><b>Vídeo</b></button>
+        </nav>
+
+        <div class="v111-workflow">
+          <span class="active">1 · Jugador</span><i>→</i>
+          <span>2 · Acción</span><i>→</i>
+          <span>3 · Zona</span><i>→</i>
+          <span>4 · Evaluación</span><i>→</i>
+          <span>5 · Registrar</span>
+        </div>
+
+        <div class="v900-live-grid v111-live-grid">
+          <!-- LEFT · ACTION BUILDER -->
+          <main class="v900-column v900-register-column v111-register-column">
+            <article class="v900-card v111-builder-card">
+              <div class="v900-card-head v111-card-head">
+                <div>
+                  <span class="pro-kicker">CODIFICACIÓN</span>
+                  <h3>Registrar acción</h3>
+                  <p>Campos esenciales visibles. El detalle técnico se abre solo cuando lo necesitas.</p>
+                </div>
+                <div class="v111-builder-actions">
+                  <div class="v900-mode-switch">
+                    <button id="v900-mode-visual" class="active" onclick="v900SetInputMode('visual')">Visual</button>
+                    <button id="v900-mode-code" onclick="v900SetInputMode('code')">Código Pro</button>
+                  </div>
+                  <div class="v111-detail-switch">
+                    <button id="v111-fast-mode" class="active" onclick="v111SetDetailMode('fast')">Rápido</button>
+                    <button id="v111-pro-mode" onclick="v111SetDetailMode('pro')">Pro</button>
+                  </div>
+                </div>
               </div>
 
               <div id="v900-visual-builder">
-                <div class="v900-team-toggle"><button id="v900-team-ours" class="active" onclick="v900SetTeam('ours')">Nuestro</button><button id="v900-team-opponent" onclick="v900SetTeam('opponent')">Rival</button></div>
-                <div id="v900-player-buttons" class="v900-player-buttons"></div>
+                <section class="v111-builder-section v111-player-section">
+                  <div class="v111-section-title"><span>01</span><div><b>Jugador</b><small>Selecciona equipo y jugador</small></div></div>
+                  <div class="v900-team-toggle">
+                    <button id="v900-team-ours" class="active" onclick="v900SetTeam('ours')">Nuestro equipo</button>
+                    <button id="v900-team-opponent" onclick="v900SetTeam('opponent')">Rival</button>
+                  </div>
+                  <div id="v900-player-buttons" class="v900-player-buttons"></div>
+                </section>
 
-                <div class="v900-skill-grid">
-                  <button data-skill="S" onclick="v900SetSkill('S')"><b>S</b><span>Saque</span></button>
-                  <button data-skill="R" class="active" onclick="v900SetSkill('R')"><b>R</b><span>Recepción</span></button>
-                  <button data-skill="E" onclick="v900SetSkill('E')"><b>E</b><span>Colocación</span></button>
-                  <button data-skill="A" onclick="v900SetSkill('A')"><b>A</b><span>Ataque</span></button>
-                  <button data-skill="B" onclick="v900SetSkill('B')"><b>B</b><span>Bloqueo</span></button>
-                  <button data-skill="D" onclick="v900SetSkill('D')"><b>D</b><span>Defensa</span></button>
-                  <button data-skill="F" onclick="v900SetSkill('F')"><b>F</b><span>Freeball</span></button>
-                  <button data-skill="C" onclick="v900SetSkill('C')"><b>C</b><span>Cobertura</span></button>
+                <section class="v111-builder-section v111-skill-section">
+                  <div class="v111-section-title"><span>02</span><div><b>Acción</b><small>Fundamento que estás registrando</small></div></div>
+                  <div class="v900-skill-grid">
+                    <button data-skill="S" onclick="v900SetSkill('S')"><b>S</b><span>Saque</span></button>
+                    <button data-skill="R" class="active" onclick="v900SetSkill('R')"><b>R</b><span>Recepción</span></button>
+                    <button data-skill="E" onclick="v900SetSkill('E')"><b>E</b><span>Colocación</span></button>
+                    <button data-skill="A" onclick="v900SetSkill('A')"><b>A</b><span>Ataque</span></button>
+                    <button data-skill="B" onclick="v900SetSkill('B')"><b>B</b><span>Bloqueo</span></button>
+                    <button data-skill="D" onclick="v900SetSkill('D')"><b>D</b><span>Defensa</span></button>
+                    <button data-skill="F" onclick="v900SetSkill('F')"><b>F</b><span>Freeball</span></button>
+                    <button data-skill="C" onclick="v900SetSkill('C')"><b>C</b><span>Cobertura</span></button>
+                  </div>
+                </section>
+
+                <section class="v111-builder-section v111-eval-section">
+                  <div class="v111-section-title"><span>04</span><div><b>Evaluación</b><small>Escala DataVolley</small></div></div>
+                  <div class="v900-eval-row">
+                    <span>Valoración</span>
+                    <button data-eval="#" onclick="v900SetEval('#')" title="Perfecta / punto">#<small>Perfecta</small></button>
+                    <button data-eval="+" onclick="v900SetEval('+')" title="Positiva">+<small>Positiva</small></button>
+                    <button data-eval="!" class="active" onclick="v900SetEval('!')" title="Neutra">!<small>Neutra</small></button>
+                    <button data-eval="-" onclick="v900SetEval('-')" title="Negativa">−<small>Negativa</small></button>
+                    <button data-eval="/" onclick="v900SetEval('/')" title="Bloqueada / muy negativa">/<small>Bloqueada</small></button>
+                    <button data-eval="=" onclick="v900SetEval('=')" title="Error">=<small>Error</small></button>
+                  </div>
+                </section>
+
+                <section id="v111-pro-fields" class="v111-builder-section v111-pro-section">
+                  <div class="v111-section-title">
+                    <span>PRO</span>
+                    <div><b>Detalle técnico</b><small>Tempo, gesto, setter call, dirección, bloqueo, fase…</small></div>
+                    <button class="text-btn" onclick="v111SetDetailMode(document.body.classList.contains('v111-pro-detail')?'fast':'pro')">Mostrar / ocultar</button>
+                  </div>
+                  <div id="v900-dynamic-fields" class="v900-dynamic-fields"></div>
+                </section>
+
+                <div class="v111-register-dock">
+                  <div class="v900-preview">
+                    <div>
+                      <span>Código generado</span>
+                      <code id="v900-code-preview">—</code>
+                    </div>
+                    <small id="v900-code-meaning">Selecciona jugador y completa la acción.</small>
+                  </div>
+                  <button id="v900-register-btn" class="success v900-register" onclick="v900RegisterVisual()">
+                    <span>＋</span><b>REGISTRAR ACCIÓN</b><small>Guardar en rally actual</small>
+                  </button>
                 </div>
-
-                <div class="v900-eval-row">
-                  <span>Valoración</span>
-                  <button data-eval="#" onclick="v900SetEval('#')">#</button>
-                  <button data-eval="+" onclick="v900SetEval('+')">+</button>
-                  <button data-eval="!" class="active" onclick="v900SetEval('!')">!</button>
-                  <button data-eval="-" onclick="v900SetEval('-')">−</button>
-                  <button data-eval="/" onclick="v900SetEval('/')">/</button>
-                  <button data-eval="=" onclick="v900SetEval('=')">=</button>
-                </div>
-
-                <div id="v900-dynamic-fields" class="v900-dynamic-fields"></div>
-                <div id="v900-location-area" class="v900-location-area"></div>
-
-                <div class="v900-preview">
-                  <div><span>Código previsto</span><code id="v900-code-preview">—</code></div>
-                  <small id="v900-code-meaning">Selecciona jugador y completa la acción.</small>
-                </div>
-                <button id="v900-register-btn" class="success v900-register" onclick="v900RegisterVisual()">＋ Registrar acción</button>
               </div>
 
               <div id="v900-code-builder" class="hidden">
+                <div class="v111-code-pro-head">
+                  <span>DATA VOLLEY STYLE</span>
+                  <h4>Código Pro</h4>
+                  <p>Escribe directamente el código cuando necesites máxima velocidad.</p>
+                </div>
                 <div class="v900-code-entry">
                   <input id="v900-code-input" autocomplete="off" autocapitalize="characters" placeholder="Ej. 7R#.6C~JF%OH · 12A#.4B>5D::X5~T%HSP|F@2" oninput="v900TranslateCode()" onkeydown="if(event.key==='Enter'){event.preventDefault();v900RegisterCode()}">
                   <button class="primary" onclick="v900RegisterCode()">Registrar</button>
@@ -2429,23 +2432,76 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
                 <div id="v900-code-translation" class="v900-code-translation">Escribe un código para ver su lectura.</div>
               </div>
             </article>
+          </main>
 
-            <article class="v900-card">
-              <div class="v900-card-head"><div><span class="pro-kicker">RALLY EN CURSO</span><h3 id="v900-rally-title">0 acciones</h3></div><div class="v900-mini-actions"><button class="ghost" onclick="scoutDeleteLastAction()">Borrar última</button><button class="ghost" onclick="v901OpenRallyEditor()">Editar rallies y códigos</button></div></div>
-              <div id="v900-live-actions" class="v900-live-actions"></div>
+          <!-- CENTER · COURT + LOCATIONS -->
+          <aside class="v900-column v900-courts-column v111-court-column">
+            <article class="v900-card sticky v111-court-card">
+              <div class="v900-card-head v111-card-head">
+                <div><span class="pro-kicker">03 · PISTA / ZONAS</span><h3>Alineación y trayectoria</h3><p>Pulsa una jugadora en pista y marca origen/destino cuando corresponda.</p></div>
+                <button class="text-btn" onclick="scoutOpenLineup()">Editar alineación</button>
+              </div>
+
+              <div class="v900-court-stack">
+                <div class="v111-court-team-label"><span>RIVAL</span><small id="v111-rival-rotation-label">R1</small></div>
+                <div id="v900-rival-court" class="v900-court rival"></div>
+                <div class="v900-net"><span>RED</span></div>
+                <div id="v900-own-court" class="v900-court"></div>
+                <div class="v111-court-team-label own"><span>NUESTRO EQUIPO</span><small id="v111-own-rotation-label">R1</small></div>
+              </div>
+
+              <div class="v900-selected-player">
+                <span>Jugador seleccionado</span>
+                <b id="v900-player-selected">—</b>
+              </div>
+
+              <div class="v111-rotation-controls">
+                <div>
+                  <span>Nuestro equipo</span>
+                  <div><button class="ghost" onclick="scoutRotate(-1)">↶</button><button class="ghost" onclick="scoutRotate(1)">↷</button></div>
+                </div>
+                <div>
+                  <span>Rival</span>
+                  <div><button class="ghost" onclick="scoutRotateOpponent(-1)">↶</button><button class="ghost" onclick="scoutRotateOpponent(1)">↷</button></div>
+                </div>
+              </div>
+
+              <section class="v111-location-section">
+                <div class="v111-section-title"><span>03</span><div><b>Zona y dirección</b><small>9 zonas × 4 subzonas / conos DataVolley</small></div></div>
+                <div id="v900-location-area" class="v900-location-area"></div>
+              </section>
+            </article>
+          </aside>
+
+          <!-- RIGHT · RALLY + LIVE STATS -->
+          <aside class="v900-column v900-intel-column v111-intel-column">
+            <article id="v111-rally-panel" class="v900-card v111-rally-card">
+              <div class="v900-card-head v111-card-head">
+                <div><span class="pro-kicker">RALLY ACTUAL</span><h3 id="v900-rally-title">0 acciones</h3></div>
+                <div class="v900-mini-actions">
+                  <button class="ghost" onclick="scoutDeleteLastAction()" title="Borrar última">⌫</button>
+                  <button class="ghost" onclick="v901OpenRallyEditor()">Editar</button>
+                </div>
+              </div>
+              <div id="v900-live-actions" class="v900-live-actions v111-live-actions"></div>
+              <div class="v111-rally-score">
+                <span id="v111-rally-score-copy">Rally abierto</span>
+                <small>cierra el rally asignando el punto</small>
+              </div>
               <div class="v900-point-row">
                 <button class="v900-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
                 <button class="v900-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
                 <button class="v900-point opponent" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
               </div>
             </article>
-          </main>
 
-          <aside class="v900-column v900-intel-column">
-            <article class="v900-card sticky">
-              <div class="v900-card-head"><div><span class="pro-kicker">INTELIGENCIA EN DIRECTO</span><h3 id="v900-intel-title">Recepción</h3></div><span id="v900-intel-scope" class="v900-chip">PARTIDO</span></div>
+            <article id="v111-live-stats-panel" class="v900-card sticky v111-intel-card">
+              <div class="v900-card-head v111-card-head">
+                <div><span class="pro-kicker">ESTADÍSTICAS LIVE</span><h3 id="v900-intel-title">Recepción</h3></div>
+                <span id="v900-intel-scope" class="v900-chip">PARTIDO</span>
+              </div>
               <div id="v900-intel" class="v900-intel"></div>
-              <div class="v900-action-row">
+              <div class="v111-intel-actions">
                 <button class="ghost" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Análisis completo</button>
                 <button class="ghost" onclick="return scoutV752ExportAnalysisPDF()">PDF Pro</button>
               </div>
@@ -5688,7 +5744,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.0.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.2.0', {
         updateViaCache: 'none'
       });
 
@@ -27878,6 +27934,403 @@ window.VC_V11_SHELL={
     intelligenceV10Primary:false
   })
 };
+})();
+</script>
+
+
+
+<style id="v111-scouting-pro-style">
+/* V11.1 Scouting Pro · DataVolley-inspired workflow */
+body.v11-shell #scout-workspace-v900{
+  --v111-blue:#197fe0;--v111-green:#2fa473;--v111-red:#d95863;--v111-orange:#df8a3a;
+  --v111-purple:#7869e8;--v111-cyan:#2b9bb7;--v111-surface:#fff;--v111-soft:#f7fafc;
+  --v111-line:#dce6ee;--v111-text:#17334a;--v111-muted:#73899a;
+  background:transparent!important;
+}
+body.v11-shell #scout-workspace-v900 .v900-shell{
+  padding:0!important;max-width:1520px!important;margin:0 auto!important;
+}
+body.v11-shell #scout-workspace-v900 .v900-topbar{
+  display:grid!important;grid-template-columns:minmax(300px,1fr) auto!important;gap:12px!important;
+  align-items:center!important;background:#fff!important;border:1px solid var(--v111-line)!important;
+  border-radius:13px!important;padding:13px 15px!important;box-shadow:0 8px 22px rgba(36,73,102,.055)!important;margin-bottom:8px!important;
+}
+body.v11-shell #scout-workspace-v900 .v900-brand h2{font-size:17px!important;color:var(--v111-text)!important;margin:2px 0!important}
+body.v11-shell #scout-workspace-v900 .v900-brand p{font-size:8px!important;color:var(--v111-muted)!important;margin:0!important}
+body.v11-shell #scout-workspace-v900 .v900-top-actions{display:flex!important;gap:5px!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important}
+body.v11-shell #scout-workspace-v900 .v900-top-actions button{font-size:7px!important;min-height:33px!important}
+body.v11-shell #scout-workspace-v900 .v956-scout-sync-status{font-size:6.5px!important;color:#7d92a2!important}
+
+/* Score/status command strip */
+body.v11-shell #scout-workspace-v900 .v900-statusbar{
+  display:grid!important;grid-template-columns:minmax(240px,1.3fr) repeat(5,minmax(100px,.7fr))!important;
+  gap:1px!important;padding:0!important;background:#dbe6ee!important;border:1px solid #dbe6ee!important;
+  border-radius:10px!important;overflow:hidden!important;margin-bottom:7px!important;box-shadow:0 6px 18px rgba(36,73,102,.045)!important;
+}
+body.v11-shell #scout-workspace-v900 .v900-score-main,
+body.v11-shell #scout-workspace-v900 .v900-status-item{background:#fff!important;padding:8px 10px!important;border:0!important}
+body.v11-shell #scout-workspace-v900 .v900-score-main{display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;gap:8px!important}
+body.v11-shell #scout-workspace-v900 .v900-score-main span{font-size:8px!important;color:#48657a!important;font-weight:850!important}
+body.v11-shell #scout-workspace-v900 .v900-score-main span:last-child{text-align:right}
+body.v11-shell #scout-workspace-v900 .v900-score-main b{font-size:24px!important;color:#17334a!important;letter-spacing:-.04em!important}
+body.v11-shell #scout-workspace-v900 .v900-status-item span{font-size:6px!important;color:#869aaa!important;letter-spacing:.08em!important}
+body.v11-shell #scout-workspace-v900 .v900-status-item b{font-size:10.5px!important;color:#24445c!important}
+body.v11-shell #scout-workspace-v900 .v900-status-item small{font-size:6.2px!important;color:#8ca0ae!important}
+
+/* Professional navigation */
+.v111-scout-nav{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:4px;margin-bottom:6px;
+  background:#fff;border:1px solid var(--v111-line);border-radius:10px;box-shadow:0 6px 18px rgba(36,73,102,.045)
+}
+.v111-scout-nav button{
+  display:flex!important;align-items:center;justify-content:center;gap:6px;min-height:37px!important;
+  background:transparent!important;border:1px solid transparent!important;color:#6c8496!important;box-shadow:none!important;font-size:7.5px!important
+}
+.v111-scout-nav button>span{font-size:11px;color:#8ba0af}.v111-scout-nav button.active{background:#eaf5fd!important;border-color:#c3def0!important;color:#2474ad!important;box-shadow:inset 0 -2px 0 #4ba8e8!important}
+.v111-scout-nav button.active>span{color:#2b82bd}
+.v111-workflow{
+  display:flex;align-items:center;gap:6px;padding:5px 8px;margin-bottom:7px;color:#8ca0ae;font-size:6.4px;font-weight:900;letter-spacing:.05em
+}
+.v111-workflow span.active{color:#287cb5}.v111-workflow i{font-style:normal;color:#bdc9d1}
+
+/* Three-column professional layout */
+body.v11-shell #scout-workspace-v900 .v111-live-grid{
+  display:grid!important;grid-template-columns:minmax(370px,1.08fr) minmax(390px,1fr) minmax(285px,.72fr)!important;
+  gap:9px!important;align-items:start!important;
+}
+body.v11-shell #scout-workspace-v900 .v900-register-column{order:1!important}
+body.v11-shell #scout-workspace-v900 .v900-courts-column{order:2!important}
+body.v11-shell #scout-workspace-v900 .v900-intel-column{order:3!important}
+body.v11-shell #scout-workspace-v900 .v900-card{
+  background:#fff!important;border:1px solid var(--v111-line)!important;border-radius:12px!important;
+  box-shadow:0 8px 22px rgba(36,73,102,.055)!important;color:var(--v111-text)!important;overflow:hidden!important
+}
+body.v11-shell #scout-workspace-v900 .v111-builder-card{padding:0!important}
+body.v11-shell #scout-workspace-v900 .v111-court-card,
+body.v11-shell #scout-workspace-v900 .v111-rally-card,
+body.v11-shell #scout-workspace-v900 .v111-intel-card{padding:11px!important}
+body.v11-shell #scout-workspace-v900 .v900-card.sticky{position:sticky!important;top:82px!important}
+.v111-card-head{border-bottom:1px solid #e5edf2!important;padding-bottom:9px!important;margin-bottom:0!important}
+.v111-card-head h3{font-size:12px!important;color:#17334a!important;margin:2px 0!important}
+.v111-card-head p{font-size:7.2px!important;color:#8195a4!important;margin:2px 0 0!important;line-height:1.4!important}
+
+/* Builder */
+.v111-builder-card>.v111-card-head{padding:11px 12px!important}
+.v111-builder-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.v111-detail-switch,.v900-mode-switch{display:flex!important;gap:2px!important;padding:2px!important;background:#f2f7fa!important;border:1px solid #dce6ee!important;border-radius:8px!important}
+.v111-detail-switch button,.v900-mode-switch button{min-height:28px!important;padding:5px 7px!important;background:transparent!important;border:1px solid transparent!important;color:#72899a!important;font-size:6.7px!important}
+.v111-detail-switch button.active,.v900-mode-switch button.active{background:#fff!important;color:#2474ad!important;border-color:#c8deec!important;box-shadow:0 3px 8px rgba(36,73,102,.06)!important}
+.v111-builder-section{padding:10px 12px;border-bottom:1px solid #e8eef3}
+.v111-section-title{display:grid;grid-template-columns:24px 1fr auto;gap:7px;align-items:center;margin-bottom:7px}
+.v111-section-title>span{width:23px;height:23px;border-radius:7px;background:#edf6fb;color:#287bb4;display:grid;place-items:center;font-size:6px;font-weight:950}
+.v111-section-title b{display:block;font-size:8.2px;color:#24445b}.v111-section-title small{display:block;font-size:6.4px;color:#8b9eac;margin-top:1px}
+.v900-team-toggle{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important;padding:3px!important;background:#f4f8fb!important;border:1px solid #dce7ee!important;border-radius:8px!important}
+.v900-team-toggle button{min-height:32px!important;background:transparent!important;border:1px solid transparent!important;color:#718899!important;font-size:7.2px!important}
+.v900-team-toggle button.active{background:#fff!important;border-color:#bdd7e8!important;color:#2474ad!important;box-shadow:0 4px 10px rgba(36,73,102,.06)!important}
+.v900-player-buttons{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important;padding:7px 0 0!important;overflow:visible!important}
+.v900-player-buttons button{min-width:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:7px!important;padding:7px 6px!important;background:#fff!important;border:1px solid #dce6ee!important;color:#506b7f!important;font-size:7px!important}
+.v900-player-buttons button.active{background:#eaf5fd!important;border-color:#add5ee!important;color:#236fa5!important;box-shadow:inset 0 0 0 1px #add5ee!important}
+
+/* skill buttons */
+.v900-skill-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:5px!important;padding:0!important;border:0!important}
+.v900-skill-grid button{min-height:50px!important;border-radius:9px!important;border:1px solid transparent!important;color:#fff!important;padding:7px 4px!important;box-shadow:none!important}
+.v900-skill-grid button b{font-size:15px!important;color:#fff!important}.v900-skill-grid button span{font-size:6.6px!important;color:rgba(255,255,255,.91)!important}
+.v900-skill-grid [data-skill="S"]{background:#438ed0!important}.v900-skill-grid [data-skill="R"]{background:#3aa477!important}.v900-skill-grid [data-skill="E"]{background:#df913e!important}.v900-skill-grid [data-skill="A"]{background:#d85c64!important}
+.v900-skill-grid [data-skill="B"]{background:#7d6cdd!important}.v900-skill-grid [data-skill="D"]{background:#37a0b9!important}.v900-skill-grid [data-skill="F"]{background:#607d91!important}.v900-skill-grid [data-skill="C"]{background:#bb8b3c!important}
+.v900-skill-grid button.active{box-shadow:0 0 0 2px #fff inset,0 0 0 2px #2a79b2!important;transform:translateY(-1px)!important}
+
+/* evaluations */
+.v900-eval-row{display:grid!important;grid-template-columns:repeat(6,1fr)!important;gap:4px!important;padding:0!important}
+.v900-eval-row>span{display:none!important}.v900-eval-row button{min-height:44px!important;background:#fff!important;border:1px solid #dce6ee!important;border-radius:8px!important;padding:5px!important;font-size:15px!important;color:#46647a!important}
+.v900-eval-row button small{display:block;font-size:5.4px!important;font-weight:800!important;color:#8b9daa!important;margin-top:1px}
+.v900-eval-row [data-eval="#"]{color:#23885d!important}.v900-eval-row [data-eval="+"]{color:#237fb5!important}.v900-eval-row [data-eval="!"]{color:#b27c28!important}.v900-eval-row [data-eval="-"]{color:#c87531!important}.v900-eval-row [data-eval="/"]{color:#b55862!important}.v900-eval-row [data-eval="="]{color:#cc4650!important}
+.v900-eval-row button.active{background:#edf6fb!important;border-color:#9fcde8!important;color:#1d638f!important;box-shadow:inset 0 -2px 0 #419ed9!important}
+.v900-eval-row button.active small{color:#43738f!important}
+
+/* Pro detail hidden in fast mode */
+body:not(.v111-pro-detail) #scout-workspace-v900 #v111-pro-fields .v900-dynamic-fields{display:none!important}
+body:not(.v111-pro-detail) #scout-workspace-v900 #v111-pro-fields{padding-bottom:5px!important}
+body:not(.v111-pro-detail) #scout-workspace-v900 #v111-pro-fields .v111-section-title{margin-bottom:0!important}
+.v900-dynamic-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;padding:0!important;border:0!important;margin-top:7px!important}
+.v900-field span{font-size:5.8px!important;color:#8398a8!important}.v900-field select,.v900-field input{background:#fff!important;border-color:#d9e4ec!important;color:#355269!important;min-height:31px!important;padding:6px!important;font-size:7px!important}
+
+/* Register dock */
+.v111-register-dock{padding:10px 12px;background:#f8fbfd}
+.v900-preview{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(100px,.7fr)!important;gap:8px!important;align-items:center!important;padding:8px!important;background:#fff!important;border:1px solid #dce6ee!important;border-radius:8px!important}
+.v900-preview span{font-size:5.8px!important;color:#8a9daa!important}.v900-preview code{font-size:10px!important;color:#206fa5!important}.v900-preview small{font-size:6.2px!important;color:#7f94a4!important;max-width:none!important;text-align:right!important}
+.v900-register{width:100%!important;margin:6px 0 0!important;min-height:48px!important;border-radius:9px!important;display:grid!important;grid-template-columns:28px 1fr!important;grid-template-rows:auto auto!important;column-gap:4px!important;align-items:center!important;background:linear-gradient(135deg,#2f9f71,#52bf90)!important;border:1px solid #69cba1!important;color:#fff!important;box-shadow:0 9px 20px rgba(47,159,113,.15)!important}
+.v900-register>span{grid-row:1/3;font-size:17px}.v900-register>b{font-size:8.5px;color:#fff!important}.v900-register>small{font-size:5.8px;color:#e8fff4!important}
+
+/* Code Pro */
+#v900-code-builder{padding:13px}.v111-code-pro-head{margin-bottom:8px}.v111-code-pro-head span{font-size:6px;color:#3684bb;font-weight:950;letter-spacing:.1em}.v111-code-pro-head h4{font-size:13px;margin:2px 0;color:#17334a}.v111-code-pro-head p{font-size:7px;color:#8296a5;margin:0}
+.v900-code-entry{display:grid!important;grid-template-columns:1fr auto auto!important;gap:5px!important}.v900-code-entry input{min-height:39px!important;background:#fff!important;border-color:#d9e4ec!important}
+
+/* Court */
+.v111-court-card{padding:11px!important}.v900-court-stack{padding:7px!important;background:#f7fafc!important;border:1px solid #e0e9ef!important;border-radius:10px!important}
+.v111-court-team-label{display:flex;justify-content:space-between;align-items:center;padding:2px 2px 5px;font-size:6px;font-weight:950;color:#7e93a3;letter-spacing:.08em}.v111-court-team-label.own{padding:5px 2px 2px}.v111-court-team-label small{font-size:6px;color:#3c7fab;background:#eaf5fd;border:1px solid #c9e2f2;border-radius:999px;padding:2px 5px}
+.v900-court{gap:4px!important;padding:6px!important;border:1px solid #e6b47e!important;border-radius:8px!important;background:#df9b57!important}.v900-court.rival{background:#e7edf1!important;border-color:#ced9e1!important}
+.v900-court-slot{min-height:64px!important;border-radius:6px!important;background:rgba(255,255,255,.38)!important;border:1px solid rgba(255,255,255,.82)!important;padding:5px!important}.v900-court.rival .v900-court-slot{background:rgba(255,255,255,.66)!important;border-color:#f7fafc!important}
+.v900-court-slot:hover,.v900-court-slot.selected{outline:2px solid #2679b2!important;background:#fff!important}.v900-court-slot small{font-size:5.8px!important}.v900-court-slot b{font-size:7.7px!important;color:#17334a!important}.v900-court-slot span{font-size:5.7px!important;color:#637b8d!important}
+.v900-net{margin:4px 0!important;display:flex!important;align-items:center!important;gap:5px!important;color:#8b9da9!important;font-size:5.5px!important}.v900-net:before,.v900-net:after{content:"";height:1px;background:#c9d5dd;flex:1}
+.v900-selected-player{display:flex!important;justify-content:space-between!important;align-items:center!important;padding:7px 8px!important;margin-top:6px!important;background:#fff!important;border:1px solid #dce6ee!important;border-radius:8px!important}.v900-selected-player span{font-size:6px!important;color:#889ba9!important}.v900-selected-player b{font-size:8px!important;color:#24445a!important}
+.v111-rotation-controls{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}.v111-rotation-controls>div{display:flex;justify-content:space-between;align-items:center;padding:6px 7px;background:#f8fbfd;border:1px solid #e0e9ef;border-radius:8px}.v111-rotation-controls span{font-size:6px;color:#7c91a1;font-weight:850}.v111-rotation-controls>div>div{display:flex;gap:2px}.v111-rotation-controls button{width:28px;height:27px;padding:0!important}
+
+/* locations moved to center */
+.v111-location-section{border-top:1px solid #e5edf2;margin-top:8px;padding-top:9px}
+.v900-location-area{padding:0!important}.v900-location-block{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important}
+.v900-location-card{background:#fff!important;border:1px solid #dce6ee!important;border-radius:8px!important;padding:6px!important}.v900-location-card h4{font-size:6.5px!important;color:#5b7487!important;margin:0 0 5px!important}
+.v900-zone-grid{gap:3px!important}.v900-zone-grid button{min-height:29px!important;padding:4px!important;background:#f8fbfd!important;border-color:#d8e4ec!important;color:#5a7386!important;font-size:7px!important}.v900-zone-grid button.active{background:#eaf5fd!important;border-color:#9fcae5!important;color:#226d9e!important}
+.v900-subzone-row{gap:3px!important;margin-top:3px!important}.v900-subzone-row button{padding:4px!important;font-size:6px!important;background:#fff!important}.v900-subzone-row button.active{background:#edf6fb!important;border-color:#b4d7ec!important;color:#2673a6!important}
+.v900-cone-grid button{background:#f8fbfd!important;border-color:#d8e4ec!important;color:#577184!important}.v900-cone-grid button.active{background:#eaf5fd!important;color:#226d9e!important;border-color:#9fcae5!important}
+
+/* right column */
+.v111-intel-column{display:flex!important;flex-direction:column!important;gap:8px!important}
+.v111-rally-card{padding:10px!important}.v111-live-actions{display:flex!important;flex-direction:column!important;gap:4px!important;max-height:275px!important;min-height:122px!important;overflow:auto!important;padding:0!important;margin:7px 0!important}
+.v900-action-chip{min-width:0!important;background:#f8fbfd!important;border:1px solid #e0e9ef!important;border-radius:7px!important;padding:7px!important}.v900-action-chip code{font-size:8px!important;color:#236f9f!important}.v900-action-chip span{font-size:6px!important;color:#7e92a2!important}
+.v111-rally-score{display:flex;justify-content:space-between;align-items:center;padding:6px 2px;border-top:1px solid #e8eef3}.v111-rally-score span{font-size:7px;color:#425f74;font-weight:850}.v111-rally-score small{font-size:5.8px;color:#91a2ae}
+.v900-point-row{display:grid!important;grid-template-columns:1fr 48px 1fr!important;gap:4px!important;padding:0!important}.v900-point{min-height:55px!important;border-radius:8px!important;color:#fff!important}.v900-point b{font-size:15px!important;color:#fff!important}.v900-point span{font-size:5.8px!important;color:#fff!important}.v900-point.ours{background:linear-gradient(135deg,#3b8bca,#5fb8eb)!important;border:1px solid #72c1ef!important}.v900-point.opponent{background:linear-gradient(135deg,#c85e68,#df8790)!important;border:1px solid #e9a4aa!important}.v900-undo{min-width:0!important;padding:4px!important;background:#fff!important;border:1px solid #dce6ee!important;color:#6f8596!important}.v900-undo span{font-size:5.3px!important}
+.v111-intel-card{padding:10px!important}.v900-intel-kpis{grid-template-columns:1fr 1fr!important;gap:4px!important}.v900-intel-kpis>div{background:#f8fbfd!important;border:1px solid #e0e9ef!important;border-radius:7px!important;padding:7px!important}.v900-intel-kpis span{font-size:5.7px!important;color:#8498a7!important}.v900-intel-kpis b{font-size:13px!important;color:#17334a!important}.v900-intel-kpis small{font-size:5.5px!important;color:#8fa1ae!important}
+.v900-intel-list{margin-top:5px!important}.v900-intel-row{border-bottom:1px solid #e7eef3!important;padding:5px 2px!important}.v900-intel-row b{font-size:6.7px!important;color:#38566d!important}.v900-intel-row span{font-size:6px!important;color:#7e93a2!important}
+.v111-intel-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:7px}.v111-intel-actions button{font-size:6.2px!important}
+
+/* nav focus states */
+body.v111-nav-rally #v111-rally-panel{outline:3px solid rgba(25,127,224,.15)}
+body.v111-nav-stats #v111-live-stats-panel{outline:3px solid rgba(25,127,224,.15)}
+body.v111-nav-lineup .v111-court-card{outline:3px solid rgba(25,127,224,.15)}
+
+/* responsive */
+@media(max-width:1260px){
+  body.v11-shell #scout-workspace-v900 .v111-live-grid{grid-template-columns:minmax(360px,1fr) minmax(360px,1fr)!important}
+  body.v11-shell #scout-workspace-v900 .v111-intel-column{grid-column:1/-1!important;display:grid!important;grid-template-columns:1fr 1fr!important}
+  body.v11-shell #scout-workspace-v900 .v111-intel-card{position:static!important}
+}
+@media(max-width:900px){
+  body.v11-shell #scout-workspace-v900 .v900-topbar{grid-template-columns:1fr!important}
+  body.v11-shell #scout-workspace-v900 .v900-top-actions{justify-content:flex-start!important}
+  body.v11-shell #scout-workspace-v900 .v900-statusbar{display:flex!important;overflow-x:auto!important}
+  body.v11-shell #scout-workspace-v900 .v900-score-main{flex:0 0 220px!important}
+  body.v11-shell #scout-workspace-v900 .v900-status-item{flex:0 0 105px!important}
+  body.v11-shell #scout-workspace-v900 .v111-live-grid{display:flex!important;flex-direction:column!important}
+  body.v11-shell #scout-workspace-v900 .v111-register-column{order:1!important;width:100%}
+  body.v11-shell #scout-workspace-v900 .v111-court-column{order:2!important;width:100%}
+  body.v11-shell #scout-workspace-v900 .v111-intel-column{order:3!important;display:flex!important;width:100%}
+  body.v11-shell #scout-workspace-v900 .v900-card.sticky{position:static!important}
+  .v111-scout-nav{display:flex;overflow-x:auto}.v111-scout-nav button{flex:0 0 122px}
+}
+@media(max-width:580px){
+  .v111-workflow{overflow-x:auto;white-space:nowrap}
+  .v111-builder-actions{width:100%;justify-content:flex-start}
+  .v111-card-head{align-items:flex-start!important;flex-direction:column!important}
+  .v900-player-buttons{grid-template-columns:1fr 1fr!important}
+  .v900-skill-grid{grid-template-columns:repeat(2,1fr)!important}
+  .v900-eval-row{grid-template-columns:repeat(3,1fr)!important}
+  .v900-location-block{grid-template-columns:1fr!important}
+  .v900-dynamic-fields{grid-template-columns:1fr!important}
+  .v111-rotation-controls{grid-template-columns:1fr!important}
+  .v111-register-dock{position:sticky;bottom:0;z-index:8;border-top:1px solid #dce6ee;box-shadow:0 -10px 24px rgba(36,73,102,.08)}
+}
+</style>
+
+
+
+<script id="v111-scouting-pro-runtime">
+(()=>{
+'use strict';
+const VERSION='11.1.0';
+const $=id=>document.getElementById(id);
+
+function setDetailMode(mode){
+  const pro=mode==='pro';
+  document.body.classList.toggle('v111-pro-detail',pro);
+  $('v111-fast-mode')?.classList.toggle('active',!pro);
+  $('v111-pro-mode')?.classList.toggle('active',pro);
+  try{localStorage.setItem('v111_detail_mode',pro?'pro':'fast')}catch(_){}
+}
+window.v111SetDetailMode=setDetailMode;
+
+function navActive(name){
+  document.body.classList.remove('v111-nav-lineup','v111-nav-stats','v111-nav-rally');
+  if(['lineup','stats','rally'].includes(name))document.body.classList.add(`v111-nav-${name}`);
+  document.querySelectorAll('.v111-scout-nav [data-v111-nav]').forEach(b=>b.classList.toggle('active',b.dataset.v111Nav===name));
+}
+window.v111ScoutNav=function(name){
+  navActive(name);
+  if(name==='coding'){
+    document.querySelector('.v111-builder-card')?.scrollIntoView({behavior:'smooth',block:'start'});return;
+  }
+  if(name==='lineup'){
+    document.querySelector('.v111-court-card')?.scrollIntoView({behavior:'smooth',block:'center'});return;
+  }
+  if(name==='stats'){
+    $('v111-live-stats-panel')?.scrollIntoView({behavior:'smooth',block:'center'});return;
+  }
+  if(name==='rally'){
+    $('v111-rally-panel')?.scrollIntoView({behavior:'smooth',block:'center'});return;
+  }
+  if(name==='video'){
+    try{window.v940Open?.('video')}catch(_){
+      try{showView('scout-video-hub',botonVista('scout-video-hub'))}catch(__){}
+    }
+  }
+};
+
+function syncContext(){
+  const rot=$('v900-rotation')?.textContent||'R1';
+  const rival=($('v900-rival-rotation')?.textContent||'Rival R1').replace(/^Rival\s*/i,'');
+  if($('v111-own-rotation-label'))$('v111-own-rotation-label').textContent=rot;
+  if($('v111-rival-rotation-label'))$('v111-rival-rotation-label').textContent=rival;
+  const score=$('v900-score')?.textContent||'0–0';
+  const set=$('v900-set')?.textContent||'1';
+  if($('v111-rally-score-copy'))$('v111-rally-score-copy').textContent=`Set ${set} · ${score}`;
+}
+['v900-rotation','v900-rival-rotation','v900-score','v900-set'].forEach(id=>{
+  const el=$(id);if(!el)return;
+  new MutationObserver(syncContext).observe(el,{subtree:true,childList:true,characterData:true});
+});
+
+const skillBase=window.v900SetSkill;
+if(typeof skillBase==='function'&&!skillBase.__v111){
+  const wrapped=function(...args){
+    const out=skillBase.apply(this,args);
+    setTimeout(()=>{
+      document.querySelectorAll('.v111-workflow span').forEach((el,i)=>el.classList.toggle('active',i<=1));
+    },0);
+    return out;
+  };
+  wrapped.__v111=true;window.v900SetSkill=wrapped;
+}
+const playerBase=window.v900SelectPlayer;
+if(typeof playerBase==='function'&&!playerBase.__v111){
+  const wrapped=function(...args){
+    const out=playerBase.apply(this,args);
+    setTimeout(()=>document.querySelectorAll('.v111-workflow span').forEach((el,i)=>el.classList.toggle('active',i===0)),0);
+    return out;
+  };
+  wrapped.__v111=true;window.v900SelectPlayer=wrapped;
+}
+const evalBase=window.v900SetEval;
+if(typeof evalBase==='function'&&!evalBase.__v111){
+  const wrapped=function(...args){
+    const out=evalBase.apply(this,args);
+    setTimeout(()=>document.querySelectorAll('.v111-workflow span').forEach((el,i)=>el.classList.toggle('active',i<=3)),0);
+    return out;
+  };
+  wrapped.__v111=true;window.v900SetEval=wrapped;
+}
+
+try{setDetailMode(localStorage.getItem('v111_detail_mode')==='pro'?'pro':'fast')}catch(_){setDetailMode('fast')}
+syncContext();
+
+window.VC_V111_SCOUTING_PRO={
+  version:VERSION,
+  diagnostics:()=>({
+    version:VERSION,
+    detailMode:document.body.classList.contains('v111-pro-detail')?'pro':'fast',
+    builder:!!document.querySelector('.v111-builder-card'),
+    court:!!document.querySelector('.v111-court-card'),
+    rally:!!$('v111-rally-panel'),
+    liveStats:!!$('v111-live-stats-panel'),
+    dataModelChanged:false,
+    parserChanged:false
+  })
+};
+})();
+</script>
+
+
+
+<style id="v112-match-mode-style">
+/* V11.2 · Match Mode */
+body.v11-shell #scout-match-mode{--m-blue:#197fe0;--m-red:#d95b64;--m-green:#2fa473;--m-line:#dce6ee;--m-soft:#f7fafc;--m-text:#17334a;--m-muted:#74899a}
+body.v11-shell #v800-shell{max-width:1520px!important;margin:0 auto!important;padding:0!important}
+body.v11-shell #v800-shell .v800-top{display:grid!important;grid-template-columns:minmax(280px,1fr) auto!important;align-items:center!important;gap:12px!important;background:#fff!important;border:1px solid var(--m-line)!important;border-radius:13px!important;padding:12px 14px!important;box-shadow:0 8px 22px rgba(36,73,102,.055)!important;margin-bottom:8px!important}
+body.v11-shell #v800-shell .v800-match-title h2{font-size:16px!important;color:var(--m-text)!important;margin:2px 0!important}body.v11-shell #v800-shell .v800-match-title p{font-size:7.5px!important;color:var(--m-muted)!important;margin:0!important}
+body.v11-shell #v800-shell .v800-top-actions{display:flex!important;align-items:end!important;justify-content:flex-end!important;gap:4px!important;flex-wrap:wrap!important}
+body.v11-shell #v800-shell .v800-top-actions>button{display:none!important}body.v11-shell #v800-shell .v800-top-actions .v800-match-picker{display:block!important;min-width:210px!important}body.v11-shell #v800-shell .v800-top-actions>button[onclick*="SaveAndExit"],body.v11-shell #v800-shell .v800-top-actions>button[onclick*="ToggleFullscreen"]{display:inline-flex!important;min-height:34px!important;font-size:6.8px!important}
+
+.v112-scoreboard{display:grid!important;grid-template-columns:minmax(0,1fr) 180px minmax(0,1fr)!important;min-height:90px!important;padding:0!important;background:#fff!important;border:1px solid var(--m-line)!important;border-radius:12px!important;overflow:hidden!important;box-shadow:0 9px 24px rgba(36,73,102,.06)!important}
+.v112-scoreboard .v800-team{display:grid!important;grid-template-columns:1fr auto!important;grid-template-rows:1fr auto!important;align-items:center!important;padding:13px 17px!important}.v112-scoreboard .v800-team.ours{background:linear-gradient(90deg,rgba(25,127,224,.08),transparent);border-right:1px solid #e0e8ee}.v112-scoreboard .v800-team.rival{background:linear-gradient(270deg,rgba(217,91,100,.07),transparent);border-left:1px solid #e0e8ee;text-align:right!important}.v112-scoreboard .v800-team small{font-size:9px!important;color:#3f5d72!important;font-weight:900!important}.v112-scoreboard .v800-team strong{grid-row:1/3;font-size:38px!important;line-height:1!important;color:#17334a!important;letter-spacing:-.04em!important}.v112-scoreboard .v800-team span{font-size:6.5px!important;color:#8397a6!important;text-transform:uppercase}.v112-scoreboard .v800-center-score{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;background:#f8fbfd!important;gap:4px!important}.v112-scoreboard .v800-center-score>span{font-size:9px!important;color:#c17b2d!important;font-weight:950!important}.v112-scoreboard .v800-center-score>b{font-size:10px!important;color:#526d80!important}.v112-scoreboard .v800-service{font-size:6.5px!important;background:#fff!important;border:1px solid #dce6ee!important;border-radius:999px!important;padding:4px 7px!important;color:#647d8f!important}
+
+.v112-match-commandbar{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;padding:4px;margin:7px 0;background:#fff;border:1px solid var(--m-line);border-radius:10px;box-shadow:0 6px 18px rgba(36,73,102,.045)}.v112-match-commandbar button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px!important;background:transparent!important;border:1px solid transparent!important;color:#6d8495!important;box-shadow:none!important}.v112-match-commandbar button>span{font-size:11px;color:#91a4b2}.v112-match-commandbar button b{font-size:7.3px;color:inherit}.v112-match-commandbar button small{font-size:5.7px;color:#94a5b1}.v112-match-commandbar button.active{background:#eaf5fd!important;border-color:#c1dff1!important;color:#2474ad!important;box-shadow:inset 0 -2px 0 #4ba8e8!important}.v112-match-commandbar button.active>span,.v112-match-commandbar button.active small{color:#2e7caf!important}
+.v112-context-strip{grid-template-columns:repeat(5,1fr)!important;gap:4px!important;background:transparent!important;border:0!important;padding:0!important;margin-bottom:8px!important}.v112-context-strip>div{background:#fff!important;border:1px solid #e1e9ef!important;border-radius:9px!important;padding:7px 8px!important;box-shadow:0 5px 15px rgba(36,73,102,.035)}.v112-context-strip span{font-size:5.5px!important;color:#8a9daa!important}.v112-context-strip b{font-size:10px!important;color:#24445b!important}.v112-context-strip small{font-size:5.8px!important;color:#879aa8!important}.v112-legacy-view-nav{display:none!important}
+
+.v112-live-grid{display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(290px,.58fr)!important;gap:9px!important;align-items:start!important}.v112-main{display:grid!important;grid-template-columns:minmax(390px,.92fr) minmax(440px,1.08fr)!important;gap:9px!important;align-items:start!important}.v112-control-card{grid-column:1!important;grid-row:1!important}.v112-court-card{grid-column:2!important;grid-row:1 / span 2!important}.v112-events-card{grid-column:1!important;grid-row:2!important}.v112-side{display:flex!important;flex-direction:column!important;gap:8px!important}
+.v112-control-card,.v112-court-card,.v112-events-card,.v112-kpi-card,.v112-last-card,.v112-decision-card,.v112-set-card{background:#fff!important;border:1px solid var(--m-line)!important;border-radius:12px!important;padding:11px!important;box-shadow:0 8px 22px rgba(36,73,102,.05)!important;color:var(--m-text)!important}.v112-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid #e7eef3}.v112-section-head>div>span{display:block;font-size:5.9px;color:#3983b7;font-weight:950;letter-spacing:.1em}.v112-section-head h3{font-size:11px!important;color:#17334a!important;margin:2px 0!important}.v112-section-head .v855-match-status{margin:0!important;padding:4px 6px!important;font-size:5.8px!important;white-space:nowrap}
+.v112-point-row{display:grid!important;grid-template-columns:1fr 56px 1fr!important;gap:5px!important}.v112-point-row .v800-point{min-height:72px!important;border-radius:9px!important;color:#fff!important}.v112-point-row .v800-point b{font-size:19px!important;color:#fff!important}.v112-point-row .v800-point span{font-size:6px!important;color:#fff!important}.v112-point-row .v800-point.ours{background:linear-gradient(135deg,#378bcb,#5bb7ec)!important;border:1px solid #74c0ee!important}.v112-point-row .v800-point.rival{background:linear-gradient(135deg,#c85c66,#df8990)!important;border:1px solid #e8a7ac!important}.v112-point-row .v800-undo{min-width:0!important;background:#f8fbfd!important;border:1px solid #dce6ee!important;color:#6f8596!important;border-radius:9px!important}.v112-point-row .v800-undo span{font-size:5.2px!important}
+.v112-code-block{margin-top:8px;padding-top:8px;border-top:1px solid #e7eef3}.v112-code-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}.v112-code-label>span{font-size:5.8px;font-weight:950;color:#7a8f9f;letter-spacing:.08em}.v112-code-block .v800-code-row{display:grid!important;grid-template-columns:1fr auto auto!important;gap:4px!important}.v112-code-block #v800-code{min-height:39px!important;background:#fff!important;border-color:#d9e4ec!important;font:700 8px/1.2 ui-monospace,Consolas,monospace!important}.v112-code-block #v852-code-status{font-size:5.5px!important;color:#889aa8!important;margin:3px 0 6px!important}.v112-code-presets{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:4px!important}.v112-code-presets button{min-height:30px!important;background:#f8fbfd!important;border:1px solid #dce6ee!important;color:#557084!important;font-size:6.1px!important}.v112-preset-builder{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;margin-top:5px!important}.v112-preset-builder label{min-width:0!important}.v112-preset-builder label>span{font-size:5.5px!important;color:#869aaa!important}.v112-preset-builder select,.v112-preset-builder input{min-height:31px!important;background:#fff!important;border-color:#dce6ee!important}.v112-preset-builder small{grid-column:1/-1;font-size:5.6px!important;color:#8fa1ad!important}
+.v112-live-rally-box{margin-top:8px!important;padding:8px!important;background:#f8fbfd!important;border:1px solid #e0e9ef!important;border-radius:9px!important}.v112-live-rally-box .v855-live-rally-head b{font-size:7.5px!important;color:#315066!important}.v112-live-rally-box .v855-live-rally-head span{font-size:5.7px!important;color:#8296a5!important}.v112-live-rally-box #v855-live-actions{max-height:180px!important;overflow:auto!important;margin:5px 0!important}.v112-live-rally-box .v853-code-tools{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important}.v112-live-rally-box .v853-code-tools button{font-size:5.8px!important}
+
+.v112-courts{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}.v112-courts .v800-court-label{display:block;font-size:5.8px!important;font-weight:950;color:#7f94a3!important;margin-bottom:4px!important}.v112-courts .v800-court{border-radius:8px!important;overflow:hidden!important}.v112-court-card .v850-lineup-guard{margin-top:8px!important;background:#f8fbfd!important;border:1px solid #e0e9ef!important;border-radius:8px!important;padding:8px!important}.v112-court-card .v850-lineup-guard-head b{font-size:7.4px!important;color:#315066!important}.v112-court-card .v850-lineup-guard-head span{font-size:5.7px!important;color:#8397a6!important}.v112-lineup-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px}.v112-lineup-actions button{font-size:5.9px!important;min-height:32px!important}
+.v112-events-card .v800-event-buttons{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:4px!important}.v112-events-card .v800-event-buttons button{min-height:31px!important;background:#f8fbfd!important;border:1px solid #dce6ee!important;color:#587286!important;font-size:5.8px!important}.v112-events-card #v800-events,.v112-events-card #v850-video-notes{max-height:150px;overflow:auto}
+
+.v112-kpis{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important}.v112-kpis>div{background:#f8fbfd!important;border:1px solid #e0e9ef!important;border-radius:8px!important;padding:8px!important}.v112-kpis span{font-size:5.8px!important;color:#8196a5!important}.v112-kpis b{font-size:17px!important;color:#17334a!important}.v112-kpis small{font-size:5.8px!important;color:#8b9daa!important}.v112-last-card #v800-last-rally{max-height:180px;overflow:auto}.v112-decision-card #v800-decisions{max-height:200px;overflow:auto}.v112-set-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px}.v112-set-actions button{font-size:6px!important;min-height:34px!important}.v112-set-actions .success{grid-column:1/-1!important}
+
+.v112-video-drawer{display:none;margin-top:9px;background:#fff;border:1px solid var(--m-line);border-radius:12px;padding:11px;box-shadow:0 9px 24px rgba(36,73,102,.06)}#v800-shell.v112-video-open .v112-video-drawer{display:block}.v112-video-drawer-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e7eef3;padding-bottom:8px;margin-bottom:8px}.v112-video-drawer-head span{display:block;font-size:5.8px;color:#3983b7;font-weight:950;letter-spacing:.1em}.v112-video-drawer-head h3{font-size:11px;margin:2px 0;color:#17334a}.v112-video-card{display:grid!important;grid-template-columns:minmax(0,1.25fr) minmax(260px,.65fr)!important;gap:8px!important;background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}.v112-video-card>.v800-card-head,.v112-video-card>.v802-source-tabs,.v112-video-card>#v803-mobile-tools,.v112-video-card>#v802-local-tools,.v112-video-card>#v802-youtube-tools,.v112-video-card>.v800-video-actions,.v112-video-card>#v802-video-help,.v112-video-card>#v800-rec-copy{grid-column:2!important}.v112-video-card>#v800-video-frame{grid-column:1!important;grid-row:1 / span 8!important;min-height:430px!important}.v112-video-card>#v802-playback{grid-column:1!important;grid-row:9!important}.v112-video-card .v800-video-frame{border-radius:9px!important;overflow:hidden!important;background:#000!important}
+
+/* V10 intelligence is preserved, but not a primary match-mode surface while beta is unstable. */
+body.v11-shell #scout-match-mode #v1000-intelligence{display:none!important}
+
+/* Ignore legacy V910 layout hiding; V11.2 controls surfaces itself. */
+body.v11-shell #v800-shell.v910-mode-directo .v800-main,body.v11-shell #v800-shell.v910-mode-video .v800-main,body.v11-shell #v800-shell.v910-mode-lectura .v800-main,body.v11-shell #v800-shell.v910-mode-todo .v800-main{display:grid!important}
+body.v11-shell #v800-shell.v910-mode-directo .v800-kpi-card,body.v11-shell #v800-shell.v910-mode-video .v800-kpi-card,body.v11-shell #v800-shell.v910-mode-lectura .v800-kpi-card,body.v11-shell #v800-shell.v910-mode-todo .v800-kpi-card,body.v11-shell #v800-shell.v910-mode-directo .v800-decision-card,body.v11-shell #v800-shell.v910-mode-video .v800-decision-card,body.v11-shell #v800-shell.v910-mode-lectura .v800-decision-card,body.v11-shell #v800-shell.v910-mode-todo .v800-decision-card,body.v11-shell #v800-shell.v910-mode-directo .v800-last-card,body.v11-shell #v800-shell.v910-mode-video .v800-last-card,body.v11-shell #v800-shell.v910-mode-lectura .v800-last-card,body.v11-shell #v800-shell.v910-mode-todo .v800-last-card{display:block!important}
+
+body.v112-focus-lineup #scout-match-mode .v112-court-card{outline:3px solid rgba(25,127,224,.13)}body.v112-focus-rally #scout-match-mode .v112-live-rally-box{outline:3px solid rgba(25,127,224,.13)}body.v112-focus-stats #scout-match-mode .v112-kpi-card{outline:3px solid rgba(25,127,224,.13)}body.v112-focus-set #scout-match-mode .v112-set-card{outline:3px solid rgba(25,127,224,.13)}
+@media(max-width:1220px){.v112-live-grid{grid-template-columns:1fr!important}.v112-side{display:grid!important;grid-template-columns:repeat(2,1fr)!important}.v112-set-card{grid-column:1/-1}.v112-video-card{grid-template-columns:1fr!important}.v112-video-card>*{grid-column:1!important;grid-row:auto!important}.v112-video-card>#v800-video-frame{min-height:360px!important}}
+@media(max-width:930px){body.v11-shell #v800-shell .v800-top{grid-template-columns:1fr!important}.v112-main{grid-template-columns:1fr!important}.v112-control-card,.v112-court-card,.v112-events-card{grid-column:1!important;grid-row:auto!important}.v112-court-card{order:2}.v112-events-card{order:3}.v112-side{grid-template-columns:1fr 1fr!important}.v112-match-commandbar{display:flex;overflow-x:auto}.v112-match-commandbar button{flex:0 0 118px}.v112-context-strip{display:flex!important;overflow-x:auto}.v112-context-strip>div{flex:0 0 118px}}
+@media(max-width:620px){.v112-scoreboard{grid-template-columns:1fr 92px 1fr!important;min-height:76px!important}.v112-scoreboard .v800-team{padding:9px!important}.v112-scoreboard .v800-team small{font-size:7px!important}.v112-scoreboard .v800-team strong{font-size:29px!important}.v112-side{display:flex!important}.v112-courts{grid-template-columns:1fr!important}.v112-code-presets{grid-template-columns:repeat(2,1fr)!important}.v112-lineup-actions{grid-template-columns:1fr!important}.v112-events-card .v800-event-buttons{grid-template-columns:1fr 1fr!important}.v112-set-actions{grid-template-columns:1fr!important}.v112-set-actions .success{grid-column:auto!important}.v112-control-card{padding-bottom:76px!important}.v112-point-row{position:sticky;bottom:8px;z-index:12;background:rgba(255,255,255,.96);padding:6px;border:1px solid #dce6ee;border-radius:10px;box-shadow:0 -8px 24px rgba(36,73,102,.08)}}
+</style>
+
+
+
+<script id="v112-match-mode-runtime">
+(()=>{
+'use strict';
+const VERSION='11.2.0';
+const $=id=>document.getElementById(id);
+function activeTab(name){
+  document.querySelectorAll('.v112-match-commandbar [data-v112-tab]').forEach(b=>b.classList.toggle('active',b.dataset.v112Tab===name));
+  document.body.classList.remove('v112-focus-lineup','v112-focus-rally','v112-focus-stats','v112-focus-set');
+  if(['lineup','rally','stats','set'].includes(name))document.body.classList.add(`v112-focus-${name}`);
+}
+window.v112ToggleVideo=function(force){
+  const shell=$('v800-shell');if(!shell)return;
+  const open=typeof force==='boolean'?force:!shell.classList.contains('v112-video-open');
+  shell.classList.toggle('v112-video-open',open);
+  if(open){activeTab('video');setTimeout(()=>$('v112-video-drawer')?.scrollIntoView({behavior:'smooth',block:'start'}),30)}
+  else activeTab('live');
+};
+window.v112MatchTab=function(name){
+  activeTab(name);
+  if(name==='live'){v112ToggleVideo(false);document.querySelector('.v112-control-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(name==='video'){v112ToggleVideo(true);return}
+  if(name==='lineup'){document.querySelector('.v112-court-card')?.scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(name==='rally'){document.querySelector('.v112-live-rally-box')?.scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(name==='stats'){document.querySelector('.v112-kpi-card')?.scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(name==='set'){document.querySelector('.v112-set-card')?.scrollIntoView({behavior:'smooth',block:'center'});return}
+};
+
+/* Preserve old callers: translate the historical match-view selector into V11.2 surfaces. */
+const oldView=window.v910SetMatchView;
+if(typeof oldView==='function'&&!oldView.__v112){
+ const wrapped=function(mode){
+   let out;try{out=oldView.apply(this,arguments)}catch(_){}
+   if(mode==='video')setTimeout(()=>v112ToggleVideo(true),0);
+   else if(mode==='directo')setTimeout(()=>v112ToggleVideo(false),0);
+   else if(mode==='lectura')setTimeout(()=>{activeTab('stats');document.querySelector('.v112-kpi-card')?.scrollIntoView({behavior:'smooth',block:'center'})},0);
+   return out;
+ };
+ wrapped.__v112=true;window.v910SetMatchView=wrapped;
+}
+window.v940MatchView=function(mode){
+  if(mode==='video')return v112ToggleVideo(true);
+  if(mode==='directo')return v112ToggleVideo(false);
+  try{return window.v910SetMatchView?.(mode)}catch(_){}
+};
+
+/* The old V10 button remains in DOM but Match Mode no longer depends on it. */
+const intel=$('v1000-intelligence-btn');if(intel)intel.style.display='none';
+activeTab('live');
+window.VC_V112_MATCH_MODE={version:VERSION,diagnostics:()=>({version:VERSION,videoOpen:$('v800-shell')?.classList.contains('v112-video-open')||false,dataModelChanged:false,scoreEngineChanged:false,videoPipelineChanged:false})};
 })();
 </script>
 
