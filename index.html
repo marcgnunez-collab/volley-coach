@@ -1497,9 +1497,9 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">VIDEO REVIEW · V11.9</span>
-        <h2>Revisión profesional de partido</h2>
-        <p>Live, Delay, YouTube y archivo en un mismo entorno, con timeline, sincronización, playlists, clips, rotaciones y foco por jugador.</p>
+        <span class="pro-kicker">VIDEO REVIEW · V13.3</span>
+        <h2>Revisión profesional vinculada al scouting</h2>
+        <p>Cada acción usa su timestamp real para navegar, filtrar, reproducir y crear clips automáticos −8 s / +5 s.</p>
       </div>
       <div class="v780-hero-actions">
         <button class="ghost" type="button" onclick="v780OpenRecordingPicker()">Grabaciones V7.7</button>
@@ -1644,6 +1644,17 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
             <button onclick="v780PlayVisible()"><b>▶ Filtro actual</b><small id="v780-count-visible">0 elementos</small></button>
           </div>
           <div id="v780-playlist-state" class="v780-playlist-state">Ninguna playlist activa.</div>
+          <div class="v133-smart-playlists">
+            <div class="v133-smart-head"><span>PLAYLISTS TÁCTICAS V13.3</span><small>Usan las acciones reales y su timestamp de vídeo.</small></div>
+            <div class="v133-smart-grid">
+              <button type="button" onclick="v780PlaySmartPreset('playerKills')"><b>▶ A# del jugador</b><small id="v133-count-player-kills">Selecciona jugador</small></button>
+              <button type="button" onclick="v780PlaySmartPreset('recepMinusBang')"><b>▶ Recepciones − / !</b><small id="v133-count-recep">0 acciones</small></button>
+              <button type="button" onclick="v780PlaySmartPreset('r6')"><b>▶ Rotación R6</b><small id="v133-count-r6">0 elementos</small></button>
+              <button type="button" onclick="v780PlaySmartPreset('sideoutLost')"><b>▶ Side-out perdido</b><small id="v133-count-sideout">0 rallies</small></button>
+              <button type="button" onclick="v780PlaySmartPreset('oppZ4')"><b>▶ Rival desde Z4</b><small id="v133-count-oppz4">0 ataques</small></button>
+              <button type="button" onclick="v780CreateSmartClips('visible')"><b>＋ Clips del filtro</b><small>−8 s / +5 s</small></button>
+            </div>
+          </div>
         </section>
 
         <section class="v780-selection">
@@ -8666,15 +8677,18 @@ function v757SkillRows(rows,skill){
   return {total,perfect,positive,error,blocked,posPct:v757Pct(positive,total),excPct:v757Pct(perfect,total),ptsPct:v757Pct(perfect,total),effPct:total?Math.round((perfect-error-blocked)*100/total):0};
 }
 function v757Impact(m,team,key=null){
-  const all=scoutActionRows(m,false),teamRows=all.filter(a=>a.team===team),scope=a=>!key||scoutPlayerKey(a)===key;
-  const gains=teamRows.filter(a=>scope(a)&&a.winner===team&&a.evaluation==='#'&&['S','A','B'].includes(a.skill));
-  const groups=new Map();
+  const all=scoutActionRows(m,false),scope=a=>!key||scoutPlayerKey(a)===key,groups=new Map(),gains=[],losses=[];
   all.forEach(a=>{const k=`${a.set}:${a.rallyIndex}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(a)});
-  const losses=[];
   groups.forEach(g=>{
     g.sort((a,b)=>(Number(a.actionIndex)||0)-(Number(b.actionIndex)||0));
-    const last=g[g.length-1];
-    if(last&&last.winner&&last.winner!==team&&last.team===team&&scope(last)&&(last.evaluation==='='||(last.skill==='A'&&last.evaluation==='/')))losses.push(last);
+    const winner=g.find(a=>a.winner)?.winner||'',mine=g.filter(a=>a.team===team);
+    if(winner===team){
+      const point=[...mine].reverse().find(a=>a.evaluation==='#'&&['S','A','B'].includes(a.skill));
+      if(point&&scope(point))gains.push(point);
+    }else if(winner&&winner!==team){
+      const last=mine[mine.length-1];
+      if(last&&scope(last)&&(last.evaluation==='='||(last.skill==='A'&&last.evaluation==='/')))losses.push(last);
+    }
   });
   return {won:gains.length,lost:losses.length,gp:gains.length-losses.length,fp:gains.filter(a=>a.servingBefore===team).length};
 }
@@ -10407,11 +10421,22 @@ function scoutV61010Gp(v){v=Number(v)||0;return `${v>0?'+':''}${v}`}
 function scoutV61010Skill(st,skill){return scoutV6109Skill(st,skill)}
 function scoutV61010TerminalLoss(a){return !!a&&((a.evaluation==='=')||(a.skill==='A'&&a.evaluation==='/'))}
 function scoutV61010PointImpact(rows,team,key='team'){
-  const all=scoutArr(rows).filter(a=>a&&a.team===team&&!a.live),scope=a=>key==='team'||scoutPlayerKey(a)===key;
-  const wonRows=all.filter(a=>scope(a)&&a.winner===team&&a.evaluation==='#'&&['S','A','B'].includes(a.skill));
-  const groups=new Map();all.forEach(a=>{const k=`${a.set}:${a.rallyIndex}`;(groups.get(k)||groups.set(k,[]).get(k)).push(a)});
-  const lostRows=[];
-  groups.forEach(g=>{g.sort((a,b)=>(Number(a.actionIndex)||0)-(Number(b.actionIndex)||0));const last=g[g.length-1];if(last&&last.winner&&last.winner!==team&&scoutV61010TerminalLoss(last)&&scope(last))lostRows.push(last)});
+  const all=scoutArr(rows).filter(a=>a&&a.team===team&&!a.live),scope=a=>key==='team'||scoutPlayerKey(a)===key,groups=new Map();
+  all.forEach(a=>{const k=`${a.set}:${a.rallyIndex}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(a)});
+  const wonRows=[],lostRows=[];
+  groups.forEach(g=>{
+    g.sort((a,b)=>(Number(a.actionIndex)||0)-(Number(b.actionIndex)||0));
+    const winner=g.find(a=>a.winner)?.winner||'';
+    if(winner===team){
+      /* Una hoja oficial solo puede atribuir un punto directo por rally. Si se
+         codificaron varios #, usamos el último S/A/B como acción terminal. */
+      const point=[...g].reverse().find(a=>a.evaluation==='#'&&['S','A','B'].includes(a.skill));
+      if(point&&scope(point))wonRows.push(point);
+    }else if(winner&&winner!==team){
+      const last=g[g.length-1];
+      if(last&&scoutV61010TerminalLoss(last)&&scope(last))lostRows.push(last);
+    }
+  });
   const fp=wonRows.filter(a=>a.servingBefore===team).length;
   return {won:wonRows.length,lost:lostRows.length,fp,gp:wonRows.length-lostRows.length,wonRows,lostRows,impactRows:[...wonRows,...lostRows]};
 }
@@ -10442,7 +10467,7 @@ function scoutV61010Breakdown(rallies,team){let serve=0,attack=0,block=0,oppErr=
 function scoutV61010AttackMetrics(list){const a=scoutArr(list);const total=a.length,err=a.filter(x=>x.evaluation==='=').length,blq=a.filter(x=>x.evaluation==='/').length,pts=a.filter(x=>x.evaluation==='#').length;return {total,err,blq,pts,pct:scoutV61010Pct(pts,total)}}
 function scoutV61010Performance(m,team,applyFilters=false){
   const rr=scoutV61010Rallies(m,team,applyFilters),pos=[],neg=[],counter=[],unknown=[];let receptionTotal=0,serveTotal=0,so=0,bp=0;
-  rr.forEach(x=>{const acts=scoutArr(x.r.actions),ours=acts.map((a,i)=>({a,i})).filter(z=>z.a.team===team);receptionTotal+=ours.filter(z=>z.a.skill==='R').length;serveTotal+=ours.filter(z=>z.a.skill==='S').length;if(x.phase==='K1'&&x.win)so++;if(x.phase==='K2'&&x.win)bp++;
+  rr.forEach(x=>{const acts=scoutArr(x.r.actions),ours=acts.map((a,i)=>({a,i})).filter(z=>z.a.team===team);if(x.phase==='K1')receptionTotal+=ours.filter(z=>z.a.skill==='R').length;if(x.phase==='K2')serveTotal+=ours.filter(z=>z.a.skill==='S').length;if(x.phase==='K1'&&x.win)so++;if(x.phase==='K2'&&x.win)bp++;
     const attacks=ours.filter(z=>z.a.skill==='A');if(!attacks.length)return;if(x.phase==='K2'){attacks.forEach(z=>counter.push(z.a));return}const rec=ours.find(z=>z.a.skill==='R');if(!rec){attacks.forEach(z=>unknown.push(z.a));return}const first=attacks.find(z=>z.i>rec.i);if(!first)return;if(['#','+'].includes(rec.a.evaluation))pos.push(first.a);else if(['!','-','/'].includes(rec.a.evaluation))neg.push(first.a);else unknown.push(first.a);attacks.filter(z=>z.i>first.i).forEach(z=>counter.push(z.a));
   });
   const rot=Array.from({length:6},(_,i)=>{const no=i+1,a=rr.filter(x=>x.rotation===no),w=a.filter(x=>x.win).length,l=a.length-w;return {no,total:a.length,won:w,lost:l,gp:w-l}});
@@ -20342,33 +20367,57 @@ function autoSyncRecording(rec,m){
 function timeline(m){
   const out=[];
   arr(m?.sets).forEach(s=>arr(s.rallies).forEach((r,ri)=>{
+    const score=`${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`;
     out.push({
       key:`r:${s.number}:${r.id}`,type:'rally',ms:rallyStartMs(r),endMs:rallyEndMs(r),set:Number(s.number)||1,
       team:r.winner==='opponent'?'opponent':'ours',ownRotation:Number(r.rotationBefore)||1,opponentRotation:Number(r.opponentRotationBefore)||1,
-      servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',
-      label:`Set ${s.number} · Rally ${ri+1} · ${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`,
-      copy:`R${r.rotationBefore||1} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${arr(r.actions).length} acciones`,r
+      servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',score,
+      label:`Set ${s.number} · Rally ${ri+1} · ${score}`,
+      copy:`R${r.rotationBefore||1} · ${r.servingBefore==='opponent'?'K1 / side-out':'K2 / break'} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${arr(r.actions).length} acciones`,r
     });
     arr(r.actions).forEach(a=>out.push({
       key:`a:${s.number}:${r.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(s.number)||1,
       team:a.team==='opponent'?'opponent':'ours',ownRotation:Number(r.rotationBefore)||1,opponentRotation:Number(r.opponentRotationBefore)||1,
-      servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',
+      servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',score,
       skill:a.skill||'',evaluation:a.evaluation||'',player:playerLabel(a),
-      label:String(a.code||skillNames[a.skill]||'Acción'),copy:`${skillNames[a.skill]||a.skill||'Acción'} · ${playerLabel(a)} · ${a.evaluation||'!'}`,a,r
+      label:String(a.code||skillNames[a.skill]||'Acción'),copy:`${skillNames[a.skill]||a.skill||'Acción'} · ${playerLabel(a)} · ${a.evaluation||'!'} · R${r.rotationBefore||1}`,a,r
     }));
   }));
+  const live=m?.liveRally,cs=arr(m?.sets).find(x=>Number(x.number)===Number(m?.currentSet));
+  if(live&&arr(live.actions).length){
+    const score=`${Number(cs?.scoreUs)||0}–${Number(cs?.scoreOpponent)||0}`;
+    arr(live.actions).forEach(a=>out.push({
+      key:`a:${m.currentSet}:${live.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(m.currentSet)||1,live:true,
+      team:a.team==='opponent'?'opponent':'ours',ownRotation:Number(m.rotationNo)||1,opponentRotation:Number(m.opponentRotationNo)||1,
+      servingBefore:m.servingTeam==='opponent'?'opponent':'ours',winner:'',score,skill:a.skill||'',evaluation:a.evaluation||'',player:playerLabel(a),
+      label:String(a.code||skillNames[a.skill]||'Acción'),copy:`Rally en curso · ${skillNames[a.skill]||a.skill||'Acción'} · ${playerLabel(a)} · ${a.evaluation||'!'} · R${m.rotationNo||1}`,a,r:live
+    }));
+  }
   return out.sort((a,b)=>a.ms-b.ms);
 }
-function rowRange(row,m=currentMatch()){
-  if(!row||!m)return null;const x=meta(m),pre=Math.max(0,Number(x?.preRoll??2)),post=Math.max(0,Number(x?.postRoll??2));
-  if(x?.syncOffset==null)return null;
-  if(row.type==='rally'){
-    const direct=arr(row.r?.actions).map(a=>a.videoTime).filter(v=>v!=null&&Number.isFinite(Number(v))).map(Number);
-    if(direct.length)return {start:Math.max(0,Math.min(...direct)-pre),end:Math.max(...direct)+post};
-    return {start:Math.max(0,mapped(m,row.ms)-pre),end:mapped(m,row.endMs)+post};
+function actionVideoTime(a,m=currentMatch()){
+  for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){
+    const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n;
   }
-  const center=row.a?.videoAction!=null?Number(row.a.videoAction):mapped(m,row.ms);
-  return center==null?null:{start:Math.max(0,center-pre),end:center+post};
+  const off=Number(meta(m)?.syncOffset),ms=Number(a?.scoutMs);
+  return Number.isFinite(off)&&Number.isFinite(ms)?Math.max(0,ms/1000+off):null;
+}
+function rowRange(row,m=currentMatch()){
+  if(!row||!m)return null;
+  const actionPre=8,actionPost=5,x=meta(m),rallyPre=Math.max(0,Number(x?.preRoll??2)),rallyPost=Math.max(0,Number(x?.postRoll??2));
+  if(row.type==='action'){
+    const center=actionVideoTime(row.a,m);
+    if(center==null)return null;
+    return {start:Math.max(0,center-actionPre),end:center+actionPost,center,exact:row.a?.videoExact!==false&&row.a?.videoTimestamp!=null};
+  }
+  if(row.type==='rally'){
+    const direct=arr(row.r?.actions).map(a=>actionVideoTime(a,m)).filter(v=>v!=null&&Number.isFinite(Number(v))).map(Number);
+    if(direct.length)return {start:Math.max(0,Math.min(...direct)-rallyPre),end:Math.max(...direct)+rallyPost,center:direct[0],exact:true};
+    if(x?.syncOffset==null)return null;
+    const st=mapped(m,row.ms),en=mapped(m,row.endMs);if(st==null||en==null)return null;
+    return {start:Math.max(0,st-rallyPre),end:en+rallyPost,center:st,exact:false};
+  }
+  return null;
 }
 function filteredRows(){
   const m=currentMatch();if(!m)return [];
@@ -20413,18 +20462,18 @@ function updatePlayhead(){
 function renderRuler(){
   const box=$('v780-ruler'),m=currentMatch(),duration=mediaDuration();if(!box)return;
   [...box.querySelectorAll('.v780-ruler-marker')].forEach(x=>x.remove());
-  if(!m||duration<=0||meta(m)?.syncOffset==null){
-    if($('v780-ruler-copy'))$('v780-ruler-copy').textContent='Carga y sincroniza el vídeo para ver las marcas.';
-    return;
-  }
-  const rows=timeline(m);
+  if(!m||duration<=0){if($('v780-ruler-copy'))$('v780-ruler-copy').textContent='Carga el vídeo para ver las marcas del scouting.';return}
+  const rows=timeline(m);let visible=0,exact=0;
   rows.forEach(r=>{
-    const t=mapped(m,r.ms);if(t==null||t<0||t>duration)return;
-    const mk=document.createElement('i');mk.className=`v780-ruler-marker ${r.type==='action'?'action':''} ${r.team||''}`;
-    mk.style.left=`${Math.max(0,Math.min(100,t/duration*100))}%`;mk.title=`${r.label} · ${fmt(t)}`;mk.onclick=e=>{e.stopPropagation();state.selectedKey=r.key;playRow(r)};
-    box.appendChild(mk);
+    let t=null;
+    if(r.type==='action')t=actionVideoTime(r.a,m);
+    else {const range=rowRange(r,m);t=range?.center??null}
+    if(t==null||t<0||t>duration)return;visible++;if(r.type==='action'&&r.a?.videoTimestamp!=null)exact++;
+    const mk=document.createElement('i');mk.className=`v780-ruler-marker ${r.type==='action'?'action':''} ${r.team||''} ${r.skill?`skill-${r.skill}`:''}`;
+    mk.style.left=`${Math.max(0,Math.min(100,t/duration*100))}%`;mk.title=`${r.label} · ${fmt(t)}${r.type==='action'?' · '+(skillNames[r.skill]||r.skill||'Acción'):''}`;
+    mk.onclick=e=>{e.stopPropagation();state.selectedKey=r.key;playRow(r)};box.appendChild(mk);
   });
-  if($('v780-ruler-copy'))$('v780-ruler-copy').textContent=`${rows.length} marcas · duración ${fmt(duration)}`;
+  if($('v780-ruler-copy'))$('v780-ruler-copy').textContent=`${visible} marcas · ${exact} timestamps exactos · duración ${fmt(duration)}`;
 }
 function populateMatches(){
   const sel=$('v780-match');if(!sel)return;
@@ -20465,10 +20514,21 @@ function presetRows(type){
   if(type==='aces')return rows.filter(r=>r.type==='action'&&r.team==='ours'&&r.skill==='S'&&r.evaluation==='#');
   return [];
 }
+function smartRows(type){
+  const rows=timeline(currentMatch()),player=$('v780-player')?.value||'';
+  if(type==='playerKills')return player?rows.filter(r=>r.type==='action'&&r.team==='ours'&&r.player===player&&r.skill==='A'&&r.evaluation==='#'):[];
+  if(type==='recepMinusBang')return rows.filter(r=>r.type==='action'&&r.team==='ours'&&r.skill==='R'&&['-','!'].includes(r.evaluation));
+  if(type==='r6')return rows.filter(r=>Number(r.ownRotation)===6);
+  if(type==='sideoutLost')return rows.filter(r=>r.type==='rally'&&r.servingBefore==='opponent'&&r.winner==='opponent');
+  if(type==='oppZ4')return rows.filter(r=>r.type==='action'&&r.team==='opponent'&&r.skill==='A'&&(String(r.a?.startZone||'').startsWith('4')||String(r.a?.attackCombo||'')==='Z4'||String(r.a?.sourceZone||'').startsWith('4')));
+  return [];
+}
 function renderPresetCounts(){
   const map={points:'v780-count-points',errors:'v780-count-errors',kills:'v780-count-kills',recepbad:'v780-count-recepbad',aces:'v780-count-aces'};
   Object.entries(map).forEach(([k,id])=>{const n=presetRows(k).length;$(id).textContent=`${n} ${k==='points'?'rallies':'acciones'}`});
   $('v780-count-visible').textContent=`${state.lastRows.length} elementos`;
+  const player=$('v780-player')?.value||'',pairs=[['playerKills','v133-count-player-kills'],['recepMinusBang','v133-count-recep'],['r6','v133-count-r6'],['sideoutLost','v133-count-sideout'],['oppZ4','v133-count-oppz4']];
+  pairs.forEach(([type,id])=>{const el=$(id);if(!el)return;const n=smartRows(type).length;el.textContent=type==='playerKills'&&!player?'Selecciona jugador':`${n} ${['r6'].includes(type)?'elementos':type==='sideoutLost'?'rallies':'acciones'}`});
 }
 function renderTimeline(){
   const box=$('v780-timeline');if(!box)return;
@@ -20476,12 +20536,13 @@ function renderTimeline(){
   let rallies=0,actions=0;rows.forEach(r=>r.type==='rally'?rallies++:actions++);
   $('v780-rally-count').textContent=String(rallies);$('v780-action-count').textContent=String(actions);
   box.innerHTML=rows.length?rows.map(r=>{
-    const tm=mapped(currentMatch(),r.ms),range=rowRange(r),playable=!!range&&mediaLoaded();
-    return `<article class="v780-row ${state.selectedKey===r.key?'selected':''}" data-key="${esc(r.key)}" onclick="v780Select('${esc(r.key)}')">
+    const range=rowRange(r),tm=r.type==='action'?actionVideoTime(r.a,currentMatch()):(range?.center??mapped(currentMatch(),r.ms)),playable=!!range&&mediaLoaded();
+    const linked=r.type==='action'&&actionVideoTime(r.a,currentMatch())!=null;
+    return `<article class="v780-row ${state.selectedKey===r.key?'selected':''} ${r.type==='action'?'skill-'+esc(r.skill||'X'):''}" data-key="${esc(r.key)}" onclick="v780Select('${esc(r.key)}')">
       <div class="v780-time">${fmt(tm!=null?tm:r.ms/1000)}</div>
       <span class="v780-type ${r.team||''}">${r.type==='rally'?'RALLY':esc(r.skill||'ACC')}</span>
-      <div class="v780-row-copy"><strong>${esc(r.label)}</strong><small>${esc(r.copy)}</small></div>
-      <div class="v780-row-actions"><button class="${playable?'primary':'ghost'}" ${playable?'':'disabled'} onclick="event.stopPropagation();v780PlayKey('${esc(r.key)}')">▶</button><button class="ghost" onclick="event.stopPropagation();v780CreateClip('${esc(r.key)}')">Clip</button></div>
+      <div class="v780-row-copy"><strong>${esc(r.label)}${linked?' <em class="v133-linked">VÍDEO</em>':''}</strong><small>${esc(r.copy)}${linked?` · ▶ ${fmt(actionVideoTime(r.a,currentMatch()))}`:''}</small></div>
+      <div class="v780-row-actions"><button class="${playable?'primary':'ghost'}" ${playable?'':'disabled'} onclick="event.stopPropagation();v780PlayKey('${esc(r.key)}')">▶</button><button class="ghost" onclick="event.stopPropagation();v780CreateClip('${esc(r.key)}')">Clip −8/+5</button></div>
     </article>`;
   }).join(''):'<div class="match-empty">No hay elementos para estos filtros.</div>';
   renderPresetCounts();
@@ -20724,6 +20785,28 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&state.tv){e.preventDefault();v781ExitTV()}
   if(/^[1-6]$/.test(e.key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();v781SelectRotation(Number(e.key))}
 });
+
+window.v780PlaySmartPreset=function(type){
+  if(type==='playerKills'&&!($('v780-player')?.value||'')){alert('Selecciona primero una jugadora en el filtro superior.');return}
+  const names={playerKills:'Ataques # del jugador',recepMinusBang:'Recepciones − / !',r6:'Rotación R6',sideoutLost:'Side-out perdido',oppZ4:'Ataques rivales desde Z4'};
+  startPlaylist(smartRows(type),names[type]||'Playlist táctica');
+};
+window.v780OpenAt=function(sec,key='',opts={}){
+  const t=Number(sec);if(!Number.isFinite(t)||t<0)return false;
+  if(key)state.selectedKey=String(key);
+  if(!mediaLoaded()){renderTimeline();renderSelection();alert('La acción está vinculada al vídeo. Carga el archivo, grabación o YouTube de este partido para saltar al timecode.');return false}
+  const pre=Number.isFinite(Number(opts.pre))?Math.max(0,Number(opts.pre)):8,post=Number.isFinite(Number(opts.post))?Math.max(0,Number(opts.post)):5;
+  mediaSeek(Math.max(0,t-pre));state.stopAt=t+post;mediaPlay();renderTimeline();renderSelection();return true;
+};
+window.v780CreateSmartClips=function(type='visible'){
+  const m=currentMatch(),x=meta(m);if(!m||!x)return;
+  let rows=type==='visible'?state.lastRows:smartRows(type);rows=rows.filter(r=>r.type==='action'&&actionVideoTime(r.a,m)!=null);
+  if(!rows.length){alert('No hay acciones con timestamp de vídeo en esta selección.');return}
+  x.clips=arr(x.clips);const existing=new Set(x.clips.map(c=>String(c.sourceKey||'')));let added=0;
+  rows.forEach(r=>{if(existing.has(r.key))return;const t=actionVideoTime(r.a,m),start=Math.max(0,t-8),end=t+5;x.clips.push({id:`v133_${Date.now()}_${added}_${Math.random().toString(36).slice(2,6)}`,name:`${r.player||'Jugador'} · ${r.label}`,tag:r.team==='opponent'?'opponent':'technical',note:`${r.copy} · clip automático −8/+5`,start,end,duration:end-start,sourceKey:r.key,type:'action',set:r.set,team:r.team||'',skill:r.skill||'',evaluation:r.evaluation||'',player:r.player||'',createdAt:new Date().toISOString(),source:x.source||'',videoTimestamp:t,auto:true});existing.add(r.key);added++});
+  save();renderAll();$('v780-playlist-state').textContent=`${added} clips automáticos creados · −8 s / +5 s`;if(!added)alert('Las acciones seleccionadas ya tenían clip guardado.');
+};
+window.VC_VIDEO_REVIEW_API={version:'13.3.0',openAt:window.v780OpenAt,select:key=>window.v780Select?.(key),play:key=>window.v780PlayKey?.(key),createClip:key=>window.v780CreateClip?.(key),createVisibleClips:()=>window.v780CreateSmartClips('visible'),currentTime:()=>mediaCurrentTime(),loaded:()=>mediaLoaded(),timeline:()=>timeline(currentMatch())};
 
 window.v780Diagnostics=()=>({version:VERSION,matches:matches().length,match:currentMatch()?.id||null,videoLoaded:mediaLoaded(),mediaType:state.mediaType,youtubeId:state.youtubeId||null,fileMatchId:state.fileMatchId,syncOffset:meta(currentMatch())?.syncOffset??null,duration:mediaDuration(),currentTime:mediaCurrentTime(),rows:timeline(currentMatch()).length,recording:state.loadedRecording?.id||null,rotation:state.rotation||null,player:$('v780-player')?.value||null,tv:state.tv});
 })();
@@ -23184,6 +23267,7 @@ const state={
   subtype:'',direction:'',blockers:'',blockTarget:'',special:'',custom:'',
   locationMode:'zones',cone:''
 };
+window.VC_V900_STATE=state;
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -28566,6 +28650,304 @@ State.diagnostics=()=>({...baseDiag(),version:VERSION,schema:'vc.match-state/13.
 window.VC_V131={version:VERSION,state:State,commands,diagnostics:()=>State.diagnostics(),dispose:unsubscribe};
 function boot(){document.body.classList.add('v131-match-state-adapters');updateChip();State.sync?.('v13.1:boot');scheduleConsumers('boot')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
+
+
+
+<style id="v132-scouting-pro-workspace-style">
+/* V13.2 · Scouting Pro becomes the primary live-work surface. */
+body.v132-scouting-pro #scout-workspace-v900 .v900-phase-nav,
+body.v132-scouting-pro #scout-workspace-v900 .v111-scout-nav,
+body.v132-scouting-pro #scout-workspace-v900 .v111-workflow{display:none!important}
+body.v132-scouting-pro #scout-workspace-v900 .v900-shell{max-width:1800px;padding:12px 14px 22px}
+body.v132-scouting-pro #scout-workspace-v900 .v900-topbar{margin-bottom:8px}
+body.v132-scouting-pro #scout-workspace-v900 .v119-probar{margin-top:8px}
+body.v132-scouting-pro #scout-workspace-v900 .v120-match-management{margin-bottom:7px}
+body.v132-scouting-pro #v900-phase-scout{display:block!important}
+.v132-cockpit{display:grid;grid-template-columns:minmax(220px,.95fr) minmax(360px,1.55fr) minmax(270px,1.05fr);gap:8px;margin:8px 0}
+.v132-cockpit-card{border:1px solid #dce5ea;border-radius:11px;background:#fff;min-width:0;overflow:hidden}
+.v132-cockpit-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid #e8eef1;background:#fafcfd}
+.v132-cockpit-head span{font-size:6.5px;font-weight:950;letter-spacing:.1em;color:#718796}.v132-cockpit-head b{font-size:9px;color:#17354c}.v132-cockpit-body{padding:9px 10px}
+.v132-active-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.v132-active-grid label span,.v132-field-label{display:block;margin-bottom:4px;font-size:6.4px;font-weight:950;letter-spacing:.08em;color:#7c8d98;text-transform:uppercase}.v132-active-grid select{width:100%;min-height:34px;border:1px solid #d7e1e7;border-radius:8px;background:#fff;padding:0 8px;font-size:8px;color:#17354c;font-weight:800}
+.v132-quick-code{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}.v132-quick-code input{min-width:0;height:38px;border:1px solid #cbd8e0;border-radius:8px;padding:0 10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:850;color:#17354c;background:#fff}.v132-quick-code button{min-width:92px}.v132-code-hint{margin-top:5px;font-size:6.8px;color:#788b98;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v132-quick-skills{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:7px}.v132-quick-skills button{min-width:0;border:1px solid #dbe4e9;border-radius:7px;background:#f8fafb;padding:6px 2px;font-size:7px;font-weight:950;color:#486174;cursor:pointer}.v132-quick-skills button.active{background:#153851;color:#fff;border-color:#153851}.v132-quick-skills button b{display:block;font-size:9px}.v132-quick-skills button span{display:block;font-size:5.8px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v132-live-tools{display:grid;grid-template-columns:1fr 1fr;gap:5px}.v132-live-tools button{min-height:34px}.v132-live-tools .wide{grid-column:1/-1}.v132-live-note{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}.v132-live-note>div{padding:6px 7px;border:1px solid #e4eaee;border-radius:7px;background:#fafcfd}.v132-live-note span{display:block;font-size:5.8px;font-weight:900;color:#83929b;text-transform:uppercase}.v132-live-note b{display:block;font-size:9px;color:#17354c;margin-top:2px}
+body.v132-scouting-pro #scout-workspace-v900 .v900-live-grid{grid-template-columns:minmax(340px,1.02fr) minmax(430px,1.18fr) minmax(330px,.98fr);gap:8px}
+body.v132-scouting-pro #scout-workspace-v900 .v900-card{border-radius:10px;box-shadow:none}
+body.v132-scouting-pro #scout-workspace-v900 .v111-builder-card{position:sticky;top:8px}
+body.v132-scouting-pro #scout-workspace-v900 .v111-court-card{top:8px}
+.v132-court-title{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:7px}.v132-court-title b{font-size:9px;color:#17354c}.v132-court-title small{font-size:6.5px;color:#7d8e99}.v132-court-mode{display:flex;gap:4px}.v132-court-mode button{padding:5px 8px!important;font-size:6.5px!important}.v132-court-mode button.active{background:#153851!important;color:#fff!important;border-color:#153851!important}
+.v132-court-9x4{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:7px;border:2px solid #a8bac6;border-radius:8px;background:#edf3f6;position:relative}.v132-zone{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;min-height:72px;border:1px solid #b8c8d2;border-radius:6px;overflow:hidden;background:#fff;position:relative}.v132-zone::after{content:'Z' attr(data-zone);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;font-size:10px;font-weight:950;color:#17354c;background:rgba(255,255,255,.86);padding:2px 4px;border-radius:4px}.v132-zone button{border:0;border-right:1px solid #e1e8ec;border-bottom:1px solid #e1e8ec;background:#fff;color:#728591;font-size:6.5px;font-weight:900;cursor:pointer;padding:0}.v132-zone button:nth-child(2n){border-right:0}.v132-zone button:nth-child(n+3){border-bottom:0}.v132-zone button.active{background:#bdd0dc;color:#102b43}.v132-zone button:hover{background:#e5eef3}.v132-court-legend{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:6.2px;color:#7c8d97}.v132-court-legend b{color:#526b7d}
+body.v132-scouting-pro #v900-location-area>.v900-location-block{display:none!important}
+.v132-recent-card{border:1px solid #dce5ea;border-radius:10px;background:#fff;overflow:hidden;margin-bottom:8px}.v132-recent-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e8eef1}.v132-recent-head div span{display:block;font-size:6.2px;font-weight:950;letter-spacing:.08em;color:#7e909b}.v132-recent-head div b{display:block;font-size:10px;color:#17354c;margin-top:1px}.v132-recent-list{max-height:308px;overflow:auto}.v132-action-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:7px;align-items:center;padding:7px 9px;border-bottom:1px solid #edf1f3;background:#fff}.v132-action-row:last-child{border-bottom:0}.v132-action-row:hover{background:#f8fafb}.v132-action-context span{display:block;font-size:6.2px;color:#80909b}.v132-action-context b{display:block;font-size:8.5px;color:#27465c;margin-top:2px}.v132-action-main code{display:block;font-size:9px;color:#102b43;font-weight:950}.v132-action-main span{display:block;margin-top:2px;font-size:6.5px;color:#718591;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v132-action-tools{display:flex;gap:3px}.v132-action-tools button{padding:5px 6px!important;font-size:6.5px!important}.v132-video-time{color:#397257!important}.v132-no-actions{padding:16px 10px;text-align:center;font-size:7.5px;color:#83929d}
+.v132-edit-modal{position:fixed;inset:0;z-index:12000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,24,37,.38)}.v132-edit-modal.open{display:flex}.v132-edit-card{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border:1px solid #d8e2e7;border-radius:14px;box-shadow:0 24px 70px rgba(8,28,43,.22)}.v132-edit-head{display:flex;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid #e7edf0}.v132-edit-head span{display:block;font-size:6.5px;font-weight:950;letter-spacing:.08em;color:#7c8d98}.v132-edit-head h3{margin:2px 0 0;color:#17354c;font-size:15px}.v132-edit-body{padding:13px 15px}.v132-edit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.v132-edit-grid label span{display:block;margin-bottom:4px;font-size:6.2px;font-weight:900;color:#7c8d98;text-transform:uppercase}.v132-edit-grid select,.v132-edit-grid input{width:100%;min-height:34px;border:1px solid #d7e1e7;border-radius:7px;padding:0 7px;font-size:8px;color:#17354c;background:#fff}.v132-edit-code{grid-column:1/-1}.v132-edit-code input{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:850;font-size:10px}.v132-edit-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}.v132-edit-meta span{padding:4px 6px;border-radius:999px;background:#f0f4f6;color:#5d7484;font-size:6.4px;font-weight:850}.v132-edit-footer{display:flex;justify-content:space-between;gap:8px;padding:11px 15px;border-top:1px solid #e7edf0}.v132-edit-footer>div{display:flex;gap:6px}
+@media(max-width:1250px){.v132-cockpit{grid-template-columns:1fr 1.5fr}.v132-cockpit-card.tools{grid-column:1/-1}.v132-live-tools{grid-template-columns:repeat(4,1fr)}.v132-live-tools .wide{grid-column:auto}body.v132-scouting-pro #scout-workspace-v900 .v900-live-grid{grid-template-columns:1fr 1fr}.v111-intel-column{grid-column:1/-1!important}}
+@media(max-width:850px){.v132-cockpit{grid-template-columns:1fr}.v132-cockpit-card.tools{grid-column:auto}.v132-live-tools{grid-template-columns:1fr 1fr}.v132-quick-skills{grid-template-columns:repeat(4,1fr)}body.v132-scouting-pro #scout-workspace-v900 .v900-live-grid{grid-template-columns:1fr}.v132-edit-grid{grid-template-columns:1fr 1fr}.v132-action-row{grid-template-columns:42px minmax(0,1fr)}.v132-action-tools{grid-column:2}}
+@media(max-width:520px){.v132-active-grid,.v132-edit-grid{grid-template-columns:1fr}.v132-quick-code{grid-template-columns:1fr}.v132-live-tools{grid-template-columns:1fr 1fr}.v132-edit-code{grid-column:auto}.v132-court-9x4{gap:2px;padding:4px}.v132-zone{min-height:62px}}
+</style>
+
+<div id="v132-action-edit-modal" class="v132-edit-modal" aria-hidden="true">
+  <div class="v132-edit-card" role="dialog" aria-modal="true" aria-labelledby="v132-edit-title">
+    <div class="v132-edit-head"><div><span>SCOUTING PRO · EDICIÓN DIRECTA</span><h3 id="v132-edit-title">Editar acción</h3></div><button type="button" class="ghost" onclick="v132CloseActionEditor()">Cerrar</button></div>
+    <div class="v132-edit-body"><div id="v132-edit-grid" class="v132-edit-grid"></div><div id="v132-edit-meta" class="v132-edit-meta"></div></div>
+    <div class="v132-edit-footer"><div><button type="button" class="danger" onclick="v132DeleteEditedAction()">Eliminar acción</button></div><div><button type="button" class="ghost" onclick="v132CloseActionEditor()">Cancelar</button><button type="button" class="primary" onclick="v132SaveActionEdit()">Guardar cambios</button></div></div>
+  </div>
+</div>
+
+<script id="v132-scouting-pro-workspace">
+(()=>{
+'use strict';
+const VERSION='13.2.0', $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const POS=['p4','p3','p2','p5','p6','p1'];
+let editRef=null, courtMode='origin', renderQueued=false;
+function State(){return window.MatchState||window.VC_MATCH_STATE}
+function match(){return State()?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}
+function setOf(m=match()){return State()?.getSet?.(m)||window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}
+function players(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getPlayers?.()||[]}catch(_){return[]}}
+function teamName(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Nuestro equipo'}catch(_){return'Nuestro equipo'}}
+function playerLabel(a){try{return window.VC_SCOUT_VIDEO_BRIDGE?.playerLabel?.(a)||String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}catch(_){return String(a?.playerLabel||'Jugador')}}
+function fmtVideo(sec){const n=Number(sec);if(!Number.isFinite(n)||n<0)return'—';const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=Math.floor(n%60);return h?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`}
+function actionTime(a){for(const k of['videoTimestamp','liveVideoTime','videoAction','videoTime']){const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n}return null}
+function readonly(){return !!State()?.isReadonly?.()}
+function buildCockpit(){
+  if($('v132-cockpit'))return;
+  const live=$('v900-live'),anchor=$('v120-match-management')||live?.firstElementChild;if(!live||!anchor)return;
+  const node=document.createElement('section');node.id='v132-cockpit';node.className='v132-cockpit';node.innerHTML=`
+    <article class="v132-cockpit-card"><div class="v132-cockpit-head"><span>JUGADOR / EQUIPO ACTIVO</span><b id="v132-active-copy">Listo</b></div><div class="v132-cockpit-body"><div class="v132-active-grid"><label><span>Equipo</span><select id="v132-team" onchange="v132SetTeam(this.value)"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label><span>Jugador</span><select id="v132-player" onchange="v132SetPlayer(this.value)"></select></label></div><div class="v132-live-note"><div><span>Rotación</span><b id="v132-rotation">R1 · Rival R1</b></div><div><span>Fase</span><b id="v132-phase">K2 · Break</b></div></div></div></article>
+    <article class="v132-cockpit-card"><div class="v132-cockpit-head"><span>CÓDIGO SIEMPRE VISIBLE</span><b>ENTER · registrar</b></div><div class="v132-cockpit-body"><div class="v132-quick-code"><input id="v132-code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. 8A#.4B>5D::X5~T%HSP" oninput="v132Translate()" onkeydown="if(event.key==='Enter'){event.preventDefault();v132RegisterCode()}"><button type="button" class="primary" onclick="v132RegisterCode()">Registrar</button></div><div id="v132-code-hint" class="v132-code-hint">Código DataVolley · usa el mismo parser de Scouting Pro.</div><div class="v132-quick-skills">${Object.entries(SKILLS).map(([k,v])=>`<button type="button" data-v132-skill="${k}" onclick="v132SetSkill('${k}')"><b>${k}</b><span>${v}</span></button>`).join('')}</div></div></article>
+    <article class="v132-cockpit-card tools"><div class="v132-cockpit-head"><span>TRABAJO EN PARTIDO</span><b id="v132-save-copy">MatchState ✓</b></div><div class="v132-cockpit-body"><div class="v132-live-tools"><button type="button" class="primary wide" onclick="v132OpenVideo()">▶ Vídeo + código</button><button type="button" class="ghost" onclick="v121OpenRallyEditor()">Editar rallies</button><button type="button" class="ghost" onclick="v119OpenLineup()">Alineación</button><button type="button" class="ghost" onclick="v122OpenMatchSwitcher()">Cambiar scouting</button><button type="button" class="ghost" onclick="v119SaveAll(true)">Guardar todo</button></div><div class="v132-live-note"><div><span>Marcador</span><b id="v132-score">0–0</b></div><div><span>Último vídeo</span><b id="v132-last-video">—</b></div></div></div></article>`;
+  anchor.insertAdjacentElement('afterend',node);
+}
+function buildRecent(){
+  if($('v132-recent-card'))return;
+  const col=document.querySelector('#v900-phase-scout .v111-intel-column');if(!col)return;
+  const node=document.createElement('article');node.id='v132-recent-card';node.className='v132-recent-card';node.innerHTML='<div class="v132-recent-head"><div><span>HISTORIAL INMEDIATO</span><b>Últimas acciones · clic para corregir</b></div><button type="button" class="ghost" onclick="v121OpenRallyEditor()">Todos los rallies</button></div><div id="v132-recent-list" class="v132-recent-list"></div>';
+  col.prepend(node);
+}
+function buildCourt(){
+  const area=$('v900-location-area');if(!area)return;
+  let box=$('v132-court-wrap');if(!box){box=document.createElement('div');box.id='v132-court-wrap';area.prepend(box)}
+  const st=window.VC_V900_STATE||{}, skill=st.skill||'R';
+  if(['R','D'].includes(skill))courtMode='destination';if(skill==='B')courtMode='origin';
+  const modes=(skill==='R'||skill==='D')?['destination']:(skill==='B'?['origin']:['origin','destination']);
+  if(!modes.includes(courtMode))courtMode=modes[0];
+  const currentZone=courtMode==='origin'?String(st.origin||''):String(st.destination||''),currentSub=courtMode==='origin'?String(st.originSub||''):String(st.destinationSub||'');
+  const order=[4,3,2,7,8,9,5,6,1];
+  box.innerHTML=`<div class="v132-court-title"><div><b>Pista DataVolley 9×4</b><small>${skill==='R'||skill==='D'?'Marca contacto':skill==='B'?'Marca zona de bloqueo':'Marca origen y destino'}</small></div><div class="v132-court-mode">${modes.map(x=>`<button type="button" class="ghost ${courtMode===x?'active':''}" onclick="v132CourtMode('${x}')">${x==='origin'?'Origen':'Destino'}</button>`).join('')}</div></div><div class="v132-court-9x4">${order.map(z=>`<div class="v132-zone" data-zone="${z}">${['A','B','C','D'].map(sub=>`<button type="button" class="${currentZone===String(z)&&currentSub===sub?'active':''}" title="Z${z}${sub}" onclick="v132SelectCourt('${courtMode}','${z}','${sub}')">${sub}</button>`).join('')}</div>`).join('')}</div><div class="v132-court-legend"><span><b>${courtMode==='origin'?'ORIGEN':'DESTINO'}:</b> ${currentZone?`Z${currentZone}${currentSub}`:'sin marcar'}</span><span>A–D = subzonas</span></div>`;
+}
+function setPlayers(){
+  const st=window.VC_V900_STATE||{},m=match(),team=$('v132-team'),sel=$('v132-player');if(!team||!sel||!m)return;
+  team.value=st.team==='opponent'?'opponent':'ours';let rows=[];
+  if(team.value==='ours')rows=players().map(p=>({v:String(p.id),l:`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`}));
+  else rows=POS.map(pos=>String(m.lineup?.opponent?.[pos]||'').trim()).filter(Boolean).map(v=>({v,l:v}));
+  const seen=new Set();rows=rows.filter(x=>x.v&&!seen.has(x.v)&&seen.add(x.v));
+  sel.innerHTML=rows.length?rows.map(x=>`<option value="${esc(x.v)}">${esc(x.l)}</option>`).join(''):'<option value="">Sin jugador</option>';
+  if(rows.some(x=>String(x.v)===String(st.player)))sel.value=String(st.player);else if(rows[0])sel.value=rows[0].v;
+  const active=rows.find(x=>String(x.v)===String(sel.value));$('v132-active-copy').textContent=active?.l||'Selecciona jugador';
+}
+function allRecent(){
+  const m=match();if(!m)return[];const out=[],s=setOf(m);
+  (m.liveRally?.actions||[]).forEach((a,i)=>out.push({a,live:true,setNo:Number(m.currentSet)||1,rallyId:Number(m.liveRally?.id)||0,index:i,score:`${s?.scoreUs||0}–${s?.scoreOpponent||0}`,rotation:Number(m.rotationNo)||1}));
+  const closed=[];(m.sets||[]).forEach(set=>(set.rallies||[]).forEach(r=>(r.actions||[]).forEach((a,i)=>closed.push({a,live:false,setNo:Number(set.number)||1,rallyId:Number(r.id)||0,index:i,score:`${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`,rotation:Number(r.rotationBefore)||1}))));
+  return out.concat(closed.slice(-18)).slice(-18).reverse();
+}
+function renderRecent(){
+  const box=$('v132-recent-list');if(!box)return;const rows=allRecent();
+  box.innerHTML=rows.length?rows.map((x,idx)=>{const t=actionTime(x.a),key=x.live?'':`a:${x.setNo}:${x.rallyId}:${x.a.id}`;return `<div class="v132-action-row"><div class="v132-action-context"><span>S${x.setNo} · R${x.rotation}</span><b>${esc(x.score)}</b></div><div class="v132-action-main"><code>${esc(x.a.code||'—')}</code><span>${esc(playerLabel(x.a))} · ${esc(SKILLS[x.a.skill]||x.a.skill||'Acción')}${t!=null?` · <i class="v132-video-time">▶ ${fmtVideo(t)}</i>`:''}</span></div><div class="v132-action-tools">${key?`<button type="button" class="ghost" onclick="v132PlayAction('${key}')" title="Abrir vídeo">▶</button>`:''}<button type="button" class="ghost" onclick="v132OpenActionEditor(${idx})">Editar</button></div></div>`}).join(''):'<div class="v132-no-actions">Todavía no hay acciones. El historial aparecerá aquí mientras scouteas.</div>';
+  window.__v132Recent=rows;
+}
+function renderCockpit(){
+  buildCockpit();buildRecent();setPlayers();buildCourt();renderRecent();const st=window.VC_V900_STATE||{},m=match(),s=setOf(m);if(!m)return;
+  $('v132-rotation').textContent=`R${m.rotationNo||1} · Rival R${m.opponentRotationNo||1}`;$('v132-phase').textContent=m.servingTeam==='opponent'?'K1 · Side-out':'K2 · Break';$('v132-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
+  document.querySelectorAll('[data-v132-skill]').forEach(b=>b.classList.toggle('active',b.dataset.v132Skill===st.skill));const recent=allRecent(),t=recent.map(x=>actionTime(x.a)).find(x=>x!=null);$('v132-last-video').textContent=t!=null?fmtVideo(t):'Sin vínculo';
+  $('v132-save-copy').textContent=readonly()?'Solo lectura':'MatchState ✓';
+}
+function queueRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;try{renderCockpit()}catch(e){console.error('V13.2 render',e)}})}
+window.v132SetTeam=function(t){window.v900SetTeam?.(t);setTimeout(queueRender,0)};
+window.v132SetPlayer=function(v){window.v900SelectPlayer?.(v);setTimeout(queueRender,0)};
+window.v132SetSkill=function(k){window.v900SetSkill?.(k);setTimeout(queueRender,0)};
+window.v132Translate=function(){const raw=String($('v132-code')?.value||'');const hidden=$('v900-code-input');if(hidden){hidden.value=raw;window.v900TranslateCode?.();$('v132-code-hint').textContent=$('v900-code-translation')?.textContent||'Código DataVolley'} };
+window.v132RegisterCode=async function(){if(readonly())return alert('Este partido está finalizado y está abierto en modo solo lectura.');const raw=String($('v132-code')?.value||'').trim();if(!raw)return;$('v900-code-input').value=raw;try{await Promise.resolve(window.v900RegisterCode?.());$('v132-code').value='';$('v132-code-hint').textContent='Acción registrada · guardado automático';queueRender()}catch(e){console.error(e)}};
+window.v132CourtMode=function(m){courtMode=m==='destination'?'destination':'origin';buildCourt()};
+window.v132SelectCourt=function(mode,z,sub){window.v900SetZone?.(mode,z);window.v900SetSubzone?.(mode,sub);courtMode=mode;setTimeout(buildCourt,0)};
+window.v132OpenVideo=function(){try{window.v11Navigate?.('match')}catch(_){}setTimeout(()=>{try{window.v910SetMatchView?.('video')}catch(_){}try{window.v112ToggleVideo?.(true)}catch(_){}},50)};
+window.v132PlayAction=function(key){try{window.v11Navigate?.('video')}catch(_){}setTimeout(()=>{try{window.v780Select?.(key);window.v780PlayKey?.(key)}catch(e){console.error(e)}},80)};
+function refAction(ref){const m=match();if(!m||!ref)return null;if(ref.live)return m.liveRally?.actions?.[ref.index]||null;const s=(m.sets||[]).find(x=>Number(x.number)===Number(ref.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(ref.rallyId));return r?.actions?.[ref.index]||null}
+function option(v,l,sel){return `<option value="${esc(v)}" ${String(v)===String(sel)?'selected':''}>${esc(l)}</option>`}
+function editPlayerOptions(a,teamOverride=null){const team=teamOverride||(a.team==='opponent'?'opponent':'ours');if(team==='ours')return players().map(p=>option(p.id,`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`,a.playerId)).join('');const vals=[...new Set(POS.map(p=>String(match()?.lineup?.opponent?.[p]||'').trim()).filter(Boolean).concat(a.playerLabel?[a.playerLabel]:[]))];return vals.map(v=>option(v,v,a.playerLabel)).join('')}
+function zoneValue(a,which){return String(which==='start'?a.startZone||'':a.endZone||'')}
+window.v132OpenActionEditor=function(index){if(readonly())return alert('Partido finalizado · solo lectura.');const ref=window.__v132Recent?.[Number(index)];if(!ref)return;editRef={...ref};const a=refAction(editRef);if(!a)return;const grid=$('v132-edit-grid');$('v132-edit-title').textContent=`${ref.live?'Rally actual':`Set ${ref.setNo} · ${ref.score}`} · ${a.code||'Acción'}`;grid.innerHTML=`<label><span>Equipo</span><select id="v132-edit-team" onchange="v132EditTeamChanged()">${option('ours','Nuestro',a.team)}${option('opponent','Rival',a.team)}</select></label><label><span>Jugador</span><select id="v132-edit-player">${editPlayerOptions(a)}</select></label><label><span>Fundamento</span><select id="v132-edit-skill">${Object.entries(SKILLS).map(([k,v])=>option(k,v,a.skill)).join('')}</select></label><label><span>Evaluación</span><select id="v132-edit-eval">${['#','+','!','-','/','='].map(x=>option(x,x,a.evaluation)).join('')}</select></label><label><span>Zona origen</span><input id="v132-edit-start" value="${esc(zoneValue(a,'start'))}" placeholder="4A"></label><label><span>Zona destino</span><input id="v132-edit-end" value="${esc(zoneValue(a,'end'))}" placeholder="5D"></label><label><span>Fase</span><select id="v132-edit-phase">${['','K1','K2','FB','TR'].map(x=>option(x,x||'Auto',a.phase||'' )).join('')}</select></label><label><span>Vídeo</span><input value="${actionTime(a)!=null?fmtVideo(actionTime(a)):'Sin timestamp'}" disabled></label><label class="v132-edit-code"><span>Código completo</span><input id="v132-edit-code" value="${esc(a.code||'')}" spellcheck="false" placeholder="Código DataVolley"></label>`;
+  $('v132-edit-meta').innerHTML=`<span>ID ${esc(a.id)}</span><span>${ref.live?'Rally actual':'Rally '+ref.rallyId}</span><span>S${ref.setNo}</span><span>R${ref.rotation}</span>${actionTime(a)!=null?`<span>Vídeo ${fmtVideo(actionTime(a))}</span>`:''}`;$('v132-action-edit-modal').classList.add('open');$('v132-action-edit-modal').setAttribute('aria-hidden','false')};
+window.v132EditTeamChanged=function(){const a=refAction(editRef);if(!a)return;const team=$('v132-edit-team').value;const sel=$('v132-edit-player');sel.innerHTML=editPlayerOptions(a,team)};
+window.v132CloseActionEditor=function(){editRef=null;$('v132-action-edit-modal')?.classList.remove('open');$('v132-action-edit-modal')?.setAttribute('aria-hidden','true')};
+function preserveVideo(src,dst){['id','uid','seq','createdAt','scoutMs','videoTime','videoSource','videoStart','videoAction','videoEnd','liveVideoTime','liveVideoSessionId','liveVideoLinkedAt','videoTimestamp','clipId'].forEach(k=>{if(src?.[k]!==undefined)dst[k]=src[k]})}
+function saveDirect(a){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(_){}try{State()?.sync?.('v13.2:action-edit')}catch(_){}try{window.v900Render?.()}catch(_){}queueRender()}
+window.v132SaveActionEdit=function(){if(!editRef||readonly())return;const old=refAction(editRef);if(!old)return;const raw=String($('v132-edit-code')?.value||'').trim();let next={...old};if(raw&&raw!==String(old.code||'')){const parsed=window.VC_SCOUT_CORE?.parse?.(raw,match(),old);if(parsed?.error||!parsed?.action)return alert(parsed?.error||'Código no válido.');next={...old,...parsed.action};preserveVideo(old,next)}else{next.team=$('v132-edit-team').value==='opponent'?'opponent':'ours';const pv=$('v132-edit-player').value;if(next.team==='ours'){const p=players().find(x=>String(x.id)===String(pv));next.playerId=p?Number(p.id):null;next.playerLabel='';if(p){next.playerNumberSnapshot=p.number??'';next.playerNameSnapshot=p.name||''}}else{next.playerId=null;next.playerLabel=pv;next.playerNumberSnapshot='';next.playerNameSnapshot=''}next.skill=$('v132-edit-skill').value;next.evaluation=$('v132-edit-eval').value;next.startZone=String($('v132-edit-start').value||'').trim().toUpperCase();next.endZone=String($('v132-edit-end').value||'').trim().toUpperCase();next.phase=$('v132-edit-phase').value;try{next.code=window.scoutBuildCode?.(next)||next.code}catch(_){}}const m=match();if(editRef.live)m.liveRally.actions[editRef.index]=next;else{const s=(m.sets||[]).find(x=>Number(x.number)===Number(editRef.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(editRef.rallyId));if(!r)return;r.actions[editRef.index]=next;r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1}m.updatedAt=new Date().toISOString();saveDirect(next);v132CloseActionEditor()};
+window.v132DeleteEditedAction=function(){if(!editRef||readonly())return;if(!confirm('¿Eliminar esta acción del scouting? El marcador del rally no cambiará.'))return;const m=match();if(editRef.live)m.liveRally.actions.splice(editRef.index,1);else{const s=(m.sets||[]).find(x=>Number(x.number)===Number(editRef.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(editRef.rallyId));if(!r)return;r.actions.splice(editRef.index,1);r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1}m.updatedAt=new Date().toISOString();saveDirect();v132CloseActionEditor()};
+/* Persist a normalized video timestamp on every newly recorded action. Existing video fields remain authoritative. */
+try{if(typeof window.scoutNormalizeAction==='function'&&!window.scoutNormalizeAction.__v132){const base=window.scoutNormalizeAction;window.scoutNormalizeAction=function(a){const x=base(a);const raw=a||{};const vals=[raw.videoTimestamp,raw.liveVideoTime,x.videoAction,raw.videoAction,x.videoTime,raw.videoTime].filter(v=>v!=null&&v!=='').map(Number);const t=vals.find(Number.isFinite);x.videoTimestamp=Number.isFinite(t)?Math.max(0,t):null;return x};window.scoutNormalizeAction.__v132=true}}catch(e){console.warn('V13.2 normalize wrapper',e)}
+try{if(typeof window.scoutPushAction==='function'&&!window.scoutPushAction.__v132){const base=window.scoutPushAction;window.scoutPushAction=function(action){const m=match(),before=m?.liveRally?.actions?.length||0,out=base(action),mm=match(),arr=mm?.liveRally?.actions||[];if(arr.length>before){const a=arr[arr.length-1],t=actionTime(a);a.videoTimestamp=t==null?null:t;mm.updatedAt=new Date().toISOString()}setTimeout(queueRender,0);return out};window.scoutPushAction.__v132=true;if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.push=a=>window.scoutPushAction(a)}}catch(e){console.warn('V13.2 action wrapper',e)}
+const oldRender=window.v900Render;if(typeof oldRender==='function'&&!oldRender.__v132){const wrapped=function(...args){const out=oldRender.apply(this,args);setTimeout(queueRender,0);return out};wrapped.__v132=true;window.v900Render=wrapped}
+const unsub=State()?.subscribe?.(()=>queueRender())||(()=>{});
+function boot(){document.body.classList.add('v132-scouting-pro');try{window.v900SetPhase?.('scout')}catch(_){}buildCockpit();buildRecent();queueRender();const modal=$('v132-action-edit-modal');modal?.addEventListener('click',e=>{if(e.target===modal)v132CloseActionEditor()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal?.classList.contains('open'))v132CloseActionEditor()})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.VC_V132={version:VERSION,render:queueRender,openActionEditor:window.v132OpenActionEditor,dispose:unsub};
+if(State()){State().version=VERSION;State().schema='vc.match-state/13.2'}
+})();
+</script>
+
+
+<style id="v133-video-linked-scouting-style">
+.v133-smart-playlists{margin-top:8px;padding-top:8px;border-top:1px solid #e4e9ec}.v133-smart-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:5px}.v133-smart-head span{font-size:6.5px;font-weight:950;letter-spacing:.07em;color:#4e687a}.v133-smart-head small{font-size:6.5px;color:#87949d}.v133-smart-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.v133-smart-grid button{text-align:left;border:1px solid #dfe6ea!important;background:#fff!important;color:#29475f!important;border-radius:8px!important;padding:8px!important;text-transform:none!important;letter-spacing:0!important}.v133-smart-grid button b{display:block;font-size:8px}.v133-smart-grid button small{display:block;margin-top:2px;color:#7b8a94;font-size:6.7px}
+.v780-ruler-marker.action.skill-S{background:#2f6fa0!important}.v780-ruler-marker.action.skill-R{background:#398366!important}.v780-ruler-marker.action.skill-E{background:#b27a2f!important}.v780-ruler-marker.action.skill-A{background:#b64e50!important}.v780-ruler-marker.action.skill-B{background:#76559a!important}.v780-ruler-marker.action.skill-D{background:#2a8a8a!important}.v780-ruler-marker.action.skill-F,.v780-ruler-marker.action.skill-C{background:#687784!important}.v780-ruler-marker.action{opacity:.92!important;width:3px!important;height:16px!important;top:18px!important}
+.v780-row.skill-S{border-left:3px solid #2f6fa0}.v780-row.skill-R{border-left:3px solid #398366}.v780-row.skill-E{border-left:3px solid #b27a2f}.v780-row.skill-A{border-left:3px solid #b64e50}.v780-row.skill-B{border-left:3px solid #76559a}.v780-row.skill-D{border-left:3px solid #2a8a8a}.v133-linked{display:inline-flex;margin-left:5px;padding:2px 4px;border-radius:999px;background:#e9f5ee;color:#2e6b49;font-size:5.8px;font-style:normal;font-weight:950;vertical-align:1px}
+.v133-recent-clip{white-space:nowrap}.v133-video-link-health{display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:999px;background:#eef6f1;color:#3e7055;font-size:6px;font-weight:900}.v133-video-link-health.warn{background:#fff5e7;color:#8a672e}
+@media(max-width:700px){.v133-smart-grid{grid-template-columns:1fr}.v133-smart-head{align-items:flex-start;flex-direction:column}.v780-row-actions button{padding:7px 8px!important}}
+</style>
+<script id="v133-scouting-video-link-module">
+(()=>{
+'use strict';
+const VERSION='13.3.0',State=window.MatchState||window.VC_MATCH_STATE,$=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[];
+function match(){return State?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}
+function setOf(m=match()){return State?.getSet?.(m)||window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}
+function exactStamp(m=match()){
+  try{const x=typeof window.v850MediaStamp==='function'?window.v850MediaStamp():null;if(x?.videoExact&&Number.isFinite(Number(x.videoTime)))return {time:Math.max(0,Number(x.videoTime)),source:String(x.videoSource||''),exact:true,kind:x.kind||'video'}}catch(_){}
+  try{const media=window.VC_MATCH_MODE_MEDIA;if(media?.isReview?.()&&media?.loaded?.()){const source=String(media.source?.()||'video');return {time:Math.max(0,Number(media.current?.())||0),source:source==='youtube'?`youtube:${media.youtubeId?.()||''}`:`local:${media.localName?.()||''}`,exact:true,kind:source}}}catch(_){}
+  try{const d=window.vcRecordingDiagnostics?.();if(d?.active)return {time:Math.max(0,Number(d.elapsedMs||0)/1000),source:`recording:${d.source||'live'}`,exact:true,kind:'recording'}}catch(_){}
+  const s=setOf(m),elapsed=(()=>{try{return Number(window.VC_SCOUT_VIDEO_BRIDGE?.elapsedMs?.(m))||0}catch(_){return 0}})(),off=Number(m?.video?.syncOffset);
+  if(Number.isFinite(off))return {time:Math.max(0,elapsed/1000+off),source:String(m?.video?.source||'sync'),exact:false,kind:'mapped'};
+  return {time:null,source:'',exact:false,kind:'scout'};
+}
+function storedActionTime(a){
+  for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){const v=a?.[k];if(v==null||v==='')continue;const n=Number(v);if(Number.isFinite(n)&&n>=0)return n}
+  return null;
+}
+function actionTime(a,m=match()){
+  const direct=storedActionTime(a);if(direct!=null)return direct;
+  const off=Number(m?.video?.syncOffset),ms=Number(a?.scoutMs);return Number.isFinite(off)&&Number.isFinite(ms)?Math.max(0,ms/1000+off):null;
+}
+function linkAction(a,stamp,m=match()){
+  if(!a)return false;let changed=false,t=storedActionTime(a);
+  /* Persist a normalized timestamp only when it came from a real video/REC clock or already existed.
+     Sync-offset-only actions keep scoutMs as source so later sync nudges remain correct. */
+  if(t==null&&stamp?.exact&&stamp?.time!=null)t=Number(stamp.time);
+  if(t!=null&&Number.isFinite(t)){
+    if(a.videoTimestamp==null||!Number.isFinite(Number(a.videoTimestamp))){a.videoTimestamp=t;changed=true}
+    if(a.videoAction==null){a.videoAction=t;changed=true}
+    if(a.videoTime==null&&stamp?.exact){a.videoTime=t;changed=true}
+    const st=Math.max(0,t-8),en=t+5;if(a.videoStart==null||Math.abs(Number(a.videoStart)-st)>.01){a.videoStart=st;changed=true}if(a.videoEnd==null||Math.abs(Number(a.videoEnd)-en)>.01){a.videoEnd=en;changed=true}
+    if(stamp?.source&&!a.videoSource){a.videoSource=stamp.source;changed=true}if(stamp?.exact&&a.videoExact!==true){a.videoExact=true;changed=true}
+    if(!a.videoLinkedAt){a.videoLinkedAt=new Date().toISOString();changed=true}
+  }
+  return changed;
+}
+function migrateMatch(m){if(!m)return 0;let n=0;arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>arr(r.actions).forEach(a=>{if(linkAction(a,null,m))n++})));arr(m.liveRally?.actions).forEach(a=>{if(linkAction(a,null,m))n++});if(n)m.updatedAt=new Date().toISOString();return n}
+function save(reason='video-link'){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(_){}try{State?.sync?.(`v13.3:${reason}`)}catch(_){} }
+
+/* All new actions get the current exact video/recording time when possible. */
+try{
+  const base=window.scoutPushAction;
+  if(typeof base==='function'&&!base.__v133){
+    const wrapped=function(action){const m=match(),stamp=exactStamp(m),before=m?.liveRally?.actions?.length||0,out=base(action),mm=match(),actions=mm?.liveRally?.actions||[];if(actions.length>before){const a=actions[actions.length-1];if(linkAction(a,stamp,mm)){mm.updatedAt=new Date().toISOString();save('action-linked')}}setTimeout(enhanceRecent,0);return out};
+    wrapped.__v133=true;window.scoutPushAction=wrapped;if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.push=a=>window.scoutPushAction(a);
+  }
+}catch(e){console.warn('V13.3 action timestamp wrapper',e)}
+
+function recentRef(i){return window.__v132Recent?.[Number(i)]||null}
+function recentAction(ref){const m=match();if(!m||!ref)return null;if(ref.live)return m.liveRally?.actions?.[ref.index]||null;const s=arr(m.sets).find(x=>Number(x.number)===Number(ref.setNo)),r=arr(s?.rallies).find(x=>Number(x.id)===Number(ref.rallyId));return r?.actions?.[ref.index]||null}
+function keyFor(ref,a){return ref?`a:${ref.setNo}:${ref.rallyId}:${a?.id}`:''}
+window.v133OpenRecentVideo=function(i){const ref=recentRef(i),a=recentAction(ref);if(!ref||!a)return;const t=actionTime(a),key=keyFor(ref,a);try{window.v11Navigate?.('video')}catch(_){}setTimeout(()=>{try{window.v780Select?.(key);if(t!=null&&window.v780OpenAt)window.v780OpenAt(t,key,{pre:8,post:5});else window.v780PlayKey?.(key)}catch(e){console.error(e)}},120)};
+window.v133ClipRecent=function(i){const ref=recentRef(i),a=recentAction(ref),m=match();if(!ref||!a||!m)return;const t=actionTime(a,m);if(t==null)return alert('Esta acción todavía no tiene timestamp de vídeo. Carga/sincroniza el vídeo o graba en directo.');m.video=m.video&&typeof m.video==='object'?m.video:{};m.video.clips=arr(m.video.clips);const key=keyFor(ref,a);if(m.video.clips.some(c=>String(c.sourceKey||'')===key))return alert('Esta acción ya tiene un clip guardado.');const start=Math.max(0,t-8),end=t+5;m.video.clips.push({id:`v133_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,name:`${a.playerNameSnapshot||a.playerLabel||a.playerNumberSnapshot||'Jugador'} · ${a.code||a.skill||'Acción'}`,tag:a.team==='opponent'?'opponent':'technical',note:'Clip automático desde Scouting Pro · −8 s / +5 s',start,end,duration:end-start,sourceKey:key,type:'action',set:ref.setNo,team:a.team||'',skill:a.skill||'',evaluation:a.evaluation||'',player:a.playerNameSnapshot||a.playerLabel||'',createdAt:new Date().toISOString(),source:m.video.source||'',videoTimestamp:t,auto:true});a.clipId=m.video.clips[m.video.clips.length-1].id;save('clip-created');enhanceRecent()};
+function enhanceRecent(){const rows=document.querySelectorAll('#v132-recent-actions .v132-action-row');rows.forEach((row,i)=>{const ref=recentRef(i),a=recentAction(ref);if(!a)return;const tools=row.querySelector('.v132-action-tools');if(!tools)return;const t=actionTime(a);const play=tools.querySelector('button[title="Abrir vídeo"]');if(play){play.onclick=e=>{e.preventDefault();v133OpenRecentVideo(i)};play.disabled=t==null;play.title=t==null?'Sin timestamp de vídeo':'Abrir jugada en Video Review'}if(!tools.querySelector('.v133-recent-clip')){const b=document.createElement('button');b.type='button';b.className='ghost v133-recent-clip';b.textContent='Clip';b.disabled=t==null;b.title=t==null?'Sin timestamp de vídeo':'Crear clip automático −8/+5';b.onclick=e=>{e.preventDefault();v133ClipRecent(i)};tools.insertBefore(b,tools.lastElementChild)}})}
+
+/* Keep Video Review on the same canonical MatchState when its match selector changes. */
+try{const base=window.v780MatchChanged;if(typeof base==='function'&&!base.__v133){const wrapped=async function(...args){const id=Number($('v780-match')?.value)||0;if(id&&Number(State?.getActive?.()?.id)!==id){try{await State?.select?.(id,{saveCurrent:true,openWorkspace:false})}catch(e){console.warn('V13.3 Video Review match switch',e)}}const out=base.apply(this,args);setTimeout(enhanceVideoReview,0);return out};wrapped.__v133=true;window.v780MatchChanged=wrapped}}catch(e){console.warn(e)}
+function enhanceVideoReview(){try{window.v780Render?.()}catch(_){}const m=match();if(m){const n=migrateMatch(m);if(n)save('migration')}const label=$('v780-sync-copy');if(label&&m){let total=0,linked=0;arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>arr(r.actions).forEach(a=>{total++;if(actionTime(a,m)!=null)linked++})));arr(m.liveRally?.actions).forEach(a=>{total++;if(actionTime(a,m)!=null)linked++});label.title=`V13.3 · ${linked}/${total} acciones vinculadas al vídeo`}}
+const unsub=State?.subscribe?.(()=>{setTimeout(()=>{enhanceRecent();if($('scout-video-hub')?.classList.contains('active'))enhanceVideoReview()},0)})||(()=>{});
+function boot(){const m=match();if(m){const n=migrateMatch(m);if(n)save('boot-migration')}enhanceRecent();setTimeout(enhanceVideoReview,0);document.addEventListener('vc:matchstatechange',()=>setTimeout(enhanceRecent,0));}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.VC_V133={version:VERSION,linkAction,migrateMatch,openRecentVideo:window.v133OpenRecentVideo,createRecentClip:window.v133ClipRecent,dispose:unsub};
+if(State){State.version=VERSION;State.schema='vc.match-state/13.3'}
+})();
+</script>
+
+
+<style id="v134-stat-validation-style">
+.v134-audit-btn{min-height:28px!important;padding:6px 9px!important;border:1px solid #dbe5ea!important;background:#fff!important;color:#294a61!important;border-radius:7px!important;font:900 7px/1 Arial!important;white-space:nowrap}
+.v134-audit-modal{position:fixed;inset:0;z-index:42000;background:rgba(8,27,43,.58);display:none;align-items:center;justify-content:center;padding:18px}.v134-audit-modal.open{display:flex}.v134-audit-card{width:min(1040px,96vw);max-height:90vh;overflow:auto;background:#fff;border:1px solid #d9e2e8;border-radius:14px;box-shadow:0 24px 70px rgba(8,28,44,.28);padding:18px}.v134-audit-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border-bottom:1px solid #e7edf1;padding-bottom:12px;margin-bottom:12px}.v134-audit-head h2{margin:3px 0 4px!important;font-size:20px!important;color:#15344b!important}.v134-audit-head p{margin:0;color:#70818d;font-size:10px}.v134-audit-kicker{font:900 7px/1 Arial;letter-spacing:.09em;color:#70818d}.v134-audit-status{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:#eaf5ee;color:#2e6a49;font:900 7px Arial}.v134-audit-status.warn{background:#fff4df;color:#8b6226}.v134-audit-status.bad{background:#faeceb;color:#8d4540}.v134-audit-team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v134-audit-team{border:1px solid #e0e7eb;border-radius:10px;overflow:hidden}.v134-audit-team h3{margin:0!important;padding:9px 11px!important;background:#f6f9fb;border:0!important;font-size:12px!important;color:#294a61!important}.v134-audit-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e7edf1}.v134-audit-metric{background:#fff;padding:9px}.v134-audit-metric span{display:block;color:#788893;font:900 6.5px Arial;letter-spacing:.06em;text-transform:uppercase}.v134-audit-metric b{display:block;color:#17384f;font-size:16px;margin:3px 0 1px}.v134-audit-metric small{color:#83919a;font-size:7.5px}.v134-formulas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:10px}.v134-formula{border:1px solid #e1e8ec;border-radius:8px;padding:8px;background:#fbfcfd}.v134-formula span{display:block;color:#7a8993;font:900 6.5px Arial;text-transform:uppercase}.v134-formula code{display:block;margin-top:3px;color:#294a61;font:800 8px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:normal}.v134-issues{margin-top:10px;display:grid;gap:5px}.v134-issue{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:8px 9px;border:1px solid #e5eaed;border-radius:8px;background:#fff;font-size:9px;color:#526573}.v134-issue b{font-size:7px;letter-spacing:.05em}.v134-issue.error{border-left:3px solid #a64d47}.v134-issue.warn{border-left:3px solid #c18a3a}.v134-issue.ok{border-left:3px solid #46805e}.v134-audit-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e7edf1;color:#74838d;font-size:8px}.v134-coverage{font-weight:900;color:#315d78}
+@media(max-width:800px){.v134-audit-team-grid{grid-template-columns:1fr}.v134-formulas{grid-template-columns:1fr 1fr}.v134-audit-metrics{grid-template-columns:1fr 1fr}.v134-audit-card{padding:12px}.v134-audit-head{flex-direction:column}}
+</style>
+<script id="v134-stat-validation-runtime">
+(()=>{
+'use strict';
+const VERSION='13.4.0',B=()=>window.VC_SCOUT_REPORT_BRIDGE||null,State=window.MatchState||window.VC_MATCH_STATE,arr=v=>Array.isArray(v)?v:[],$=id=>document.getElementById(id);
+const FORMULAS={
+  gp:'Puntos directos (# S/A/B) − pérdidas terminales (= y ataque /)',
+  receptionPos:'(# + +) / recepciones totales × 100',
+  receptionExc:'# / recepciones totales × 100',
+  attackPts:'Ataques # / ataques totales × 100',
+  sideout:'Rallies K1 ganados / rallies K1',
+  breakPoint:'Rallies K2 ganados / rallies K2'
+};
+function pct(n,d){return d?Math.round((Number(n)||0)*100/(Number(d)||0)):null}
+function playerKey(a){return a?.team==='ours'?`ours:${Number(a?.playerId)||0}`:`opponent:${String(a?.playerLabel||'Rival').trim().toLowerCase()}`}
+function terminalLoss(a){return !!a&&(a.evaluation==='='||(a.skill==='A'&&a.evaluation==='/'))}
+function canonicalImpact(rows,team,key='team'){
+  const all=arr(rows).filter(a=>a&&a.team===team&&!a.live),groups=new Map(),scope=a=>key==='team'||playerKey(a)===key,wonRows=[],lostRows=[];
+  all.forEach(a=>{const k=`${a.set}:${a.rallyIndex}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(a)});
+  groups.forEach(g=>{g.sort((a,b)=>(Number(a.actionIndex)||0)-(Number(b.actionIndex)||0));const winner=g.find(a=>a.winner)?.winner||'';if(winner===team){const p=[...g].reverse().find(a=>a.evaluation==='#'&&['S','A','B'].includes(a.skill));if(p&&scope(p))wonRows.push(p)}else if(winner&&winner!==team){const last=g[g.length-1];if(last&&terminalLoss(last)&&scope(last))lostRows.push(last)}});
+  const fp=wonRows.filter(a=>a.servingBefore===team).length;return {won:wonRows.length,lost:lostRows.length,fp,gp:wonRows.length-lostRows.length,wonRows,lostRows}
+}
+function directPointConflicts(m,team){const out=[];arr(m?.sets).forEach(s=>arr(s.rallies).forEach((r,ri)=>{if(r.winner!==team)return;const pts=arr(r.actions).filter(a=>a.team===team&&a.evaluation==='#'&&['S','A','B'].includes(a.skill));if(pts.length>1)out.push(`Set ${s.number} · rally ${ri+1}: ${pts.length} acciones # de punto directo`) }));return out}
+function scoreAudit(m){const warnings=[];arr(m?.sets).forEach(s=>{const ours=arr(s.rallies).filter(r=>r.winner==='ours').length,opp=arr(s.rallies).filter(r=>r.winner==='opponent').length,du=Number(s.scoreUs||0)-ours,dv=Number(s.scoreOpponent||0)-opp;if(du||dv)warnings.push(`Set ${s.number}: marcador ${s.scoreUs||0}-${s.scoreOpponent||0}, pero los rallies cerrados explican ${ours}-${opp}${du||dv?` (diferencia ${du>=0?'+':''}${du}/${dv>=0?'+':''}${dv})`:''}`) });return warnings}
+function teamAudit(m,team){
+  const bridge=B(),rows=bridge?.actionRows?.(m,false)||[],teamRows=rows.filter(a=>a.team===team),data=bridge?.fullStats?.(m,team,false),st=data?.teamStat,rec=st?bridge?.reception?.(st):null,att=st?bridge?.attack?.(st):null,pm=bridge?.pointMetrics?.(m,team,'team',teamRows),canon=canonicalImpact(rows,team,'team'),rr=bridge?.rallies?.(m,team,false)||[],perf=bridge?.performance?.(m,team,false),k1=rr.filter(x=>x.phase==='K1'),k2=rr.filter(x=>x.phase==='K2'),issues=[];
+  const add=(level,code,text)=>issues.push({level,code,text,team});
+  if(!data)add('error','STATS','No se ha podido construir la estadística cerrada del equipo.');
+  if(rec){const sk=bridge?.skill?.(st,'R'),ep=pct((sk?.perfect||0)+(Number(sk?.positive||0)-Number(sk?.perfect||0)),sk?.total||0),ee=pct(sk?.perfect||0,sk?.total||0);if(rec.posPct!==ep)add('error','REC POS',`Pos% ${rec.posPct}% ≠ ${ep}% esperado.`);if(rec.excPct!==ee)add('error','REC EXC',`Exc% ${rec.excPct}% ≠ ${ee}% esperado.`)}
+  if(att){const sk=bridge?.skill?.(st,'A'),ep=pct(sk?.perfect||0,sk?.total||0),eg=(sk?.perfect||0)-(sk?.error||0)-(sk?.blocked||0);if(att.ptsPct!==ep)add('error','ATQ %',`Pts% ${att.ptsPct}% ≠ ${ep}% esperado.`);if(att.gp!==eg)add('error','ATQ G-P',`G-P ataque ${att.gp} ≠ ${eg} esperado.`)}
+  if(pm){if(pm.won!==canon.won||pm.lost!==canon.lost||pm.fp!==canon.fp||pm.gp!==canon.gp)add('error','G-P',`Puntos ${pm.won}/${pm.lost}, FP ${pm.fp}, G-P ${pm.gp}; esperado ${canon.won}/${canon.lost}, FP ${canon.fp}, G-P ${canon.gp}.`);if(pm.gp!==pm.won-pm.lost)add('error','G-P','G-P no coincide con ganados − perdidos.')}
+  if(perf){const k1w=k1.filter(x=>x.win).length,k2w=k2.filter(x=>x.win).length;if(perf.sideOut!==k1w)add('error','K1',`Side-out ${perf.sideOut} ≠ ${k1w} rallies K1 ganados.`);if(perf.breakPoint!==k2w)add('error','K2',`Break point ${perf.breakPoint} ≠ ${k2w} rallies K2 ganados.`)}
+  const players=arr(data?.players),sumWon=players.reduce((n,p)=>n+(bridge?.pointMetrics?.(m,team,p.key,teamRows)?.won||0),0),sumLost=players.reduce((n,p)=>n+(bridge?.pointMetrics?.(m,team,p.key,teamRows)?.lost||0),0);if(pm&&(sumWon!==pm.won||sumLost!==pm.lost))add('error','SUMA JUG.',`Suma jugadores ${sumWon}/${sumLost} ≠ total equipo ${pm.won}/${pm.lost}.`);
+  if(rr.length!==k1.length+k2.length)add('error','FASES',`K1 + K2 (${k1.length+k2.length}) ≠ rallies (${rr.length}).`);
+  const k1WithRec=k1.filter(x=>arr(x.r?.actions).some(a=>a.team===team&&a.skill==='R')).length,k2WithServe=k2.filter(x=>arr(x.r?.actions).some(a=>a.team===team&&a.skill==='S')).length,recCoverage=k1.length?pct(k1WithRec,k1.length):100,serveCoverage=k2.length?pct(k2WithServe,k2.length):100;
+  if(k1.length&&recCoverage<100)add('warn','COBERTURA K1',`${k1.length-k1WithRec} rallies K1 no tienen recepción registrada (${recCoverage}% de cobertura).`);if(k2.length&&serveCoverage<100)add('warn','COBERTURA K2',`${k2.length-k2WithServe} rallies K2 no tienen saque registrado (${serveCoverage}% de cobertura).`);
+  directPointConflicts(m,team).forEach(x=>add('warn','PUNTO DUP.',x+'. El cálculo usa solo el último # terminal.'));
+  const invalid=teamRows.filter(a=>!['S','R','E','A','B','D','F','C'].includes(a.skill)||!['#','+','!','-','/','='].includes(a.evaluation));if(invalid.length)add('error','CÓDIGO',`${invalid.length} acciones con fundamento o valoración inválidos.`);
+  return {team,rows:teamRows.length,rec,att,pm,rr,k1,k2,perf,coverage:{reception:recCoverage,serve:serveCoverage},issues};
+}
+function selfTest(){const rows=[
+  {team:'ours',set:1,rallyIndex:1,actionIndex:1,winner:'ours',skill:'S',evaluation:'#',servingBefore:'ours'},
+  {team:'ours',set:1,rallyIndex:2,actionIndex:1,winner:'opponent',skill:'S',evaluation:'=',servingBefore:'ours'},
+  {team:'ours',set:1,rallyIndex:3,actionIndex:1,winner:'ours',skill:'R',evaluation:'#',servingBefore:'opponent'},{team:'ours',set:1,rallyIndex:3,actionIndex:2,winner:'ours',skill:'A',evaluation:'#',servingBefore:'opponent'},
+  {team:'ours',set:1,rallyIndex:4,actionIndex:1,winner:'opponent',skill:'R',evaluation:'=',servingBefore:'opponent'},
+  {team:'ours',set:1,rallyIndex:5,actionIndex:1,winner:'ours',skill:'A',evaluation:'#',servingBefore:'ours'},{team:'ours',set:1,rallyIndex:5,actionIndex:2,winner:'ours',skill:'B',evaluation:'#',servingBefore:'ours'}
+];const x=canonicalImpact(rows,'ours');return {ok:x.won===3&&x.lost===2&&x.fp===2&&x.gp===1,actual:x}}
+function selectedMatch(){const id=Number($('scout-analysis-match')?.value)||0,list=B()?.getMatches?.()||[];return list.find(m=>Number(m.id)===id)||B()?.getMatchForAnalysis?.()||State?.getActive?.()||null}
+function auditMatch(m=selectedMatch()){
+  const self=selfTest(),issues=[];if(!self.ok)issues.push({level:'error',code:'MOTOR',text:'El autotest interno de fórmulas no ha pasado.'});if(!m)return {ok:self.ok,errors:self.ok?0:1,warnings:0,issues,teams:[],self,m:null};
+  const teams=[teamAudit(m,'ours'),teamAudit(m,'opponent')];teams.forEach(t=>issues.push(...t.issues));scoreAudit(m).forEach(x=>issues.push({level:'warn',code:'MARCADOR',text:x}));
+  const all=B()?.actionRows?.(m,false)||[],live=(B()?.actionRows?.(m,true)||[]).filter(a=>a.live).length,rawRallies=arr(m.sets).reduce((n,s)=>n+arr(s.rallies).length,0),errors=issues.filter(i=>i.level==='error').length,warnings=issues.filter(i=>i.level==='warn').length;
+  return {ok:errors===0,errors,warnings,issues,teams,self,m,counts:{rallies:rawRallies,closed:all.length,live}};
+}
+function teamLabel(m,team){return team==='ours'?(B()?.teamName?.()||'Nuestro equipo'):(m?.opponent||'Rival')}
+function gp(v){v=Number(v)||0;return `${v>0?'+':''}${v}`}
+function ensureModal(){if($('v134-stat-audit-modal'))return;const el=document.createElement('div');el.id='v134-stat-audit-modal';el.className='v134-audit-modal';el.setAttribute('aria-hidden','true');el.innerHTML='<div class="v134-audit-card"><div class="v134-audit-head"><div><span class="v134-audit-kicker">STATISTICS ENGINE · V13.4</span><h2>Auditoría de cálculos estadísticos</h2><p id="v134-audit-subtitle">Comprobación del partido seleccionado.</p></div><div><span id="v134-audit-status" class="v134-audit-status">Comprobando</span> <button type="button" class="ghost" onclick="v134CloseStatAudit()">Cerrar</button></div></div><div id="v134-audit-body"></div></div>';el.addEventListener('click',e=>{if(e.target===el)window.v134CloseStatAudit()});document.body.appendChild(el)}
+function ensureButton(){const bar=$('v961-data-integrity');if(!bar||$('v134-audit-open'))return;const b=document.createElement('button');b.id='v134-audit-open';b.type='button';b.className='v134-audit-btn';b.textContent='Auditoría';b.onclick=()=>window.v134OpenStatAudit();const note=$('v961-integrity-note');bar.insertBefore(b,note||null)}
+function issueHtml(i){return `<div class="v134-issue ${i.level}"><b>${i.level==='error'?'ERROR':'AVISO'} · ${String(i.code||'')}</b><span>${String(i.text||'')}</span></div>`}
+function renderModal(a=auditMatch()){ensureModal();const m=a.m,body=$('v134-audit-body'),st=$('v134-audit-status');if(!body||!st)return;st.textContent=a.errors?`REVISAR · ${a.errors}`:a.warnings?`VÁLIDO · ${a.warnings} avisos`:'VALIDADO ✓';st.className='v134-audit-status '+(a.errors?'bad':a.warnings?'warn':'');$('v134-audit-subtitle').textContent=m?`${m.date||''} · ${B()?.teamName?.()||'Equipo'} vs ${m.opponent||'Rival'} · ${a.counts.rallies} rallies cerrados`:'Sin partido seleccionado';
+  const teams=a.teams.map(t=>`<section class="v134-audit-team"><h3>${teamLabel(m,t.team)}</h3><div class="v134-audit-metrics"><div class="v134-audit-metric"><span>G-P</span><b>${t.pm?gp(t.pm.gp):'—'}</b><small>${t.pm?`${t.pm.won} ganados · ${t.pm.lost} perdidos · FP ${t.pm.fp}`:'Sin datos'}</small></div><div class="v134-audit-metric"><span>Recepción</span><b>${t.rec?.total?t.rec.posPct+'%':'—'}</b><small>${t.rec?.total?`Exc ${t.rec.excPct}% · ${t.rec.total} tot.`:'Sin muestra'}</small></div><div class="v134-audit-metric"><span>Ataque</span><b>${t.att?.total?t.att.ptsPct+'%':'—'}</b><small>${t.att?.total?`${t.att.perfect}/${t.att.total} · G-P ${gp(t.att.gp)}`:'Sin muestra'}</small></div><div class="v134-audit-metric"><span>Side-out K1</span><b>${t.k1.length?pct(t.perf?.sideOut||0,t.k1.length)+'%':'—'}</b><small>${t.perf?.sideOut||0}/${t.k1.length}</small></div><div class="v134-audit-metric"><span>Break K2</span><b>${t.k2.length?pct(t.perf?.breakPoint||0,t.k2.length)+'%':'—'}</b><small>${t.perf?.breakPoint||0}/${t.k2.length}</small></div><div class="v134-audit-metric"><span>Cobertura</span><b>${Math.min(t.coverage.reception,t.coverage.serve)}%</b><small>K1 rec ${t.coverage.reception}% · K2 saq ${t.coverage.serve}%</small></div></div></section>`).join('');
+  const formulas=Object.entries(FORMULAS).map(([k,v])=>`<div class="v134-formula"><span>${k==='gp'?'G-P':k==='receptionPos'?'REC Pos%':k==='receptionExc'?'REC Exc%':k==='attackPts'?'ATQ Pts%':k==='sideout'?'Side-out':'Break point'}</span><code>${v}</code></div>`).join('');const issues=a.issues.length?a.issues.map(issueHtml).join(''):'<div class="v134-issue ok"><b>OK</b><span>No se han detectado incoherencias entre rallies, acciones y fórmulas.</span></div>';
+  body.innerHTML=`<div class="v134-audit-team-grid">${teams}</div><div class="v134-formulas">${formulas}</div><div class="v134-issues">${issues}</div><div class="v134-audit-foot"><span>Autotest motor: <b>${a.self.ok?'OK ✓':'ERROR'}</b> · Los porcentajes se redondean al entero más próximo.</span><span class="v134-coverage">Rally en curso: ${a.counts?.live||0} acciones excluidas</span></div>`
+}
+function renderBar(){ensureButton();const a=auditMatch(),st=$('v961-integrity-status'),note=$('v961-integrity-note');if(st){st.textContent=a.errors?`REVISAR · ${a.errors}`:a.warnings?`VALIDADO · ${a.warnings} avisos`:'VALIDADO ✓';st.className=a.errors?'warn':'ok'}if(note){const cov=a.teams.length?Math.min(...a.teams.map(t=>Math.min(t.coverage.reception,t.coverage.serve))):100;note.textContent=a.errors?`${a.errors} incoherencias de cálculo/datos. Abre Auditoría antes de usar el PDF.`:a.warnings?`Fórmulas correctas. ${a.warnings} avisos de calidad/cobertura · cobertura mínima ${cov}%.`:'Fórmulas, G-P, recepción, ataque, K1/K2 y totales coherentes con los rallies cerrados.'}const badge=$('scout-v753-pdf-ready');if(badge){badge.textContent=a.errors?'STATS · REVISAR':'STATS 13.4 ✓';badge.title=a.errors?'Hay incoherencias estadísticas pendientes':'Motor estadístico V13.4 validado'}}
+window.v134OpenStatAudit=function(){const a=auditMatch();renderModal(a);$('v134-stat-audit-modal')?.classList.add('open');$('v134-stat-audit-modal')?.setAttribute('aria-hidden','false')};window.v134CloseStatAudit=function(){$('v134-stat-audit-modal')?.classList.remove('open');$('v134-stat-audit-modal')?.setAttribute('aria-hidden','true')};
+const baseRender=window.scoutRenderAnalysis;if(typeof baseRender==='function'&&!baseRender.__v134){const w=function(){const out=baseRender.apply(this,arguments);setTimeout(renderBar,0);return out};w.__v134=true;window.scoutRenderAnalysis=w}
+function boot(){ensureModal();ensureButton();renderBar();try{State?.subscribe?.(()=>setTimeout(renderBar,0))}catch(_){}document.addEventListener('change',e=>{if(e.target?.id==='scout-analysis-match')setTimeout(renderBar,0)})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.VC_STATS_ENGINE={version:VERSION,formulas:FORMULAS,auditMatch,teamAudit,canonicalImpact,selfTest};if(State){State.version=VERSION;State.schema='vc.match-state/13.4'}
 })();
 </script>
 
