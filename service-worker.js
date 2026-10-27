@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.6.1-data-integrity-pdf-v1';
+const CACHE_NAME = 'volley-coach-v9.6.2-cloud-efficient-v1';
 
 const APP_SHELL = [
   './',
