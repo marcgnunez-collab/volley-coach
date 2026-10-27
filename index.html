@@ -957,7 +957,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <div class="v940-nav-head">
         <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
           <span>VC</span>
-          <div><b>Scouting Center</b><small>Professional workspace · V11.6.0</small></div>
+          <div><b>Scouting Center</b><small>Professional workspace · V11.7.0</small></div>
         </button>
 
         <div id="v940-match-context" class="v940-match-context">
@@ -1600,9 +1600,9 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">V7.9 · SEASON ANALYTICS + BACKUP</span>
-        <h2>Partido, vídeo y scouting en una sola pantalla</h2>
-        <p>Reproduce rallies y acciones desde el scouting, crea playlists automáticas y reutiliza las grabaciones de Recording Studio.</p>
+        <span class="pro-kicker">VIDEO REVIEW · V11.7</span>
+        <h2>Revisión profesional de partido</h2>
+        <p>Live, Delay, YouTube y archivo en un mismo entorno, con timeline, sincronización, playlists, clips, rotaciones y foco por jugador.</p>
       </div>
       <div class="v780-hero-actions">
         <button class="ghost" type="button" onclick="v780OpenRecordingPicker()">Grabaciones V7.7</button>
@@ -1613,6 +1613,23 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
         <input id="v780-file" type="file" accept="video/*,.webm,.mp4,.mov,.m4v" class="hidden" onchange="v780LoadFile(event)">
       </div>
     </div>
+
+    <section class="v117-review-sourcebar">
+      <div class="v117-review-source-head">
+        <div><span>FUENTE DE VÍDEO</span><b id="v117-review-source-label">ARCHIVO</b><small id="v117-review-source-copy">Vídeo guardado para revisar, sincronizar y crear clips.</small></div>
+        <div class="v117-review-live-state"><i id="v117-review-live-dot"></i><span id="v117-review-live-copy">Live Delay detenido</span></div>
+      </div>
+      <div class="v117-review-source-tabs">
+        <button id="v117-review-source-live" onclick="v117ReviewSetSource('live')"><b>● LIVE</b><small>Cámara en directo</small></button>
+        <button id="v117-review-source-delay" onclick="v117ReviewSetSource('delay')"><b>◷ DELAY</b><small>Revisión retrasada</small></button>
+        <button id="v117-review-source-youtube" onclick="v117ReviewSetSource('youtube')"><b>▶ YOUTUBE</b><small>Enlace online</small></button>
+        <button id="v117-review-source-local" class="active" onclick="v117ReviewSetSource('local')"><b>▣ ARCHIVO</b><small>Vídeo local</small></button>
+      </div>
+      <div id="v117-review-delay-tools" class="v117-review-delay-tools hidden">
+        <div><span>RETRASO</span><strong id="v117-review-delay-label">30 s</strong><small>El búfer continúa capturando mientras revisas.</small></div>
+        <div class="v117-review-delay-buttons"><button onclick="v117ReviewDelay(30)">30 s</button><button onclick="v117ReviewDelay(60)">60 s</button><button onclick="v117ReviewDelay(90)">90 s</button><button onclick="v117ReviewDelay(120)">120 s</button><button class="primary" onclick="v117ReviewConfigureDelay()">Configurar / iniciar</button><button onclick="v117ReviewReturnLive()">Volver a Live</button></div>
+      </div>
+    </section>
 
     <div class="v780-toolbar">
       <label><span>Partido</span><select id="v780-match" onchange="v780MatchChanged()"></select></label>
@@ -1641,7 +1658,9 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
     <div class="v780-main">
       <section class="v780-video-panel">
-        <div id="v780-video-frame" class="v780-video-frame">
+        <div id="v780-video-frame" class="v780-video-frame" data-v117-orientation="horizontal">
+          <video id="v117-review-stream" class="v117-review-stream hidden" autoplay muted playsinline></video>
+          <div id="v117-review-stream-badge" class="v117-review-stream-badge hidden">LIVE</div>
           <video id="v780-player-video" controls playsinline preload="metadata"></video>
           <div id="v782-youtube-wrap" class="v782-youtube-wrap hidden"><div id="v782-youtube-player"></div></div>
           <div id="v780-video-empty" class="v780-video-empty"><b>Sin vídeo cargado</b><span>Abre un archivo, una grabación o pega un enlace de YouTube.</span></div>
@@ -1657,6 +1676,13 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
           <button class="ghost" onclick="v780Jump(5)">+5 s</button>
           <button class="ghost" onclick="v780Jump(10)">+10 s</button>
           <label><span>Velocidad</span><select id="v780-speed" onchange="v780SpeedChanged()"><option value=".5">0,5×</option><option value=".75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+        </div>
+
+        <div id="v117-review-stream-controls" class="v117-review-stream-controls hidden">
+          <button onclick="v117ReviewDelayJump(-10)">−10 s</button><button onclick="v117ReviewDelayJump(-5)">−5 s</button><button class="primary" onclick="v117ReviewDelayToggle()">▶ / ❚❚</button><button onclick="v117ReviewDelayJump(5)">+5 s</button><button onclick="v117ReviewDelayJump(10)">+10 s</button>
+          <button onclick="v117ReviewReturnDelay()">Volver al delay</button><button onclick="v117ReviewReturnLive()">LIVE</button>
+          <label><span>Vista</span><select id="v117-review-orientation" onchange="v117ReviewOrientation(this.value)"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="right">Girar 90° →</option><option value="left">Girar 90° ←</option></select></label>
+          <button onclick="v117ReviewFullscreen()">⛶ Pantalla completa</button>
         </div>
 
         <div class="v780-sync-panel">
@@ -2015,26 +2041,39 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <h2 id="v800-title">Sin partido activo</h2>
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
-      <div class="v800-top-actions">
+      <div class="v800-top-actions v117-top-actions">
         <label class="v800-match-picker"><span>Scouting</span><select id="v800-match-select" onchange="v800SelectMatch(this.value)"><option value="">Sin scouting</option></select></label>
-        
-        <button class="ghost" onclick="scoutOpenLineup()">Alineación</button>
-        <button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button>
-        <button id="v851-lineup-control-btn" class="ghost" onclick="v851OpenLineupControl()">Control alineación</button>
-        <button id="v851-video-note-btn" class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
-        <button id="v950-match-video-btn" class="primary" onclick="v940MatchView('video')">🎥 Vídeo Live / YouTube</button>
-        <button id="v1000-intelligence-btn" class="primary v1000-intelligence-btn" onclick="v1000OpenIntelligence()">◈ Inteligencia V10</button>
-        <button id="v853-rally-editor-btn" class="ghost" onclick="v901OpenRallyEditor()">✎ Editar rallies y códigos</button>
-        <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
-        <button id="v954-new-set-btn" class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button>
-        <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
-        <button class="ghost" onclick="scoutV690OpenEvent()">Evento</button>
-        <button class="ghost" onclick="v901OpenCodes()">⌨ Códigos</button>
-        <button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button>
-        <button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button>
-        <button class="primary" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
+        <span id="v117-pro-save-state" class="v117-save-state">AUTOGUARDADO ACTIVO</span>
+        <button class="primary" onclick="v117ProSave()">Guardar ahora</button>
+        <button class="ghost" onclick="v800ToggleFullscreen()">⛶ Pantalla partido</button>
       </div>
     </div>
+
+    <section id="v117-pro-command-center" class="v117-pro-command-center" aria-label="Centro de control profesional">
+      <div class="v117-command-group match"><span>PARTIDO</span>
+        <button onclick="scoutOpenLineup()">⌘ Alineación</button>
+        <button onclick="scoutOpenSubstitution()">⇄ Cambios / Líbero</button>
+        <button onclick="scoutV690OpenEvent()">＋ Evento</button>
+        <button onclick="v954OpenNewSet()">＋ Nuevo set</button>
+        <button onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
+        <button onclick="scoutV861OpenFinalResult()">🏁 Resultado</button>
+      </div>
+      <div class="v117-command-group tools"><span>HERRAMIENTAS</span>
+        <button onclick="v901OpenCodes()">⌨ Códigos Pro</button>
+        <button onclick="scoutV690OpenWorkflow()">⚙ Workflow</button>
+        <button onclick="v112MatchTab('video')">🎥 Vídeo + código</button>
+        <button onclick="v1000OpenIntelligence()">◈ Inteligencia</button>
+        <button onclick="v117OpenVideoReview()">▶ Video Review</button>
+        <button onclick="showView('scout-analysis',botonVista('scout-analysis'))">▥ Análisis</button>
+        <button onclick="return scoutV752ExportOfficialPDF()">PDF oficial</button>
+      </div>
+      <div class="v117-command-group safety"><span>GUARDADO</span>
+        <button class="primary" onclick="v117ProSave()">Guardar todo</button>
+        <button onclick="scoutV680DownloadBackup()">Copia JSON</button>
+        <button onclick="scoutV892OpenRecoveryCenter()">Recuperación</button>
+        <button class="success" onclick="v117FinalizeAndSave()">Finalizar y guardar</button>
+      </div>
+    </section>
 
     <div id="v800-empty" class="v800-empty">
       <strong>No hay un partido activo.</strong>
@@ -2110,7 +2149,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <div class="v855-live-rally-head"><b id="v855-live-rally-title">Rally actual · 0 acciones</b><span id="v855-live-rally-save">Sin cambios pendientes</span></div>
               <div id="v855-live-actions" class="v855-live-actions"><span class="empty">Añade acciones antes de cerrar el punto.</span></div>
               <div class="v853-code-tools">
-                <button class="ghost" onclick="showView('scouting',botonVista('scouting'));setTimeout(()=>document.getElementById('scout-code-input')?.focus(),50)">Consola completa</button>
+                <button class="ghost" onclick="v117FocusProCode()">⌨ Código Pro</button>
                 <button class="ghost" onclick="v857OpenRallyEditor()">✎ Editor de rallies</button>
               </div>
             </div>
@@ -5818,7 +5857,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.6.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.7.0', {
         updateViaCache: 'none'
       });
 
@@ -28918,6 +28957,126 @@ function restoreClassicOfficial(){const classic=window.scoutV757ExportOfficialPD
 restoreClassicOfficial();
 render();
 window.VC_V115_ANALYSIS={version:VERSION,render,restoreClassicOfficial,diagnostics:()=>({version:VERSION,tab:current(),classicOfficial:window.scoutExportPDF===window.scoutV757ExportOfficialPDF,contextNavHidden:getComputedStyle($('v11-context-slot')||document.body).display==='none',tagged:[...document.querySelectorAll('#scout-analysis .scout-analysis-grid>section[data-v115-group]')].length})};
+})();
+</script>
+
+
+<style id="v117-professional-unification-style">
+/* ===== V11.7 · PROFESSIONAL SCOUTING UNIFICATION + VIDEO REVIEW ===== */
+.v117-top-actions{display:flex!important;align-items:flex-end!important;justify-content:flex-end!important;gap:7px!important;flex-wrap:wrap!important}.v117-top-actions .v800-match-picker{min-width:240px}.v117-save-state{display:inline-flex;align-items:center;min-height:31px;padding:0 10px;border:1px solid #d9e4eb;border-radius:8px;background:#f6f9fb;color:#5d7485;font-size:7px;font-weight:950;letter-spacing:.07em}.v117-save-state.ok{background:#eaf5ee;color:#2f6549;border-color:#cfe5d8}.v117-save-state.busy{background:#fff5e7;color:#8b5c1d;border-color:#ead4ae}.v117-save-state.bad{background:#faeceb;color:#8d403d;border-color:#edcfcc}
+.v117-pro-command-center{display:grid;grid-template-columns:1.15fr 1fr .8fr;gap:7px;margin:0 0 9px;padding:8px;border:1px solid #dce6ed;border-radius:11px;background:#fff;box-shadow:0 6px 18px rgba(31,66,94,.035)}.v117-command-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:6px 7px;border:1px solid #e6edf1;border-radius:8px;background:#f9fbfc}.v117-command-group>span{width:100%;font-size:6px;font-weight:950;letter-spacing:.11em;color:#8294a1;margin-bottom:1px}.v117-command-group button{padding:6px 7px!important;font-size:6.8px!important;border-radius:6px!important}.v117-command-group.safety{background:#f5f9f7;border-color:#dce9e2}.v117-command-group.safety .success{background:#2e684d!important;color:#fff!important;border-color:#2e684d!important}
+#scout-match-mode .v800-top-actions>button{white-space:nowrap}.v117-command-group button:hover{transform:none!important}
+
+/* Video Review now shares the professional visual language with Match Mode. */
+#scout-video-hub .v780-hub{gap:8px}.v780-hero{background:#fff!important;color:#17324d!important;border:1px solid #dce6ed!important;border-radius:13px!important;padding:14px 16px!important;box-shadow:0 6px 20px rgba(32,66,92,.035)!important}.v780-hero h2{color:#17324d!important;font-size:19px!important}.v780-hero p{color:#748794!important}.v780-hero .pro-kicker{color:#6f8798!important}.v780-hero .ghost{background:#f7fafb!important;color:#355269!important;border-color:#dce6ed!important}.v780-hero .primary{background:#173f68!important;color:#fff!important}
+.v117-review-sourcebar{display:grid;gap:7px;background:#fff;border:1px solid #dce6ed;border-radius:12px;padding:10px}.v117-review-source-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.v117-review-source-head>div:first-child>span{display:block;font-size:6.2px;font-weight:950;letter-spacing:.11em;color:#7e909d}.v117-review-source-head b{font-size:12px;color:#17324d;margin-right:7px}.v117-review-source-head small{font-size:7px;color:#7d8e9a}.v117-review-live-state{display:flex;align-items:center;gap:6px;font-size:7px;color:#708391}.v117-review-live-state i{width:7px;height:7px;border-radius:50%;background:#a8b5be}.v117-review-live-state.on i{background:#27a36a;box-shadow:0 0 0 4px rgba(39,163,106,.1)}
+.v117-review-source-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.v117-review-source-tabs button{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:2px!important;padding:8px 10px!important;border-radius:8px!important;border:1px solid #dce6ed!important;background:#f8fafb!important;color:#425e73!important;text-transform:none!important;letter-spacing:0!important}.v117-review-source-tabs button b{font-size:8px}.v117-review-source-tabs button small{font-size:6.5px;color:#8293a0}.v117-review-source-tabs button.active{background:#102f49!important;color:#fff!important;border-color:#102f49!important}.v117-review-source-tabs button.active small{color:#bdd0de!important}
+.v117-review-delay-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #ebf0f3;padding-top:7px}.v117-review-delay-tools>div:first-child span{display:block;font-size:6px;font-weight:950;letter-spacing:.1em;color:#7c8e9a}.v117-review-delay-tools strong{font-size:10px;color:#17324d}.v117-review-delay-tools small{font-size:6.5px;color:#82919c;margin-left:6px}.v117-review-delay-buttons{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.v117-review-delay-buttons button{font-size:6.8px!important;padding:5px 7px!important}
+.v117-review-stream{width:100%;height:100%;object-fit:contain;background:#000}.v117-review-stream-badge{position:absolute;left:10px;top:10px;z-index:5;background:#e24d55;color:#fff;border-radius:6px;padding:5px 8px;font-size:7px;font-weight:950;letter-spacing:.08em}.v117-review-stream-badge.delay{background:#b77927}.v117-review-stream-controls{display:flex;align-items:flex-end;gap:4px;flex-wrap:wrap;margin-top:7px;border:1px solid #dde6eb;background:#f7fafb;border-radius:8px;padding:6px}.v117-review-stream-controls button{font-size:7px!important;padding:6px 7px!important}.v117-review-stream-controls label{margin-left:auto;display:flex;flex-direction:column;gap:2px}.v117-review-stream-controls label span{font-size:6px;font-weight:900;color:#778a98}.v117-review-stream-controls select{font-size:7px!important;padding:5px!important}
+#v780-video-frame[data-v117-orientation="right"] #v117-review-stream,#v780-video-frame[data-v117-orientation="right"] #v780-player-video{transform:rotate(90deg);width:56.25%;height:177.78%}#v780-video-frame[data-v117-orientation="left"] #v117-review-stream,#v780-video-frame[data-v117-orientation="left"] #v780-player-video{transform:rotate(-90deg);width:56.25%;height:177.78%}#v780-video-frame[data-v117-orientation="vertical"]{max-width:440px;margin-left:auto;margin-right:auto;aspect-ratio:9/16}#v780-video-frame[data-v117-orientation="horizontal"]{max-width:none;aspect-ratio:16/9}
+body.v117-review-stream-mode .v780-play-controls,body.v117-review-stream-mode .v780-sync-panel,body.v117-review-stream-mode .v780-ruler-wrap{display:none!important}body.v117-review-stream-mode #v117-review-stream-controls{display:flex!important}
+@media(max-width:1100px){.v117-pro-command-center{grid-template-columns:1fr}.v117-review-source-tabs{grid-template-columns:repeat(2,1fr)}.v117-review-delay-tools{align-items:flex-start;flex-direction:column}.v117-review-delay-buttons{justify-content:flex-start}}
+</style>
+<script id="v117-professional-unification-runtime">
+(()=>{
+'use strict';
+const VERSION='11.7.0', $=id=>document.getElementById(id);
+let reviewSource='local', reviewCapture=null, refreshTimer=null;
+function setSaveState(text,kind='') {const el=$('v117-pro-save-state');if(!el)return;el.textContent=text;el.className='v117-save-state'+(kind?' '+kind:'')}
+window.v117ProSave=async function(){
+  const m=typeof scoutActive==='function'?scoutActive():null;
+  if(!m){setSaveState('SIN PARTIDO ACTIVO','bad');return false}
+  setSaveState('GUARDANDO TODO…','busy');
+  try{
+    try{if(typeof scoutSave==='function')scoutSave(false)}catch(_){ }
+    let ok=true;
+    if(typeof window.v950ForceSave==='function')ok=await window.v950ForceSave();
+    else if(typeof window.scoutV902Flush==='function')ok=await window.scoutV902Flush();
+    try{if(typeof window.scoutV893CheckpointAll==='function')await window.scoutV893CheckpointAll(false,'manual',true)}catch(err){console.warn('V11.7 checkpoint',err)}
+    try{window.v800Render?.();window.v900Render?.();window.scoutRenderHome?.()}catch(_){ }
+    setSaveState(ok===false?'LOCAL PROTEGIDO · NUBE PENDIENTE':'GUARDADO COMPLETO ✓',ok===false?'busy':'ok');
+    return ok!==false;
+  }catch(err){console.error('V11.7 pro save',err);setSaveState('ERROR DE GUARDADO','bad');return false}
+};
+window.v117FinalizeAndSave=async function(){
+  const ok=await window.v117ProSave();
+  if(!ok&&!confirm('No se ha podido confirmar el guardado en nube. ¿Finalizar igualmente con la copia local protegida?'))return;
+  return window.scoutV6102FinalizeAndExit?.();
+};
+window.v117FocusProCode=function(){
+  const input=$('v800-code');
+  try{window.v112MatchTab?.('live')}catch(_){ }
+  if(input){input.focus();input.select?.();return}
+  window.v901OpenCodes?.();
+};
+window.v117OpenVideoReview=function(){
+  try{showView('scout-video-hub',typeof botonVista==='function'?botonVista('scout-video-hub'):null)}catch(_){ }
+  setTimeout(()=>{try{window.v780Render?.()}catch(_){ }},0);
+};
+
+function delayDiag(){try{return window.liveDelayDiagnostics?.()||{}}catch(_){return{}}}
+function updateReviewLiveState(){
+  const d=delayDiag(),box=document.querySelector('.v117-review-live-state'),copy=$('v117-review-live-copy');
+  box?.classList.toggle('on',!!d.running);if(copy)copy.textContent=d.running?`Live Delay activo · ${Math.round(Number(d.actualDelay??d.delaySeconds)||0)} s`:'Live Delay detenido';
+  if(reviewSource==='delay'&&$('v117-review-delay-label'))$('v117-review-delay-label').textContent=`${Math.round(Number(d.delaySeconds)||30)} s`;
+}
+function cleanCapture(){try{reviewCapture?.getTracks?.().forEach(t=>t.stop())}catch(_){ }reviewCapture=null}
+function setReviewStreamFrom(sourceEl,mode){
+  const target=$('v117-review-stream');if(!target||!sourceEl)return false;
+  try{
+    if(mode==='live'&&sourceEl.srcObject){
+      if(target.srcObject!==sourceEl.srcObject){cleanCapture();try{target.pause()}catch(_){ }target.srcObject=sourceEl.srcObject}
+      target.play().catch(()=>{});return true
+    }
+    if(mode==='delay'&&reviewCapture&&target.srcObject===reviewCapture&&reviewCapture.getVideoTracks?.().some(t=>t.readyState==='live')){target.play().catch(()=>{});return true}
+    cleanCapture();try{target.pause()}catch(_){ }target.srcObject=null;
+    const cap=sourceEl.captureStream?.()||sourceEl.mozCaptureStream?.();
+    if(cap){reviewCapture=cap;target.srcObject=cap;target.play().catch(()=>{});return true}
+  }catch(err){console.warn('V11.7 review mirror',err)}
+  return false;
+}
+function refreshReviewStream(){
+  updateReviewLiveState();if(!['live','delay'].includes(reviewSource))return;
+  const d=delayDiag(),empty=$('v780-video-empty'),target=$('v117-review-stream'),badge=$('v117-review-stream-badge');
+  if(!d.running){if(target)target.classList.add('hidden');if(badge)badge.classList.add('hidden');if(empty){empty.classList.remove('hidden');empty.innerHTML='<b>Live Delay no está iniciado</b><span>Pulsa “Configurar / iniciar” para conectar cámara local o móvil.</span>'}return}
+  const sourceEl=$(reviewSource==='delay'?'live-delay-delayed':'live-delay-live');
+  const ok=setReviewStreamFrom(sourceEl,reviewSource);
+  if(ok){target?.classList.remove('hidden');badge?.classList.remove('hidden');if(badge){badge.textContent=reviewSource==='delay'?`DELAY −${Math.round(Number(d.delaySeconds)||0)} s`:'LIVE';badge.classList.toggle('delay',reviewSource==='delay')}empty?.classList.add('hidden')}
+  else if(empty){empty.classList.remove('hidden');empty.innerHTML='<b>Monitor activo</b><span>Este navegador no permite duplicar esta señal. Abre Live Delay para verla sin detener la captura.</span>'}
+}
+function setReviewMode(mode,interactive=true){
+  reviewSource=mode;try{localStorage.setItem('volley_v117_review_source',mode)}catch(_){ }
+  ['live','delay','youtube','local'].forEach(x=>$('v117-review-source-'+x)?.classList.toggle('active',x===mode));
+  const label=$('v117-review-source-label'),copy=$('v117-review-source-copy'),tools=$('v117-review-delay-tools'),stream=$('v117-review-stream'),badge=$('v117-review-stream-badge'),player=$('v780-player-video'),yt=$('v782-youtube-wrap');
+  const meta={live:['LIVE','Cámara en directo mientras analizas y codificas.'],delay:['DELAY','Revisión con retraso sin detener la captura.'],youtube:['YOUTUBE','Vídeo online con timeline, filtros y playlists.'],local:['ARCHIVO','Vídeo guardado para revisar, sincronizar y crear clips.']}[mode];
+  if(label)label.textContent=meta[0];if(copy)copy.textContent=meta[1];tools?.classList.toggle('hidden',mode!=='delay');
+  const streamMode=mode==='live'||mode==='delay';document.body.classList.toggle('v117-review-stream-mode',streamMode);
+  if(streamMode){player?.classList.add('hidden');yt?.classList.add('hidden');refreshReviewStream();clearInterval(refreshTimer);refreshTimer=setInterval(refreshReviewStream,1500)}
+  else{
+    clearInterval(refreshTimer);refreshTimer=null;cleanCapture();stream?.classList.add('hidden');badge?.classList.add('hidden');
+    if(mode==='local'){yt?.classList.add('hidden');player?.classList.remove('hidden');try{window.v780Render?.()}catch(_){ }if(!$('v780-player-video')?.src)$('v780-video-empty')?.classList.remove('hidden')}
+    if(mode==='youtube'){player?.classList.add('hidden');if(interactive)window.v782OpenYouTubeDialog?.()}
+  }
+  updateReviewLiveState();
+}
+window.v117ReviewSetSource=mode=>setReviewMode(mode,true);
+window.v117ReviewDelay=async function(sec){try{window.liveDelaySetDelay?.(sec)}catch(_){ }if($('v117-review-delay-label'))$('v117-review-delay-label').textContent=`${sec} s`;const d=delayDiag();if(!d.running)await window.openLiveDelay?.('scouting');else refreshReviewStream()};
+window.v117ReviewConfigureDelay=()=>window.openLiveDelay?.('scouting');
+window.v117ReviewReturnLive=function(){setReviewMode('live')};
+window.v117ReviewReturnDelay=function(){try{window.liveDelayReturn?.()}catch(_){ }setReviewMode('delay')};
+window.v117ReviewDelayJump=d=>{if(reviewSource!=='delay')setReviewMode('delay');window.liveDelayJump?.(d)};
+window.v117ReviewDelayToggle=()=>window.liveDelayTogglePause?.();
+window.v117ReviewFullscreen=function(){const f=$('v780-video-frame');if(!f)return;if(document.fullscreenElement)document.exitFullscreen?.();else f.requestFullscreen?.()};
+window.v117ReviewOrientation=function(mode){const f=$('v780-video-frame');if(f)f.dataset.v117Orientation=mode||'horizontal';try{localStorage.setItem('volley_v117_review_orientation',mode||'horizontal')}catch(_){ }};
+
+/* Keep the professional save status in sync with the real durability layer. */
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const m=typeof scoutActive==='function'?scoutActive():null;if(m)setSaveState('AUTOGUARDADO ACTIVO','')}});
+setInterval(updateReviewLiveState,2500);
+setTimeout(()=>{
+  let src='local',ori='horizontal';try{src=localStorage.getItem('volley_v117_review_source')||'local';ori=localStorage.getItem('volley_v117_review_orientation')||'horizontal'}catch(_){ }
+  if($('v117-review-orientation'))$('v117-review-orientation').value=ori;window.v117ReviewOrientation(ori);setReviewMode(['live','delay','youtube','local'].includes(src)?src:'local',false);
+},0);
+window.VC_V117_PRO={version:VERSION,save:window.v117ProSave,reviewSource:()=>reviewSource,diagnostics:()=>({version:VERSION,reviewSource,liveDelay:delayDiag(),classicReturnButtons:[...document.querySelectorAll('#scout-match-mode button')].filter(b=>String(b.getAttribute('onclick')||'').includes("showView('scouting'")).length})};
 })();
 </script>
 
