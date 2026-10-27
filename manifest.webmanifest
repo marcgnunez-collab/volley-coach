@@ -1,7 +1,7 @@
 {
-  "name": "Volley Coach V15",
+  "name": "Volley Coach V15.1",
   "short_name": "Volley Coach",
-  "description": "Scouting, vídeo y análisis profesional de voleibol",
+  "description": "Scouting, vídeo, análisis y rendimiento de temporada profesional de voleibol",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
