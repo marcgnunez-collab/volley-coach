@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v9.6.2-cloud-efficient-v1';
+const CACHE_NAME = 'volley-coach-v10.3.0-analysis-video-reports-v1';
 
 const APP_SHELL = [
   './',
