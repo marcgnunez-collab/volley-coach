@@ -12,6 +12,16 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+<script id="v118-first-paint-guard">
+(()=>{
+  document.documentElement.classList.add('v118-booting');
+  try{document.documentElement.dataset.v118Workspace=localStorage.getItem('volley_workspace_v610')||'training'}catch(_){ }
+  setTimeout(()=>document.documentElement.classList.remove('v118-booting'),2500);
+})();
+</script>
+<style id="v118-first-paint-style">
+html.v118-booting body{visibility:hidden!important}
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -867,8 +877,9 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
   <div class="v11-nav-group">
     <label>SCOUTING</label>
-    <button data-v11-nav="scouting" onclick="v11Navigate('scouting')"><span>⌁</span><div><b>Scouting Pro</b><small>Codificación avanzada</small></div></button>
-    <button data-v11-nav="match" onclick="v11Navigate('match')"><span>◆</span><div><b>Modo Partido</b><small>Directo y marcador</small></div></button>
+    <button data-v11-nav="scout-home" onclick="v11Navigate('scout-home')"><span>⌂</span><div><b>Centro de scouting</b><small>Partido · análisis · gestión</small></div></button>
+    <button data-v11-nav="match" onclick="v11Navigate('match')"><span>◆</span><div><b>Modo Partido</b><small>Directo · vídeo · marcador</small></div></button>
+    <button data-v11-nav="scouting" onclick="v11Navigate('scouting')"><span>⌁</span><div><b>Scouting Pro</b><small>Codificación profesional</small></div></button>
     <button data-v11-nav="analysis" onclick="v11Navigate('analysis')"><span>▥</span><div><b>Análisis</b><small>Estadísticas completas</small></div></button>
     <button data-v11-nav="reports" onclick="v11Navigate('reports')"><span>▤</span><div><b>Informes</b><small>PDF · CSV · JSON</small></div></button>
   </div>
@@ -949,7 +960,6 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" data-view="scout-matchup" onclick="showView('scout-matchup',this)">Match-up</button>
       <button class="tab-btn" data-view="scout-safe" onclick="showView('scout-safe',this)">Seguridad</button>
       <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
-      <button class="tab-btn v910-fallback-tab" data-view="scouting" onclick="showView('scouting',this)">Clásico</button>
     </div>
 
     
@@ -957,7 +967,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <div class="v940-nav-head">
         <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
           <span>VC</span>
-          <div><b>Scouting Center</b><small>Professional workspace · V11.7.0</small></div>
+          <div><b>Scouting Center</b><small>Professional workspace · V11.8.0</small></div>
         </button>
 
         <div id="v940-match-context" class="v940-match-context">
@@ -1009,7 +1019,6 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
         <button data-v930-route="post" onclick="v930Open('post')">Postpartido</button>
         <button data-v930-route="partidos" onclick="v930Open('partidos')">Partidos</button>
         <button data-v930-route="temporada" onclick="v930Open('temporada')">Temporada</button>
-        <button class="compat" data-v930-route="clasico" onclick="v930Open('clasico')">Clásico</button>
         <span id="v931-perf-badge" class="v931-perf-badge" title="Tiempo de respuesta de la última acción">⚡ — ms</span>
       </div>
     </div>
@@ -1207,7 +1216,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
     <button onclick="showView('competicion',botonVista('competicion'))"><span>◆</span><div><b>Partidos</b><small>Calendario y competición</small></div><strong>→</strong></button>
     <button onclick="showView('scout-season',botonVista('scout-season'))"><span>▦</span><div><b>Temporada</b><small>Histórico y contexto</small></div><strong>→</strong></button>
     <button onclick="showView('scout-plan',botonVista('scout-plan'))"><span>◇</span><div><b>Plan de partido</b><small>Preparación del rival</small></div><strong>→</strong></button>
-    <button onclick="showView('scout-safe',botonVista('scout-safe'))"><span>⌑</span><div><b>Recuperación</b><small>Copias y seguridad</small></div><strong>→</strong></button>
+    <button onclick="scoutV892OpenRecoveryCenter()"><span>⌑</span><div><b>Recuperación</b><small>Copias y seguridad</small></div><strong>→</strong></button>
     <button onclick="abrirCloud()"><span>☁</span><div><b>Nube</b><small>Sincronización móvil / ordenador</small></div><strong>→</strong></button>
   </div>
 </section>
@@ -1391,26 +1400,75 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 
 <section id="scout-dashboard" class="view">
-  <div class="scout-home-shell">
-    <div class="scout-home-hero">
-      <div><span class="pro-kicker">SCOUTING WORKSPACE</span><h2>Centro de scouting</h2><p>Partido en directo, próximos encuentros, archivo y lectura táctica desde una sola entrada.</p></div>
-      <div class="scout-home-actions"><button class="ghost" onclick="showView('competicion',botonVista('competicion'))">Partidos</button><button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button><button class="ghost" onclick="showView('scout-matchup',botonVista('scout-matchup'))">Match-up</button><button class="ghost" onclick="scoutV700OpenVideo('home')">🎥 Vídeo</button><button class="ghost scout-v891-recover-btn" onclick="scoutV892OpenRecoveryCenter()">🛡 Recuperar scoutings</button><button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">🔐 Caja fuerte</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+  <div class="v118-scout-center">
+    <header class="v118-scout-head">
+      <div>
+        <span class="pro-kicker">SCOUTING CENTER · PROFESSIONAL WORKSPACE</span>
+        <h2>Centro de scouting</h2>
+        <p>Una única entrada para preparar, registrar, revisar y analizar el partido. La vista clásica queda fuera del flujo de trabajo.</p>
+      </div>
+      <div class="v118-scout-head-actions">
+        <button id="v118-home-save" class="ghost" onclick="v117ProSave()">Guardar todo</button>
+        <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
+      </div>
+    </header>
+
+    <nav class="v118-scout-modules" aria-label="Flujo profesional de scouting">
+      <button class="v118-module match" onclick="v11Navigate('match')"><span>01</span><div><small>PARTIDO</small><b>Modo Partido</b><p>Marcador, rotaciones, vídeo + código y control del set.</p></div><strong>→</strong></button>
+      <button class="v118-module coding" onclick="v11Navigate('scouting')"><span>02</span><div><small>REGISTRO</small><b>Scouting Pro</b><p>Codificación visual y DataVolley sin volver al clásico.</p></div><strong>→</strong></button>
+      <button class="v118-module video" onclick="v11Navigate('video')"><span>03</span><div><small>VÍDEO</small><b>Video Review</b><p>Live, Delay, YouTube, archivo, clips y sincronización.</p></div><strong>→</strong></button>
+      <button class="v118-module analysis" onclick="v11Navigate('analysis')"><span>04</span><div><small>LECTURA</small><b>Análisis</b><p>G-P, K1/K2, rotaciones, jugadores y patrones tácticos.</p></div><strong>→</strong></button>
+      <button class="v118-module reports" onclick="v11Navigate('reports')"><span>05</span><div><small>SALIDA</small><b>Informes</b><p>Hoja oficial, Análisis Pro, CSV y copia JSON.</p></div><strong>→</strong></button>
+    </nav>
+
+    <section class="v118-scout-kpis">
+      <div><span>SCOUTINGS</span><b id="scout-home-total">0</b><small>guardados</small></div>
+      <div><span>ACCIONES</span><b id="scout-home-actions-count">0</b><small>codificadas</small></div>
+      <div><span>SIDE-OUT · G-P</span><b id="scout-home-sideout">—</b><small>partido seleccionado</small></div>
+      <div><span>BREAK POINT · G-P</span><b id="scout-home-break">—</b><small>partido seleccionado</small></div>
+    </section>
+
+    <div class="v118-scout-grid">
+      <section class="v118-panel v118-active-match">
+        <div class="v118-panel-head"><div><span>SCOUTING SELECCIONADO</span><h3>Continuar o revisar</h3><p>Abre el último partido o continúa el scouting que esté en curso.</p></div><button class="text-btn" onclick="v11Navigate('match')">Abrir modo partido →</button></div>
+        <div id="scout-home-active"></div>
+        <div id="v118-active-actions" class="v118-active-actions">
+          <button onclick="v11Navigate('match')">◆ Partido</button>
+          <button onclick="v11Navigate('scouting')">⌁ Codificar</button>
+          <button onclick="v11Navigate('video')">▶ Vídeo</button>
+          <button onclick="v11Navigate('analysis')">▥ Analizar</button>
+          <button class="primary" onclick="v117ProSave()">Guardar todo</button>
+        </div>
+      </section>
+
+      <section class="v118-panel">
+        <div class="v118-panel-head"><div><span>PREPARACIÓN</span><h3>Próximo partido</h3><p>Agenda, plan y lectura previa del rival.</p></div><button class="text-btn" onclick="showView('competicion',botonVista('competicion'))">Ver partidos →</button></div>
+        <div id="scout-home-next"></div>
+        <div class="v118-quick-grid">
+          <button onclick="showView('competicion',botonVista('competicion'))"><span>◆</span><b>Partidos</b><small>Calendario y archivo</small></button>
+          <button onclick="showView('scout-plan',botonVista('scout-plan'))"><span>◇</span><b>Plan de partido</b><small>Objetivos y estrategia</small></button>
+          <button onclick="showView('scout-matchup',botonVista('scout-matchup'))"><span>◎</span><b>Match-up</b><small>Comparativa y rival</small></button>
+        </div>
+      </section>
+
+      <section class="v118-panel wide">
+        <div class="v118-panel-head"><div><span>LECTURA RÁPIDA</span><h3>Último análisis</h3><p>Indicadores principales del partido seleccionado.</p></div><button class="text-btn" onclick="v11Navigate('analysis')">Análisis completo →</button></div>
+        <div id="scout-home-reading"></div>
+      </section>
+
+      <section class="v118-panel wide v118-management-strip">
+        <div class="v118-panel-head"><div><span>GESTIÓN Y SEGURIDAD</span><h3>Datos del scouting</h3><p>Sincronización, recuperación y archivo sin abandonar la interfaz profesional.</p></div><button class="text-btn" onclick="v11Navigate('management')">Abrir gestión →</button></div>
+        <div class="v118-management-actions">
+          <button onclick="v957SyncScoutingsNow()"><span>↕</span><b>Sincronizar</b><small>Móvil · PC · nube</small></button>
+          <button onclick="scoutV892OpenRecoveryCenter()"><span>↶</span><b>Recuperación</b><small>Copias disponibles</small></button>
+          <button onclick="scoutV680DownloadBackup()"><span>{ }</span><b>Copia JSON</b><small>Backup del partido</small></button>
+          <button onclick="v11Navigate('management')"><span>⚙</span><b>Gestión</b><small>Equipo y temporada</small></button>
+        </div>
+      </section>
     </div>
     <div id="scout-v891-rescue-banner" class="scout-v891-rescue-banner hidden"></div>
-    <div class="scout-home-kpis">
-      <div class="scout-home-kpi"><span>Scoutings</span><b id="scout-home-total">0</b><small>guardados</small></div>
-      <div class="scout-home-kpi"><span>Acciones</span><b id="scout-home-actions-count">0</b><small>codificadas</small></div>
-      <div class="scout-home-kpi"><span>Side-out</span><b id="scout-home-sideout">—</b><small>partido seleccionado</small></div>
-      <div class="scout-home-kpi"><span>Break point</span><b id="scout-home-break">—</b><small>partido seleccionado</small></div>
-    </div>
-    <div class="scout-home-grid">
-      <section class="scout-home-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO ACTIVO</span><h3>Continuar scouting</h3></div><button class="text-btn" onclick="showView('scouting',botonVista('scouting'))">Abrir →</button></div><div id="scout-home-active"></div></section>
-      <section class="scout-home-panel"><div class="scout-panel-head"><div><span class="pro-kicker">AGENDA</span><h3>Próximo partido</h3></div><button class="text-btn" onclick="showView('competicion',botonVista('competicion'))">Partidos →</button></div><div id="scout-home-next"></div></section>
-      <section class="scout-home-panel wide"><div class="scout-panel-head"><div><span class="pro-kicker">ÚLTIMO ANÁLISIS</span><h3>Lectura rápida</h3></div><button class="text-btn" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Analizar →</button></div><div id="scout-home-reading"></div></section>
-    </div>
   </div>
 </section>
-
 
 
 <section id="scout-season" class="view">
@@ -1600,7 +1658,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">VIDEO REVIEW · V11.7</span>
+        <span class="pro-kicker">VIDEO REVIEW · V11.8</span>
         <h2>Revisión profesional de partido</h2>
         <p>Live, Delay, YouTube y archivo en un mismo entorno, con timeline, sincronización, playlists, clips, rotaciones y foco por jugador.</p>
       </div>
@@ -2363,12 +2421,12 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     </div>
 
     <div id="v900-no-match" class="v900-empty hidden">
-      <div><span class="pro-kicker">SIN PARTIDO ACTIVO</span><h3>Prepara el siguiente scouting</h3><p>El Workspace V9.0 no sustituye el motor antiguo. Crea o abre un scouting y volverás aquí con todos los datos intactos.</p></div>
+      <div><span class="pro-kicker">SIN PARTIDO ACTIVO</span><h3>Prepara el siguiente scouting</h3><p>Crea o abre un partido y trabaja directamente desde Scouting Pro. Todos los datos, guardado y recuperación permanecen disponibles aquí.</p></div>
       <div class="v900-empty-actions">
         <button class="primary" onclick="scoutOpenNewMatch()">＋ Crear scouting</button>
-        <button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Partidos guardados</button>
+        <button class="ghost" onclick="v11Navigate('scout-home')">Centro de scouting</button>
         <button class="ghost" onclick="scoutV892OpenRecoveryCenter()">Recuperación</button>
-        <button class="ghost" onclick="showView('scout-safe',botonVista('scout-safe'))">Caja fuerte</button>
+        <button class="ghost" onclick="v11Navigate('management')">Gestión y seguridad</button>
       </div>
     </div>
 
@@ -2383,7 +2441,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v900-status-item"><span>ROTACIÓN</span><b id="v900-rotation">R1</b><small id="v900-rival-rotation">Rival R1</small></div>
         <div class="v900-status-item"><span>SAQUE</span><b id="v900-service">NUESTRO</b><small id="v900-phase">K2 · Break</small></div>
         <div class="v900-status-item"><span>VÍDEO</span><b id="v900-video">OFF</b><small>sincronización</small></div>
-        <div class="v900-status-item secure"><span>GUARDADO</span><b id="v900-save">LOCAL ✓</b><small id="v900-vault">Caja fuerte…</small></div>
+        <div class="v900-status-item secure"><span>GUARDADO</span><b id="v900-save">LOCAL ✓</b><small id="v900-vault">Protección activa</small></div>
       </div>
 
       <div class="v900-phase-nav">
@@ -5857,7 +5915,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.7.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.8.0', {
         updateViaCache: 'none'
       });
 
@@ -8836,11 +8894,11 @@ window.scoutFinishMatch=function(){const m=scoutActive();if(!m)return;if(m.statu
 window.scoutOpenNewMatch=function(){const sel=$('scout-new-linked');if(sel){sel.innerHTML='<option value="">Sin vincular · crear manualmente</option>'+scoutArr(partidosEquipo).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(p=>`<option value="${p.id}">${esc((p.date||'')+' · '+(p.opponent||'Rival')+(p.competition?' · '+p.competition:''))}</option>`).join('')}$('scout-new-date').value=fechaLocalISO();$('scout-new-opponent').value='';$('scout-new-competition').value='';$('scout-new-serving').value='ours';$('scout-new-rotation').value='1';$('scout-new-modal')?.classList.add('open')};
 window.scoutCloseNewMatch=function(){$('scout-new-modal')?.classList.remove('open')};
 window.scoutLinkedMatchChanged=function(){const id=Number($('scout-new-linked')?.value),p=(partidosEquipo||[]).find(x=>Number(x.id)===id);if(!p)return;$('scout-new-date').value=p.date||fechaLocalISO();$('scout-new-opponent').value=p.opponent||'';$('scout-new-competition').value=p.competition||''};
-window.scoutCreateMatch=function(){const opponent=String($('scout-new-opponent')?.value||'').trim();if(!opponent){alert('Escribe el rival.');return}const id=Date.now(),now=scoutNow(),m=scoutNormalizeMatch({id,linkedMatchId:Number($('scout-new-linked')?.value)||null,date:$('scout-new-date')?.value||fechaLocalISO(),opponent,competition:String($('scout-new-competition')?.value||'').trim(),servingTeam:$('scout-new-serving')?.value||'ours',rotationNo:Number($('scout-new-rotation')?.value)||1,opponentRotationNo:1,lineup:scoutEmptyLineup(),sets:[scoutEmptySet(1)],events:[],currentSet:1,status:'live',clockStartedAt:now,clockAccumulatedMs:0,clockMode:'active-only',createdAt:now,updatedAt:now});scoutingMatches.push(m);scoutingActiveId=id;scoutClockResume(m);scoutCloseNewMatch();scoutSave();showView('scouting',botonVista('scouting'));scoutOpenLineup()};
+window.scoutCreateMatch=function(){const opponent=String($('scout-new-opponent')?.value||'').trim();if(!opponent){alert('Escribe el rival.');return}const id=Date.now(),now=scoutNow(),m=scoutNormalizeMatch({id,linkedMatchId:Number($('scout-new-linked')?.value)||null,date:$('scout-new-date')?.value||fechaLocalISO(),opponent,competition:String($('scout-new-competition')?.value||'').trim(),servingTeam:$('scout-new-serving')?.value||'ours',rotationNo:Number($('scout-new-rotation')?.value)||1,opponentRotationNo:1,lineup:scoutEmptyLineup(),sets:[scoutEmptySet(1)],events:[],currentSet:1,status:'live',clockStartedAt:now,clockAccumulatedMs:0,clockMode:'active-only',createdAt:now,updatedAt:now});scoutingMatches.push(m);scoutingActiveId=id;scoutClockResume(m);scoutCloseNewMatch();scoutSave();showView('scout-workspace-v900',botonVista('scout-workspace-v900'));scoutOpenLineup()};
 window.scoutOpenLineup=function(){const m=scoutActive();if(!m){alert('Crea primero un scouting.');return}const own=$('scout-lineup-own'),rival=$('scout-lineup-rival');if(own)own.innerHTML=SCOUT_POS.map(pos=>`<label class="scout-lineup-field"><b>${pos.toUpperCase()}</b><select id="scout-own-${pos}"><option value="">— Sin asignar —</option>${(jugadoresEquipo||[]).map(p=>`<option value="${p.id}" ${Number(m.lineup.ours[pos])===Number(p.id)?'selected':''}>${esc((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador'))}</option>`).join('')}</select></label>`).join('');if(rival)rival.innerHTML=SCOUT_POS.map(pos=>`<label class="scout-lineup-field"><b>${pos.toUpperCase()}</b><input id="scout-rival-${pos}" value="${esc(m.lineup.opponent[pos]||'')}" placeholder="Ej. #7 García"></label>`).join('');$('scout-lineup-rotation').value=String(m.rotationNo||1);if($('scout-lineup-rival-rotation'))$('scout-lineup-rival-rotation').value=String(m.opponentRotationNo||1);$('scout-lineup-modal')?.classList.add('open')};
 window.scoutCloseLineup=function(){$('scout-lineup-modal')?.classList.remove('open')};
 window.scoutSaveLineup=function(){const m=scoutActive();if(!m)return;const ids=SCOUT_POS.map(pos=>Number($(`scout-own-${pos}`)?.value)||null).filter(Boolean);if(ids.length!==6){alert('Debes asignar exactamente seis jugadores a las posiciones P1–P6.');return}if(new Set(ids).size!==ids.length){alert('Un mismo jugador no puede ocupar dos posiciones a la vez.');return}SCOUT_POS.forEach(pos=>{m.lineup.ours[pos]=Number($(`scout-own-${pos}`)?.value)||null;m.lineup.opponent[pos]=String($(`scout-rival-${pos}`)?.value||'').trim()});m.rotationNo=Number($('scout-lineup-rotation')?.value)||1;m.opponentRotationNo=Number($('scout-lineup-rival-rotation')?.value)||1;scoutCloseLineup();scoutRefreshActionPlayers();scoutSave()};
-window.scoutOpenSaved=function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(!m)return;const prev=scoutActive();if(prev&&Number(prev.id)!==Number(m.id))scoutClockPause(prev);scoutingActiveId=m.id;scoutClockResume(m);scoutSave();showView('scouting',botonVista('scouting'))};
+window.scoutOpenSaved=function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(!m)return;const prev=scoutActive();if(prev&&Number(prev.id)!==Number(m.id))scoutClockPause(prev);scoutingActiveId=m.id;scoutClockResume(m);scoutSave();showView('scout-workspace-v900',botonVista('scout-workspace-v900'))};
 window.scoutDeleteSaved=function(id){const m=scoutingMatches.find(x=>Number(x.id)===Number(id));if(!m)return;if(!confirm(`¿Eliminar definitivamente el scouting contra ${m.opponent}?`))return;scoutingMatches=scoutingMatches.filter(x=>Number(x.id)!==Number(id));if(Number(scoutingActiveId)===Number(id))scoutingActiveId=null;scoutSave()};
 function scoutCourtSlot(m,pos,team){let name='Sin asignar',sub='';if(team==='ours'){const id=m?.lineup?.ours?.[pos],p=scoutPlayer(id);name=p?((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador')):'Sin asignar';sub=p&&typeof ppPositions==='function'?ppPositions(p).join(' · '):''}else{name=scoutOpponentLabel(m?.lineup?.opponent?.[pos],pos)}return `<div class="scout-court-slot ${pos}"><b>${pos.toUpperCase()}</b><strong>${esc(name)}</strong>${sub?`<small>${esc(sub)}</small>`:''}</div>`}
 function scoutRenderCourt(m){const own=$('scout-own-court'),rival=$('scout-rival-court');if(own)own.innerHTML=SCOUT_POS.map(p=>scoutCourtSlot(m,p,'ours')).join('');if(rival)rival.innerHTML=SCOUT_POS.map(p=>scoutCourtSlot(m,p,'opponent')).join('');if($('scout-own-label'))$('scout-own-label').textContent=EQUIPOS[equipoActivo].nombre;if($('scout-rival-label'))$('scout-rival-label').textContent=m.opponent;if($('scout-own-rotation-label'))$('scout-own-rotation-label').textContent=`Rotación R${m.rotationNo}`;if($('scout-rival-rotation-label'))$('scout-rival-rotation-label').textContent=`Rotación R${m.opponentRotationNo||1}`}
@@ -9482,9 +9540,9 @@ setInterval(()=>{try{scoutV680UpdateStatus()}catch(_){}},30000);
 async function v680SnapshotCard(snap,which){if(!snap)return `<div class="scout-v680-snapshot"><h4>${which==='current'?'Última copia':'Checkpoint anterior'}</h4><p>No hay copia disponible en este dispositivo.</p></div>`;const c=v680Counts(snap.match);return `<div class="scout-v680-snapshot"><h4>${which==='current'?'Última copia':'Checkpoint anterior'}</h4><p><b>${v680Esc(snap.match?.opponent||'Rival')}</b> · ${v680Esc(snap.match?.date||'—')}</p><p>${c.rallies} rallies · ${c.actions} acciones · ${v680When(snap.savedAt)}</p><p>Motivo: ${v680Esc(snap.reason||'auto')} · formato ${v680Esc(snap.version||'—')}</p><div class="scout-v680-snapshot-actions"><button class="primary" onclick="scoutV680RestoreSnapshot('${which}')">Restaurar</button></div></div>`}
 window.scoutV680OpenRecovery=async function(){document.getElementById('scout-v680-recovery-modal')?.classList.add('open');const m=scoutActive(),current=await v680DBGet(v680Key('current')),previous=await v680DBGet(v680Key('previous')),c=m?v680Counts(m):{rallies:0,actions:0},integrity=scoutV680Integrity(m),status=document.getElementById('scout-v680-recovery-status'),snaps=document.getElementById('scout-v680-recovery-snapshots'),issues=document.getElementById('scout-v680-issues');if(status)status.innerHTML=`<div class="scout-v680-status-card"><span>Conexión</span><b>${navigator.onLine?'Online':'Offline'}</b></div><div class="scout-v680-status-card"><span>Partido activo</span><b>${m?v680Esc(m.opponent):'—'}</b></div><div class="scout-v680-status-card"><span>Rallies / acciones</span><b>${c.rallies} / ${c.actions}</b></div><div class="scout-v680-status-card"><span>Integridad</span><b>${integrity.errors.length?integrity.errors.length+' errores':integrity.warnings.length?integrity.warnings.length+' avisos':'OK'}</b></div>`;if(snaps)snaps.innerHTML=(await v680SnapshotCard(current,'current'))+(await v680SnapshotCard(previous,'previous'));if(issues){const all=[...integrity.errors.map(x=>({x,cls:'error'})),...integrity.warnings.map(x=>({x,cls:'warn'}))];issues.innerHTML=all.length?all.slice(0,40).map(i=>`<div class="scout-v680-issue ${i.cls}">${v680Esc(i.x)}</div>`).join(''):'<div class="scout-v680-issue">No se han detectado incoherencias en el partido activo.</div>'}};
 window.scoutV680CloseRecovery=function(){document.getElementById('scout-v680-recovery-modal')?.classList.remove('open')};
-window.scoutV680RestoreSnapshot=async function(which='current'){const snap=await v680DBGet(v680Key(which));if(!snap?.match){alert('No hay una copia válida para restaurar.');return}if(!confirm(`¿Restaurar la copia de ${v680When(snap.savedAt)}? El scouting activo con el mismo ID será sustituido.`))return;const restored=scoutNormalizeMatch(snap.match),idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scouting',botonVista('scouting'));scoutRender();alert('Copia restaurada correctamente.')};
+window.scoutV680RestoreSnapshot=async function(which='current'){const snap=await v680DBGet(v680Key(which));if(!snap?.match){alert('No hay una copia válida para restaurar.');return}if(!confirm(`¿Restaurar la copia de ${v680When(snap.savedAt)}? El scouting activo con el mismo ID será sustituido.`))return;const restored=scoutNormalizeMatch(snap.match),idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scout-workspace-v900',botonVista('scout-workspace-v900'));scoutRender();alert('Copia restaurada correctamente.')};
 window.scoutV680DownloadBackup=function(){const snap=v680Snapshot('download');if(!snap){alert('No hay un scouting activo que copiar.');return}const blob=new Blob([JSON.stringify(snap,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename((snap.match.date||'partido')+'_'+(snap.match.opponent||'rival'))}_backup_v680.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-window.scoutV680ImportBackup=function(event){const file=event?.target?.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!data?.match||!['volley-coach-scout-recovery','volley-coach-scout-backup'].includes(data.type)){throw new Error('Formato de copia no reconocido')}const restored=scoutNormalizeMatch(data.match);if(!confirm(`Importar scouting contra ${restored.opponent}?`))return;const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scouting',botonVista('scouting'));scoutRender()}catch(err){alert('No se pudo importar la copia: '+err.message)}finally{event.target.value=''}};reader.readAsText(file)};
+window.scoutV680ImportBackup=function(event){const file=event?.target?.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!data?.match||!['volley-coach-scout-recovery','volley-coach-scout-backup'].includes(data.type)){throw new Error('Formato de copia no reconocido')}const restored=scoutNormalizeMatch(data.match);if(!confirm(`Importar scouting contra ${restored.opponent}?`))return;const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scout-workspace-v900',botonVista('scout-workspace-v900'));scoutRender()}catch(err){alert('No se pudo importar la copia: '+err.message)}finally{event.target.value=''}};reader.readAsText(file)};
 
 function v680ParseCode(raw,m,oldAction=null){raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt)return {error:'Código no reconocido.'};let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest)return {error:'Parte avanzada no reconocida: '+rest};const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,startZone:mt[5]||'',endZone:mt[6]||'',serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};if(rival){base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'')}else{let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num}const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a}}
 window.scoutV680OpenSetEditor=function(setNo){const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo));if(!m||!s)return;v680EditContext={mode:'set',setNo:Number(setNo)};document.getElementById('scout-v680-rally-modal')?.classList.add('open');document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · rallies`;document.getElementById('scout-v680-rally-subtitle').textContent='Selecciona un rally para corregir sus acciones. El marcador queda protegido.';const body=document.getElementById('scout-v680-rally-body'),footer=document.getElementById('scout-v680-rally-footer');if(body)body.innerHTML=`<div class="scout-v680-rally-browser">${scoutArr(s.rallies).slice().reverse().map((r,i)=>`<div class="scout-v680-rally-browser-row"><strong>${r.scoreAfter.us}–${r.scoreAfter.opponent}</strong><div><b>R${r.rotationBefore} · ${r.actions.length} acciones</b><small>${v680Esc(r.actions.map(a=>a.code).join('  ')||'Sin acciones')}${r.editedAt?' · editado '+v680When(r.editedAt):''}</small></div><button class="ghost" onclick="scoutV680OpenRallyEditor(${s.number},${r.id})">Editar acciones</button></div>`).join('')||'<div class="match-empty">No hay rallies cerrados en este set.</div>'}</div>`;if(footer)footer.innerHTML='<div></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cerrar</button></div>'};
@@ -9544,7 +9602,7 @@ window.scoutV690OpenWorkflow=function(){const s=scoutV690Settings();$('scout-v69
 window.scoutV690CloseWorkflow=function(){$('scout-v690-workflow-modal')?.classList.remove('open')};
 window.scoutV690SaveSettings=function(){const s={keyOurs:$('scout-v690-key-ours').value,keyRival:$('scout-v690-key-rival').value,keyUndo:$('scout-v690-key-undo').value,keyCode:$('scout-v690-key-code').value,autoFocus:$('scout-v690-auto-focus').checked,compactDefault:$('scout-v690-compact-default').checked,skillAliases:$('scout-v690-skill-aliases').value,comboAliases:$('scout-v690-combo-aliases').value};scoutV690SetSettings(s);scoutV690CloseWorkflow();scoutV690ApplyCompactDefault();scoutV690UpdateCodeHelp()};
 window.scoutV690ResetSettings=function(){localStorage.removeItem(V690_SETTINGS_KEY);scoutV690OpenWorkflow()};
-window.scoutV690FocusCode=function(){showView('scouting',botonVista('scouting'));setTimeout(()=>$('scout-code-input')?.focus(),0)};
+window.scoutV690FocusCode=function(){showView('scout-workspace-v900',botonVista('scout-workspace-v900'));setTimeout(()=>$('scout-code-input')?.focus(),0)};
 window.scoutV690ToggleCompact=function(force){const next=typeof force==='boolean'?force:!document.body.classList.contains('scout-live-compact');document.body.classList.toggle('scout-live-compact',next);const b=$('scout-v690-live-btn');if(b){b.classList.toggle('active',next);b.textContent=next?'▣ Salir Live':'▣ Modo Live'}localStorage.setItem('volley_scout_compact_v690',next?'1':'0')};
 window.scoutV6101ExitLive=function(){scoutV690ToggleCompact(false);setTimeout(()=>{const el=document.getElementById('scout-v690-live-btn')||document.getElementById('scouting');el?.scrollIntoView?.({behavior:'smooth',block:'start'})},30)};
 function scoutV690ApplyCompactDefault(){const s=scoutV690Settings(),stored=localStorage.getItem('volley_scout_compact_v690');scoutV690ToggleCompact(stored===null?!!s.compactDefault:stored==='1')}
@@ -9750,7 +9808,7 @@ window.scoutOpenNewMatch=function(){
   const m=scoutActive();
   if(m&&m.status!=='finished'){
     alert('Ya tienes un scouting abierto. Guárdalo o finalízalo antes de crear otro.');
-    showView('scouting',botonVista('scouting'));
+    showView('scout-workspace-v900',botonVista('scout-workspace-v900'));
     return;
   }
   return v6102OpenNewBase();
@@ -9817,7 +9875,7 @@ window.scoutOpenSaved=function(id){
   const active=scoutActive();
   if(active&&active.status!=='finished'&&Number(active.id)!==Number(id)){
     alert(`Tienes un scouting abierto contra ${active.opponent||'el rival actual'}. Guárdalo o finalízalo antes de abrir otro.`);
-    showView('scouting',botonVista('scouting'));
+    showView('scout-workspace-v900',botonVista('scout-workspace-v900'));
     return;
   }
   const m=scoutingMatches.find(x=>Number(x.id)===Number(id));
@@ -9837,7 +9895,7 @@ window.scoutV6103HasPendingSession=function(){
 function scoutV6103StayLive(message){
   if(message)alert(message);
   if(document.body.classList.contains('scout-v690-compact')===false&&typeof window.scoutV690ToggleCompact==='function'){}
-  showView('scouting',botonVista('scouting'));
+  showView('scout-workspace-v900',botonVista('scout-workspace-v900'));
   setTimeout(()=>{if(typeof window.scoutRender==='function')window.scoutRender()},0);
 }
 
@@ -14123,7 +14181,7 @@ window.VC_SCOUT_FAST_BRIDGE_V92={
 (()=>{
 'use strict';
 const VIDEO_VIEWS=new Set(['scout-video-hub']);
-const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-season','scout-postmatch','scout-analysis','scout-plan','scout-matchup']);
+const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-season','scout-postmatch','scout-analysis','scout-plan','scout-matchup','v11-reports']);
 const savedWorkspace=localStorage.getItem('volley_workspace_v610');
 let currentWorkspace=['training','scouting','video'].includes(savedWorkspace)?savedWorkspace:'training';
 function applyWorkspace(mode){
@@ -14165,13 +14223,8 @@ window.showView=function(id,btn){
   }
   return out
 };
-/* Restaurar el área sin forzar una vista distinta en la carga inicial */
+/* V11.8: solo restaurar el área. La primera vista la decide el router profesional antes de revelar la interfaz. */
 applyWorkspace(currentWorkspace);
-if(currentWorkspace==='scouting'){
-  setTimeout(()=>{const target=typeof window.scoutV6102HasActive==='function'&&window.scoutV6102HasActive()?'scout-match-mode':'scout-dashboard';showView(target,botonVista(target))},0)
-}else if(currentWorkspace==='video'){
-  setTimeout(()=>showView('scout-video-hub',botonVista('scout-video-hub')),0)
-}
 })();
 </script>\n
 \n
@@ -23985,7 +24038,7 @@ window.v900RegisterVisual=function(){
 };
 window.v900RegisterCode=function(){
   const input=$('v900-code-input'),raw=String(input?.value||'').trim();if(!raw)return;
-  const legacy=$('scout-code-input');if(!legacy)return alert('No encuentro la consola clásica.');
+  const legacy=$('scout-code-input');if(!legacy)return alert('El motor de códigos no está disponible.');
   legacy.value=raw;
   try{window.scoutAddCode?.();input.value='';safeText('v900-code-translation','Código registrado con el motor compartido.');window.VC_SCOUT_RENDER_V92?.requestFast?.('v931-code-action')}catch(err){console.error(err);alert('No se pudo registrar el código: '+String(err?.message||err))}
 };
@@ -25538,8 +25591,6 @@ function renderContext(){
     h+=btn('Partidos',"v940Route('partidos')",'',route==='partidos');
     h+=btn('Temporada',"v940Route('temporada')",'',route==='temporada');
     h+=btn('Postpartido',"v940Route('post')",'',route==='post');
-    h+='<span class="separator"></span>';
-    h+=btn('Clásico',"v940Route('clasico')",'',route==='clasico');
   }
   box.innerHTML=h;
 }
@@ -27924,7 +27975,7 @@ const VIEW_META={
   jugadores:['players','ENTRENAMIENTO / PLANTILLA','Jugadores'],
   historial:['training','ENTRENAMIENTO / HISTORIAL','Historial'],
   estadisticas:['training','ENTRENAMIENTO / ESTADÍSTICAS','Estadísticas de entrenamiento'],
-  'scout-dashboard':['scouting','SCOUTING / INICIO','Scouting'],
+  'scout-dashboard':['scout-home','SCOUTING / CENTRO','Centro de scouting'],
   'scout-workspace-v900':['scouting','SCOUTING / CODIFICACIÓN','Scouting Pro'],
   scouting:['scouting','SCOUTING / CLÁSICO','Scouting'],
   'scout-match-mode':['match','SCOUTING / PARTIDO','Modo Partido'],
@@ -27964,11 +28015,11 @@ function view(id){
 window.v11Navigate=function(target){
   const map={
     home:'dashboard',training:'entrenamiento',planning:'planificacion',players:'jugadores',
-    scouting:'scout-workspace-v900',match:'scout-match-mode',video:'scout-video-hub',
+    'scout-home':'scout-dashboard',scouting:'scout-workspace-v900',match:'scout-match-mode',video:'scout-video-hub',
     analysis:'scout-analysis',reports:'v11-reports',management:'v11-management'
   };
   const id=map[target]||'dashboard';
-  if(['scout-workspace-v900','scout-match-mode','scout-analysis'].includes(id)){
+  if(['scout-dashboard','scout-workspace-v900','scout-match-mode','scout-analysis'].includes(id)){
     try{window.openWorkspace?.('scouting')}catch(_){}
   }else if(id==='scout-video-hub'){
     try{window.openWorkspace?.('video')}catch(_){}
@@ -28980,7 +29031,7 @@ body.v117-review-stream-mode .v780-play-controls,body.v117-review-stream-mode .v
 <script id="v117-professional-unification-runtime">
 (()=>{
 'use strict';
-const VERSION='11.7.0', $=id=>document.getElementById(id);
+const VERSION='11.8.0', $=id=>document.getElementById(id);
 let reviewSource='local', reviewCapture=null, refreshTimer=null;
 function setSaveState(text,kind='') {const el=$('v117-pro-save-state');if(!el)return;el.textContent=text;el.className='v117-save-state'+(kind?' '+kind:'')}
 window.v117ProSave=async function(){
@@ -29077,6 +29128,94 @@ setTimeout(()=>{
   if($('v117-review-orientation'))$('v117-review-orientation').value=ori;window.v117ReviewOrientation(ori);setReviewMode(['live','delay','youtube','local'].includes(src)?src:'local',false);
 },0);
 window.VC_V117_PRO={version:VERSION,save:window.v117ProSave,reviewSource:()=>reviewSource,diagnostics:()=>({version:VERSION,reviewSource,liveDelay:delayDiag(),classicReturnButtons:[...document.querySelectorAll('#scout-match-mode button')].filter(b=>String(b.getAttribute('onclick')||'').includes("showView('scouting'")).length})};
+})();
+</script>
+
+
+<style id="v118-scouting-professional-style">
+/* ===== V11.8 · SCOUTING CENTER / NO-LEGACY NAVIGATION ===== */
+.v118-scout-center{display:grid;gap:11px;max-width:1540px;margin:0 auto;padding:0 0 18px}
+.v118-scout-head{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#fff;border:1px solid #dce6ed;border-radius:14px;padding:17px 19px;box-shadow:0 7px 22px rgba(28,62,88,.055)}
+.v118-scout-head h2{margin:3px 0 4px!important;font-size:22px!important;color:#17334a!important;letter-spacing:-.025em}.v118-scout-head p{margin:0;color:#718696;font-size:9px;max-width:760px}.v118-scout-head-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.v118-scout-head-actions button{min-height:36px}
+.v118-scout-modules{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.v118-module{display:grid!important;grid-template-columns:28px 1fr auto!important;gap:9px!important;align-items:center!important;text-align:left!important;min-width:0!important;background:#fff!important;border:1px solid #dce5eb!important;border-radius:11px!important;padding:11px!important;color:#17334a!important;box-shadow:0 4px 14px rgba(31,61,84,.035)!important}.v118-module:hover{border-color:#a9c1d2!important;transform:translateY(-1px)}.v118-module>span{display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:#eef4f8;color:#547085;font-size:7px;font-weight:950}.v118-module small{display:block;color:#7d92a1;font-size:6px;letter-spacing:.11em;font-weight:950}.v118-module b{display:block;margin:2px 0;color:#17334a;font-size:10.5px}.v118-module p{margin:0;color:#7b8e9c;font-size:7px;line-height:1.35}.v118-module strong{font-size:14px;color:#8da2b0}.v118-module.match>span,.v118-module.coding>span{background:#e8f2fb;color:#197fe0}.v118-module.video>span{background:#ecf6f5;color:#278b88}.v118-module.analysis>span{background:#f1eefb;color:#6c5fc7}.v118-module.reports>span{background:#f7f1e8;color:#9a6b31}
+.v118-scout-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.v118-scout-kpis>div{background:#fff;border:1px solid #dfe7ec;border-radius:10px;padding:11px 13px}.v118-scout-kpis span{display:block;font-size:6px;letter-spacing:.11em;color:#7d90a0;font-weight:950}.v118-scout-kpis b{display:block;font-size:20px;line-height:1.1;color:#17334a;margin:4px 0 2px}.v118-scout-kpis small{color:#8a9aa6;font-size:7px}
+.v118-scout-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:9px}.v118-panel{background:#fff;border:1px solid #dfe7ec;border-radius:12px;padding:13px;min-width:0}.v118-panel.wide{grid-column:1/-1}.v118-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid #edf1f4}.v118-panel-head span{display:block;font-size:6px;letter-spacing:.11em;color:#7d91a0;font-weight:950}.v118-panel-head h3{margin:2px 0 2px!important;font-size:13px!important;color:#17334a!important;border:0!important;padding:0!important}.v118-panel-head p{margin:0;color:#81919c;font-size:7.5px}.v118-panel-head .text-btn{font-size:7px!important;white-space:nowrap}
+.v118-active-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.v118-active-actions button{padding:6px 8px!important;font-size:7px!important}.v118-quick-grid,.v118-management-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}.v118-management-actions{grid-template-columns:repeat(4,1fr)}.v118-quick-grid button,.v118-management-actions button{display:grid!important;grid-template-columns:auto 1fr!important;column-gap:7px!important;text-align:left!important;align-items:center!important;background:#f8fafb!important;border:1px solid #e2e9ed!important;color:#28465c!important;padding:8px!important}.v118-quick-grid button>span,.v118-management-actions button>span{grid-row:1/3;font-size:13px;color:#50728a}.v118-quick-grid b,.v118-management-actions b{font-size:8px}.v118-quick-grid small,.v118-management-actions small{font-size:6.5px;color:#8798a4;font-weight:650}.v118-scout-center .scout-home-match{padding:2px 0}.v118-scout-center .scout-reading-grid{grid-template-columns:repeat(3,1fr)}
+/* The old horizontal workspace navigation and Classic entry are no longer user-facing in scouting. */
+body.v11-shell.workspace-scouting .workspace-toolbar{display:none!important}
+#scouting-nav .v910-fallback-tab,#v930-unified-nav [data-v930-route="clasico"],#v940-context-toolbar button[onclick*="clasico"]{display:none!important}
+#scouting.view{display:none!important}
+/* V11.5 hid the context slot because it contained the old horizontal scouting bar. Keep it hidden; the sidebar + center replace it. */
+body.v118-professional-scouting #v11-context-slot{display:none!important}
+/* Cleaner Scouting Pro empty state and no legacy wording. */
+#scout-workspace-v900 .v900-empty{border-style:solid!important;border-color:#dce6ed!important;background:#fff!important}
+#scout-workspace-v900 .v900-empty-actions button[onclick*="scout-safe"]{display:none!important}
+@media(max-width:1180px){.v118-scout-modules{grid-template-columns:repeat(3,1fr)}.v118-scout-grid{grid-template-columns:1fr}.v118-panel.wide{grid-column:auto}.v118-management-actions{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.v118-scout-head{align-items:flex-start;flex-direction:column}.v118-scout-head-actions{justify-content:flex-start}.v118-scout-modules{grid-template-columns:1fr 1fr}.v118-scout-kpis{grid-template-columns:1fr 1fr}.v118-quick-grid,.v118-management-actions{grid-template-columns:1fr 1fr}}
+</style>
+<script id="v118-scouting-professional-runtime">
+(()=>{
+'use strict';
+const VERSION='11.8.0',$=id=>document.getElementById(id);
+const PROFESSIONAL=new Set(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','v11-reports','v11-management','competicion','scout-plan','scout-matchup','scout-postmatch','scout-season']);
+function remember(id){try{if(PROFESSIONAL.has(id))localStorage.setItem('v118_last_professional_view',id)}catch(_){}}
+function normalizeTarget(id){return id==='scouting'?'scout-workspace-v900':id}
+function updateBody(id){const scout=['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','competicion','scout-plan','scout-matchup','scout-postmatch','scout-season','v11-reports','v11-management'].includes(id);document.body.classList.toggle('v118-professional-scouting',scout)}
+
+/* Hard stop to visible Classic mode: its DOM/functions remain only as an internal compatibility engine. */
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v118){
+  const wrapped=function(id,btn){id=normalizeTarget(id);const actualBtn=id==='scout-workspace-v900'?(window.botonVista?.(id)||btn):btn;const out=showBase.call(this,id,actualBtn);remember(id);updateBody(id);return out};
+  wrapped.__v118=true;window.showView=wrapped;
+}
+const routeBase=window.v930Open;
+if(typeof routeBase==='function'&&!routeBase.__v118){
+  const wrapped=function(route,...rest){if(route==='clasico')route='directo';return routeBase.call(this,route,...rest)};wrapped.__v118=true;window.v930Open=wrapped;
+}
+/* Old helpers that used to jump to Classic now land in Scouting Pro. */
+window.scoutV690FocusCode=function(){window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));try{window.v900SetInputMode?.('code')}catch(_){ }setTimeout(()=>{$('v900-code-input')?.focus();$('v900-code-input')?.select?.()},0)};
+
+/* Dashboard render keeps all current data but its actions are professional. */
+const homeBase=window.scoutRenderHome;
+if(typeof homeBase==='function'&&!homeBase.__v118){
+  const wrapped=function(){const out=homeBase.apply(this,arguments);const active=$('scout-home-active'),match=typeof scoutActive==='function'?scoutActive():null;const latest=(typeof scoutingMatches!=='undefined'&&Array.isArray(scoutingMatches)&&scoutingMatches.length)?scoutingMatches.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))[0]:null;if(active){const b=active.querySelector('button');if(b){b.textContent=match?'Continuar Pro':'Abrir Pro';b.classList.add('primary')}}const save=$('v118-home-save');if(save){save.disabled=!match;save.title=match?'Guardar scouting activo':'No hay scouting activo'}const acts=$('v118-active-actions');if(acts)acts.classList.toggle('no-live',!match&&!!latest);return out};wrapped.__v118=true;window.scoutRenderHome=wrapped;
+}
+
+/* Scouting sidebar now has a true center and a separate coding workspace. */
+const navBase=window.v11Navigate;
+if(typeof navBase==='function'&&!navBase.__v118){
+  const wrapped=function(target){
+    if(target==='scout-home'){try{window.openWorkspace?.('scouting')}catch(_){ }window.showView?.('scout-dashboard',window.botonVista?.('scout-dashboard'));return}
+    return navBase.call(this,target);
+  };wrapped.__v118=true;window.v11Navigate=wrapped;
+}
+
+/* Stable first paint: restore one professional destination, then reveal. */
+function chooseInitial(){
+  let workspace='training',last='';try{workspace=localStorage.getItem('volley_workspace_v610')||'training';last=localStorage.getItem('v118_last_professional_view')||''}catch(_){ }
+  if(workspace==='video')return 'scout-video-hub';
+  if(workspace==='scouting'){
+    if(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis'].includes(last))return last;
+    return 'scout-dashboard';
+  }
+  return 'dashboard';
+}
+function reveal(){
+  const target=chooseInitial();
+  try{window.showView?.(target,window.botonVista?.(target)||null)}catch(err){console.warn('V11.8 initial route',err)}
+  try{if(target==='scout-dashboard')window.scoutRenderHome?.();if(target==='scout-workspace-v900')window.v900Open?.();if(target==='scout-match-mode')window.v800Open?.()}catch(_){ }
+  updateBody(target);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('v118-booting')));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',reveal,{once:true});else reveal();
+setTimeout(()=>document.documentElement.classList.remove('v118-booting'),1800);
+
+/* Remove legacy links left by old templates without deleting compatibility code. */
+setTimeout(()=>{
+  document.querySelectorAll('button').forEach(b=>{const oc=String(b.getAttribute('onclick')||'');if(oc.includes("v930Open('clasico')")){b.remove()}});
+  try{window.scoutRenderHome?.()}catch(_){ }
+},0);
+window.VC_V118_PRO={version:VERSION,diagnostics:()=>({version:VERSION,classicVisible:!!$('scouting')&&getComputedStyle($('scouting')).display!=='none',last:localStorage.getItem('v118_last_professional_view')||'',workspace:localStorage.getItem('volley_workspace_v610')||''})};
 })();
 </script>
 
