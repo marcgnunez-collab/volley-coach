@@ -2045,7 +2045,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <nav class="v112-match-commandbar" aria-label="Comandos de partido">
         <button class="active" data-v112-tab="live" onclick="v112MatchTab('live')"><span>◆</span><b>Directo</b><small>Puntos + código</small></button>
         <button data-v112-tab="lineup" onclick="v112MatchTab('lineup')"><span>⌘</span><b>Alineación</b><small>Rotación y cambios</small></button>
-        <button data-v112-tab="video" onclick="v112MatchTab('video')"><span>▶</span><b>Vídeo</b><small>Live / archivo / YouTube</small></button>
+        <button data-v112-tab="video" onclick="v112MatchTab('video')"><span>▶</span><b>Vídeo + código</b><small>Ver partido y scoutar</small></button>
         <button data-v112-tab="rally" onclick="v112MatchTab('rally')"><span>≡</span><b>Rally</b><small>Acciones y editor</small></button>
         <button data-v112-tab="stats" onclick="v112MatchTab('stats')"><span>▥</span><b>Lectura LIVE</b><small>K1 · K2 · G-P</small></button>
         <button data-v112-tab="set" onclick="v112MatchTab('set')"><span>✓</span><b>Set</b><small>Nuevo / finalizar</small></button>
@@ -2192,6 +2192,57 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <div class="v800-video-actions"><button class="primary" onclick="v802PrimaryReplay()">▶ Último rally</button><button class="ghost" onclick="v802SecondaryReplay()">Última acción</button><button id="v802-live-delay-btn" class="ghost" onclick="openLiveDelay('match')">Live Delay</button><button id="v800-rec-btn" class="ghost" onclick="v800ToggleREC()">● REC</button></div>
           <div id="v802-video-help" class="v802-video-help">En Directo, el vídeo viene de Live Delay. Para scoutar un partido grabado, elige Archivo o YouTube.</div><div id="v800-rec-copy" class="v800-rec-copy">Grabación detenida.</div>
         </section>
+
+        <aside id="v113-video-code-panel" class="v113-video-code-panel" aria-label="Scouting sobre vídeo">
+          <div class="v113-video-code-head">
+            <div><span>SCOUTING SOBRE VÍDEO</span><h3>Codifica mientras ves el partido</h3></div>
+            <span id="v113-video-state" class="v113-video-state">LISTO</span>
+          </div>
+
+          <div class="v113-video-score">
+            <div><span id="v113-video-team">Nuestro equipo</span><b id="v113-video-score-us">0</b></div>
+            <div class="v113-video-score-center"><span id="v113-video-set">SET 1</span><small id="v113-video-service">Saque nuestro</small></div>
+            <div class="rival"><span id="v113-video-opponent">Rival</span><b id="v113-video-score-op">0</b></div>
+          </div>
+
+          <div class="v113-video-points">
+            <button class="ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>NUESTRO</span></button>
+            <button class="undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
+            <button class="rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>RIVAL</span></button>
+          </div>
+
+          <div class="v113-video-code-entry">
+            <div class="v113-video-code-label"><span>CÓDIGO RÁPIDO</span><button class="text-btn" onclick="v841OpenCheatSheet()">Chuleta →</button></div>
+            <div class="v113-video-code-row">
+              <input id="v113-video-code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. 7A# · 3R+ · 12S=" onkeydown="if(event.key==='Enter'){event.preventDefault();v113VideoAddCode()}">
+              <button class="primary" onclick="v113VideoAddCode()">Añadir</button>
+            </div>
+            <div id="v113-video-code-status" class="v113-video-code-status">Escribe el código y pulsa Enter. Usa el mismo motor del Modo Partido.</div>
+          </div>
+
+          <div class="v113-video-builder">
+            <label><span>Equipo</span><select id="v113-video-team-select"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
+            <label><span>Dorsal</span><input id="v113-video-number" inputmode="numeric" placeholder="7"></label>
+          </div>
+          <div class="v113-video-presets">
+            <button onclick="v113VideoPreset('S#')">Saque #</button><button onclick="v113VideoPreset('S=')">Saque =</button>
+            <button onclick="v113VideoPreset('R#')">Recepción #</button><button onclick="v113VideoPreset('R-')">Recepción −</button>
+            <button onclick="v113VideoPreset('A#')">Ataque #</button><button onclick="v113VideoPreset('A=')">Ataque =</button>
+            <button onclick="v113VideoPreset('B#')">Bloqueo #</button><button onclick="v113VideoPreset('D+')">Defensa +</button>
+          </div>
+
+          <div class="v113-video-rally">
+            <div class="v113-video-rally-head"><b id="v113-video-rally-title">Rally actual</b><button class="text-btn" onclick="v857OpenRallyEditor()">Editar →</button></div>
+            <div id="v113-video-rally-actions" class="v113-video-rally-actions"><span class="empty">Sin acciones todavía.</span></div>
+          </div>
+
+          <div class="v113-video-quick-actions">
+            <button class="ghost" onclick="scoutOpenLineup()">⌘ Alineación</button>
+            <button class="ghost" onclick="scoutOpenSubstitution()">⇄ Cambio</button>
+            <button class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
+            <button class="ghost" onclick="openLiveDelay('match')">⏱ Live Delay</button>
+          </div>
+        </aside>
       </section>
       <section id="v1000-intelligence" class="v1000-intelligence">
         <div class="v1000-head">
@@ -5744,7 +5795,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.2.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.4.0', {
         updateViaCache: 'none'
       });
 
@@ -28300,9 +28351,10 @@ window.v112ToggleVideo=function(force){
   else activeTab('live');
 };
 window.v112MatchTab=function(name){
+  if(name==='video'){activeTab('video');v112ToggleVideo(true);return}
+  $('v800-shell')?.classList.remove('v112-video-open');
   activeTab(name);
-  if(name==='live'){v112ToggleVideo(false);document.querySelector('.v112-control-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
-  if(name==='video'){v112ToggleVideo(true);return}
+  if(name==='live'){document.querySelector('.v112-control-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   if(name==='lineup'){document.querySelector('.v112-court-card')?.scrollIntoView({behavior:'smooth',block:'center'});return}
   if(name==='rally'){document.querySelector('.v112-live-rally-box')?.scrollIntoView({behavior:'smooth',block:'center'});return}
   if(name==='stats'){document.querySelector('.v112-kpi-card')?.scrollIntoView({behavior:'smooth',block:'center'});return}
@@ -28331,6 +28383,363 @@ window.v940MatchView=function(mode){
 const intel=$('v1000-intelligence-btn');if(intel)intel.style.display='none';
 activeTab('live');
 window.VC_V112_MATCH_MODE={version:VERSION,diagnostics:()=>({version:VERSION,videoOpen:$('v800-shell')?.classList.contains('v112-video-open')||false,dataModelChanged:false,scoreEngineChanged:false,videoPipelineChanged:false})};
+})();
+</script>
+
+
+<style id="v113-match-video-workspace-style">
+/* V11.3 · Modo Partido centrado en trabajo + vídeo */
+body.v113-match-focus #v11-context-slot,body.v11-shell:has(#scout-match-mode.active) #v11-context-slot{display:none!important}
+body.v113-match-focus #scout-match-mode{padding-top:0!important}
+
+/* Una sola navegación dentro de Modo Partido. */
+body.v11-shell #scout-match-mode .v112-match-commandbar{position:sticky;top:72px;z-index:35}
+body.v11-shell #scout-match-mode .v112-match-commandbar button b{font-size:10.5px!important}
+body.v11-shell #scout-match-mode .v112-match-commandbar button small{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-match-commandbar button>span{font-size:15px!important}
+body.v11-shell #scout-match-mode .v112-context-strip span{font-size:8px!important}
+body.v11-shell #scout-match-mode .v112-context-strip b{font-size:13px!important}
+body.v11-shell #scout-match-mode .v112-context-strip small{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-section-head>div>span{font-size:8px!important}
+body.v11-shell #scout-match-mode .v112-section-head h3{font-size:14px!important}
+body.v11-shell #scout-match-mode .v112-section-head .v855-match-status{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-point-row .v800-point b{font-size:25px!important}
+body.v11-shell #scout-match-mode .v112-point-row .v800-point span{font-size:9px!important}
+body.v11-shell #scout-match-mode .v112-point-row .v800-undo span{font-size:8px!important}
+body.v11-shell #scout-match-mode .v112-code-label>span{font-size:8px!important}
+body.v11-shell #scout-match-mode .v112-code-block #v800-code{font-size:12px!important}
+body.v11-shell #scout-match-mode .v112-code-block #v852-code-status{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-code-presets button{font-size:9px!important}
+body.v11-shell #scout-match-mode .v112-preset-builder label>span,
+body.v11-shell #scout-match-mode .v112-preset-builder small{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-live-rally-box .v855-live-rally-head b{font-size:10.5px!important}
+body.v11-shell #scout-match-mode .v112-live-rally-box .v855-live-rally-head span{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-live-rally-box .v853-code-tools button{font-size:9px!important}
+body.v11-shell #scout-match-mode .v112-courts .v800-court-label{font-size:8px!important}
+body.v11-shell #scout-match-mode .v112-court-card .v850-lineup-guard-head b{font-size:10px!important}
+body.v11-shell #scout-match-mode .v112-court-card .v850-lineup-guard-head span{font-size:8.5px!important}
+body.v11-shell #scout-match-mode .v112-lineup-actions button,
+body.v11-shell #scout-match-mode .v112-events-card .v800-event-buttons button,
+body.v11-shell #scout-match-mode .v112-set-actions button{font-size:9px!important}
+body.v11-shell #scout-match-mode .v112-kpis span,
+body.v11-shell #scout-match-mode .v112-kpis small{font-size:8.5px!important}
+
+/* Al abrir Vídeo, Directo deja sitio a un workspace específico en vez de aparecer debajo. */
+#v800-shell.v112-video-open .v112-live-grid{display:none!important}
+#v800-shell.v112-video-open .v112-context-strip{display:none!important}
+#v800-shell.v112-video-open .v112-video-drawer{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 360px;
+  gap:10px;
+  align-items:start;
+  margin-top:8px;
+  padding:10px;
+}
+#v800-shell.v112-video-open .v112-video-drawer-head{grid-column:1/-1;margin:0;padding:0 0 9px}
+#v800-shell.v112-video-open .v112-video-drawer-head span{font-size:8px!important}
+#v800-shell.v112-video-open .v112-video-drawer-head h3{font-size:14px!important}
+
+/* Vídeo grande y limpio. */
+#v800-shell.v112-video-open .v112-video-card{
+  grid-area:auto!important;grid-column:1!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+  align-items:center;
+  min-width:0;
+}
+#v800-shell.v112-video-open .v112-video-card>.v800-card-head{grid-column:1!important;grid-row:1!important;margin:0!important}
+#v800-shell.v112-video-open .v112-video-card>.v802-source-tabs{grid-column:2!important;grid-row:1!important;margin:0!important;justify-self:end}
+#v800-shell.v112-video-open .v112-video-card>#v803-mobile-tools,
+#v800-shell.v112-video-open .v112-video-card>#v802-local-tools,
+#v800-shell.v112-video-open .v112-video-card>#v802-youtube-tools{grid-column:1/-1!important;grid-row:2!important}
+#v800-shell.v112-video-open .v112-video-card>#v800-video-frame{
+  grid-column:1/-1!important;grid-row:3!important;
+  width:100%;min-height:0!important;aspect-ratio:16/9;
+  background:#071018!important;border-radius:12px!important;overflow:hidden!important
+}
+#v800-shell.v112-video-open .v112-video-card>#v800-video-frame video,
+#v800-shell.v112-video-open .v112-video-card>#v800-video-frame iframe,
+#v800-shell.v112-video-open .v112-video-card>#v800-video-frame .v802-youtube-wrap{width:100%!important;height:100%!important;object-fit:contain!important}
+#v800-shell.v112-video-open .v112-video-card>#v802-playback{grid-column:1/-1!important;grid-row:4!important}
+#v800-shell.v112-video-open .v112-video-card>.v800-video-actions{grid-column:1/-1!important;grid-row:5!important}
+#v800-shell.v112-video-open .v112-video-card>#v802-video-help{grid-column:1/-1!important;grid-row:6!important}
+#v800-shell.v112-video-open .v112-video-card>#v800-rec-copy{grid-column:1/-1!important;grid-row:7!important}
+#v800-shell.v112-video-open .v112-video-card .v802-source-tabs button,
+#v800-shell.v112-video-open .v112-video-card .v800-video-actions button,
+#v800-shell.v112-video-open .v112-video-card #v802-playback button{font-size:10px!important}
+
+/* Panel de scouting junto al vídeo. */
+.v113-video-code-panel{
+  grid-column:2;position:sticky;top:134px;
+  background:#fff;border:1px solid #dce6ee;border-radius:12px;padding:11px;
+  box-shadow:0 8px 22px rgba(36,73,102,.05);min-width:0
+}
+.v113-video-code-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding-bottom:9px;border-bottom:1px solid #e7eef3}
+.v113-video-code-head span:first-child{display:block;font-size:8px;font-weight:950;letter-spacing:.09em;color:#3983b7}
+.v113-video-code-head h3{font-size:14px;margin:2px 0 0;color:#17334a}
+.v113-video-state{font-size:8px;font-weight:950;color:#287255;background:#e9f5ef;border-radius:999px;padding:5px 7px}
+.v113-video-state.bad{color:#934844;background:#faeae9}.v113-video-state.warn{color:#865d20;background:#fff4e1}
+.v113-video-score{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin:9px 0;padding:8px;background:#f8fbfd;border:1px solid #e0e9ef;border-radius:9px}
+.v113-video-score>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px}.v113-video-score>div.rival{text-align:right}.v113-video-score span{font-size:8.5px;font-weight:850;color:#577185;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v113-video-score b{font-size:23px;color:#17334a}.v113-video-score-center{display:flex!important;flex-direction:column;gap:1px!important;text-align:center!important;border-left:1px solid #dce6ee;border-right:1px solid #dce6ee;padding:0 7px}.v113-video-score-center span{font-size:8px;color:#b47025}.v113-video-score-center small{font-size:7.5px;color:#778d9d;white-space:nowrap}
+.v113-video-points{display:grid;grid-template-columns:1fr 55px 1fr;gap:5px}.v113-video-points button{min-height:62px!important;border-radius:9px!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px}.v113-video-points button b{font-size:21px;color:#fff}.v113-video-points button span{font-size:8px;font-weight:900;color:inherit}.v113-video-points .ours{background:linear-gradient(135deg,#378bcb,#5bb7ec)!important;color:#fff!important;border:1px solid #74c0ee!important}.v113-video-points .rival{background:linear-gradient(135deg,#c85c66,#df8990)!important;color:#fff!important;border:1px solid #e8a7ac!important}.v113-video-points .undo{background:#f8fbfd!important;color:#657f91!important;border:1px solid #dce6ee!important;font-size:17px!important}
+.v113-video-code-entry{margin-top:10px;padding-top:9px;border-top:1px solid #e7eef3}.v113-video-code-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}.v113-video-code-label>span{font-size:8px;font-weight:950;color:#708797;letter-spacing:.08em}.v113-video-code-row{display:grid;grid-template-columns:1fr auto;gap:5px}.v113-video-code-row input{min-height:43px!important;font:750 12px/1.2 ui-monospace,Consolas,monospace!important;background:#fff!important;border:1px solid #cfdde7!important;border-radius:8px!important}.v113-video-code-row button{min-width:74px!important}.v113-video-code-status{font-size:8.5px;color:#7b8f9e;margin-top:5px;line-height:1.35}.v113-video-code-status.ok{color:#2f6849}.v113-video-code-status.bad{color:#934844}.v113-video-code-status.warn{color:#865d20}
+.v113-video-builder{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.v113-video-builder label>span{display:block;font-size:8px;font-weight:850;color:#7c91a0;margin-bottom:3px}.v113-video-builder input,.v113-video-builder select{min-height:34px!important;font-size:10px!important;background:#fff!important}
+.v113-video-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}.v113-video-presets button{min-height:31px!important;background:#f8fbfd!important;border:1px solid #dce6ee!important;color:#557084!important;font-size:8.5px!important;padding:5px!important}
+.v113-video-rally{margin-top:9px;padding:8px;background:#f8fbfd;border:1px solid #e0e9ef;border-radius:9px}.v113-video-rally-head{display:flex;justify-content:space-between;align-items:center;gap:6px}.v113-video-rally-head b{font-size:10px;color:#315066}.v113-video-rally-actions{display:flex;flex-wrap:wrap;gap:4px;max-height:100px;overflow:auto;margin-top:6px}.v113-video-rally-actions .action{padding:5px 7px;border-radius:6px;background:#17334a;color:#fff;font:800 9px ui-monospace,Consolas,monospace}.v113-video-rally-actions .empty{font-size:8.5px;color:#8496a4}
+.v113-video-quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px}.v113-video-quick-actions button{font-size:8.5px!important;min-height:32px!important}
+
+@media(max-width:1180px){
+  #v800-shell.v112-video-open .v112-video-drawer{grid-template-columns:1fr!important}
+  #v800-shell.v112-video-open .v112-video-card,.v113-video-code-panel{grid-column:1!important}
+  .v113-video-code-panel{position:static!important}
+}
+@media(max-width:700px){
+  body.v11-shell #scout-match-mode .v112-match-commandbar{top:64px}
+  #v800-shell.v112-video-open .v112-video-card{grid-template-columns:1fr!important}
+  #v800-shell.v112-video-open .v112-video-card>*{grid-column:1!important;grid-row:auto!important}
+  #v800-shell.v112-video-open .v112-video-card>#v800-video-frame{grid-row:auto!important}
+  .v113-video-presets{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+
+<script id="v113-match-video-workspace-runtime">
+(()=>{
+'use strict';
+const VERSION='11.3.0';
+const $=id=>document.getElementById(id);
+function matchVisible(){return !!$('scout-match-mode')?.classList.contains('active')}
+function syncFocus(){document.body.classList.toggle('v113-match-focus',matchVisible())}
+function copyText(from,to){const a=$(from),b=$(to);if(a&&b)b.textContent=a.textContent}
+function syncVideoPanel(){
+  copyText('v800-team-name','v113-video-team');copyText('v800-opponent','v113-video-opponent');
+  copyText('v800-score-us','v113-video-score-us');copyText('v800-score-op','v113-video-score-op');
+  copyText('v800-set-label','v113-video-set');copyText('v800-service-copy','v113-video-service');
+  copyText('v855-live-rally-title','v113-video-rally-title');
+  const source=$('v855-live-actions'),target=$('v113-video-rally-actions');if(source&&target)target.innerHTML=source.innerHTML;
+  const status=$('v852-code-status'),out=$('v113-video-code-status');if(status&&out){out.textContent=status.textContent;out.className='v113-video-code-status '+(status.classList.contains('bad')?'bad':status.classList.contains('warn')?'warn':status.classList.contains('ok')?'ok':'')}
+}
+function observe(){
+  ['v800-team-name','v800-opponent','v800-score-us','v800-score-op','v800-set-label','v800-service-copy','v855-live-rally-title','v855-live-actions','v852-code-status'].forEach(id=>{
+    const el=$(id);if(el)new MutationObserver(syncVideoPanel).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
+  });
+}
+window.v113VideoAddCode=function(){
+  const src=$('v113-video-code'),dst=$('v800-code');if(!src||!dst)return false;
+  const raw=String(src.value||'').trim();
+  if(!raw){src.focus();const st=$('v113-video-state');if(st){st.textContent='FALTA CÓDIGO';st.className='v113-video-state warn'}return false}
+  dst.value=raw;
+  const ok=window.v857AddCode?.()!==false;
+  if(ok){src.value='';const st=$('v113-video-state');if(st){st.textContent='GUARDADO';st.className='v113-video-state'}setTimeout(()=>{if(st)st.textContent='LISTO'},900)}
+  else{const st=$('v113-video-state');if(st){st.textContent='REVISAR';st.className='v113-video-state bad'}}
+  syncVideoPanel();src.focus();return ok;
+};
+window.v113VideoPreset=function(suffix){
+  const n=String($('v113-video-number')?.value||'').trim();if(!n){$('v113-video-number')?.focus();return false}
+  const prefix=$('v113-video-team-select')?.value==='opponent'?'R':'';
+  if($('v113-video-code'))$('v113-video-code').value=`${prefix}${n}${suffix}`;
+  return window.v113VideoAddCode();
+};
+const previousToggle=window.v112ToggleVideo;
+window.v112ToggleVideo=function(force){
+  let out;try{out=previousToggle?.call(this,force)}catch(_){}
+  const shell=$('v800-shell');const open=!!shell?.classList.contains('v112-video-open');
+  if(open){syncVideoPanel();setTimeout(()=>{$('v113-video-code')?.focus({preventScroll:true});$('v112-video-drawer')?.scrollIntoView({behavior:'smooth',block:'start'})},60)}
+  return out;
+};
+const previousShow=window.showView;
+if(typeof previousShow==='function'&&!previousShow.__v113){
+  const wrapped=function(){const out=previousShow.apply(this,arguments);setTimeout(()=>{syncFocus();syncVideoPanel()},0);return out};
+  wrapped.__v113=true;window.showView=wrapped;
+}
+observe();syncFocus();syncVideoPanel();
+window.VC_V113_MATCH_VIDEO={version:VERSION,diagnostics:()=>({version:VERSION,matchFocus:document.body.classList.contains('v113-match-focus'),videoOpen:$('v800-shell')?.classList.contains('v112-video-open')||false,sharedScoreEngine:true,sharedCodeEngine:true})};
+})();
+</script>
+
+<style id="v114-analysis-professional-style">
+/* ===== V11.4 · PROFESSIONAL ANALYSIS + REPORTS ===== */
+body.v11-shell #scout-analysis{--v114-navy:#102c45;--v114-navy2:#173b59;--v114-blue:#3f86b7;--v114-line:#dbe5ec;--v114-soft:#f4f7f9;--v114-text:#17334a;--v114-muted:#6e8291;--v114-orange:#d9983f}
+body.v11-shell #scout-analysis .scout-analysis-shell{gap:10px!important}
+body.v11-shell #scout-analysis .scout-analysis-header{background:#fff!important;color:var(--v114-text)!important;border:1px solid var(--v114-line)!important;border-radius:12px!important;box-shadow:none!important;padding:12px 14px!important;align-items:center!important}
+body.v11-shell #scout-analysis .scout-analysis-header h2{color:var(--v114-text)!important;font-size:18px!important;margin:1px 0 2px!important}
+body.v11-shell #scout-analysis .scout-analysis-header p{color:var(--v114-muted)!important;font-size:9px!important;max-width:690px}
+body.v11-shell #scout-analysis .scout-analysis-header .pro-kicker{color:var(--v114-blue)!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar{max-width:none!important;gap:5px!important;align-items:center!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar select{min-width:235px!important;min-height:34px!important;border-color:var(--v114-line)!important;background:#fff!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar>button{min-height:34px!important;padding:7px 10px!important;font-size:8px!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar>button.primary{background:var(--v114-orange)!important;color:#142d43!important;border:1px solid #d58f31!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar>button.ghost{background:#fff!important;color:var(--v114-text)!important;border-color:var(--v114-line)!important}
+.v114-analysis-tools{position:relative}.v114-analysis-tools>summary{list-style:none;cursor:pointer;min-height:34px;padding:8px 10px;border:1px solid var(--v114-line);border-radius:7px;background:#fff;color:var(--v114-text);font:850 8px/1 Arial,sans-serif;display:flex;align-items:center}.v114-analysis-tools>summary::-webkit-details-marker{display:none}.v114-analysis-tools[open]>summary{background:#f4f7f9}.v114-analysis-tools-menu{position:absolute;right:0;top:39px;z-index:120;width:235px;padding:6px;background:#fff;border:1px solid var(--v114-line);border-radius:9px;box-shadow:0 14px 34px rgba(21,50,74,.15);display:grid;gap:4px}.v114-analysis-tools-menu button{width:100%!important;text-align:left!important;background:#fff!important;color:var(--v114-text)!important;border:1px solid #e4ebef!important;font-size:8.5px!important;min-height:32px!important}
+.v114-matchboard{display:grid;grid-template-columns:minmax(250px,1.25fr) auto minmax(250px,1.25fr) 1.35fr;gap:1px;border:1px solid var(--v114-line);border-radius:12px;overflow:hidden;background:var(--v114-line)}
+.v114-match-team,.v114-match-score,.v114-match-meta{background:#fff;padding:12px 14px;min-width:0}.v114-match-team{display:flex;align-items:center;gap:10px}.v114-match-team.away{justify-content:flex-end;text-align:right}.v114-team-mark{width:34px;height:34px;border-radius:8px;background:var(--v114-navy);color:#fff;display:grid;place-items:center;font:950 10px Arial}.v114-match-team.away .v114-team-mark{background:#6f8190}.v114-match-team small,.v114-match-meta small{display:block;color:var(--v114-muted);font:850 7px/1.2 Arial;text-transform:uppercase;letter-spacing:.08em}.v114-match-team b{display:block;font:900 12px/1.2 Arial;color:var(--v114-text);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v114-match-score{display:flex;align-items:center;gap:8px;justify-content:center;min-width:150px}.v114-match-score strong{font:950 27px/1 Arial;color:var(--v114-text)}.v114-match-score span{font:900 9px/1 Arial;color:#8a9aa5}.v114-match-meta{display:grid;align-content:center;gap:5px}.v114-set-strip{display:flex;gap:4px;flex-wrap:wrap}.v114-set-strip span{padding:4px 6px;border:1px solid #dfe7ec;border-radius:6px;background:#f8fafb;color:#4c6678;font:850 7.5px Arial}.v114-set-strip span.win{background:#e9f4ee;border-color:#cde3d5;color:#2f6748}.v114-set-strip span.loss{background:#faeeee;border-color:#ecd2d0;color:#914945}
+.v114-analysis-tabs{display:flex;gap:4px;padding:5px;background:#edf3f7;border:1px solid var(--v114-line);border-radius:10px;overflow-x:auto}.v114-analysis-tab{white-space:nowrap;min-height:32px!important;padding:7px 11px!important;border-radius:7px!important;background:transparent!important;border:0!important;color:#647b8c!important;font:900 8px/1 Arial!important;letter-spacing:.03em}.v114-analysis-tab.active{background:var(--v114-navy)!important;color:#fff!important;box-shadow:0 3px 9px rgba(16,44,69,.14)}
+.v114-summary-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.v114-summary-card{border:1px solid var(--v114-line);background:#fff;border-radius:10px;padding:10px 11px}.v114-summary-card span{display:block;color:var(--v114-muted);font:900 7px Arial;text-transform:uppercase;letter-spacing:.07em}.v114-summary-card b{display:block;color:var(--v114-text);font:950 21px/1.1 Arial;margin:4px 0 2px}.v114-summary-card small{display:block;color:#82939f;font:700 8px/1.25 Arial}.v114-summary-card.gp b.positive{color:#2f6d4d}.v114-summary-card.gp b.negative{color:#984e49}
+body.v11-shell #scout-analysis .scout-analysis-kpis{display:none!important}
+body.v11-shell #scout-analysis .v961-data-integrity{grid-template-columns:1.15fr repeat(3,.55fr)!important;border-radius:8px!important}.v961-data-integrity>div{padding:6px 8px!important}.v961-data-integrity small{padding:5px 8px!important;font-size:7px!important}
+body.v11-shell #scout-analysis .scout-v750-pro-panel,body.v11-shell #scout-analysis .scout-analysis-panel{border:1px solid var(--v114-line)!important;border-radius:11px!important;box-shadow:none!important;background:#fff!important}
+body.v11-shell #scout-analysis .scout-v750-pro-head,body.v11-shell #scout-analysis .scout-panel-head{padding:12px 14px!important;border-bottom:1px solid #e6edf1!important;margin:0!important;background:#fbfcfd!important}
+body.v11-shell #scout-analysis .scout-v750-pro-head h3,body.v11-shell #scout-analysis .scout-panel-head h3{font-size:13px!important;color:var(--v114-text)!important;margin:2px 0!important}
+body.v11-shell #scout-analysis .scout-v750-pro-head p,body.v11-shell #scout-analysis .scout-panel-head p{font-size:8px!important;color:var(--v114-muted)!important}
+body.v11-shell #scout-analysis .scout-v750-summary-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:6px!important;padding:12px!important}
+body.v11-shell #scout-analysis .scout-v750-summary-card{border-radius:8px!important;border-color:#e1e9ee!important;padding:9px!important;background:#fff!important}
+body.v11-shell #scout-analysis .scout-v750-summary-card b{font-size:18px!important}
+body.v11-shell #scout-analysis .scout-v750-columns{padding:0 12px 12px!important;gap:8px!important}
+body.v11-shell #scout-analysis .scout-v750-box{border-radius:8px!important;border-color:#e1e9ee!important}
+body.v11-shell #scout-analysis .scout-v750-quality{margin:0 12px 12px!important}
+/* Data Sheet: closer to an official match-statistics sheet. */
+body.v11-shell #scout-analysis .scout-player-analysis-panel{overflow:visible!important}
+body.v11-shell #scout-analysis .scout-v61010-section-title{padding:10px 12px 6px!important;margin:0!important}.scout-v61010-section-title h4{font-size:11px!important;color:var(--v114-text)!important}.scout-v61010-section-title span{font-size:7.5px!important}
+body.v11-shell #scout-analysis .scout-v61010-official-wrap{border:1px solid #ccd8e0!important;border-radius:7px!important;margin:0 10px 9px!important;overflow:auto!important;background:#fff!important}
+body.v11-shell #scout-analysis .scout-v61010-official{min-width:1180px!important;font-family:Arial,Helvetica,sans-serif!important;font-variant-numeric:tabular-nums!important}
+body.v11-shell #scout-analysis .scout-v61010-official thead tr.group th{background:#e9eef2!important;color:#203c52!important;border-color:#ccd7df!important;font-size:7px!important;letter-spacing:.035em!important}
+body.v11-shell #scout-analysis .scout-v61010-official thead tr.group th:nth-child(3){background:#d8e3ec!important}.scout-v61010-official thead tr.group th:nth-child(4){background:#dfe9ef!important}.scout-v61010-official thead tr.group th:nth-child(5){background:#e6efe9!important}.scout-v61010-official thead tr.group th:nth-child(6){background:#f2eadf!important}
+body.v11-shell #scout-analysis .scout-v61010-official thead tr.cols th{background:var(--v114-navy)!important;color:#fff!important;border-color:#2e4a60!important;font-size:6.9px!important;padding:6px 5px!important}
+body.v11-shell #scout-analysis .scout-v61010-official td{font-size:8.4px!important;padding:6px 5px!important;border-color:#e1e7eb!important}
+body.v11-shell #scout-analysis .scout-v61010-official tbody td:nth-child(9){font-weight:950!important;background:#f0f5f8!important;color:#153d58!important}
+body.v11-shell #scout-analysis .scout-v61010-official tbody tr:last-child td{font-weight:950!important;background:#e7edf1!important;border-top:2px solid #8093a1!important}
+body.v11-shell #scout-analysis .scout-v61010-official tbody td:first-child{position:sticky;left:0;z-index:2;background:#fff!important;box-shadow:1px 0 0 #dbe4e9}
+body.v11-shell #scout-analysis .scout-v61010-official tbody tr:last-child td:first-child{background:#e7edf1!important}
+body.v11-shell #scout-analysis .scout-v61010-set-table,body.v11-shell #scout-analysis .scout-v61010-extra-table{font-family:Arial,Helvetica,sans-serif!important;font-variant-numeric:tabular-nums!important}
+body.v11-shell #scout-analysis .scout-v61010-formula{margin:9px 10px 12px!important;border-radius:7px!important;background:#f6f8fa!important;border:1px solid #e1e7eb!important;font-size:7.7px!important}
+/* Tab visibility. */
+#scout-analysis[data-v114-tab] .scout-analysis-grid>section{display:none!important}
+#scout-analysis[data-v114-tab="summary"] .scout-v750-pro-panel{display:block!important}
+#scout-analysis[data-v114-tab]:not([data-v114-tab="summary"]) .scout-v750-pro-panel{display:none!important}
+#scout-analysis[data-v114-tab="datasheet"] .scout-analysis-grid>section:nth-child(2),#scout-analysis[data-v114-tab="datasheet"] .scout-analysis-grid>section:nth-child(3){display:block!important;grid-column:1/-1!important}
+#scout-analysis[data-v114-tab="rotations"] .scout-analysis-grid>section:nth-child(1),#scout-analysis[data-v114-tab="rotations"] .scout-analysis-grid>section:nth-child(4),#scout-analysis[data-v114-tab="rotations"] .scout-analysis-grid>section:nth-child(10),#scout-analysis[data-v114-tab="rotations"] .scout-analysis-grid>section:nth-child(11),#scout-analysis[data-v114-tab="rotations"] .scout-analysis-grid>section:nth-child(12){display:block!important;grid-column:1/-1!important}
+#scout-analysis[data-v114-tab="tactics"] .scout-analysis-grid>section:nth-child(5),#scout-analysis[data-v114-tab="tactics"] .scout-analysis-grid>section:nth-child(6),#scout-analysis[data-v114-tab="tactics"] .scout-analysis-grid>section:nth-child(7),#scout-analysis[data-v114-tab="tactics"] .scout-analysis-grid>section:nth-child(8),#scout-analysis[data-v114-tab="tactics"] .scout-analysis-grid>section:nth-child(9),#scout-analysis[data-v114-tab="tactics"] .scout-analysis-grid>section:nth-child(13){display:block!important;grid-column:1/-1!important}
+#scout-analysis[data-v114-tab="opponent"] .scout-analysis-grid>section:nth-child(14),#scout-analysis[data-v114-tab="opponent"] .scout-analysis-grid>section:nth-child(15){display:block!important;grid-column:1/-1!important}
+@media(max-width:1050px){.v114-matchboard{grid-template-columns:1fr auto 1fr}.v114-match-meta{grid-column:1/-1}.v114-summary-strip{grid-template-columns:repeat(3,1fr)}body.v11-shell #scout-analysis .scout-v750-summary-grid{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:700px){.v114-matchboard{grid-template-columns:1fr auto 1fr}.v114-match-team{padding:9px}.v114-team-mark{display:none}.v114-match-score{min-width:95px;padding:8px}.v114-match-score strong{font-size:23px}.v114-summary-strip{grid-template-columns:1fr 1fr}.v114-summary-card:last-child{grid-column:1/-1}.v114-analysis-tabs{padding:4px}.v114-analysis-tab{padding:7px 9px!important}body.v11-shell #scout-analysis .scout-analysis-header{align-items:flex-start!important}body.v11-shell #scout-analysis .scout-analysis-toolbar{display:grid!important;grid-template-columns:1fr 1fr 1fr!important;width:100%!important}body.v11-shell #scout-analysis .scout-analysis-toolbar select{grid-column:1/-1!important;width:100%!important}.v114-analysis-tools>summary{justify-content:center}.v114-analysis-tools-menu{left:0;right:auto}}
+</style>
+
+<script id="v114-analysis-professional-runtime">
+(()=>{
+'use strict';
+const VERSION='11.4.0';
+const $=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[];
+const B=()=>window.VC_SCOUT_REPORT_BRIDGE||null,R=()=>window.VC_V750_REPORTS||null;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=(n,d)=>d?Math.round((Number(n)||0)*100/(Number(d)||0)):null;
+const gp=v=>{v=Number(v)||0;return v>0?`+${v}`:`${v}`};
+function selectedMatch(id){
+  try{if(id!=null&&String(id)!==''){const m=B()?.getExportMatch?.(id);if(m)return m}}catch(_){}
+  const sid=Number($('scout-analysis-match')?.value)||0;
+  try{if(sid){const m=B()?.getExportMatch?.(sid);if(m)return m}}catch(_){}
+  try{return B()?.getMatchForAnalysis?.()||R()?.selectedMatch?.(sid)||null}catch(_){return null}
+}
+function teamName(){try{return B()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
+function score(m){try{return B()?.setsScore?.(m)||{us:arr(m?.sets).filter(s=>s.finished&&s.winner==='ours').length,opponent:arr(m?.sets).filter(s=>s.finished&&s.winner==='opponent').length}}catch(_){return {us:0,opponent:0}}}
+function totalPoints(m,team){return arr(m?.sets).reduce((n,s)=>n+Number(team==='ours'?s.scoreUs:s.scoreOpponent||0),0)}
+function initials(name){return String(name||'?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'VC'}
+function currentTab(){try{return localStorage.getItem('v114_analysis_tab')||'summary'}catch(_){return 'summary'}}
+window.v114SetAnalysisTab=function(tab){
+  const allowed=['summary','datasheet','rotations','tactics','opponent'];if(!allowed.includes(tab))tab='summary';
+  const view=$('scout-analysis');if(view)view.dataset.v114Tab=tab;
+  document.querySelectorAll('.v114-analysis-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  try{localStorage.setItem('v114_analysis_tab',tab)}catch(_){}
+};
+function ensureToolbar(){
+  const toolbar=document.querySelector('#scout-analysis .scout-analysis-toolbar');if(!toolbar||toolbar.dataset.v114)return;
+  toolbar.dataset.v114='1';
+  const title=document.querySelector('#scout-analysis .scout-analysis-header h2'),sub=document.querySelector('#scout-analysis .scout-analysis-header p'),kick=document.querySelector('#scout-analysis .scout-analysis-header .pro-kicker');
+  if(kick)kick.textContent='MATCH ANALYSIS · PROFESSIONAL DATA SHEET';
+  if(title)title.textContent='Análisis de partido';
+  if(sub)sub.textContent='Hoja estadística oficial, G-P individual y lectura técnica del partido en una vista de trabajo compacta.';
+  const official=[...toolbar.querySelectorAll('button')].find(b=>(b.textContent||'').toLowerCase().includes('hoja oficial'));
+  const pro=[...toolbar.querySelectorAll('button')].find(b=>(b.textContent||'').toLowerCase().includes('análisis pro'));
+  if(official)official.textContent='PDF hoja oficial';if(pro)pro.textContent='PDF análisis Pro';
+  const secondary=[...toolbar.querySelectorAll('button')].filter(b=>b!==official&&b!==pro);
+  if(secondary.length){
+    const details=document.createElement('details');details.className='v114-analysis-tools';details.innerHTML='<summary>Más</summary><div class="v114-analysis-tools-menu"></div>';
+    const menu=details.querySelector('.v114-analysis-tools-menu');secondary.forEach(b=>menu.appendChild(b));toolbar.appendChild(details);
+  }
+  const badge=[...toolbar.querySelectorAll('span')].find(x=>(x.textContent||'').includes('PDF'));if(badge){badge.textContent='PDF 11.4 ✓';badge.style.display='none'}
+}
+function ensureAnalysisChrome(){
+  const shell=document.querySelector('#scout-analysis .scout-analysis-shell'),header=document.querySelector('#scout-analysis .scout-analysis-header');if(!shell||!header)return;
+  if(!$('v114-matchboard')){
+    const board=document.createElement('div');board.id='v114-matchboard';board.className='v114-matchboard';header.insertAdjacentElement('afterend',board);
+    const tabs=document.createElement('div');tabs.className='v114-analysis-tabs';tabs.innerHTML=[['summary','Resumen'],['datasheet','Data Sheet'],['rotations','Rotaciones / fases'],['tactics','Táctica'],['opponent','Rival / cambios']].map(([k,l])=>`<button type="button" class="v114-analysis-tab" data-tab="${k}" onclick="v114SetAnalysisTab('${k}')">${l}</button>`).join('');board.insertAdjacentElement('afterend',tabs);
+    const strip=document.createElement('div');strip.id='v114-summary-strip';strip.className='v114-summary-strip';tabs.insertAdjacentElement('afterend',strip);
+  }
+  window.v114SetAnalysisTab(currentTab());
+}
+function renderChrome(){
+  ensureToolbar();ensureAnalysisChrome();const m=selectedMatch();if(!m)return;
+  const sc=score(m),sets=arr(m.sets),name=teamName(),opp=m.opponent||'Rival',board=$('v114-matchboard');
+  if(board)board.innerHTML=`<div class="v114-match-team"><span class="v114-team-mark">${esc(initials(name))}</span><div><small>Equipo</small><b>${esc(name)}</b></div></div><div class="v114-match-score"><strong>${sc.us}</strong><span>SETS</span><strong>${sc.opponent}</strong></div><div class="v114-match-team away"><div><small>Rival</small><b>${esc(opp)}</b></div><span class="v114-team-mark">${esc(initials(opp))}</span></div><div class="v114-match-meta"><small>${esc(m.competition||'Partido')} · ${esc(m.date||'Sin fecha')}</small><div class="v114-set-strip">${sets.length?sets.map(s=>`<span class="${s.finished?(s.winner==='ours'?'win':'loss'):''}">S${s.number} ${Number(s.scoreUs)||0}-${Number(s.scoreOpponent)||0}</span>`).join(''):'<span>Sin sets</span>'}</div></div>`;
+  const st=R()?.stats?.(m,'ours'),perf=R()?.perf?.(m,'ours'),rec=st?B()?.reception?.(st.teamStat):null,att=st?B()?.attack?.(st.teamStat):null,pm=st?B()?.pointMetrics?.(m,'ours','team',st.rows):null,k1=perf?.rallies?.filter?.(x=>x.phase==='K1')||[],k2=perf?.rallies?.filter?.(x=>x.phase==='K2')||[],strip=$('v114-summary-strip');
+  if(strip){const gpv=Number(pm?.gp)||0;strip.innerHTML=`<div class="v114-summary-card"><span>Side-out · K1</span><b>${k1.length?pct(perf.sideOut,k1.length)+'%':'—'}</b><small>${perf?.sideOut||0}/${k1.length} rallies</small></div><div class="v114-summary-card"><span>Break point · K2</span><b>${k2.length?pct(perf.breakPoint,k2.length)+'%':'—'}</b><small>${perf?.breakPoint||0}/${k2.length} rallies</small></div><div class="v114-summary-card"><span>Recepción positiva</span><b>${rec?.total?rec.posPct+'%':'—'}</b><small>${rec?.total?`Exc ${rec.excPct}% · ${rec.total} intentos`:'Sin muestra'}</small></div><div class="v114-summary-card"><span>Ataque punto</span><b>${att?.total?att.ptsPct+'%':'—'}</b><small>${att?.total?`${att.perfect}/${att.total} · G-P ${gp(att.gp)}`:'Sin muestra'}</small></div><div class="v114-summary-card gp"><span>G-P individual/equipo</span><b class="${gpv>0?'positive':gpv<0?'negative':''}">${pm?gp(gpv):'—'}</b><small>${pm?`${pm.won} puntos · ${pm.fp} BP`:`${totalPoints(m,'ours')} puntos`}</small></div>`}
+}
+const renderBase=window.scoutRenderAnalysis;
+if(typeof renderBase==='function'&&!renderBase.__v114){const wrapped=function(){const out=renderBase.apply(this,arguments);try{renderChrome()}catch(e){console.warn('V11.4 analysis chrome',e)}return out};wrapped.__v114=true;window.scoutRenderAnalysis=wrapped}
+
+/* ---------- PDF HTML builders ---------- */
+function officialMetrics(m,team,st,data,isTotal=false){
+  const s=B()?.skill?.(st,'S')||{},r=B()?.reception?.(st)||{},a=B()?.attack?.(st)||{},bl=B()?.skill?.(st,'B')||{},p=B()?.pointMetrics?.(m,team,isTotal?'team':st.key,data.rows)||{},forms=isTotal?['','','','','']: [1,2,3,4,5].map(n=>B()?.initialPos?.(m,team,st,n)||'');
+  return {label:isTotal?'TOTALES':(B()?.officialName?.(st,false)||st.label||'Jugador'),forms,p,s,r,a,bl};
+}
+function officialRow(x,total=false){
+  const c=v=>Number(v)||0,d=(n,has)=>has?(c(n)||'·'):'·',t=!!x.s.total,rt=!!x.r.total,at=!!x.a.total,bt=!!x.bl.total;
+  return `<tr class="${total?'total':''}"><td class="name">${esc(x.label)}</td>${x.forms.map(v=>`<td>${esc(v||'')}</td>`).join('')}<td>${d(x.p.won,true)}</td><td>${d(x.p.fp,true)}</td><td class="gp">${gp(x.p.gp)}</td><td>${d(x.s.total,t)}</td><td>${d(x.s.error,t)}</td><td>${d(x.s.perfect,t)}</td><td>${d(x.r.total,rt)}</td><td>${d(x.r.error,rt)}</td><td>${rt?x.r.posPct+'%':'·'}</td><td>${rt?'('+x.r.excPct+'%)':'·'}</td><td>${d(x.a.total,at)}</td><td>${d(x.a.error,at)}</td><td>${d(x.a.blocked,at)}</td><td>${d(x.a.perfect,at)}</td><td>${at?x.a.ptsPct+'%':'·'}</td><td>${d(x.bl.perfect,bt)}</td></tr>`;
+}
+function teamOfficialHTML(m,team){
+  const data=R()?.stats?.(m,team),name=team==='ours'?teamName():(m.opponent||'Rival');if(!data)return '';
+  const rows=data.players.map(st=>officialRow(officialMetrics(m,team,st,data,false))).join('')+officialRow(officialMetrics(m,team,data.teamStat,data,true),true);
+  return `<section class="team"><div class="teamtitle"><b>${esc(name)}</b><span>${data.players.length} jugadores con registro</span></div><table class="sheet"><thead><tr class="grp"><th rowspan="2" class="name">Jugador</th><th colspan="5">Formación inicial</th><th colspan="3">Puntos</th><th colspan="3">Saque</th><th colspan="4">Recepción</th><th colspan="5">Ataque</th><th>Bloqueo</th></tr><tr class="cols"><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>Tot</th><th>FP</th><th>G-P</th><th>Tot</th><th>Err</th><th>Pts</th><th>Tot</th><th>Err</th><th>Pos%</th><th>(Exc%)</th><th>Tot</th><th>Err</th><th>Blq</th><th>Pts</th><th>Pts%</th><th>Pts</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+}
+function v114PdfCSS(mode='official'){
+  return `<style>*{box-sizing:border-box}body{margin:0}.page{font-family:Arial,Helvetica,sans-serif;color:#17334a;background:#fff}.official{width:1800px;padding:34px 40px}.top{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:end;border-bottom:4px solid #102c45;padding-bottom:16px}.eyebrow{font-size:13px;font-weight:900;letter-spacing:.12em;color:#638096}.title{font-size:30px;font-weight:950;color:#102c45;margin:5px 0}.meta{font-size:14px;color:#6d808f}.scorebox{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;border:1px solid #aebbc4;padding:12px 16px}.scoreteam{font-weight:900;font-size:16px}.scoreteam.right{text-align:right}.score{display:flex;align-items:center;gap:12px}.score b{font-size:31px}.score span{font-size:12px;color:#7a8b98}.setline{display:flex;justify-content:flex-end;gap:5px;margin-top:7px;flex-wrap:wrap}.setline span{font-size:11px;border:1px solid #d2dbe1;padding:4px 7px;border-radius:4px}.team{margin-top:13px;border:1px solid #8fa0ac}.teamtitle{display:flex;justify-content:space-between;align-items:center;background:#dfe5e9;border-bottom:1px solid #8fa0ac;padding:7px 9px}.teamtitle b{font-size:15px}.teamtitle span{font-size:10px;color:#5e7281}.sheet{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}.sheet th,.sheet td{border:1px solid #cbd4da;text-align:center;padding:4px 3px;font-size:9.3px;line-height:1.05;height:22px}.sheet th{font-weight:900}.sheet .name{text-align:left;width:155px;padding-left:6px}.sheet .grp th{background:#edf1f3;color:#314b5d;font-size:8.5px}.sheet .cols th{background:#102c45;color:#fff;font-size:8px}.sheet td.gp{background:#f0f4f7;font-weight:950}.sheet tr.total td{background:#e1e7eb!important;font-weight:950;border-top:2px solid #738794}.lower{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:13px}.phase{border:1px solid #aab8c2;padding:9px 11px}.phase h3{font-size:11px;margin:0 0 6px}.phasegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.phasegrid div{background:#f4f7f9;border:1px solid #dce4e9;padding:6px}.phasegrid span{display:block;font-size:8px;color:#708493;text-transform:uppercase;font-weight:900}.phasegrid b{display:block;font-size:14px;margin-top:2px}.legend{margin-top:10px;padding-top:8px;border-top:1px solid #cfd8de;display:flex;gap:18px;flex-wrap:wrap;font-size:8.5px;color:#607381}.legend b{color:#17334a}.footer{display:flex;justify-content:space-between;margin-top:7px;font-size:8px;color:#7a8c98}.report{width:1400px;min-height:1980px;padding:54px 62px}.rhead{background:#102c45;color:#fff;padding:28px 30px;margin:-54px -62px 30px}.rhead .eyebrow{color:#b9cedd}.rhead h1{font-size:34px;margin:7px 0 4px}.rhead p{font-size:14px;color:#d7e2e9;margin:0}.scorehero{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border:1px solid #ccd7df;margin-bottom:20px}.scorehero>div{padding:18px}.scorehero .mid{font-size:30px;font-weight:950;border-left:1px solid #ccd7df;border-right:1px solid #ccd7df}.scorehero .right{text-align:right}.scorehero b{display:block;font-size:19px}.scorehero small{color:#738693}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 24px}.card{border:1px solid #d9e3e9;background:#f8fafb;padding:14px}.card span{display:block;font-size:9px;color:#708392;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.card b{display:block;font-size:25px;margin:4px 0}.card small{font-size:9px;color:#81919d}.sectiontitle{font-size:17px;font-weight:950;color:#17334a;border-bottom:2px solid #244967;padding-bottom:7px;margin:22px 0 10px}.rtbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.rtbl th,.rtbl td{border-bottom:1px solid #dfe6ea;padding:8px 6px;font-size:10px;text-align:center}.rtbl th{background:#eef3f6;font-size:9px;text-transform:uppercase}.rtbl td:first-child,.rtbl th:first-child{text-align:left}.rtbl tr.total td{background:#e7edf1;font-weight:950}.insight{display:grid;grid-template-columns:90px 1fr;gap:10px;border:1px solid #dce5ea;border-left:5px solid #5a819b;padding:11px 12px;margin-bottom:7px}.insight.good{border-left-color:#3e7d61}.insight.warn{border-left-color:#d08c37}.insight b{font-size:10px;text-transform:uppercase}.insight span{font-size:11px;line-height:1.4;color:#455d6e}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}.box{border:1px solid #d9e2e8;padding:12px}.box h3{font-size:13px;margin:0 0 8px}.quality{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quality div{border:1px solid #dce4e9;padding:13px}.quality span{display:block;font-size:9px;color:#708493;text-transform:uppercase;font-weight:900}.quality b{display:block;font-size:23px;margin-top:3px}.note{font-size:10px;color:#677d8c;line-height:1.45;background:#f6f8fa;border:1px solid #e1e7eb;padding:12px;margin-top:16px}.pfooter{position:absolute;bottom:32px;left:62px;right:62px;border-top:1px solid #d8e0e5;padding-top:8px;display:flex;justify-content:space-between;font-size:9px;color:#748794}.report{position:relative}</style>`;
+}
+function perfCards(m,team){
+  const p=R()?.perf?.(m,team),stats=R()?.stats?.(m,team),rec=stats?B()?.reception?.(stats.teamStat):null,att=stats?B()?.attack?.(stats.teamStat):null,k1=p?.rallies?.filter?.(x=>x.phase==='K1')||[],k2=p?.rallies?.filter?.(x=>x.phase==='K2')||[],pm=stats?B()?.pointMetrics?.(m,team,'team',stats.rows):null;
+  return {p,stats,rec,att,k1,k2,pm};
+}
+function officialHTML(m){
+  const sc=score(m),ours=perfCards(m,'ours'),opp=perfCards(m,'opponent'),sets=arr(m.sets);
+  return `<div class="page official">${v114PdfCSS()}<div class="top"><div><div class="eyebrow">VOLLEY COACH · OFFICIAL MATCH STATISTICS</div><div class="title">${esc(m.competition||'Partido')}</div><div class="meta">${esc(m.date||'—')} · ${esc(m.round||'')} ${m.pavilion?'· '+esc(m.pavilion):''}</div></div><div><div class="scorebox"><div class="scoreteam">${esc(teamName())}</div><div class="score"><b>${sc.us}</b><span>SETS</span><b>${sc.opponent}</b></div><div class="scoreteam right">${esc(m.opponent||'Rival')}</div></div><div class="setline">${sets.map(s=>`<span>S${s.number} <b>${Number(s.scoreUs)||0}-${Number(s.scoreOpponent)||0}</b></span>`).join('')}</div></div></div>${teamOfficialHTML(m,'ours')}${teamOfficialHTML(m,'opponent')}<div class="lower"><div class="phase"><h3>${esc(teamName())} · cambio de saque / fase punto</h3><div class="phasegrid"><div><span>Side-out K1</span><b>${ours.k1.length?pct(ours.p.sideOut,ours.k1.length)+'%':'—'}</b></div><div><span>Break K2</span><b>${ours.k2.length?pct(ours.p.breakPoint,ours.k2.length)+'%':'—'}</b></div><div><span>REC Pos / Exc</span><b>${ours.rec?.total?ours.rec.posPct+' / '+ours.rec.excPct+'%':'—'}</b></div><div><span>ATQ Pts%</span><b>${ours.att?.total?ours.att.ptsPct+'%':'—'}</b></div></div></div><div class="phase"><h3>${esc(m.opponent||'Rival')} · cambio de saque / fase punto</h3><div class="phasegrid"><div><span>Side-out K1</span><b>${opp.k1.length?pct(opp.p.sideOut,opp.k1.length)+'%':'—'}</b></div><div><span>Break K2</span><b>${opp.k2.length?pct(opp.p.breakPoint,opp.k2.length)+'%':'—'}</b></div><div><span>REC Pos / Exc</span><b>${opp.rec?.total?opp.rec.posPct+' / '+opp.rec.excPct+'%':'—'}</b></div><div><span>ATQ Pts%</span><b>${opp.att?.total?opp.att.ptsPct+'%':'—'}</b></div></div></div></div><div class="legend"><span><b>FP</b> fase punto / break point</span><span><b>G-P</b> puntos directos ganados − pérdidas terminales</span><span><b>Pos%</b> recepción #/+</span><span><b>Exc%</b> recepción #</span><span><b>Pts%</b> ataques punto / total</span></div><div class="footer"><span>Volley Coach · V11.4 · Professional Data Sheet</span><span>Datos calculados solo con rallies cerrados y acciones registradas.</span></div></div>`;
+}
+function playerTableHTML(m,team){
+  const d=R()?.playerRows?.(m,team)||[],name=team==='ours'?teamName():(m.opponent||'Rival');
+  return `<div class="sectiontitle">${esc(name)} · rendimiento individual</div><table class="rtbl"><thead><tr><th>Jugador</th><th>PTS</th><th>FP</th><th>G-P</th><th>SAQ A/E</th><th>REC</th><th>POS%</th><th>EXC%</th><th>ATQ</th><th>PTS</th><th>PTS%</th><th>ATQ G-P</th><th>BLQ</th></tr></thead><tbody>${d.map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.pts}</td><td>${x.fp}</td><td><b>${gp(x.gp)}</b></td><td>${x.ace}/${x.serveErr}</td><td>${x.recTotal||'·'}</td><td>${x.recTotal?x.recPos+'%':'·'}</td><td>${x.recTotal?x.recExc+'%':'·'}</td><td>${x.attTotal||'·'}</td><td>${x.attTotal?x.kill:'·'}</td><td>${x.attTotal?x.attPct+'%':'·'}</td><td>${x.attTotal?gp(x.attGp):'·'}</td><td>${x.block||'·'}</td></tr>`).join('')}</tbody></table>`;
+}
+function reportHeader(m,title,sub,page,total){return `<div class="rhead"><div class="eyebrow">VOLLEY COACH · PROFESSIONAL MATCH REPORT · V11.4</div><h1>${esc(title)}</h1><p>${esc(teamName())} vs ${esc(m.opponent||'Rival')} · ${esc(m.date||'')} · ${esc(sub)}</p></div>`}
+function reportFooter(page,total,label){return `<div class="pfooter"><span>${esc(label)}</span><span>Página ${page}/${total}</span></div>`}
+function analysisPages(m){
+  const total=5,sc=score(m),o=perfCards(m,'ours'),r=perfCards(m,'opponent'),ins=R()?.insights?.(m)||[],sets=R()?.setTrend?.(m,'ours')||[],rots=R()?.rotationStats?.(m,'ours')||[],rrots=R()?.rotationStats?.(m,'opponent')||[],q=R()?.dataQuality?.(m)||{rallies:0,codedRallies:0,codedPct:0,actions:0,issues:[]},bd=R()?.terminalBreakdown?.(m,'ours')||{serve:0,attack:0,block:0,oppErr:0,won:0,lost:0};
+  const p1=`<div class="page report">${v114PdfCSS('report')}${reportHeader(m,'Informe técnico del partido','Resumen ejecutivo',1,total)}<div class="scorehero"><div><small>Equipo</small><b>${esc(teamName())}</b></div><div class="mid">${sc.us} - ${sc.opponent}</div><div class="right"><small>Rival</small><b>${esc(m.opponent||'Rival')}</b></div></div><div class="cards"><div class="card"><span>Side-out · K1</span><b>${o.k1.length?pct(o.p.sideOut,o.k1.length)+'%':'—'}</b><small>${o.p?.sideOut||0}/${o.k1.length}</small></div><div class="card"><span>Break point · K2</span><b>${o.k2.length?pct(o.p.breakPoint,o.k2.length)+'%':'—'}</b><small>${o.p?.breakPoint||0}/${o.k2.length}</small></div><div class="card"><span>Recepción +/#</span><b>${o.rec?.total?o.rec.posPct+'%':'—'}</b><small>${o.rec?.total?'Exc '+o.rec.excPct+'% · '+o.rec.total+' rec.':'Sin muestra'}</small></div><div class="card"><span>Ataque punto</span><b>${o.att?.total?o.att.ptsPct+'%':'—'}</b><small>${o.att?.total?`${o.att.perfect}/${o.att.total} · G-P ${gp(o.att.gp)}`:'Sin muestra'}</small></div></div><div class="sectiontitle">Lectura ejecutiva</div>${ins.slice(0,8).map(x=>`<div class="insight ${x.kind||''}"><b>${esc(x.tag)}</b><span>${esc(x.text)}</span></div>`).join('')||'<div class="note">No hay muestra suficiente para generar conclusiones automáticas.</div>'}<div class="sectiontitle">Evolución por set</div><table class="rtbl"><thead><tr><th>Set</th><th>Marcador</th><th>K1</th><th>K2</th><th>REC Pos</th><th>REC Exc</th><th>ATQ Pts</th><th>Ace/Err</th><th>BLQ</th></tr></thead><tbody>${sets.map(x=>`<tr><td><b>S${x.set}</b></td><td>${x.score}</td><td>${x.k1==null?'—':x.k1+'% ('+x.k1n+')'}</td><td>${x.k2==null?'—':x.k2+'% ('+x.k2n+')'}</td><td>${x.recN?x.recPos+'%':'—'}</td><td>${x.recN?x.recExc+'%':'—'}</td><td>${x.attN?x.att+'%':'—'}</td><td>${x.ace}/${x.serveErr}</td><td>${x.block}</td></tr>`).join('')}</tbody></table>${reportFooter(1,total,'Resumen ejecutivo') }</div>`;
+  const p2=`<div class="page report">${v114PdfCSS('report')}${reportHeader(m,'Rendimiento individual','Data Sheet por jugadora',2,total)}${playerTableHTML(m,'ours')}${playerTableHTML(m,'opponent')}<div class="note"><b>G-P</b> se muestra como dato individual principal: puntos directos ganados menos pérdidas terminales atribuibles. La recepción se expresa como Pos% y Exc%; el ataque como Pts% sobre intentos reales.</div>${reportFooter(2,total,'Rendimiento individual')}</div>`;
+  const phaseRows=[['1er ataque tras recepción +/#',o.p?.positive,r.p?.positive],['1er ataque tras recepción !/-',o.p?.negative,r.p?.negative],['Contraataque',o.p?.counter,r.p?.counter]];
+  const p3=`<div class="page report">${v114PdfCSS('report')}${reportHeader(m,'K1, K2 y rotaciones','Eficacia por fase y rotación',3,total)}<div class="cards"><div class="card"><span>K1 nuestro</span><b>${o.k1.length?pct(o.p.sideOut,o.k1.length)+'%':'—'}</b><small>${o.p?.sideOut||0}/${o.k1.length}</small></div><div class="card"><span>K2 nuestro</span><b>${o.k2.length?pct(o.p.breakPoint,o.k2.length)+'%':'—'}</b><small>${o.p?.breakPoint||0}/${o.k2.length}</small></div><div class="card"><span>K1 rival</span><b>${r.k1.length?pct(r.p.sideOut,r.k1.length)+'%':'—'}</b><small>${r.p?.sideOut||0}/${r.k1.length}</small></div><div class="card"><span>K2 rival</span><b>${r.k2.length?pct(r.p.breakPoint,r.k2.length)+'%':'—'}</b><small>${r.p?.breakPoint||0}/${r.k2.length}</small></div></div><div class="sectiontitle">Ataque según fase</div><table class="rtbl"><thead><tr><th>Situación</th><th>Tot</th><th>Pts</th><th>Err</th><th>Blq</th><th>Pts%</th><th>Rival Tot</th><th>Rival Pts%</th></tr></thead><tbody>${phaseRows.map(([lab,a,b])=>`<tr><td>${esc(lab)}</td><td>${a?.total||0}</td><td>${a?.pts||0}</td><td>${a?.err||0}</td><td>${a?.blq||0}</td><td>${a?.pct==null?'—':a.pct+'%'}</td><td>${b?.total||0}</td><td>${b?.pct==null?'—':b.pct+'%'}</td></tr>`).join('')}</tbody></table><div class="sectiontitle">Rotaciones R1-R6</div><table class="rtbl"><thead><tr><th>Rot.</th><th>Rallies</th><th>K1 G/T</th><th>K1%</th><th>K2 G/T</th><th>K2%</th><th>G-P</th><th>Rival K1%</th><th>Rival K2%</th><th>Rival G-P</th></tr></thead><tbody>${rots.map((x,i)=>{const z=rrots[i]||{};return `<tr><td><b>R${x.no}</b></td><td>${x.total}</td><td>${x.k1Won}/${x.k1Total}</td><td>${x.k1Pct==null?'—':x.k1Pct+'%'}</td><td>${x.k2Won}/${x.k2Total}</td><td>${x.k2Pct==null?'—':x.k2Pct+'%'}</td><td><b>${gp(x.gp)}</b></td><td>${z.k1Pct==null?'—':z.k1Pct+'%'}</td><td>${z.k2Pct==null?'—':z.k2Pct+'%'}</td><td>${z.gp==null?'—':gp(z.gp)}</td></tr>`}).join('')}</tbody></table>${reportFooter(3,total,'Fases y rotaciones')}</div>`;
+  const rz=R()?.receptionZones?.(m,'ours')||[],sz=R()?.serveZones?.(m,'ours')||[],ad=R()?.attackDirections?.(m,'ours')||[],ds=R()?.distribution?.(m,'ours')||[];
+  const p4=`<div class="page report">${v114PdfCSS('report')}${reportHeader(m,'Zonas y distribución','Patrones tácticos registrados',4,total)}<div class="twocol"><div class="box"><h3>Recepción por zona</h3><table class="rtbl"><thead><tr><th>Zona</th><th>Tot</th><th>Pos%</th><th>Exc%</th></tr></thead><tbody>${rz.slice(0,12).map(x=>`<tr><td><b>Z${x.zone}</b></td><td>${x.total}</td><td>${x.positivePct??x.posPct??'—'}${(x.positivePct??x.posPct)!=null?'%':''}</td><td>${x.perfectPct??x.excPct??'—'}${(x.perfectPct??x.excPct)!=null?'%':''}</td></tr>`).join('')||'<tr><td colspan="4">Sin datos de zona</td></tr>'}</tbody></table></div><div class="box"><h3>Saque por zona</h3><table class="rtbl"><thead><tr><th>Zona</th><th>Tot</th><th>Ace</th><th>Err</th><th>Presión</th></tr></thead><tbody>${sz.slice(0,12).map(x=>`<tr><td><b>Z${x.zone}</b></td><td>${x.total}</td><td>${x.ace}</td><td>${x.err}</td><td>${x.pressurePct??'—'}${x.pressurePct!=null?'%':''}</td></tr>`).join('')||'<tr><td colspan="5">Sin datos de zona</td></tr>'}</tbody></table></div></div><div class="twocol" style="margin-top:16px"><div class="box"><h3>Direcciones de ataque</h3><table class="rtbl"><thead><tr><th>Dirección</th><th>Tot</th><th>Pts</th><th>Pts%</th><th>Err</th><th>Blq</th><th>EFF%</th></tr></thead><tbody>${ad.slice(0,14).map(x=>`<tr><td><b>${esc(x.direction)}</b></td><td>${x.total}</td><td>${x.pts}</td><td>${x.ptsPct}%</td><td>${x.err}</td><td>${x.blq}</td><td>${x.effPct}%</td></tr>`).join('')||'<tr><td colspan="7">Sin direcciones codificadas</td></tr>'}</tbody></table></div><div class="box"><h3>Distribución de colocación</h3><table class="rtbl"><thead><tr><th>Destino</th><th>Tot</th><th>Uso</th></tr></thead><tbody>${ds.slice(0,16).map(x=>`<tr><td><b>${esc(x.label)}</b></td><td>${x.total}</td><td>${x.pct}%</td></tr>`).join('')||'<tr><td colspan="3">Sin distribución codificada</td></tr>'}</tbody></table></div></div><div class="note">Las zonas y direcciones solo se muestran cuando fueron codificadas. Un dato ausente no se convierte en cero.</div>${reportFooter(4,total,'Zonas y distribución')}</div>`;
+  const p5=`<div class="page report">${v114PdfCSS('report')}${reportHeader(m,'Metodología y calidad','Cómo leer el informe',5,total)}<div class="quality"><div><span>Rallies</span><b>${q.rallies}</b></div><div><span>Con acciones</span><b>${q.codedRallies}</b><small>${q.codedPct}%</small></div><div><span>Acciones</span><b>${q.actions}</b></div><div><span>Alertas</span><b>${q.issues.length}</b></div></div><div class="sectiontitle">Fuentes de punto</div><table class="rtbl"><thead><tr><th>Fuente</th><th>Puntos</th></tr></thead><tbody><tr><td>Saque</td><td>${bd.serve||0}</td></tr><tr><td>Ataque</td><td>${bd.attack||0}</td></tr><tr><td>Bloqueo</td><td>${bd.block||0}</td></tr><tr><td>Error rival</td><td>${bd.oppErr||0}</td></tr></tbody></table><div class="sectiontitle">Definiciones</div>${[['G-P','Puntos directos ganados menos pérdidas terminales atribuibles.'],['FP / Break point','Punto conseguido en un rally que comenzó con el equipo al saque.'],['Side-out / K1','Rally ganado después de comenzar en recepción.'],['Recepción Pos%','Recepciones # o + dividido por recepciones totales.'],['Recepción Exc%','Recepciones # dividido por recepciones totales.'],['Ataque Pts%','Ataques # dividido por ataques totales.'],['EFF ataque','(Puntos - errores - bloqueados) / ataques totales.']].map(([a,b])=>`<div class="insight"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}<div class="sectiontitle">Control de muestra</div>${q.issues.length?q.issues.map(x=>`<div class="insight warn"><b>Muestra</b><span>${esc(x)}</span></div>`).join(''):'<div class="insight good"><b>Muestra</b><span>No se han detectado déficits graves de cobertura con los umbrales automáticos. Esto no garantiza que todas las acciones estén codificadas correctamente.</span></div>'}<div class="note">El informe es descriptivo y depende de la calidad del scouting. Volley Coach no rellena acciones ausentes ni transforma un dato desconocido en cero.</div>${reportFooter(5,total,'Metodología y calidad')}</div>`;
+  return [p1,p2,p3,p4,p5];
+}
+async function canvasFromHTML(html,width,scale=1.4){
+  if(!window.html2canvas)throw new Error('html2canvas no está disponible.');const host=document.createElement('div');host.style.cssText=`position:fixed;left:-30000px;top:0;width:${width}px;background:#fff;z-index:-1`;host.innerHTML=html;document.body.appendChild(host);try{return await html2canvas(host.firstElementChild||host,{scale,backgroundColor:'#ffffff',logging:false,useCORS:true})}finally{host.remove()}
+}
+function addCanvas(pdf,canvas,orientation,first=false,margin=4){
+  if(!first)pdf.addPage('a4',orientation);const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight(),mw=W-margin*2,mh=H-margin*2,ratio=Math.min(mw/canvas.width,mh/canvas.height),w=canvas.width*ratio,h=canvas.height*ratio;pdf.addImage(canvas.toDataURL('image/jpeg',.96),'JPEG',(W-w)/2,(H-h)/2,w,h,undefined,'FAST');
+}
+function deliver(pdf,filename){const blob=pdf.output('blob');if(typeof window.scoutV753DeliverPDF==='function')return window.scoutV753DeliverPDF(blob,filename);pdf.save(filename);return {filename}}
+function notify(on,text){try{B()?.exportNotice?.(on,text)}catch(_){}}
+function pdfError(title,e){console.error(title,e);if(typeof window.scoutV753ShowPDFError==='function')window.scoutV753ShowPDFError(title,e);else alert(`${title}\n\n${e?.message||e}`)}
+window.scoutV114ExportOfficialPDF=async function(id){
+  const m=selectedMatch(id);if(!m){pdfError('No se ha podido crear la hoja oficial.',new Error('No hay scouting seleccionado.'));return false}if(!window.jspdf?.jsPDF){pdfError('No se ha podido crear la hoja oficial.',new Error('jsPDF no está disponible.'));return false}
+  notify(true,'Generando hoja oficial V11.4…');try{const c=await canvasFromHTML(officialHTML(m),1800,1.55),{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});addCanvas(pdf,c,'landscape',true,3);deliver(pdf,`${B()?.safeFilename?.((m.date||'partido')+'_'+(m.opponent||'rival'))||'partido'}_Hoja_Oficial_V114.pdf`)}catch(e){pdfError('No se ha podido crear la hoja oficial.',e)}finally{notify(false)}return false;
+};
+window.scoutV114ExportAnalysisPDF=async function(id){
+  const m=selectedMatch(id);if(!m){pdfError('No se ha podido crear el análisis Pro.',new Error('No hay scouting seleccionado.'));return false}if(!window.jspdf?.jsPDF){pdfError('No se ha podido crear el análisis Pro.',new Error('jsPDF no está disponible.'));return false}
+  notify(true,'Generando análisis Pro V11.4…');try{const pages=analysisPages(m),canv=[];for(const p of pages)canv.push(await canvasFromHTML(p,1400,1.35));const {jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});canv.forEach((c,i)=>addCanvas(pdf,c,'portrait',i===0,4));deliver(pdf,`${B()?.safeFilename?.((m.date||'partido')+'_'+(m.opponent||'rival'))||'partido'}_Analisis_Pro_V114.pdf`)}catch(e){pdfError('No se ha podido crear el análisis Pro.',e)}finally{notify(false)}return false;
+};
+/* Final routes: every existing PDF button now lands on V11.4. */
+window.scoutV752ExportOfficialPDF=window.scoutV114ExportOfficialPDF;window.scoutV753ExportOfficialPDF=window.scoutV114ExportOfficialPDF;window.scoutV754ExportOfficialPDF=window.scoutV114ExportOfficialPDF;window.scoutV755ExportOfficialPDF=window.scoutV114ExportOfficialPDF;window.scoutV756ExportOfficialPDF=window.scoutV114ExportOfficialPDF;window.scoutExportPDF=window.scoutV114ExportOfficialPDF;
+window.scoutV752ExportAnalysisPDF=window.scoutV114ExportAnalysisPDF;window.scoutV753ExportAnalysisPDF=window.scoutV114ExportAnalysisPDF;window.scoutV754ExportAnalysisPDF=window.scoutV114ExportAnalysisPDF;window.scoutV755ExportAnalysisPDF=window.scoutV114ExportAnalysisPDF;window.scoutV756ExportAnalysisPDF=window.scoutV114ExportAnalysisPDF;window.scoutExportAnalysisPDF=window.scoutV114ExportAnalysisPDF;
+renderChrome();
+window.VC_V114_ANALYSIS={version:VERSION,render:renderChrome,selectedMatch,officialHTML,analysisPages,diagnostics:()=>({version:VERSION,match:selectedMatch()?.id||null,tab:currentTab(),pdfOfficial:typeof window.scoutV114ExportOfficialPDF,pdfAnalysis:typeof window.scoutV114ExportAnalysisPDF})};
 })();
 </script>
 
