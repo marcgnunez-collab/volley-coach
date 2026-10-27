@@ -948,80 +948,12 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <button class="tab-btn" type="button" onclick="openLiveDelay('training')">Live Delay</button>
       <button class="tab-btn" type="button" onclick="v950OpenMatchVideo()">Vídeo de partido</button>
     </div>
-    <div id="scouting-nav" class="tabs app-tabs workspace-nav hidden v910-scout-nav v930-internal-nav">
-      <button class="tab-btn v910-primary-tab" data-view="scout-dashboard" onclick="showView('scout-dashboard',this)">Inicio</button>
-      <button class="tab-btn v910-primary-tab" data-view="scout-match-mode" onclick="showView('scout-match-mode',this)">Modo partido</button>
-      <button class="tab-btn v910-primary-tab" data-view="scout-workspace-v900" onclick="showView('scout-workspace-v900',this)">Scouting Pro</button>
-      <button class="tab-btn v910-primary-tab" data-view="scout-analysis" onclick="showView('scout-analysis',this)">Análisis</button>
-      <button class="tab-btn v910-primary-tab" data-view="scout-video-hub" onclick="showView('scout-video-hub',this)">Vídeo</button>
-      <button class="tab-btn" data-view="scout-postmatch" onclick="showView('scout-postmatch',this)">Postpartido</button>
-      <button class="tab-btn" data-view="competicion" onclick="showView('competicion',this)">Partidos</button>
-      <button class="tab-btn" data-view="scout-plan" onclick="showView('scout-plan',this)">Plan</button>
-      <button class="tab-btn" data-view="scout-matchup" onclick="showView('scout-matchup',this)">Match-up</button>
-      <button class="tab-btn" data-view="scout-safe" onclick="showView('scout-safe',this)">Seguridad</button>
-      <button class="tab-btn" data-view="scout-season" onclick="showView('scout-season',this)">Temporada</button>
-    </div>
+    
 
     
-    <div id="v940-professional-nav" class="v940-professional-nav hidden" aria-label="Centro profesional de scouting">
-      <div class="v940-nav-head">
-        <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
-          <span>VC</span>
-          <div><b>Scouting Center</b><small>Professional workspace · V12.2.0</small></div>
-        </button>
+    
 
-        <div id="v940-match-context" class="v940-match-context">
-          <div><span>PARTIDO</span><b id="v940-context-match">Sin scouting activo</b></div>
-          <div><span>SET / MARCADOR</span><b id="v940-context-score">—</b></div>
-          <div><span>ROTACIÓN</span><b id="v940-context-rotation">—</b></div>
-          <div><span>GUARDADO</span><b id="v940-context-save">Local + nube</b></div>
-        </div>
 
-        <span id="v940-perf-badge" class="v940-perf-badge" title="Respuesta de la última acción">⚡ — ms</span>
-      </div>
-
-      <div class="v940-main-nav">
-        <button data-v940-area="partido" onclick="v940Open('partido')">
-          <span class="v940-nav-icon">01</span><div><b>Partido</b><small>marcador · pista · rotaciones</small></div>
-        </button>
-        <button data-v940-area="scouting" onclick="v940Open('scouting')">
-          <span class="v940-nav-icon">02</span><div><b>Scouting</b><small>visual · código · DataVolley</small></div>
-        </button>
-        <button data-v940-area="revisar" onclick="v940Open('revisar')">
-          <span class="v940-nav-icon">03</span><div><b>Revisar</b><small>rallies · edición · correcciones</small></div>
-        </button>
-        <button data-v940-area="analisis" onclick="v940Open('analisis')">
-          <span class="v940-nav-icon">04</span><div><b>Análisis</b><small>lectura exhaustiva · PDF</small></div>
-        </button>
-        <button data-v940-area="gestion" onclick="v940Open('gestion')">
-          <span class="v940-nav-icon">05</span><div><b>Gestión</b><small>nube · recuperación · plan</small></div>
-        </button>
-      </div>
-
-      <div id="v940-context-toolbar" class="v940-context-toolbar"></div>
-    </div>
-
-<div id="v930-unified-nav" class="v930-unified-nav hidden v940-compat-nav" aria-label="Scouting Pro">
-      <div class="v930-nav-primary">
-        <button data-v930-route="partido" onclick="v930Open('partido')"><b>Partido</b><span>marcador + pista</span></button>
-        <button data-v930-route="directo" onclick="v930Open('directo')"><b>Directo</b><span>registro visual</span></button>
-        <button data-v930-route="codigo" onclick="v930Open('codigo')"><b>Código</b><span>entrada rápida</span></button>
-        <button data-v930-route="video" onclick="v930Open('video')"><b>Vídeo</b><span>REC + cámara</span></button>
-        <button data-v930-route="revisar" onclick="v930Open('revisar')"><b>Revisar</b><span>rallies + edición</span></button>
-        <button data-v930-route="analisis" onclick="v930Open('analisis')"><b>Análisis</b><span>exhaustivo</span></button>
-        <button data-v930-route="seguridad" onclick="v930Open('seguridad')"><b>Seguridad</b><span>copias + nube</span></button>
-      </div>
-      <div class="v930-nav-secondary">
-        <button data-v930-route="preparar" onclick="v930Open('preparar')">Preparar</button>
-        <button data-v930-route="videoteca" onclick="v930Open('videoteca')">Vídeo análisis</button>
-        <button data-v930-route="plan" onclick="v930Open('plan')">Plan</button>
-        <button data-v930-route="matchup" onclick="v930Open('matchup')">Match-up</button>
-        <button data-v930-route="post" onclick="v930Open('post')">Postpartido</button>
-        <button data-v930-route="partidos" onclick="v930Open('partidos')">Partidos</button>
-        <button data-v930-route="temporada" onclick="v930Open('temporada')">Temporada</button>
-        <span id="v931-perf-badge" class="v931-perf-badge" title="Tiempo de respuesta de la última acción">⚡ — ms</span>
-      </div>
-    </div>
   </div>
   <div class="team-switcher compact-team-switcher" id="team-switcher">
     <div class="team-switcher-left"><div><div class="team-kicker">Equipo activo</div><div class="team-name" id="team-active-name">Infantil Masculino</div></div></div>
@@ -1561,99 +1493,6 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 </section>
 
 
-<section id="scout-postmatch" class="view">
-  <div class="v820-shell">
-    <div class="v820-hero">
-      <div>
-        <span class="pro-kicker">V8.2 · INFORME POSTPARTIDO</span>
-        <h2>Informe técnico automático</h2>
-        <p>Convierte el scouting registrado en conclusiones, prioridades de trabajo y momentos de vídeo.</p>
-      </div>
-      <div class="v820-hero-actions">
-        <label><span>Partido</span><select id="v820-match" onchange="v820Render()"></select></label>
-        <button class="ghost" onclick="v820OpenVideoHub()">▶ Vídeo Hub</button>
-        <button class="primary" onclick="v820ExportPDF()">↓ PDF informe</button>
-      </div>
-    </div>
-
-    <div id="v820-empty" class="v820-empty hidden">
-      <strong>No hay partidos con scouting.</strong>
-      <span>Finaliza o guarda un scouting y aparecerá aquí.</span>
-    </div>
-
-    <div id="v820-report-export" class="v820-report">
-      <section class="v820-cover">
-        <div>
-          <span class="pro-kicker">VOLLEY COACH · POST-MATCH</span>
-          <h2 id="v820-title">—</h2>
-          <p id="v820-meta">—</p>
-        </div>
-        <div class="v820-result">
-          <span id="v820-result-label">RESULTADO</span>
-          <strong id="v820-result">0–0</strong>
-          <small id="v820-set-scores">—</small>
-        </div>
-      </section>
-
-      <section class="v820-kpis">
-        <div><span>K1 / Side-out</span><b id="v820-k1">—</b><small id="v820-k1-copy">—</small></div>
-        <div><span>K2 / Break</span><b id="v820-k2">—</b><small id="v820-k2-copy">—</small></div>
-        <div><span>G-P</span><b id="v820-gp">0</b><small id="v820-gp-copy">—</small></div>
-        <div><span>Recepción +/#</span><b id="v820-rec">—</b><small id="v820-rec-copy">—</small></div>
-        <div><span>Ataque EFF</span><b id="v820-att">—</b><small id="v820-att-copy">—</small></div>
-        <div><span>Calidad scout</span><b id="v820-quality">—</b><small id="v820-quality-copy">—</small></div>
-      </section>
-
-      <div class="v820-two">
-        <section class="v820-panel">
-          <div class="v820-head"><div><span class="pro-kicker">LECTURA AUTOMÁTICA</span><h3>Qué funcionó</h3></div></div>
-          <div id="v820-positive" class="v820-insights"></div>
-        </section>
-        <section class="v820-panel">
-          <div class="v820-head"><div><span class="pro-kicker">PRIORIDADES</span><h3>Qué revisar</h3></div></div>
-          <div id="v820-review" class="v820-insights"></div>
-        </section>
-      </div>
-
-      <section class="v820-panel">
-        <div class="v820-head"><div><span class="pro-kicker">ROTACIONES</span><h3>R1–R6 · K1/K2 y G-P</h3></div><small>Ordenado por rotación reglamentaria.</small></div>
-        <div id="v820-rotations" class="v820-rotations"></div>
-      </section>
-
-      <section class="v820-panel">
-        <div class="v820-head"><div><span class="pro-kicker">FUNDAMENTOS</span><h3>Producción por skill</h3></div></div>
-        <div id="v820-skills" class="v820-table-wrap"></div>
-      </section>
-
-      <section class="v820-panel">
-        <div class="v820-head"><div><span class="pro-kicker">JUGADORES</span><h3>Rendimiento individual</h3></div><small>G-P son recuentos, no porcentajes.</small></div>
-        <div id="v820-players" class="v820-table-wrap"></div>
-      </section>
-
-      <div class="v820-two">
-        <section class="v820-panel">
-          <div class="v820-head"><div><span class="pro-kicker">MOMENTOS CLAVE</span><h3>Rallies a revisar en vídeo</h3></div></div>
-          <div id="v820-key-rallies" class="v820-key-rallies"></div>
-        </section>
-        <section class="v820-panel">
-          <div class="v820-head"><div><span class="pro-kicker">EVENTOS</span><h3>Tiempos, cambios e incidencias</h3></div></div>
-          <div id="v820-events" class="v820-events"></div>
-        </section>
-      </div>
-
-      <section class="v820-panel v820-summary-panel">
-        <div class="v820-head"><div><span class="pro-kicker">RESUMEN PARA EL SIGUIENTE ENTRENAMIENTO</span><h3>3 focos prioritarios</h3></div></div>
-        <div id="v820-training-focus" class="v820-training-focus"></div>
-      </section>
-
-      <footer class="v820-footer">
-        <span id="v820-generated">—</span>
-        <span>Volley Coach · Informe generado a partir del scouting registrado.</span>
-      </footer>
-    </div>
-  </div>
-</section>
-
 <section id="scout-video-hub" class="view">
   <div class="v780-hub">
     <div class="v780-hero">
@@ -2034,13 +1873,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   </div>
 </div>
 
-<div id="scout-v690-event-modal" class="pro-modal" onclick="if(event.target===this)scoutV690CloseEvent()">
-  <div class="pro-modal-card compact">
-    <div class="pro-modal-head"><div><span class="pro-kicker">EVENTO DE PARTIDO</span><h2>Registrar evento</h2><p id="scout-v690-event-context">Se guardará con set, marcador, rotaciones y timestamp.</p></div><button class="modal-close" onclick="scoutV690CloseEvent()">×</button></div>
-    <div class="scout-v690-event-grid"><label><span>Tipo</span><select id="scout-v690-event-type"><option value="timeout_ours">Tiempo muerto nuestro</option><option value="timeout_opponent">Tiempo muerto rival</option><option value="challenge_ours">Challenge nuestro</option><option value="challenge_opponent">Challenge rival</option><option value="card">Tarjeta / sanción</option><option value="injury">Lesión / atención</option><option value="interruption">Interrupción</option><option value="note">Nota táctica</option></select></label><label><span>Equipo / jugador</span><input id="scout-v690-event-subject" placeholder="Opcional · ej. #7 Marc"></label><label class="wide"><span>Nota</span><textarea id="scout-v690-event-note" placeholder="Qué ha ocurrido o qué decisión toma el staff"></textarea></label></div>
-    <div class="player-form-actions"><button class="ghost" onclick="scoutV690CloseEvent()">Cancelar</button><button class="primary" onclick="scoutV690SaveEvent()">Guardar evento</button></div>
-  </div>
-</div>
+<div id="scout-v690-event-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><p id="scout-v690-event-context"></p><select id="scout-v690-event-type"><option value="timeout_ours">Tiempo muerto nuestro</option><option value="timeout_opponent">Tiempo muerto rival</option><option value="challenge_ours">Challenge nuestro</option><option value="challenge_opponent">Challenge rival</option><option value="card">Tarjeta / sanción</option><option value="injury">Lesión / atención</option><option value="interruption">Interrupción</option><option value="note">Nota táctica</option></select><input id="scout-v690-event-subject" placeholder="Opcional · ej. #7 Marc"><textarea id="scout-v690-event-note"></textarea></div>
 
 <div id="scout-v690-review-modal" class="pro-modal" onclick="if(event.target===this)scoutV690CloseReview()">
   <div class="pro-modal-card scout-v690-modal-card">
@@ -2420,6 +2253,22 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
     </div>
 
+    <div id="v123-scout-switchbar" class="v123-scout-switchbar" aria-label="Cambiar scouting">
+      <div class="v123-switch-current">
+        <span>SCOUTING ACTIVO</span>
+        <b id="v123-switch-title">Sin scouting activo</b>
+        <small id="v123-switch-meta">Selecciona un partido para empezar</small>
+      </div>
+      <div class="v123-switch-control">
+        <label for="v123-match-select">Cambiar rápidamente</label>
+        <select id="v123-match-select" onchange="v123SwitchMatch(this.value)" aria-label="Cambiar scouting activo"></select>
+      </div>
+      <div class="v123-switch-actions">
+        <button type="button" class="ghost" onclick="v122OpenMatchSwitcher()">Ver todos</button>
+        <button type="button" class="primary" onclick="v119OpenNewMatch()">＋ Nuevo scouting</button>
+      </div>
+    </div>
+
     <div id="v900-no-match" class="v900-empty hidden">
       <div><span class="pro-kicker">SIN PARTIDO ACTIVO</span><h3>Prepara el siguiente scouting</h3><p>Crea o abre un partido y trabaja directamente desde Scouting Pro. Todos los datos, guardado y recuperación permanecen disponibles aquí.</p></div>
       <div class="v900-empty-actions">
@@ -2748,155 +2597,127 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   </div>
 </section>
 
-<section id="scouting" class="view v122-legacy-engine" aria-hidden="true" inert>
-  <div class="scout-shell">
-    <!-- V12.2: legacy visual hero removed. These hidden controls keep only IDs still touched by compatibility engines. -->
-    <div class="v122-legacy-control-stubs" hidden aria-hidden="true">
-      <button id="scout-v690-live-btn" type="button"></button>
-      <button id="scout-v740-live-video-btn" type="button"></button>
-      <button id="scout-v861-finish-set-btn" type="button"></button>
-      <button id="scout-v954-new-set-btn" type="button"></button>
-      <button id="scout-v861-final-result-btn" type="button"></button>
-    </div>
-    <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
-    <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
-    <div id="scout-live" class="hidden">
-      <div class="scout-match-strip">
-        <div><span class="pro-kicker">PARTIDO ACTIVO</span><h3 id="scout-match-title">—</h3><p id="scout-match-meta">—</p></div>
-        <div class="scout-live-badges"><span id="scout-status-badge" class="scout-status-badge live">EN DIRECTO</span><span id="scout-v740-video-badge" class="scout-save-badge scout-v740-video-badge">VÍDEO OFF</span><span id="scout-save-badge" class="scout-save-badge">Sesión abierta · auto-protección</span></div>
-      </div>
-      <div id="scout-v680-healthbar" class="scout-v680-healthbar">
-        <div><div class="scout-v680-healthcopy"><strong>PARTIDO SEGURO</strong><span id="scout-v680-local" class="scout-v680-chip ok">Local protegido</span><span id="scout-v680-network" class="scout-v680-chip">Red</span><span id="scout-v680-backup" class="scout-v680-chip">Backup —</span><span id="scout-v680-integrity" class="scout-v680-chip">Integridad —</span></div><div id="scout-v680-last-warning" class="scout-v680-offline-note">Sin incidencias detectadas.</div></div>
-        <div class="scout-v680-healthactions"><button class="ghost" onclick="scoutV680Backup('manual',true)">Proteger estado</button><button class="ghost" onclick="scoutV680OpenRecovery()">Recuperación</button></div>
-      </div>
-      <div id="scout-v690-toolbar" class="scout-v690-toolbar">
-        <div class="scout-v690-toolbar-left"><span id="scout-v690-quality-chip" class="scout-v690-chip">Calidad —</span><span id="scout-v690-lineup-chip" class="scout-v690-chip">Alineación set —</span><span id="scout-v690-events-chip" class="scout-v690-chip">0 eventos</span></div>
-        <div class="scout-v690-toolbar-right"><button class="ghost" onclick="scoutV690FocusCode()">⌨ Código</button><button class="ghost" onclick="scoutV690OpenReview()">Revisar scout</button><button class="ghost" onclick="v120OpenEvent()">Registrar evento</button></div>
-        <div id="scout-v690-event-strip" class="scout-v690-event-strip" style="flex-basis:100%"></div>
-      </div>
-
-      <section id="scout-v740-dock" class="scout-v740-dock hidden" aria-label="Live Scouting con vídeo">
-        <div class="scout-v740-dock-head">
-          <div>
-            <span class="pro-kicker">V7.4 · LIVE SCOUTING + VIDEO</span>
-            <h3>Vídeo integrado en el scouting</h3>
-            <p>Las acciones y rallies se vinculan automáticamente al reloj de la cámara mientras Live Delay está activo.</p>
-          </div>
-          <div class="scout-v740-dock-actions">
-            <label class="scout-v740-auto">
-              <input id="scout-v740-auto-replay" type="checkbox" onchange="scoutV740SavePrefs()">
-              <span>Auto-replay tras punto</span>
-            </label>
-            <select id="scout-v740-auto-return" onchange="scoutV740SavePrefs()" title="Tiempo antes de volver al retraso automático">
-              <option value="0">Quedarse en replay</option>
-              <option value="1.2" selected>Volver en 1,2 s</option>
-              <option value="2">Volver en 2 s</option>
-              <option value="3">Volver en 3 s</option>
-            </select>
-            <button class="ghost" type="button" onclick="scoutV740ToggleCompactVideo()">Vista compacta</button>
-            <button class="ghost" type="button" onclick="scoutV700OpenVideo('live')">Abrir V7.2</button>
-            <button class="ghost" type="button" onclick="scoutV740CloseDock()">Cerrar vídeo</button>
-          </div>
-        </div>
-
-        <div class="scout-v740-status-grid">
-          <div><span>Sesión de vídeo</span><b id="scout-v740-session">—</b><small id="scout-v740-session-note">Cámara detenida</small></div>
-          <div><span>Acciones vinculadas</span><b id="scout-v740-linked-actions">0</b><small>en la sesión actual</small></div>
-          <div><span>Rallies vinculados</span><b id="scout-v740-linked-rallies">0</b><small>en la sesión actual</small></div>
-          <div><span>Replay disponible</span><b id="scout-v740-buffer">0 s</b><small>según el búfer actual</small></div>
-        </div>
-
-        <div class="scout-v740-replay-bar">
-          <div class="scout-v740-replay-copy">
-            <span class="pro-kicker">REPLAY LIGADO AL SCOUT</span>
-            <strong id="scout-v740-last-title">Todavía no hay una jugada vinculada.</strong>
-            <small id="scout-v740-last-note">Inicia la cámara y registra acciones normalmente.</small>
-          </div>
-          <div class="scout-v740-replay-actions">
-            <button class="ghost" type="button" onclick="scoutV740ReplayLastAction()">Última acción</button>
-            <button class="primary" type="button" onclick="scoutV740ReplayLastRally()">▶ Último rally</button>
-            <button class="ghost" type="button" onclick="scoutV740BookmarkLastRally()">Guardar marcador</button>
-            <button class="ghost" type="button" onclick="scoutV740ExportLastRally()">Exportar rally</button>
-            <button class="ghost" type="button" onclick="liveDelayReturn()">Volver al delay</button>
-          </div>
-        </div>
-
-        <div id="scout-v740-inline-host" class="scout-v740-inline-host"></div>
-
-        <details class="scout-v740-bookmarks">
-          <summary>Marcadores de vídeo guardados <span id="scout-v740-bookmark-count">0</span></summary>
-          <div id="scout-v740-bookmark-list" class="scout-v740-bookmark-list"></div>
-        </details>
-      </section>
-
-      <div class="scout-kpis">
-        <div class="scout-kpi"><span>Set</span><b id="scout-kpi-set">1</b><small id="scout-kpi-sets">0–0 sets</small></div>
-        <div class="scout-kpi"><span>Marcador</span><b id="scout-kpi-score">0–0</b><small id="scout-kpi-rallies">0 rallies</small></div>
-        <div class="scout-kpi"><span>Rotación</span><b id="scout-kpi-rotation">R1</b><small id="scout-kpi-serve">Saque: —</small></div>
-        <div class="scout-kpi"><span>Acciones</span><b id="scout-kpi-actions">0</b><small>codificadas</small></div>
-      </div>
-      <div id="scout-set-ended" class="scout-set-ended hidden"></div>
-      <div class="scout-workspace">
-        <section class="scout-panel scout-court-panel">
-          <div class="scout-panel-head"><div><span class="pro-kicker">ROTACIÓN Y SEIS EN PISTA</span><h3>Alineaciones</h3></div><div class="scout-inline-actions"><button class="ghost" onclick="scoutRotate(-1)">↶ Nuestro</button><button class="ghost" onclick="scoutRotate(1)">Nuestro ↷</button><button class="ghost" onclick="scoutRotateOpponent(-1)">↶ Rival</button><button class="ghost" onclick="scoutRotateOpponent(1)">Rival ↷</button><button class="ghost" onclick="v120OpenChanges()">Cambio</button><button class="ghost" onclick="scoutOpenLineup()">Editar</button></div></div>
-          <div class="scout-court">
-            <div class="scout-team-label rival"><span id="scout-rival-label">Rival</span><small id="scout-rival-rotation-label">Rotación R1</small></div>
-            <div class="scout-half rival-half" id="scout-rival-court"></div>
-            <div class="scout-net"><span>RED</span></div>
-            <div class="scout-half own-half" id="scout-own-court"></div>
-            <div class="scout-team-label own"><span id="scout-own-label">Equipo</span><small id="scout-own-rotation-label">Rotación R1</small></div>
-          </div>
-          <div id="scout-rotation-strip" class="scout-rotation-strip"></div>
-          <div id="scout-live-tactical" class="scout-live-tactical"></div>
-          <div class="scout-score-controls">
-            <button class="scout-point own" onclick="v121AwardPoint('ours')"><b>＋1</b><span>Punto nuestro</span></button>
-            <button class="ghost scout-undo" onclick="v121UndoRally()">↶ Deshacer último rally</button>
-            <button class="scout-point rival" onclick="v121AwardPoint('opponent')"><b>＋1</b><span>Punto rival</span></button>
-          </div>
-        </section>
-        <section class="scout-panel scout-console-panel">
-          <div class="scout-panel-head"><div><span class="pro-kicker">CONSOLA DE SCOUT</span><h3>Registrar acción</h3></div><div class="scout-console-tools"><span class="scout-hint">Enter para guardar</span><button class="ghost" onclick="scoutV6100OpenCourt()">⌖ Pista</button><button class="ghost" onclick="scoutOpenCodeReference()">Chuleta</button></div></div>
-          <div class="scout-code-row"><input id="scout-code-input" autocomplete="off" spellcheck="false" placeholder="Código rápido · ej. 3E+.2B&gt;4C::K1~T%2H · 12A#.4B&gt;5D::X5~T%HSP"><button class="primary" onclick="scoutAddCode()">Añadir</button></div><div id="scout-v6100-favorites" class="scout-v6100-favorites"></div><div id="scout-v6100-live-warning" class="scout-v6100-live-warning">Flujo listo · Volley Coach revisará la secuencia del rally mientras registras.</div>
-          <div class="scout-code-help"><b>Formato rápido:</b> dorsal + fundamento + valoración + zonas. DataVolley Pro: <b>::X1</b> attack code / <b>::K1</b> setter call · <b>~Q/U/T/M/H/O</b> tempo en E/A · <b>%HSP</b> subtype · <b>|F/C/B/P/S</b> set type · <b>?NET</b> special · <b>$ABC</b> custom. Volley Coach: <b>*DL</b> dirección · <b>^K1</b> fase · <b>&amp;12</b> atacante objetivo. Todo es opcional y los códigos anteriores siguen funcionando.</div>
-          <div class="scout-code-anatomy"><div class="scout-code-anatomy-label">ESTRUCTURA</div><div class="scout-token-line"><span class="team">R</span><span class="number">7</span><span class="skill">A</span><span class="evaluation">#</span><span class="zone">.4B&gt;1C</span><i>Rival · dorsal · fundamento · valoración · zona/subzona</i></div><div class="scout-code-shortcuts"><span><kbd>S</kbd> saque</span><span><kbd>R</kbd> recepción</span><span><kbd>E</kbd> colocación</span><span><kbd>A</kbd> ataque</span><span><kbd>B</kbd> bloqueo</span><span><kbd>D</kbd> defensa</span></div></div><details class="scout-cheat-inline"><summary>Chuleta rápida de códigos</summary><div class="scout-cheat-mini"><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>S</code> Saque</span><span class="scout-cheat-chip"><code>R</code> Recepción</span><span class="scout-cheat-chip"><code>E</code> Colocación</span><span class="scout-cheat-chip"><code>A</code> Ataque</span><span class="scout-cheat-chip"><code>B</code> Bloqueo</span><span class="scout-cheat-chip"><code>D</code> Defensa</span><span class="scout-cheat-chip"><code>F</code> Freeball</span><span class="scout-cheat-chip"><code>C</code> Cobertura</span></div><div class="scout-cheat-block"><span class="scout-cheat-chip"><code>#</code> Máxima / punto</span><span class="scout-cheat-chip"><code>+</code> Positiva</span><span class="scout-cheat-chip"><code>!</code> Neutra</span><span class="scout-cheat-chip"><code>-</code> Negativa</span><span class="scout-cheat-chip"><code>/</code> Muy negativa</span><span class="scout-cheat-chip"><code>=</code> Error</span></div></div><div class="scout-cheat-examples"><b>Ejemplos:</b> <code>7R#.6C</code> recepción perfecta #7 en Z6C · <code>6D+.5A</code> defensa positiva #6 en Z5A · <code>4S+.1B&gt;5D</code> saque de Z1B a Z5D · <code>3E+.2B&gt;4C:Z4^K1</code> colocación desde 2B hacia 4C · <code>12A#.4B&gt;5D:Z4*DL^K1@2</code> ataque preciso 4B→5D · <code>4B#.3C@2&amp;12</code> bloqueo doble punto en Z3C sobre #12. Todos los códigos antiguos sin A–D siguen siendo válidos.</div></details>
-          <div class="scout-action-grid">
-            <label><span>Equipo</span><select id="scout-action-team" onchange="scoutRefreshActionPlayers()"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select></label>
-            <label><span>Jugador</span><select id="scout-action-player"></select></label>
-            <label><span>Fundamento</span><select id="scout-action-skill" onchange="scoutUpdateAdvancedFields()"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label>
-            <label><span>Valoración</span><select id="scout-action-eval"><option>#</option><option>+</option><option selected>!</option><option>-</option><option>/</option><option>=</option></select></label>
-            <label id="scout-action-start-wrap"><span id="scout-action-start-label">Zona origen</span><select id="scout-action-start"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
-            <label id="scout-action-start-sub-wrap"><span id="scout-action-start-sub-label">Subzona origen</span><select id="scout-action-start-sub"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label>
-            <label id="scout-action-end-wrap"><span id="scout-action-end-label">Zona destino</span><select id="scout-action-end"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
-            <label id="scout-action-end-sub-wrap"><span id="scout-action-end-sub-label">Subzona destino</span><select id="scout-action-end-sub"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></label>
-          </div>
-          <div id="scout-advanced-fields" class="scout-advanced-fields">
-            <div class="scout-advanced-head"><div><span class="pro-kicker">DETALLE TÁCTICO</span><strong id="scout-advanced-title">Saque</strong></div><span id="scout-advanced-context" class="scout-advanced-context">Completa solo lo que conozcas</span></div>
-            <div class="scout-advanced-grid">
-              <label id="scout-adv-serve-wrap"><span id="scout-action-serve-label">Tipo de saque</span><select id="scout-action-serve-type"><option value="">— Sin especificar —</option><option value="F">Flotante</option><option value="JF">Flotante en salto</option><option value="JP">Salto potente</option><option value="U">Bajo / seguridad</option></select></label>
-              <label id="scout-adv-phase-wrap"><span>Fase</span><select id="scout-action-phase"><option value="">Auto</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break point</option><option value="FB">Freeball</option><option value="TR">Transición</option></select></label>
-              <label id="scout-adv-combo-wrap"><span>Combinación / destino</span><select id="scout-action-combo"><option value="">— Sin especificar —</option><option value="Z4">Zona 4</option><option value="Z2">Zona 2</option><option value="Z1">Zona 1</option><option value="Z6">Zona 6</option><option value="1T">Primer tiempo</option><option value="31">31</option><option value="BACK">Primer tiempo detrás</option><option value="PIPE">Pipe</option><option value="2T">Segundo toque</option><option value="OTR">Otra</option></select></label>
-              <label id="scout-v870-dvcode-wrap" class="hidden"><span id="scout-v870-dvcode-label">Código DataVolley</span><input id="scout-action-dv-code" maxlength="6" autocapitalize="characters" placeholder="Ataque X1 / V5 / PP · Set K1 / KF"></label>
-              <label id="scout-v870-settype-wrap" class="hidden"><span>Set type DataVolley</span><select id="scout-action-set-type"><option value="">—</option><option value="F">F · Front</option><option value="C">C · Centre</option><option value="B">B · Back</option><option value="P">P · Pipe</option><option value="S">S · Setter dump</option></select></label>
-              <label id="scout-v870-subtype-wrap" class="hidden"><span id="scout-v870-subtype-label">Skill subtype</span><select id="scout-action-subtype"><option value="">— Sin especificar —</option></select></label>
-              <label id="scout-v870-special-wrap"><span>Special code · motivo</span><input id="scout-action-special" maxlength="10" autocapitalize="characters" placeholder="NET / ANT / OL / BC…"></label>
-              <label id="scout-v870-custom-wrap"><span>Custom code DV</span><input id="scout-action-custom" maxlength="5" autocapitalize="characters" placeholder="Máx. 5"></label>
-              <label id="scout-adv-tempo-wrap"><span id="scout-action-tempo-label">Tempo DataVolley</span><select id="scout-action-tempo"><option value="">— Sin especificar —</option><option value="Q">Q · Quick</option><option value="U">U · Super</option><option value="T">T · Fast</option><option value="M">M · Medium</option><option value="H">H · High</option><option value="O">O · Other</option></select></label><label id="scout-adv-direction-wrap"><span>Dirección de ataque · VC</span><select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select></label><label id="scout-v880-location-mode-wrap" class="hidden"><span>Destino ataque · DataVolley</span><select id="scout-action-location-mode"><option value="zones">Zonas / subzonas</option><option value="cones">Conos 1–8</option></select></label><label id="scout-v880-cone-wrap" class="hidden"><span>Cono de ataque</span><select id="scout-action-end-cone"><option value="">—</option><option value="1">Cono 1</option><option value="2">Cono 2</option><option value="3">Cono 3</option><option value="4">Cono 4</option><option value="5">Cono 5</option><option value="6">Cono 6</option><option value="7">Cono 7</option><option value="8">Cono 8 · central</option></select></label>
-              <label id="scout-adv-block-wrap"><span>Bloqueadores</span><select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select></label><label id="scout-v840-block-target-wrap" class="hidden"><span>Atacante objetivo</span><input id="scout-v840-block-target" inputmode="numeric" placeholder="Dorsal rival · ej. 12"></label>
-            </div>
-            <div id="scout-advanced-code-preview" class="scout-advanced-code-preview">Código: —</div>
-          </div>
-          <button class="success scout-action-add" onclick="scoutAddManualAction()">＋ Registrar acción</button>
-          <div class="scout-current-rally-head"><div><span class="pro-kicker">RALLY EN CURSO</span><h4 id="scout-rally-title">0–0 · esperando primera acción</h4></div><button class="ghost" onclick="scoutDeleteLastAction()">Borrar última acción</button></div>
-          <div id="scout-current-actions" class="scout-action-log"></div>
-        </section>
-      </div>
-      <div class="scout-bottom-grid">
-        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">SECUENCIA</span><h3>Rallies del set</h3></div><span id="scout-rally-count" class="small">0 rallies</span></div><div id="scout-rally-list" class="scout-rally-list"></div></section>
-        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div><div class="scout-v861-set-actions"><button class="ghost" onclick="v120OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v121OpenNewSet()">＋ Nuevo set</button><button class="ghost" onclick="v120OpenFinalResult()">Resultado final</button></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
-        <section class="scout-panel" style="grid-column:1/-1"><div class="scout-panel-head scout-v6100-timeline-head"><div><span class="pro-kicker">MATCH TIMELINE</span><h3>Línea temporal del partido</h3></div><select id="scout-v6100-timeline-filter" onchange="scoutV6100RenderTimeline()"><option value="all">Todo</option><option value="rally">Rallies</option><option value="event">Eventos</option><option value="sub">Cambios / líbero</option></select></div><div id="scout-v6100-timeline" class="scout-v6100-timeline"></div></section>
-      </div>
-    </div>
-    <section class="scout-saved-panel"><div class="scout-panel-head"><div><span class="pro-kicker">ARCHIVO DE SCOUTING</span><h3>Partidos guardados</h3></div></div><div id="scout-saved-list" class="scout-saved-list"></div></section>
+<section id="scouting" class="view v124-legacy-engine" aria-hidden="true" inert>
+  <div id="v124-legacy-engine-stubs" hidden aria-hidden="true">
+    <!-- V12.4: minimal compatibility DOM only. No legacy scouting UI is rendered. -->
+    <button id="scout-v690-live-btn" type="button"></button>
+    <button id="scout-v740-live-video-btn" type="button"></button>
+    <button id="scout-v861-finish-set-btn" type="button"></button>
+    <button id="scout-v954-new-set-btn" type="button"></button>
+    <button id="scout-v861-final-result-btn" type="button"></button>
+    <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"></div>
+    <span id="scout-v680-recovery-notice-copy"></span>
+    <div id="scout-no-match"></div>
+    <div id="scout-live" class="hidden"></div>
+    <h3 id="scout-match-title"></h3>
+    <p id="scout-match-meta"></p>
+    <span id="scout-status-badge" class="scout-status-badge live"></span>
+    <span id="scout-v740-video-badge" class="scout-save-badge scout-v740-video-badge"></span>
+    <span id="scout-save-badge" class="scout-save-badge"></span>
+    <div id="scout-v680-healthbar" class="scout-v680-healthbar"></div>
+    <span id="scout-v680-local" class="scout-v680-chip ok"></span>
+    <span id="scout-v680-network" class="scout-v680-chip"></span>
+    <span id="scout-v680-backup" class="scout-v680-chip"></span>
+    <span id="scout-v680-integrity" class="scout-v680-chip"></span>
+    <div id="scout-v680-last-warning"></div>
+    <div id="scout-v690-toolbar" class="scout-v690-toolbar"></div>
+    <span id="scout-v690-quality-chip" class="scout-v690-chip"></span>
+    <span id="scout-v690-lineup-chip" class="scout-v690-chip"></span>
+    <span id="scout-v690-events-chip" class="scout-v690-chip"></span>
+    <div id="scout-v690-event-strip" class="scout-v690-event-strip"></div>
+    <section id="scout-v740-dock" class="scout-v740-dock hidden"></section>
+    <input id="scout-v740-auto-replay" type="checkbox">
+    <select id="scout-v740-auto-return"><option value="0">Quedarse en replay</option><option selected="" value="1.2">Volver en 1,2 s</option><option value="2">Volver en 2 s</option><option value="3">Volver en 3 s</option></select>
+    <b id="scout-v740-session"></b>
+    <small id="scout-v740-session-note"></small>
+    <b id="scout-v740-linked-actions"></b>
+    <b id="scout-v740-linked-rallies"></b>
+    <b id="scout-v740-buffer"></b>
+    <strong id="scout-v740-last-title"></strong>
+    <small id="scout-v740-last-note"></small>
+    <div id="scout-v740-inline-host" class="scout-v740-inline-host"></div>
+    <span id="scout-v740-bookmark-count"></span>
+    <div id="scout-v740-bookmark-list"></div>
+    <b id="scout-kpi-set"></b>
+    <small id="scout-kpi-sets"></small>
+    <b id="scout-kpi-score"></b>
+    <small id="scout-kpi-rallies"></small>
+    <b id="scout-kpi-rotation"></b>
+    <small id="scout-kpi-serve"></small>
+    <b id="scout-kpi-actions"></b>
+    <div id="scout-set-ended" class="scout-set-ended hidden"></div>
+    <span id="scout-rival-label"></span>
+    <small id="scout-rival-rotation-label"></small>
+    <div id="scout-rival-court" class="scout-half rival-half"></div>
+    <div id="scout-own-court" class="scout-half own-half"></div>
+    <span id="scout-own-label"></span>
+    <small id="scout-own-rotation-label"></small>
+    <div id="scout-rotation-strip" class="scout-rotation-strip"></div>
+    <div id="scout-live-tactical" class="scout-live-tactical"></div>
+    <input id="scout-code-input" placeholder="Código rápido · ej. 3E+.2B&gt;4C::K1~T%2H · 12A#.4B&gt;5D::X5~T%HSP">
+    <div id="scout-v6100-favorites" class="scout-v6100-favorites"></div>
+    <div id="scout-v6100-live-warning" class="scout-v6100-live-warning"></div>
+    <select id="scout-action-team"><option value="ours">Nuestro</option><option value="opponent">Rival</option></select>
+    <select id="scout-action-player"></select>
+    <select id="scout-action-skill"><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select>
+    <select id="scout-action-eval"><option>#</option><option>+</option><option selected="">!</option><option>-</option><option>/</option><option>=</option></select>
+    <label id="scout-action-start-wrap"></label>
+    <span id="scout-action-start-label"></span>
+    <select id="scout-action-start"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
+    <label id="scout-action-start-sub-wrap"></label>
+    <span id="scout-action-start-sub-label"></span>
+    <select id="scout-action-start-sub"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+    <label id="scout-action-end-wrap"></label>
+    <span id="scout-action-end-label"></span>
+    <select id="scout-action-end"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
+    <label id="scout-action-end-sub-wrap"></label>
+    <span id="scout-action-end-sub-label"></span>
+    <select id="scout-action-end-sub"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+    <div id="scout-advanced-fields" class="scout-advanced-fields"></div>
+    <strong id="scout-advanced-title"></strong>
+    <span id="scout-advanced-context" class="scout-advanced-context"></span>
+    <label id="scout-adv-serve-wrap"></label>
+    <span id="scout-action-serve-label"></span>
+    <select id="scout-action-serve-type"><option value="">— Sin especificar —</option><option value="F">Flotante</option><option value="JF">Flotante en salto</option><option value="JP">Salto potente</option><option value="U">Bajo / seguridad</option></select>
+    <label id="scout-adv-phase-wrap"></label>
+    <select id="scout-action-phase"><option value="">Auto</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break point</option><option value="FB">Freeball</option><option value="TR">Transición</option></select>
+    <label id="scout-adv-combo-wrap"></label>
+    <select id="scout-action-combo"><option value="">— Sin especificar —</option><option value="Z4">Zona 4</option><option value="Z2">Zona 2</option><option value="Z1">Zona 1</option><option value="Z6">Zona 6</option><option value="1T">Primer tiempo</option><option value="31">31</option><option value="BACK">Primer tiempo detrás</option><option value="PIPE">Pipe</option><option value="2T">Segundo toque</option><option value="OTR">Otra</option></select>
+    <label id="scout-v870-dvcode-wrap" class="hidden"></label>
+    <span id="scout-v870-dvcode-label"></span>
+    <input id="scout-action-dv-code" placeholder="Ataque X1 / V5 / PP · Set K1 / KF">
+    <label id="scout-v870-settype-wrap" class="hidden"></label>
+    <select id="scout-action-set-type"><option value="">—</option><option value="F">F · Front</option><option value="C">C · Centre</option><option value="B">B · Back</option><option value="P">P · Pipe</option><option value="S">S · Setter dump</option></select>
+    <label id="scout-v870-subtype-wrap" class="hidden"></label>
+    <span id="scout-v870-subtype-label"></span>
+    <select id="scout-action-subtype"><option value="">— Sin especificar —</option></select>
+    <label id="scout-v870-special-wrap"></label>
+    <input id="scout-action-special" placeholder="NET / ANT / OL / BC…">
+    <label id="scout-v870-custom-wrap"></label>
+    <input id="scout-action-custom" placeholder="Máx. 5">
+    <label id="scout-adv-tempo-wrap"></label>
+    <span id="scout-action-tempo-label"></span>
+    <select id="scout-action-tempo"><option value="">— Sin especificar —</option><option value="Q">Q · Quick</option><option value="U">U · Super</option><option value="T">T · Fast</option><option value="M">M · Medium</option><option value="H">H · High</option><option value="O">O · Other</option></select>
+    <label id="scout-adv-direction-wrap"></label>
+    <select id="scout-action-direction"><option value="">— Sin especificar —</option><option value="LIN">Línea</option><option value="DC">Diagonal corta</option><option value="DL">Diagonal larga</option></select>
+    <label id="scout-v880-location-mode-wrap" class="hidden"></label>
+    <select id="scout-action-location-mode"><option value="zones">Zonas / subzonas</option><option value="cones">Conos 1–8</option></select>
+    <label id="scout-v880-cone-wrap" class="hidden"></label>
+    <select id="scout-action-end-cone"><option value="">—</option><option value="1">Cono 1</option><option value="2">Cono 2</option><option value="3">Cono 3</option><option value="4">Cono 4</option><option value="5">Cono 5</option><option value="6">Cono 6</option><option value="7">Cono 7</option><option value="8">Cono 8 · central</option></select>
+    <label id="scout-adv-block-wrap"></label>
+    <select id="scout-action-blockers"><option value="">—</option><option value="0">0 · sin bloqueo</option><option value="1">1 · individual</option><option value="2">2 · doble</option><option value="3">3 · triple</option></select>
+    <label id="scout-v840-block-target-wrap" class="hidden"></label>
+    <input id="scout-v840-block-target" placeholder="Dorsal rival · ej. 12">
+    <div id="scout-advanced-code-preview" class="scout-advanced-code-preview"></div>
+    <h4 id="scout-rally-title"></h4>
+    <div id="scout-current-actions" class="scout-action-log"></div>
+    <span id="scout-rally-count" class="small"></span>
+    <div id="scout-rally-list" class="scout-rally-list"></div>
+    <div id="scout-set-list" class="scout-set-summary"></div>
+    <select id="scout-v6100-timeline-filter"><option value="all">Todo</option><option value="rally">Rallies</option><option value="event">Eventos</option><option value="sub">Cambios / líbero</option></select>
+    <div id="scout-v6100-timeline" class="scout-v6100-timeline"></div>
+    <div id="scout-saved-list" class="scout-saved-list"></div>
+    <div class="scout-code-help"></div>
   </div>
 </section>
 
@@ -8376,155 +8197,18 @@ matchCard=function(m){let h=_matchCardV5115(m);const unavailable=vcNormalizeMatc
 </script>
 
 
-<div id="scout-new-modal" class="pro-modal" onclick="if(event.target===this)scoutCloseNewMatch()">
-  <div class="pro-modal-card scout-modal-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">NUEVO SCOUTING</span><h2>Preparar partido</h2><p>Crea el registro de partido y vincúlalo, si quieres, a Competición.</p></div><button class="modal-close" onclick="scoutCloseNewMatch()">×</button></div>
-    <div class="scout-modal-grid">
-      <label class="wide"><span>Partido de Competición</span><select id="scout-new-linked" onchange="scoutLinkedMatchChanged()"><option value="">Sin vincular · crear manualmente</option></select></label>
-      <label><span>Fecha</span><input id="scout-new-date" type="date"></label>
-      <label><span>Rival</span><input id="scout-new-opponent" placeholder="Nombre del rival"></label>
-      <label><span>Competición</span><input id="scout-new-competition" placeholder="Liga / torneo"></label>
-      <label><span>Primer saque</span><select id="scout-new-serving"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label>
-      <label><span>Rotación inicial</span><select id="scout-new-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label>
-    </div>
-    <div class="player-form-actions"><button class="ghost" onclick="scoutCloseNewMatch()">Cancelar</button><button class="primary" onclick="scoutCreateMatch()">Crear y configurar alineación</button></div>
-  </div>
-</div>
+<div id="scout-new-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><select id="scout-new-linked"><option value="">Sin vincular · crear manualmente</option></select><input id="scout-new-date" type="date"><input id="scout-new-opponent" placeholder="Nombre del rival"><input id="scout-new-competition" placeholder="Liga / torneo"><select id="scout-new-serving"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select><select id="scout-new-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></div>
 
-<div id="scout-v861-finish-set-modal" class="pro-modal" onclick="if(event.target===this)scoutV861CloseFinishSet()">
-  <div class="pro-modal-card scout-v861-result-card">
-    <div class="pro-modal-head">
-      <div><span class="pro-kicker">CIERRE MANUAL DE SET</span><h2 id="scout-v861-set-title">Finalizar set</h2><p>Corrige el marcador si te has saltado algún punto. No se crean rallies ni acciones ficticias.</p></div>
-      <button class="modal-close" onclick="scoutV861CloseFinishSet()">×</button>
-    </div>
-    <div id="scout-v861-set-warning" class="scout-v861-notice"></div>
-    <div class="scout-v861-score-grid">
-      <label><span id="scout-v861-set-us-label">Nuestro equipo</span><input id="scout-v861-set-us" type="number" min="0" max="99" inputmode="numeric"></label>
-      <div class="scout-v861-score-sep">–</div>
-      <label><span id="scout-v861-set-op-label">Rival</span><input id="scout-v861-set-op" type="number" min="0" max="99" inputmode="numeric"></label>
-    </div>
-    <div class="scout-v861-info">
-      <strong>Qué hará Volley Coach</strong>
-      <span>Guardará este marcador como resultado final del set y marcará quién lo ganó. Los rallies ya registrados se conservan exactamente como están.</span>
-    </div>
-    <div class="player-form-actions">
-      <button class="ghost" onclick="scoutV861CloseFinishSet()">Cancelar</button>
-      <button class="success" onclick="scoutV861FinishSet()">Finalizar set</button>
-    </div>
-  </div>
-</div>
+<div id="scout-v861-finish-set-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><h2 id="scout-v861-set-title"></h2><div id="scout-v861-set-warning"></div><span id="scout-v861-set-us-label"></span><input id="scout-v861-set-us" type="number" min="0" max="99"><span id="scout-v861-set-op-label"></span><input id="scout-v861-set-op" type="number" min="0" max="99"></div>
 
-<div id="scout-v954-new-set-modal" class="pro-modal" onclick="if(event.target===this)v954CloseNewSet()">
-  <div class="pro-modal-card scout-v861-result-card">
-    <div class="pro-modal-head">
-      <div>
-        <span class="pro-kicker">SIGUIENTE SET</span>
-        <h2 id="scout-v954-new-set-title">Preparar nuevo set</h2>
-        <p>Define el primer saque y las rotaciones iniciales. Después se abrirá la alineación para revisar los seis jugadores.</p>
-      </div>
-      <button class="modal-close" onclick="v954CloseNewSet()">×</button>
-    </div>
+<div id="scout-v954-new-set-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><h2 id="scout-v954-new-set-title"></h2><div id="scout-v954-new-set-summary"></div><select id="scout-v954-serving"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select><select id="scout-v954-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select><select id="scout-v954-opponent-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></div>
 
-    <div id="scout-v954-new-set-summary" class="scout-v861-recorded"></div>
+<div id="scout-v861-final-result-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><h2 id="scout-v861-result-title"></h2><div id="scout-v861-result-recorded"></div><span id="scout-v861-result-us-label"></span><input id="scout-v861-result-us" type="number" min="0" max="5"><span id="scout-v861-result-op-label"></span><input id="scout-v861-result-op" type="number" min="0" max="5"></div>
 
-    <div class="scout-v954-new-set-grid">
-      <label>
-        <span>Primer saque</span>
-        <select id="scout-v954-serving">
-          <option value="ours">Nuestro equipo</option>
-          <option value="opponent">Rival</option>
-        </select>
-      </label>
-      <label>
-        <span>Nuestra rotación inicial</span>
-        <select id="scout-v954-rotation">
-          <option value="1">R1</option><option value="2">R2</option><option value="3">R3</option>
-          <option value="4">R4</option><option value="5">R5</option><option value="6">R6</option>
-        </select>
-      </label>
-      <label>
-        <span>Rotación inicial rival</span>
-        <select id="scout-v954-opponent-rotation">
-          <option value="1">R1</option><option value="2">R2</option><option value="3">R3</option>
-          <option value="4">R4</option><option value="5">R5</option><option value="6">R6</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="scout-v861-info">
-      <strong>No se borra nada del set anterior</strong>
-      <span>El nuevo set empieza a 0–0. Se conservan todos los rallies, acciones, estadísticas, vídeo y resultado de los sets ya cerrados.</span>
-    </div>
-
-    <div class="player-form-actions">
-      <button class="ghost" onclick="v954CloseNewSet()">Cancelar</button>
-      <button class="primary" onclick="v954StartNewSet()">Crear siguiente set y revisar alineación</button>
-    </div>
-  </div>
-</div>
-
-<div id="scout-v861-final-result-modal" class="pro-modal" onclick="if(event.target===this)scoutV861CloseFinalResult()">
-  <div class="pro-modal-card scout-v861-result-card">
-    <div class="pro-modal-head">
-      <div><span class="pro-kicker">RESULTADO FINAL</span><h2 id="scout-v861-result-title">Resultado del partido</h2><p>Introduce el resultado final en sets. No se inventarán rallies para completar lo que no hayas scoutado.</p></div>
-      <button class="modal-close" onclick="scoutV861CloseFinalResult()">×</button>
-    </div>
-    <div id="scout-v861-result-recorded" class="scout-v861-recorded"></div>
-    <div class="scout-v861-score-grid scout-v861-match-score">
-      <label><span id="scout-v861-result-us-label">Nuestro equipo</span><input id="scout-v861-result-us" type="number" min="0" max="5" inputmode="numeric"></label>
-      <div class="scout-v861-score-sep">–</div>
-      <label><span id="scout-v861-result-op-label">Rival</span><input id="scout-v861-result-op" type="number" min="0" max="5" inputmode="numeric"></label>
-    </div>
-    <div class="scout-v861-info">
-      <strong>Resultado oficial ≠ estadísticas inventadas</strong>
-      <span>El resultado en sets se utilizará en el resumen, PDFs y competición vinculada. Las estadísticas técnicas seguirán usando únicamente los rallies y acciones realmente registrados.</span>
-    </div>
-    <div class="player-form-actions scout-v861-result-actions">
-      <button class="ghost" onclick="scoutV861CloseFinalResult()">Cancelar</button>
-      <button class="ghost" onclick="scoutV861SaveFinalResult(false)">Guardar resultado</button>
-      <button class="success" onclick="scoutV861SaveFinalResult(true)">Guardar y finalizar scouting</button>
-    </div>
-  </div>
-</div>
-
-<div id="scout-lineup-modal" class="pro-modal" onclick="if(event.target===this)scoutCloseLineup()">
-  <div class="pro-modal-card scout-lineup-modal-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">ALINEACIÓN</span><h2>Seis jugadores en pista</h2><p>La fotografía de esta alineación se guardará en cada rally para poder analizar posteriormente cada rotación.</p></div><button class="modal-close" onclick="scoutCloseLineup()">×</button></div>
-    <div class="scout-lineup-columns">
-      <section><h3>Nuestro equipo</h3><div id="scout-lineup-own" class="scout-lineup-form"></div></section>
-      <section><h3>Rival</h3><div id="scout-lineup-rival" class="scout-lineup-form"></div></section>
-    </div>
-    <div class="scout-v690-lineup-tools">
-      <label><span>Plantilla de alineación</span><select id="scout-v690-template-select" onchange="scoutV690ApplyTemplate(this.value)"><option value="">— Seleccionar plantilla —</option></select></label>
-      <button class="ghost" onclick="scoutV690SaveTemplate()">Guardar plantilla</button><button class="ghost" onclick="scoutV6100OpenRivalProfile()">Plantilla rival</button>
-      <button class="ghost" onclick="scoutV690CopyPreviousSet()">Copiar set anterior</button>
-      <button class="ghost" onclick="scoutV690SaveSetInitial()">Guardar inicial set</button>
-      <div id="scout-v690-set-initial" class="scout-v690-set-initial" style="grid-column:1/-1">Set actual · alineación inicial sin registrar</div>
-    </div>
-    <div class="scout-pro-lineup-config">
-      <section class="scout-pro-config-card"><div class="scout-pro-config-title"><span>LÍBERO AUTOMÁTICO</span><b id="scout-libero-state-label">Sin configurar</b></div><div class="scout-pro-config-grid"><label><span>Líbero</span><select id="scout-lineup-libero"></select></label><label class="scout-auto-check"><input id="scout-lineup-libero-auto" type="checkbox" checked><span>Entrada/salida automática con centrales</span></label></div><div id="scout-lineup-centrals" class="scout-central-detection"></div><p>El líbero sustituye automáticamente al central en P5/P6. En P1 el central permanece si está sacando y el líbero entra cuando el equipo pierde el saque.</p></section>
-      <section class="scout-pro-config-card"><div class="scout-pro-config-title"><span>LECTURA DE ROTACIÓN</span><b>Orden reglamentario</b></div><div class="scout-position-legend"><span><b>P1</b>Z1 · zaguero / saque</span><span><b>P2</b>Z2 · delantero</span><span><b>P3</b>Z3 · delantero</span><span><b>P4</b>Z4 · delantero</span><span><b>P5</b>Z5 · zaguero</span><span><b>P6</b>Z6 · zaguero</span></div></section>
-    </div>
-    <div id="scout-lineup-preview" class="scout-lineup-preview"></div>
-    <div class="scout-lineup-footer"><div class="scout-lineup-rotations"><label><span>Rotación nuestra</span><select id="scout-lineup-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label><label><span>Rotación rival</span><select id="scout-lineup-rival-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label></div><div class="player-form-actions"><button class="ghost" onclick="scoutCloseLineup()">Cancelar</button><button id="v851-save-lineup-btn" class="primary" onclick="v851SaveLineup()">Guardar alineación</button></div></div>
-  </div>
-</div>
+<div id="scout-lineup-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><div id="scout-lineup-own"></div><div id="scout-lineup-rival"></div><select id="scout-v690-template-select"><option value="">— Seleccionar plantilla —</option></select><div id="scout-v690-set-initial"></div><b id="scout-libero-state-label"></b><select id="scout-lineup-libero"></select><input id="scout-lineup-libero-auto" type="checkbox" checked><div id="scout-lineup-centrals"></div><div id="scout-lineup-preview"></div><select id="scout-lineup-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select><select id="scout-lineup-rival-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select><button id="v851-save-lineup-btn" type="button"></button></div>
 
 
-<div id="scout-sub-modal" class="pro-modal" onclick="if(event.target===this)scoutCloseSubstitution()">
-  <div class="pro-modal-card scout-sub-modal-card">
-    <div class="pro-modal-head"><div><span class="pro-kicker">GESTIÓN DE PISTA</span><h2>Sustituciones</h2><p>Los cambios reglamentarios se registran con set, marcador y posición. El líbero configurado en la alineación se gestiona automáticamente.</p></div><button class="modal-close" onclick="scoutCloseSubstitution()">×</button></div>
-    <div class="scout-sub-grid">
-      <label><span>Equipo</span><select id="scout-sub-team" onchange="scoutRefreshSubstitution()"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label>
-      <label><span>Tipo</span><select id="scout-sub-type"><option value="substitution">Sustitución reglamentaria</option></select></label>
-      <label><span>Posición</span><select id="scout-sub-position" onchange="scoutRefreshSubstitution()"><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option><option value="p5">P5</option><option value="p6">P6</option></select></label>
-      <label><span>Sale</span><input id="scout-sub-out" readonly></label>
-      <label id="scout-sub-own-wrap"><span>Entra</span><select id="scout-sub-in-player"></select></label>
-      <label id="scout-sub-rival-wrap" class="hidden"><span>Entra rival</span><input id="scout-sub-in-rival" placeholder="Ej. #12 López"></label>
-    </div>
-    <div class="player-form-actions"><button class="ghost" onclick="scoutCloseSubstitution()">Cancelar</button><button class="primary" onclick="scoutApplySubstitution()">Registrar cambio</button></div>
-  </div>
-</div>
+<div id="scout-sub-modal" class="v124-legacy-modal-stub" hidden inert aria-hidden="true"><select id="scout-sub-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select><select id="scout-sub-type"><option value="substitution">Sustitución reglamentaria</option></select><select id="scout-sub-position"><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option><option value="p4">P4</option><option value="p5">P5</option><option value="p6">P6</option></select><input id="scout-sub-out"><label id="scout-sub-own-wrap"></label><select id="scout-sub-in-player"></select><label id="scout-sub-rival-wrap" class="hidden"></label><input id="scout-sub-in-rival" placeholder="Ej. #12 López"></div>
 
 
 <div id="scout-code-reference-modal" class="pro-modal" onclick="if(event.target===this)scoutCloseCodeReference()">
@@ -9664,7 +9348,7 @@ window.scoutV690OpenIssue=function(setNo,rallyId){scoutV690CloseReview();if(type
 window.scoutV690ExportQualityCSV=function(){const m=scoutActive();if(!m)return;const q=scoutV690Quality(m),head=['Set','Rally','Marcador','Tipo','Incidencia'],rows=q.issues.map(i=>[i.set,i.index,i.score,i.kind,i.text]),csv=[head,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\n'),blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename(m.opponent)}_calidad_scout_v690.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 
 function scoutV690RenderWorkflow(){const m=scoutV690EnsureMatch();scoutV690RenderQuality(m);scoutV690RenderEvents(m);scoutV690RenderTemplates();scoutV690UpdateCodeHelp()}
-const v690RenderBase=window.scoutRender;window.scoutRender=function(){const out=v690RenderBase();if($('scouting')?.classList.contains('active'))scoutV690RenderWorkflow();return out};
+/* V12.3: removed classic-only scoutRender wrapper; Scouting Pro renders through v900Render. */
 const v690NextSetBase=window.scoutNextSet;window.scoutNextSet=function(serving){const out=v690NextSetBase(serving);const m=scoutV690EnsureMatch();scoutV690RenderWorkflow();return out};
 const v690CreateBase=window.scoutCreateMatch;window.scoutCreateMatch=function(){const out=v690CreateBase();const m=scoutV690EnsureMatch();if(m)scoutSave(false);scoutV690RenderWorkflow();return out};
 const v690FinishBase=window.scoutFinishMatch;window.scoutFinishMatch=function(){const m=scoutActive();if(m){const q=scoutV690Quality(m);if(q.n&&q.score<80){if(!confirm(`La calidad del scout es ${q.score}% y hay ${q.issues.length} incidencias. ¿Finalizar igualmente?`)){scoutV690OpenReview();return}}}return v690FinishBase()};
@@ -9672,7 +9356,9 @@ const v690TeamBase=window.cambiarEquipo;window.cambiarEquipo=function(id){const 
 
 function scoutV690KeyId(e){if(e.altKey&&e.key==='ArrowUp')return'ALT_UP';if(e.altKey&&e.key==='ArrowDown')return'ALT_DOWN';if(e.ctrlKey&&e.key==='ArrowUp')return'CTRL_UP';if(e.ctrlKey&&e.key==='ArrowDown')return'CTRL_DOWN';if(e.altKey&&String(e.key).toLowerCase()==='z')return'ALT_Z';if(e.ctrlKey&&e.shiftKey&&String(e.key).toLowerCase()==='z')return'CTRL_SHIFT_Z';if(e.altKey&&String(e.key).toLowerCase()==='c')return'ALT_C';if(e.ctrlKey&&String(e.key).toLowerCase()==='k')return'CTRL_K';return''}
 function scoutV690AppendEval(char){const i=$('scout-code-input');if(!i)return;let v=String(i.value||'');const re=/([#\+!\-\/=])(?=\.|~|:|\^|@|$)/;v=re.test(v)?v.replace(re,char):v+char;i.value=v;i.focus()}
-document.addEventListener('keydown',e=>{const scoutingActive=document.getElementById('scouting')?.classList.contains('active');if(!scoutingActive)return;const code=$('scout-code-input');if(e.target===code&&/^F[1-6]$/.test(e.key)){e.preventDefault();const map={F1:'#',F2:'+',F3:'!',F4:'-',F5:'/',F6:'='};scoutV690AppendEval(map[e.key]);return}if(e.target?.matches?.('input,textarea,select')&&e.target!==code)return;const id=scoutV690KeyId(e),s=scoutV690Settings();if(!id)return;if(id===s.keyOurs){e.preventDefault();scoutAwardPoint('ours')}else if(id===s.keyRival){e.preventDefault();scoutAwardPoint('opponent')}else if(id===s.keyUndo){e.preventDefault();scoutUndoRally()}else if(id===s.keyCode){e.preventDefault();scoutV690FocusCode()}});
+/* V12.3: shortcuts migrated from the Classic view to Scouting Pro. */
+function v123AppendEval(char){const i=$('v900-code-input');if(!i)return;let v=String(i.value||'');const re=/([#\+!\-\/=])(?=\.|~|:|\^|@|$)/;v=re.test(v)?v.replace(re,char):v+char;i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));i.focus()}
+document.addEventListener('keydown',e=>{const proActive=document.getElementById('scout-workspace-v900')?.classList.contains('active');if(!proActive)return;const code=$('v900-code-input');if(e.target===code&&/^F[1-6]$/.test(e.key)){e.preventDefault();const map={F1:'#',F2:'+',F3:'!',F4:'-',F5:'/',F6:'='};v123AppendEval(map[e.key]);return}if(e.target?.matches?.('input,textarea,select')&&e.target!==code)return;const id=scoutV690KeyId(e),settings=scoutV690Settings();if(!id)return;if(id===settings.keyOurs){e.preventDefault();window.v121Point?.('ours')}else if(id===settings.keyRival){e.preventDefault();window.v121Point?.('opponent')}else if(id===settings.keyUndo){e.preventDefault();window.v121UndoRally?.()}else if(id===settings.keyCode){e.preventDefault();window.scoutV690FocusCode?.()}});
 
 
 /* ===== V6.10.5 · BUTTON AUDIT FIX ===== */
@@ -14208,7 +13894,7 @@ window.VC_SCOUT_FAST_BRIDGE_V92={
 (()=>{
 'use strict';
 const VIDEO_VIEWS=new Set(['scout-video-hub']);
-const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-season','scout-postmatch','scout-analysis','scout-plan','scout-matchup','v11-reports']);
+const SCOUT_VIEWS=new Set(['scout-dashboard','scout-workspace-v900','scout-match-mode','scouting','competicion','scout-season','scout-analysis','scout-plan','scout-matchup','v11-reports']);
 const savedWorkspace=localStorage.getItem('volley_workspace_v610');
 let currentWorkspace=['training','scouting','video'].includes(savedWorkspace)?savedWorkspace:'training';
 function applyWorkspace(mode){
@@ -14243,7 +13929,6 @@ window.showView=function(id,btn){
     if(id==='scout-match-mode'&&typeof window.v800Open==='function')window.v800Open();
     if(id==='scout-video-hub'&&typeof window.v780Open==='function')window.v780Open();
     if(id==='scout-season'&&typeof window.v790Open==='function')window.v790Open();
-    if(id==='scout-postmatch'&&typeof window.v820Open==='function')window.v820Open();
     if(id==='scout-analysis'&&typeof window.scoutRenderAnalysis==='function')window.scoutRenderAnalysis();
     if(id==='scout-plan'&&typeof window.scoutV660Render==='function')window.scoutV660Render();
     if(id==='scout-matchup'&&typeof window.scoutV670Render==='function')window.scoutV670Render();
@@ -22376,227 +22061,10 @@ window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.i
 
 
 
-<style id="v820-postmatch-style">
-.v820-shell{display:grid;gap:10px}
-.v820-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;background:linear-gradient(135deg,#101c2b,#2b4459);color:#fff;border-radius:16px;padding:19px 21px}.v820-hero h2{color:#fff!important;margin:3px 0 5px!important;font-size:23px!important}.v820-hero p{margin:0;color:#c8d4dc;font-size:10px}.v820-hero .pro-kicker{color:#9cb1c0}.v820-hero-actions{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}.v820-hero-actions label{display:flex;flex-direction:column;gap:3px}.v820-hero-actions label span{font-size:6px;text-transform:uppercase;letter-spacing:.07em;color:#a7bac6;font-weight:900}.v820-hero-actions select{min-width:220px;background:#fff!important;font-size:8px!important;padding:7px!important}.v820-hero-actions .ghost{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.15)!important}
-.v820-empty{min-height:280px;background:#fff;border:1px solid #e0e6ea;border-radius:12px;display:grid;place-items:center;align-content:center;gap:5px;color:#73838f}.v820-empty strong{font-size:12px;color:#29475f}
-.v820-report{display:grid;gap:9px}.v820-cover{display:flex;justify-content:space-between;align-items:center;gap:20px;background:#fff;border:1px solid #dfe5e9;border-radius:13px;padding:14px 16px}.v820-cover h2{margin:2px 0 4px!important;font-size:20px!important}.v820-cover p{margin:0;color:#73828e;font-size:8.5px}.v820-result{text-align:right}.v820-result>span{display:block;font-size:6.5px;color:#82909a;font-weight:900;letter-spacing:.07em}.v820-result strong{display:block;font-size:34px;line-height:1;color:#17324d;margin:3px 0}.v820-result small{display:block;color:#73828e;font-size:7px}
-.v820-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.v820-kpis>div{background:#fff;border:1px solid #dfe5e9;border-radius:10px;padding:9px}.v820-kpis span{display:block;font-size:6.4px;text-transform:uppercase;letter-spacing:.06em;color:#7d8a94;font-weight:900}.v820-kpis b{display:block;font-size:17px;color:#17324d;margin:3px 0}.v820-kpis small{display:block;font-size:6.7px;color:#83909a}
-.v820-two{display:grid;grid-template-columns:1fr 1fr;gap:9px}.v820-panel{background:#fff;border:1px solid #dfe5e9;border-radius:12px;padding:10px}.v820-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}.v820-head h3{margin:2px 0 0!important;padding:0!important;border:0!important;font-size:12px!important}.v820-head small{font-size:7px;color:#7b8993}
-.v820-insights{display:grid;gap:5px}.v820-insight{border-left:3px solid #4f7c61;border-radius:6px;background:#f2f8f4;padding:7px 8px}.v820-insight.review{border-left-color:#b47a39;background:#fbf6ed}.v820-insight b{display:block;font-size:8.5px;color:#29475f}.v820-insight span{display:block;font-size:7.3px;color:#70808c;line-height:1.4;margin-top:2px}
-.v820-rotations{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.v820-rotation{border:1px solid #e1e7ea;border-radius:8px;padding:7px;background:#f9fbfc}.v820-rotation strong{display:flex;justify-content:space-between;color:#203f57;font-size:9px}.v820-rotation strong em{font-style:normal;font-size:11px}.v820-rotation small{display:block;color:#788792;font-size:6.5px;line-height:1.45;margin-top:3px}.v820-bar{height:5px;border-radius:999px;background:#e4e9ec;overflow:hidden;margin-top:5px}.v820-bar i{display:block;height:100%;border-radius:999px;background:#557b93}
-.v820-table-wrap{overflow:auto}.v820-table{width:100%;border-collapse:collapse;min-width:780px}.v820-table th{background:#f4f7f9;color:#6f808d;font-size:6.4px;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:6px;border-bottom:1px solid #dce3e7}.v820-table th:first-child,.v820-table td:first-child{text-align:left}.v820-table td{font-size:7.6px;color:#566b79;text-align:right;padding:7px 6px;border-bottom:1px solid #eef1f3}.v820-table td b{color:#203f57}.v820-table tbody tr:hover{background:#f7fafb}
-.v820-key-rallies,.v820-events{display:grid;gap:5px}.v820-key-row,.v820-event-row{display:grid;grid-template-columns:65px minmax(0,1fr) auto;gap:7px;align-items:center;border:1px solid #e3e8eb;border-radius:7px;padding:6px;background:#fafbfc}.v820-key-row time,.v820-event-row time{font-size:7px;color:#778690}.v820-key-row strong,.v820-event-row strong{display:block;font-size:8px;color:#29475f}.v820-key-row small,.v820-event-row small{display:block;font-size:6.8px;color:#82909a;margin-top:1px}.v820-key-row button{font-size:6.8px!important;padding:5px 6px!important}
-.v820-training-focus{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.v820-focus{border:1px solid #dfe6ea;border-radius:9px;padding:9px;background:#f7fafb}.v820-focus span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#17324d;color:#fff;font-size:8px;font-weight:900}.v820-focus b{display:block;font-size:9px;color:#29475f;margin-top:6px}.v820-focus p{font-size:7.2px;color:#70808c;line-height:1.4;margin:3px 0 0}
-.v820-footer{display:flex;justify-content:space-between;gap:8px;color:#85919a;font-size:6.5px;padding:3px 2px 10px}
-@media(max-width:1100px){.v820-kpis{grid-template-columns:repeat(3,1fr)}.v820-rotations{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:750px){.v820-hero{align-items:flex-start;flex-direction:column}.v820-hero-actions{width:100%}.v820-hero-actions label{width:100%}.v820-hero-actions select{width:100%}.v820-two{grid-template-columns:1fr}.v820-kpis{grid-template-columns:1fr 1fr}.v820-rotations{grid-template-columns:1fr 1fr}.v820-training-focus{grid-template-columns:1fr}.v820-cover{align-items:flex-start;flex-direction:column}.v820-result{text-align:left}}
-@media print{#scout-postmatch .v820-hero{display:none!important}.v820-report{display:block}.v820-panel,.v820-cover,.v820-kpis{break-inside:avoid;margin-bottom:8px}}
-</style>
 
 
-<script id="v820-postmatch-module">
-(()=>{
-'use strict';
-const VERSION='8.2.0';
-const $=id=>document.getElementById(id);
-const arr=v=>Array.isArray(v)?v:[];
-const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
-const EVENT_LABELS={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival',challenge_ours:'Challenge nuestro',challenge_opponent:'Challenge rival',card:'Tarjeta',injury:'Lesión',interruption:'Interrupción',note:'Nota táctica',substitution:'Sustitución',libero:'Líbero'};
 
-function br(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
-function matches(){try{return arr(br()?.getMatches?.())}catch(_){return []}}
-function teamName(){try{return br()?.teamName?.()||'Equipo'}catch(_){return 'Equipo'}}
-function roster(){try{return arr(br()?.getPlayers?.())}catch(_){return []}}
-function current(){
-  const id=Number($('v820-match')?.value)||Number(br()?.getActiveId?.())||0;
-  return matches().find(m=>Number(m.id)===id)||matches().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null;
-}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function pct(n,d){return d?Math.round(n*100/d):null}
-function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s.rallies).map((r,i)=>({set:s,index:i+1,r})))}
-function allActions(m){return allRallies(m).flatMap(x=>arr(x.r.actions).map(a=>({...x,a})))}
-function setsScore(m){
-  const done=arr(m?.sets).filter(s=>s.finished);
-  return {us:done.filter(s=>s.winner==='ours').length,op:done.filter(s=>s.winner==='opponent').length,done};
-}
-function playerLabel(a){
-  try{return br()?.playerLabel?.(a)||String(a?.playerNameSnapshot||a?.playerLabel||a?.playerNumberSnapshot||'Jugador')}catch(_){return String(a?.playerNameSnapshot||a?.playerLabel||'Jugador')}
-}
-function playerKey(a){
-  if(a?.playerId!=null&&String(a.playerId)!=='')return `id:${a.playerId}`;
-  if(a?.playerNumberSnapshot!=null&&String(a.playerNumberSnapshot)!=='')return `num:${a.playerNumberSnapshot}`;
-  return `name:${String(a?.playerNameSnapshot||a?.playerLabel||'Jugador').toLowerCase()}`;
-}
-function baseStats(actions){
-  const ours=actions.filter(a=>a.team!=='opponent');
-  const g=ours.filter(a=>a.evaluation==='#').length,p=ours.filter(a=>a.evaluation==='=').length;
-  const rec=ours.filter(a=>a.skill==='R'),recPos=rec.filter(a=>['#','+'].includes(a.evaluation)).length,recExc=rec.filter(a=>a.evaluation==='#').length;
-  const att=ours.filter(a=>a.skill==='A'),attPts=att.filter(a=>a.evaluation==='#').length,attErr=att.filter(a=>a.evaluation==='=').length,attBlk=att.filter(a=>a.evaluation==='/').length;
-  const serve=ours.filter(a=>a.skill==='S'),aces=serve.filter(a=>a.evaluation==='#').length,serveErr=serve.filter(a=>a.evaluation==='=').length;
-  const blocks=ours.filter(a=>a.skill==='B'&&a.evaluation==='#').length;
-  return {total:ours.length,g,p,gp:g-p,rec:rec.length,recPos,recExc,recPosPct:pct(recPos,rec.length),recExcPct:pct(recExc,rec.length),att:att.length,attPts,attErr,attBlk,attEff:att.length?Math.round((attPts-attErr-attBlk)*100/att.length):null,serve:serve.length,aces,serveErr,serveIndex:serve.length?Math.round((aces-serveErr)*100/serve.length):null,blocks};
-}
-function rotationStats(m,no){
-  const rs=allRallies(m).filter(x=>Number(x.r.rotationBefore||1)===Number(no)).map(x=>x.r);
-  const won=rs.filter(r=>r.winner==='ours').length;
-  const k1=rs.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
-  const k2=rs.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
-  return {no,total:rs.length,won,lost:rs.length-won,gp:won-(rs.length-won),winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
-}
-function skillStats(m){
-  const actions=allActions(m).map(x=>x.a).filter(a=>a.team!=='opponent');
-  return Object.keys(SKILLS).map(skill=>{
-    const a=actions.filter(x=>x.skill===skill),g=a.filter(x=>x.evaluation==='#').length,p=a.filter(x=>x.evaluation==='=').length,pos=a.filter(x=>['#','+'].includes(x.evaluation)).length;
-    const s=baseStats(a);
-    return {skill,name:SKILLS[skill],total:a.length,g,p,gp:g-p,posPct:pct(pos,a.length),special:skill==='A'?s.attEff:skill==='R'?s.recPosPct:skill==='S'?s.serveIndex:null};
-  }).filter(x=>x.total);
-}
-function playerStats(m){
-  const map=new Map();
-  allActions(m).filter(x=>x.a.team!=='opponent').forEach(x=>{
-    const key=playerKey(x.a);
-    if(!map.has(key))map.set(key,{key,name:playerLabel(x.a),number:x.a.playerNumberSnapshot??'',actions:[]});
-    map.get(key).actions.push(x.a);
-  });
-  return [...map.values()].map(p=>({...p,s:baseStats(p.actions)})).sort((a,b)=>b.s.gp-a.s.gp||b.s.total-a.s.total);
-}
-function k1k2(m){
-  const rs=allRallies(m).map(x=>x.r),k1=rs.filter(r=>r.servingBefore==='opponent'),k2=rs.filter(r=>r.servingBefore==='ours');
-  const k1w=k1.filter(r=>r.winner==='ours').length,k2w=k2.filter(r=>r.winner==='ours').length;
-  return {k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
-}
-function quality(m){
-  const rs=allRallies(m);if(!rs.length)return {score:0,issues:0};
-  let serve=0,rec=0,att=0,zones=0;
-  rs.forEach(x=>{
-    const a=arr(x.r.actions),server=x.r.servingBefore,receiver=server==='ours'?'opponent':'ours',atts=a.filter(y=>y.skill==='A');
-    if(a.some(y=>y.team===server&&y.skill==='S'))serve++;
-    if(a.some(y=>y.team===receiver&&y.skill==='R'))rec++;
-    if(atts.length)att++;
-    if(atts.some(y=>y.startZone&&y.endZone)||a.some(y=>y.skill==='S'&&y.startZone&&y.endZone))zones++;
-  });
-  const score=Math.round((serve/rs.length)*25+(rec/rs.length)*25+(att/rs.length)*30+(zones/rs.length)*20);
-  return {score,issues:Math.round((1-score/100)*rs.length)};
-}
-function insights(m){
-  const pos=[],review=[],rots=[1,2,3,4,5,6].map(n=>rotationStats(m,n)).filter(r=>r.total>=3),players=playerStats(m),skills=skillStats(m),kk=k1k2(m),all=baseStats(allActions(m).map(x=>x.a));
-  if(kk.k1Pct!=null){
-    (kk.k1Pct>=60?pos:review).push({title:`K1 ${kk.k1Pct}%`,copy:`${kk.k1w}/${kk.k1} rallies de recepción ganados.${kk.k1Pct>=60?' Buena capacidad de side-out.':' Prioridad clara para la siguiente sesión.'}`});
-  }
-  if(kk.k2Pct!=null){
-    (kk.k2Pct>=45?pos:review).push({title:`K2 ${kk.k2Pct}%`,copy:`${kk.k2w}/${kk.k2} rallies de saque ganados.${kk.k2Pct>=45?' El equipo genera presión con saque/bloqueo-defensa.':' Falta convertir más fases de break.'}`});
-  }
-  if(rots.length){
-    const best=rots.slice().sort((a,b)=>(b.winPct??-1)-(a.winPct??-1))[0],worst=rots.slice().sort((a,b)=>(a.winPct??999)-(b.winPct??999))[0];
-    if(best)pos.push({title:`Mejor rotación: R${best.no}`,copy:`${best.winPct}% de rallies ganados (${best.won}/${best.total}); K1 ${best.k1Pct??'—'}% · K2 ${best.k2Pct??'—'}%.`});
-    if(worst)review.push({title:`Rotación a revisar: R${worst.no}`,copy:`${worst.winPct}% de rallies ganados (${worst.won}/${worst.total}); K1 ${worst.k1Pct??'—'}% · K2 ${worst.k2Pct??'—'}%.`});
-  }
-  const attackers=players.filter(p=>p.s.att>=5).sort((a,b)=>(b.s.attEff??-999)-(a.s.attEff??-999));
-  if(attackers[0])pos.push({title:`Ataque destacado: ${attackers[0].name}`,copy:`${attackers[0].s.attEff}% de eficiencia en ${attackers[0].s.att} ataques · ${attackers[0].s.attPts} puntos.`});
-  const receivers=players.filter(p=>p.s.rec>=5).sort((a,b)=>(b.s.recPosPct??-1)-(a.s.recPosPct??-1));
-  if(receivers[0])pos.push({title:`Recepción más estable: ${receivers[0].name}`,copy:`${receivers[0].s.recPosPct}% positiva (+/#) sobre ${receivers[0].s.rec} recepciones.`});
-  const errorSkills=skills.slice().sort((a,b)=>b.p-a.p);
-  if(errorSkills[0]?.p)review.push({title:`Principal fuente de error: ${errorSkills[0].name}`,copy:`${errorSkills[0].p} errores directos registrados en ${errorSkills[0].total} acciones.`});
-  if(all.att!=null&&all.att>=5&&all.attEff<20)review.push({title:'Eficiencia de ataque baja',copy:`${all.attEff}% de eficiencia: ${all.attPts} puntos, ${all.attErr} errores y ${all.attBlk} ataques bloqueados.`});
-  return {positive:pos.slice(0,4),review:review.slice(0,4)};
-}
-function focusItems(m){
-  const kk=k1k2(m),rots=[1,2,3,4,5,6].map(n=>rotationStats(m,n)).filter(r=>r.total>=3),skills=skillStats(m),items=[];
-  if(rots.length){const worst=rots.slice().sort((a,b)=>(a.winPct??999)-(b.winPct??999))[0];items.push({title:`R${worst.no}: mejorar K1/K2`,copy:`Revisar los ${worst.total} rallies de R${worst.no}; rendimiento global ${worst.winPct}%.`})}
-  if(kk.k1Pct!=null&&kk.k1Pct<60)items.push({title:'Side-out / K1',copy:`Objetivo: subir desde ${kk.k1Pct}% mejorando calidad de recepción y primera opción de ataque.`});
-  if(kk.k2Pct!=null&&kk.k2Pct<45)items.push({title:'Break point / K2',copy:`Objetivo: subir desde ${kk.k2Pct}% con saque dirigido y organización bloqueo-defensa.`});
-  const err=skills.slice().sort((a,b)=>b.p-a.p)[0];if(err?.p)items.push({title:`Reducir errores de ${err.name.toLowerCase()}`,copy:`${err.p} errores directos. Diseñar una tarea con presión y criterio de continuidad.`});
-  const att=skills.find(x=>x.skill==='A');if(att?.special!=null&&att.special<20)items.push({title:'Eficiencia ofensiva',copy:`Ataque en ${att.special}% de eficiencia. Priorizar selección de golpeo y soluciones contra bloqueo.`});
-  while(items.length<3)items.push({title:'Consolidar patrón de juego',copy:'Revisar los rallies de mayor valor en Vídeo Hub y convertirlos en una tarea específica de entrenamiento.'});
-  return items.slice(0,3);
-}
-function keyRallies(m){
-  return allRallies(m).map(x=>{
-    const ownErr=arr(x.r.actions).filter(a=>a.team==='ours'&&(a.evaluation==='='||(a.skill==='A'&&a.evaluation==='/'))).length;
-    const ownPts=arr(x.r.actions).filter(a=>a.team==='ours'&&['S','A','B'].includes(a.skill)&&a.evaluation==='#').length;
-    const score=Math.max(Number(x.r.scoreAfter?.us)||0,Number(x.r.scoreAfter?.opponent)||0);
-    const importance=score+(x.r.winner==='opponent'?ownErr*8:ownPts*5)+(score>=20?10:0);
-    return {...x,ownErr,ownPts,importance};
-  }).filter(x=>x.ownErr||x.ownPts||Math.max(x.r.scoreAfter?.us||0,x.r.scoreAfter?.opponent||0)>=20).sort((a,b)=>b.importance-a.importance).slice(0,7);
-}
-function render(){
-  const m=current(),empty=$('v820-empty'),report=$('v820-report-export');
-  if(!m){empty?.classList.remove('hidden');report?.classList.add('hidden');return}
-  empty?.classList.add('hidden');report?.classList.remove('hidden');
-  const ss=setsScore(m),kk=k1k2(m),base=baseStats(allActions(m).map(x=>x.a)),q=quality(m),ins=insights(m);
-  $('v820-title').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;
-  $('v820-meta').textContent=`${m.date||''}${m.competition?' · '+m.competition:''}${m.venue?' · '+m.venue:''}`;
-  $('v820-result').textContent=`${ss.us}–${ss.op}`;$('v820-result-label').textContent=ss.us>ss.op?'VICTORIA':ss.op>ss.us?'DERROTA':'RESULTADO';
-  $('v820-set-scores').textContent=arr(m.sets).filter(s=>s.finished).map(s=>`${s.scoreUs||0}-${s.scoreOpponent||0}`).join(' · ')||'Sin sets finalizados';
-  $('v820-k1').textContent=kk.k1Pct==null?'—':`${kk.k1Pct}%`;$('v820-k1-copy').textContent=`${kk.k1w}/${kk.k1} rallies`;
-  $('v820-k2').textContent=kk.k2Pct==null?'—':`${kk.k2Pct}%`;$('v820-k2-copy').textContent=`${kk.k2w}/${kk.k2} rallies`;
-  $('v820-gp').textContent=`${base.gp>0?'+':''}${base.gp}`;$('v820-gp-copy').textContent=`G ${base.g} · P ${base.p} · ${base.total} acciones`;
-  $('v820-rec').textContent=base.rec?`${base.recPosPct}%`:'—';$('v820-rec-copy').textContent=base.rec?`# ${base.recExcPct}% · ${base.rec} recepciones`:'Sin muestra';
-  $('v820-att').textContent=base.att?`${base.attEff}%`:'—';$('v820-att-copy').textContent=base.att?`${base.attPts} pts · ${base.attErr} err · ${base.attBlk} blq`:'Sin muestra';
-  $('v820-quality').textContent=`${q.score}%`;$('v820-quality-copy').textContent=`${allRallies(m).length} rallies`;
-  $('v820-positive').innerHTML=ins.positive.length?ins.positive.map(x=>`<div class="v820-insight"><b>${esc(x.title)}</b><span>${esc(x.copy)}</span></div>`).join(''):'<div class="v820-insight"><b>Sin muestra suficiente</b><span>Se necesitan más rallies para destacar patrones positivos fiables.</span></div>';
-  $('v820-review').innerHTML=ins.review.length?ins.review.map(x=>`<div class="v820-insight review"><b>${esc(x.title)}</b><span>${esc(x.copy)}</span></div>`).join(''):'<div class="v820-insight review"><b>Sin alertas principales</b><span>No aparece una prioridad clara con los datos disponibles.</span></div>';
-  $('v820-rotations').innerHTML=[1,2,3,4,5,6].map(n=>{const r=rotationStats(m,n);return `<article class="v820-rotation"><strong><span>R${n}</span><em>${r.total?r.winPct+'%':'—'}</em></strong><small>${r.won}/${r.total} rallies · G-P ${r.gp>0?'+':''}${r.gp}</small><div class="v820-bar"><i style="width:${r.winPct||0}%"></i></div><small>K1 ${r.k1?r.k1Pct+'%':'—'} · K2 ${r.k2?r.k2Pct+'%':'—'}</small></article>`}).join('');
-  const skills=skillStats(m);
-  $('v820-skills').innerHTML=`<table class="v820-table"><thead><tr><th>Fundamento</th><th>Tot</th><th>G</th><th>P</th><th>G-P</th><th>Pos +/#</th><th>Índice específico</th></tr></thead><tbody>${skills.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${s.total}</td><td>${s.g}</td><td>${s.p}</td><td><b>${s.gp>0?'+':''}${s.gp}</b></td><td>${s.posPct==null?'—':s.posPct+'%'}</td><td>${s.special==null?'—':s.special+'%'}</td></tr>`).join('')}</tbody></table>`;
-  const ps=playerStats(m);
-  $('v820-players').innerHTML=`<table class="v820-table"><thead><tr><th>Jugador</th><th>Acc</th><th>G</th><th>P</th><th>G-P</th><th>Ace</th><th>S Err</th><th>REC +/#</th><th>REC #</th><th>ATQ Pts</th><th>ATQ Eff</th><th>BLQ</th></tr></thead><tbody>${ps.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${p.s.total}</td><td>${p.s.g}</td><td>${p.s.p}</td><td><b>${p.s.gp>0?'+':''}${p.s.gp}</b></td><td>${p.s.aces}</td><td>${p.s.serveErr}</td><td>${p.s.rec?p.s.recPosPct+'%':'—'}</td><td>${p.s.rec?p.s.recExcPct+'%':'—'}</td><td>${p.s.attPts}</td><td>${p.s.att?p.s.attEff+'%':'—'}</td><td>${p.s.blocks}</td></tr>`).join('')}</tbody></table>`;
-  const keys=keyRallies(m);
-  $('v820-key-rallies').innerHTML=keys.length?keys.map(x=>`<article class="v820-key-row"><time>Set ${x.set.number}</time><div><strong>${x.r.scoreAfter?.us??0}-${x.r.scoreAfter?.opponent??0} · R${x.r.rotationBefore||1} · ${x.r.winner==='ours'?'Ganado':'Perdido'}</strong><small>${x.ownErr?x.ownErr+' error(es) propio(s)':''}${x.ownErr&&x.ownPts?' · ':''}${x.ownPts?x.ownPts+' punto(s) terminal(es)':''}</small></div><button class="ghost" onclick="v820OpenVideoRally(${Number(m.id)},${Number(x.set.number)},${Number(x.r.id)})">▶ Vídeo</button></article>`).join(''):'<div class="match-empty">No hay rallies destacados suficientes.</div>';
-  const ev=[...arr(m.workflow?.events),...arr(m.events)].sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
-  $('v820-events').innerHTML=ev.length?ev.map(e=>`<article class="v820-event-row"><time>S${e.setNumber||'—'} · ${e.scoreUs??0}-${e.scoreOpponent??0}</time><div><strong>${esc(EVENT_LABELS[e.type]||e.type)}</strong><small>${esc(e.subject||e.outLabel&&e.inLabel?`${e.outLabel||''} → ${e.inLabel||''}`:e.note||'')}</small></div><span></span></article>`).join(''):'<div class="match-empty">No hay eventos registrados.</div>';
-  $('v820-training-focus').innerHTML=focusItems(m).map((x,i)=>`<article class="v820-focus"><span>${i+1}</span><b>${esc(x.title)}</b><p>${esc(x.copy)}</p></article>`).join('');
-  $('v820-generated').textContent=`Generado ${new Date().toLocaleString('es-ES')} · ${allRallies(m).length} rallies · ${base.total} acciones`;
-}
-window.v820Render=render;
-window.v820Open=function(){
-  const sel=$('v820-match');if(!sel)return;
-  const list=matches().slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.id)-Number(a.id));
-  const cur=Number(sel.value)||Number(br()?.getActiveId?.())||Number(list[0]?.id)||0;
-  sel.innerHTML=list.length?list.map(m=>`<option value="${m.id}" ${Number(m.id)===cur?'selected':''}>${esc(m.date||'')} · ${esc(m.opponent||'Rival')}${m.status==='finished'?' · Finalizado':' · En curso'}</option>`).join(''):'<option value="">Sin partidos</option>';
-  render();
-};
-window.v820OpenVideoHub=function(){
-  const m=current();if(!m)return;
-  const btn=document.querySelector('.tab-btn[data-view="scout-video-hub"]');showView('scout-video-hub',btn);
-  setTimeout(()=>{const s=$('v780-match');if(s){s.value=String(m.id);window.v780MatchChanged?.()}},60);
-};
-window.v820OpenVideoRally=function(matchId,setNo,rallyId){
-  const btn=document.querySelector('.tab-btn[data-view="scout-video-hub"]');showView('scout-video-hub',btn);
-  setTimeout(()=>{
-    const s=$('v780-match');if(s){s.value=String(matchId);window.v780MatchChanged?.()}
-    setTimeout(()=>{const key=`r:${setNo}:${rallyId}`;window.v780Select?.(key);window.v780PlayKey?.(key)},120);
-  },60);
-};
-window.v820ExportPDF=async function(){
-  const el=$('v820-report-export'),m=current();if(!el||!m)return;
-  const btn=document.activeElement;if(btn?.tagName==='BUTTON')btn.disabled=true;
-  try{
-    if(typeof html2canvas!=='function'||!window.jspdf?.jsPDF)throw new Error('El motor PDF no está disponible.');
-    const canvas=await html2canvas(el,{scale:1.55,useCORS:true,backgroundColor:'#ffffff',logging:false});
-    const {jsPDF}=window.jspdf,pdf=new jsPDF('p','mm','a4');
-    const pageW=210,pageH=297,margin=7,contentW=pageW-margin*2;
-    const imgW=contentW,imgH=canvas.height*imgW/canvas.width;
-    const pagePx=canvas.width*(pageH-margin*2)/contentW;
-    let yPx=0,page=0;
-    while(yPx<canvas.height){
-      const sliceH=Math.min(pagePx,canvas.height-yPx);
-      const c=document.createElement('canvas');c.width=canvas.width;c.height=sliceH;
-      c.getContext('2d').drawImage(canvas,0,yPx,canvas.width,sliceH,0,0,canvas.width,sliceH);
-      const data=c.toDataURL('image/jpeg',.93),h=sliceH*imgW/canvas.width;
-      if(page++)pdf.addPage();
-      pdf.addImage(data,'JPEG',margin,margin,imgW,h,undefined,'FAST');
-      yPx+=sliceH;
-    }
-    const safe=String(m.opponent||'Rival').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'_');
-    pdf.save(`${m.date||'partido'}_${safe}_Informe_Postpartido_V8_2.pdf`);
-  }catch(err){alert('No se ha podido generar el PDF.\n\n'+String(err?.message||err))}
-  finally{if(btn?.tagName==='BUTTON')btn.disabled=false}
-};
-window.v820Diagnostics=()=>({version:VERSION,matches:matches().length,current:current()?.id||null,rallies:allRallies(current()).length,actions:allActions(current()).length});
-})();
-</script>
+
 
 
 
@@ -24675,7 +24143,7 @@ let frame=0,fastFrame=0,rendering=false,lastSurface='',lastDuration=0,lastReason
 const queuedReasons=new Set();
 
 function activeSurface(){
-  const ids=['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-dashboard','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'];
+  const ids=['scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-dashboard','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion'];
   return ids.find(id=>document.getElementById(id)?.classList.contains('active'))||'';
 }
 function prepare(){
@@ -24807,412 +24275,67 @@ if(typeof showBase==='function'&&!showBase.__v920){
 
 
 
-<style id="v930-unified-scouting-style">
-/* Legacy scouting navigation remains in DOM for compatibility / botonVista(),
-   but users interact through one unified navigation only. */
-#scouting-nav.v930-internal-nav{display:none!important}
-
-#v930-unified-nav{
-  width:100%;
-  box-sizing:border-box;
-  padding:7px 10px 8px;
-  border-top:1px solid #dce4e8;
-  background:#f8fafb;
-}
-#v930-unified-nav.hidden{display:none!important}
-.v930-nav-primary{
-  display:grid;
-  grid-template-columns:repeat(7,minmax(92px,1fr));
-  gap:5px;
-}
-.v930-nav-primary button{
-  border:1px solid #d9e2e7;
-  border-radius:9px;
-  background:#fff;
-  color:#536b7b;
-  padding:7px 6px;
-  min-width:0;
-  cursor:pointer;
-  text-align:left;
-}
-.v930-nav-primary button b{
-  display:block;
-  font-size:8.5px;
-  color:#17324d;
-  line-height:1.1;
-}
-.v930-nav-primary button span{
-  display:block;
-  margin-top:2px;
-  font-size:6.3px;
-  color:#82909a;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.v930-nav-primary button.active{
-  background:#102b43;
-  border-color:#102b43;
-}
-.v930-nav-primary button.active b,
-.v930-nav-primary button.active span{color:#fff}
-
-.v930-nav-secondary{
-  display:flex;
-  gap:4px;
-  flex-wrap:wrap;
-  padding-top:5px;
-}
-.v930-nav-secondary button{
-  border:0;
-  background:transparent;
-  color:#687b87;
-  padding:4px 7px;
-  border-radius:6px;
-  font-size:6.8px;
-  font-weight:900;
-  cursor:pointer;
-}
-.v930-nav-secondary button:hover,
-.v930-nav-secondary button.active{background:#e9eff3;color:#17324d}
-.v930-nav-secondary button.compat{opacity:.62}
-.v930-nav-secondary button.compat:hover,
-.v930-nav-secondary button.compat.active{opacity:1}
-
-/* Scouting Pro phases are still present technically, but the global unified
-   navigation is now the single user-facing controller. */
-#scout-workspace-v900 .v900-phase-nav{display:none!important}
-
-/* Prevent duplicate navigation labels inside major modules. */
-#scout-workspace-v900 .v900-topbar{margin-top:4px}
-#scout-match-mode .v800-top{margin-top:4px}
-
-/* Large surfaces are isolated. Hidden surfaces are not interactive and modern
-   render router V9.2 does not repaint them. */
-#scout-match-mode,
-#scout-workspace-v900,
-#scout-analysis,
-#scout-video-hub,
-#scout-safe{content-visibility:auto;contain-intrinsic-size:900px}
-
-@media(max-width:1100px){
-  .v930-nav-primary{grid-template-columns:repeat(4,minmax(90px,1fr))}
-}
-@media(max-width:680px){
-  #v930-unified-nav{padding:6px}
-  .v930-nav-primary{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .v930-nav-primary button{padding:7px}
-  .v930-nav-secondary{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
-  .v930-nav-secondary button{white-space:nowrap}
-}
-</style>
 
 
 
-<script id="v930-unified-scouting-runtime">
+
+
+
+
+
+
+<script id="v124-professional-route-compat">
 (()=>{
 'use strict';
-const VERSION='9.3.0';
-
-const ROUTES={
-  partido:{view:'scout-match-mode',matchMode:'directo'},
-  directo:{view:'scout-workspace-v900',phase:'scout',input:'visual'},
-  codigo:{view:'scout-workspace-v900',phase:'scout',input:'code'},
-  video:{view:'scout-match-mode',matchMode:'video'},
-  revisar:{view:'scout-workspace-v900',phase:'review'},
-  analisis:{view:'scout-analysis'},
-  seguridad:{view:'scout-safe'},
-  preparar:{view:'scout-workspace-v900',phase:'prepare'},
-  videoteca:{view:'scout-video-hub'},
-  plan:{view:'scout-plan'},
-  matchup:{view:'scout-matchup'},
-  post:{view:'scout-postmatch'},
-  partidos:{view:'competicion'},
-  temporada:{view:'scout-season'},
-  clasico:{view:'scouting'}
-};
-
-const OWNED_VIEWS=new Set([
-  'scout-dashboard','scout-match-mode','scout-workspace-v900','scouting',
-  'scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup',
-  'scout-postmatch','scout-season','competicion'
-]);
-
-let currentRoute=localStorage.getItem('v930_route')||'directo';
-let navigating=false;
-let lastView='';
-let lastAfterView='';
-let lastAfterAt=0;
-let analysisCacheKey='';
-let analysisRenderCount=0;
-
-function $(id){return document.getElementById(id)}
-function activeView(){
-  return [...OWNED_VIEWS].find(id=>$(id)?.classList.contains('active'))||'';
-}
-function isScoutingView(id){
-  return OWNED_VIEWS.has(id);
-}
-function setNavVisible(visible){
-  $('v930-unified-nav')?.classList.toggle('hidden',!visible);
-}
-function routeForView(id){
-  if(id==='scout-match-mode'){
-    const mode=window.VC_V910_MATCH_VIEW?.get?.()||'directo';
-    return mode==='video'?'video':'partido';
+const VERSION='12.4.0';
+const owned=new Set(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion']);
+const show=(id)=>{try{return window.showView?.(id,window.botonVista?.(id)||null)}catch(e){console.warn('V12.4 route',id,e)}};
+const workspace=(phase='scout')=>{show('scout-workspace-v900');try{window.v900SetPhase?.(phase)}catch(_){};return true};
+async function route(route){
+  switch(String(route||'')){
+    case 'inicio': case 'home': return show('scout-dashboard');
+    case 'partido': return show('scout-match-mode');
+    case 'directo': case 'codigo': case 'scouting': case 'clasico': return workspace('scout');
+    case 'preparar': return workspace('prepare');
+    case 'revisar': return workspace('review');
+    case 'video': show('scout-match-mode'); try{window.v910SetMatchView?.('video')}catch(_){}; return true;
+    case 'videoteca': return show('scout-video-hub');
+    case 'analisis': case 'post': return show('scout-analysis');
+    case 'seguridad': case 'gestion': try{return window.v11Navigate?.('management')}catch(_){return show('v11-management')}
+    case 'plan': return show('scout-plan');
+    case 'matchup': return show('scout-matchup');
+    case 'partidos': return show('competicion');
+    case 'temporada': return show('scout-season');
+    default: return workspace('scout');
   }
-  if(id==='scout-workspace-v900'){
-    const st=window.VC_V900_WORKSPACE?.state?.()||{};
-    if(st.phase==='review')return'revisar';
-    if(st.phase==='prepare')return'preparar';
-    if(st.phase==='analyze')return'analisis';
-    return st.mode==='code'?'codigo':'directo';
-  }
-  return {
-    'scout-analysis':'analisis','scout-safe':'seguridad','scout-video-hub':'videoteca',
-    'scout-plan':'plan','scout-matchup':'matchup','scout-postmatch':'post',
-    'scout-season':'temporada','competicion':'partidos','scouting':'clasico'
-  }[id]||currentRoute;
 }
-function markRoute(route){
-  currentRoute=route||currentRoute;
-  localStorage.setItem('v930_route',currentRoute);
-  document.querySelectorAll('#v930-unified-nav [data-v930-route]').forEach(b=>{
-    b.classList.toggle('active',b.dataset.v930Route===currentRoute)
-  });
-}
-function analysisKey(){
-  let m=null;
-  try{m=window.VC_SCOUT_CORE?.getActive?.()||window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.()||null}catch(_){}
-  const selected=$('scout-analysis-match')?.value||m?.id||'';
-  return [
-    selected,m?.updatedAt||'',m?.status||'',m?.currentSet||'',
-    (m?.sets||[]).length,(m?.liveRally?.actions||[]).length
-  ].join('|');
-}
-function renderAnalysisCached(force=false){
-  const key=analysisKey();
-  if(!force&&key&&analysisCacheKey===key)return false;
-  const fn=window.scoutRenderAnalysis;
-  if(typeof fn!=='function')return false;
-  const out=fn();
-  analysisRenderCount++;
-  if(out&&typeof out.then==='function'){
-    out.finally(()=>{analysisCacheKey=analysisKey()});
-  }else{
-    analysisCacheKey=analysisKey();
-  }
-  return true;
-}
-function invalidateAnalysis(){analysisCacheKey=''}
-
+function invalidateAnalysis(){try{window.VC_SCOUT_RENDER_V92?.request?.('v124-invalidate')}catch(_){try{window.scoutRenderAnalysis?.()}catch(__){}}}
 function afterView(id){
-  const now=Date.now();
-  /* Several historical showView wrappers can reach this dispatcher during the
-     same navigation. Coalesce identical post-view work. */
-  if(lastAfterView===id&&now-lastAfterAt<40)return;
-  lastAfterView=id;lastAfterAt=now;
-  setNavVisible(isScoutingView(id));
-  if(!isScoutingView(id))return;
-
-  const inferred=routeForView(id);
-  if(!navigating)markRoute(inferred);
-
-  switch(id){
-    case 'scout-dashboard':
-      window.scoutRenderHome?.();
-      break;
-    case 'scout-match-mode':
-      window.v800Open?.();
-      break;
-    case 'scout-workspace-v900':
-      window.v900Open?.();
-      break;
-    case 'scout-video-hub':
-      window.v780Open?.();
-      break;
-    case 'scout-season':
-      window.v790Open?.();
-      break;
-    case 'scout-postmatch':
-      window.v820Open?.();
-      break;
-    case 'scout-analysis':
-      renderAnalysisCached(false);
-      break;
-    case 'scout-safe':
-      window.scoutV893RenderVault?.();
-      break;
-    case 'scout-plan':
-      window.scoutV660Render?.();
-      break;
-    case 'scout-matchup':
-      window.scoutV670Render?.();
-      break;
-    case 'scouting':
-      window.VC_SCOUT_RENDER_V92?.now?.('v930-classic');
-      break;
-    case 'competicion':
-      window.renderCompetition?.();
-      break;
-  }
-  lastView=id;
-}
-
-function sameRouteAlreadyReady(route,cfg){
-  const av=activeView();
-  if(av!==cfg.view)return false;
-  if(route==='directo'||route==='codigo'||route==='revisar'||route==='preparar'){
-    const st=window.VC_V900_WORKSPACE?.state?.()||{};
-    if(cfg.phase&&st.phase!==cfg.phase)return false;
-    if(cfg.input&&st.mode!==cfg.input)return false;
-  }
-  if(route==='partido'||route==='video'){
-    const mm=window.VC_V910_MATCH_VIEW?.get?.();
-    if(cfg.matchMode&&mm!==cfg.matchMode)return false;
-  }
-  return true;
-}
-
-async function open(route){
-  const cfg=ROUTES[route]||ROUTES.directo;
-  route=ROUTES[route]?route:'directo';
-  markRoute(route);
-  setNavVisible(true);
-
-  /* Do not run a full showView chain when the requested surface/mode is
-     already open. This removes a large class of duplicate renders. */
-  if(sameRouteAlreadyReady(route,cfg)){
-    if(route==='analisis')renderAnalysisCached(false);
-    else if(route==='seguridad')window.scoutV893RenderVault?.();
-    return;
-  }
-
-  navigating=true;
   try{
-    if(cfg.view==='scout-workspace-v900'){
-      /* Set cheap internal state before opening so first render is already the
-         correct panel. */
-      if(cfg.phase)window.v900SetPhase?.(cfg.phase);
-      if(cfg.input)window.v900SetInputMode?.(cfg.input);
+    switch(id){
+      case 'scout-dashboard': window.scoutRenderHome?.(); break;
+      case 'scout-match-mode': window.v800Open?.(); break;
+      case 'scout-workspace-v900': window.v900Open?.(); break;
+      case 'scout-video-hub': window.v780Open?.(); break;
+      case 'scout-season': window.v790Open?.(); break;
+      case 'scout-analysis': invalidateAnalysis(); window.scoutRenderAnalysis?.(); break;
+      case 'scout-safe': window.scoutV893RenderVault?.(); break;
+      case 'scout-plan': window.scoutV660Render?.(); break;
+      case 'scout-matchup': window.scoutV670Render?.(); break;
+      case 'competicion': window.renderCompetition?.(); break;
     }
-    if(cfg.view==='scout-match-mode'&&cfg.matchMode){
-      window.v910SetMatchView?.(cfg.matchMode);
-    }
-
-    const btn=typeof window.botonVista==='function'?window.botonVista(cfg.view):null;
-    window.showView?.(cfg.view,btn);
-
-    /* showView dispatcher opens the actual module. The following operations
-       only correct internal mode if an old wrapper changed it. */
-    if(cfg.view==='scout-workspace-v900'){
-      if(cfg.phase)window.v900SetPhase?.(cfg.phase);
-      if(cfg.input)window.v900SetInputMode?.(cfg.input);
-    }else if(cfg.view==='scout-match-mode'&&cfg.matchMode){
-      window.v910SetMatchView?.(cfg.matchMode);
-    }
-  }finally{
-    navigating=false;
-    lastView=cfg.view;
-    markRoute(route);
-  }
+  }catch(err){console.warn('V12.4 afterView',id,err)}
 }
-
-/* Track every exhaustive analysis execution so reopening without data changes
-   can reuse the already-rendered DOM. Filters inside Analysis still call the
-   original function normally and therefore remain exhaustive. */
-const analysisBase=window.scoutRenderAnalysis;
-if(typeof analysisBase==='function'&&!analysisBase.__v930){
-  const wrapped=function(...args){
-    const out=analysisBase.apply(this,args);
-    analysisRenderCount++;
-    if(out&&typeof out.then==='function')out.finally(()=>{analysisCacheKey=analysisKey()});
-    else analysisCacheKey=analysisKey();
-    return out;
-  };
-  wrapped.__v930=true;
-  window.scoutRenderAnalysis=wrapped;
-}
-
-/* Any real match mutation changes updatedAt via scoutSave, but explicit
-   editor/restore operations may also invalidate analysis. */
-['scoutAwardPoint','scoutUndoRally','scoutAddCode','scoutAddManualAction',
- 'scoutApplySubstitution','scoutSaveLineup','scoutNextSet','scoutFinishMatch'].forEach(name=>{
-  const base=window[name];
-  if(typeof base!=='function'||base.__v930)return;
-  const wrapped=function(...args){
-    invalidateAnalysis();
-    return base.apply(this,args);
-  };
-  wrapped.__v930=true;window[name]=wrapped;
-});
-
-const editorSave=window.v901SaveRallyEditor;
-if(typeof editorSave==='function'&&!editorSave.__v930){
-  const wrapped=async function(...args){
-    invalidateAnalysis();
-    return editorSave.apply(this,args);
-  };
-  wrapped.__v930=true;window.v901SaveRallyEditor=wrapped;
-}
-
-/* Replace legacy navigation destinations with Unified Scouting entry when a
-   saved/new match is opened. No data engine is changed. */
-const openSaved=window.scoutOpenSaved;
-if(typeof openSaved==='function'&&!openSaved.__v930){
-  const wrapped=function(...args){
-    const out=openSaved.apply(this,args);
-    setTimeout(()=>open('partido'),0);
-    return out;
-  };
-  wrapped.__v930=true;window.scoutOpenSaved=wrapped;
-}
-const createMatch=window.scoutCreateMatch;
-if(typeof createMatch==='function'&&!createMatch.__v930){
-  const wrapped=function(...args){
-    const out=createMatch.apply(this,args);
-    setTimeout(()=>{try{if(window.VC_SCOUT_CORE?.getActive?.())open('partido')}catch(_){}},0);
-    return out;
-  };
-  wrapped.__v930=true;window.scoutCreateMatch=wrapped;
-}
-
-window.v930Open=open;
+window.v930Open=route;
 window.v930InvalidateAnalysis=invalidateAnalysis;
-window.VC_V930_UNIFIED={
-  version:VERSION,
-  routes:ROUTES,
-  open,
-  afterView,
-  ownsView:id=>OWNED_VIEWS.has(id),
-  invalidateAnalysis,
-  analysisKey,
-  diagnostics:()=>({
-    version:VERSION,
-    route:currentRoute,
-    view:activeView(),
-    lastView,
-    analysisCacheKey,
-    analysisRenderCount,
-    renderRouter:window.VC_SCOUT_RENDER_V92?.diagnostics?.()||null,
-    matchMode:window.VC_V910_MATCH_VIEW?.get?.()||null,
-    workspace:window.VC_V900_WORKSPACE?.state?.()||null,
-    dataModel:'scoutingMatches>sets>rallies>actions',
-    compatibilityClassic:true
-  })
-};
-
-/* Initial unified nav state after all scripts are loaded. */
-setTimeout(()=>{
-  const av=activeView();
-  setNavVisible(isScoutingView(av));
-  if(av)markRoute(routeForView(av));
-},0);
+window.v940Open=route;
+window.v940Route=route;
+window.v940RefreshAnalysis=invalidateAnalysis;
+window.v940MatchView=window.v940MatchView||function(mode){try{return window.v910SetMatchView?.(mode)}catch(_){}};
+window.VC_V930_UNIFIED={version:VERSION,open:route,afterView,ownsView:id=>owned.has(id),invalidateAnalysis,diagnostics:()=>({version:VERSION,route:'v12-native',view:document.querySelector('.view.active')?.id||null})};
+window.VC_V940_PRO={version:VERSION,open:route,diagnostics:()=>({version:VERSION,legacyNavRemoved:true,view:document.querySelector('.view.active')?.id||null})};
 })();
 </script>
-
-
-
 <style id="v931-performance-style">
 .v931-perf-badge{
   margin-left:auto;
@@ -25292,488 +24415,11 @@ else setTimeout(warm,900);
 
 
 
-<style id="v940-professional-reorganization-style">
-/* Only V9.4 is user-facing. Earlier navigations remain available internally. */
-#v930-unified-nav.v940-compat-nav,
-#v910-match-view-nav{display:none!important}
-
-#v940-professional-nav{
-  width:100%;
-  box-sizing:border-box;
-  background:#f5f7f9;
-  border-top:1px solid #dce3e7;
-  border-bottom:1px solid #d7e0e5;
-  padding:8px 10px;
-}
-#v940-professional-nav.hidden{display:none!important}
-
-.v940-nav-head{
-  display:grid;
-  grid-template-columns:minmax(180px,.9fr) minmax(500px,2.2fr) auto;
-  gap:9px;
-  align-items:stretch;
-  margin-bottom:7px;
-}
-.v940-home{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  border:1px solid #d9e2e7;
-  background:#fff;
-  border-radius:9px;
-  padding:7px 9px;
-  color:#17324d;
-  cursor:pointer;
-  text-align:left;
-}
-.v940-home>span{
-  display:grid;
-  place-items:center;
-  width:29px;height:29px;
-  border-radius:7px;
-  background:#102b43;
-  color:#fff;
-  font-size:8px;
-  font-weight:950;
-  letter-spacing:.08em;
-}
-.v940-home b{display:block;font-size:9px}
-.v940-home small{display:block;margin-top:1px;font-size:6.2px;color:#7b8b95}
-
-.v940-match-context{
-  display:grid;
-  grid-template-columns:1.45fr .8fr .65fr .75fr;
-  border:1px solid #dce4e8;
-  background:#fff;
-  border-radius:9px;
-  overflow:hidden;
-}
-.v940-match-context>div{
-  padding:7px 9px;
-  border-right:1px solid #e6ebee;
-  min-width:0;
-}
-.v940-match-context>div:last-child{border-right:0}
-.v940-match-context span{
-  display:block;
-  font-size:5.8px;
-  font-weight:950;
-  letter-spacing:.08em;
-  color:#87959e;
-}
-.v940-match-context b{
-  display:block;
-  margin-top:2px;
-  font-size:8px;
-  color:#17324d;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.v940-perf-badge{
-  display:grid;
-  place-items:center;
-  min-width:68px;
-  border:1px solid #d9e2e7;
-  border-radius:9px;
-  background:#fff;
-  color:#607482;
-  font-size:7px;
-  font-weight:950;
-  padding:0 8px;
-}
-.v940-perf-badge.good{color:#2e6546;background:#f2f8f4;border-color:#bfd7c8}
-.v940-perf-badge.warn{color:#8b6231;background:#fffaf0;border-color:#e1cfaf}
-.v940-perf-badge.bad{color:#8a4242;background:#fff5f5;border-color:#dfbbbb}
-
-.v940-main-nav{
-  display:grid;
-  grid-template-columns:repeat(6,minmax(105px,1fr));
-  gap:5px;
-}
-.v940-main-nav>button{
-  min-width:0;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  border:1px solid #d9e2e7;
-  background:#fff;
-  color:#536b7b;
-  border-radius:8px;
-  padding:7px 8px;
-  cursor:pointer;
-  text-align:left;
-}
-.v940-main-nav>button:hover{border-color:#aebdc6;background:#fbfcfd}
-.v940-main-nav>button.active{background:#102b43;border-color:#102b43;color:#fff}
-.v940-nav-icon{
-  flex:0 0 auto;
-  display:grid;
-  place-items:center;
-  width:24px;height:24px;
-  border:1px solid #dbe3e7;
-  border-radius:6px;
-  font-size:6.2px;
-  font-weight:950;
-  color:#738590;
-  background:#f7f9fa;
-}
-.v940-main-nav>button.active .v940-nav-icon{
-  color:#fff;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08)
-}
-.v940-main-nav b{display:block;font-size:8.4px;color:#17324d}
-.v940-main-nav small{
-  display:block;
-  margin-top:1px;
-  font-size:5.9px;
-  color:#84929b;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.v940-main-nav>button.active b,.v940-main-nav>button.active small{color:#fff}
-
-.v940-context-toolbar{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  min-height:29px;
-  padding-top:6px;
-  overflow-x:auto;
-  scrollbar-width:thin;
-}
-.v940-context-toolbar:empty{display:none}
-.v940-context-toolbar .v940-context-label{
-  flex:0 0 auto;
-  padding:0 5px;
-  font-size:5.8px;
-  letter-spacing:.08em;
-  font-weight:950;
-  color:#87949d;
-}
-.v940-context-toolbar button{
-  flex:0 0 auto;
-  border:1px solid #dce4e8;
-  background:#fff;
-  color:#5c7180;
-  border-radius:6px;
-  padding:5px 8px;
-  font-size:6.7px;
-  font-weight:900;
-  cursor:pointer;
-}
-.v940-context-toolbar button:hover,
-.v940-context-toolbar button.active{background:#e9eff3;color:#17324d;border-color:#c8d4db}
-.v940-context-toolbar button.primary{background:#17324d;color:#fff;border-color:#17324d}
-.v940-context-toolbar .separator{width:1px;height:18px;background:#d9e1e5;margin:0 2px}
-
-/* Less GPU/paint work on desktop. Keep the visual hierarchy through borders,
-   spacing and typography rather than many blurred shadows. */
-#scout-match-mode .v800-card,
-#scout-match-mode [class*="v800-"][class*="-card"],
-#scout-workspace-v900 .v900-card,
-#scout-analysis .card,
-#scout-video-hub .card{
-  box-shadow:none!important;
-}
-#scout-match-mode .v800-card,
-#scout-workspace-v900 .v900-card{
-  border-color:#dde5e9!important;
-}
-
-/* The shell is the navigation; internal duplicate phase bars stay technical. */
-#scout-workspace-v900 .v900-phase-nav{display:none!important}
-
-/* Strong containment for the large desktop modules. */
-#scout-match-mode.active,
-#scout-workspace-v900.active,
-#scout-analysis.active,
-#scout-video-hub.active,
-#scout-safe.active{
-  contain:layout style paint;
-}
-
-/* Avoid long cosmetic transitions being perceived as control lag. */
-#v940-professional-nav button,
-#scout-match-mode button,
-#scout-workspace-v900 button{
-  transition:background-color .06s linear,border-color .06s linear,color .06s linear!important;
-}
-
-@media(max-width:1180px){
-  .v940-nav-head{grid-template-columns:180px 1fr auto}
-  .v940-match-context{grid-template-columns:1.4fr .8fr .7fr}
-  .v940-match-context>div:last-child{display:none}
-  .v940-main-nav{grid-template-columns:repeat(3,1fr)}
-}
-@media(max-width:720px){
-  #v940-professional-nav{padding:6px}
-  .v940-nav-head{grid-template-columns:1fr auto}
-  .v940-match-context{grid-column:1/-1;grid-row:2;grid-template-columns:1.3fr .8fr .8fr}
-  .v940-home{min-width:0}
-  .v940-main-nav{grid-template-columns:repeat(2,1fr)}
-  .v940-main-nav small{display:none}
-  .v940-context-toolbar{padding-bottom:2px}
-}
-</style>
 
 
 
-<script id="v940-professional-reorganization-runtime">
-(()=>{
-'use strict';
-const VERSION='9.4.0';
 
-const AREA_DEFAULT={
-  inicio:'inicio',
-  partido:'partido',
-  scouting:'directo',
-  revisar:'revisar',
-  analisis:'analisis',
-  video:'video',
-  gestion:'partidos'
-};
-const ROUTE_AREA={
-  inicio:'inicio',
-  partido:'partido',
-  directo:'scouting',codigo:'scouting',preparar:'scouting',
-  revisar:'revisar',
-  analisis:'analisis',
-  video:'video',videoteca:'video',
-  seguridad:'gestion',plan:'gestion',matchup:'gestion',post:'gestion',
-  partidos:'gestion',temporada:'gestion',clasico:'gestion'
-};
-let area=localStorage.getItem('v940_area')||'partido';
-let managementRoute=localStorage.getItem('v940_management_route')||'partidos';
-let routeBusy=false;
-let statusFrame=0;
-let contextFrame=0;
 
-const $=id=>document.getElementById(id);
-function activeMatch(){
-  try{return window.VC_SCOUT_FAST_BRIDGE_V92?.getActive?.()||window.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}
-}
-function teamName(){
-  try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Equipo'}catch(_){return'Equipo'}
-}
-function setObj(m){return (m?.sets||[]).find(s=>Number(s.number)===Number(m?.currentSet))||null}
-function setArea(next){
-  area=next||area;
-  localStorage.setItem('v940_area',area);
-  document.querySelectorAll('#v940-professional-nav [data-v940-area]').forEach(b=>b.classList.toggle('active',b.dataset.v940Area===area));
-}
-function perfBadge(){
-  const old=$('v931-perf-badge'),b=$('v940-perf-badge');
-  if(!b)return;
-  const last=window.VC_PERF_V931?.last?.();
-  const ms=Math.max(0,Math.round(Number(last?.paintMs)||0));
-  b.textContent=last?.at?`⚡ ${ms} ms`:'⚡ — ms';
-  b.className='v940-perf-badge '+(!last?.at?'':ms<80?'good':ms<180?'warn':'bad');
-  if(old)old.style.display='none';
-}
-function updateStatus(){
-  const m=activeMatch(),s=setObj(m);
-  if(!m){
-    if($('v940-context-match'))$('v940-context-match').textContent='Sin scouting activo';
-    if($('v940-context-score'))$('v940-context-score').textContent='—';
-    if($('v940-context-rotation'))$('v940-context-rotation').textContent='—';
-  }else{
-    if($('v940-context-match'))$('v940-context-match').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;
-    if($('v940-context-score'))$('v940-context-score').textContent=`S${m.currentSet||1} · ${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
-    if($('v940-context-rotation'))$('v940-context-rotation').textContent=`R${m.rotationNo||1} · rival R${m.opponentRotationNo||1}`;
-  }
-  const save=$('scout-save-badge')?.textContent||'Local ✓';
-  if($('v940-context-save'))$('v940-context-save').textContent=/consolidando/i.test(save)?'Consolidando…':'Protegido ✓';
-  perfBadge();
-}
-function scheduleStatus(){
-  if(statusFrame)return;
-  statusFrame=requestAnimationFrame(()=>{statusFrame=0;updateStatus()});
-}
-function btn(label,action,cls='',active=false){
-  return `<button class="${cls}${active?' active':''}" onclick="${action}">${label}</button>`;
-}
-function renderContext(){
-  const box=$('v940-context-toolbar');if(!box)return;
-  const route=window.VC_V930_UNIFIED?.diagnostics?.().route||'';
-  let h='<span class="v940-context-label">HERRAMIENTAS</span>';
-  if(area==='partido'){
-    h+=btn('En directo',"v940Route('partido')",'',route==='partido'&&window.VC_V910_MATCH_VIEW?.get?.()!=='video');
-    h+=btn('Vídeo Live / YouTube',"v940MatchView('video')",'primary',window.VC_V910_MATCH_VIEW?.get?.()==='video');
-    h+=btn('Lectura',"v940MatchView('lectura')");
-    h+=btn('Todo',"v940MatchView('todo')");
-    h+=btn('Inteligencia V10','v1000OpenIntelligence()','primary');
-    h+='<span class="separator"></span>';
-    h+=btn('Alineación','scoutOpenLineup()');
-    h+=btn('Cambios / Líbero','scoutOpenSubstitution()');
-    h+=btn('Evento','scoutV690OpenEvent()');
-    h+=btn('Finalizar set','scoutV861OpenFinishSet()');
-    h+=btn('＋ Nuevo set','v954OpenNewSet()','primary');
-    h+=btn('Resultado final','scoutV861OpenFinalResult()');
-  }else if(area==='scouting'){
-    h+=btn('Visual',"v940Route('directo')",'',route==='directo');
-    h+=btn('Código Pro',"v940Route('codigo')",'',route==='codigo');
-    h+=btn('Preparar',"v940Route('preparar')",'',route==='preparar');
-    h+='<span class="separator"></span>';
-    h+=btn('Referencia códigos',"v901OpenCodes('v940')");
-    h+=btn('Alineación','scoutOpenLineup()');
-  }else if(area==='revisar'){
-    h+=btn('Rallies',"v940Route('revisar')",'',true);
-    h+=btn('Editar rallies y códigos','v901OpenRallyEditor()','primary');
-    h+=btn('Deshacer último','scoutUndoRally()');
-    h+=btn('Guardar ahora',"v950ForceSave()",'primary');
-  }else if(area==='analisis'){
-    h+=btn('Análisis exhaustivo',"v940Route('analisis')",'',true);
-    h+=btn('PDF Pro','scoutV752ExportAnalysisPDF()','primary');
-    h+=btn('Hoja oficial','scoutV752ExportOfficialPDF()');
-    h+=btn('Actualizar','v940RefreshAnalysis()');
-  }else if(area==='video'){
-    h+=btn('Vídeo en directo',"v940Route('video')",'',route==='video');
-    h+=btn('Videoteca / análisis',"v940Route('videoteca')",'',route==='videoteca');
-    h+=btn('REC','scoutV700OpenVideo(\'live\')');
-  }else if(area==='gestion'){
-    h+=btn('Nube',"abrirCloud()",'primary');
-    h+=btn('Recuperación',"scoutV892OpenRecoveryCenter()");
-    h+='<span class="separator"></span>';
-    h+=btn('Plan',"v940Route('plan')",'',route==='plan');
-    h+=btn('Match-up',"v940Route('matchup')",'',route==='matchup');
-    h+=btn('Partidos',"v940Route('partidos')",'',route==='partidos');
-    h+=btn('Temporada',"v940Route('temporada')",'',route==='temporada');
-    h+=btn('Postpartido',"v940Route('post')",'',route==='post');
-  }
-  box.innerHTML=h;
-}
-function scheduleContext(){
-  if(contextFrame)return;
-  contextFrame=requestAnimationFrame(()=>{contextFrame=0;renderContext();scheduleStatus()});
-}
-async function routeTo(route){
-  if(routeBusy)return;
-  routeBusy=true;
-  try{
-    if(ROUTE_AREA[route]){
-      setArea(ROUTE_AREA[route]);
-      if(ROUTE_AREA[route]==='gestion')managementRoute=route,localStorage.setItem('v940_management_route',route);
-    }
-    await window.v930Open?.(route);
-  }finally{
-    routeBusy=false;scheduleContext();
-  }
-}
-async function open(nextArea){
-  if(nextArea==='inicio'){
-    setArea('inicio');
-    const btn=typeof window.botonVista==='function'?window.botonVista('scout-dashboard'):null;
-    window.showView?.('scout-dashboard',btn);
-    scheduleContext();
-    return;
-  }
-  nextArea=AREA_DEFAULT[nextArea]?nextArea:'partido';
-  setArea(nextArea);
-  const route=nextArea==='gestion'?managementRoute:AREA_DEFAULT[nextArea];
-  await routeTo(route);
-}
-async function matchView(mode){
-  setArea('partido');
-  await routeTo('partido');
-  window.v910SetMatchView?.(mode);
-  scheduleContext();
-}
-function refreshAnalysis(){
-  window.v930InvalidateAnalysis?.();
-  window.scoutRenderAnalysis?.();
-  scheduleStatus();
-}
-function showShell(show){
-  $('v940-professional-nav')?.classList.toggle('hidden',!show);
-}
-function activeScoutingSurface(){
-  const ids=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'];
-  return ids.find(id=>$(id)?.classList.contains('active'))||'';
-}
-
-/* Keep V9.4 synchronized even when an old compatible control navigates. */
-const base930=window.v930Open;
-if(typeof base930==='function'&&!base930.__v940){
-  const wrapped=async function(route,...rest){
-    const out=await base930.call(this,route,...rest);
-    if(ROUTE_AREA[route]){
-      setArea(ROUTE_AREA[route]);
-      if(ROUTE_AREA[route]==='gestion'){managementRoute=route;localStorage.setItem('v940_management_route',route)}
-    }
-    showShell(true);scheduleContext();return out;
-  };
-  wrapped.__v940=true;window.v930Open=wrapped;
-}
-
-/* showView can also be called from legacy buttons/modals. */
-const showBase=window.showView;
-if(typeof showBase==='function'&&!showBase.__v940){
-  const wrapped=function(id,btn){
-    const out=showBase.apply(this,arguments);
-    const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'].includes(id);
-    showShell(scouting);
-    if(scouting)setTimeout(()=>{const d=window.VC_V930_UNIFIED?.diagnostics?.();if(d?.route&&ROUTE_AREA[d.route])setArea(ROUTE_AREA[d.route]);scheduleContext()},0);
-    return out;
-  };
-  wrapped.__v940=true;window.showView=wrapped;
-}
-
-/* Cheap status refreshes after structural match changes. No full render here. */
-['scoutAwardPoint','scoutUndoRally','scoutRotate','scoutRotateOpponent','scoutNextSet','scoutFinishMatch','scoutSaveLineup','scoutApplySubstitution'].forEach(name=>{
-  const base=window[name];if(typeof base!=='function'||base.__v940)return;
-  const wrapped=function(...args){
-    const out=base.apply(this,args);
-    Promise.resolve(out).finally(scheduleStatus);
-    return out;
-  };
-  wrapped.__v940=true;window[name]=wrapped;
-});
-
-/* Mirror the performance badge without another interval. */
-if(window.VC_PERF_V931){
-  const oldMark=window.VC_PERF_V931.mark;
-  window.VC_PERF_V931.mark=function(...args){const out=oldMark?.apply(this,args);scheduleStatus();return out};
-}
-
-window.v940Open=open;
-window.v940Route=routeTo;
-window.v940MatchView=matchView;
-window.v940RefreshAnalysis=refreshAnalysis;
-window.VC_V940_PRO={
-  version:VERSION,
-  open,route:routeTo,matchView,refreshAnalysis,
-  diagnostics:()=>({
-    version:VERSION,
-    area,
-    managementRoute,
-    route:window.VC_V930_UNIFIED?.diagnostics?.().route||null,
-    activeView:activeScoutingSurface(),
-    performance:window.VC_PERF_V931?.report?.()||null,
-    dataModel:'scoutingMatches>sets>rallies>actions',
-    compatibility:{
-      matchMode:typeof window.v800Open==='function',
-      scoutingPro:typeof window.v900Open==='function',
-      classic:!!$('scouting'),
-      editor:typeof window.v901OpenRallyEditor==='function',
-      video:typeof window.scoutV700OpenVideo==='function',
-      analysis:typeof window.scoutRenderAnalysis==='function',
-      vault:typeof window.scoutV893CheckpointAll==='function'
-    }
-  })
-};
-
-setTimeout(()=>{
-  const surface=activeScoutingSurface();
-  showShell(!!surface);
-  const r=window.VC_V930_UNIFIED?.diagnostics?.().route;
-  if(r&&ROUTE_AREA[r])setArea(ROUTE_AREA[r]);
-  else setArea(area);
-  renderContext();updateStatus();
-},0);
-})();
-</script>
 
 
 
@@ -28038,7 +26684,6 @@ const VIEW_META={
   'scout-matchup':['management','CLUB / MATCH-UP','Match-up'],
   'scout-safe':['management','CLUB / SEGURIDAD','Recuperación y seguridad'],
   'scout-season':['management','CLUB / TEMPORADA','Temporada'],
-  'scout-postmatch':['analysis','SCOUTING / POSTPARTIDO','Postpartido']
 };
 
 function setNavActive(key){
@@ -28055,7 +26700,7 @@ function updatePage(id){
 function moveProfessionalNav(id){
   const nav=$('v940-professional-nav'),slot=$('v11-context-slot');
   if(!nav||!slot)return;
-  const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'].includes(id);
+  const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-season','competicion'].includes(id);
   if(nav.parentElement!==slot)slot.appendChild(nav);
   nav.classList.toggle('hidden',!scouting);
 }
@@ -29207,10 +27852,10 @@ body.v118-professional-scouting #v11-context-slot{display:none!important}
 (()=>{
 'use strict';
 const VERSION='11.8.0',$=id=>document.getElementById(id);
-const PROFESSIONAL=new Set(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','v11-reports','v11-management','competicion','scout-plan','scout-matchup','scout-postmatch','scout-season']);
+const PROFESSIONAL=new Set(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','scout-video-hub','v11-reports','v11-management','competicion','scout-plan','scout-matchup','scout-season']);
 function remember(id){try{if(PROFESSIONAL.has(id))localStorage.setItem('v118_last_professional_view',id)}catch(_){}}
 function normalizeTarget(id){return id==='scouting'?'scout-workspace-v900':id}
-function updateBody(id){const scout=['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','competicion','scout-plan','scout-matchup','scout-postmatch','scout-season','v11-reports','v11-management'].includes(id);document.body.classList.toggle('v118-professional-scouting',scout)}
+function updateBody(id){const scout=['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','competicion','scout-plan','scout-matchup','scout-season','v11-reports','v11-management'].includes(id);document.body.classList.toggle('v118-professional-scouting',scout)}
 
 /* Hard stop to visible Classic mode: its DOM/functions remain only as an internal compatibility engine. */
 const showBase=window.showView;
@@ -29283,7 +27928,7 @@ body.v11-shell #scouting{display:none!important}
 
 <div id="v119-new-match-modal" class="v119-modal" onclick="if(event.target===this)v119CloseNewMatch()">
   <div class="v119-modal-card">
-    <div class="v119-modal-head"><div><span class="pro-kicker">SCOUTING PRO · V12.2</span><h2>Nuevo scouting</h2><p>Crea el partido directamente en la interfaz profesional.</p></div><button class="ghost" onclick="v119CloseNewMatch()">Cerrar ×</button></div>
+    <div class="v119-modal-head"><div><span class="pro-kicker">SCOUTING PRO · V12.3</span><h2>Nuevo scouting</h2><p>Crea el partido directamente en la interfaz profesional.</p></div><button class="ghost" onclick="v119CloseNewMatch()">Cerrar ×</button></div>
     <div class="v119-modal-body">
       <div class="v119-form-grid">
         <label><span>Fecha</span><input id="v119-new-date" type="date"></label>
@@ -29399,8 +28044,8 @@ window.v119SaveLineup=function(){
 };
 
 /* Public user-facing entry points now open professional UI, not legacy forms. */
-window.VC_V119_LEGACY_OPEN_NEW=window.scoutOpenNewMatch;window.scoutOpenNewMatch=window.v119OpenNewMatch;
-window.VC_V119_LEGACY_OPEN_LINEUP=window.scoutOpenLineup;window.scoutOpenLineup=window.v119OpenLineup;
+window.scoutOpenNewMatch=window.v119OpenNewMatch;
+window.scoutOpenLineup=window.v119OpenLineup;
 
 /* Keep picker/status in sync after the shared engine mutates state. */
 try{const base=window.v900Render;if(typeof base==='function'&&!base.__v119){const wrapped=function(...args){const out=base.apply(this,args);renderPicker();return out};wrapped.__v119=true;window.v900Render=wrapped}}catch(_){}
@@ -29700,7 +28345,7 @@ function ensureModebar(){const host=$('v119-probar');if(!host||$('v122-modebar')
 function currentPhase(){try{return window.VC_V900_WORKSPACE?.state?.().phase||'scout'}catch(_){return'scout'}}
 function renderModebar(){ensureModebar();const phase=currentPhase();document.querySelectorAll('#v122-modebar [data-v122-phase]').forEach(b=>b.classList.toggle('active',b.dataset.v122Phase===phase))}
 window.v122SetProPhase=function(phase){phase=['prepare','review'].includes(phase)?phase:'scout';try{window.v900SetPhase?.(phase);window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));window.v900Open?.()}catch(e){console.warn('V12.2 phase',e)}renderModebar()};
-function ensureSwitcher(){if($('v122-switcher'))return;const modal=document.createElement('div');modal.id='v122-switcher';modal.className='v122-switcher';modal.innerHTML=`<div class="v122-switcher-card" role="dialog" aria-modal="true" aria-labelledby="v122-switch-title"><div class="v122-switcher-head"><div><span class="pro-kicker">SCOUTING PRO · V12.2</span><h2 id="v122-switch-title">Cambiar de scouting</h2><p>Abre cualquier partido sin salir del workspace profesional.</p></div><button type="button" onclick="v122CloseMatchSwitcher()">Cerrar ×</button></div><div class="v122-switcher-toolbar"><input id="v122-switch-search" type="search" placeholder="Buscar rival, fecha o competición…" aria-label="Buscar scouting"><button type="button" class="ghost" onclick="v122ToggleFinished()" id="v122-finished-toggle">Finalizados: sí</button><button type="button" class="primary" onclick="v122CloseMatchSwitcher();v119OpenNewMatch()">＋ Nuevo scouting</button></div><div id="v122-match-list" class="v122-match-list"></div></div>`;modal.addEventListener('click',e=>{if(e.target===modal)window.v122CloseMatchSwitcher()});document.body.appendChild(modal);$('v122-switch-search')?.addEventListener('input',renderSwitcher)}
+function ensureSwitcher(){if($('v122-switcher'))return;const modal=document.createElement('div');modal.id='v122-switcher';modal.className='v122-switcher';modal.innerHTML=`<div class="v122-switcher-card" role="dialog" aria-modal="true" aria-labelledby="v122-switch-title"><div class="v122-switcher-head"><div><span class="pro-kicker">SCOUTING PRO · V12.3</span><h2 id="v122-switch-title">Cambiar de scouting</h2><p>Abre cualquier partido sin salir del workspace profesional.</p></div><button type="button" onclick="v122CloseMatchSwitcher()">Cerrar ×</button></div><div class="v122-switcher-toolbar"><input id="v122-switch-search" type="search" placeholder="Buscar rival, fecha o competición…" aria-label="Buscar scouting"><button type="button" class="ghost" onclick="v122ToggleFinished()" id="v122-finished-toggle">Finalizados: sí</button><button type="button" class="primary" onclick="v122CloseMatchSwitcher();v119OpenNewMatch()">＋ Nuevo scouting</button></div><div id="v122-match-list" class="v122-match-list"></div></div>`;modal.addEventListener('click',e=>{if(e.target===modal)window.v122CloseMatchSwitcher()});document.body.appendChild(modal);$('v122-switch-search')?.addEventListener('input',renderSwitcher)}
 let includeFinished=true;
 function renderSwitcher(){ensureSwitcher();const q=String($('v122-switch-search')?.value||'').trim().toLowerCase(),cur=active();let list=matches().filter(m=>includeFinished||m.status!=='finished');if(q)list=list.filter(m=>[m.opponent,m.date,m.competition].some(v=>String(v||'').toLowerCase().includes(q)));const box=$('v122-match-list');if(!box)return;if(!list.length){box.innerHTML='<div class="v122-switcher-empty">No hay scoutings que coincidan con el filtro.</div>';return}box.innerHTML=list.map(m=>{const s=setOf(m),sets=scoreSets(m),isActive=Number(cur?.id)===Number(m.id),finished=m.status==='finished';return `<article class="v122-match-row ${isActive?'active':''}"><div class="v122-match-main"><span class="v122-status ${finished?'finished':''}">${finished?'FINALIZADO':'EN DIRECTO'}</span><b>${esc(m.opponent||'Rival')}</b><small>${esc(humanDate(m.date))}${m.competition?' · '+esc(m.competition):''}${isActive?' · ACTIVO':''}</small></div><div class="v122-match-stat"><span>SET</span><b>S${Number(m.currentSet)||1}</b><small>${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}</small></div><div class="v122-match-stat"><span>SETS</span><b>${sets.us}–${sets.op}</b><small>resultado</small></div><div class="v122-match-stat"><span>ACCIONES</span><b>${actionCount(m)}</b><small>registradas</small></div><button type="button" class="${isActive?'ghost':'primary'}" ${isActive?'disabled':''} onclick="v122SwitchMatch(${Number(m.id)})">${isActive?'Abierto':'Abrir'}</button></article>`}).join('')}
 window.v122OpenMatchSwitcher=function(){ensureSwitcher();renderSwitcher();$('v122-switcher')?.classList.add('open');setTimeout(()=>$('v122-switch-search')?.focus(),20)};
@@ -29723,4 +28368,57 @@ window.VC_V122={version:VERSION,openSwitcher:window.v122OpenMatchSwitcher,render
 })();
 </script>
 
+
+
+<!-- =========================================================
+     V12.3 · SCOUTING SWITCHER + SAFE LEGACY JS REDUCTION
+     ========================================================= -->
+<style id="v123-safe-cleanup-style">
+.v123-scout-switchbar{display:grid;grid-template-columns:minmax(220px,1.15fr) minmax(260px,1fr) auto;gap:10px;align-items:center;margin:0 0 10px;padding:10px 12px;background:#fff;border:1px solid #d9e4eb;border-radius:13px;box-shadow:0 4px 16px rgba(26,57,81,.045)}
+.v123-switch-current{min-width:0}.v123-switch-current>span,.v123-switch-control label{display:block;font-size:6.5px;font-weight:950;letter-spacing:.1em;color:#8295a3;text-transform:uppercase}.v123-switch-current b{display:block;margin:3px 0 2px;font-size:13px;color:#15364f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v123-switch-current small{display:block;color:#8395a1;font-size:7.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v123-switch-control{min-width:0}.v123-switch-control select{width:100%;height:38px;margin-top:4px;border:1px solid #cedce5;border-radius:8px;background:#f9fbfc;color:#173a53;font-size:9px;font-weight:800;padding:0 10px}.v123-switch-actions{display:flex;gap:6px;align-items:center}.v123-switch-actions button{height:38px!important;padding:0 11px!important;font-size:7.5px!important;white-space:nowrap}
+#scout-workspace-v900 .v119-match-picker{display:none!important}
+/* Remaining preparation/review surfaces now inherit the professional visual system. */
+#scout-workspace-v900 .v900-phase-panel{padding-top:2px}#scout-workspace-v900 .v900-phase-panel .v900-card{border:1px solid #dce6ec!important;border-radius:12px!important;background:#fff!important;box-shadow:0 4px 16px rgba(26,57,81,.04)!important;padding:13px!important}#scout-workspace-v900 .v900-phase-panel .v900-card-head{padding-bottom:8px!important;margin-bottom:9px!important;border-bottom:1px solid #edf1f4!important}#scout-workspace-v900 .v900-phase-panel .v900-card h3{font-size:12px!important;color:#17364e!important}#scout-workspace-v900 .v900-phase-panel button{border-radius:8px!important}
+/* Replaced visual forms are retained only as inert compatibility DOM during phase 2. */
+#scout-new-modal,#scout-lineup-modal,#scout-sub-modal,#scout-v861-finish-set-modal,#scout-v954-new-set-modal,#scout-v861-final-result-modal,#scout-v690-event-modal{display:none!important;pointer-events:none!important}
+body.v123-safe-cleanup #scout-v690-review-modal .pro-modal-card{border-radius:16px!important;border:1px solid #dbe5eb!important;box-shadow:0 28px 80px rgba(10,30,47,.22)!important}body.v123-safe-cleanup #scout-v690-review-modal .pro-modal-head{background:linear-gradient(180deg,#fbfdfe,#f5f8fa)!important;border-bottom:1px solid #e8edf0!important}
+@media(max-width:850px){.v123-scout-switchbar{grid-template-columns:1fr}.v123-switch-actions{justify-content:flex-start}.v123-switch-actions button{flex:1}.v123-switch-current b,.v123-switch-current small{white-space:normal}}
+</style>
+<script id="v123-safe-cleanup-runtime">
+(()=>{
+'use strict';
+const VERSION='12.3.0',$=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function matches(){try{return Array.isArray(window.scoutingMatches)?window.scoutingMatches.filter(Boolean):window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]}catch(_){return[]}}
+function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
+function setOf(m){try{return window.scoutSet?.(m)||m?.sets?.find(s=>Number(s.number)===Number(m.currentSet))||null}catch(_){return null}}
+function setsScore(m){try{return window.scoutSetsScore?.(m)||{us:0,opponent:0}}catch(_){return{us:0,opponent:0}}}
+function fmtDate(v){if(!v)return'';const p=String(v).split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:String(v)}
+function renderSwitcher(){const select=$('v123-match-select'),title=$('v123-switch-title'),meta=$('v123-switch-meta'),m=active(),list=matches().slice().sort((a,b)=>String(b.updatedAt||b.date||'').localeCompare(String(a.updatedAt||a.date||'')));if(select){select.innerHTML=list.length?list.map(x=>{const s=setOf(x),activeFlag=Number(x.id)===Number(m?.id),status=x.status==='finished'?'Finalizado':'En directo';return `<option value="${Number(x.id)||0}">${activeFlag?'● ':''}${esc(x.opponent||'Rival')} · ${fmtDate(x.date)} · S${Number(x.currentSet)||1} ${Number(s?.scoreUs)||0}-${Number(s?.scoreOpponent)||0} · ${status}</option>`}).join(''):'<option value="">No hay scoutings guardados</option>';if(m)select.value=String(m.id)}if(!title||!meta)return;if(!m){title.textContent='Sin scouting activo';meta.textContent=list.length?`${list.length} scoutings disponibles · selecciona uno`:'Crea tu primer scouting';return}const s=setOf(m),ss=setsScore(m);title.textContent=`${m.opponent||'Rival'} · Set ${Number(m.currentSet)||1} · ${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}`;meta.textContent=`${fmtDate(m.date)}${m.competition?' · '+m.competition:''} · sets ${Number(ss.us)||0}–${Number(ss.opponent)||0} · ${m.status==='finished'?'finalizado':'en directo'}`}
+window.v123SwitchMatch=async function(id){id=Number(id)||0;if(!id||Number(active()?.id)===id)return;const select=$('v123-match-select');if(select)select.disabled=true;try{try{await window.v119SaveAll?.(false)}catch(_){ }await Promise.resolve(window.v119SwitchMatch?.(id));renderSwitcher();setTimeout(()=>window.v900Open?.(),20)}catch(err){console.error('V12.3 switch',err);alert('No se ha podido cambiar de scouting. El scouting actual sigue protegido.')}finally{if(select)select.disabled=false}};
+function markLegacyDom(){['scout-new-modal','scout-lineup-modal','scout-sub-modal','scout-v861-finish-set-modal','scout-v954-new-set-modal','scout-v861-final-result-modal','scout-v690-event-modal'].forEach(id=>{const el=$(id);if(el){el.setAttribute('aria-hidden','true');el.setAttribute('inert','')}})}
+function render(){renderSwitcher();markLegacyDom()}
+['v900Render','v120RenderManagement','v119RefreshPro'].forEach(name=>{try{const base=window[name];if(typeof base==='function'&&!base.__v123){const wrapped=function(...args){const out=base.apply(this,args);setTimeout(render,0);return out};wrapped.__v123=true;window[name]=wrapped}}catch(_){}});
+try{const saveBase=window.scoutSave;if(typeof saveBase==='function'&&!saveBase.__v123){const wrapped=function(...args){const out=saveBase.apply(this,args);setTimeout(render,0);return out};wrapped.__v123=true;window.scoutSave=wrapped}}catch(_){}
+function boot(){document.body.classList.add('v123-safe-cleanup');render()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.VC_V123={version:VERSION,render,diagnostics:()=>({version:VERSION,active:active()?.id||null,matches:matches().length,classicActive:document.getElementById('scouting')?.classList.contains('active')||false,legacyOpenersStored:!!(window.VC_V119_LEGACY_OPEN_NEW||window.VC_V119_LEGACY_OPEN_LINEUP)})};
+})();
+</script>
+
+<style id="v124-cleanup-style">
+#scouting.v124-legacy-engine,.v124-legacy-modal-stub{display:none!important;pointer-events:none!important}
+body.v11-shell #v11-context-slot:empty{display:none!important}
+</style>
+<script id="v124-cleanup-runtime">
+(()=>{
+'use strict';
+const VERSION='12.4.0';
+/* Postpartido V8.2 is retired: every old route resolves to the current Analysis view. */
+const showBase=window.showView;if(typeof showBase==='function'&&!showBase.__v124){const wrapped=function(id,btn){if(id==='scouting')id='scout-workspace-v900';if(id==='scout-postmatch')id='scout-analysis';const out=showBase.call(this,id,id==='scout-workspace-v900'?(window.botonVista?.(id)||btn):btn);return out};wrapped.__v124=true;window.showView=wrapped}
+function boot(){document.body.classList.add('v124-clean');try{document.documentElement.classList.remove('v118-booting')}catch(_){}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.VC_V124={version:VERSION,diagnostics:()=>({version:VERSION,legacyScoutingVisible:getComputedStyle(document.getElementById('scouting')).display!=='none',legacyModalStubs:document.querySelectorAll('.v124-legacy-modal-stub').length,postmatchExists:!!document.getElementById('scout-postmatch'),oldScoutingNavExists:!!document.getElementById('scouting-nav'),oldV930NavExists:!!document.getElementById('v930-unified-nav'),oldV940NavExists:!!document.getElementById('v940-professional-nav'),activeView:document.querySelector('.view.active')?.id||''})};
+})();
+</script>
 </body></html>
