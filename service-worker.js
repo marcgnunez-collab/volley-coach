@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v12.2.0-professional-cleanup-v1';
+const CACHE_NAME = 'volley-coach-v12.4.0-dead-code-cleanup-v1';
 
 const APP_SHELL = [
   './',
