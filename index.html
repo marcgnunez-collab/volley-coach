@@ -16,7 +16,7 @@
 (()=>{
   document.documentElement.classList.add('v118-booting');
   try{document.documentElement.dataset.v118Workspace=localStorage.getItem('volley_workspace_v610')||'training'}catch(_){ }
-  setTimeout(()=>document.documentElement.classList.remove('v118-booting'),2500);
+  setTimeout(()=>document.documentElement.classList.remove('v118-booting'),10000);
 })();
 </script>
 <style id="v118-first-paint-style">
@@ -967,7 +967,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <div class="v940-nav-head">
         <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
           <span>VC</span>
-          <div><b>Scouting Center</b><small>Professional workspace · V11.9.0</small></div>
+          <div><b>Scouting Center</b><small>Professional workspace · V12.2.0</small></div>
         </button>
 
         <div id="v940-match-context" class="v940-match-context">
@@ -2414,7 +2414,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
       <div class="v900-top-actions">
         <button class="ghost" onclick="v957SyncScoutingsNow()">↕ Sincronizar scoutings</button>
-        <button class="ghost" onclick="v930Open('partidos')">Partidos guardados</button>
+        <button class="ghost" onclick="v122OpenMatchSwitcher()">⇄ Cambiar scouting</button>
         <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
         <span id="v956-scout-sync-status" class="v956-scout-sync-status">— scoutings</span>
       </div>
@@ -2445,7 +2445,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
 
       <div class="v119-probar" aria-label="Control profesional del scouting">
-        <label class="v119-match-picker"><span>PARTIDO ACTIVO</span><select id="v119-match-picker" onchange="v119SwitchMatch(this.value)"></select></label>
+        <div class="v119-match-picker v122-match-picker"><span>SCOUTING ACTIVO</span><div class="v122-match-picker-row"><select id="v119-match-picker" aria-label="Scouting activo" onchange="v119SwitchMatch(this.value)"></select><button type="button" class="v122-picker-open" onclick="v122OpenMatchSwitcher()">Cambiar ▾</button></div><small id="v122-active-match-detail">Selecciona un scouting para trabajar</small></div>
         <div class="v119-probar-actions">
           <button class="v119-action primary" onclick="v119SaveAll(true)"><span>✓</span><b>Guardar todo</b><small id="v119-save-state">Auto · protegido</small></button>
           <button class="v119-action" onclick="v119OpenLineup()"><span>⌘</span><b>Alineación</b><small>6 + líbero · rotaciones</small></button>
@@ -2748,11 +2748,15 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   </div>
 </section>
 
-<section id="scouting" class="view">
+<section id="scouting" class="view v122-legacy-engine" aria-hidden="true" inert>
   <div class="scout-shell">
-    <div class="scout-hero">
-      <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="v120OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="v901OpenCodes('classic')">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="v120OpenChanges()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="v120OpenFinishSet()">✓ Finalizar set</button><button id="scout-v954-new-set-btn" class="primary" onclick="v121OpenNewSet()">＋ Nuevo set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="v120OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+    <!-- V12.2: legacy visual hero removed. These hidden controls keep only IDs still touched by compatibility engines. -->
+    <div class="v122-legacy-control-stubs" hidden aria-hidden="true">
+      <button id="scout-v690-live-btn" type="button"></button>
+      <button id="scout-v740-live-video-btn" type="button"></button>
+      <button id="scout-v861-finish-set-btn" type="button"></button>
+      <button id="scout-v954-new-set-btn" type="button"></button>
+      <button id="scout-v861-final-result-btn" type="button"></button>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -29279,7 +29283,7 @@ body.v11-shell #scouting{display:none!important}
 
 <div id="v119-new-match-modal" class="v119-modal" onclick="if(event.target===this)v119CloseNewMatch()">
   <div class="v119-modal-card">
-    <div class="v119-modal-head"><div><span class="pro-kicker">SCOUTING PRO · V12.0</span><h2>Nuevo scouting</h2><p>Crea el partido directamente en la interfaz profesional.</p></div><button class="ghost" onclick="v119CloseNewMatch()">Cerrar ×</button></div>
+    <div class="v119-modal-head"><div><span class="pro-kicker">SCOUTING PRO · V12.2</span><h2>Nuevo scouting</h2><p>Crea el partido directamente en la interfaz profesional.</p></div><button class="ghost" onclick="v119CloseNewMatch()">Cerrar ×</button></div>
     <div class="v119-modal-body">
       <div class="v119-form-grid">
         <label><span>Fecha</span><input id="v119-new-date" type="date"></label>
@@ -29325,10 +29329,10 @@ function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}c
 function teamName(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Equipo'}catch(_){return'Equipo'}}
 function players(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getPlayers?.()||[]}catch(_){return[]}}
 function playerLabel(p){return `${p?.number!==''&&p?.number!=null?'#'+p.number+' · ':''}${p?.name||'Jugador'}`}
-function liveMatches(){try{return scoutingMatches.filter(m=>m&&m.status!=='finished')}catch(_){return[]}}
+function liveMatches(){try{return scoutingMatches.filter(Boolean)}catch(_){return[]}}
 function renderPicker(){
   const sel=$('v119-match-picker');if(!sel)return;const m=active(),list=liveMatches();
-  sel.innerHTML=list.length?list.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).map(x=>`<option value="${Number(x.id)}">${esc(x.date||'')} · ${esc(x.opponent||'Rival')} · S${Number(x.currentSet)||1}${Number(x.id)===Number(m?.id)?' · ACTIVO':''}</option>`).join(''):'<option value="">Sin scouting activo</option>';
+  sel.innerHTML=list.length?list.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).map(x=>`<option value="${Number(x.id)}">${x.status==='finished'?'✓ ':''}${esc(x.date||'')} · ${esc(x.opponent||'Rival')} · S${Number(x.currentSet)||1}${x.status==='finished'?' · FINALIZADO':''}${Number(x.id)===Number(m?.id)?' · ACTIVO':''}</option>`).join(''):'<option value="">Sin scouting activo</option>';
   if(m)sel.value=String(m.id);
 }
 function updateSaveState(text='Auto · protegido'){const el=$('v119-save-state');if(el)el.textContent=text}
@@ -29645,6 +29649,77 @@ try{const base=window.v900Render;if(typeof base==='function'&&!base.__v121){cons
 try{const base=window.scoutSave;if(typeof base==='function'&&!base.__v121){const wrapped=function(...args){const out=base.apply(this,args);setTimeout(render,0);return out};wrapped.__v121=true;window.scoutSave=wrapped}}catch(_){ }
 document.addEventListener('DOMContentLoaded',()=>{document.body.classList.add('v121-native-score');ensureControl();render()});
 window.VC_V121={version:VERSION,render,point:window.v121AwardPoint,undo:window.v121UndoRally,newSet:window.v121OpenNewSet,rallyEditor:window.v121OpenRallyEditor};
+})();
+</script>
+
+
+<!-- =========================================================
+     V12.2 · PROFESSIONAL UI CLEANUP + SCOUTING SWITCHER
+     Classic UI is engine-only; professional surfaces own navigation.
+     ========================================================= -->
+<style id="v122-professional-cleanup-style">
+/* Classic is now a compatibility engine only, never a user surface. */
+#scouting.v122-legacy-engine{display:none!important;visibility:hidden!important;position:absolute!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;pointer-events:none!important}
+body.v11-shell .workspace-toolbar,body.v11-shell #v930-unified-nav,body.v11-shell #v940-professional-nav{display:none!important}
+
+/* Scouting Pro command area: readable two-row layout instead of eight tiny tiles. */
+body.v11-shell #scout-workspace-v900 .v119-probar{grid-template-columns:minmax(320px,.85fr) minmax(620px,2.15fr)!important;gap:8px!important;padding:8px!important;margin:8px 0!important;background:#f5f8fa!important;border-color:#dce6ec!important}
+body.v11-shell #scout-workspace-v900 .v119-probar-actions{grid-template-columns:repeat(4,minmax(130px,1fr))!important;gap:5px!important}
+body.v11-shell #scout-workspace-v900 .v119-action{min-height:49px!important;padding:6px 8px!important;border-radius:8px!important}
+body.v11-shell #scout-workspace-v900 .v119-action b{font-size:8.5px!important}body.v11-shell #scout-workspace-v900 .v119-action small{font-size:6.7px!important}
+.v122-match-picker{justify-content:center}.v122-match-picker-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center}.v122-match-picker-row select{min-width:0!important;height:34px!important;border:1px solid #dce5eb!important;border-radius:7px!important;padding:0 7px!important}.v122-picker-open{height:34px!important;padding:0 9px!important;border:1px solid #cad9e3!important;background:#edf4f8!important;color:#244d69!important;font-size:7.5px!important;white-space:nowrap}.v122-match-picker>small{display:block;color:#80919d;font-size:6.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Replace the inherited V9 phase strip with one professional navigation row. */
+#scout-workspace-v900 .v900-phase-nav{display:none!important}
+.v122-modebar{display:flex;align-items:center;gap:4px;padding:5px;margin:0 0 8px;background:#fff;border:1px solid #dce5eb;border-radius:10px;overflow-x:auto}.v122-modebar>span{padding:0 8px;font-size:6.4px;letter-spacing:.11em;color:#8596a2;font-weight:950;white-space:nowrap}.v122-modebar button{min-height:32px!important;padding:6px 10px!important;background:transparent!important;border:1px solid transparent!important;color:#526c7e!important;border-radius:7px!important;font-size:7.5px!important;white-space:nowrap}.v122-modebar button.active{background:#143b58!important;color:#fff!important;border-color:#143b58!important}.v122-modebar .external{margin-left:auto;background:#f6f9fb!important;border-color:#dce5eb!important;color:#31556e!important}
+
+/* Normalize inherited V9 cards so no section falls back to the initial visual language. */
+body.v11-shell #scout-workspace-v900 .v900-card,body.v11-shell #scout-workspace-v900 .v900-phase{border:1px solid #dce6ec!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important}
+body.v11-shell #scout-workspace-v900 .v900-card-head{background:#fbfcfd!important;border-bottom:1px solid #edf1f4!important;padding:9px 10px!important;margin:0!important}
+body.v11-shell #scout-workspace-v900 .v900-card-head h3{font-size:11px!important;color:#17354d!important;margin:2px 0!important}.v900-card-head .pro-kicker{font-size:6px!important;color:#718b9e!important}
+body.v11-shell #scout-workspace-v900 .v900-topbar{padding:10px 12px!important;border:1px solid #dce6ec!important;border-radius:11px!important;background:#fff!important;box-shadow:none!important;margin-bottom:7px!important}
+body.v11-shell #scout-workspace-v900 .v900-top-actions button{border-radius:7px!important}
+
+/* Match switcher */
+.v122-switcher{position:fixed;inset:0;z-index:175000;background:rgba(7,22,34,.7);display:none;place-items:center;padding:14px}.v122-switcher.open{display:grid}.v122-switcher-card{width:min(880px,96vw);max-height:88vh;overflow:hidden;background:#fff;border-radius:16px;box-shadow:0 28px 80px rgba(0,0,0,.3);display:grid;grid-template-rows:auto auto minmax(0,1fr)}.v122-switcher-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 18px;background:#123650;color:#fff}.v122-switcher-head h2{font-size:18px!important;color:#fff!important;margin:2px 0 3px!important}.v122-switcher-head p{margin:0;color:#c4d3dd;font-size:8px}.v122-switcher-head button{background:rgba(255,255,255,.09)!important;color:#fff!important;border:1px solid rgba(255,255,255,.17)!important}.v122-switcher-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;padding:9px 12px;border-bottom:1px solid #e3e9ed;background:#f8fafb}.v122-switcher-toolbar input{height:36px!important;border-radius:7px!important;font-size:9px!important}.v122-switcher-toolbar button{height:36px!important;font-size:8px!important}.v122-match-list{overflow:auto;padding:10px 12px;display:grid;gap:6px}.v122-match-row{display:grid;grid-template-columns:minmax(170px,1.3fr) repeat(3,minmax(72px,.55fr)) auto;gap:8px;align-items:center;border:1px solid #dfe7ec;border-radius:10px;padding:9px 10px;background:#fff}.v122-match-row.active{border-color:#4f8db8;background:#f3f8fb}.v122-match-main span,.v122-match-stat span{display:block;font-size:6px;letter-spacing:.09em;color:#83939e;font-weight:950}.v122-match-main b{display:block;font-size:10.5px;color:#17364e;margin:2px 0}.v122-match-main small,.v122-match-stat small{font-size:7px;color:#7f909c}.v122-match-stat b{display:block;font-size:11px;color:#2a4b62;margin-top:2px}.v122-status{display:inline-flex!important;width:max-content;padding:3px 6px;border-radius:999px;background:#e9f4ee;color:#2c6c4b!important}.v122-status.finished{background:#edf0f2;color:#61717c!important}.v122-match-row>button{min-height:34px!important;padding:6px 10px!important;font-size:7.5px!important}.v122-switcher-empty{padding:26px;text-align:center;color:#7d8e99;font-size:9px}
+@media(max-width:1080px){body.v11-shell #scout-workspace-v900 .v119-probar{grid-template-columns:1fr!important}body.v11-shell #scout-workspace-v900 .v119-probar-actions{grid-template-columns:repeat(4,1fr)!important}}
+@media(max-width:720px){body.v11-shell #scout-workspace-v900 .v119-probar-actions{grid-template-columns:repeat(2,1fr)!important}.v122-match-row{grid-template-columns:1fr 1fr}.v122-match-main{grid-column:1/-1}.v122-match-row>button{grid-column:1/-1}.v122-switcher-toolbar{grid-template-columns:1fr 1fr}.v122-switcher-toolbar input{grid-column:1/-1}.v122-modebar .external{margin-left:0}}
+</style>
+<script id="v122-professional-cleanup-runtime">
+(()=>{
+'use strict';
+const VERSION='12.2.0',$=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||window.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}}
+function matches(){try{return arr(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||window.scoutingMatches).filter(Boolean).slice().sort((a,b)=>String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')))}catch(_){return[]}}
+function setOf(m){return arr(m?.sets).find(s=>Number(s.number)===Number(m?.currentSet))||arr(m?.sets).at(-1)||null}
+function actionCount(m){try{return Number(window.scoutActionCount?.(m))||0}catch(_){return arr(m?.sets).reduce((n,s)=>n+arr(s?.rallies).reduce((x,r)=>x+arr(r?.actions).length,0),0)+arr(m?.liveRally?.actions).length}}
+function scoreSets(m){let us=0,op=0;arr(m?.sets).forEach(s=>{if(!s?.finished)return;if(Number(s.scoreUs)>Number(s.scoreOpponent))us++;else if(Number(s.scoreOpponent)>Number(s.scoreUs))op++});return{us,op}}
+function humanDate(v){if(!v)return'—';const p=String(v).slice(0,10).split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:String(v)}
+function ensureModebar(){const host=$('v119-probar');if(!host||$('v122-modebar'))return;const bar=document.createElement('nav');bar.id='v122-modebar';bar.className='v122-modebar';bar.setAttribute('aria-label','Secciones de Scouting Pro');bar.innerHTML=`<span>SCOUTING PRO</span><button data-v122-phase="scout" onclick="v122SetProPhase('scout')">En directo</button><button data-v122-phase="prepare" onclick="v122SetProPhase('prepare')">Preparación</button><button data-v122-phase="review" onclick="v122SetProPhase('review')">Revisión</button><button class="external" onclick="v11Navigate('video')">▶ Video Review</button><button class="external" onclick="v11Navigate('analysis')">▥ Análisis</button>`;host.insertAdjacentElement('afterend',bar)}
+function currentPhase(){try{return window.VC_V900_WORKSPACE?.state?.().phase||'scout'}catch(_){return'scout'}}
+function renderModebar(){ensureModebar();const phase=currentPhase();document.querySelectorAll('#v122-modebar [data-v122-phase]').forEach(b=>b.classList.toggle('active',b.dataset.v122Phase===phase))}
+window.v122SetProPhase=function(phase){phase=['prepare','review'].includes(phase)?phase:'scout';try{window.v900SetPhase?.(phase);window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));window.v900Open?.()}catch(e){console.warn('V12.2 phase',e)}renderModebar()};
+function ensureSwitcher(){if($('v122-switcher'))return;const modal=document.createElement('div');modal.id='v122-switcher';modal.className='v122-switcher';modal.innerHTML=`<div class="v122-switcher-card" role="dialog" aria-modal="true" aria-labelledby="v122-switch-title"><div class="v122-switcher-head"><div><span class="pro-kicker">SCOUTING PRO · V12.2</span><h2 id="v122-switch-title">Cambiar de scouting</h2><p>Abre cualquier partido sin salir del workspace profesional.</p></div><button type="button" onclick="v122CloseMatchSwitcher()">Cerrar ×</button></div><div class="v122-switcher-toolbar"><input id="v122-switch-search" type="search" placeholder="Buscar rival, fecha o competición…" aria-label="Buscar scouting"><button type="button" class="ghost" onclick="v122ToggleFinished()" id="v122-finished-toggle">Finalizados: sí</button><button type="button" class="primary" onclick="v122CloseMatchSwitcher();v119OpenNewMatch()">＋ Nuevo scouting</button></div><div id="v122-match-list" class="v122-match-list"></div></div>`;modal.addEventListener('click',e=>{if(e.target===modal)window.v122CloseMatchSwitcher()});document.body.appendChild(modal);$('v122-switch-search')?.addEventListener('input',renderSwitcher)}
+let includeFinished=true;
+function renderSwitcher(){ensureSwitcher();const q=String($('v122-switch-search')?.value||'').trim().toLowerCase(),cur=active();let list=matches().filter(m=>includeFinished||m.status!=='finished');if(q)list=list.filter(m=>[m.opponent,m.date,m.competition].some(v=>String(v||'').toLowerCase().includes(q)));const box=$('v122-match-list');if(!box)return;if(!list.length){box.innerHTML='<div class="v122-switcher-empty">No hay scoutings que coincidan con el filtro.</div>';return}box.innerHTML=list.map(m=>{const s=setOf(m),sets=scoreSets(m),isActive=Number(cur?.id)===Number(m.id),finished=m.status==='finished';return `<article class="v122-match-row ${isActive?'active':''}"><div class="v122-match-main"><span class="v122-status ${finished?'finished':''}">${finished?'FINALIZADO':'EN DIRECTO'}</span><b>${esc(m.opponent||'Rival')}</b><small>${esc(humanDate(m.date))}${m.competition?' · '+esc(m.competition):''}${isActive?' · ACTIVO':''}</small></div><div class="v122-match-stat"><span>SET</span><b>S${Number(m.currentSet)||1}</b><small>${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}</small></div><div class="v122-match-stat"><span>SETS</span><b>${sets.us}–${sets.op}</b><small>resultado</small></div><div class="v122-match-stat"><span>ACCIONES</span><b>${actionCount(m)}</b><small>registradas</small></div><button type="button" class="${isActive?'ghost':'primary'}" ${isActive?'disabled':''} onclick="v122SwitchMatch(${Number(m.id)})">${isActive?'Abierto':'Abrir'}</button></article>`}).join('')}
+window.v122OpenMatchSwitcher=function(){ensureSwitcher();renderSwitcher();$('v122-switcher')?.classList.add('open');setTimeout(()=>$('v122-switch-search')?.focus(),20)};
+window.v122CloseMatchSwitcher=function(){$('v122-switcher')?.classList.remove('open')};
+window.v122ToggleFinished=function(){includeFinished=!includeFinished;const b=$('v122-finished-toggle');if(b)b.textContent=`Finalizados: ${includeFinished?'sí':'no'}`;renderSwitcher()};
+window.v122SwitchMatch=async function(id){id=Number(id)||0;if(!id)return;try{try{window.scoutSave?.(false)}catch(_){ }await Promise.resolve(window.v119SwitchMatch?.(id));window.v122CloseMatchSwitcher();renderAll();setTimeout(()=>window.v900Open?.(),30)}catch(e){console.error('V12.2 switch',e);alert('No se ha podido cambiar de scouting. El partido actual no se ha eliminado.')}};
+function updateActiveDetail(){const m=active(),el=$('v122-active-match-detail');if(!el)return;if(!m){el.textContent='Sin scouting activo';return}const s=setOf(m),sets=scoreSets(m);el.textContent=`${humanDate(m.date)} · ${m.status==='finished'?'Finalizado':'En directo'} · S${Number(m.currentSet)||1} ${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0} · sets ${sets.us}–${sets.op} · ${actionCount(m)} acciones`}
+function renderAll(){renderModebar();updateActiveDetail();if($('v122-switcher')?.classList.contains('open'))renderSwitcher()}
+
+/* Old route names that already have a professional replacement never expose the initial/legacy surface. */
+const showBase=window.showView;if(typeof showBase==='function'&&!showBase.__v122){const wrapped=function(id,btn){if(id==='scouting')id='scout-workspace-v900';if(id==='scout-safe')id='v11-management';if(id==='scout-postmatch')id='scout-analysis';const out=showBase.call(this,id,id==='scout-workspace-v900'?(window.botonVista?.(id)||btn):btn);setTimeout(renderAll,0);return out};wrapped.__v122=true;window.showView=wrapped}
+const routeBase=window.v930Open;if(typeof routeBase==='function'&&!routeBase.__v122){const wrapped=async function(route,...rest){if(route==='clasico'||route==='directo'||route==='codigo'){window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));window.v900SetPhase?.('scout');renderAll();return}if(route==='preparar'){window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));window.v900SetPhase?.('prepare');renderAll();return}if(route==='revisar'){window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));window.v900SetPhase?.('review');renderAll();return}if(route==='seguridad'){window.v11Navigate?.('management');setTimeout(()=>window.scoutV892OpenRecoveryCenter?.(),80);return}if(route==='post'){window.v11Navigate?.('analysis');return}return routeBase.call(this,route,...rest)};wrapped.__v122=true;window.v930Open=wrapped}
+
+/* Keep the picker/switcher synchronized after saves and state mutations. */
+['v900Render','v120RenderManagement'].forEach(name=>{try{const base=window[name];if(typeof base==='function'&&!base.__v122){const wrapped=function(...args){const out=base.apply(this,args);setTimeout(renderAll,0);return out};wrapped.__v122=true;window[name]=wrapped}}catch(_){}});
+
+function finalizeBoot(){document.body.classList.add('v122-professional-clean');ensureModebar();ensureSwitcher();renderAll();const current=document.querySelector('.view.active')?.id;if(current==='scouting')window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));document.documentElement.classList.remove('v118-booting')}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(finalizeBoot,0),{once:true});else setTimeout(finalizeBoot,0);
+window.VC_V122={version:VERSION,openSwitcher:window.v122OpenMatchSwitcher,render:renderAll,diagnostics:()=>({version:VERSION,active:active()?.id||null,matches:matches().length,classicInteractive:!document.querySelector('#scouting')?.hasAttribute('inert'),legacyVisible:getComputedStyle(document.querySelector('#scouting')).display!=='none',activeView:document.querySelector('.view.active')?.id||''})};
 })();
 </script>
 
