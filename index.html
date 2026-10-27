@@ -967,7 +967,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       <div class="v940-nav-head">
         <button class="v940-home" onclick="v940Open('inicio')" title="Inicio de Scouting">
           <span>VC</span>
-          <div><b>Scouting Center</b><small>Professional workspace · V11.8.0</small></div>
+          <div><b>Scouting Center</b><small>Professional workspace · V11.9.0</small></div>
         </button>
 
         <div id="v940-match-context" class="v940-match-context">
@@ -1658,7 +1658,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">VIDEO REVIEW · V11.8</span>
+        <span class="pro-kicker">VIDEO REVIEW · V11.9</span>
         <h2>Revisión profesional de partido</h2>
         <p>Live, Delay, YouTube y archivo en un mismo entorno, con timeline, sincronización, playlists, clips, rotaciones y foco por jugador.</p>
       </div>
@@ -1886,7 +1886,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="v893-safe-shell">
     <div class="v893-safe-hero">
       <div><span class="pro-kicker">SCOUTING SAFE · V8.9.3</span><h2>Caja fuerte de scoutings</h2><p>Historial independiente de versiones, recuperación selectiva y lectura de la nube sin sobrescribir datos.</p></div>
-      <div class="v893-safe-actions"><button class="ghost" onclick="scoutV893OpenRecoveryCenter()">Recuperación avanzada</button><button class="ghost" onclick="scoutV893CloudReadOnly()">☁ Comprobar nube · solo lectura</button><button class="ghost" onclick="scoutV893ExportVault()">Exportar caja fuerte</button><button class="primary" onclick="scoutV893CheckpointAll(true)">Crear checkpoint ahora</button></div>
+      <div class="v893-safe-actions"><button class="ghost" onclick="scoutV893OpenRecoveryCenter()">Recuperación avanzada</button><button class="ghost" onclick="scoutV893CloudReadOnly()">☁ Comprobar nube · solo lectura</button><button class="ghost" onclick="scoutV893ExportVault()">Exportar caja fuerte</button><button class="primary" onclick="scoutV893CheckpointAll(true)">Proteger estado ahora</button></div>
     </div>
     <div class="v893-safe-kpis">
       <div><span>Versiones</span><b id="v893-kpi-versions">0</b><small>copias independientes</small></div>
@@ -2078,7 +2078,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <div id="scout-v680-recovery-status" class="scout-v680-status-grid"></div>
     <div id="scout-v680-recovery-snapshots" class="scout-v680-recovery-grid"></div>
     <div style="margin-top:13px"><div class="scout-panel-head"><div><span class="pro-kicker">VALIDACIÓN</span><h3>Integridad del partido</h3></div></div><div id="scout-v680-issues" class="scout-v680-issues"></div></div>
-    <div class="scout-v680-footer-actions"><div><button class="ghost" onclick="scoutV680DownloadBackup()">Descargar copia JSON</button><button class="ghost" onclick="document.getElementById('scout-v680-import').click()">Importar copia</button><input id="scout-v680-import" class="hidden" type="file" accept=".json,application/json" onchange="scoutV680ImportBackup(event)"></div><div><button class="ghost" onclick="scoutV680Backup('manual',true)">Crear checkpoint ahora</button><button class="primary" onclick="scoutV680CloseRecovery()">Cerrar</button></div></div>
+    <div class="scout-v680-footer-actions"><div><button class="ghost" onclick="scoutV680DownloadBackup()">Descargar copia JSON</button><button class="ghost" onclick="document.getElementById('scout-v680-import').click()">Importar copia</button><input id="scout-v680-import" class="hidden" type="file" accept=".json,application/json" onchange="scoutV680ImportBackup(event)"></div><div><button class="ghost" onclick="scoutV680Backup('manual',true)">Proteger estado ahora</button><button class="primary" onclick="scoutV680CloseRecovery()">Cerrar</button></div></div>
   </div>
 </div>
 
@@ -2110,11 +2110,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <section id="v117-pro-command-center" class="v117-pro-command-center" aria-label="Centro de control profesional">
       <div class="v117-command-group match"><span>PARTIDO</span>
         <button onclick="scoutOpenLineup()">⌘ Alineación</button>
-        <button onclick="scoutOpenSubstitution()">⇄ Cambios / Líbero</button>
-        <button onclick="scoutV690OpenEvent()">＋ Evento</button>
-        <button onclick="v954OpenNewSet()">＋ Nuevo set</button>
-        <button onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
-        <button onclick="scoutV861OpenFinalResult()">🏁 Resultado</button>
+        <button onclick="v120OpenChanges()">⇄ Cambios / Líbero</button>
+        <button onclick="v120OpenEvent()">＋ Evento</button>
+        <button onclick="v121OpenNewSet()">＋ Nuevo set</button>
+        <button onclick="v120OpenFinishSet()">✓ Finalizar set</button>
+        <button onclick="v120OpenFinalResult()">🏁 Resultado</button>
       </div>
       <div class="v117-command-group tools"><span>HERRAMIENTAS</span>
         <button onclick="v901OpenCodes()">⌨ Códigos Pro</button>
@@ -2176,9 +2176,9 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <section class="v800-control-card v112-control-card">
             <div class="v112-section-head"><div><span>CONTROL DE RALLY</span><h3>Marcador y código rápido</h3></div><span id="v855-match-status" class="v855-match-status">Modo Partido preparado.</span></div>
             <div class="v800-point-row v112-point-row">
-              <button id="v855-point-ours" class="v800-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
-              <button id="v855-undo" class="v800-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
-              <button id="v855-point-opponent" class="v800-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
+              <button id="v855-point-ours" class="v800-point ours" onclick="v121AwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
+              <button id="v855-undo" class="v800-undo" onclick="v121UndoRally()">↶<span>Deshacer</span></button>
+              <button id="v855-point-opponent" class="v800-point rival" onclick="v121AwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
             </div>
 
             <div class="v112-code-block">
@@ -2228,20 +2228,20 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             </div>
             <div class="v112-lineup-actions">
               <button class="ghost" onclick="scoutOpenLineup()">⌘ Alineación</button>
-              <button class="ghost" onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
+              <button class="ghost" onclick="v120OpenChanges()">⇄ Sustitución</button>
               <button class="ghost" onclick="v851OpenLineupControl()">Control de rotación</button>
             </div>
           </section>
 
           <section class="v800-events-card v112-events-card">
-            <div class="v800-card-head v112-section-head"><div><span>GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div><button class="text-btn" onclick="scoutV690OpenEvent()">＋ Otro evento</button></div>
+            <div class="v800-card-head v112-section-head"><div><span>GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div><button class="text-btn" onclick="v120OpenEvent()">＋ Otro evento</button></div>
             <div class="v800-event-buttons">
               <button onclick="v800QuickEvent('timeout_ours')">⏱ Tiempo nuestro</button>
               <button onclick="v800QuickEvent('timeout_opponent')">⏱ Tiempo rival</button>
-              <button onclick="scoutOpenSubstitution()">⇄ Sustitución</button>
+              <button onclick="v120OpenChanges()">⇄ Sustitución</button>
               <button onclick="scoutOpenLineup()">⌘ Alineación</button>
               <button onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
-              <button onclick="scoutV690OpenEvent()">＋ Evento</button>
+              <button onclick="v120OpenEvent()">＋ Evento</button>
             </div>
             <div id="v800-events" class="v800-events"></div>
             <div id="v850-video-notes" class="v850-video-notes"></div>
@@ -2272,9 +2272,9 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <section class="v112-set-card">
             <div class="v112-section-head"><div><span>CONTROL DE SET</span><h3>Set y resultado</h3></div></div>
             <div class="v112-set-actions">
-              <button class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button>
-              <button class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
-              <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
+              <button class="primary" onclick="v121OpenNewSet()">＋ Nuevo set</button>
+              <button class="ghost" onclick="v120OpenFinishSet()">✓ Finalizar set</button>
+              <button class="ghost" onclick="v120OpenFinalResult()">🏁 Resultado final</button>
               <button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button>
             </div>
           </section>
@@ -2326,9 +2326,9 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           </div>
 
           <div class="v113-video-points">
-            <button class="ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>NUESTRO</span></button>
-            <button class="undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
-            <button class="rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>RIVAL</span></button>
+            <button class="ours" onclick="v121AwardPoint('ours')"><b>＋1</b><span>NUESTRO</span></button>
+            <button class="undo" onclick="v121UndoRally()">↶<span>Deshacer</span></button>
+            <button class="rival" onclick="v121AwardPoint('opponent')"><b>＋1</b><span>RIVAL</span></button>
           </div>
 
           <div class="v113-video-code-entry">
@@ -2358,7 +2358,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 
           <div class="v113-video-quick-actions">
             <button class="ghost" onclick="scoutOpenLineup()">⌘ Alineación</button>
-            <button class="ghost" onclick="scoutOpenSubstitution()">⇄ Cambio</button>
+            <button class="ghost" onclick="v120OpenChanges()">⇄ Cambio</button>
             <button class="ghost" onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
             <button class="ghost" onclick="openLiveDelay('match')">⏱ Live Delay</button>
           </div>
@@ -2444,6 +2444,29 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v900-status-item secure"><span>GUARDADO</span><b id="v900-save">LOCAL ✓</b><small id="v900-vault">Protección activa</small></div>
       </div>
 
+      <div class="v119-probar" aria-label="Control profesional del scouting">
+        <label class="v119-match-picker"><span>PARTIDO ACTIVO</span><select id="v119-match-picker" onchange="v119SwitchMatch(this.value)"></select></label>
+        <div class="v119-probar-actions">
+          <button class="v119-action primary" onclick="v119SaveAll(true)"><span>✓</span><b>Guardar todo</b><small id="v119-save-state">Auto · protegido</small></button>
+          <button class="v119-action" onclick="v119OpenLineup()"><span>⌘</span><b>Alineación</b><small>6 + líbero · rotaciones</small></button>
+          <button class="v119-action" onclick="v120OpenChanges()"><span>⇄</span><b>Cambios / líbero</b><small>Gestión de pista</small></button>
+          <button class="v119-action" onclick="v121OpenRallyEditor()"><span>≡</span><b>Rallies</b><small>Editar y corregir</small></button>
+          <button class="v119-action" onclick="v120OpenEvent()"><span>＋</span><b>Evento</b><small>Tiempo · nota · incidencia</small></button>
+          <button class="v119-action" onclick="v120OpenFinishSet()"><span>✓</span><b>Finalizar set</b><small>Cerrar marcador</small></button>
+          <button class="v119-action" onclick="v121OpenNewSet()"><span>＋</span><b>Nuevo set</b><small>Siguiente parcial</small></button>
+          <button class="v119-action" onclick="v120OpenFinalResult()"><span>⚑</span><b>Resultado</b><small>Cerrar partido</small></button>
+        </div>
+      </div>
+
+      <div id="v120-match-management" class="v120-match-management" aria-label="Estado de gestión del partido">
+        <div><span>GESTIÓN</span><b id="v120-management-state">Partido preparado</b></div>
+        <button onclick="v120OpenChanges()"><span>Cambios</span><b id="v120-change-count">0</b></button>
+        <button onclick="v120OpenEvent()"><span>Eventos</span><b id="v120-event-count">0</b></button>
+        <button onclick="v120OpenFinishSet()"><span>Set actual</span><b id="v120-set-state">S1 · 0–0</b></button>
+        <button onclick="v120OpenFinalResult()"><span>Resultado</span><b id="v120-result-state">0–0 sets</b></button>
+        <div class="save"><span>PROTECCIÓN</span><b id="v120-protection-state">Auto ✓</b></div>
+      </div>
+
       <div class="v900-phase-nav">
         <button data-v900-phase="prepare" onclick="v900SetPhase('prepare')">1 · Preparar</button>
         <button data-v900-phase="scout" class="active" onclick="v900SetPhase('scout')">2 · Scoutar</button>
@@ -2458,7 +2481,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
             <div id="v900-prep-match" class="v900-prep-copy"></div>
             <div class="v900-action-row">
               <button class="primary" onclick="scoutOpenLineup()">Alineación y rotaciones</button>
-              <button class="ghost" onclick="scoutOpenSubstitution()">Cambios / Líbero</button>
+              <button class="ghost" onclick="v120OpenChanges()">Cambios / Líbero</button>
               <button class="ghost" onclick="showView('scout-plan',botonVista('scout-plan'))">Plan de partido</button>
             </div>
           </article>
@@ -2651,7 +2674,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
                 <div><span class="pro-kicker">RALLY ACTUAL</span><h3 id="v900-rally-title">0 acciones</h3></div>
                 <div class="v900-mini-actions">
                   <button class="ghost" onclick="scoutDeleteLastAction()" title="Borrar última">⌫</button>
-                  <button class="ghost" onclick="v901OpenRallyEditor()">Editar</button>
+                  <button class="ghost" onclick="v121OpenRallyEditor()">Editar</button>
                 </div>
               </div>
               <div id="v900-live-actions" class="v900-live-actions v111-live-actions"></div>
@@ -2660,9 +2683,9 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
                 <small>cierra el rally asignando el punto</small>
               </div>
               <div class="v900-point-row">
-                <button class="v900-point ours" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
-                <button class="v900-undo" onclick="scoutUndoRally()">↶<span>Deshacer</span></button>
-                <button class="v900-point opponent" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
+                <button class="v900-point ours" onclick="v121AwardPoint('ours')"><b>＋1</b><span>PUNTO NUESTRO</span></button>
+                <button class="v900-undo" onclick="v121UndoRally()">↶<span>Deshacer</span></button>
+                <button class="v900-point opponent" onclick="v121AwardPoint('opponent')"><b>＋1</b><span>PUNTO RIVAL</span></button>
               </div>
             </article>
 
@@ -2684,16 +2707,16 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <section id="v900-phase-review" class="v900-phase-panel hidden">
         <div class="v900-review-grid">
           <article class="v900-card wide">
-            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="primary" onclick="v901OpenRallyEditor()">Editar rallies y códigos</button><button class="ghost" onclick="scoutUndoRally()">Deshacer último rally</button></div></div>
+            <div class="v900-card-head"><div><span class="pro-kicker">REVISIÓN DEL SET</span><h3>Rallies recientes</h3></div><div class="v900-mini-actions"><button class="primary" onclick="v121OpenRallyEditor()">Editar rallies y códigos</button><button class="ghost" onclick="v121UndoRally()">Deshacer último rally</button></div></div>
             <div id="v900-review-rallies" class="v900-review-rallies"></div>
           </article>
           <article class="v900-card">
             <div class="v900-card-head"><div><span class="pro-kicker">CONTROL</span><h3>Set y resultado</h3></div></div>
             <div class="v900-review-actions">
-              <button class="primary" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button>
-              <button class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button>
-              <button class="ghost" onclick="scoutOpenSubstitution()">Cambios / Líbero</button>
-              <button class="ghost" onclick="scoutV690OpenEvent()">Registrar evento</button>
+              <button class="primary" onclick="v120OpenFinishSet()">✓ Finalizar set</button>
+              <button class="ghost" onclick="v120OpenFinalResult()">🏁 Resultado final</button>
+              <button class="ghost" onclick="v120OpenChanges()">Cambios / Líbero</button>
+              <button class="ghost" onclick="v120OpenEvent()">Registrar evento</button>
             </div>
           </article>
           <article class="v900-card">
@@ -2729,7 +2752,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="scout-shell">
     <div class="scout-hero">
       <div><span class="pro-kicker">SCOUTING PRO · MOTOR DE PARTIDO</span><h2>Scouting en directo</h2><p>Rallies, rotaciones, secuencias K1/K2, distribución y acciones codificadas en una única consola profesional.</p></div>
-      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="scoutV690OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="v901OpenCodes('classic')">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="scoutV861OpenFinishSet()">✓ Finalizar set</button><button id="scout-v954-new-set-btn" class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="scoutV861OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
+      <div class="scout-hero-actions"><button class="primary" onclick="showView('scout-match-mode',botonVista('scout-match-mode'))">▣ Modo Partido</button><button id="scout-v690-live-btn" class="ghost scout-v690-live-toggle" onclick="scoutV690ToggleCompact()">▣ Modo Live</button><button class="ghost" onclick="v120OpenEvent()">＋ Evento</button><button class="ghost" onclick="scoutV690OpenWorkflow()">⚙ Workflow</button><button class="ghost" onclick="v901OpenCodes('classic')">⌨ Códigos</button><button id="scout-v740-live-video-btn" class="ghost scout-v740-video-btn" onclick="scoutV740ToggleDock()">🎥 Live vídeo</button><button class="ghost" onclick="scoutV700OpenVideo('live')">Análisis vídeo</button><button class="ghost" onclick="scoutV680OpenRecovery()">🛡 Recuperación</button><button class="ghost" onclick="scoutV680DownloadBackup()">Copia scout</button><button class="ghost" onclick="scoutOpenLineup()">Alineación</button><button class="ghost" onclick="v120OpenChanges()">Cambio / Líbero</button><button id="scout-v861-finish-set-btn" class="ghost" onclick="v120OpenFinishSet()">✓ Finalizar set</button><button id="scout-v954-new-set-btn" class="primary" onclick="v121OpenNewSet()">＋ Nuevo set</button><button id="scout-v861-final-result-btn" class="ghost" onclick="v120OpenFinalResult()">🏁 Resultado final</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button><button class="primary dashboard-main-btn" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button></div>
     </div>
     <div id="scout-v680-recovery-notice" class="scout-v680-recovery-notice hidden"><div><strong>Hay una copia de recuperación más reciente.</strong><span id="scout-v680-recovery-notice-copy">Puedes restaurarla antes de continuar.</span></div><button class="ghost" onclick="scoutV680OpenRecovery()">Abrir recuperación</button></div>
     <div id="scout-no-match" class="scout-empty-state"><strong>No hay un scouting activo.</strong><span>Crea uno nuevo o recupera un partido guardado.</span><button class="primary" onclick="scoutOpenNewMatch()">Crear scouting</button></div>
@@ -2740,11 +2763,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
       <div id="scout-v680-healthbar" class="scout-v680-healthbar">
         <div><div class="scout-v680-healthcopy"><strong>PARTIDO SEGURO</strong><span id="scout-v680-local" class="scout-v680-chip ok">Local protegido</span><span id="scout-v680-network" class="scout-v680-chip">Red</span><span id="scout-v680-backup" class="scout-v680-chip">Backup —</span><span id="scout-v680-integrity" class="scout-v680-chip">Integridad —</span></div><div id="scout-v680-last-warning" class="scout-v680-offline-note">Sin incidencias detectadas.</div></div>
-        <div class="scout-v680-healthactions"><button class="ghost" onclick="scoutV680Backup('manual',true)">Crear checkpoint</button><button class="ghost" onclick="scoutV680OpenRecovery()">Recuperación</button></div>
+        <div class="scout-v680-healthactions"><button class="ghost" onclick="scoutV680Backup('manual',true)">Proteger estado</button><button class="ghost" onclick="scoutV680OpenRecovery()">Recuperación</button></div>
       </div>
       <div id="scout-v690-toolbar" class="scout-v690-toolbar">
         <div class="scout-v690-toolbar-left"><span id="scout-v690-quality-chip" class="scout-v690-chip">Calidad —</span><span id="scout-v690-lineup-chip" class="scout-v690-chip">Alineación set —</span><span id="scout-v690-events-chip" class="scout-v690-chip">0 eventos</span></div>
-        <div class="scout-v690-toolbar-right"><button class="ghost" onclick="scoutV690FocusCode()">⌨ Código</button><button class="ghost" onclick="scoutV690OpenReview()">Revisar scout</button><button class="ghost" onclick="scoutV690OpenEvent()">Registrar evento</button></div>
+        <div class="scout-v690-toolbar-right"><button class="ghost" onclick="scoutV690FocusCode()">⌨ Código</button><button class="ghost" onclick="scoutV690OpenReview()">Revisar scout</button><button class="ghost" onclick="v120OpenEvent()">Registrar evento</button></div>
         <div id="scout-v690-event-strip" class="scout-v690-event-strip" style="flex-basis:100%"></div>
       </div>
 
@@ -2811,7 +2834,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <div id="scout-set-ended" class="scout-set-ended hidden"></div>
       <div class="scout-workspace">
         <section class="scout-panel scout-court-panel">
-          <div class="scout-panel-head"><div><span class="pro-kicker">ROTACIÓN Y SEIS EN PISTA</span><h3>Alineaciones</h3></div><div class="scout-inline-actions"><button class="ghost" onclick="scoutRotate(-1)">↶ Nuestro</button><button class="ghost" onclick="scoutRotate(1)">Nuestro ↷</button><button class="ghost" onclick="scoutRotateOpponent(-1)">↶ Rival</button><button class="ghost" onclick="scoutRotateOpponent(1)">Rival ↷</button><button class="ghost" onclick="scoutOpenSubstitution()">Cambio</button><button class="ghost" onclick="scoutOpenLineup()">Editar</button></div></div>
+          <div class="scout-panel-head"><div><span class="pro-kicker">ROTACIÓN Y SEIS EN PISTA</span><h3>Alineaciones</h3></div><div class="scout-inline-actions"><button class="ghost" onclick="scoutRotate(-1)">↶ Nuestro</button><button class="ghost" onclick="scoutRotate(1)">Nuestro ↷</button><button class="ghost" onclick="scoutRotateOpponent(-1)">↶ Rival</button><button class="ghost" onclick="scoutRotateOpponent(1)">Rival ↷</button><button class="ghost" onclick="v120OpenChanges()">Cambio</button><button class="ghost" onclick="scoutOpenLineup()">Editar</button></div></div>
           <div class="scout-court">
             <div class="scout-team-label rival"><span id="scout-rival-label">Rival</span><small id="scout-rival-rotation-label">Rotación R1</small></div>
             <div class="scout-half rival-half" id="scout-rival-court"></div>
@@ -2822,9 +2845,9 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <div id="scout-rotation-strip" class="scout-rotation-strip"></div>
           <div id="scout-live-tactical" class="scout-live-tactical"></div>
           <div class="scout-score-controls">
-            <button class="scout-point own" onclick="scoutAwardPoint('ours')"><b>＋1</b><span>Punto nuestro</span></button>
-            <button class="ghost scout-undo" onclick="scoutUndoRally()">↶ Deshacer último rally</button>
-            <button class="scout-point rival" onclick="scoutAwardPoint('opponent')"><b>＋1</b><span>Punto rival</span></button>
+            <button class="scout-point own" onclick="v121AwardPoint('ours')"><b>＋1</b><span>Punto nuestro</span></button>
+            <button class="ghost scout-undo" onclick="v121UndoRally()">↶ Deshacer último rally</button>
+            <button class="scout-point rival" onclick="v121AwardPoint('opponent')"><b>＋1</b><span>Punto rival</span></button>
           </div>
         </section>
         <section class="scout-panel scout-console-panel">
@@ -2865,7 +2888,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
       <div class="scout-bottom-grid">
         <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">SECUENCIA</span><h3>Rallies del set</h3></div><span id="scout-rally-count" class="small">0 rallies</span></div><div id="scout-rally-list" class="scout-rally-list"></div></section>
-        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div><div class="scout-v861-set-actions"><button class="ghost" onclick="scoutV861OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v954OpenNewSet()">＋ Nuevo set</button><button class="ghost" onclick="scoutV861OpenFinalResult()">Resultado final</button></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
+        <section class="scout-panel"><div class="scout-panel-head"><div><span class="pro-kicker">PARTIDO</span><h3>Sets y registro</h3></div><div class="scout-v861-set-actions"><button class="ghost" onclick="v120OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v121OpenNewSet()">＋ Nuevo set</button><button class="ghost" onclick="v120OpenFinalResult()">Resultado final</button></div></div><div id="scout-set-list" class="scout-set-summary"></div></section>
         <section class="scout-panel" style="grid-column:1/-1"><div class="scout-panel-head scout-v6100-timeline-head"><div><span class="pro-kicker">MATCH TIMELINE</span><h3>Línea temporal del partido</h3></div><select id="scout-v6100-timeline-filter" onchange="scoutV6100RenderTimeline()"><option value="all">Todo</option><option value="rally">Rallies</option><option value="event">Eventos</option><option value="sub">Cambios / líbero</option></select></div><div id="scout-v6100-timeline" class="scout-v6100-timeline"></div></section>
       </div>
     </div>
@@ -5915,7 +5938,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.8.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.9.0', {
         updateViaCache: 'none'
       });
 
@@ -8905,7 +8928,7 @@ function scoutRenderCourt(m){const own=$('scout-own-court'),rival=$('scout-rival
 function scoutRenderCurrentActions(m){const box=$('scout-current-actions'),s=scoutSet(m);if($('scout-rally-title'))$('scout-rally-title').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0} · ${m.servingTeam==='ours'?'sacamos':'saca el rival'}`;if(!box)return;box.innerHTML=m.liveRally.actions.length?m.liveRally.actions.map(a=>{const player=a.team==='ours'?scoutPlayerName(a.playerId):a.playerLabel||'Rival',zones=a.startZone&&a.endZone?` · ${a.startZone}→${a.endZone}`:'';return `<div class="scout-action-item"><div class="scout-action-code">${esc(a.code)}</div><div class="scout-action-copy"><strong>${esc(player)} · ${esc(SCOUT_SKILLS[a.skill])}</strong><small>${a.team==='ours'?'Nuestro equipo':'Rival'}${zones}</small></div><div class="scout-eval">${esc(a.evaluation)}</div></div>`}).join(''):'<div class="scout-action-empty">Todavía no hay acciones en este rally.</div>'}
 function scoutRenderRallies(m){const s=scoutSet(m),box=$('scout-rally-list');if(!box)return;const rallies=scoutArr(s?.rallies).slice().reverse();box.innerHTML=rallies.length?rallies.map(r=>`<div class="scout-rally-item"><div class="scout-rally-score">${r.scoreAfter.us}–${r.scoreAfter.opponent}</div><div class="scout-rally-copy"><strong>R${r.rotationBefore} · ${r.actions.length} acciones</strong><small>${r.servingBefore==='ours'?'Saque nuestro':'Saque rival'}${r.actions.length?' · '+r.actions.map(a=>a.code).join('  '):''}</small></div><span class="scout-rally-winner ${r.winner==='ours'?'ours':''}">${r.winner==='ours'?'Punto nuestro':'Punto rival'}</span></div>`).join(''):'<div class="scout-action-empty">Aún no hay rallies cerrados en este set.</div>';if($('scout-rally-count'))$('scout-rally-count').textContent=`${rallies.length} rallies`}
 function scoutRenderSets(m){const box=$('scout-set-list');if(!box)return;box.innerHTML=scoutArr(m.sets).map(s=>`<div class="scout-set-row"><strong>Set ${s.number}</strong><span>${s.finished?(s.winner==='ours'?'Ganado':s.winner==='opponent'?'Perdido':'Cerrado'):'En juego'} · ${s.rallies.length} rallies</span><b>${s.scoreUs}–${s.scoreOpponent}</b></div>`).join('')}
-function scoutRenderEnded(m){const s=scoutSet(m),box=$('scout-set-ended');if(!box)return;if(m.status==='finished'){box.classList.remove('hidden');const score=scoutSetsScore(m);box.innerHTML=`<strong>Partido finalizado · ${score.us}–${score.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutUndoRally()">Reabrir último rally</button></div>`;return}if(s?.finished){box.classList.remove('hidden');box.innerHTML=`<strong>Set ${s.number} cerrado · ${s.scoreUs}–${s.scoreOpponent}. ¿Quién realiza el primer saque del siguiente set?</strong><div class="scout-set-ended-actions"><button class="primary" onclick="scoutNextSet('ours')">Sacamos nosotros</button><button class="ghost" onclick="scoutNextSet('opponent')">Saca el rival</button></div>`}else box.classList.add('hidden')}
+function scoutRenderEnded(m){const s=scoutSet(m),box=$('scout-set-ended');if(!box)return;if(m.status==='finished'){box.classList.remove('hidden');const score=scoutSetsScore(m);box.innerHTML=`<strong>Partido finalizado · ${score.us}–${score.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="v121UndoRally()">Reabrir último rally</button></div>`;return}if(s?.finished){box.classList.remove('hidden');box.innerHTML=`<strong>Set ${s.number} cerrado · ${s.scoreUs}–${s.scoreOpponent}. ¿Quién realiza el primer saque del siguiente set?</strong><div class="scout-set-ended-actions"><button class="primary" onclick="scoutNextSet('ours')">Sacamos nosotros</button><button class="ghost" onclick="scoutNextSet('opponent')">Saca el rival</button></div>`}else box.classList.add('hidden')}
 function scoutRenderSaved(){const box=$('scout-saved-list');if(!box)return;const arr=scoutingMatches.slice().sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));box.innerHTML=arr.length?arr.map(m=>{const sc=scoutSetsScore(m),active=Number(m.id)===Number(scoutingActiveId);return `<div class="scout-saved-item"><div><strong>${esc(m.opponent)} · ${sc.us}–${sc.opponent} sets ${active?'· ACTIVO':''}</strong><small>${esc(m.date)}${m.competition?' · '+esc(m.competition):''} · ${m.status==='finished'?'Finalizado':(m.manualSavedAt?'Guardado · editable':'En curso')} · ${scoutActionCount(m)} acciones</small></div><div class="scout-saved-actions"><button class="ghost" onclick="scoutOpenSaved(${m.id})">Abrir</button><button class="ghost download" onclick="return scoutV752ExportOfficialPDF(${m.id})" title="Hoja estadística oficial">PDF hoja</button><button class="ghost download" onclick="scoutExportCSV(${m.id})">CSV</button><button class="danger" onclick="scoutDeleteSaved(${m.id})">Eliminar</button></div></div>`}).join(''):'<div class="scout-action-empty">No hay partidos de scouting guardados.</div>'}
 window.scoutRender=function(){const m=scoutActive(),empty=$('scout-no-match'),live=$('scout-live');scoutRenderSaved();if(!m){empty?.classList.remove('hidden');live?.classList.add('hidden');return}empty?.classList.add('hidden');live?.classList.remove('hidden');const s=scoutSet(m),sets=scoutSetsScore(m);if($('scout-match-title'))$('scout-match-title').textContent=`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent}`;if($('scout-match-meta'))$('scout-match-meta').textContent=[m.date,m.competition,m.linkedMatchId?'Vinculado a Competición':'Scouting independiente'].filter(Boolean).join(' · ');const badge=$('scout-status-badge');if(badge){badge.textContent=m.status==='finished'?'FINALIZADO':'EN DIRECTO';badge.className='scout-status-badge '+(m.status==='finished'?'finished':'live')}if($('scout-kpi-set'))$('scout-kpi-set').textContent=String(m.currentSet);if($('scout-kpi-sets'))$('scout-kpi-sets').textContent=`${sets.us}–${sets.opponent} sets`;if($('scout-kpi-score'))$('scout-kpi-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;if($('scout-kpi-rallies'))$('scout-kpi-rallies').textContent=`${s?.rallies?.length||0} rallies`;if($('scout-kpi-rotation'))$('scout-kpi-rotation').textContent=`R${m.rotationNo}`;if($('scout-kpi-serve'))$('scout-kpi-serve').textContent=`Saque: ${m.servingTeam==='ours'?'nuestro':'rival'}`;if($('scout-kpi-actions'))$('scout-kpi-actions').textContent=scoutActionCount(m);scoutRenderCourt(m);scoutRenderCurrentActions(m);scoutRenderRallies(m);scoutRenderSets(m);scoutRenderEnded(m);scoutRefreshActionPlayers()};
 
@@ -9848,7 +9871,7 @@ scoutRenderEnded=window.scoutRenderEnded=function(m){
     const score=scoutSetsScore(m),complete=score.us>=3||score.opponent>=3;
     box.classList.remove('hidden');
     if(complete){
-      box.innerHTML=`<strong>Resultado ${score.us}–${score.opponent} registrado. La sesión sigue abierta hasta que tú la guardes.</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutUndoRally()">Reabrir último rally</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button></div>`;
+      box.innerHTML=`<strong>Resultado ${score.us}–${score.opponent} registrado. La sesión sigue abierta hasta que tú la guardes.</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="v121UndoRally()">Reabrir último rally</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button><button class="success" onclick="scoutV6102FinalizeAndExit()">Finalizar y guardar</button></div>`;
     }else{
       box.innerHTML=`<strong>Set ${s.number} cerrado · ${s.scoreUs}–${s.scoreOpponent}. ¿Quién realiza el primer saque del siguiente set?</strong><div class="scout-set-ended-actions"><button class="primary" onclick="scoutNextSet('ours')">Sacamos nosotros</button><button class="ghost" onclick="scoutNextSet('opponent')">Saca el rival</button><button class="ghost" onclick="scoutV6102SaveAndExit()">Guardar</button></div>`;
     }
@@ -13004,9 +13027,9 @@ scoutRenderEnded=window.scoutRenderEnded=function(m){
     box.classList.remove('hidden');
     const r=m.manualFinalResult;
     if(m.status==='finished'){
-      box.innerHTML=`<strong>Partido finalizado · resultado manual ${r.us}-${r.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutV861OpenFinalResult()">Ver resultado</button></div>`;
+      box.innerHTML=`<strong>Partido finalizado · resultado manual ${r.us}-${r.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="v120OpenFinalResult()">Ver resultado</button></div>`;
     }else{
-      box.innerHTML=`<strong>Resultado final manual guardado · ${r.us}-${r.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="scoutV861OpenFinalResult()">Editar resultado</button><button class="success" onclick="scoutV861OpenFinalResult()">Finalizar scouting</button></div>`;
+      box.innerHTML=`<strong>Resultado final manual guardado · ${r.us}-${r.opponent} sets</strong><div class="scout-set-ended-actions"><button class="ghost" onclick="v120OpenFinalResult()">Editar resultado</button><button class="success" onclick="v120OpenFinalResult()">Finalizar scouting</button></div>`;
     }
     return;
   }
@@ -14111,7 +14134,7 @@ window.scoutV893RenderVault=async function(){
   const all=rows,matchKeys=new Set(all.map(x=>`${x.teamId}:${x.matchId}`)),latest=all.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0))[0];
   $('v893-kpi-versions').textContent=all.length;$('v893-kpi-matches').textContent=matchKeys.size;$('v893-kpi-last').textContent=latest?new Date(latest.createdAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'—';$('v893-kpi-last-copy').textContent=latest?`${latest.teamName} · ${latest.opponent}`:'sin checkpoint';
   rows=all.filter(x=>(!team||x.teamId===team)&&(!reason||(reason==='cloud'?String(x.reason).includes('cloud'):String(x.reason).includes(reason)))).sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0)).slice(0,120);
-  status.className='v893-safe-status '+(all.length?'ok':'warn');status.innerHTML=all.length?`<b>${all.length} versiones protegidas.</b> Se conservan fuera del estado principal y se limitan automáticamente los autosaves antiguos.`:'<b>Todavía no hay versiones.</b> Pulsa “Crear checkpoint ahora”.';
+  status.className='v893-safe-status '+(all.length?'ok':'warn');status.innerHTML=all.length?`<b>${all.length} versiones protegidas.</b> Se conservan fuera del estado principal y se limitan automáticamente los autosaves antiguos.`:'<b>Todavía no hay versiones.</b> Pulsa “Proteger estado ahora”.';
   list.innerHTML=rows.length?rows.map(r=>`<article class="v893-version-row ${v893ReasonGroup(r.reason)}"><div class="v893-version-main"><b>${esc(r.teamName)} · ${esc(r.opponent)}</b><small>${esc(r.matchDate||'Sin fecha')} · ${esc(v893ReasonLabel(r.reason))} · ${esc(r.source||'local')}</small></div><div class="v893-version-cell"><span>Contenido</span><b>${r.counts.rallies} rallies · ${r.counts.actions} acc.</b></div><div class="v893-version-cell"><span>Fecha copia</span><b>${new Date(r.createdAt).toLocaleString('es-ES')}</b></div><div class="v893-version-cell"><span>Estado</span><b>${esc(r.status||'—')}</b></div><div><span class="v893-pill">${esc(v893ReasonLabel(r.reason))}</span></div><div><button class="ghost" onclick="scoutV893ExportVersion('${r.key}')">JSON</button> <button class="primary" onclick="scoutV893RestoreVersion('${r.key}')">Restaurar</button></div></article>`).join(''):'<div class="match-empty">No hay versiones con estos filtros.</div>';
 };
 
@@ -24029,18 +24052,41 @@ window.v900SetField=function(k,v){if(!(k in state))return;state[k]=String(v??'')
 window.v900SetZone=function(which,v){if(which==='origin')state.origin=String(v);else state.destination=String(v);renderLocations();updatePreview()};
 window.v900SetSubzone=function(which,v){if(which==='origin')state.originSub=String(v);else state.destinationSub=String(v);renderLocations();updatePreview()};
 window.v900RegisterVisual=function(){
-  if(!active())return alert('No hay un scouting activo.');
+  const m=active();if(!m)return alert('No hay un scouting activo.');
   ensurePlayer();if(!state.player)return alert('Selecciona un jugador.');
   const r=locationRules();if(state.skill==='A'&&state.locationMode==='cones'&&(!state.origin||!state.cone))return alert('En ataque por conos selecciona origen y cono.');
-  syncLegacy();
-  try{window.scoutAddManualAction?.()}catch(err){console.error(err);alert('No se pudo registrar la acción: '+String(err?.message||err));return}
-  window.VC_SCOUT_RENDER_V92?.requestFast?.('v931-visual-action');
+  const start=token(state.origin,state.originSub),end=token(state.destination,state.destinationSub);
+  const action={
+    team:state.team,playerId:state.team==='ours'?Number(state.player)||null:null,playerLabel:state.team==='opponent'?String(state.playerLabel||state.player||''):'',
+    skill:state.skill,evaluation:state.evaluation,
+    startZone:r.origin?start:'',endZone:r.destination?end:'',
+    contactZone:(state.skill==='R'||state.skill==='D')?end:(state.skill==='B'?start:''),
+    sourceZone:(state.skill==='R'||state.skill==='D')?start:'',zoneInferred:false,
+    serveType:state.skill==='S'?state.serveType:'',receivedServeType:state.skill==='R'?state.serveType:'',
+    phase:state.phaseCode,setTarget:state.skill==='E'?state.combo:'',attackCombo:state.skill==='A'?state.combo:'',
+    attackCode:state.skill==='A'?String(state.dvCode||'').toUpperCase():'',setterCall:state.skill==='E'?String(state.dvCode||'').toUpperCase():'',
+    attackTempo:state.skill==='A'?state.tempo:'',setTempo:state.skill==='E'?state.tempo:'',dvSetType:(state.skill==='A'||state.skill==='E')?state.setType:'',
+    skillSubtype:state.subtype,specialCode:String(state.special||'').toUpperCase(),customCode:String(state.custom||'').toUpperCase(),
+    attackDirection:state.skill==='A'?state.direction:'',blockers:(state.skill==='A'||state.skill==='B')?String(state.blockers??''):'',
+    blockTargetNumber:state.skill==='B'?String(state.blockTarget||'').replace(/\D/g,'').slice(0,3):'',
+    locationMode:state.skill==='A'?state.locationMode:'zones',endCone:state.skill==='A'&&state.locationMode==='cones'?Number(state.cone)||null:null
+  };
+  if(state.skill==='A'&&state.locationMode==='cones')action.endZone='';
+  try{
+    const core=window.VC_SCOUT_CORE;if(!core?.push)throw new Error('Core profesional no disponible');
+    const ok=core.push(action);if(ok===false)throw new Error('La acción no se ha añadido');
+    safeText('v119-save-state','Guardado automático');
+    window.VC_SCOUT_RENDER_V92?.requestFast?.('v119-visual-action');
+  }catch(err){console.error(err);alert('No se pudo registrar la acción: '+String(err?.message||err));}
 };
 window.v900RegisterCode=function(){
   const input=$('v900-code-input'),raw=String(input?.value||'').trim();if(!raw)return;
-  const legacy=$('scout-code-input');if(!legacy)return alert('El motor de códigos no está disponible.');
-  legacy.value=raw;
-  try{window.scoutAddCode?.();input.value='';safeText('v900-code-translation','Código registrado con el motor compartido.');window.VC_SCOUT_RENDER_V92?.requestFast?.('v931-code-action')}catch(err){console.error(err);alert('No se pudo registrar el código: '+String(err?.message||err))}
+  try{
+    const core=window.VC_SCOUT_CORE;if(!core?.register)throw new Error('Parser profesional no disponible');
+    const result=core.register(raw,active());if(!result?.ok)throw new Error(result?.error||'No se ha podido registrar el código');
+    input.value='';safeText('v900-code-translation','Código registrado directamente en Scouting Pro.');safeText('v119-save-state','Guardado automático');
+    window.VC_SCOUT_RENDER_V92?.requestFast?.('v119-code-action');input.focus();
+  }catch(err){console.error(err);alert('No se pudo registrar el código: '+String(err?.message||err));}
 };
 window.v900TranslateCode=function(){
   const raw=String($('v900-code-input')?.value||'').trim().toUpperCase(),box=$('v900-code-translation');if(!box)return;if(!raw){box.textContent='Escribe un código para ver su lectura.';return}
@@ -24106,9 +24152,9 @@ window.VC_V900_WORKSPACE={
   <div class="v901-card">
     <div class="v901-head">
       <div>
-        <span class="pro-kicker">V9.0.1 · EDICIÓN SEGURA</span>
+        <span class="pro-kicker">V12.1 · RALLY REVIEW</span>
         <h2>Editar rallies y códigos</h2>
-        <p id="v901-editor-subtitle">Selecciona un set y un rally. Solo se modifican las acciones.</p>
+        <p id="v901-editor-subtitle">Revisa y corrige las acciones reales del partido sin alterar accidentalmente el marcador ni las rotaciones.</p>
       </div>
       <button class="ghost" onclick="v901CloseRallyEditor()">Cerrar ×</button>
     </div>
@@ -24118,7 +24164,7 @@ window.VC_V900_WORKSPACE={
       <label><span>Rally</span><select id="v901-rally-select" onchange="v901EditorRallyChanged()"></select></label>
       <button class="ghost" onclick="v901SelectLiveRally()">Rally actual</button>
       <button class="ghost" onclick="v901OpenCodes('editor')">Referencia de códigos</button>
-      <button class="ghost" onclick="v901EditorCheckpoint()">Crear checkpoint</button>
+      <button class="ghost" onclick="v901EditorCheckpoint()">Proteger estado</button>
     </div>
 
     <div id="v901-editor-info" class="v901-info"></div>
@@ -24341,7 +24387,7 @@ window.v901SaveRallyEditor=async function(){
 };
 window.v901EditorCheckpoint=async function(){
   await checkpoint('manual-editor-v901');
-  const v=$('v901-validation');if(v){v.className='v901-validation ok';v.textContent='✓ Checkpoint creado en la Caja fuerte.'}
+  const v=$('v901-validation');if(v){v.className='v901-validation ok';v.textContent='✓ Estado protegido antes de continuar.'}
 };
 
 /* Stable code-reference entry point. No dependency on old wrapper chains. */
@@ -29216,6 +29262,389 @@ setTimeout(()=>{
   try{window.scoutRenderHome?.()}catch(_){ }
 },0);
 window.VC_V118_PRO={version:VERSION,diagnostics:()=>({version:VERSION,classicVisible:!!$('scouting')&&getComputedStyle($('scouting')).display!=='none',last:localStorage.getItem('v118_last_professional_view')||'',workspace:localStorage.getItem('volley_workspace_v610')||''})};
+})();
+</script>
+
+
+<style id="v119-autonomous-pro-style">
+/* ===== V11.9 · SCOUTING PRO AUTÓNOMO ===== */
+body.v11-shell #scouting{display:none!important}
+.v119-probar{display:grid;grid-template-columns:minmax(210px,280px) 1fr;gap:10px;align-items:stretch;margin:10px 0 12px;padding:10px;background:#f4f7f9;border:1px solid #dce5eb;border-radius:14px}
+.v119-match-picker{display:flex;flex-direction:column;gap:5px;padding:9px 10px;background:#fff;border:1px solid #dce5eb;border-radius:10px}.v119-match-picker span{font-size:7px;font-weight:950;letter-spacing:.09em;color:#788b98}.v119-match-picker select{width:100%;min-height:37px;border:0;background:#fff;color:#15344d;font-size:10px;font-weight:850;outline:0}
+.v119-probar-actions{display:grid;grid-template-columns:repeat(8,minmax(92px,1fr));gap:6px}.v119-action{min-height:58px!important;padding:7px 8px!important;display:grid!important;grid-template-columns:auto 1fr!important;grid-template-rows:auto auto!important;column-gap:6px!important;align-content:center!important;text-align:left!important;background:#fff!important;border:1px solid #dce5eb!important;color:#24455e!important;border-radius:9px!important}.v119-action>span{grid-row:1/3;font-size:15px;align-self:center}.v119-action b{font-size:8px;line-height:1.1}.v119-action small{font-size:6.2px;color:#82919b;line-height:1.15}.v119-action.primary{background:#123754!important;color:#fff!important;border-color:#123754!important}.v119-action.primary small{color:#bcd0df}
+.v119-modal{position:fixed;inset:0;z-index:160000;background:rgba(4,16,27,.72);display:none;place-items:center;padding:16px}.v119-modal.open{display:grid}.v119-modal-card{width:min(1040px,96vw);max-height:94vh;overflow:auto;background:#fff;border-radius:17px;box-shadow:0 32px 90px rgba(0,0,0,.35)}.v119-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px;background:linear-gradient(135deg,#0b2941,#174d73);color:#fff}.v119-modal-head h2{margin:2px 0 4px!important;color:#fff!important;font-size:20px!important}.v119-modal-head p{margin:0;color:#c6d4df;font-size:8.5px}.v119-modal-head .pro-kicker{color:#9fb9ca}.v119-modal-head button{background:rgba(255,255,255,.09)!important;border-color:rgba(255,255,255,.16)!important;color:#fff!important}.v119-modal-body{padding:16px 18px}.v119-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v119-form-grid label,.v119-lineup-cell label{display:flex;flex-direction:column;gap:5px}.v119-form-grid label>span,.v119-lineup-cell label>span{font-size:7px;font-weight:950;letter-spacing:.07em;color:#748894;text-transform:uppercase}.v119-form-grid input,.v119-form-grid select,.v119-lineup-cell input,.v119-lineup-cell select{min-height:38px;border:1px solid #d8e2e8;border-radius:8px;background:#fff;padding:7px 9px;color:#17364f;font-size:9px}.v119-modal-foot{display:flex;justify-content:space-between;gap:8px;padding:12px 18px;border-top:1px solid #e4eaee;background:#f8fafb}.v119-lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.v119-lineup-team{border:1px solid #dce5eb;border-radius:12px;overflow:hidden}.v119-lineup-team>header{padding:10px 12px;background:#edf3f6;color:#17364f}.v119-lineup-team>header b{font-size:10px}.v119-lineup-team>header small{display:block;margin-top:2px;color:#748894;font-size:7px}.v119-lineup-cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:11px}.v119-lineup-cell{display:grid;gap:5px;padding:8px;border:1px solid #e2e8ec;border-radius:9px;background:#fbfcfd}.v119-lineup-cell>strong{font-size:8px;color:#17364f}.v119-lineup-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}.v119-info-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.v119-info-strip span{padding:6px 9px;border-radius:999px;background:#eef4f7;color:#526f81;font-size:7.5px;font-weight:850}.v119-info-strip span.ok{background:#eaf5ef;color:#2c6a49}
+@media(max-width:1250px){.v119-probar{grid-template-columns:1fr}.v119-probar-actions{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.v119-probar-actions{grid-template-columns:repeat(2,1fr)}.v119-lineup-grid,.v119-form-grid,.v119-lineup-bottom{grid-template-columns:1fr}.v119-lineup-cells{grid-template-columns:1fr}}
+</style>
+
+<div id="v119-new-match-modal" class="v119-modal" onclick="if(event.target===this)v119CloseNewMatch()">
+  <div class="v119-modal-card">
+    <div class="v119-modal-head"><div><span class="pro-kicker">SCOUTING PRO · V12.0</span><h2>Nuevo scouting</h2><p>Crea el partido directamente en la interfaz profesional.</p></div><button class="ghost" onclick="v119CloseNewMatch()">Cerrar ×</button></div>
+    <div class="v119-modal-body">
+      <div class="v119-form-grid">
+        <label><span>Fecha</span><input id="v119-new-date" type="date"></label>
+        <label><span>Rival</span><input id="v119-new-opponent" placeholder="Nombre del rival"></label>
+        <label><span>Competición</span><input id="v119-new-competition" placeholder="Liga / torneo / amistoso"></label>
+        <label><span>Partido planificado</span><select id="v119-new-linked"><option value="">Sin vincular</option></select></label>
+        <label><span>Primer saque</span><select id="v119-new-serving"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label>
+        <label><span>Rotación inicial</span><select id="v119-new-rotation"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+      </div>
+    </div>
+    <div class="v119-modal-foot"><button class="ghost" onclick="v119CloseNewMatch()">Cancelar</button><button class="primary" onclick="v119CreateMatch()">Crear y configurar alineación →</button></div>
+  </div>
+</div>
+
+<div id="v119-lineup-modal" class="v119-modal" onclick="if(event.target===this)v119CloseLineup()">
+  <div class="v119-modal-card">
+    <div class="v119-modal-head"><div><span class="pro-kicker">ALINEACIÓN · SCOUTING PRO</span><h2>Seis en pista y rotaciones</h2><p>La alineación se guarda directamente en el partido activo.</p></div><button class="ghost" onclick="v119CloseLineup()">Cerrar ×</button></div>
+    <div class="v119-modal-body">
+      <div id="v119-lineup-info" class="v119-info-strip"></div>
+      <div class="v119-lineup-grid">
+        <section class="v119-lineup-team"><header><b id="v119-lineup-own-name">Nuestro equipo</b><small>P1–P6 · jugadores rotacionales</small></header><div id="v119-lineup-own" class="v119-lineup-cells"></div></section>
+        <section class="v119-lineup-team"><header><b id="v119-lineup-rival-name">Rival</b><small>Etiqueta y rol del rival</small></header><div id="v119-lineup-rival" class="v119-lineup-cells"></div></section>
+      </div>
+      <div class="v119-lineup-bottom">
+        <label><span>Rotación nuestra</span><select id="v119-lineup-rotation"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <label><span>Rotación rival</span><select id="v119-lineup-rival-rotation"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <label><span>Líbero automático</span><select id="v119-lineup-libero"><option value="">Sin líbero automático</option></select></label>
+      </div>
+      <label style="display:flex;gap:7px;align-items:center;margin-top:10px;font-size:8px;color:#597283"><input id="v119-lineup-libero-auto" type="checkbox" checked> Aplicar automáticamente el líbero cuando corresponda</label>
+    </div>
+    <div class="v119-modal-foot"><button class="ghost" onclick="v119CloseLineup()">Cancelar</button><button class="primary" onclick="v119SaveLineup()">Guardar alineación</button></div>
+  </div>
+</div>
+
+<script id="v119-autonomous-pro-script">
+(()=>{
+'use strict';
+const VERSION='11.9.0', POS=['p1','p2','p3','p4','p5','p6'];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone=x=>JSON.parse(JSON.stringify(x));
+function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
+function teamName(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Equipo'}catch(_){return'Equipo'}}
+function players(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getPlayers?.()||[]}catch(_){return[]}}
+function playerLabel(p){return `${p?.number!==''&&p?.number!=null?'#'+p.number+' · ':''}${p?.name||'Jugador'}`}
+function liveMatches(){try{return scoutingMatches.filter(m=>m&&m.status!=='finished')}catch(_){return[]}}
+function renderPicker(){
+  const sel=$('v119-match-picker');if(!sel)return;const m=active(),list=liveMatches();
+  sel.innerHTML=list.length?list.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))).map(x=>`<option value="${Number(x.id)}">${esc(x.date||'')} · ${esc(x.opponent||'Rival')} · S${Number(x.currentSet)||1}${Number(x.id)===Number(m?.id)?' · ACTIVO':''}</option>`).join(''):'<option value="">Sin scouting activo</option>';
+  if(m)sel.value=String(m.id);
+}
+function updateSaveState(text='Auto · protegido'){const el=$('v119-save-state');if(el)el.textContent=text}
+window.v119RefreshPro=function(){renderPicker();try{window.v900Render?.()}catch(_){}}
+window.v119SwitchMatch=function(id){
+  id=Number(id)||0;if(!id)return;const cur=active();if(Number(cur?.id)===id)return;
+  try{const m=window.VC_SCOUT_VIDEO_BRIDGE?.activateMatch?.(id);if(!m)throw new Error('No se ha podido abrir ese scouting');window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));renderPicker();window.v900Open?.();updateSaveState('Partido cargado ✓')}catch(err){alert(String(err?.message||err))}
+};
+window.v119SaveAll=async function(withCloud=true){
+  if(!active())return alert('No hay un scouting activo.');updateSaveState('Guardando…');
+  try{
+    if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();
+    else window.VC_SCOUT_VIDEO_BRIDGE?.save?.();
+    try{if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup('v119-manual',false)}catch(_){}
+    if(withCloud&&navigator.onLine){try{await window.v957SyncScoutingsNow?.()}catch(err){console.warn('V11.9 cloud sync',err)}}
+    updateSaveState(withCloud&&navigator.onLine?'Local + nube ✓':'Local ✓');
+    try{window.v900Render?.()}catch(_){}
+    return true;
+  }catch(err){console.error('V11.9 save',err);updateSaveState('Protegido · revisar nube');alert('El scouting se mantiene protegido localmente, pero el guardado completo ha tenido una incidencia.');return false}
+};
+window.v119OpenNewMatch=function(){
+  const modal=$('v119-new-match-modal');if(!modal)return;
+  $('v119-new-date').value=typeof fechaLocalISO==='function'?fechaLocalISO():new Date().toISOString().slice(0,10);$('v119-new-opponent').value='';$('v119-new-competition').value='';$('v119-new-serving').value='ours';$('v119-new-rotation').value='1';
+  const linked=$('v119-new-linked');if(linked){let list=[];try{list=scoutArr(partidosEquipo).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))}catch(_){}linked.innerHTML='<option value="">Sin vincular</option>'+list.map(p=>`<option value="${Number(p.id)||''}">${esc((p.date||'')+' · '+(p.opponent||'Rival')+(p.competition?' · '+p.competition:''))}</option>`).join('')}
+  modal.classList.add('open');setTimeout(()=>$('v119-new-opponent')?.focus(),30);
+};
+window.v119CloseNewMatch=()=>$('v119-new-match-modal')?.classList.remove('open');
+window.v119CreateMatch=function(){
+  const opponent=String($('v119-new-opponent')?.value||'').trim();if(!opponent)return alert('Escribe el rival.');
+  try{
+    const id=Date.now(),now=typeof scoutNow==='function'?scoutNow():new Date().toISOString();
+    const m=scoutNormalizeMatch({id,linkedMatchId:Number($('v119-new-linked')?.value)||null,date:$('v119-new-date')?.value||(typeof fechaLocalISO==='function'?fechaLocalISO():''),opponent,competition:String($('v119-new-competition')?.value||'').trim(),servingTeam:$('v119-new-serving')?.value==='opponent'?'opponent':'ours',rotationNo:Number($('v119-new-rotation')?.value)||1,opponentRotationNo:1,lineup:scoutEmptyLineup(),sets:[scoutEmptySet(1)],events:[],currentSet:1,status:'live',clockStartedAt:now,clockAccumulatedMs:0,clockMode:'active-only',createdAt:now,updatedAt:now});
+    scoutingMatches.push(m);scoutingActiveId=id;try{vcEnsureProMatch?.(m)}catch(_){}try{scoutClockResume?.(m)}catch(_){};scoutSave(false);v119CloseNewMatch();window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900'));window.v900SetPhase?.('prepare');renderPicker();setTimeout(()=>v119OpenLineup(),40);return m;
+  }catch(err){console.error('V11.9 create match',err);alert('No se ha podido crear el scouting: '+String(err?.message||err))}
+};
+function roleFor(id){try{return vcPlayerRole?.(id)||''}catch(_){const p=players().find(x=>Number(x.id)===Number(id));return p?.role||p?.position||''}}
+window.v119OpenLineup=function(){
+  const m=active();if(!m)return alert('Crea primero un scouting.');
+  try{vcEnsureProMatch?.(m);scoutV6107SyncOpponentLineup?.(m)}catch(_){}
+  const own=$('v119-lineup-own'),rival=$('v119-lineup-rival'),pl=players(),base=m.baseLineup||m.lineup||{};
+  $('v119-lineup-own-name').textContent=teamName();$('v119-lineup-rival-name').textContent=m.opponent||'Rival';
+  if(own)own.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador</span><select id="v119-own-${pos}"><option value="">— Sin asignar —</option>${pl.map(p=>`<option value="${Number(p.id)}" ${Number(base?.ours?.[pos])===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}</select></label><small style="font-size:6.5px;color:#84939c">${esc(roleFor(base?.ours?.[pos])||'')}</small></div>`).join('');
+  const roles=['','Colocador','Receptor','Central','Opuesto','Líbero','Universal'];
+  if(rival)rival.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador rival</span><input id="v119-rival-${pos}" value="${esc(base?.opponent?.[pos]||m.lineup?.opponent?.[pos]||'')}" placeholder="#7 · Nombre"></label><label><span>Rol</span><select id="v119-rival-role-${pos}">${roles.map(r=>`<option value="${esc(r)}" ${String(m.lineupRoles?.opponent?.[pos]||'')===r?'selected':''}>${esc(r||'— Rol —')}</option>`).join('')}</select></label></div>`).join('');
+  $('v119-lineup-rotation').value=String(m.rotationNo||1);$('v119-lineup-rival-rotation').value=String(m.opponentRotationNo||1);
+  const lib=$('v119-lineup-libero');if(lib){const candidates=pl.filter(p=>{try{return vcHasRole?.(p,'Líbero')||/lib/i.test(String(p.role||p.position||''))}catch(_){return /lib/i.test(String(p.role||p.position||''))}});lib.innerHTML='<option value="">Sin líbero automático</option>'+candidates.map(p=>`<option value="${Number(p.id)}" ${Number(m.libero?.playerId)===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}
+  $('v119-lineup-libero-auto').checked=m.libero?.auto!==false;
+  const s=(m.sets||[]).find(x=>Number(x.number)===Number(m.currentSet));$('v119-lineup-info').innerHTML=`<span class="ok">Set ${Number(m.currentSet)||1}</span><span>${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}</span><span>R${Number(m.rotationNo)||1} vs R${Number(m.opponentRotationNo)||1}</span><span>${m.servingTeam==='ours'?'Saque nuestro':'Saque rival'}</span>`;
+  $('v119-lineup-modal')?.classList.add('open');
+};
+window.v119CloseLineup=()=>$('v119-lineup-modal')?.classList.remove('open');
+window.v119SaveLineup=function(){
+  const m=active();if(!m)return;try{vcEnsureProMatch?.(m)}catch(_){}
+  if((m.liveRally?.actions||[]).length){if(!confirm('Hay acciones en el rally actual. ¿Quieres cambiar la alineación igualmente?'))return}
+  const ids=POS.map(pos=>Number($(`v119-own-${pos}`)?.value)||null);if(ids.filter(Boolean).length!==6)return alert('Debes asignar exactamente seis jugadores rotacionales.');if(new Set(ids).size!==6)return alert('Un mismo jugador no puede ocupar dos posiciones.');
+  const libId=Number($('v119-lineup-libero')?.value)||null;if(libId&&ids.includes(libId))return alert('El líbero no puede estar también entre los seis jugadores rotacionales.');
+  const nextBase=scoutNormalizeLineup(m.baseLineup||m.lineup),nextRoles=typeof scoutNormalizeRoles==='function'?scoutNormalizeRoles(m.lineupRoles):clone(m.lineupRoles||{ours:{},opponent:{}});
+  POS.forEach((pos,i)=>{nextBase.ours[pos]=ids[i];nextBase.opponent[pos]=String($(`v119-rival-${pos}`)?.value||'').trim();nextRoles.ours[pos]=roleFor(ids[i]);nextRoles.opponent[pos]=String($(`v119-rival-role-${pos}`)?.value||'')});
+  m.baseLineup=nextBase;m.lineupRoles=nextRoles;m.rotationNo=Math.min(6,Math.max(1,Number($('v119-lineup-rotation')?.value)||1));m.opponentRotationNo=Math.min(6,Math.max(1,Number($('v119-lineup-rival-rotation')?.value)||1));
+  m.libero=typeof scoutNormalizeLibero==='function'?scoutNormalizeLibero(m.libero):{...(m.libero||{})};m.libero.playerId=libId;m.libero.enabled=!!libId;m.libero.auto=$('v119-lineup-libero-auto')?.checked!==false;m.libero.centralIds=ids.filter(id=>{try{return vcHasRole?.(players().find(p=>Number(p.id)===Number(id)),'Central')}catch(_){return /central/i.test(roleFor(id))}});m.libero.activeForId=null;m.libero.activePosition='';
+  m.lineup=clone(m.baseLineup);try{vcApplyAutoLibero?.(m,false);scoutV6107SyncOpponentLineup?.(m)}catch(_){}
+  try{scoutV690EnsureMatch?.(m);const set=(m.sets||[]).find(x=>Number(x.number)===Number(m.currentSet));if(set&&!set.rallies?.length&&!m.workflow?.setLineups?.[String(m.currentSet)])m.workflow.setLineups[String(m.currentSet)]={baseLineup:clone(m.baseLineup),lineup:clone(m.lineup),lineupRoles:clone(m.lineupRoles),libero:clone(m.libero),rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,savedAt:typeof scoutNow==='function'?scoutNow():new Date().toISOString()}}catch(_){}
+  scoutSave(false);v119CloseLineup();try{window.v900Render?.();window.v800Render?.()}catch(_){}updateSaveState('Alineación guardada ✓');
+};
+
+/* Public user-facing entry points now open professional UI, not legacy forms. */
+window.VC_V119_LEGACY_OPEN_NEW=window.scoutOpenNewMatch;window.scoutOpenNewMatch=window.v119OpenNewMatch;
+window.VC_V119_LEGACY_OPEN_LINEUP=window.scoutOpenLineup;window.scoutOpenLineup=window.v119OpenLineup;
+
+/* Keep picker/status in sync after the shared engine mutates state. */
+try{const base=window.v900Render;if(typeof base==='function'&&!base.__v119){const wrapped=function(...args){const out=base.apply(this,args);renderPicker();return out};wrapped.__v119=true;window.v900Render=wrapped}}catch(_){}
+try{const base=window.scoutAwardPoint;if(typeof base==='function'&&!base.__v119){const wrapped=function(...args){const out=base.apply(this,args);updateSaveState('Auto · protegido');setTimeout(renderPicker,0);return out};wrapped.__v119=true;window.scoutAwardPoint=wrapped}}catch(_){}
+try{const base=window.scoutUndoRally;if(typeof base==='function'&&!base.__v119){const wrapped=function(...args){const out=base.apply(this,args);updateSaveState('Cambios protegidos');setTimeout(renderPicker,0);return out};wrapped.__v119=true;window.scoutUndoRally=wrapped}}catch(_){}
+
+document.addEventListener('DOMContentLoaded',()=>{renderPicker();document.body.classList.add('v119-autonomous-pro')});
+window.VC_V119={version:VERSION,refresh:renderPicker,active,save:window.v119SaveAll,openNew:window.v119OpenNewMatch,openLineup:window.v119OpenLineup};
+})();
+</script>
+
+
+
+<!-- =========================================================
+     V12.0 · NATIVE PROFESSIONAL MATCH MANAGEMENT
+     Changes/Libero · Events · Set closure · Final result
+     ========================================================= -->
+<style id="v120-native-management-style">
+.v120-match-management{display:grid;grid-template-columns:1.35fr repeat(4,minmax(115px,.72fr)) .85fr;gap:7px;align-items:stretch;margin:0 0 12px;padding:7px;border:1px solid #dce5eb;background:#f7fafc;border-radius:12px}
+.v120-match-management>div,.v120-match-management>button{border:1px solid #dbe4ea;background:#fff;border-radius:9px;padding:8px 10px;min-width:0;text-align:left}
+.v120-match-management>button{cursor:pointer;color:#17324d}.v120-match-management>button:hover{border-color:#9eb4c5;background:#fbfdff}
+.v120-match-management span{display:block;font-size:6.8px;line-height:1.15;letter-spacing:.11em;font-weight:950;color:#82919c;margin-bottom:3px}.v120-match-management b{display:block;font-size:9.5px;line-height:1.2;color:#17324d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v120-match-management .save b{color:#2e684d}
+.v120-modal{position:fixed;inset:0;z-index:10040;background:rgba(8,24,38,.46);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px}.v120-modal.open{display:flex}.v120-modal-card{width:min(900px,96vw);max-height:92vh;overflow:auto;background:#fff;border:1px solid #dce4e9;border-radius:18px;box-shadow:0 28px 80px rgba(10,30,47,.22)}.v120-modal-card.compact{width:min(720px,96vw)}
+.v120-modal-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:19px 20px 15px;border-bottom:1px solid #e8edf0;background:linear-gradient(180deg,#fbfdfe,#f6f9fb)}.v120-modal-head h2{margin:2px 0 4px!important;font-size:19px!important;color:#102b43!important}.v120-modal-head p{margin:0;color:#70808c;font-size:9.5px;line-height:1.45}.v120-modal-head .close{border:1px solid #dce4e9;background:#fff;border-radius:8px;padding:7px 10px;color:#5f7281;cursor:pointer}
+.v120-context{display:flex;gap:6px;flex-wrap:wrap;padding:11px 20px;border-bottom:1px solid #edf1f3}.v120-context span{padding:5px 8px;border-radius:999px;background:#edf3f6;color:#496679;font-size:7.5px;font-weight:850}.v120-context span.live{background:#eaf5ef;color:#2d684c}
+.v120-modal-body{padding:16px 20px}.v120-tabbar{display:flex;gap:6px;margin-bottom:13px}.v120-tabbar button{border:1px solid #dce4e9;background:#fff;color:#5d7181;border-radius:8px;padding:8px 11px;font-size:8px;font-weight:900;cursor:pointer}.v120-tabbar button.active{background:#102b43;color:#fff;border-color:#102b43}.v120-pane.hidden{display:none!important}
+.v120-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v120-form-grid .wide{grid-column:1/-1}.v120-form-grid label,.v120-field{display:flex;flex-direction:column;gap:5px}.v120-form-grid label>span,.v120-field>span{font-size:7.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#758692}.v120-form-grid input,.v120-form-grid select,.v120-form-grid textarea,.v120-field input,.v120-field select{width:100%;border:1px solid #dbe3e8;border-radius:8px;background:#fff;padding:9px 10px;font:500 10px/1.35 inherit;color:#17324d;box-sizing:border-box}.v120-form-grid textarea{min-height:92px;resize:vertical}.v120-form-grid input[readonly]{background:#f4f7f9;color:#617482}
+.v120-score-grid{display:grid;grid-template-columns:1fr 44px 1fr;align-items:end;gap:10px;margin:4px 0 12px}.v120-score-grid label{display:flex;flex-direction:column;gap:6px}.v120-score-grid label span{font-size:8px;font-weight:900;color:#647986}.v120-score-grid input{text-align:center;font-size:30px;font-weight:950;color:#102b43;border:1px solid #d7e1e7;border-radius:12px;padding:12px}.v120-score-grid .sep{font-size:24px;font-weight:900;color:#9aa7af;text-align:center;padding-bottom:15px}
+.v120-notice{border:1px solid #dbe6ec;background:#f6fafc;border-left:4px solid #315f84;border-radius:9px;padding:10px 11px;margin-bottom:12px;font-size:9px;line-height:1.45;color:#536b7a}.v120-notice.warn{border-left-color:#d28a31;background:#fff9ef;color:#715526}.v120-notice.bad{border-left-color:#c75151;background:#fff5f5;color:#7a3b3b}.v120-notice strong{color:#17324d}
+.v120-history{margin-top:13px;border-top:1px solid #edf0f2;padding-top:10px}.v120-history h4{margin:0 0 7px;font-size:8px;letter-spacing:.08em;color:#6f808c}.v120-history-list{display:grid;gap:5px}.v120-history-row{display:grid;grid-template-columns:92px 1fr auto;gap:9px;align-items:center;padding:7px 8px;background:#f8fafb;border:1px solid #e8edef;border-radius:7px}.v120-history-row time{font-size:7.5px;color:#7e8d98}.v120-history-row b{font-size:8.5px;color:#29475f}.v120-history-row small{font-size:7.5px;color:#81909b}
+.v120-libero-status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}.v120-libero-status>div{border:1px solid #e0e7eb;background:#f8fafb;border-radius:9px;padding:9px}.v120-libero-status span{display:block;font-size:7px;font-weight:900;color:#7a8994}.v120-libero-status b{display:block;margin-top:3px;font-size:10px;color:#17324d}.v120-toggle-row{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:8.5px;color:#506978}.v120-toggle-row input{width:auto}
+.v120-event-types{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}.v120-event-types button{border:1px solid #dce4e9;background:#fff;border-radius:9px;padding:9px 7px;font-size:8px;font-weight:850;color:#4e6879;cursor:pointer}.v120-event-types button.active{background:#102b43;color:#fff;border-color:#102b43}.v120-event-types button small{display:block;font-size:6.5px;margin-top:2px;opacity:.7}
+.v120-set-list{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}.v120-set-pill{padding:5px 8px;border-radius:999px;border:1px solid #dce5ea;background:#f8fafb;font-size:7.5px;color:#607685}.v120-set-pill.win{background:#edf7f1;color:#2f6a4c}.v120-set-pill.loss{background:#fff1f1;color:#8a4747}.v120-set-pill.current{border-color:#315f84;color:#173f68;background:#eef5fa}
+.v120-modal-foot{display:flex;justify-content:flex-end;gap:7px;padding:13px 20px 17px;border-top:1px solid #e9eef1}.v120-modal-foot button{border:1px solid #d7e0e6;background:#fff;color:#536b7b;border-radius:8px;padding:9px 12px;font-size:8px;font-weight:900;cursor:pointer}.v120-modal-foot button.primary{background:#102b43;border-color:#102b43;color:#fff}.v120-modal-foot button.success{background:#2f684d;border-color:#2f684d;color:#fff}.v120-modal-foot button.danger{background:#8c4141;border-color:#8c4141;color:#fff}
+@media(max-width:1100px){.v120-match-management{grid-template-columns:repeat(3,1fr)}.v120-event-types{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.v120-match-management{grid-template-columns:1fr 1fr}.v120-form-grid,.v120-libero-status{grid-template-columns:1fr}.v120-score-grid{grid-template-columns:1fr 28px 1fr}.v120-modal{padding:8px}}
+</style>
+
+<div id="v120-changes-modal" class="v120-modal" onclick="if(event.target===this)v120CloseChanges()">
+  <div class="v120-modal-card">
+    <div class="v120-modal-head"><div><span class="pro-kicker">GESTIÓN DE PISTA · SCOUTING PRO</span><h2>Cambios y líbero</h2><p>Registra sustituciones y controla el líbero directamente sobre el estado actual del partido.</p></div><button class="close" onclick="v120CloseChanges()">Cerrar ×</button></div>
+    <div id="v120-change-context" class="v120-context"></div>
+    <div class="v120-modal-body">
+      <div class="v120-tabbar"><button id="v120-change-tab-sub" class="active" onclick="v120ChangeTab('sub')">Sustitución</button><button id="v120-change-tab-lib" onclick="v120ChangeTab('lib')">Líbero</button></div>
+      <section id="v120-change-pane-sub" class="v120-pane">
+        <div id="v120-change-warning" class="v120-notice">El cambio se guardará con set, marcador, posición y timestamp.</div>
+        <div class="v120-form-grid">
+          <label><span>Equipo</span><select id="v120-change-team" onchange="v120RefreshChangeForm()"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label>
+          <label><span>Posición</span><select id="v120-change-position" onchange="v120RefreshChangeForm()"><option value="p1">P1 · Z1</option><option value="p2">P2 · Z2</option><option value="p3">P3 · Z3</option><option value="p4">P4 · Z4</option><option value="p5">P5 · Z5</option><option value="p6">P6 · Z6</option></select></label>
+          <label><span>Sale</span><input id="v120-change-out" readonly></label>
+          <label id="v120-change-own-wrap"><span>Entra</span><select id="v120-change-in"></select></label>
+          <label id="v120-change-rival-wrap" class="hidden"><span>Entra rival</span><input id="v120-change-rival-in" placeholder="#12 · Nombre"></label>
+        </div>
+      </section>
+      <section id="v120-change-pane-lib" class="v120-pane hidden">
+        <div id="v120-libero-status" class="v120-libero-status"></div>
+        <div class="v120-form-grid">
+          <label><span>Líbero configurado</span><select id="v120-libero-player"></select></label>
+          <label><span>Posición de entrada manual</span><select id="v120-libero-position"><option value="p1">P1</option><option value="p5">P5</option><option value="p6">P6</option></select></label>
+        </div>
+        <label class="v120-toggle-row"><input id="v120-libero-auto" type="checkbox" onchange="v120ToggleLiberoAuto()"> Gestionar entradas/salidas automáticamente</label>
+        <div id="v120-libero-notice" class="v120-notice">El modo automático usa la configuración de centrales de la alineación profesional.</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap"><button class="primary" onclick="v120LiberoEnter()">Entrar líbero</button><button class="ghost" onclick="v120LiberoExit()">Salir líbero</button><button class="ghost" onclick="v119OpenLineup();v120CloseChanges()">Configurar alineación →</button></div>
+      </section>
+      <div class="v120-history"><h4>ÚLTIMOS CAMBIOS</h4><div id="v120-change-history" class="v120-history-list"></div></div>
+    </div>
+    <div class="v120-modal-foot"><button onclick="v120CloseChanges()">Cerrar</button><button id="v120-register-change" class="primary" onclick="v120SaveChange()">Registrar cambio</button></div>
+  </div>
+</div>
+
+<div id="v120-event-modal" class="v120-modal" onclick="if(event.target===this)v120CloseEvent()">
+  <div class="v120-modal-card compact">
+    <div class="v120-modal-head"><div><span class="pro-kicker">EVENTO · SCOUTING PRO</span><h2>Registrar evento</h2><p>Queda vinculado al marcador, rotaciones y tiempo de vídeo cuando esté disponible.</p></div><button class="close" onclick="v120CloseEvent()">Cerrar ×</button></div>
+    <div id="v120-event-context" class="v120-context"></div>
+    <div class="v120-modal-body">
+      <div class="v120-event-types" id="v120-event-types">
+        <button data-type="timeout_ours" onclick="v120PickEvent(this)">Tiempo nuestro<small>Timeout</small></button><button data-type="timeout_opponent" onclick="v120PickEvent(this)">Tiempo rival<small>Timeout</small></button><button data-type="challenge_ours" onclick="v120PickEvent(this)">Challenge nuestro<small>Revisión</small></button><button data-type="challenge_opponent" onclick="v120PickEvent(this)">Challenge rival<small>Revisión</small></button><button data-type="card" onclick="v120PickEvent(this)">Tarjeta<small>Sanción</small></button><button data-type="injury" onclick="v120PickEvent(this)">Lesión<small>Atención</small></button><button data-type="interruption" onclick="v120PickEvent(this)">Interrupción<small>Partido</small></button><button data-type="note" class="active" onclick="v120PickEvent(this)">Nota táctica<small>Staff</small></button>
+      </div>
+      <input id="v120-event-type" type="hidden" value="note">
+      <div class="v120-form-grid"><label><span>Equipo / jugador</span><input id="v120-event-subject" placeholder="Opcional · #7 Marc"></label><label><span>Categoría</span><select id="v120-event-category"><option>Táctica</option><option>Rotación</option><option>Bloqueo</option><option>Recepción</option><option>Ataque</option><option>Rival</option><option>Arbitraje</option></select></label><label class="wide"><span>Nota</span><textarea id="v120-event-note" placeholder="Qué ha ocurrido o qué quiere recordar el staff"></textarea></label></div>
+      <div class="v120-history"><h4>EVENTOS RECIENTES</h4><div id="v120-event-history" class="v120-history-list"></div></div>
+    </div>
+    <div class="v120-modal-foot"><button onclick="v120CloseEvent()">Cancelar</button><button class="primary" onclick="v120SaveEvent()">Guardar evento</button></div>
+  </div>
+</div>
+
+<div id="v120-finish-set-modal" class="v120-modal" onclick="if(event.target===this)v120CloseFinishSet()">
+  <div class="v120-modal-card compact">
+    <div class="v120-modal-head"><div><span class="pro-kicker">SET · SCOUTING PRO</span><h2 id="v120-finish-title">Finalizar set</h2><p>Cierra el marcador sin crear acciones ni rallies ficticios.</p></div><button class="close" onclick="v120CloseFinishSet()">Cerrar ×</button></div>
+    <div id="v120-finish-context" class="v120-context"></div>
+    <div class="v120-modal-body"><div id="v120-finish-warning" class="v120-notice"></div><div class="v120-score-grid"><label><span id="v120-finish-us-label">Nuestro equipo</span><input id="v120-finish-us" type="number" min="0" max="99"></label><div class="sep">–</div><label><span id="v120-finish-op-label">Rival</span><input id="v120-finish-op" type="number" min="0" max="99"></label></div><div id="v120-finish-set-list" class="v120-set-list"></div><div class="v120-notice"><strong>Se conserva la trazabilidad.</strong> Las estadísticas continuarán usando únicamente rallies y acciones realmente registrados.</div></div>
+    <div class="v120-modal-foot"><button onclick="v120CloseFinishSet()">Cancelar</button><button class="success" onclick="v120FinishSet()">Finalizar set</button></div>
+  </div>
+</div>
+
+<div id="v120-result-modal" class="v120-modal" onclick="if(event.target===this)v120CloseFinalResult()">
+  <div class="v120-modal-card compact">
+    <div class="v120-modal-head"><div><span class="pro-kicker">CIERRE DE PARTIDO · SCOUTING PRO</span><h2 id="v120-result-title">Resultado final</h2><p>El resultado oficial y las estadísticas técnicas permanecen separados.</p></div><button class="close" onclick="v120CloseFinalResult()">Cerrar ×</button></div>
+    <div id="v120-result-context" class="v120-context"></div>
+    <div class="v120-modal-body"><div id="v120-result-recorded" class="v120-notice"></div><div class="v120-score-grid"><label><span id="v120-result-us-label">Nuestro equipo</span><input id="v120-result-us" type="number" min="0" max="5"></label><div class="sep">–</div><label><span id="v120-result-op-label">Rival</span><input id="v120-result-op" type="number" min="0" max="5"></label></div><div id="v120-result-set-list" class="v120-set-list"></div><div class="v120-notice"><strong>Finalizar no inventa datos.</strong> El resultado se utilizará en resumen, análisis, PDF y competición; los porcentajes seguirán saliendo del scouting real.</div></div>
+    <div class="v120-modal-foot"><button onclick="v120CloseFinalResult()">Cancelar</button><button onclick="v120SaveFinalResult(false)">Guardar resultado</button><button class="success" onclick="v120SaveFinalResult(true)">Finalizar → Análisis</button></div>
+  </div>
+</div>
+
+<script id="v120-native-management-script">
+(()=>{
+'use strict';
+const VERSION='12.0.0',POS=['p1','p2','p3','p4','p5','p6'];
+const $=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[],clone=v=>{try{return structuredClone(v)}catch(_){return JSON.parse(JSON.stringify(v??null))}},esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function active(){try{return scoutActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}}
+function setOf(m){if(!m)return null;try{return scoutSet?.(m)||arr(m.sets).find(s=>Number(s.number)===Number(m.currentSet))||null}catch(_){return arr(m.sets).find(s=>Number(s.number)===Number(m.currentSet))||null}}
+function players(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getPlayers?.()||[]}catch(_){return []}}
+function teamName(){try{return EQUIPOS?.[equipoActivo]?.nombre||'Nuestro equipo'}catch(_){return 'Nuestro equipo'}}
+function player(id){const p=players().find(x=>Number(x.id)===Number(id));return p?`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`:'—'}
+function role(id){try{return vcPlayerRole?.(Number(id))||''}catch(_){const p=players().find(x=>Number(x.id)===Number(id));return p?.role||p?.position||''}}
+function now(){try{return scoutNow?.()||new Date().toISOString()}catch(_){return new Date().toISOString()}}
+function elapsed(m){try{return Number(scoutElapsed?.(m))||0}catch(_){return 0}}
+function context(m,s){return `<span class="live">Set ${Number(s?.number)||1}</span><span>${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}</span><span>R${Number(m?.rotationNo)||1} vs R${Number(m?.opponentRotationNo)||1}</span><span>${m?.servingTeam==='ours'?'Saque nuestro · K2':'Recepción · K1'}</span>`}
+function videoStamp(){try{const x=typeof v850MediaStamp==='function'?v850MediaStamp():null;if(x)return x}catch(_){}return {videoTime:null,videoSource:'',videoExact:false}}
+function save(render=true){try{scoutSave?.(false)}catch(_){}try{window.v119SaveAll?.(false)}catch(_){}if(render){try{window.v900Render?.();window.v800Render?.()}catch(_){}}setTimeout(v120RenderManagement,0)}
+function scoreSets(m){if(m?.manualFinalResult?.active)return {us:Number(m.manualFinalResult.us)||0,opponent:Number(m.manualFinalResult.opponent)||0};let us=0,opponent=0;arr(m?.sets).forEach(s=>{if(s.finished){if(s.winner==='ours'||Number(s.scoreUs)>Number(s.scoreOpponent))us++;else if(s.winner==='opponent'||Number(s.scoreOpponent)>Number(s.scoreUs))opponent++}});return {us,opponent}}
+function setPills(m,current=true){return arr(m?.sets).map(s=>{const c=Number(s.number)===Number(m.currentSet)&&!s.finished?' current':s.finished?(Number(s.scoreUs)>Number(s.scoreOpponent)?' win':' loss'):'';return `<span class="v120-set-pill${c}">S${Number(s.number)||1} · ${Number(s.scoreUs)||0}–${Number(s.scoreOpponent)||0}${s.finished?' ✓':''}</span>`}).join('')}
+function ensureBase(m){try{vcEnsureProMatch?.(m)}catch(_){}if(!m.baseLineup)m.baseLineup=clone(m.lineup||{ours:{},opponent:{}});if(!m.lineup)m.lineup=clone(m.baseLineup);if(!m.lineupRoles)m.lineupRoles={ours:{},opponent:{}};if(!m.libero)m.libero={playerId:null,enabled:false,auto:false,centralIds:[],activeForId:null,activePosition:''};m.events=arr(m.events);return m}
+function recentChanges(m){return arr(m?.events).filter(e=>['substitution','libero','libero_auto'].includes(e.type)).slice(-6).reverse()}
+function recentEvents(m){return arr(m?.workflow?.events).slice(-6).reverse()}
+
+window.v120RenderManagement=function(){const m=active(),s=setOf(m);if(!m||!s)return;const changes=arr(m?.events).filter(e=>['substitution','libero','libero_auto'].includes(e.type)),events=arr(m?.workflow?.events),r=scoreSets(m);if($('v120-change-count'))$('v120-change-count').textContent=String(changes.length);if($('v120-event-count'))$('v120-event-count').textContent=String(events.length);if($('v120-set-state'))$('v120-set-state').textContent=`S${s.number} · ${s.scoreUs}-${s.scoreOpponent}`;if($('v120-result-state'))$('v120-result-state').textContent=`${r.us}-${r.opponent} sets`;if($('v120-management-state'))$('v120-management-state').textContent=m.status==='finished'?'Partido finalizado':arr(m.liveRally?.actions).length?'Rally en curso':'En directo';if($('v120-protection-state'))$('v120-protection-state').textContent=navigator.onLine?'Local + nube':'Local ✓'};
+
+/* CHANGES / LIBERO */
+window.v120OpenChanges=function(mode='sub'){const m=active(),s=setOf(m);if(!m||!s)return alert('Crea o abre un scouting primero.');if(m.status==='finished')return alert('El scouting está finalizado.');ensureBase(m);$('v120-change-context').innerHTML=context(m,s);$('v120-change-team').value='ours';$('v120-change-position').value='p1';v120PopulateLibero();v120ChangeTab(mode);v120RefreshChangeForm();v120RenderChangeHistory();$('v120-changes-modal').classList.add('open')};
+window.v120CloseChanges=()=> $('v120-changes-modal')?.classList.remove('open');
+window.v120ChangeTab=function(tab){const lib=tab==='lib';$('v120-change-tab-sub').classList.toggle('active',!lib);$('v120-change-tab-lib').classList.toggle('active',lib);$('v120-change-pane-sub').classList.toggle('hidden',lib);$('v120-change-pane-lib').classList.toggle('hidden',!lib);$('v120-register-change').classList.toggle('hidden',lib);if(lib)v120PopulateLibero()};
+window.v120RefreshChangeForm=function(){const m=ensureBase(active());if(!m)return;const team=$('v120-change-team').value,pos=$('v120-change-position').value,isOwn=team==='ours';$('v120-change-own-wrap').classList.toggle('hidden',!isOwn);$('v120-change-rival-wrap').classList.toggle('hidden',isOwn);const out=isOwn?Number(m.baseLineup?.ours?.[pos])||null:(m.baseLineup?.opponent?.[pos]||m.lineup?.opponent?.[pos]||'—');$('v120-change-out').value=isOwn?player(out):String(out||'—');if(isOwn){const occupied=new Set(POS.map(p=>Number(m.baseLineup?.ours?.[p])||null).filter(Boolean));const sel=$('v120-change-in');sel.innerHTML='<option value="">— Seleccionar —</option>'+players().filter(p=>!occupied.has(Number(p.id))&&Number(p.id)!==Number(m.libero?.playerId)).map(p=>`<option value="${Number(p.id)}">${esc(player(p.id))} · ${esc(role(p.id)||'')}</option>`).join('');const activeLib=String(m.libero?.activePosition||'');$('v120-change-warning').className='v120-notice'+(activeLib===pos?' warn':'');$('v120-change-warning').innerHTML=activeLib===pos?'El líbero está ocupando esta posición. Haz primero la salida del líbero para registrar una sustitución reglamentaria aquí.':'El cambio modificará la rotación base y quedará trazado con el marcador actual.'}else{$('v120-change-rival-in').value='';$('v120-change-warning').className='v120-notice';$('v120-change-warning').textContent='El cambio rival actualiza la etiqueta de pista y queda registrado para análisis/contexto.'}};
+window.v120SaveChange=function(){const m=ensureBase(active()),s=setOf(m);if(!m||!s)return;if(arr(m.liveRally?.actions).length&&!confirm('Hay acciones en el rally actual. ¿Registrar el cambio igualmente en este marcador?'))return;const team=$('v120-change-team').value,pos=$('v120-change-position').value,stamp=videoStamp(),e={id:Date.now(),uid:`sub_${Date.now()}`,type:'substitution',team,setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,position:pos,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:now(),scoutMs:elapsed(m),videoTime:stamp.videoExact?stamp.videoTime:null,videoSource:stamp.videoSource||'',videoExact:!!stamp.videoExact};if(team==='ours'){if(String(m.libero?.activePosition||'')===pos)return alert('El líbero ocupa esa posición. Registra primero su salida.');const outId=Number(m.baseLineup?.ours?.[pos])||null,inId=Number($('v120-change-in').value)||null;if(!inId)return alert('Selecciona el jugador que entra.');if(inId===outId)return alert('El jugador que entra debe ser distinto al que sale.');if(POS.some(p=>p!==pos&&Number(m.baseLineup?.ours?.[p])===inId))return alert('Ese jugador ya está en la rotación en otra posición.');e.outPlayerId=outId;e.inPlayerId=inId;e.outLabel=player(outId);e.inLabel=player(inId);m.baseLineup.ours[pos]=inId;m.lineupRoles.ours[pos]=role(inId);m.libero.centralIds=arr(m.libero.centralIds).filter(id=>Number(id)!==outId);if(/central/i.test(role(inId)))m.libero.centralIds.push(inId);m.libero.centralIds=[...new Set(m.libero.centralIds.map(Number))];m.lineup=clone(m.baseLineup);try{if(m.libero.auto)vcApplyAutoLibero?.(m,false)}catch(_){}}else{const inLabel=String($('v120-change-rival-in').value||'').trim();if(!inLabel)return alert('Escribe el jugador rival que entra.');const outLabel=String(m.baseLineup?.opponent?.[pos]||m.lineup?.opponent?.[pos]||'—');e.outLabel=outLabel;e.inLabel=inLabel;m.baseLineup.opponent[pos]=inLabel;m.lineup.opponent[pos]=inLabel}m.events.push(e);save();v120RefreshChangeForm();v120RenderChangeHistory()};
+function v120PopulateLibero(){const m=ensureBase(active());if(!m)return;const sel=$('v120-libero-player'),cands=players().filter(p=>/lib/i.test(String(role(p.id)||p.position||'')));sel.innerHTML='<option value="">— Sin líbero —</option>'+cands.map(p=>`<option value="${Number(p.id)}" ${Number(m.libero.playerId)===Number(p.id)?'selected':''}>${esc(player(p.id))}</option>`).join('');$('v120-libero-auto').checked=m.libero.auto!==false;const pos=String(m.libero.activePosition||'');$('v120-libero-status').innerHTML=`<div><span>LÍBERO</span><b>${m.libero.playerId?esc(player(m.libero.playerId)):'No configurado'}</b></div><div><span>ESTADO</span><b>${pos?'En pista · '+pos.toUpperCase():'Fuera de pista'}</b></div><div><span>MODO</span><b>${m.libero.auto?'Automático':'Manual'}</b></div>`;$('v120-libero-notice').innerHTML=m.libero.auto?'Modo automático activo: las entradas/salidas se ajustan con la rotación y los centrales configurados.':'Modo manual: usa Entrar/Salir para registrar cada movimiento del líbero.'}
+window.v120ToggleLiberoAuto=function(){const m=ensureBase(active());if(!m)return;const id=Number($('v120-libero-player').value)||null;m.libero.playerId=id;m.libero.enabled=!!id;m.libero.auto=$('v120-libero-auto').checked;if(m.libero.auto){try{vcApplyAutoLibero?.(m,false)}catch(_){}}save();v120PopulateLibero();v120RenderChangeHistory()};
+window.v120LiberoEnter=function(){const m=ensureBase(active()),s=setOf(m);if(!m||!s)return;const id=Number($('v120-libero-player').value)||Number(m.libero.playerId)||null,pos=$('v120-libero-position').value;if(!id)return alert('Selecciona el líbero.');if(!['p1','p5','p6'].includes(pos))return alert('El líbero solo puede entrar en una posición zaguera.');if(m.libero.activePosition)return alert('El líbero ya está en pista. Registra primero su salida.');if(POS.some(p=>Number(m.baseLineup?.ours?.[p])===id))return alert('El líbero no puede formar parte de los seis rotacionales.');const outId=Number(m.lineup?.ours?.[pos]||m.baseLineup?.ours?.[pos])||null,stamp=videoStamp();m.libero.playerId=id;m.libero.enabled=true;m.libero.auto=false;m.libero.activeForId=outId;m.libero.activePosition=pos;m.lineup.ours[pos]=id;m.events.push({id:Date.now(),uid:`lib_${Date.now()}`,type:'libero',team:'ours',action:'enter',setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,position:pos,outPlayerId:outId,inPlayerId:id,outLabel:player(outId),inLabel:player(id),rotationNo:m.rotationNo,createdAt:now(),scoutMs:elapsed(m),videoTime:stamp.videoExact?stamp.videoTime:null,videoExact:!!stamp.videoExact});save();v120PopulateLibero();v120RenderChangeHistory()};
+window.v120LiberoExit=function(){const m=ensureBase(active()),s=setOf(m);if(!m||!s)return;const pos=String(m.libero.activePosition||'');if(!pos)return alert('El líbero no está marcado como activo en pista.');const libId=Number(m.libero.playerId)||null,restore=Number(m.libero.activeForId)||Number(m.baseLineup?.ours?.[pos])||null,stamp=videoStamp();m.lineup.ours[pos]=restore;m.events.push({id:Date.now(),uid:`lib_${Date.now()}`,type:'libero',team:'ours',action:'exit',setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,position:pos,outPlayerId:libId,inPlayerId:restore,outLabel:player(libId),inLabel:player(restore),rotationNo:m.rotationNo,createdAt:now(),scoutMs:elapsed(m),videoTime:stamp.videoExact?stamp.videoTime:null,videoExact:!!stamp.videoExact});m.libero.activeForId=null;m.libero.activePosition='';save();v120PopulateLibero();v120RenderChangeHistory()};
+window.v120RenderChangeHistory=function(){const m=active(),box=$('v120-change-history');if(!box||!m)return;const rows=recentChanges(m);box.innerHTML=rows.length?rows.map(e=>`<div class="v120-history-row"><time>S${e.setNumber||'—'} · ${e.scoreUs??0}-${e.scoreOpponent??0}</time><b>${e.type==='libero_auto'?'Líbero auto':e.type==='libero'?'Líbero':'Cambio'} · ${esc(e.outLabel||'—')} → ${esc(e.inLabel||'—')}</b><small>${String(e.position||'').toUpperCase()}</small></div>`).join(''):'<div class="v120-notice">Todavía no hay cambios registrados.</div>'};
+
+/* EVENTS */
+window.v120OpenEvent=function(){const m=active(),s=setOf(m);if(!m||!s)return alert('Necesitas un scouting activo.');try{scoutV690EnsureMatch?.(m)}catch(_){if(!m.workflow)m.workflow={events:[]}}$('v120-event-context').innerHTML=context(m,s);$('v120-event-subject').value='';$('v120-event-note').value='';$('v120-event-category').value='Táctica';$('v120-event-type').value='note';document.querySelectorAll('#v120-event-types button').forEach(b=>b.classList.toggle('active',b.dataset.type==='note'));v120RenderEventHistory();$('v120-event-modal').classList.add('open');setTimeout(()=>$('v120-event-note')?.focus(),30)};
+window.v120CloseEvent=()=> $('v120-event-modal')?.classList.remove('open');
+window.v120PickEvent=function(btn){$('v120-event-type').value=btn.dataset.type||'note';document.querySelectorAll('#v120-event-types button').forEach(b=>b.classList.toggle('active',b===btn))};
+window.v120SaveEvent=function(){const m=active(),s=setOf(m);if(!m||!s)return;try{scoutV690EnsureMatch?.(m)}catch(_){if(!m.workflow)m.workflow={events:[]}}if(!Array.isArray(m.workflow.events))m.workflow.events=[];const stamp=videoStamp(),type=$('v120-event-type').value||'note',note=String($('v120-event-note').value||'').trim(),subject=String($('v120-event-subject').value||'').trim(),id=Date.now();m.workflow.events.push({id,uid:`evt_${id}`,type,subject,note,noteCategory:String($('v120-event-category').value||'Táctica'),setNumber:s.number,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,createdAt:now(),scoutMs:elapsed(m),videoTime:stamp.videoExact?stamp.videoTime:null,videoSource:stamp.videoSource||'',videoExact:!!stamp.videoExact});save();v120CloseEvent()};
+window.v120RenderEventHistory=function(){const m=active(),box=$('v120-event-history');if(!box||!m)return;const rows=recentEvents(m);const labels={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival',challenge_ours:'Challenge nuestro',challenge_opponent:'Challenge rival',card:'Tarjeta / sanción',injury:'Lesión',interruption:'Interrupción',note:'Nota táctica'};box.innerHTML=rows.length?rows.map(e=>`<div class="v120-history-row"><time>S${e.setNumber||'—'} · ${e.scoreUs??0}-${e.scoreOpponent??0}</time><b>${esc(labels[e.type]||e.type||'Evento')}${e.subject?' · '+esc(e.subject):''}</b><small>${e.videoTime!=null?'vídeo '+Math.floor(e.videoTime/60)+':'+String(Math.floor(e.videoTime%60)).padStart(2,'0'):esc(e.noteCategory||'')}</small></div>`).join(''):'<div class="v120-notice">Todavía no hay eventos registrados.</div>'};
+
+/* FINISH SET */
+window.v120OpenFinishSet=function(){const m=active(),s=setOf(m);if(!m||!s)return alert('No hay un scouting activo.');if(m.status==='finished')return alert('El scouting está finalizado.');$('v120-finish-title').textContent=`Finalizar Set ${s.number}`;$('v120-finish-us-label').textContent=teamName();$('v120-finish-op-label').textContent=m.opponent||'Rival';$('v120-finish-us').value=String(Number(s.scoreUs)||0);$('v120-finish-op').value=String(Number(s.scoreOpponent)||0);$('v120-finish-context').innerHTML=context(m,s);const pending=arr(m.liveRally?.actions).length,w=$('v120-finish-warning');w.className='v120-notice'+(pending?' bad':s.finished?' warn':'');w.innerHTML=pending?`Hay <strong>${pending}</strong> ${pending===1?'acción':'acciones'} en el rally actual sin cerrar. Cierra el rally antes de finalizar el set.`:s.finished?`El set ya estaba cerrado en <strong>${s.scoreUs}-${s.scoreOpponent}</strong>. Puedes corregir el marcador final aquí.`:`Marcador actual: <strong>${s.scoreUs}-${s.scoreOpponent}</strong>.`;$('v120-finish-set-list').innerHTML=setPills(m);$('v120-finish-set-modal').classList.add('open')};
+window.v120CloseFinishSet=()=> $('v120-finish-set-modal')?.classList.remove('open');
+window.v120FinishSet=function(){const m=active(),s=setOf(m);if(!m||!s)return;const pending=arr(m.liveRally?.actions).length;if(pending)return alert('Cierra el rally actual antes de finalizar el set.');const us=Math.max(0,Number($('v120-finish-us').value)||0),op=Math.max(0,Number($('v120-finish-op').value)||0);if(us===op)return alert('Un set finalizado no puede quedar empatado.');if(us===0&&op===0)return alert('Introduce el marcador final.');try{if(typeof scoutSetHasWinner==='function'&&!scoutSetHasWinner({number:s.number,scoreUs:us,scoreOpponent:op})&&!confirm(`El marcador ${us}-${op} no es un cierre reglamentario habitual. ¿Guardarlo igualmente?`))return}catch(_){}const prev={us:Number(s.scoreUs)||0,opponent:Number(s.scoreOpponent)||0};s.scoreUs=us;s.scoreOpponent=op;s.finished=true;s.winner=us>op?'ours':'opponent';s.endedAt=now();s.manualFinished=true;s.manualFinishedAt=now();s.manualScorePrevious=prev;if(m.manualFinalResult?.active)m.manualFinalResult={...m.manualFinalResult,active:false,clearedAt:now()};const r=scoreSets({...m,manualFinalResult:null});m.resultComplete=r.us>=3||r.opponent>=3;m.resultCompleteAt=m.resultComplete?now():null;m.status='live';m.endedAt=null;try{scoutResetLiveRally?.(m)}catch(_){m.liveRally={id:Date.now(),actions:[]}};save();v120CloseFinishSet();setTimeout(()=>{if(m.resultComplete)v120OpenFinalResult()},120)};
+
+/* FINAL RESULT */
+window.v120OpenFinalResult=function(){const m=active();if(!m)return alert('No hay un scouting activo.');const s=setOf(m),recorded=(()=>{let us=0,opponent=0;arr(m.sets).forEach(x=>{if(x.finished){if(Number(x.scoreUs)>Number(x.scoreOpponent))us++;else if(Number(x.scoreOpponent)>Number(x.scoreUs))opponent++}});return {us,opponent}})(),cur=m.manualFinalResult?.active?{us:Number(m.manualFinalResult.us)||0,opponent:Number(m.manualFinalResult.opponent)||0}:recorded;$('v120-result-title').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;$('v120-result-us-label').textContent=teamName();$('v120-result-op-label').textContent=m.opponent||'Rival';$('v120-result-us').value=String(cur.us);$('v120-result-op').value=String(cur.opponent);$('v120-result-context').innerHTML=s?context(m,s):'';$('v120-result-recorded').innerHTML=`<strong>Registrado en sets cerrados: ${recorded.us}-${recorded.opponent}</strong>${m.manualFinalResult?.active?` · Resultado manual actual ${m.manualFinalResult.us}-${m.manualFinalResult.opponent}`:''}`;$('v120-result-set-list').innerHTML=setPills(m);$('v120-result-modal').classList.add('open')};
+window.v120CloseFinalResult=()=> $('v120-result-modal')?.classList.remove('open');
+window.v120SaveFinalResult=async function(finalize=false){const m=active();if(!m)return;const us=Math.max(0,Math.min(5,Number($('v120-result-us').value)||0)),op=Math.max(0,Math.min(5,Number($('v120-result-op').value)||0));if(us===op)return alert('El resultado final no puede quedar empatado.');if(us===0&&op===0)return alert('Introduce el resultado final en sets.');if(finalize&&arr(m.liveRally?.actions).length&&!confirm('Hay acciones en el rally actual sin cerrar. No se convertirán en un rally. ¿Finalizar igualmente?'))return;const t=now();m.manualFinalResult={active:true,us,opponent:op,savedAt:t,finalizedAt:finalize?t:null,clearedAt:null};m.resultComplete=true;m.resultCompleteAt=t;if(finalize){m.status='finished';m.finalizedByUser=true;m.endedAt=t}else if(m.status!=='finished'){m.status='live';m.endedAt=null}try{scoutSyncCompetition?.(m)}catch(_){}try{scoutSave?.(false)}catch(_){}try{await window.scoutV680Backup?.('v120-final-result',true)}catch(_){}try{await window.v119SaveAll?.(navigator.onLine)}catch(_){}v120CloseFinalResult();v120RenderManagement();if(finalize){setTimeout(()=>{try{window.showView?.('scout-analysis',window.botonVista?.('scout-analysis'));window.scoutRenderAnalysis?.()}catch(_){}},80)}else{try{window.v900Render?.()}catch(_){}}};
+
+/* Public professional entry points. Old implementations remain as compatibility only. */
+if(!window.VC_V120_LEGACY){window.VC_V120_LEGACY={openSubstitution:window.scoutOpenSubstitution,openEvent:window.scoutV690OpenEvent,openFinishSet:window.scoutV861OpenFinishSet,openFinalResult:window.scoutV861OpenFinalResult}}
+window.scoutOpenSubstitution=window.v120OpenChanges;window.scoutV690OpenEvent=window.v120OpenEvent;window.scoutV861OpenFinishSet=window.v120OpenFinishSet;window.scoutV861OpenFinalResult=window.v120OpenFinalResult;
+if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=VERSION;window.VC_SCOUT_CORE.finishSet=window.v120OpenFinishSet;window.VC_SCOUT_CORE.finalResult=window.v120OpenFinalResult}
+try{const base=window.v900Render;if(typeof base==='function'&&!base.__v120){const wrapped=function(...args){const out=base.apply(this,args);v120RenderManagement();return out};wrapped.__v120=true;window.v900Render=wrapped}}catch(_){}
+try{const base=window.scoutSave;if(typeof base==='function'&&!base.__v120){const wrapped=function(...args){const out=base.apply(this,args);setTimeout(v120RenderManagement,0);return out};wrapped.__v120=true;window.scoutSave=wrapped}}catch(_){}
+document.addEventListener('DOMContentLoaded',()=>{document.body.classList.add('v120-native-management');setTimeout(v120RenderManagement,120)});
+window.VC_V120={version:VERSION,render:v120RenderManagement,changes:v120OpenChanges,event:v120OpenEvent,finishSet:v120OpenFinishSet,finalResult:v120OpenFinalResult};
+})();
+</script>
+
+
+
+<!-- =========================================================
+     V12.1 · NATIVE SCORE / RALLY / NEW SET CONTROL
+     Professional state controls; no classic view required.
+     ========================================================= -->
+<style id="v121-native-score-style">
+.v121-live-control{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(260px,1.15fr) auto;gap:8px;align-items:stretch;margin:0 0 12px;padding:8px;border:1px solid #d8e3ea;background:#fff;border-radius:13px;box-shadow:0 3px 14px rgba(18,43,63,.045)}
+.v121-live-summary{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;border:1px solid #e1e8ed;background:#f8fafc;border-radius:10px;padding:10px 12px;min-width:0}.v121-live-team{min-width:0}.v121-live-team:last-child{text-align:right}.v121-live-team span{display:block;font-size:6.8px;font-weight:950;letter-spacing:.09em;color:#81909b;text-transform:uppercase}.v121-live-team b{display:block;margin-top:3px;font-size:10px;color:#17324d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v121-live-score{text-align:center;min-width:94px}.v121-live-score strong{display:block;font-size:27px;line-height:1;color:#102b43;letter-spacing:-.04em}.v121-live-score small{display:block;margin-top:5px;font-size:7px;color:#718390;font-weight:850}
+.v121-rally-context{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.v121-rally-context>div{border:1px solid #e1e8ed;border-radius:9px;padding:8px 9px;background:#fbfcfd}.v121-rally-context span{display:block;font-size:6.4px;letter-spacing:.1em;font-weight:950;color:#84939d;text-transform:uppercase}.v121-rally-context b{display:block;margin-top:3px;font-size:9px;color:#23445d}.v121-rally-context small{display:block;margin-top:2px;font-size:6.8px;color:#86949d}
+.v121-score-actions{display:grid;grid-template-columns:1fr 68px 1fr;gap:6px;min-width:300px}.v121-score-actions button{border-radius:10px;border:1px solid #d9e2e8;background:#fff;padding:9px 10px;font-size:8px;font-weight:900;cursor:pointer}.v121-score-actions button b{display:block;font-size:17px;line-height:1;margin-bottom:3px}.v121-score-actions .ours{background:#eaf4fb;border-color:#c4dced;color:#174f77}.v121-score-actions .opponent{background:#fff0f0;border-color:#edcccc;color:#9a4040}.v121-score-actions .undo{color:#566d7d;background:#f8fafb}.v121-score-actions .tools{grid-column:1/-1;display:flex;gap:5px;justify-content:flex-end}.v121-score-actions .tools button{padding:6px 8px;background:#fff;color:#38576e;font-size:7px}.v121-score-actions .tools button.primary{background:#102b43;color:#fff;border-color:#102b43}
+.v121-flash{animation:v121Flash .45s ease}@keyframes v121Flash{0%{box-shadow:0 0 0 0 rgba(49,95,132,.22)}100%{box-shadow:0 0 0 8px rgba(49,95,132,0)}}
+.v121-modal{position:fixed;inset:0;z-index:10060;background:rgba(8,24,38,.48);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px}.v121-modal.open{display:flex}.v121-modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border:1px solid #dbe4ea;border-radius:18px;box-shadow:0 28px 80px rgba(10,30,47,.24)}.v121-modal-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:19px 20px 15px;border-bottom:1px solid #e8edf0;background:linear-gradient(180deg,#fbfdfe,#f6f9fb)}.v121-modal-head h2{margin:2px 0 4px!important;font-size:19px!important;color:#102b43!important}.v121-modal-head p{margin:0;color:#70808c;font-size:9px;line-height:1.45}.v121-modal-head button{border:1px solid #dce4e9;background:#fff;border-radius:8px;padding:7px 10px;color:#5f7281}.v121-body{padding:16px 20px}.v121-set-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}.v121-set-summary>div{border:1px solid #e0e7eb;background:#f8fafb;border-radius:9px;padding:9px}.v121-set-summary span{display:block;font-size:6.5px;font-weight:950;letter-spacing:.09em;color:#82919c}.v121-set-summary b{display:block;margin-top:4px;font-size:10px;color:#17324d}.v121-set-form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.v121-set-form label{display:flex;flex-direction:column;gap:5px}.v121-set-form label>span{font-size:7px;font-weight:900;letter-spacing:.08em;color:#758692;text-transform:uppercase}.v121-set-form select{border:1px solid #dbe3e8;border-radius:8px;background:#fff;padding:9px 10px;font-size:9px;color:#17324d}.v121-check{display:flex;align-items:center;gap:8px;margin-top:12px;padding:9px 10px;border:1px solid #e2e8ec;border-radius:8px;background:#fafcfd;font-size:8.5px;color:#526b7a}.v121-check input{width:auto}.v121-notice{margin-top:12px;border-left:4px solid #315f84;background:#f5f9fc;border-radius:8px;padding:10px 11px;font-size:8.5px;line-height:1.45;color:#536b7a}.v121-foot{display:flex;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid #e4eaee}.v121-foot>div{display:flex;gap:6px}.v121-foot button{font-size:8px!important}
+/* Rally editor is now visually part of V12 rather than a legacy utility. */
+body.v121-native-score .v901-card{border:1px solid #dbe4ea;border-radius:18px;box-shadow:0 28px 80px rgba(10,30,47,.24)}body.v121-native-score .v901-head{background:linear-gradient(180deg,#fbfdfe,#f6f9fb);color:#102b43;border-bottom:1px solid #e8edf0;padding:18px 20px}body.v121-native-score .v901-head h2{color:#102b43!important;font-size:19px!important}body.v121-native-score .v901-head p{color:#70808c;font-size:9px}body.v121-native-score .v901-head .pro-kicker{color:#698093}body.v121-native-score .v901-head .ghost{background:#fff!important;color:#536c7c!important;border-color:#dce4e9!important}body.v121-native-score .v901-toolbar{padding:12px 20px;background:#fff}body.v121-native-score .v901-info{padding:11px 20px;background:#f8fafb}body.v121-native-score .v901-actions{padding:14px 20px}body.v121-native-score .v901-add{padding:12px 20px}body.v121-native-score .v901-validation{margin:10px 20px}body.v121-native-score .v901-foot{padding:12px 20px}
+@media(max-width:1000px){.v121-live-control{grid-template-columns:1fr}.v121-score-actions{min-width:0}.v121-set-summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.v121-live-summary{grid-template-columns:1fr auto 1fr}.v121-rally-context{grid-template-columns:1fr 1fr}.v121-score-actions{grid-template-columns:1fr 58px 1fr}.v121-set-form{grid-template-columns:1fr}.v121-set-summary{grid-template-columns:1fr 1fr}}
+</style>
+
+<div id="v121-new-set-modal" class="v121-modal" onclick="if(event.target===this)v121CloseNewSet()">
+  <div class="v121-modal-card">
+    <div class="v121-modal-head">
+      <div><span class="pro-kicker">SCOUTING PRO · NUEVO SET</span><h2 id="v121-new-set-title">Preparar siguiente set</h2><p>El siguiente parcial se crea directamente en el estado profesional del partido.</p></div>
+      <button onclick="v121CloseNewSet()">Cerrar ×</button>
+    </div>
+    <div class="v121-body">
+      <div id="v121-set-summary" class="v121-set-summary"></div>
+      <div class="v121-set-form">
+        <label><span>Primer saque</span><select id="v121-set-serving"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label>
+        <label><span>Nuestra rotación</span><select id="v121-set-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label>
+        <label><span>Rotación rival</span><select id="v121-set-op-rotation"><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label>
+      </div>
+      <label class="v121-check"><input id="v121-set-review-lineup" type="checkbox" checked> Revisar alineación inmediatamente después de crear el set.</label>
+      <div id="v121-set-notice" class="v121-notice"></div>
+    </div>
+    <div class="v121-foot"><div><button class="ghost" onclick="v121CloseNewSet()">Cancelar</button></div><div><button class="primary" onclick="v121StartNewSet()">Crear siguiente set</button></div></div>
+  </div>
+</div>
+
+<script id="v121-native-score-script">
+(()=>{
+'use strict';
+const VERSION='12.1.0';
+const $=id=>document.getElementById(id), arr=v=>Array.isArray(v)?v:[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||window.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}}
+function setOf(m=active()){try{return window.VC_SCOUT_CORE?.getSet?.(m)||(m?.sets||[]).find(s=>Number(s.number)===Number(m.currentSet))||null}catch(_){return null}}
+function teamName(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Nuestro equipo'}catch(_){return'Nuestro equipo'}}
+function setsScore(m){let us=0,opponent=0;arr(m?.sets).forEach(s=>{if(!s.finished)return;if(Number(s.scoreUs)>Number(s.scoreOpponent))us++;else if(Number(s.scoreOpponent)>Number(s.scoreUs))opponent++});return{us,opponent}}
+function saveState(){try{if(typeof window.scoutSave==='function')window.scoutSave(false);else window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(e){console.warn('V12.1 save',e)}try{window.v900Render?.();window.v120RenderManagement?.()}catch(_){ }setTimeout(render,0)}
+async function protect(reason){try{if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();else if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup(reason,false)}catch(e){console.warn('V12.1 protect',e)}}
+function ensureControl(){
+  const host=$('v120-match-management');if(!host||$('v121-live-control'))return;
+  const node=document.createElement('div');node.id='v121-live-control';node.className='v121-live-control';node.innerHTML=`
+    <div class="v121-live-summary"><div class="v121-live-team"><span>NUESTRO EQUIPO</span><b id="v121-us-name">Equipo</b></div><div class="v121-live-score"><strong id="v121-score">0–0</strong><small id="v121-score-meta">SET 1 · 0–0 sets</small></div><div class="v121-live-team"><span>RIVAL</span><b id="v121-op-name">Rival</b></div></div>
+    <div class="v121-rally-context"><div><span>RALLY</span><b id="v121-rally">1</b><small id="v121-actions">0 acciones</small></div><div><span>SAQUE / FASE</span><b id="v121-service">NUESTRO</b><small id="v121-phase">K2 · Break</small></div><div><span>ROTACIÓN</span><b id="v121-rotation">R1</b><small id="v121-op-rotation">Rival R1</small></div></div>
+    <div class="v121-score-actions"><button class="ours" onclick="v121AwardPoint('ours')"><b>+1</b>PUNTO NUESTRO</button><button class="undo" onclick="v121UndoRally()"><b>↶</b>DESHACER</button><button class="opponent" onclick="v121AwardPoint('opponent')"><b>+1</b>PUNTO RIVAL</button><div class="tools"><button onclick="v121OpenRallyEditor()">Editar rallies</button><button onclick="v120OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v121OpenNewSet()">+ Nuevo set</button></div></div>`;
+  host.insertAdjacentElement('afterend',node);
+}
+function render(){
+  ensureControl();const m=active(),s=setOf(m),box=$('v121-live-control');if(!box)return;box.style.display=m&&s?'grid':'none';if(!m||!s)return;
+  const ss=setsScore(m),rallies=arr(s.rallies).length,actions=arr(m.liveRally?.actions).length;
+  $('v121-us-name').textContent=teamName();$('v121-op-name').textContent=m.opponent||'Rival';$('v121-score').textContent=`${Number(s.scoreUs)||0}–${Number(s.scoreOpponent)||0}`;$('v121-score-meta').textContent=`SET ${s.number} · ${ss.us}–${ss.opponent} sets`;
+  $('v121-rally').textContent=String(rallies+1);$('v121-actions').textContent=`${actions} ${actions===1?'acción':'acciones'}`;$('v121-service').textContent=m.servingTeam==='opponent'?'RIVAL':'NUESTRO';$('v121-phase').textContent=m.servingTeam==='opponent'?'K1 · Side-out':'K2 · Break Point';$('v121-rotation').textContent=`R${Number(m.rotationNo)||1}`;$('v121-op-rotation').textContent=`Rival R${Number(m.opponentRotationNo)||1}`;
+}
+window.v121AwardPoint=async function(winner){
+  winner=winner==='opponent'?'opponent':'ours';const m=active(),s=setOf(m);if(!m||!s)return alert('No hay un set abierto.');if(m.status==='finished'||s.finished)return alert('El set está cerrado. Crea el siguiente set para continuar.');
+  const before=`${Number(s.scoreUs)||0}-${Number(s.scoreOpponent)||0}`;try{const fn=window.scoutAwardPoint;if(typeof fn!=='function')throw new Error('Motor de puntos no disponible');const ok=fn(winner);if(ok===false){render();return false}await protect('v121-point');render();const box=$('v121-live-control');box?.classList.remove('v121-flash');void box?.offsetWidth;box?.classList.add('v121-flash');return true}catch(e){console.error('V12.1 point',e);alert(`No se ha podido registrar el punto desde ${before}. El estado anterior sigue protegido.`);return false}
+};
+window.v121UndoRally=async function(){const m=active(),s=setOf(m);if(!m||!s)return alert('No hay un scouting activo.');if(!arr(s.rallies).length)return alert('No hay rallies cerrados para deshacer.');if(!confirm('¿Deshacer el último rally cerrado y devolver sus acciones al rally actual?'))return false;try{await protect('v121-before-undo');const ok=window.scoutUndoRally?.();if(ok===false){render();return false}await protect('v121-after-undo');render();return true}catch(e){console.error('V12.1 undo',e);alert('No se ha podido deshacer el rally.');return false}};
+window.v121OpenRallyEditor=function(){const m=active();if(!m)return alert('No hay un scouting activo.');try{const ok=window.v901OpenRallyEditor?.();if(ok===false)return false;const sub=$('v901-editor-subtitle');if(sub)sub.textContent=`${teamName()} vs ${m.opponent||'Rival'} · corrige acciones; marcador, ganador y rotaciones quedan protegidos.`;return true}catch(e){console.error(e);alert('No se ha podido abrir el editor profesional de rallies.');return false}};
+window.v121OpenNewSet=function(){const m=active(),s=setOf(m);if(!m||!s)return alert('No hay un scouting activo.');if(m.status==='finished')return alert('El partido está finalizado. Edita el resultado final si necesitas corregirlo.');const next=Number(s.number)+1,score=setsScore(m);$('v121-new-set-title').textContent=`Preparar Set ${next}`;$('v121-set-serving').value=m.servingTeam==='opponent'?'opponent':'ours';$('v121-set-rotation').value=String(Number(m.rotationNo)||1);$('v121-set-op-rotation').value=String(Number(m.opponentRotationNo)||1);$('v121-set-summary').innerHTML=`<div><span>SET ACTUAL</span><b>S${s.number} · ${Number(s.scoreUs)||0}–${Number(s.scoreOpponent)||0}</b></div><div><span>SETS</span><b>${score.us}–${score.opponent}</b></div><div><span>RALLIES</span><b>${arr(s.rallies).length}</b></div><div><span>SIGUIENTE</span><b>Set ${next}</b></div>`;const notice=$('v121-set-notice');if(arr(m.liveRally?.actions).length){notice.innerHTML=`Hay <strong>${arr(m.liveRally.actions).length}</strong> acciones en el rally actual. Debes cerrar o corregir ese rally antes de cambiar de set.`;notice.style.borderLeftColor='#c75151'}else if(!s.finished){notice.innerHTML=`El Set ${s.number} todavía no está cerrado. Usa <strong>Finalizar set</strong> antes de crear el Set ${next}.`;notice.style.borderLeftColor='#d28a31'}else{notice.innerHTML=`Se conservarán todos los rallies, estadísticas, vídeo y eventos del Set ${s.number}. El Set ${next} empezará a <strong>0–0</strong>.`;notice.style.borderLeftColor='#315f84'}$('v121-new-set-modal')?.classList.add('open')};
+window.v121CloseNewSet=()=> $('v121-new-set-modal')?.classList.remove('open');
+window.v121StartNewSet=async function(){const m=active(),s=setOf(m);if(!m||!s)return;if(arr(m.liveRally?.actions).length)return alert('Cierra o corrige el rally actual antes de iniciar otro set.');if(!s.finished)return alert(`Finaliza primero el Set ${s.number}.`);const score=setsScore(m);if(score.us>=3||score.opponent>=3)return alert('El partido ya tiene un ganador por sets. Usa Resultado final para cerrarlo o corregirlo.');const nextNo=Number(s.number)+1;let next=arr(m.sets).find(x=>Number(x.number)===nextNo);if(!next){next=typeof scoutEmptySet==='function'?scoutEmptySet(nextNo):{number:nextNo,scoreUs:0,scoreOpponent:0,finished:false,winner:null,rallies:[],startedAt:new Date().toISOString(),endedAt:null};m.sets.push(next)}m.currentSet=nextNo;m.status='live';m.endedAt=null;m.servingTeam=$('v121-set-serving').value==='opponent'?'opponent':'ours';m.rotationNo=Math.min(6,Math.max(1,Number($('v121-set-rotation').value)||1));m.opponentRotationNo=Math.min(6,Math.max(1,Number($('v121-set-op-rotation').value)||1));if(m.manualFinalResult?.active)m.manualFinalResult={...m.manualFinalResult,active:false,clearedAt:new Date().toISOString()};try{scoutResetLiveRally?.(m)}catch(_){m.liveRally={id:Date.now(),actions:[],startedAt:new Date().toISOString(),startSnapshot:null}};try{scoutClockResume?.(m)}catch(_){ }saveState();await protect('v121-new-set');v121CloseNewSet();if($('v121-set-review-lineup')?.checked)setTimeout(()=>window.v119OpenLineup?.(),70);else setTimeout(()=>window.v900SetPhase?.('scout'),70);render();return true};
+/* Route all historical user entry points to the professional V12.1 controls. */
+window.v954OpenNewSet=window.v121OpenNewSet;
+if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=VERSION;window.VC_SCOUT_CORE.newSet=window.v121OpenNewSet;window.VC_SCOUT_CORE.openRallyEditor=window.v121OpenRallyEditor;window.VC_SCOUT_CORE.professionalPoint=window.v121AwardPoint;window.VC_SCOUT_CORE.professionalUndo=window.v121UndoRally}
+try{const base=window.v900Render;if(typeof base==='function'&&!base.__v121){const wrapped=function(...args){const out=base.apply(this,args);render();return out};wrapped.__v121=true;window.v900Render=wrapped}}catch(_){ }
+try{const base=window.scoutSave;if(typeof base==='function'&&!base.__v121){const wrapped=function(...args){const out=base.apply(this,args);setTimeout(render,0);return out};wrapped.__v121=true;window.scoutSave=wrapped}}catch(_){ }
+document.addEventListener('DOMContentLoaded',()=>{document.body.classList.add('v121-native-score');ensureControl();render()});
+window.VC_V121={version:VERSION,render,point:window.v121AwardPoint,undo:window.v121UndoRally,newSet:window.v121OpenNewSet,rallyEditor:window.v121OpenRallyEditor};
 })();
 </script>
 
