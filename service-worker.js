@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v11.8.0-professional-scouting-v1';
+const CACHE_NAME = 'volley-coach-v12.1.0-native-score-rally-v1';
 
 const APP_SHELL = [
   './',
