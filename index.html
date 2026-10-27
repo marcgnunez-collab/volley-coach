@@ -753,7 +753,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 
 <style id="v6109-gp-style">
-/* ===== V7.0.1 · VIDEO SCOUTING ===== */
+/* ===== V11 · PROFESSIONAL WORKSPACE ===== */
 .scout-v630-table{min-width:2050px!important}.scout-v6109-gp{font-weight:950}.scout-v6109-gp.good{color:#24704d}.scout-v6109-gp.bad{color:#a14440}.scout-v6109-form{font-weight:900;color:#29475f}.scout-v6109-points-strip{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 0 2px}.scout-v6109-points-strip span{display:inline-flex;gap:4px;align-items:center;padding:4px 7px;border:1px solid #dfe6eb;border-radius:999px;background:#fff;color:#5f707d}.scout-v6109-points-strip b{color:#17324d}.scout-v6109-note{font-size:8.5px;color:#6f7e89}.scout-v6109-pdf-table{width:100%;border-collapse:collapse;font-size:8px}.scout-v6109-pdf-table th,.scout-v6109-pdf-table td{padding:5px 4px;border-bottom:1px solid #e7ecef;text-align:center;white-space:nowrap}.scout-v6109-pdf-table th{background:#102b43;color:#fff}.scout-v6109-pdf-table td:first-child,.scout-v6109-pdf-table th:first-child{text-align:left}.scout-v6109-pdf-team td{background:#edf3f7;font-weight:800}
 </style>
 
@@ -785,7 +785,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 @media(max-width:560px){.scout-v700-toolbar label{min-width:100%;}.scout-v700-meta{grid-template-columns:1fr 1fr}.scout-v700-item{grid-template-columns:48px 1fr}.scout-v700-item .actions{grid-column:1/-1;justify-content:flex-end}}
 </style>
 </head>
-<body>
+<body class="v11-shell">
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V7.0.1 · VIDEO SCOUTING</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
@@ -834,7 +834,76 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   </div>
 </div>
 
-<main>
+
+<div id="v11-sidebar-overlay" class="v11-sidebar-overlay" onclick="v11ToggleSidebar(false)"></div>
+
+<aside id="v11-sidebar" class="v11-sidebar" aria-label="Navegación principal">
+  <div class="v11-brand">
+    <div class="v11-logo">V</div>
+    <div><strong>Volley Coach</strong><small>Professional Workspace</small></div>
+  </div>
+
+  <button class="v11-home-button active" data-v11-nav="home" onclick="v11Navigate('home')">
+    <span>⌂</span><div><b>Inicio</b><small>Centro de control</small></div>
+  </button>
+
+  <div class="v11-nav-group">
+    <label>ENTRENAMIENTO</label>
+    <button data-v11-nav="training" onclick="v11Navigate('training')"><span>◇</span><div><b>Entrenamiento</b><small>Sesión y ejercicios</small></div></button>
+    <button data-v11-nav="planning" onclick="v11Navigate('planning')"><span>▦</span><div><b>Planificación</b><small>Semana y temporada</small></div></button>
+    <button data-v11-nav="players" onclick="v11Navigate('players')"><span>◎</span><div><b>Jugadores</b><small>Plantilla y desarrollo</small></div></button>
+  </div>
+
+  <div class="v11-nav-group">
+    <label>SCOUTING</label>
+    <button data-v11-nav="scouting" onclick="v11Navigate('scouting')"><span>⌁</span><div><b>Scouting Pro</b><small>Codificación avanzada</small></div></button>
+    <button data-v11-nav="match" onclick="v11Navigate('match')"><span>◆</span><div><b>Modo Partido</b><small>Directo y marcador</small></div></button>
+    <button data-v11-nav="analysis" onclick="v11Navigate('analysis')"><span>▥</span><div><b>Análisis</b><small>Estadísticas completas</small></div></button>
+    <button data-v11-nav="reports" onclick="v11Navigate('reports')"><span>▤</span><div><b>Informes</b><small>PDF · CSV · JSON</small></div></button>
+  </div>
+
+  <div class="v11-nav-group">
+    <label>VÍDEO</label>
+    <button data-v11-nav="video" onclick="v11Navigate('video')"><span>▶</span><div><b>Vídeo Review</b><small>Live · Delay · Clips</small></div></button>
+  </div>
+
+  <div class="v11-nav-group v11-nav-management">
+    <label>CLUB</label>
+    <button data-v11-nav="management" onclick="v11Navigate('management')"><span>⚙</span><div><b>Gestión</b><small>Equipos y seguridad</small></div></button>
+  </div>
+
+  <div class="v11-sidebar-footer">
+    <div class="v11-team-box">
+      <span>EQUIPO ACTIVO</span>
+      <b id="v11-team-name">—</b>
+      <div>
+        <button id="v11-team-infantil" onclick="v11SetTeam('infantil')">Infantil</button>
+        <button id="v11-team-cadete" onclick="v11SetTeam('cadete')">Cadete</button>
+      </div>
+    </div>
+    <button class="v11-cloud-status" onclick="abrirCloud()">
+      <i id="v11-cloud-dot"></i><span><b id="v11-cloud-label">Nube</b><small>Sincronización</small></span>
+    </button>
+  </div>
+</aside>
+
+<header id="v11-topbar" class="v11-topbar">
+  <div class="v11-topbar-left">
+    <button class="v11-menu-toggle" onclick="v11ToggleSidebar()">☰</button>
+    <div>
+      <span id="v11-breadcrumb">VOLLEY COACH / INICIO</span>
+      <h1 id="v11-page-title">Dashboard principal</h1>
+    </div>
+  </div>
+  <div class="v11-topbar-actions">
+    <button class="v11-quick ghost" onclick="v11QuickTraining()">＋ Entrenamiento</button>
+    <button class="v11-quick ghost" onclick="v11QuickScouting()">＋ Scouting</button>
+    <button class="v11-icon-button" onclick="abrirCloud()" title="Nube">☁</button>
+    <button class="v11-avatar" onclick="v11Navigate('management')" title="Gestión">VC</button>
+  </div>
+</header>
+
+<main id="v11-main"><div id="v11-context-slot"></div>
 <div class="app-toolbar workspace-toolbar">
   <div class="workspace-navigation">
     <div class="workspace-switch" role="tablist" aria-label="Área de trabajo">
@@ -943,7 +1012,84 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   </div>
 </div>
 
+
 <section id="dashboard" class="view active">
+  <div class="v11-home">
+    <div class="v11-home-hero">
+      <div class="v11-home-copy">
+        <span>VOLLEY COACH · WORKSPACE</span>
+        <h2>Hola, entrenador.</h2>
+        <p>Entrenamiento, scouting y vídeo en un único centro de trabajo. Accede a cada área sin duplicar flujos ni perder contexto.</p>
+      </div>
+      <div class="v11-home-actions">
+        <button class="primary" onclick="v11QuickScouting()">＋ Nuevo scouting</button>
+        <button class="ghost" onclick="v11QuickTraining()">＋ Entrenamiento</button>
+      </div>
+    </div>
+
+    <div class="v11-module-grid">
+      <button class="v11-module-card v11-module-training" onclick="v11Navigate('training')">
+        <span class="v11-module-icon">◇</span>
+        <div><small>ENTRENAMIENTO</small><h3>Planifica y dirige sesiones</h3><p>Sesión actual, biblioteca, planificación y desarrollo individual.</p></div>
+        <strong>→</strong>
+      </button>
+      <button class="v11-module-card v11-module-scouting" onclick="v11Navigate('scouting')">
+        <span class="v11-module-icon">⌁</span>
+        <div><small>SCOUTING</small><h3>Registra el partido</h3><p>Scouting Pro, Modo Partido, rotaciones y codificación DataVolley.</p></div>
+        <strong>→</strong>
+      </button>
+      <button class="v11-module-card v11-module-video" onclick="v11Navigate('video')">
+        <span class="v11-module-icon">▶</span>
+        <div><small>VÍDEO</small><h3>Revisa y crea clips</h3><p>Live, Delay, grabación, YouTube y análisis ligado al scouting.</p></div>
+        <strong>→</strong>
+      </button>
+      <button class="v11-module-card v11-module-analysis" onclick="v11Navigate('analysis')">
+        <span class="v11-module-icon">▥</span>
+        <div><small>ANÁLISIS</small><h3>Convierte datos en decisiones</h3><p>G-P, Side-out, Break, rotaciones, ataque, recepción y rival.</p></div>
+        <strong>→</strong>
+      </button>
+    </div>
+
+    <div class="v11-home-grid">
+      <section class="v11-home-panel v11-home-panel-wide">
+        <div class="v11-panel-head">
+          <div><span>ESTADO AHORA</span><h3>Centro de actividad</h3></div>
+          <button class="text-btn" onclick="v11RefreshHome()">Actualizar</button>
+        </div>
+        <div class="v11-status-grid">
+          <div><span>Equipo</span><b id="v11-home-team">—</b><small>equipo activo</small></div>
+          <div><span>Sesión actual</span><b id="v11-home-session-count">0</b><small id="v11-home-session-time">0 min preparados</small></div>
+          <div><span>Scouting</span><b id="v11-home-scout-status">Sin partido</b><small id="v11-home-scout-detail">0 scoutings</small></div>
+          <div><span>Nube</span><b id="v11-home-cloud">—</b><small>estado de sincronización</small></div>
+        </div>
+      </section>
+
+      <section class="v11-home-panel">
+        <div class="v11-panel-head"><div><span>ENTRENAMIENTO</span><h3>Próxima sesión</h3></div><button class="text-btn" onclick="v11Navigate('planning')">Planificación →</button></div>
+        <div id="v11-home-next-training" class="v11-mirror-content">Sin planificación inmediata.</div>
+      </section>
+
+      <section class="v11-home-panel">
+        <div class="v11-panel-head"><div><span>PARTIDO</span><h3>Próximo rival</h3></div><button class="text-btn" onclick="v11Navigate('match')">Modo Partido →</button></div>
+        <div id="v11-home-next-match" class="v11-mirror-content">Sin partido próximo.</div>
+      </section>
+
+      <section class="v11-home-panel">
+        <div class="v11-panel-head"><div><span>ACCESOS RÁPIDOS</span><h3>Herramientas profesionales</h3></div></div>
+        <div class="v11-tool-list">
+          <button onclick="v11Navigate('reports')"><span>▤</span><div><b>Informes</b><small>PDF · CSV · JSON</small></div></button>
+          <button onclick="v11Navigate('players')"><span>◎</span><div><b>Jugadores</b><small>Plantilla y desarrollo</small></div></button>
+          <button onclick="v11Navigate('management')"><span>⚙</span><div><b>Gestión</b><small>Club, nube y seguridad</small></div></button>
+        </div>
+      </section>
+
+      <section class="v11-home-panel">
+        <div class="v11-panel-head"><div><span>ÚLTIMA ACTIVIDAD</span><h3>Entrenamiento</h3></div><button class="text-btn" onclick="showView('historial',botonVista('historial'))">Historial →</button></div>
+        <div id="v11-home-last-training" class="v11-mirror-content">Sin actividad reciente.</div>
+      </section>
+    </div>
+  </div>
+
   <div class="dashboard-hero">
     <div>
       <div class="dashboard-kicker">Centro de trabajo</div>
@@ -996,6 +1142,64 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   </div>
 </section>
 
+
+
+<section id="v11-reports" class="view">
+  <div class="v11-page-head">
+    <div><span>SCOUTING / INFORMES</span><h2>Centro de informes</h2><p>Exporta los datos existentes sin cambiar cálculos ni estructura del scouting.</p></div>
+    <button class="primary" onclick="v11Navigate('analysis')">Abrir Análisis</button>
+  </div>
+
+  <div class="v11-report-grid">
+    <article class="v11-report-card featured">
+      <div class="v11-report-icon">▤</div>
+      <span>INFORME PRINCIPAL</span><h3>PDF Análisis Pro</h3>
+      <p>Resumen completo del partido con estadísticas, rotaciones, recepción, ataque, fases y mapas.</p>
+      <div class="v11-chip-row"><i>G-P</i><i>Side-out</i><i>Break</i><i>9×4</i></div>
+      <button class="primary" onclick="return scoutV752ExportAnalysisPDF()">Generar PDF Análisis Pro</button>
+    </article>
+    <article class="v11-report-card">
+      <div class="v11-report-icon">▦</div>
+      <span>DATA SHEET</span><h3>PDF hoja oficial</h3>
+      <p>Formato compacto con rendimiento individual y resumen estadístico del partido.</p>
+      <button class="ghost" onclick="return scoutV752ExportOfficialPDF()">Generar hoja oficial</button>
+    </article>
+    <article class="v11-report-card">
+      <div class="v11-report-icon">≡</div>
+      <span>DATOS</span><h3>CSV estadístico</h3>
+      <p>Estadística cerrada preparada para Excel o análisis externo.</p>
+      <button class="ghost" onclick="scoutExportStatsCSV()">Descargar CSV estadístico</button>
+    </article>
+    <article class="v11-report-card">
+      <div class="v11-report-icon">⌁</div>
+      <span>ACCIONES</span><h3>CSV acciones</h3>
+      <p>Registro completo de las acciones y campos técnicos codificados.</p>
+      <button class="ghost" onclick="scoutExportCSV()">Descargar CSV acciones</button>
+    </article>
+    <article class="v11-report-card">
+      <div class="v11-report-icon">{ }</div>
+      <span>BACKUP</span><h3>Copia JSON</h3>
+      <p>Copia estructurada completa para recuperación y archivo.</p>
+      <button class="ghost" onclick="scoutExportJSON()">Descargar JSON</button>
+    </article>
+  </div>
+</section>
+
+<section id="v11-management" class="view">
+  <div class="v11-page-head">
+    <div><span>CLUB / GESTIÓN</span><h2>Gestión del entorno</h2><p>Equipos, plantilla, temporada, partidos, recuperación y sincronización.</p></div>
+    <button class="ghost" onclick="abrirCloud()">☁ Configurar nube</button>
+  </div>
+
+  <div class="v11-management-grid">
+    <button onclick="v11Navigate('players')"><span>◎</span><div><b>Plantilla y jugadores</b><small>Estados, desarrollo y seguimiento</small></div><strong>→</strong></button>
+    <button onclick="showView('competicion',botonVista('competicion'))"><span>◆</span><div><b>Partidos</b><small>Calendario y competición</small></div><strong>→</strong></button>
+    <button onclick="showView('scout-season',botonVista('scout-season'))"><span>▦</span><div><b>Temporada</b><small>Histórico y contexto</small></div><strong>→</strong></button>
+    <button onclick="showView('scout-plan',botonVista('scout-plan'))"><span>◇</span><div><b>Plan de partido</b><small>Preparación del rival</small></div><strong>→</strong></button>
+    <button onclick="showView('scout-safe',botonVista('scout-safe'))"><span>⌑</span><div><b>Recuperación</b><small>Copias y seguridad</small></div><strong>→</strong></button>
+    <button onclick="abrirCloud()"><span>☁</span><div><b>Nube</b><small>Sincronización móvil / ordenador</small></div><strong>→</strong></button>
+  </div>
+</section>
 
 <section id="jugadores" class="view">
   <div class="players-pro-shell">
@@ -5484,7 +5688,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=10.0.0', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=11.0.0', {
         updateViaCache: 'none'
       });
 
@@ -27423,4 +27627,258 @@ const viewBase=window.v910SetMatchView;if(typeof viewBase==='function'&&!viewBas
 window.VC_V1000_MATCH_INTELLIGENCE={version:VERSION,render,snapshot:()=>lastSnapshot,compute:(m=match(),scope='match')=>m?makeSnapshot(m,scope):null,diagnostics:()=>({version:VERSION,activeMatchId:match()?.id||null,scope:$('v1000-scope')?.value||'match',rallies:lastSnapshot?.rs?.length||0,actions:lastSnapshot?.all?.length||0,sideout:lastSnapshot?.phases?.sideout||null,break:lastSnapshot?.phases?.break||null,gp:lastSnapshot?.pm?.gp??null,dataSource:'closed rallies / VC_SCOUT_REPORT_BRIDGE',modifiesScouting:false,dataModel:'scoutingMatches>sets>rallies>actions'})};setTimeout(()=>{if($('scout-match-mode')?.classList.contains('active'))render()},0);
 })();
 </script>
+
+
+<style id="v11-professional-shell-style">
+:root{
+  --v11-bg:#f3f7fb;--v11-surface:#fff;--v11-surface-2:#f8fbfd;--v11-line:#dfe8ef;
+  --v11-text:#152f46;--v11-muted:#71879a;--v11-blue:#197fe0;--v11-blue-2:#46a9ef;
+  --v11-green:#2fa473;--v11-red:#da5a63;--v11-orange:#e38b38;--v11-purple:#7869e8;
+  --v11-shadow:0 12px 30px rgba(36,73,102,.08);
+}
+body.v11-shell{background:var(--v11-bg)!important;color:var(--v11-text)!important;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important}
+body.v11-shell>header:not(#v11-topbar){display:none!important}
+body.v11-shell .app-toolbar.workspace-toolbar{display:none!important}
+body.v11-shell #v11-main{margin-left:232px;max-width:none!important;padding:82px 24px 60px!important}
+body.v11-shell #v11-main>.view{max-width:1520px;margin:0 auto}
+body.v11-shell #v11-context-slot{max-width:1520px;margin:0 auto 10px}
+body.v11-shell #v11-context-slot:empty{display:none}
+body.v11-shell #v940-professional-nav{margin:0!important;border-radius:12px!important;box-shadow:var(--v11-shadow)!important}
+body.v11-shell .v940-compat-nav{display:none!important}
+
+.v11-sidebar{position:fixed;left:0;top:0;bottom:0;width:232px;background:#fff;border-right:1px solid var(--v11-line);z-index:100;padding:18px 14px 14px;display:flex;flex-direction:column;box-shadow:8px 0 26px rgba(37,72,98,.05)}
+.v11-brand{display:flex;align-items:center;gap:10px;padding:2px 6px 18px}
+.v11-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1479dc,#4db6f3);color:#fff;display:grid;place-items:center;font-weight:950;font-size:21px;transform:skewX(-7deg);box-shadow:0 9px 18px rgba(25,127,224,.18)}
+.v11-brand strong{display:block;color:#132d45;font-size:15px}.v11-brand small{display:block;color:#8398a8;font-size:7.5px;margin-top:2px;letter-spacing:.04em}
+.v11-home-button,.v11-nav-group button{width:100%;display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:center;text-align:left;background:transparent!important;border:1px solid transparent!important;color:#60798c!important;padding:8px 9px!important;border-radius:9px!important;box-shadow:none!important}
+.v11-home-button>span,.v11-nav-group button>span{font-size:14px;text-align:center;color:#7991a3}
+.v11-home-button b,.v11-nav-group button b{display:block;font-size:8.8px;color:inherit}.v11-home-button small,.v11-nav-group button small{display:block;font-size:6.8px;color:#91a3b0;margin-top:1px}
+.v11-home-button:hover,.v11-nav-group button:hover{background:#f2f8fc!important;color:#25465f!important}
+.v11-home-button.active,.v11-nav-group button.active{background:linear-gradient(135deg,#197fe0,#47aaf0)!important;color:#fff!important;border-color:#60b8f1!important;box-shadow:0 9px 18px rgba(25,127,224,.16)!important}
+.v11-home-button.active>span,.v11-nav-group button.active>span,.v11-home-button.active small,.v11-nav-group button.active small{color:#eef9ff}
+.v11-nav-group{margin-top:13px}.v11-nav-group>label{display:block;padding:0 10px 5px;color:#9aabb7;font-size:6.5px;font-weight:950;letter-spacing:.12em}
+.v11-nav-management{margin-top:auto}
+.v11-sidebar-footer{border-top:1px solid #e8eef3;margin-top:12px;padding-top:12px}
+.v11-team-box{background:#f7fafc;border:1px solid #e1e9ef;border-radius:10px;padding:9px}
+.v11-team-box>span{font-size:6px;color:#8da0ad;font-weight:950;letter-spacing:.1em}.v11-team-box>b{display:block;margin:2px 0 7px;color:#25465e;font-size:9px}
+.v11-team-box>div{display:grid;grid-template-columns:1fr 1fr;gap:3px}.v11-team-box button{font-size:6.8px!important;padding:5px!important;background:#fff!important;color:#6c8293!important;border:1px solid #dde7ee!important}
+.v11-team-box button.active{background:#eaf5fd!important;color:#2374ad!important;border-color:#bcdcf0!important}
+.v11-cloud-status{display:flex!important;align-items:center;gap:8px;width:100%;margin-top:8px;padding:7px!important;background:transparent!important;border:0!important;text-align:left}
+.v11-cloud-status i{width:9px;height:9px;border-radius:50%;background:#adb9c1}.v11-cloud-status i.online{background:#2db47c;box-shadow:0 0 0 3px rgba(45,180,124,.12)}
+.v11-cloud-status span b{display:block;font-size:7.8px;color:#35536a}.v11-cloud-status span small{display:block;font-size:6.5px;color:#8da0ae}
+
+.v11-topbar{position:fixed;left:232px;right:0;top:0;height:66px;z-index:90;background:rgba(249,252,254,.94);border-bottom:1px solid var(--v11-line);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 8px 24px rgba(36,73,102,.05)}
+.v11-topbar-left{display:flex;align-items:center;gap:12px}.v11-menu-toggle{display:none!important}.v11-topbar-left span{display:block;color:#91a2af;font-size:6.4px;letter-spacing:.11em;font-weight:900}.v11-topbar-left h1{margin:2px 0 0!important;color:#17334a!important;font-size:18px!important;letter-spacing:-.02em!important}
+.v11-topbar-actions{display:flex;align-items:center;gap:6px}.v11-quick{font-size:7.4px!important}.v11-icon-button,.v11-avatar{width:34px;height:34px;border-radius:9px!important;background:#fff!important;border:1px solid #dce6ee!important;color:#557084!important;display:grid!important;place-items:center;padding:0!important}
+.v11-avatar{border-radius:50%!important;background:#eaf5fd!important;color:#2374ad!important;font-size:7px!important;font-weight:950!important}
+
+body.v11-shell #dashboard>.dashboard-hero,
+body.v11-shell #dashboard>.dashboard-grid,
+body.v11-shell #dashboard>.dashboard-main-grid,
+body.v11-shell #dashboard>.dashboard-command-grid{display:none!important}
+.v11-home{display:grid;gap:12px}.v11-home-hero{background:linear-gradient(135deg,#fff,#f4f9fd);border:1px solid #dce7ef;border-radius:16px;padding:22px 24px;display:flex;justify-content:space-between;gap:18px;align-items:center;box-shadow:var(--v11-shadow);position:relative;overflow:hidden}
+.v11-home-hero:after{content:"VC";position:absolute;right:25px;bottom:-35px;font:950 112px/1 Inter;color:rgba(25,127,224,.045);letter-spacing:-.08em;pointer-events:none}
+.v11-home-copy{position:relative;z-index:1}.v11-home-copy>span,.v11-page-head span,.v11-panel-head span,.v11-report-card>span{font-size:6.8px;color:#3884bb;letter-spacing:.12em;font-weight:950}.v11-home-copy h2{margin:4px 0 5px;font-size:27px;color:#17334a;letter-spacing:-.03em}.v11-home-copy p{margin:0;max-width:760px;color:#71879a;font-size:9.5px;line-height:1.5}.v11-home-actions{position:relative;z-index:2;display:flex;gap:6px}
+.v11-module-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.v11-module-card{display:grid!important;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;text-align:left;padding:14px!important;background:#fff!important;border:1px solid #dce7ef!important;border-radius:13px!important;box-shadow:0 8px 20px rgba(36,73,102,.06)!important;color:#17334a!important;min-height:112px}.v11-module-card:hover{transform:translateY(-2px)!important;box-shadow:0 14px 28px rgba(36,73,102,.10)!important}.v11-module-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:18px;background:#3089cc}.v11-module-card small{display:block;color:#7d92a2;font-size:6.4px;font-weight:950;letter-spacing:.08em}.v11-module-card h3{font-size:11px;margin:3px 0;color:#17334a}.v11-module-card p{font-size:7.3px;color:#7c91a1;line-height:1.4;margin:0}.v11-module-card>strong{font-size:18px;color:#8ba0af}.v11-module-scouting .v11-module-icon{background:#35a477}.v11-module-video .v11-module-icon{background:#7468df}.v11-module-analysis .v11-module-icon{background:#e08b3c}
+.v11-home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}.v11-home-panel{background:#fff;border:1px solid #dce7ef;border-radius:13px;padding:13px;box-shadow:0 8px 20px rgba(36,73,102,.05);min-width:0}.v11-home-panel-wide{grid-column:1/-1}.v11-panel-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid #e7eef3;padding-bottom:8px;margin-bottom:9px}.v11-panel-head h3{font-size:11px;margin:2px 0;color:#17334a}
+.v11-status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.v11-status-grid>div{background:#f8fbfd;border:1px solid #e2ebf1;border-radius:9px;padding:10px}.v11-status-grid span{display:block;color:#8499a8;font-size:6.4px;font-weight:900}.v11-status-grid b{display:block;color:#17334a;font-size:15px;margin:3px 0}.v11-status-grid small{color:#8499a8;font-size:6.5px}
+.v11-mirror-content{color:#5f788b;font-size:8px;line-height:1.5;min-height:58px}.v11-mirror-content strong,.v11-mirror-content b{color:#17334a}.v11-tool-list{display:grid;gap:5px}.v11-tool-list button{display:grid!important;grid-template-columns:30px 1fr;gap:8px;align-items:center;text-align:left;padding:7px!important;background:#f8fbfd!important;border:1px solid #e2ebf1!important;color:#46647a!important}.v11-tool-list button>span{font-size:13px;color:#3884bb}.v11-tool-list b{display:block;font-size:8px;color:#24445b}.v11-tool-list small{display:block;font-size:6.5px;color:#8ca0ae}
+
+.v11-page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;background:#fff;border:1px solid #dce7ef;border-radius:14px;padding:18px 20px;box-shadow:var(--v11-shadow);margin-bottom:10px}.v11-page-head h2{font-size:22px;margin:3px 0 4px;color:#17334a}.v11-page-head p{font-size:9px;color:#71879a;margin:0}
+.v11-report-grid{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:9px}.v11-report-card{background:#fff;border:1px solid #dce7ef;border-radius:13px;padding:16px;box-shadow:0 8px 22px rgba(36,73,102,.06);display:flex;flex-direction:column;min-height:225px}.v11-report-card.featured{grid-row:span 2;background:linear-gradient(145deg,#fff,#f2f9fd);border-color:#c9e1f0}.v11-report-icon{width:42px;height:42px;border-radius:10px;background:#eaf5fd;color:#2b7fb9;display:grid;place-items:center;font-size:15px;font-weight:950;margin-bottom:10px}.v11-report-card h3{font-size:15px;margin:4px 0;color:#17334a}.v11-report-card p{font-size:8px;color:#71879a;line-height:1.45;flex:1}.v11-chip-row{display:flex;gap:4px;flex-wrap:wrap;margin:7px 0 12px}.v11-chip-row i{font-style:normal;font-size:6.4px;padding:4px 6px;border-radius:999px;background:#edf6fb;color:#4f7690;border:1px solid #d6e8f2}
+.v11-management-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.v11-management-grid>button{display:grid!important;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;text-align:left;padding:16px!important;min-height:105px;background:#fff!important;border:1px solid #dce7ef!important;color:#35556c!important;box-shadow:0 8px 22px rgba(36,73,102,.05)!important}.v11-management-grid>button>span{width:40px;height:40px;border-radius:10px;background:#edf6fb;color:#2d7daf;display:grid;place-items:center;font-size:15px}.v11-management-grid b{display:block;font-size:10px;color:#17334a}.v11-management-grid small{display:block;font-size:7px;color:#8499a8;margin-top:2px}.v11-management-grid strong{font-size:17px;color:#8ca1b0}
+
+body.v11-shell .panel,body.v11-shell .players-pro-shell,body.v11-shell .session-panel,body.v11-shell .scout-home-panel,body.v11-shell .scout-analysis-panel,body.v11-shell .v900-card,body.v11-shell .v800-card,body.v11-shell .v800-last-card,body.v11-shell .v1000-card{box-shadow:0 8px 22px rgba(36,73,102,.055)!important}
+body.v11-shell .view{scroll-margin-top:82px}
+
+.v11-sidebar-overlay{display:none}
+@media(max-width:1050px){.v11-module-grid{grid-template-columns:1fr 1fr}.v11-home-grid{grid-template-columns:1fr 1fr}.v11-report-grid{grid-template-columns:1fr 1fr}.v11-report-card.featured{grid-row:auto}.v11-management-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:860px){
+  body.v11-shell #v11-main{margin-left:0;padding:76px 10px 45px!important}
+  .v11-sidebar{transform:translateX(-105%);transition:transform .2s ease;box-shadow:16px 0 40px rgba(20,45,64,.18)}.v11-sidebar.open{transform:none}
+  .v11-sidebar-overlay{position:fixed;inset:0;background:rgba(17,39,56,.24);z-index:99}.v11-sidebar-overlay.open{display:block}
+  .v11-topbar{left:0;height:64px;padding:0 11px}.v11-menu-toggle{display:grid!important;width:34px;height:34px;padding:0!important;place-items:center;background:#fff!important;border:1px solid #dce6ee!important}
+  .v11-topbar-actions .v11-quick{display:none!important}.v11-home-hero{padding:17px;align-items:flex-start}.v11-home-copy h2{font-size:22px}.v11-home-actions{flex-direction:column}.v11-status-grid{grid-template-columns:1fr 1fr}.v11-management-grid{grid-template-columns:1fr}
+}
+@media(max-width:580px){.v11-module-grid,.v11-home-grid,.v11-report-grid{grid-template-columns:1fr}.v11-home-panel-wide{grid-column:auto}.v11-home-hero{flex-direction:column}.v11-home-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.v11-status-grid{grid-template-columns:1fr 1fr}.v11-page-head{align-items:flex-start;flex-direction:column}.v11-topbar-left h1{font-size:15px!important}.v11-topbar-actions{gap:3px}}
+</style>
+
+
+
+<script id="v11-professional-shell-runtime">
+(()=>{
+'use strict';
+const VERSION='11.0.0';
+const $=id=>document.getElementById(id);
+const VIEW_META={
+  dashboard:['home','VOLLEY COACH / INICIO','Dashboard principal'],
+  entrenamiento:['training','ENTRENAMIENTO / SESIÓN','Entrenamiento'],
+  planificacion:['planning','ENTRENAMIENTO / PLANIFICACIÓN','Planificación'],
+  ejercicios:['training','ENTRENAMIENTO / BIBLIOTECA','Biblioteca de ejercicios'],
+  jugadores:['players','ENTRENAMIENTO / PLANTILLA','Jugadores'],
+  historial:['training','ENTRENAMIENTO / HISTORIAL','Historial'],
+  estadisticas:['training','ENTRENAMIENTO / ESTADÍSTICAS','Estadísticas de entrenamiento'],
+  'scout-dashboard':['scouting','SCOUTING / INICIO','Scouting'],
+  'scout-workspace-v900':['scouting','SCOUTING / CODIFICACIÓN','Scouting Pro'],
+  scouting:['scouting','SCOUTING / CLÁSICO','Scouting'],
+  'scout-match-mode':['match','SCOUTING / PARTIDO','Modo Partido'],
+  'scout-analysis':['analysis','SCOUTING / ANÁLISIS','Análisis y estadísticas'],
+  'scout-video-hub':['video','VÍDEO / REVIEW','Vídeo Review'],
+  'v11-reports':['reports','SCOUTING / INFORMES','Informes'],
+  'v11-management':['management','CLUB / GESTIÓN','Gestión'],
+  competicion:['management','CLUB / PARTIDOS','Partidos'],
+  'scout-plan':['management','CLUB / PLAN DE PARTIDO','Plan de partido'],
+  'scout-matchup':['management','CLUB / MATCH-UP','Match-up'],
+  'scout-safe':['management','CLUB / SEGURIDAD','Recuperación y seguridad'],
+  'scout-season':['management','CLUB / TEMPORADA','Temporada'],
+  'scout-postmatch':['analysis','SCOUTING / POSTPARTIDO','Postpartido']
+};
+
+function setNavActive(key){
+  document.querySelectorAll('[data-v11-nav]').forEach(b=>b.classList.toggle('active',b.dataset.v11Nav===key));
+}
+function updatePage(id){
+  const meta=VIEW_META[id]||['home','VOLLEY COACH','Volley Coach'];
+  setNavActive(meta[0]);
+  if($('v11-breadcrumb'))$('v11-breadcrumb').textContent=meta[1];
+  if($('v11-page-title'))$('v11-page-title').textContent=meta[2];
+  if(window.innerWidth<=860)v11ToggleSidebar(false);
+  moveProfessionalNav(id);
+}
+function moveProfessionalNav(id){
+  const nav=$('v940-professional-nav'),slot=$('v11-context-slot');
+  if(!nav||!slot)return;
+  const scouting=['scout-dashboard','scout-match-mode','scout-workspace-v900','scouting','scout-analysis','scout-video-hub','scout-safe','scout-plan','scout-matchup','scout-postmatch','scout-season','competicion'].includes(id);
+  if(nav.parentElement!==slot)slot.appendChild(nav);
+  nav.classList.toggle('hidden',!scouting);
+}
+function view(id){
+  try{return window.showView?.(id,window.botonVista?.(id)||null)}catch(err){console.warn('V11 navigation',id,err)}
+}
+window.v11Navigate=function(target){
+  const map={
+    home:'dashboard',training:'entrenamiento',planning:'planificacion',players:'jugadores',
+    scouting:'scout-workspace-v900',match:'scout-match-mode',video:'scout-video-hub',
+    analysis:'scout-analysis',reports:'v11-reports',management:'v11-management'
+  };
+  const id=map[target]||'dashboard';
+  if(['scout-workspace-v900','scout-match-mode','scout-analysis'].includes(id)){
+    try{window.openWorkspace?.('scouting')}catch(_){}
+  }else if(id==='scout-video-hub'){
+    try{window.openWorkspace?.('video')}catch(_){}
+  }else if(!id.startsWith('v11-')){
+    try{window.openWorkspace?.('training')}catch(_){}
+  }
+  view(id);updatePage(id);
+  if(id==='dashboard')setTimeout(v11RefreshHome,40);
+};
+window.v11QuickTraining=function(){
+  v11Navigate('training');
+  setTimeout(()=>{try{window.nuevaSesionVacia?.()}catch(_){}},80);
+};
+window.v11QuickScouting=function(){
+  try{window.scoutOpenNewMatch?.()}catch(_){v11Navigate('scouting')}
+};
+window.v11ToggleSidebar=function(force){
+  const side=$('v11-sidebar'),overlay=$('v11-sidebar-overlay');if(!side)return;
+  const open=typeof force==='boolean'?force:!side.classList.contains('open');
+  side.classList.toggle('open',open);overlay?.classList.toggle('open',open);
+};
+window.v11SetTeam=function(id){
+  try{window.cambiarEquipo?.(id)}catch(_){}
+  setTimeout(v11RefreshShell,40);
+};
+function cleanMirror(node){
+  if(!node)return '';
+  const text=String(node.innerText||node.textContent||'').replace(/\s+/g,' ').trim();
+  return text.slice(0,320);
+}
+function copyMirror(sourceId,targetId,fallback){
+  const target=$(targetId);if(!target)return;
+  const text=cleanMirror($(sourceId));
+  target.textContent=text||fallback;
+}
+window.v11RefreshHome=function(){
+  copyMirror('dash-next-plan','v11-home-next-training','Sin planificación inmediata.');
+  copyMirror('dash-next-match','v11-home-next-match','Sin partido próximo.');
+  copyMirror('dash-last-session','v11-home-last-training','Sin actividad reciente.');
+  if($('v11-home-session-count'))$('v11-home-session-count').textContent=$('dash-current-count')?.textContent||'0';
+  if($('v11-home-session-time'))$('v11-home-session-time').textContent=$('dash-current-time')?.textContent||'0 min preparados';
+  if($('v11-home-team'))$('v11-home-team').textContent=$('team-active-name')?.textContent||'—';
+  const matches=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[];
+  const active=window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.();
+  if($('v11-home-scout-status'))$('v11-home-scout-status').textContent=active?`vs ${active.opponent||'Rival'}`:'Sin partido';
+  if($('v11-home-scout-detail'))$('v11-home-scout-detail').textContent=`${matches.length} scouting${matches.length===1?'':'s'} guardado${matches.length===1?'':'s'}`;
+  const cloudText=$('cloud-label')?.textContent||'Nube';
+  if($('v11-home-cloud'))$('v11-home-cloud').textContent=cloudText;
+};
+window.v11RefreshShell=function(){
+  const name=$('team-active-name')?.textContent||'Equipo';
+  if($('v11-team-name'))$('v11-team-name').textContent=name;
+  if($('v11-team-infantil'))$('v11-team-infantil').classList.toggle('active',$('team-btn-infantil')?.classList.contains('active'));
+  if($('v11-team-cadete'))$('v11-team-cadete').classList.toggle('active',$('team-btn-cadete')?.classList.contains('active'));
+  const cloud=$('cloud-label')?.textContent||'Nube';
+  if($('v11-cloud-label'))$('v11-cloud-label').textContent=cloud;
+  const online=$('cloud-dot')?.classList.contains('online')||String(cloud).toLowerCase().includes('conect');
+  $('v11-cloud-dot')?.classList.toggle('online',!!online);
+  v11RefreshHome();
+};
+
+const showBase=window.showView;
+if(typeof showBase==='function'&&!showBase.__v11){
+  const wrapped=function(id,btn){
+    const out=showBase.apply(this,arguments);
+    updatePage(id);
+    if(id==='dashboard')setTimeout(v11RefreshHome,50);
+    return out;
+  };
+  wrapped.__v11=true;window.showView=wrapped;
+}
+const teamBase=window.cambiarEquipo;
+if(typeof teamBase==='function'&&!teamBase.__v11){
+  const wrapped=function(...args){
+    const out=teamBase.apply(this,args);
+    setTimeout(v11RefreshShell,50);return out;
+  };
+  wrapped.__v11=true;window.cambiarEquipo=wrapped;
+}
+const dashboardBase=window.renderDashboard;
+if(typeof dashboardBase==='function'&&!dashboardBase.__v11){
+  const wrapped=function(...args){
+    const out=dashboardBase.apply(this,args);
+    setTimeout(v11RefreshHome,30);return out;
+  };
+  wrapped.__v11=true;window.renderDashboard=wrapped;
+}
+
+['cloud-label','cloud-dot','team-active-name'].forEach(id=>{
+  const el=$(id);if(!el)return;
+  new MutationObserver(()=>v11RefreshShell()).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
+});
+
+setTimeout(()=>{
+  moveProfessionalNav(document.querySelector('.view.active')?.id||'dashboard');
+  updatePage(document.querySelector('.view.active')?.id||'dashboard');
+  v11RefreshShell();
+},0);
+
+window.VC_V11_SHELL={
+  version:VERSION,
+  navigate:window.v11Navigate,
+  refresh:v11RefreshShell,
+  diagnostics:()=>({
+    version:VERSION,
+    sidebar:!!$('v11-sidebar'),
+    topbar:!!$('v11-topbar'),
+    home:!!document.querySelector('.v11-home'),
+    reports:!!$('v11-reports'),
+    management:!!$('v11-management'),
+    dataModelChanged:false,
+    legacyNavigationPreserved:true,
+    intelligenceV10Primary:false
+  })
+};
+})();
+</script>
+
 </body></html>
