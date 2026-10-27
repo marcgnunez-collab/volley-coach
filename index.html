@@ -791,7 +791,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
     <h2>☁️ Sincronización entre dispositivos</h2>
-    <div id="cloud-status" class="cloud-status-box">No configurado.</div>
+    <div id="cloud-status" class="cloud-status-box">No configurado.</div><div class="v962-cloud-note">⚡ Cloud Efficient · Journal inmediato · nube agrupada · comprobación de respaldo cada 2 min</div>
     <hr class="cloud-separator">
     <div id="cloud-config" class="cloud-grid">
       <b>1. Conectar Supabase</b>
@@ -4252,7 +4252,7 @@ async function initCloud(){
   const {data:{session}}=await cloudClient.auth.getSession();
   cloudUser=session?.user||null;
   if(cloudUser){setCloudUI('online','Nube conectada · modo seguro')}else setCloudUI('', 'Nube lista · inicia sesión');
-  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada · sincronización activa');if(event==='SIGNED_IN')setTimeout(()=>{try{window.v957SyncScoutingsNow?.()}catch(_){}},250)}else setCloudUI('', 'Nube desconectada')});
+  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada · sincronización eficiente');if(event==='SIGNED_IN')setTimeout(()=>{try{window.v962ForceSync?.('login')}catch(_){}},350)}else setCloudUI('', 'Nube desconectada')});
 }
 async function cloudSignup(){
   if(!cloudClient&& !crearCloudClient()){alert('Primero configura Supabase.');return}
@@ -4302,7 +4302,7 @@ async function bajarNube(manual=false){
   aplicarEstadoCloud(data.state);localStorage.setItem('volleyCloudLastSync',data.updated_at||'');setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Datos sincronizados';
   if(manual)alert('Datos descargados de la nube.')
 }
-window.addEventListener('online',()=>{if(cloudUser)subirNube(false)});
+window.addEventListener('online',()=>{if(cloudUser){try{window.v962CloudOnline?.()}catch(_){programarSubidaCloud()}}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)actualizarEstadoCloud()}});
 
 
@@ -5447,7 +5447,7 @@ if ('serviceWorker' in navigator) {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.6.1', {
+      const registration = await navigator.serviceWorker.register('./service-worker.js?v=9.6.2', {
         updateViaCache: 'none'
       });
 
@@ -25304,7 +25304,8 @@ async function forceSave(silent=false){
     else if(typeof guardarEstadoLocalSinCloud==='function')guardarEstadoLocalSinCloud();
     try{clearTimeout(cloudSaveTimer);cloudSaveTimer=null}catch(_){}
     if(typeof subirNube==='function'&&typeof cloudUser!=='undefined'&&cloudUser&&navigator.onLine){
-      await subirNube(false);
+      if(typeof window.v962ForceSync==='function')await window.v962ForceSync('force-save');
+      else await subirNube(false);
       if(!silent){
         const b=document.getElementById('scout-save-badge');
         if(b)b.textContent='Guardado local + nube ✓';
@@ -25845,23 +25846,19 @@ if(typeof uploadBase==='function'&&!uploadBase.__v953){
 
 /* Manual download now means merge, not destructive replacement. */
 window.v953SyncNow=async function(){
+  if(typeof window.v962ForceSync==='function')return window.v962ForceSync('manual');
   const changed=await pullRemote({force:true,render:true});
   if(typeof subirNube==='function')await subirNube(false);
-  if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent=changed?'✓ Nube fusionada · móvil/ordenador actualizados':'✓ Nube comprobada · sin cambios nuevos';
   return changed;
 };
 
-/* Keep devices fresh without making rendering expensive. */
+/* V9.6.2: database polling is centralized in the Cloud Efficient engine.
+   Keep the legacy function as a harmless compatibility no-op. */
 function startPolling(){
   clearInterval(pollTimer);
-  pollTimer=setInterval(()=>{
-    if(document.visibilityState==='visible')void pullRemote({force:false,render:true});
-  },15000);
+  pollTimer=null;
 }
 startPolling();
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible')void pullRemote({force:false,render:true});
-});
 
 /* Training/Planning buttons: normalize type and ensure the active view accepts clicks. */
 function repairButtons(){
@@ -25886,7 +25883,7 @@ window.VC_V953_TRAINING_SYNC={
     plans:(equiposData?.[equipoActivo]?.planificacion||[]).length,
     history:(equiposData?.[equipoActivo]?.historial||[]).length,
     scoutings:(equiposData?.[equipoActivo]?.scoutingMatches||[]).length,
-    pollingSeconds:15,
+    pollingSeconds:null,
     navigationBlockedByScouting:false
   })
 };
@@ -26784,11 +26781,9 @@ async function syncCanonical({upload=true,quiet=false}={}){
 window.v957SyncScoutingsNow=()=>syncCanonical({upload:true,quiet:false});
 window.v956SyncScoutingsNow=window.v957SyncScoutingsNow;
 
-/* Automatic canonical pull is lightweight and never overlaps itself. */
-setTimeout(()=>void syncCanonical({upload:true,quiet:true}),1200);
-const canonicalTimer=setInterval(()=>{
-  if(document.visibilityState==='visible')void syncCanonical({upload:true,quiet:true});
-},12000);
+/* V9.6.2: automatic Supabase traffic is centralized below.
+   V9.5.7 canonical merge functions remain available for compatibility/manual recovery. */
+const canonicalTimer=null;
 
 /* ---- Clock lifecycle: only count while an editing surface of that scouting is open. ---- */
 const editingViews=new Set(['scout-match-mode','scout-workspace-v900','scouting']);
@@ -27029,6 +27024,309 @@ const badge=document.getElementById('scout-v753-pdf-ready');if(badge){badge.text
 
 <style id="v961-data-integrity-style">
 .v961-data-integrity{display:grid;grid-template-columns:1.3fr repeat(3,minmax(110px,.7fr));gap:1px;background:#dfe6ea;border:1px solid #dfe6ea;border-radius:10px;overflow:hidden}.v961-data-integrity>div{background:#fff;padding:8px 10px}.v961-data-integrity span{display:block;font-size:7px;font-weight:900;letter-spacing:.07em;color:#7a8994}.v961-data-integrity b{display:block;font-size:12px;color:#17324d;margin-top:2px}.v961-data-integrity b.ok{color:#2e6846}.v961-data-integrity b.warn{color:#a86422}.v961-data-integrity small{grid-column:1/-1;background:#f7f9fa;padding:7px 10px;color:#657783;font-size:8px}@media(max-width:760px){.v961-data-integrity{grid-template-columns:1fr 1fr}.v961-data-integrity>div:first-child{grid-column:1/-1}}
+</style>
+
+
+
+<script id="v962-cloud-efficient-runtime">
+(()=>{
+'use strict';
+const VERSION='9.6.2';
+const PASSIVE_INTERVAL_MS=120000;     // one DB check every 2 min while visible
+const VISIBLE_MIN_GAP_MS=30000;       // don't re-read repeatedly on tab switching
+const QUIET_SCOUT_MS=8000;            // batch rapid scouting actions
+const QUIET_NORMAL_MS=5000;           // batch training/planning changes
+const MAX_DIRTY_SCOUT_MS=30000;       // cloud checkpoint at least every 30s if continuously active
+const MAX_DIRTY_NORMAL_MS=20000;
+
+let dirty=false;
+let dirtySince=0;
+let dirtyTimer=null;
+let syncPromise=null;
+let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
+let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
+let lastUploadedHash=localStorage.getItem('v962_last_uploaded_hash')||'';
+let reads=Number(sessionStorage.getItem('v962_reads'))||0;
+let writes=Number(sessionStorage.getItem('v962_writes'))||0;
+let skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
+
+function persistCounters(){
+  try{
+    sessionStorage.setItem('v962_reads',String(reads));
+    sessionStorage.setItem('v962_writes',String(writes));
+    sessionStorage.setItem('v962_skipped_writes',String(skippedWrites));
+  }catch(_){}
+}
+function connected(){
+  try{return !!cloudClient&&!!cloudUser&&navigator.onLine}catch(_){return false}
+}
+function activeScouting(){
+  try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}
+}
+function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
+function stableStringify(value){
+  const seen=new WeakSet();
+  function walk(v){
+    if(v===null||typeof v!=='object')return v;
+    if(seen.has(v))return null;
+    seen.add(v);
+    if(Array.isArray(v))return v.map(walk);
+    const out={};
+    Object.keys(v).sort().forEach(k=>{out[k]=walk(v[k])});
+    return out;
+  }
+  return JSON.stringify(walk(value));
+}
+function hashString(str){
+  let h1=0x811c9dc5,h2=0x9e3779b9;
+  for(let i=0;i<str.length;i++){
+    const c=str.charCodeAt(i);
+    h1=Math.imul(h1^c,16777619);
+    h2=Math.imul(h2^c,2246822519);
+  }
+  return (h1>>>0).toString(36)+(h2>>>0).toString(36)+':'+str.length;
+}
+function stateHash(state){
+  const copy=clone(state||{});
+  /* estadoLocal() creates a fresh top-level updatedAt on every call.
+     Ignore only this volatile root marker; nested updatedAt fields are real data. */
+  if(copy&&typeof copy==='object')delete copy.updatedAt;
+  return hashString(stableStringify(copy));
+}
+function localState(){
+  return typeof estadoLocal==='function'?estadoLocal():null;
+}
+function setStatus(text,kind='online'){
+  try{setCloudUI?.(kind,text)}catch(_){}
+}
+function markDirty(reason='change'){
+  if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;
+  dirty=true;
+  if(!dirtySince)dirtySince=Date.now();
+  scheduleDirty(reason);
+  return true;
+}
+function scheduleDirty(reason='change'){
+  if(!dirty||!connected())return;
+  clearTimeout(dirtyTimer);
+  const scout=activeScouting();
+  const quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS;
+  const max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS;
+  const elapsed=Math.max(0,Date.now()-dirtySince);
+  const delay=Math.max(500,Math.min(quiet,max-elapsed));
+  dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,manual:false,allowWrite:true}),delay);
+}
+async function readRemote(){
+  if(!connected())return null;
+  const {data,error}=await cloudClient.from('volley_state')
+    .select('state,updated_at')
+    .eq('user_id',cloudUser.id)
+    .maybeSingle();
+  reads++;persistCounters();
+  lastReadAt=Date.now();
+  try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){}
+  if(error)throw error;
+  return data||null;
+}
+async function writeRemote(state){
+  const updatedAt=new Date().toISOString();
+  const {error}=await cloudClient.from('volley_state').upsert(
+    {user_id:cloudUser.id,state,updated_at:updatedAt},
+    {onConflict:'user_id'}
+  );
+  writes++;persistCounters();
+  if(error)throw error;
+  lastWriteAt=Date.now();
+  try{
+    localStorage.setItem('volleyCloudLastSync',updatedAt);
+    localStorage.setItem('v962_last_write_at',String(lastWriteAt));
+  }catch(_){}
+  return updatedAt;
+}
+function renderAfterMerge(){
+  try{
+    cargarEquipoEnVariables?.(equipoActivo);
+    cargarMeta?.();renderizarSesion?.();renderPlanificacion?.();renderHistorial?.();renderStats?.();renderDashboard?.();
+  }catch(_){}
+  try{window.scoutRenderHome?.()}catch(_){}
+  try{window.scoutRender?.()}catch(_){}
+  if(document.getElementById('scout-analysis')?.classList.contains('active')){
+    try{window.scoutRenderAnalysis?.()}catch(_){}
+  }
+}
+async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
+  if(syncPromise)return syncPromise;
+  if(!connected()){
+    if(manual)alert('La nube no está conectada.');
+    return false;
+  }
+  clearTimeout(dirtyTimer);dirtyTimer=null;
+
+  syncPromise=(async()=>{
+    setStatus(manual?'Sincronizando…':'Nube · comprobando…','syncing');
+    try{
+      const localBefore=localState();
+      const beforeHash=stateHash(localBefore);
+      const remote=await readRemote();
+
+      if(remote?.state){
+        /* aplicarEstadoCloud already includes all no-loss merges added in
+           V8.9–V9.5.7: training, planning, scouting and scoutingSyncIndex. */
+        window.aplicarEstadoCloud?.(remote.state);
+      }
+
+      const merged=localState();
+      const mergedHash=stateHash(merged);
+      const remoteHash=remote?.state?stateHash(remote.state):'';
+      const mustWrite=allowWrite&&!pullOnly&&(!remote?.state||mergedHash!==remoteHash);
+
+      if(mustWrite){
+        await writeRemote(merged);
+        lastUploadedHash=mergedHash;
+        try{localStorage.setItem('v962_last_uploaded_hash',lastUploadedHash)}catch(_){}
+      }else{
+        skippedWrites++;persistCounters();
+      }
+
+      dirty=false;dirtySince=0;
+      renderAfterMerge();
+
+      const changed=beforeHash!==mergedHash;
+      const status=document.getElementById('v956-scout-sync-status');
+      const scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
+      if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · sincronizados ✓`;
+      setStatus(mustWrite?'Nube sincronizada':'Nube al día','online');
+      const indicator=document.getElementById('save-indicator');
+      if(indicator)indicator.textContent=mustWrite?'✓ Guardado y sincronizado':'✓ Guardado · nube al día';
+
+      if(manual){
+        alert(mustWrite
+          ?'Datos fusionados y sincronizados con la nube.'
+          :'Nube comprobada. No había cambios que subir.');
+      }
+      return changed||mustWrite;
+    }catch(err){
+      console.warn('V9.6.2 cloud efficient sync',reason,err);
+      setStatus('Error de sincronización','error');
+      if(manual)alert(err?.message||'No se pudo sincronizar con la nube.');
+      /* Preserve dirty state so the next reconnect/check retries. */
+      if(reason.startsWith('dirty')||dirty)markDirty('retry');
+      return false;
+    }finally{
+      syncPromise=null;
+    }
+  })();
+  return syncPromise;
+}
+async function forceSync(reason='manual'){
+  dirty=true;
+  if(!dirtySince)dirtySince=Date.now();
+  return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true});
+}
+async function pullOnly(reason='download'){
+  return sync({reason,manual:true,allowWrite:false,pullOnly:true});
+}
+function visibilitySync(){
+  if(document.visibilityState!=='visible'||!connected())return;
+  const age=Date.now()-lastReadAt;
+  if(dirty){
+    void sync({reason:'visible-dirty',manual:false,allowWrite:true});
+  }else if(age>=VISIBLE_MIN_GAP_MS){
+    void sync({reason:'visible',manual:false,allowWrite:true});
+  }
+}
+function onOnline(){
+  if(!connected())return;
+  if(dirty||Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS){
+    void sync({reason:'online',manual:false,allowWrite:true});
+  }
+}
+
+/* Replace all future autosave scheduling with one batching queue. */
+const legacySchedule=window.programarSubidaCloud;
+const efficientSchedule=function(){return markDirty('autosave')};
+window.programarSubidaCloud=efficientSchedule;
+try{programarSubidaCloud=efficientSchedule}catch(_){}
+
+/* Replace legacy direct uploads. Non-manual calls are scheduled; explicit
+   "Subir este dispositivo" remains immediate but performs a SAFE merge first. */
+const efficientUpload=function(manual=false){
+  if(manual)return sync({reason:'manual-upload',manual:true,allowWrite:true});
+  markDirty('legacy-upload');
+  return Promise.resolve(true);
+};
+window.subirNube=efficientUpload;
+try{subirNube=efficientUpload}catch(_){}
+
+/* Download button remains available, but merges instead of destructive replace. */
+const efficientDownload=function(manual=false){
+  return sync({reason:'manual-download',manual:!!manual,allowWrite:false,pullOnly:true});
+};
+window.bajarNube=efficientDownload;
+try{bajarNube=efficientDownload}catch(_){}
+
+/* All historical "sync" buttons now use exactly the same engine. */
+window.v962ForceSync=forceSync;
+window.v962CloudOnline=onOnline;
+window.v953SyncNow=()=>sync({reason:'manual',manual:true,allowWrite:true});
+window.v956SyncScoutingsNow=()=>sync({reason:'manual-scout',manual:true,allowWrite:true});
+window.v957SyncScoutingsNow=window.v956SyncScoutingsNow;
+
+/* One passive timer only. No 12 s + 15 s duplicate polling. */
+const passiveTimer=setInterval(()=>{
+  if(document.visibilityState==='visible'&&connected()){
+    if(dirty)void sync({reason:'passive-dirty',manual:false,allowWrite:true});
+    else void sync({reason:'passive',manual:false,allowWrite:true});
+  }
+},PASSIVE_INTERVAL_MS);
+
+document.addEventListener('visibilitychange',visibilitySync);
+
+/* Initial merge once the auth state has had time to settle. */
+setTimeout(()=>{
+  if(connected())void sync({reason:'startup',manual:false,allowWrite:true});
+},1800);
+
+/* If local edits occurred before this runtime loaded, mark the current state
+   only when a later save hook fires; do not create an unnecessary startup write. */
+
+window.VC_V962_CLOUD_EFFICIENT={
+  version:VERSION,
+  markDirty,
+  sync,
+  forceSync,
+  stateHash,
+  diagnostics:()=>({
+    version:VERSION,
+    connected:connected(),
+    dirty,
+    dirtySince:dirtySince||null,
+    syncing:!!syncPromise,
+    lastReadAt:lastReadAt||null,
+    lastWriteAt:lastWriteAt||null,
+    readsThisSession:reads,
+    writesThisSession:writes,
+    skippedWritesThisSession:skippedWrites,
+    passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,
+    visibleMinGapSeconds:VISIBLE_MIN_GAP_MS/1000,
+    scoutingQuietSeconds:QUIET_SCOUT_MS/1000,
+    scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,
+    normalQuietSeconds:QUIET_NORMAL_MS/1000,
+    normalMaxBatchSeconds:MAX_DIRTY_NORMAL_MS/1000,
+    journalImmediate:true,
+    duplicateLegacyPolling:false
+  })
+};
+})();
+</script>
+
+
+
+<style id="v962-cloud-efficient-style">
+.v962-cloud-note{
+  margin-top:7px;padding:7px 9px;border:1px solid #dfe6ea;border-radius:8px;
+  background:#f7f9fa;color:#657783;font-size:8px;line-height:1.35
+}
 </style>
 
 </body></html>
