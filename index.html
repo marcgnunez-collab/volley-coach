@@ -26213,10 +26213,36 @@ const badge=document.getElementById('scout-v753-pdf-ready');if(badge){badge.text
 
 
 
+<script id="v1602-safe-checkpoint">
+/* V16.0.2: persistent pre-upload recovery checkpoint. No data leaves this browser. */
+(function(){
+ 'use strict';
+ const DB='vc-v1602-recovery',STORE='snapshots';
+ let dbPromise=null,lastError='',lastCheckpoint=null;
+ function open(){if(!('indexedDB' in window))return Promise.reject(new Error('IndexedDB no disponible'));if(!dbPromise)dbPromise=new Promise((resolve,reject)=>{const q=indexedDB.open(DB,1);q.onupgradeneeded=()=>{const d=q.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'})};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error||new Error('Error de IndexedDB'))});return dbPromise}
+ async function checkpoint(state,reason){try{const db=await open();const record={id:'latest',at:new Date().toISOString(),reason:String(reason||'sync'),state};await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(record);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)});lastCheckpoint=record.at;lastError='';return true}catch(e){lastError=String(e?.message||e);return false}}
+ async function latest(){const db=await open();return new Promise((resolve,reject)=>{const q=db.transaction(STORE,'readonly').objectStore(STORE).get('latest');q.onsuccess=()=>resolve(q.result||null);q.onerror=()=>reject(q.error)})}
+ async function download(){const record=await latest();if(!record)return false;const blob=new Blob([JSON.stringify(record,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='volley-recovery-'+record.at.slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);return true}
+ window.VolleySafeCheckpoint=Object.freeze({checkpoint,latest,download,diagnostics:()=>({lastCheckpoint,lastError,available:!!window.indexedDB})});
+})();
+</script>
+
+<script id="v1603-conflict-tools">
+(function(){
+ 'use strict';
+ window.VolleySyncConflicts=Object.freeze({
+  status(){try{return JSON.parse(localStorage.getItem('v1603_sync_conflict')||'null')}catch(_){return null}},
+  async exportLocal(){return window.VolleySafeCheckpoint?.download?.()},
+  instructions:'Si hay conflicto, exporta los datos locales y compara ambas copias antes de cualquier restauración. No se fusionan automáticamente.'
+ });
+})();
+</script>
 <script id="v962-cloud-efficient-runtime">
 (()=>{
 'use strict';
-const VERSION='15.2.6';
+const VERSION='16.0.4';
+let mutationGeneration=0,lastVerifiedAt=0,lastVerificationError='';
+function canonical(value){return JSON.stringify(value,function(k,v){if(v&&typeof v==='object'&&!Array.isArray(v)){const sorted={};for(const key of Object.keys(v).sort())sorted[key]=v[key];return sorted}return v})}
 const PASSIVE_INTERVAL_MS=120000;
 const VISIBLE_MIN_GAP_MS=30000;
 const QUIET_SCOUT_MS=1100;
@@ -26231,36 +26257,69 @@ let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
 let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
 let lastRemoteStamp=localStorage.getItem(REMOTE_STAMP_KEY)||'';
 let reads=Number(sessionStorage.getItem('v962_reads'))||0,writes=Number(sessionStorage.getItem('v962_writes'))||0,skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
-let failureCount=0,lastSyncError='';
+let failureCount=0,lastSyncError='',conflict=null;
+const BASE_KEY='v1603_base_remote_stamp';
+let baseRemoteStamp=localStorage.getItem(BASE_KEY)||'';
+function rememberBase(stamp){baseRemoteStamp=String(stamp||'');try{localStorage.setItem(BASE_KEY,baseRemoteStamp)}catch(_){}}
+function recordConflict(remote,reason){
+ conflict={at:new Date().toISOString(),reason,remoteStamp:String(remote?.updated_at||''),baseStamp:baseRemoteStamp};
+ try{localStorage.setItem('v1603_sync_conflict',JSON.stringify(conflict))}catch(_){}
+ setStatus('Conflicto: revisión necesaria','error');
+}
+
 function persistCounters(){try{sessionStorage.setItem('v962_reads',String(reads));sessionStorage.setItem('v962_writes',String(writes));sessionStorage.setItem('v962_skipped_writes',String(skippedWrites))}catch(_){}}
 function connected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false}}
 function activeScouting(){try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}}
 function localState(){return typeof estadoLocal==='function'?estadoLocal():null}
 function setStatus(text,kind='online'){try{setCloudUI?.(kind,text)}catch(_){}}
 function setDirty(v){dirty=!!v;try{dirty?localStorage.setItem(DIRTY_KEY,'1'):localStorage.removeItem(DIRTY_KEY)}catch(_){};if(!dirty)dirtySince=0}
-function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
+function markDirty(reason='change'){mutationGeneration++;if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;if(!dirty){dirtySince=Date.now();if(lastRemoteStamp)rememberBase(lastRemoteStamp)}setDirty(true);scheduleDirty(reason);return true}
 function scheduleDirty(reason='change'){if(!dirty||!connected())return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,manual:false,allowWrite:true}),delay)}
 async function readRemote(){if(!connected())return null;const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
-async function writeRemote(state){const updatedAt=new Date().toISOString();const {error}=await cloudClient.from('volley_state').upsert({user_id:cloudUser.id,state,updated_at:updatedAt},{onConflict:'user_id'});writes++;persistCounters();if(error)throw error;lastWriteAt=Date.now();lastRemoteStamp=updatedAt;try{localStorage.setItem('volleyCloudLastSync',updatedAt);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,updatedAt)}catch(_){};return updatedAt}
+async function writeRemote(state){const protectedLocally=await window.VolleySafeCheckpoint?.checkpoint(state,'before-cloud-write');if(protectedLocally===false)throw new Error('No se pudo proteger el estado antes de subirlo');const updatedAt=new Date().toISOString();const {error}=await cloudClient.from('volley_state').upsert({user_id:cloudUser.id,state,updated_at:updatedAt},{onConflict:'user_id'});writes++;persistCounters();if(error)throw error;lastWriteAt=Date.now();lastRemoteStamp=updatedAt;try{localStorage.setItem('volleyCloudLastSync',updatedAt);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,updatedAt)}catch(_){};return updatedAt}
 function renderVisible(){const id=document.querySelector('.view.active')?.id||'';try{if(id==='dashboard')renderDashboard?.();else if(id==='entrenamiento'){renderizarSesion?.();cargarMeta?.()}else if(id==='ejercicios')filtrarEjercicios?.();else if(id==='planificacion')renderPlanificacion?.();else if(id==='historial')renderHistorial?.();else if(id==='estadisticas')renderStats?.();else if(id==='jugadores'){renderPlayers?.();renderDashboardPlayers?.()}else if(id==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}else if(id==='scout-match-mode'){window.v800Render?.()}else if(id==='scout-analysis'){window.scoutRenderAnalysis?.()}else if(id==='scout-season'){window.VC_V151?.render?.()}}catch(_){}}
 async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
   if(syncPromise)return syncPromise;if(!connected()){if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');return false}
   clearTimeout(dirtyTimer);dirtyTimer=null;
   syncPromise=(async()=>{if(manual)setStatus('Sincronizando…','syncing');try{
     const remote=await readRemote();let remoteApplied=false;
+    // Prevent stale local state from silently replacing remote changes.
+    // Do not auto-resolve concurrent edits: preserve both versions for manual recovery.
+    const currentStamp=String(remote?.updated_at||'');
+    if(dirty&&remote?.state&&currentStamp&&(!baseRemoteStamp||currentStamp!==baseRemoteStamp)){
+      await window.VolleySafeCheckpoint?.checkpoint(localState(),'conflict-local-before-upload');
+      recordConflict(remote,'El servidor cambió mientras había ediciones locales pendientes');
+      throw new Error('Conflicto detectado: los cambios locales NO se han subido ni descartado. Exporta la copia local antes de resolver.');
+    }
+    if(conflict)throw new Error('Conflicto pendiente de resolución. No se sobrescribirá la nube automáticamente.');
+
     const stamp=String(remote?.updated_at||'');
-    if(remote?.state&&(manual||!stamp||stamp!==lastRemoteStamp)){
-      window.aplicarEstadoCloud?.(remote.state);remoteApplied=true;lastRemoteStamp=stamp;
+    if(remote?.state&&!dirty&&(manual||!stamp||stamp!==lastRemoteStamp)){
+      window.aplicarEstadoCloud?.(remote.state);remoteApplied=true;lastRemoteStamp=stamp;rememberBase(stamp);
       try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
     }
     let mustWrite=allowWrite&&!pullOnly&&(dirty||!remote?.state);
-    if(mustWrite){const state=localState();if(state){await writeRemote(state);setDirty(false)}else mustWrite=false}else skippedWrites++;
-    persistCounters();failureCount=0;lastSyncError='';renderVisible();
-    const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · sincronizados ✓`;
-    setStatus(mustWrite?'Nube sincronizada':(remoteApplied?'Cambios recibidos ✓':'Nube al día'),'online');const indicator=document.getElementById('save-indicator');if(indicator)indicator.textContent=mustWrite?'✓ Guardado y sincronizado':'✓ Guardado · nube al día';
-    if(manual)alert(mustWrite?'Datos fusionados y sincronizados con la nube.':(remoteApplied?'Cambios de la nube recibidos.':'Nube comprobada. No había cambios pendientes.'));
+    if(mustWrite){const state=localState();if(state){
+      const generationBefore=mutationGeneration;
+      const savedStamp=await writeRemote(state);
+      if(mutationGeneration===generationBefore){setDirty(false);rememberBase(savedStamp)}
+      else {setDirty(true);scheduleDirty('changed-during-upload')}
+      // Read-back confirms that the server persisted the submitted state.
+      const confirmation=await readRemote();
+      if(confirmation?.updated_at===savedStamp && canonical(confirmation.state)===canonical(state)){
+        lastVerifiedAt=Date.now();lastVerificationError='';if(!dirty)rememberBase(savedStamp);
+      }else{
+        lastVerificationError='El estado remoto no coincide con la última escritura';
+        setDirty(true);scheduleDirty('verify-mismatch');
+        throw new Error(lastVerificationError);
+      }
+    }else mustWrite=false}else skippedWrites++;
+    persistCounters();failureCount=0;lastSyncError='';if(remoteApplied)renderVisible();
+    const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · ${dirty?'pendientes de sincronizar':'nube comprobada'}`;
+    setStatus(dirty?'Cambios pendientes':(mustWrite?'Guardado verificado':(remoteApplied?'Cambios recibidos':'Nube consultada')),dirty?'syncing':'online');const indicator=document.getElementById('save-indicator');if(indicator)indicator.textContent=dirty?'Pendiente de nube':(mustWrite?'✓ Guardado verificado':'Nube consultada');
+    if(manual)alert(mustWrite?'Datos guardados y verificados en la nube.':(remoteApplied?'Cambios de la nube recibidos.':'Nube comprobada. No había cambios pendientes.'));
     return remoteApplied||mustWrite;
-  }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.2.6 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}
+  }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V16.0.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}
 
 Los datos locales siguen protegidos.`)}else setStatus('Nube pendiente · reintentando','syncing');if(dirty)scheduleDirty('retry');return false}finally{syncPromise=null}})();return syncPromise;
 }
@@ -26273,7 +26332,7 @@ const efficientDownload=function(manual=false){return sync({reason:'manual-downl
 window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNow=()=>sync({reason:'manual',manual:true,allowWrite:true});window.v956SyncScoutingsNow=()=>sync({reason:'manual-scout',manual:true,allowWrite:true});window.v957SyncScoutingsNow=window.v956SyncScoutingsNow;
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:true})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:true,conflict,baseRemoteStamp,lastVerifiedAt:lastVerifiedAt||null,lastVerificationError:lastVerificationError||null,checkpoint:window.VolleySafeCheckpoint?.diagnostics?.()||null})};
 })();
 </script>
 
@@ -26580,7 +26639,7 @@ if(typeof dashboardBase==='function'&&!dashboardBase.__v11){
 
 ['cloud-label','cloud-dot','team-active-name'].forEach(id=>{
   const el=$(id);if(!el)return;
-  new MutationObserver(()=>v11RefreshShell()).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
+  let shellQueued=false;new MutationObserver(()=>{if(shellQueued)return;shellQueued=true;requestAnimationFrame(()=>{shellQueued=false;if(document.visibilityState==='visible')v11RefreshShell()})}).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
 });
 
 setTimeout(()=>{
@@ -26856,7 +26915,7 @@ function syncContext(){
 }
 ['v900-rotation','v900-rival-rotation','v900-score','v900-set'].forEach(id=>{
   const el=$(id);if(!el)return;
-  new MutationObserver(syncContext).observe(el,{subtree:true,childList:true,characterData:true});
+  let contextQueued=false;new MutationObserver(()=>{if(contextQueued)return;contextQueued=true;requestAnimationFrame(()=>{contextQueued=false;syncContext()})}).observe(el,{subtree:true,childList:true,characterData:true});
 });
 
 const skillBase=window.v900SetSkill;
@@ -27136,12 +27195,12 @@ function syncVideoPanel(){
   copyText('v800-score-us','v113-video-score-us');copyText('v800-score-op','v113-video-score-op');
   copyText('v800-set-label','v113-video-set');copyText('v800-service-copy','v113-video-service');
   copyText('v855-live-rally-title','v113-video-rally-title');
-  const source=$('v855-live-actions'),target=$('v113-video-rally-actions');if(source&&target)target.innerHTML=source.innerHTML;
+  const source=$('v855-live-actions'),target=$('v113-video-rally-actions');if(source&&target&&target.innerHTML!==source.innerHTML)target.innerHTML=source.innerHTML;
   const status=$('v852-code-status'),out=$('v113-video-code-status');if(status&&out){out.textContent=status.textContent;out.className='v113-video-code-status '+(status.classList.contains('bad')?'bad':status.classList.contains('warn')?'warn':status.classList.contains('ok')?'ok':'')}
 }
 function observe(){
   ['v800-team-name','v800-opponent','v800-score-us','v800-score-op','v800-set-label','v800-service-copy','v855-live-rally-title','v855-live-actions','v852-code-status'].forEach(id=>{
-    const el=$(id);if(el)new MutationObserver(syncVideoPanel).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
+    const el=$(id);if(el){let panelQueued=false;new MutationObserver(()=>{if(panelQueued)return;panelQueued=true;requestAnimationFrame(()=>{panelQueued=false;if(matchVisible())syncVideoPanel()})}).observe(el,{subtree:true,childList:true,characterData:true,attributes:true})}
   });
 }
 window.v113VideoAddCode=function(){
@@ -29609,6 +29668,31 @@ window.v151OpenMatch=async function(id){try{await window.MatchState?.select?.(Nu
 function reportPrintHTML(p,data){return`<!doctype html><html><head><meta charset="utf-8"><title>Informe · ${esc(p.label)}</title><style>body{font-family:Arial,sans-serif;color:#18364c;margin:28px}h1{margin:0 0 4px;font-size:24px}.sub{color:#718491;font-size:12px;margin-bottom:18px}.k{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.k div{border:1px solid #dce5eb;padding:10px;border-radius:7px}.k span{font-size:9px;color:#7d8e99;text-transform:uppercase}.k b{display:block;font-size:20px;margin-top:3px}table{width:100%;border-collapse:collapse;font-size:10px}th,td{padding:7px;border-bottom:1px solid #e4eaee;text-align:center}th:first-child,td:first-child{text-align:left}th{background:#eef3f6}.foot{margin-top:16px;color:#81909a;font-size:9px}@media print{body{margin:10mm}.no-print{display:none}}</style></head><body><h1>${esc(p.label)}</h1><div class="sub">Volley Coach · Informe individual de temporada · ${filteredMatches().length} partidos en el periodo</div><div class="k"><div><span>G-P</span><b>${gp(p.gp)}</b></div><div><span>Recepción positiva</span><b>${fmtPct(p.recPosPct)}</b></div><div><span>Ataque puntos</span><b>${fmtPct(p.attPct)}</b></div><div><span>Saque eficiencia</span><b>${fmtPct(p.serveEff)}</b></div></div><table><thead><tr><th>Partido</th><th>Acc.</th><th>G-P</th><th>REC Pos</th><th>REC Exc</th><th>ATQ Pts</th><th>ATQ Eff</th><th>SAQ Eff</th><th>BLQ</th></tr></thead><tbody>${data.slice().reverse().map(x=>`<tr><td>${fmtDate(matchDate(x.m))} · ${esc(x.m.opponent||'Rival')}</td><td>${x.actions}</td><td>${gp(x.gp)}</td><td>${fmtPct(x.recPosPct)}</td><td>${fmtPct(x.recExcPct)}</td><td>${fmtPct(x.attPct)}</td><td>${fmtPct(x.attEff)}</td><td>${fmtPct(x.serveEff)}</td><td>${x.blocks}</td></tr>`).join('')}</tbody></table><div class="foot">Los porcentajes se calculan sobre intentos registrados. G-P utiliza el motor estadístico validado de Volley Coach.</div><script>window.onload=()=>setTimeout(()=>window.print(),120)<\/script>
 
 
+<script id="v1601-reliability-audit">
+/* V16.0.1: diagnóstico PASIVO, sin escrituras ni transmisión de datos. */
+(function(){'use strict';
+  if(window.VolleyReliabilityAudit)return;
+  const started=Date.now();const errors=[];
+  const clean=(x)=>String(x||'').slice(0,180);
+  function onError(e){if(errors.length<30)errors.push({time:new Date().toISOString(),kind:'javascript',message:clean(e.message||e.reason?.message||e.reason||'Error')})}
+  window.addEventListener('error',onError);
+  window.addEventListener('unhandledrejection',onError);
+  function safe(fn){try{return fn()}catch(e){return {error:clean(e.message)}}}
+  function metrics(){return safe(()=>{const n=performance.getEntriesByType('navigation')[0];return n?{navigationMs:Math.round(n.duration),domContentLoadedMs:Math.round(n.domContentLoadedEventEnd),loadMs:Math.round(n.loadEventEnd),transferBytes:n.transferSize||0}:null})}
+  function state(){return safe(()=>({
+    timestamp:new Date().toISOString(),version:'16.0.2-diagnostic',online:navigator.onLine,
+    visibility:document.visibilityState,serviceWorkerControlled:!!navigator.serviceWorker?.controller,
+    storage:{localStorageAvailable:safe(()=>!!window.localStorage),estimatedLocalKeys:safe(()=>localStorage.length)},
+    cloud:{clientAvailable:typeof cloudClient!=='undefined'&&!!cloudClient,userPresent:typeof cloudUser!=='undefined'&&!!cloudUser?.id,
+      connected:safe(()=>typeof window.v962CloudOnline==='function'?window.v962CloudOnline():null)},
+    modules:{matchState:!!window.MatchState,scoutingSave:typeof window.scoutV902Flush==='function',trainingSave:typeof window.v119SaveAll==='function',realtime:!!window.VC_V138},
+    performance:metrics(),errorCount:errors.length
+  }))}
+  function report(){return {diagnostics:state(),recentErrors:errors.slice(),note:'No incluye scouting, nombres, vídeos ni credenciales. Estado de red no equivale a guardado confirmado.'}}
+  function download(){const blob=new Blob([JSON.stringify(report(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='volley-v1602-diagnostico-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return true}
+  window.VolleyReliabilityAudit=Object.freeze({report,download,version:'16.0.2'});
+})();
+</script>
 </body></html>`}
 window.v151PrintCurrentPlayer=function(){let ps=aggregatePlayers();if(!state.player&&ps.length)state.player=ps[0].key;const p=ps.find(x=>x.key===state.player);if(!p)return alert('Selecciona una jugadora con datos.');const w=window.open('','_blank');if(!w)return alert('El navegador ha bloqueado la ventana del informe. Permite ventanas emergentes para imprimir/guardar como PDF.');w.document.open();w.document.write(reportPrintHTML(p,playerMatchSeries(p.key)));w.document.close()};
 window.v151OpenSeason=function(){inject();renderAll()};window.v790Open=window.v151OpenSeason;window.v790RenderSeason=window.v151OpenSeason;
