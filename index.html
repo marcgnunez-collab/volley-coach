@@ -4451,11 +4451,9 @@ const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
 function estadoLocal(){
   guardarEquipoEnMemoria();
-  const scoutingSyncIndex={};
-  Object.keys(equiposData||{}).forEach(id=>{
-    scoutingSyncIndex[id]=clonar(equiposData?.[id]?.scoutingMatches||[]);
-  });
-  return {version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaIndependiente:clonar(baseDeDatos),bibliotecaBorrados:clonar(cargarBorradosBiblioteca()),bibliotecaVersion:1,equiposData:clonar(equiposData),scoutingSyncIndex,updatedAt:new Date().toISOString()}
+  /* V15.2.3: no duplicar biblioteca ni scoutings dentro del payload cloud.
+     equiposData ya contiene scoutingMatches y bibliotecaCompartida es la copia canónica. */
+  return {version:15.23,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaBorrados:clonar(cargarBorradosBiblioteca()),bibliotecaVersion:1,equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}
 }
 function scoutGenericCounts(m){
   const sets=Array.isArray(m?.sets)?m.sets:[],rallies=sets.reduce((n,s)=>n+(Array.isArray(s?.rallies)?s.rallies.length:0),0),
@@ -4505,10 +4503,23 @@ function aplicarEstadoCloud(s){
   const cambiosAtaque=aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();
   baseDeDatos=aplicarBorradosBiblioteca(baseDeDatos);
   const cambiosArchivado=archivarPlanificacionesPasadasEnEquiposData();
-  guardarEstadoLocalSinCloud();
+  /* V15.2.3: persistir la copia local en idle y renderizar solo la vista visible. */
+  const persistCloudLocal=()=>{try{guardarEstadoLocalSinCloud()}catch(_){}};
+  if('requestIdleCallback' in window)requestIdleCallback(persistCloudLocal,{timeout:1400});else setTimeout(persistCloudLocal,220);
   cargarEquipoEnVariables(equipoActivo);
   actualizarSelectorEquipo();
-  cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderHistorial();renderStats();
+  cargarMeta();
+  const activeView=document.querySelector('.view.active')?.id||'';
+  if(activeView==='dashboard')renderDashboard?.();
+  else if(activeView==='entrenamiento')renderizarSesion?.();
+  else if(activeView==='ejercicios')filtrarEjercicios?.();
+  else if(activeView==='planificacion')renderPlanificacion?.();
+  else if(activeView==='historial')renderHistorial?.();
+  else if(activeView==='estadisticas')renderStats?.();
+  else if(activeView==='jugadores'){renderPlayers?.();renderDashboardPlayers?.();}
+  else if(activeView==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();}
+  else if(activeView==='scout-match-mode')window.v800Render?.();
+  else if(activeView==='scout-analysis')window.scoutRenderAnalysis?.();
   const bibliotecaRecuperada=baseDeDatos.length>tamNube;
   cloudApplying=false;
   if((eraAnterior||bibliotecaRecuperada||agregadosPropios>0||cambiosRecepcion>0||cambiosColocacion>0||cambiosAtaque>0||cambiosArchivado>0)&&cloudUser)setTimeout(()=>subirNube(false),350);
@@ -4562,7 +4573,7 @@ async function initCloud(){
     cloudAuthSubscription=authRes?.data?.subscription||null;
     return true;
   }catch(err){
-    cloudUser=null;console.warn('V15.2.2 cloud init',err);setCloudUI('error','Nube · error de sesión');return false;
+    cloudUser=null;console.warn('V15.2.3 cloud init',err);setCloudUI('error','Nube · error de sesión');return false;
   }
 }
 async function cloudSignup(){
@@ -8451,12 +8462,12 @@ function scoutSave(render=true){
     /* V9.3.1: the full match is already being written to IndexedDB journal above.
        Defer the expensive whole-app localStorage serialization so the point /
        rotation / lineup button can respond immediately. */
-    v902ScheduleCommit('critical-idle',480);
+    v902ScheduleCommit('critical-idle',750);
     if(render)v902RequestFullRender();
     const b=$('scout-save-badge');if(b)b.textContent='Protegido · consolidando…';
   }else{
     /* Action within the same rally: fast UI now, full state after a short idle period. */
-    v902ScheduleCommit('action-idle',950);
+    v902ScheduleCommit('action-idle',2600);
     if(render)v902FastRender(m);
   }
 }
@@ -26190,321 +26201,64 @@ const badge=document.getElementById('scout-v753-pdf-ready');if(badge){badge.text
 <script id="v962-cloud-efficient-runtime">
 (()=>{
 'use strict';
-const VERSION='9.6.2';
-const PASSIVE_INTERVAL_MS=120000;     // one DB check every 2 min while visible
-const VISIBLE_MIN_GAP_MS=30000;       // don't re-read repeatedly on tab switching
-const QUIET_SCOUT_MS=8000;            // batch rapid scouting actions
-const QUIET_NORMAL_MS=5000;           // batch training/planning changes
-const MAX_DIRTY_SCOUT_MS=30000;       // cloud checkpoint at least every 30s if continuously active
-const MAX_DIRTY_NORMAL_MS=20000;
-
-let dirty=false;
-let dirtySince=0;
-let dirtyTimer=null;
-let syncPromise=null;
+const VERSION='15.2.3';
+const PASSIVE_INTERVAL_MS=180000;
+const VISIBLE_MIN_GAP_MS=45000;
+const QUIET_SCOUT_MS=2200;
+const QUIET_NORMAL_MS=5000;
+const MAX_DIRTY_SCOUT_MS=6000;
+const MAX_DIRTY_NORMAL_MS=18000;
+const DIRTY_KEY='v1523_cloud_dirty';
+const REMOTE_STAMP_KEY='v1523_remote_stamp';
+let dirty=localStorage.getItem(DIRTY_KEY)==='1';
+let dirtySince=dirty?Date.now():0,dirtyTimer=null,syncPromise=null;
 let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
 let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
-let lastUploadedHash=localStorage.getItem('v962_last_uploaded_hash')||'';
-let reads=Number(sessionStorage.getItem('v962_reads'))||0;
-let writes=Number(sessionStorage.getItem('v962_writes'))||0;
-let skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
-/* V15.2.1 · mobile-safe cloud retry state */
-let failureCount=Number(sessionStorage.getItem('v1521_sync_failures'))||0;
-let nextRetryAt=Number(sessionStorage.getItem('v1521_sync_retry_at'))||0;
-let lastSyncError='';
-function retryDelayMs(){return Math.min(300000,Math.max(15000,15000*Math.pow(2,Math.min(failureCount,5))))}
-function rememberFailure(err){
-  failureCount=Math.min(8,failureCount+1);nextRetryAt=Date.now()+retryDelayMs();lastSyncError=String(err?.message||err||'Error de sincronización');
-  try{sessionStorage.setItem('v1521_sync_failures',String(failureCount));sessionStorage.setItem('v1521_sync_retry_at',String(nextRetryAt))}catch(_){}
-}
-function clearFailures(){failureCount=0;nextRetryAt=0;lastSyncError='';try{sessionStorage.removeItem('v1521_sync_failures');sessionStorage.removeItem('v1521_sync_retry_at')}catch(_){}}
-function retryLabel(){const sec=Math.max(1,Math.ceil((nextRetryAt-Date.now())/1000));return sec<60?`${sec}s`:`${Math.ceil(sec/60)} min`}
-function automaticRetryBlocked(manual){return false}
-
-
-function persistCounters(){
-  try{
-    sessionStorage.setItem('v962_reads',String(reads));
-    sessionStorage.setItem('v962_writes',String(writes));
-    sessionStorage.setItem('v962_skipped_writes',String(skippedWrites));
-  }catch(_){}
-}
-function connected(){
-  /* Safari/macOS can report navigator.onLine=false even while requests work.
-     Treat an authenticated Supabase client as connected and let the request decide. */
-  try{return !!cloudClient&&!!cloudUser}catch(_){return false}
-}
-function activeScouting(){
-  try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}
-}
-function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
-function stableStringify(value){
-  const seen=new WeakSet();
-  function walk(v){
-    if(v===null||typeof v!=='object')return v;
-    if(seen.has(v))return null;
-    seen.add(v);
-    if(Array.isArray(v))return v.map(walk);
-    const out={};
-    Object.keys(v).sort().forEach(k=>{out[k]=walk(v[k])});
-    return out;
-  }
-  return JSON.stringify(walk(value));
-}
-function hashString(str){
-  let h1=0x811c9dc5,h2=0x9e3779b9;
-  for(let i=0;i<str.length;i++){
-    const c=str.charCodeAt(i);
-    h1=Math.imul(h1^c,16777619);
-    h2=Math.imul(h2^c,2246822519);
-  }
-  return (h1>>>0).toString(36)+(h2>>>0).toString(36)+':'+str.length;
-}
-function stateHash(state){
-  const copy=clone(state||{});
-  /* estadoLocal() creates a fresh top-level updatedAt on every call.
-     Ignore only this volatile root marker; nested updatedAt fields are real data. */
-  if(copy&&typeof copy==='object')delete copy.updatedAt;
-  return hashString(stableStringify(copy));
-}
-function localState(){
-  return typeof estadoLocal==='function'?estadoLocal():null;
-}
-function setStatus(text,kind='online'){
-  try{setCloudUI?.(kind,text)}catch(_){}
-}
-function markDirty(reason='change'){
-  if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;
-  dirty=true;
-  if(!dirtySince)dirtySince=Date.now();
-  scheduleDirty(reason);
-  return true;
-}
-function scheduleDirty(reason='change'){
-  if(!dirty||!connected())return;
-  clearTimeout(dirtyTimer);
-  const scout=activeScouting();
-  const quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS;
-  const max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS;
-  const elapsed=Math.max(0,Date.now()-dirtySince);
-  const delay=Math.max(500,Math.min(quiet,max-elapsed));
-  dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,manual:false,allowWrite:true}),delay);
-}
-async function readRemote(){
-  if(!connected())return null;
-  const {data,error}=await cloudClient.from('volley_state')
-    .select('state,updated_at')
-    .eq('user_id',cloudUser.id)
-    .maybeSingle();
-  reads++;persistCounters();
-  lastReadAt=Date.now();
-  try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){}
-  if(error)throw error;
-  return data||null;
-}
-async function writeRemote(state){
-  const updatedAt=new Date().toISOString();
-  const {error}=await cloudClient.from('volley_state').upsert(
-    {user_id:cloudUser.id,state,updated_at:updatedAt},
-    {onConflict:'user_id'}
-  );
-  writes++;persistCounters();
-  if(error)throw error;
-  lastWriteAt=Date.now();
-  try{
-    localStorage.setItem('volleyCloudLastSync',updatedAt);
-    localStorage.setItem('v962_last_write_at',String(lastWriteAt));
-  }catch(_){}
-  return updatedAt;
-}
-function renderAfterMerge(){
-  try{
-    cargarEquipoEnVariables?.(equipoActivo);
-    cargarMeta?.();renderizarSesion?.();renderPlanificacion?.();renderHistorial?.();renderStats?.();renderDashboard?.();
-  }catch(_){}
-  try{window.scoutRenderHome?.()}catch(_){}
-  try{window.scoutRender?.()}catch(_){}
-  if(document.getElementById('scout-analysis')?.classList.contains('active')){
-    try{window.scoutRenderAnalysis?.()}catch(_){}
-  }
-}
+let lastRemoteStamp=localStorage.getItem(REMOTE_STAMP_KEY)||'';
+let reads=Number(sessionStorage.getItem('v962_reads'))||0,writes=Number(sessionStorage.getItem('v962_writes'))||0,skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
+let failureCount=0,lastSyncError='';
+function persistCounters(){try{sessionStorage.setItem('v962_reads',String(reads));sessionStorage.setItem('v962_writes',String(writes));sessionStorage.setItem('v962_skipped_writes',String(skippedWrites))}catch(_){}}
+function connected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false}}
+function activeScouting(){try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}}
+function localState(){return typeof estadoLocal==='function'?estadoLocal():null}
+function setStatus(text,kind='online'){try{setCloudUI?.(kind,text)}catch(_){}}
+function setDirty(v){dirty=!!v;try{dirty?localStorage.setItem(DIRTY_KEY,'1'):localStorage.removeItem(DIRTY_KEY)}catch(_){};if(!dirty)dirtySince=0}
+function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
+function scheduleDirty(reason='change'){if(!dirty||!connected())return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,manual:false,allowWrite:true}),delay)}
+async function readRemote(){if(!connected())return null;const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
+async function writeRemote(state){const updatedAt=new Date().toISOString();const {error}=await cloudClient.from('volley_state').upsert({user_id:cloudUser.id,state,updated_at:updatedAt},{onConflict:'user_id'});writes++;persistCounters();if(error)throw error;lastWriteAt=Date.now();lastRemoteStamp=updatedAt;try{localStorage.setItem('volleyCloudLastSync',updatedAt);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,updatedAt)}catch(_){};return updatedAt}
+function renderVisible(){const id=document.querySelector('.view.active')?.id||'';try{if(id==='dashboard')renderDashboard?.();else if(id==='entrenamiento'){renderizarSesion?.();cargarMeta?.()}else if(id==='ejercicios')filtrarEjercicios?.();else if(id==='planificacion')renderPlanificacion?.();else if(id==='historial')renderHistorial?.();else if(id==='estadisticas')renderStats?.();else if(id==='jugadores'){renderPlayers?.();renderDashboardPlayers?.()}else if(id==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}else if(id==='scout-match-mode'){window.v800Render?.()}else if(id==='scout-analysis'){window.scoutRenderAnalysis?.()}else if(id==='scout-season'){window.VC_V151?.render?.()}}catch(_){}}
 async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
-  if(syncPromise)return syncPromise;
-  if(!connected()){
-    if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');
-    return false;
-  }
-  if(automaticRetryBlocked(manual)){
-    setStatus(`Nube pendiente · reintento en ${retryLabel()}`,'syncing');
-    return false;
-  }
+  if(syncPromise)return syncPromise;if(!connected()){if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');return false}
   clearTimeout(dirtyTimer);dirtyTimer=null;
-
-  syncPromise=(async()=>{
-    if(manual)setStatus('Sincronizando…','syncing');
-    try{
-      const localBefore=localState();
-      const beforeHash=stateHash(localBefore);
-      const remote=await readRemote();
-
-      if(remote?.state){
-        /* aplicarEstadoCloud already includes all no-loss merges added in
-           V8.9–V9.5.7: training, planning, scouting and scoutingSyncIndex. */
-        window.aplicarEstadoCloud?.(remote.state);
-      }
-
-      const merged=localState();
-      const mergedHash=stateHash(merged);
-      const remoteHash=remote?.state?stateHash(remote.state):'';
-      const mustWrite=allowWrite&&!pullOnly&&(!remote?.state||mergedHash!==remoteHash);
-
-      if(mustWrite){
-        await writeRemote(merged);
-        lastUploadedHash=mergedHash;
-        try{localStorage.setItem('v962_last_uploaded_hash',lastUploadedHash)}catch(_){}
-      }else{
-        skippedWrites++;persistCounters();
-      }
-
-      dirty=false;dirtySince=0;clearFailures();
-      renderAfterMerge();
-
-      const changed=beforeHash!==mergedHash;
-      const status=document.getElementById('v956-scout-sync-status');
-      const scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
-      if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · sincronizados ✓`;
-      setStatus(mustWrite?'Nube sincronizada':'Nube al día','online');
-      const indicator=document.getElementById('save-indicator');
-      if(indicator)indicator.textContent=mustWrite?'✓ Guardado y sincronizado':'✓ Guardado · nube al día';
-
-      if(manual){
-        alert(mustWrite
-          ?'Datos fusionados y sincronizados con la nube.'
-          :'Nube comprobada. No había cambios que subir.');
-      }
-      return changed||mustWrite;
-    }catch(err){
-      console.warn('V15.2.1 cloud sync',reason,err);
-      rememberFailure(err);
-      /* Automatic failures must never spam the mobile UI. Local journal +
-         checkpoints remain authoritative while the cloud waits for a retry. */
-      if(manual){
-        setStatus('Error de sincronización','error');
-        alert(`${err?.message||'No se pudo sincronizar con la nube.'}\n\nLos datos locales siguen protegidos. La app volverá a intentarlo automáticamente.`);
-      }else{
-        setStatus(`Nube pendiente · reintento en ${retryLabel()}`,'syncing');
-      }
-      /* Keep local changes dirty, but don't recursively schedule another retry
-         before the exponential backoff window expires. */
-      if(reason.startsWith('dirty')||dirty){dirty=true;if(!dirtySince)dirtySince=Date.now()}
-      return false;
-    }finally{
-      syncPromise=null;
+  syncPromise=(async()=>{if(manual)setStatus('Sincronizando…','syncing');try{
+    const remote=await readRemote();let remoteApplied=false;
+    const stamp=String(remote?.updated_at||'');
+    if(remote?.state&&(manual||!stamp||stamp!==lastRemoteStamp)){
+      window.aplicarEstadoCloud?.(remote.state);remoteApplied=true;lastRemoteStamp=stamp;
+      try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
     }
-  })();
-  return syncPromise;
+    let mustWrite=allowWrite&&!pullOnly&&(dirty||!remote?.state);
+    if(mustWrite){const state=localState();if(state){await writeRemote(state);setDirty(false)}else mustWrite=false}else skippedWrites++;
+    persistCounters();failureCount=0;lastSyncError='';renderVisible();
+    const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · sincronizados ✓`;
+    setStatus(mustWrite?'Nube sincronizada':(remoteApplied?'Cambios recibidos ✓':'Nube al día'),'online');const indicator=document.getElementById('save-indicator');if(indicator)indicator.textContent=mustWrite?'✓ Guardado y sincronizado':'✓ Guardado · nube al día';
+    if(manual)alert(mustWrite?'Datos fusionados y sincronizados con la nube.':(remoteApplied?'Cambios de la nube recibidos.':'Nube comprobada. No había cambios pendientes.'));
+    return remoteApplied||mustWrite;
+  }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.2.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}
+
+Los datos locales siguen protegidos.`)}else setStatus('Nube pendiente · reintentando','syncing');if(dirty)scheduleDirty('retry');return false}finally{syncPromise=null}})();return syncPromise;
 }
-async function forceSync(reason='manual'){
-  dirty=true;
-  if(!dirtySince)dirtySince=Date.now();
-  return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true});
-}
-async function pullOnly(reason='download'){
-  return sync({reason,manual:true,allowWrite:false,pullOnly:true});
-}
-function visibilitySync(){
-  if(document.visibilityState!=='visible'||!connected())return;
-  const age=Date.now()-lastReadAt;
-  if(dirty){
-    void sync({reason:'visible-dirty',manual:false,allowWrite:true});
-  }else if(age>=VISIBLE_MIN_GAP_MS){
-    void sync({reason:'visible',manual:false,allowWrite:true});
-  }
-}
-function onOnline(){
-  if(!connected())return;
-  if(dirty||Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS){
-    void sync({reason:'online',manual:false,allowWrite:true});
-  }
-}
-
-/* Replace all future autosave scheduling with one batching queue. */
-const efficientSchedule=function(){return markDirty('autosave')};
-window.programarSubidaCloud=efficientSchedule;
-try{programarSubidaCloud=efficientSchedule}catch(_){}
-
-/* Replace legacy direct uploads. Non-manual calls are scheduled; explicit
-   "Subir este dispositivo" remains immediate but performs a SAFE merge first. */
-const efficientUpload=function(manual=false){
-  if(manual)return sync({reason:'manual-upload',manual:true,allowWrite:true});
-  markDirty('legacy-upload');
-  return Promise.resolve(true);
-};
-window.subirNube=efficientUpload;
-try{subirNube=efficientUpload}catch(_){}
-
-/* Download button remains available, but merges instead of destructive replace. */
-const efficientDownload=function(manual=false){
-  return sync({reason:'manual-download',manual:!!manual,allowWrite:false,pullOnly:true});
-};
-window.bajarNube=efficientDownload;
-try{bajarNube=efficientDownload}catch(_){}
-
-/* All historical "sync" buttons now use exactly the same engine. */
-window.v962ForceSync=forceSync;
-window.v962CloudOnline=onOnline;
-window.v953SyncNow=()=>sync({reason:'manual',manual:true,allowWrite:true});
-window.v956SyncScoutingsNow=()=>sync({reason:'manual-scout',manual:true,allowWrite:true});
-window.v957SyncScoutingsNow=window.v956SyncScoutingsNow;
-
-/* One passive timer only. No 12 s + 15 s duplicate polling. */
-setInterval(()=>{
-  if(document.visibilityState==='visible'&&connected()){
-    if(dirty)void sync({reason:'passive-dirty',manual:false,allowWrite:true});
-    else void sync({reason:'passive',manual:false,allowWrite:true});
-  }
-},PASSIVE_INTERVAL_MS);
-
-document.addEventListener('visibilitychange',visibilitySync);
-
-/* Initial merge once the auth state has had time to settle. */
-setTimeout(()=>{
-  if(connected())void sync({reason:'startup',manual:false,allowWrite:true});
-},1800);
-
-/* If local edits occurred before this runtime loaded, mark the current state
-   only when a later save hook fires; do not create an unnecessary startup write. */
-
-window.VC_V962_CLOUD_EFFICIENT={
-  version:VERSION,
-  markDirty,
-  sync,
-  forceSync,
-  stateHash,
-  diagnostics:()=>({
-    version:VERSION,
-    connected:connected(),
-    dirty,
-    dirtySince:dirtySince||null,
-    syncing:!!syncPromise,
-    lastReadAt:lastReadAt||null,
-    lastWriteAt:lastWriteAt||null,
-    readsThisSession:reads,
-    writesThisSession:writes,
-    skippedWritesThisSession:skippedWrites,
-    passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,
-    visibleMinGapSeconds:VISIBLE_MIN_GAP_MS/1000,
-    scoutingQuietSeconds:QUIET_SCOUT_MS/1000,
-    scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,
-    normalQuietSeconds:QUIET_NORMAL_MS/1000,
-    normalMaxBatchSeconds:MAX_DIRTY_NORMAL_MS/1000,
-    journalImmediate:true,
-    duplicateLegacyPolling:false,
-    failureCount,
-    nextRetryAt:nextRetryAt||null,
-    lastSyncError:lastSyncError||null
-  })
-};
+async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'||reason.startsWith('auth-')){if(dirty||reason!=='manual')setDirty(true)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
+function visibilitySync(){if(document.visibilityState!=='visible'||!connected())return;if(dirty)void sync({reason:'visible-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS)void sync({reason:'visible',allowWrite:false,pullOnly:true})}
+function onOnline(){if(!connected())return;if(dirty)void sync({reason:'online',allowWrite:true});else void sync({reason:'online-pull',allowWrite:false,pullOnly:true})}
+const efficientSchedule=function(){return markDirty('autosave')};window.programarSubidaCloud=efficientSchedule;try{programarSubidaCloud=efficientSchedule}catch(_){}
+const efficientUpload=function(manual=false){if(manual){setDirty(true);return sync({reason:'manual-upload',manual:true,allowWrite:true})}markDirty('legacy-upload');return Promise.resolve(true)};window.subirNube=efficientUpload;try{subirNube=efficientUpload}catch(_){}
+const efficientDownload=function(manual=false){return sync({reason:'manual-download',manual:!!manual,allowWrite:false,pullOnly:true})};window.bajarNube=efficientDownload;try{bajarNube=efficientDownload}catch(_){}
+window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNow=()=>sync({reason:'manual',manual:true,allowWrite:true});window.v956SyncScoutingsNow=()=>sync({reason:'manual-scout',manual:true,allowWrite:true});window.v957SyncScoutingsNow=window.v956SyncScoutingsNow;
+setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
+document.addEventListener('visibilitychange',visibilitySync);setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:true})};
 })();
 </script>
 
@@ -29294,78 +29048,43 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="v138-realtime-mobile-runtime">
 (()=>{
 'use strict';
-const VERSION='15.2.2', DEVICE_KEY='vc_v138_device_id', DEVICE_NAME_KEY='vc_v138_device_name', META_KEY='vc_v138_sync_meta', POLL_ACTIVE_MS=9000, POLL_IDLE_MS=30000;
-const $=id=>document.getElementById(id), now=()=>Date.now();
+const VERSION='15.2.3',DEVICE_KEY='vc_v138_device_id',DEVICE_NAME_KEY='vc_v138_device_name',POLL_ACTIVE_MS=60000,POLL_IDLE_MS=180000,FAST_EVENT='match_patch';
+const $=id=>document.getElementById(id),now=()=>Date.now(),clone=v=>{try{return structuredClone(v)}catch(_){try{return JSON.parse(JSON.stringify(v))}catch(__){return v}}};
 const isMobile=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 function makeId(){try{return crypto.randomUUID()}catch(_){return 'dev_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10)}}
-const deviceId=localStorage.getItem(DEVICE_KEY)||makeId();localStorage.setItem(DEVICE_KEY,deviceId);
-const defaultName=isMobile()?'Móvil':'Portátil / PC';
-const deviceName=localStorage.getItem(DEVICE_NAME_KEY)||defaultName;localStorage.setItem(DEVICE_NAME_KEY,deviceName);
-let seq=Number(localStorage.getItem('vc_v138_device_seq'))||0,lastChangedAt=Number(localStorage.getItem('vc_v138_device_changed'))||0;
-let channel=null,channelUser='',rtState='offline',lastRemoteAt=0,lastRemoteDevice='',lastRemoteName='',lastPullAt=0,pollTimer=null,remoteSyncTimer=null,knownDevices={};
+const deviceId=localStorage.getItem(DEVICE_KEY)||makeId();localStorage.setItem(DEVICE_KEY,deviceId);const defaultName=isMobile()?'Móvil':'Portátil / PC',deviceName=localStorage.getItem(DEVICE_NAME_KEY)||defaultName;localStorage.setItem(DEVICE_NAME_KEY,deviceName);
+let seq=Number(localStorage.getItem('vc_v138_device_seq'))||0,lastChangedAt=Number(localStorage.getItem('vc_v138_device_changed'))||0,channel=null,channelUser='',rtState='offline',lastRemoteAt=0,lastRemoteDevice='',lastRemoteName='',lastPullAt=0,pollTimer=null,remoteSyncTimer=null,fastTimer=null,fastApplying=false,localPersistTimer=null,knownDevices={};
 try{knownDevices=JSON.parse(localStorage.getItem('vc_v138_known_devices')||'{}')||{}}catch(_){knownDevices={}}
 function active(){try{return window.MatchState?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
+function currentSet(m=active()){try{return window.MatchState?.getSet?.(m)||window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}catch(_){return null}}
 function cloudConnected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false}}
 function persistKnown(){try{localStorage.setItem('vc_v138_known_devices',JSON.stringify(knownDevices))}catch(_){}}
-function touchMeta(reason='change'){
-  seq++;lastChangedAt=now();try{localStorage.setItem('vc_v138_device_seq',String(seq));localStorage.setItem('vc_v138_device_changed',String(lastChangedAt))}catch(_){}
-  knownDevices[deviceId]={id:deviceId,name:deviceName,type:isMobile()?'mobile':'desktop',lastSeen:lastChangedAt,seq,reason};persistKnown();render();return seq;
-}
+function touchMeta(reason='change'){seq++;lastChangedAt=now();try{localStorage.setItem('vc_v138_device_seq',String(seq));localStorage.setItem('vc_v138_device_changed',String(lastChangedAt))}catch(_){};knownDevices[deviceId]={id:deviceId,name:deviceName,type:isMobile()?'mobile':'desktop',lastSeen:lastChangedAt,seq,reason};persistKnown();render();return seq}
 function ingestMeta(meta){if(!meta||typeof meta!=='object')return;const devices=meta.devices&&typeof meta.devices==='object'?meta.devices:{};Object.entries(devices).forEach(([id,d])=>{const prev=knownDevices[id]||{};if(Number(d?.lastSeen||0)>=Number(prev.lastSeen||0))knownDevices[id]={...prev,...d,id}});if(meta.deviceId){const prev=knownDevices[meta.deviceId]||{};knownDevices[meta.deviceId]={...prev,id:meta.deviceId,name:meta.deviceName||prev.name||'Otro dispositivo',type:meta.deviceType||prev.type||'',lastSeen:Number(meta.changedAt)||Number(prev.lastSeen)||0,seq:Number(meta.seq)||Number(prev.seq)||0}}persistKnown()}
-function buildMeta(base={}){const devices={...(base.devices||{}),...knownDevices};devices[deviceId]={id:deviceId,name:deviceName,type:isMobile()?'mobile':'desktop',lastSeen:lastChangedAt||now(),seq,activeMatchId:Number(active()?.id)||null};return {version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:lastChangedAt||0,activeMatchId:Number(active()?.id)||null,devices}}
-function installStateMeta(){
-  const base=window.estadoLocal;if(typeof base==='function'&&!base.__v138){const wrapped=function(){const st=base.apply(this,arguments)||{};const previous=st.v138SyncMeta||{};st.v138SyncMeta=buildMeta(previous);return st};wrapped.__v138=true;window.estadoLocal=wrapped;try{estadoLocal=wrapped}catch(_){}}
-  const apply=window.aplicarEstadoCloud;if(typeof apply==='function'&&!apply.__v138){const wrapped=function(state){try{ingestMeta(state?.v138SyncMeta)}catch(_){}const out=apply.apply(this,arguments);setTimeout(render,0);return out};wrapped.__v138=true;window.aplicarEstadoCloud=wrapped;try{aplicarEstadoCloud=wrapped}catch(_){}}
-  const sched=window.programarSubidaCloud;if(typeof sched==='function'&&!sched.__v138){const wrapped=function(){touchMeta('local-save');return sched.apply(this,arguments)};wrapped.__v138=true;window.programarSubidaCloud=wrapped;try{programarSubidaCloud=wrapped}catch(_){}}
-}
-function ensureUI(){
-  if($('v138-device-strip'))return true;const save=$('v137-save-strip'),shell=document.querySelector('#scout-workspace-v900 .v900-shell');if(!save&&!shell)return false;
-  const n=document.createElement('div');n.id='v138-device-strip';n.className='v138-device-strip';n.innerHTML=`<div class="v138-device-cell" id="v138-this-cell"><span>Este dispositivo</span><b id="v138-this-main">${deviceName}</b><small id="v138-this-sub">${isMobile()?'móvil':'portátil / PC'} · ${deviceId.slice(0,8)}</small></div><div class="v138-device-cell" id="v138-live-cell"><span>Sincronización en vivo</span><b id="v138-live-main" class="v138-mobile-sync-badge">Preparando…</b><small id="v138-live-sub">Supabase Realtime + respaldo</small></div><div class="v138-device-cell" id="v138-peer-cell"><span>Otro dispositivo</span><b id="v138-peer-main">—</b><small id="v138-peer-sub">abre la app con la misma cuenta</small></div><div class="v138-device-cell" id="v138-remote-cell"><span>Último cambio remoto</span><b id="v138-remote-main">—</b><small id="v138-remote-sub">sin cambios recibidos</small></div>`;
-  if(save)save.insertAdjacentElement('afterend',n);else shell.prepend(n);return true;
-}
-function age(t){if(!t)return'—';const s=Math.max(0,Math.round((now()-Number(t))/1000));return s<3?'ahora':s<60?`hace ${s} s`:s<3600?`hace ${Math.floor(s/60)} min`:new Date(Number(t)).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}
+function buildMeta(base={}){const devices={...(base.devices||{}),...knownDevices};devices[deviceId]={id:deviceId,name:deviceName,type:isMobile()?'mobile':'desktop',lastSeen:lastChangedAt||now(),seq,activeMatchId:Number(active()?.id)||null};return{version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:lastChangedAt||0,activeMatchId:Number(active()?.id)||null,devices}}
+function installStateMeta(){const base=window.estadoLocal;if(typeof base==='function'&&!base.__v138){const wrapped=function(){const st=base.apply(this,arguments)||{};st.v138SyncMeta=buildMeta(st.v138SyncMeta||{});return st};wrapped.__v138=true;window.estadoLocal=wrapped;try{estadoLocal=wrapped}catch(_){}}const apply=window.aplicarEstadoCloud;if(typeof apply==='function'&&!apply.__v138){const wrapped=function(state){try{ingestMeta(state?.v138SyncMeta)}catch(_){}const out=apply.apply(this,arguments);setTimeout(render,0);return out};wrapped.__v138=true;window.aplicarEstadoCloud=wrapped;try{aplicarEstadoCloud=wrapped}catch(_){}}}
+function ensureUI(){if($('v138-device-strip'))return true;const save=$('v137-save-strip'),shell=document.querySelector('#scout-workspace-v900 .v900-shell');if(!save&&!shell)return false;const n=document.createElement('div');n.id='v138-device-strip';n.className='v138-device-strip';n.innerHTML=`<div class="v138-device-cell" id="v138-this-cell"><span>Este dispositivo</span><b id="v138-this-main">${deviceName}</b><small id="v138-this-sub">${isMobile()?'móvil':'portátil / PC'} · ${deviceId.slice(0,8)}</small></div><div class="v138-device-cell" id="v138-live-cell"><span>Sincronización en vivo</span><b id="v138-live-main" class="v138-mobile-sync-badge">Preparando…</b><small id="v138-live-sub">Broadcast inmediato + nube segura</small></div><div class="v138-device-cell" id="v138-peer-cell"><span>Otro dispositivo</span><b id="v138-peer-main">—</b><small id="v138-peer-sub">abre la app con la misma cuenta</small></div><div class="v138-device-cell" id="v138-remote-cell"><span>Último cambio remoto</span><b id="v138-remote-main">—</b><small id="v138-remote-sub">sin cambios recibidos</small></div>`;if(save)save.insertAdjacentElement('afterend',n);else shell.prepend(n);return true}
+function age(t){if(!t)return'—';const s=Math.max(0,Math.round((now()-Number(t))/1000));return s<2?'ahora':s<60?`hace ${s} s`:s<3600?`hace ${Math.floor(s/60)} min`:new Date(Number(t)).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}
 function setCell(prefix,state,main,sub){const c=$(`v138-${prefix}-cell`),b=$(`v138-${prefix}-main`),s=$(`v138-${prefix}-sub`);if(c)c.dataset.state=state||'';if(b)b.textContent=main;if(s)s.textContent=sub||''}
-function peer(){const list=Object.values(knownDevices).filter(d=>d&&d.id!==deviceId).sort((a,b)=>Number(b.lastSeen||0)-Number(a.lastSeen||0));return list[0]||null}
-function render(){if(!ensureUI())return;const p=peer(),syncDiag=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};setCell('this','ok',deviceName,`${isMobile()?'Móvil':'Portátil / PC'} · ${deviceId.slice(0,8)}`);if(!cloudConnected())setCell('live','pending','Nube no conectada','inicia sesión en ambos dispositivos');else if(Number(syncDiag.failureCount||0)>0)setCell('live','pending','Nube pendiente','los datos locales siguen protegidos · reintentando');else if(rtState==='SUBSCRIBED')setCell('live','ok','Tiempo real ✓','Realtime activo · respaldo periódico');else if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setCell('live','pending','Respaldo activo','recreando Realtime · sincronización periódica');else setCell('live','pending','Conectando…',navigator.onLine===false?'red no confirmada por el navegador · probando nube':'preparando canal de tiempo real');if(p)setCell('peer',now()-Number(p.lastSeen||0)<120000?'ok':'',p.name||'Otro dispositivo',`${p.type==='mobile'?'Móvil':'PC'} · ${age(p.lastSeen)}`);else setCell('peer','', '—','abre la app con la misma cuenta');if(lastRemoteAt)setCell('remote','ok',age(lastRemoteAt),`${lastRemoteName||lastRemoteDevice||'otro dispositivo'} · partido actualizado`);else setCell('remote','', '—','sin cambios recibidos en esta sesión')}
-async function syncRemote(reason='realtime'){
-  if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}
-  try{const engine=window.VC_V962_CLOUD_EFFICIENT;if(!engine?.sync)return false;const wasDirty=!!engine.diagnostics?.().dirty;lastPullAt=now();await engine.sync({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});if(wasDirty)engine.markDirty?.('remote-merge');render();return true}catch(err){console.warn('V13.8 remote sync',err);return false}
-}
-function onRemote(payload){
-  try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;lastRemoteAt=now();lastRemoteDevice=String(meta?.deviceId||'');lastRemoteName=String(meta?.deviceName||'Otro dispositivo');render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('realtime'),220)}catch(err){console.warn('V13.8 realtime event',err)}
-}
+function peer(){return Object.values(knownDevices).filter(d=>d&&d.id!==deviceId).sort((a,b)=>Number(b.lastSeen||0)-Number(a.lastSeen||0))[0]||null}
+function render(){if(!ensureUI())return;const p=peer();setCell('this','ok',deviceName,`${isMobile()?'Móvil':'Portátil / PC'} · ${deviceId.slice(0,8)}`);if(!cloudConnected())setCell('live','pending','Nube no conectada','inicia sesión en ambos dispositivos');else if(rtState==='SUBSCRIBED')setCell('live','ok','Tiempo real inmediato ✓','Broadcast activo · guardado durable en segundo plano');else if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setCell('live','pending','Reconectando…','los datos locales siguen protegidos');else setCell('live','pending','Conectando…','preparando canal Realtime');if(p)setCell('peer',now()-Number(p.lastSeen||0)<120000?'ok':'',p.name||'Otro dispositivo',`${p.type==='mobile'?'Móvil':'PC'} · ${age(p.lastSeen)}`);else setCell('peer','','—','abre la app con la misma cuenta');if(lastRemoteAt)setCell('remote','ok',age(lastRemoteAt),`${lastRemoteName||lastRemoteDevice||'otro dispositivo'} · actualización instantánea`);else setCell('remote','','—','sin cambios recibidos en esta sesión')}
+function scheduleLocalPersist(){clearTimeout(localPersistTimer);localPersistTimer=setTimeout(()=>{try{guardarEstadoLocalSinCloud?.()}catch(_){}},1400)}
+function findLocalMatch(teamId,matchId){const t=equiposData?.[teamId],list=Array.isArray(t?.scoutingMatches)?t.scoutingMatches:[];return list.find(m=>Number(m?.id)===Number(matchId))||null}
+function applyPatchToMatch(m,p){if(!m||!p)return false;['updatedAt','status','currentSet','rotationNo','opponentRotationNo','servingTeam','scoreUs','scoreOpponent','resultCompleteAt','endedAt','manualSavedAt'].forEach(k=>{if(p[k]!==undefined)m[k]=clone(p[k])});['lineup','baseLineup','libero','liveRally','workflow','events','substitutions','officialResult'].forEach(k=>{if(p[k]!==undefined)m[k]=clone(p[k])});if(p.set){m.sets=Array.isArray(m.sets)?m.sets:[];const idx=Math.max(0,Number(p.setIndex)||0);m.sets[idx]=clone(p.set)}if(Array.isArray(p.setSummaries)){m.sets=Array.isArray(m.sets)?m.sets:[];p.setSummaries.forEach((s,i)=>{if(!s)return;if(!m.sets[i])m.sets[i]={};['scoreUs','scoreOpponent','finished','winner','number','setNo'].forEach(k=>{if(s[k]!==undefined)m.sets[i][k]=clone(s[k])})})}return true}
+function refreshFastUi(){try{window.MatchState?.sync?.('remote-fast')}catch(_){};try{window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}catch(_){};if(document.getElementById('scout-match-mode')?.classList.contains('active'))try{window.v800Render?.()}catch(_){} }
+function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)];target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),30);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}scheduleLocalPersist();lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();return true}finally{fastApplying=false}}
+function onFast(message){try{applyFastPatch(message?.payload||message)}catch(err){console.warn('V15.2.3 fast patch',err)}}
+function buildFastPayload(reason){const m=active();if(!m)return null;const s=currentSet(m),setIndex=Math.max(0,(Number(m.currentSet)||1)-1);const full=/reconnect|selected|new|create|boot|result|final/i.test(String(reason||''))||!s;const base={version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:now(),teamId:String(equipoActivo||''),matchId:Number(m.id)||0,mode:full?'full':'patch'};if(full){base.match=clone(m);return base}base.patch={updatedAt:m.updatedAt,status:m.status,currentSet:m.currentSet,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,servingTeam:m.servingTeam,lineup:clone(m.lineup),baseLineup:clone(m.baseLineup),libero:clone(m.libero),liveRally:clone(m.liveRally),workflow:clone(m.workflow),events:clone(m.events),substitutions:clone(m.substitutions),officialResult:clone(m.officialResult),setIndex,set:clone(s),setSummaries:(Array.isArray(m.sets)?m.sets:[]).map(x=>x?{number:x.number,setNo:x.setNo,scoreUs:x.scoreUs,scoreOpponent:x.scoreOpponent,finished:x.finished,winner:x.winner}:null)};return base}
+function queueFast(reason='matchstate'){if(fastApplying||rtState!=='SUBSCRIBED'||!channel||!cloudConnected())return;clearTimeout(fastTimer);fastTimer=setTimeout(async()=>{if(rtState!=='SUBSCRIBED'||!channel)return;touchMeta(reason);const payload=buildFastPayload(reason);if(!payload)return;try{await channel.send({type:'broadcast',event:FAST_EVENT,payload})}catch(err){console.warn('V15.2.3 broadcast',err)}},45)}
+async function syncRemote(reason='fallback'){if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}try{lastPullAt=now();await window.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});render();return true}catch(err){console.warn('V15.2.3 remote sync',err);return false}}
+function onRemote(payload){try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;if(meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000){render();return}clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('db-change'),550)}catch(err){console.warn('V15.2.3 postgres event',err)}}
 function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState='disconnected';render()}
-function connectRealtime(){
-  if(!cloudConnected()){disconnectRealtime();return false}
-  const uid=String(cloudUser?.id||'');if(!uid)return false;
-  if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;
-  /* CHANNEL_ERROR / TIMED_OUT / CLOSED channels are dead on Safari too: recreate them. */
-  disconnectRealtime();channelUser=uid;rtState='connecting';render();
-  try{
-    channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}})
-      .on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote)
-      .subscribe(status=>{
-        rtState=String(status||'');render();
-        if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED'){
-          setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2500);
-        }
-      });
-    return true
-  }catch(err){console.warn('V15.2.2 realtime unavailable',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},3000);return false}
-}
-function poll(){clearTimeout(pollTimer);const activeMatch=!!active(),delay=activeMatch?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()){const safetyGap=rtState==='SUBSCRIBED'?25000:7000;if(now()-lastPullAt>=safetyGap)await syncRemote(rtState==='SUBSCRIBED'?'safety':'fallback')}poll()},delay)}
-function hardenTouch(){
-  if(!isMobile())return;document.documentElement.classList.add('v138-touch');
-  document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0});
-  document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role="button"][onclick]')){e.preventDefault();e.target.click()}},true);
-}
-function auditTouch(){const bad=[];if(isMobile()){document.querySelectorAll('button,summary,[role="button"],select').forEach(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);if(r.width&&r.height&&cs.display!=='none'&&cs.visibility!=='hidden'&&(r.height<36||r.width<30))bad.push({id:el.id||'',tag:el.tagName,w:Math.round(r.width),h:Math.round(r.height),text:(el.textContent||'').trim().slice(0,40)})})}return bad.slice(0,80)}
-async function resumeSync(reason='resume'){try{await window.v141EnsureCloudLibrary?.();if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(err){console.warn('V15.2.2 resume cloud',err)}connectRealtime();setTimeout(()=>syncRemote(reason),250);render()}
-function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('device-register')}catch(_){};try{window.MatchState?.subscribe?.(()=>{touchMeta('matchstate');render()})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('offline',()=>{disconnectRealtime();render()});window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible')connectRealtime()},15000);setTimeout(()=>resumeSync('startup'),300);poll();render()}
-window.v138SyncNow=()=>syncRemote('manual');
-window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),touchIssues:auditTouch(),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS})};
-try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.2'}}catch(_){}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:FAST_EVENT},onFast).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED')queueFast('reconnect');if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.3 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
+function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()&&now()-lastPullAt>=delay)await syncRemote('safety');poll()},delay)}
+function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
+async function resumeSync(reason='resume'){try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
+function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();queueFast(d?.reason||'matchstate');if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
+window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.3'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
 
@@ -29960,7 +29679,7 @@ function addExchangeEntrypoints(){ensureExchange();const tools=$('v140-tools-she
 const oldTools=window.v140OpenTools;if(typeof oldTools==='function'&&!oldTools.__v152){const w=function(...args){const out=oldTools.apply(this,args);setTimeout(addExchangeEntrypoints,0);return out};w.__v152=true;window.v140OpenTools=w}
 
 /* Boot / integration */
-function boot(){ensureSmartUI();renderSmart();ensureExchange();addExchangeEntrypoints();setTimeout(enhanceReport,80);const mo=new MutationObserver(()=>{if(document.querySelector('#v151-player-report .v151-report')&&!document.querySelector('#v152-player-advanced'))enhanceReport();addExchangeEntrypoints();if(!document.getElementById('v152-smart-strip')){ensureSmartUI();renderSmart()}});mo.observe(document.body,{childList:true,subtree:true});window.VC_V152={version:VERSION,smart:{get mode(){return smartMode},setMode:window.v152SetSmartMode,render:renderSmart},reports:{enhance:enhanceReport,print:printAdvanced},exchange:{open:window.v152OpenExchange,export:window.v152Export},diagnostics:()=>({version:VERSION,smartMode,smartVisible:!!$('v152-smart-strip'),exchangeReady:!!$('v152-exchange-modal'),reportEnhanced:!!$('v152-player-advanced')})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2'}}catch(_){}}
+function boot(){ensureSmartUI();renderSmart();ensureExchange();addExchangeEntrypoints();setTimeout(enhanceReport,80);let moTimer=0;const mo=new MutationObserver(()=>{clearTimeout(moTimer);moTimer=setTimeout(()=>{if(document.querySelector('#v151-player-report .v151-report')&&!document.querySelector('#v152-player-advanced'))enhanceReport();addExchangeEntrypoints();if(!document.getElementById('v152-smart-strip')){ensureSmartUI();renderSmart()}},180)});mo.observe(document.body,{childList:true,subtree:true});window.VC_V152={version:'15.2.3',smart:{get mode(){return smartMode},setMode:window.v152SetSmartMode,render:renderSmart},reports:{enhance:enhanceReport,print:printAdvanced},exchange:{open:window.v152OpenExchange,export:window.v152Export},diagnostics:()=>({version:'15.2.3',smartMode,smartVisible:!!$('v152-smart-strip'),exchangeReady:!!$('v152-exchange-modal'),reportEnhanced:!!$('v152-player-advanced')})};try{if(window.MatchState){window.MatchState.version='15.2.3';window.MatchState.schema='vc.match-state/15.2.3'}}catch(_){}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
