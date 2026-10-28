@@ -22,6 +22,7 @@
 <style id="v118-first-paint-style">
 html.v118-booting body,html.v139-booting body{visibility:hidden!important}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
@@ -4443,7 +4444,7 @@ function programarArchivadoAlCambiarDia(){
 
 
 // ===== VOLLEY COACH CLOUD SYNC (Supabase) =====
-let cloudClient=null, cloudUser=null, cloudSaveTimer=null, cloudApplying=false;
+let cloudClient=null, cloudUser=null, cloudSaveTimer=null, cloudApplying=false, cloudAuthSubscription=null;
 const CLOUD_URL_KEY='volleyCoachSupabaseUrlV2';
 const CLOUD_ANON_KEY='volleyCoachSupabaseAnonKeyV2';
 const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
@@ -4538,11 +4539,31 @@ async function guardarConfigCloud(){
   crearCloudClient();await initCloud();alert('Conexión guardada.');
 }
 async function initCloud(){
-  if(!crearCloudClient()){setCloudUI('', 'Nube sin configurar');return}
-  const {data:{session}}=await cloudClient.auth.getSession();
-  cloudUser=session?.user||null;
-  if(cloudUser){setCloudUI('online','Nube conectada · modo seguro')}else setCloudUI('', 'Nube lista · inicia sesión');
-  cloudClient.auth.onAuthStateChange(async(event,session)=>{cloudUser=session?.user||null;if(cloudUser){setCloudUI('online','Nube conectada · sincronización eficiente');if(event==='SIGNED_IN')setTimeout(()=>{try{window.v962ForceSync?.('login')}catch(_){}},350)}else setCloudUI('', 'Nube desconectada')});
+  if(!crearCloudClient()){setCloudUI('', 'Nube sin configurar');return false}
+  try{
+    const {data,error}=await cloudClient.auth.getSession();
+    if(error)throw error;
+    cloudUser=data?.session?.user||null;
+    if(cloudUser){
+      setCloudUI('online','Nube conectada · modo seguro');
+      setTimeout(()=>{try{window.VC_DEVICE_SYNC?.connect?.();window.v962ForceSync?.('auth-init')}catch(_){}},120);
+    }else setCloudUI('', 'Nube lista · inicia sesión');
+    try{cloudAuthSubscription?.unsubscribe?.()}catch(_){}
+    const authRes=cloudClient.auth.onAuthStateChange((event,session)=>{
+      cloudUser=session?.user||null;
+      if(cloudUser){
+        setCloudUI('online','Nube conectada · sincronización eficiente');
+        setTimeout(()=>{try{window.VC_DEVICE_SYNC?.connect?.();if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='INITIAL_SESSION')window.v962ForceSync?.('auth-'+String(event).toLowerCase())}catch(_){}},120);
+      }else{
+        setCloudUI('', 'Nube desconectada');
+        try{window.VC_DEVICE_SYNC?.render?.()}catch(_){}
+      }
+    });
+    cloudAuthSubscription=authRes?.data?.subscription||null;
+    return true;
+  }catch(err){
+    cloudUser=null;console.warn('V15.2.2 cloud init',err);setCloudUI('error','Nube · error de sesión');return false;
+  }
 }
 async function cloudSignup(){
   if(!cloudClient&& !crearCloudClient()){alert('Primero configura Supabase.');return}
@@ -4571,7 +4592,7 @@ async function actualizarEstadoCloud(){
   setCloudUI(cloudUser?'online':'',cloudUser?('Conectado: '+cloudUser.email):'Nube lista · inicia sesión');
 }
 function programarSubidaCloud(){
-  if(cloudApplying||!cloudUser||!navigator.onLine)return;
+  if(cloudApplying||!cloudUser)return;
   clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>subirNube(false),900);
 }
 async function subirNube(manual=false){
@@ -9589,10 +9610,14 @@ window.scoutDeleteSaved=function(id){
 
 const v6103TeamBase=window.cambiarEquipo;
 window.cambiarEquipo=function(id){
+  if(!id||String(id)===String(equipoActivo))return false;
   const active=scoutActive();
-  if(active&&active.status!=='finished'&&String(id)!==String(equipoActivo)){
-    scoutV6103StayLive(`Tienes un scouting abierto contra ${active.opponent||'el rival actual'}. Guárdalo o finalízalo antes de cambiar de equipo.`);
-    return false;
+  if(active&&active.status!=='finished'){
+    /* V15.2.1: switching teams is safe now. Persist the live scouting in the
+       current team's archive instead of blocking Infantil/Cadete navigation. */
+    try{scoutSave?.(false)}catch(_){}
+    try{guardarEquipoEnMemoria?.();guardarEstadoLocalSinCloud?.()}catch(_){}
+    try{window.scoutV902Flush?.()}catch(_){}
   }
   return v6103TeamBase(id);
 };
@@ -23921,7 +23946,7 @@ if(typeof programarSubidaCloud==='function'){
     try{active=!!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){}
     if(!active)return cloudScheduleBase();
     if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
-    if(typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return;
+    if(typeof cloudUser==='undefined'||!cloudUser)return;
     clearTimeout(v902CloudTimer);
     v902CloudTimer=setTimeout(()=>{
       const send=()=>{try{void subirNube(false)}catch(_){}};
@@ -24438,7 +24463,7 @@ async function forceSave(silent=false){
     if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();
     else if(typeof guardarEstadoLocalSinCloud==='function')guardarEstadoLocalSinCloud();
     try{clearTimeout(cloudSaveTimer);cloudSaveTimer=null}catch(_){}
-    if(typeof subirNube==='function'&&typeof cloudUser!=='undefined'&&cloudUser&&navigator.onLine){
+    if(typeof subirNube==='function'&&typeof cloudUser!=='undefined'&&cloudUser){
       if(typeof window.v962ForceSync==='function')await window.v962ForceSync('force-save');
       else await subirNube(false);
       if(!silent){
@@ -24489,7 +24514,7 @@ window.scoutFinishMatch=window.scoutV6102FinalizeAndExit;
 const status=()=>{
   const el=document.getElementById('v940-context-save');if(!el)return;
   let cloud=false;
-  try{cloud=!!cloudUser&&navigator.onLine}catch(_){}
+  try{cloud=!!cloudUser}catch(_){}
   el.textContent=cloud?'Nube auto ✓':'Local ✓';
 };
 setInterval(status,10000);setTimeout(status,0);
@@ -24921,7 +24946,7 @@ if(typeof applyBase==='function'&&!applyBase.__v953){
 }
 
 async function pullRemote({force=false,render=true}={}){
-  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return false;
+  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)return false;
   if(pullPromise)return pullPromise;
   pulling=true;
   pullPromise=(async()=>{
@@ -25846,7 +25871,7 @@ function installCanonical(canonical){
   return own.length;
 }
 async function readRemote(){
-  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine)return null;
+  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)return null;
   const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
   if(error)throw error;
   return data||null;
@@ -25876,7 +25901,7 @@ async function syncCanonical({upload=true,quiet=false}={}){
     const status=document.getElementById('v956-scout-sync-status');
     if(status&&!quiet)status.textContent='Sincronizando scoutings…';
     try{
-      if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser||!navigator.onLine){
+      if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser){
         if(status&&!quiet)status.textContent='Nube no conectada';
         return false;
       }
@@ -26183,6 +26208,19 @@ let lastUploadedHash=localStorage.getItem('v962_last_uploaded_hash')||'';
 let reads=Number(sessionStorage.getItem('v962_reads'))||0;
 let writes=Number(sessionStorage.getItem('v962_writes'))||0;
 let skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
+/* V15.2.1 · mobile-safe cloud retry state */
+let failureCount=Number(sessionStorage.getItem('v1521_sync_failures'))||0;
+let nextRetryAt=Number(sessionStorage.getItem('v1521_sync_retry_at'))||0;
+let lastSyncError='';
+function retryDelayMs(){return Math.min(300000,Math.max(15000,15000*Math.pow(2,Math.min(failureCount,5))))}
+function rememberFailure(err){
+  failureCount=Math.min(8,failureCount+1);nextRetryAt=Date.now()+retryDelayMs();lastSyncError=String(err?.message||err||'Error de sincronización');
+  try{sessionStorage.setItem('v1521_sync_failures',String(failureCount));sessionStorage.setItem('v1521_sync_retry_at',String(nextRetryAt))}catch(_){}
+}
+function clearFailures(){failureCount=0;nextRetryAt=0;lastSyncError='';try{sessionStorage.removeItem('v1521_sync_failures');sessionStorage.removeItem('v1521_sync_retry_at')}catch(_){}}
+function retryLabel(){const sec=Math.max(1,Math.ceil((nextRetryAt-Date.now())/1000));return sec<60?`${sec}s`:`${Math.ceil(sec/60)} min`}
+function automaticRetryBlocked(manual){return false}
+
 
 function persistCounters(){
   try{
@@ -26192,7 +26230,9 @@ function persistCounters(){
   }catch(_){}
 }
 function connected(){
-  try{return !!cloudClient&&!!cloudUser&&navigator.onLine}catch(_){return false}
+  /* Safari/macOS can report navigator.onLine=false even while requests work.
+     Treat an authenticated Supabase client as connected and let the request decide. */
+  try{return !!cloudClient&&!!cloudUser}catch(_){return false}
 }
 function activeScouting(){
   try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}
@@ -26291,13 +26331,17 @@ function renderAfterMerge(){
 async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
   if(syncPromise)return syncPromise;
   if(!connected()){
-    if(manual)alert('La nube no está conectada.');
+    if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');
+    return false;
+  }
+  if(automaticRetryBlocked(manual)){
+    setStatus(`Nube pendiente · reintento en ${retryLabel()}`,'syncing');
     return false;
   }
   clearTimeout(dirtyTimer);dirtyTimer=null;
 
   syncPromise=(async()=>{
-    setStatus(manual?'Sincronizando…':'Nube · comprobando…','syncing');
+    if(manual)setStatus('Sincronizando…','syncing');
     try{
       const localBefore=localState();
       const beforeHash=stateHash(localBefore);
@@ -26322,7 +26366,7 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
         skippedWrites++;persistCounters();
       }
 
-      dirty=false;dirtySince=0;
+      dirty=false;dirtySince=0;clearFailures();
       renderAfterMerge();
 
       const changed=beforeHash!==mergedHash;
@@ -26340,11 +26384,19 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
       }
       return changed||mustWrite;
     }catch(err){
-      console.warn('V9.6.2 cloud efficient sync',reason,err);
-      setStatus('Error de sincronización','error');
-      if(manual)alert(err?.message||'No se pudo sincronizar con la nube.');
-      /* Preserve dirty state so the next reconnect/check retries. */
-      if(reason.startsWith('dirty')||dirty)markDirty('retry');
+      console.warn('V15.2.1 cloud sync',reason,err);
+      rememberFailure(err);
+      /* Automatic failures must never spam the mobile UI. Local journal +
+         checkpoints remain authoritative while the cloud waits for a retry. */
+      if(manual){
+        setStatus('Error de sincronización','error');
+        alert(`${err?.message||'No se pudo sincronizar con la nube.'}\n\nLos datos locales siguen protegidos. La app volverá a intentarlo automáticamente.`);
+      }else{
+        setStatus(`Nube pendiente · reintento en ${retryLabel()}`,'syncing');
+      }
+      /* Keep local changes dirty, but don't recursively schedule another retry
+         before the exponential backoff window expires. */
+      if(reason.startsWith('dirty')||dirty){dirty=true;if(!dirtySince)dirtySince=Date.now()}
       return false;
     }finally{
       syncPromise=null;
@@ -26447,7 +26499,10 @@ window.VC_V962_CLOUD_EFFICIENT={
     normalQuietSeconds:QUIET_NORMAL_MS/1000,
     normalMaxBatchSeconds:MAX_DIRTY_NORMAL_MS/1000,
     journalImmediate:true,
-    duplicateLegacyPolling:false
+    duplicateLegacyPolling:false,
+    failureCount,
+    nextRetryAt:nextRetryAt||null,
+    lastSyncError:lastSyncError||null
   })
 };
 })();
@@ -26674,8 +26729,22 @@ window.v11ToggleSidebar=function(force){
   side.classList.toggle('open',open);overlay?.classList.toggle('open',open);
 };
 window.v11SetTeam=function(id){
-  try{window.cambiarEquipo?.(id)}catch(_){}
-  setTimeout(v11RefreshShell,40);
+  if(!id||String(id)===String(equipoActivo)){v11RefreshShell();return true}
+  const buttons=['infantil','cadete'].map(x=>$('v11-team-'+x)).filter(Boolean);
+  buttons.forEach(b=>b.disabled=true);
+  try{
+    window.cambiarEquipo?.(id);
+    if(String(equipoActivo)!==String(id))throw new Error('El equipo activo no se ha actualizado.');
+    v11RefreshShell();
+    try{window.MatchState?.touch?.('team:changed',{teamId:id})}catch(_){}
+    return true;
+  }catch(err){
+    console.error('V15.2.1 team switch',id,err);
+    alert('No se ha podido cambiar de equipo. Tus datos no se han eliminado.');
+    return false;
+  }finally{
+    setTimeout(()=>{buttons.forEach(b=>b.disabled=false);v11RefreshShell()},80);
+  }
 };
 function cleanMirror(node){
   if(!node)return '';
@@ -27928,8 +27997,8 @@ window.v119SaveAll=async function(withCloud=true){
     if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();
     else window.VC_SCOUT_VIDEO_BRIDGE?.save?.();
     try{if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup('v119-manual',false)}catch(_){}
-    if(withCloud&&navigator.onLine){try{await window.v957SyncScoutingsNow?.()}catch(err){console.warn('V11.9 cloud sync',err)}}
-    updateSaveState(withCloud&&navigator.onLine?'Local + nube ✓':'Local ✓');
+    if(withCloud){try{await window.v957SyncScoutingsNow?.()}catch(err){console.warn('V11.9 cloud sync',err)}}
+    updateSaveState(withCloud?'Local + nube ✓':'Local ✓');
     try{window.v900Render?.()}catch(_){}
     return true;
   }catch(err){console.error('V11.9 save',err);updateSaveState('Protegido · revisar nube');alert('El scouting se mantiene protegido localmente, pero el guardado completo ha tenido una incidencia.');return false}
@@ -28137,7 +28206,7 @@ window.v120FinishSet=function(){const m=active(),s=setOf(m);if(!m||!s)return;con
 /* FINAL RESULT */
 window.v120OpenFinalResult=function(){const m=active();if(!m)return alert('No hay un scouting activo.');const s=setOf(m),recorded=(()=>{let us=0,opponent=0;arr(m.sets).forEach(x=>{if(x.finished){if(Number(x.scoreUs)>Number(x.scoreOpponent))us++;else if(Number(x.scoreOpponent)>Number(x.scoreUs))opponent++}});return {us,opponent}})(),cur=m.manualFinalResult?.active?{us:Number(m.manualFinalResult.us)||0,opponent:Number(m.manualFinalResult.opponent)||0}:recorded;$('v120-result-title').textContent=`${teamName()} vs ${m.opponent||'Rival'}`;$('v120-result-us-label').textContent=teamName();$('v120-result-op-label').textContent=m.opponent||'Rival';$('v120-result-us').value=String(cur.us);$('v120-result-op').value=String(cur.opponent);$('v120-result-context').innerHTML=s?context(m,s):'';$('v120-result-recorded').innerHTML=`<strong>Registrado en sets cerrados: ${recorded.us}-${recorded.opponent}</strong>${m.manualFinalResult?.active?` · Resultado manual actual ${m.manualFinalResult.us}-${m.manualFinalResult.opponent}`:''}`;$('v120-result-set-list').innerHTML=setPills(m);$('v120-result-modal').classList.add('open')};
 window.v120CloseFinalResult=()=> $('v120-result-modal')?.classList.remove('open');
-window.v120SaveFinalResult=async function(finalize=false){const m=active();if(!m)return;const us=Math.max(0,Math.min(5,Number($('v120-result-us').value)||0)),op=Math.max(0,Math.min(5,Number($('v120-result-op').value)||0));if(us===op)return alert('El resultado final no puede quedar empatado.');if(us===0&&op===0)return alert('Introduce el resultado final en sets.');if(finalize&&arr(m.liveRally?.actions).length&&!confirm('Hay acciones en el rally actual sin cerrar. No se convertirán en un rally. ¿Finalizar igualmente?'))return;const t=now();m.manualFinalResult={active:true,us,opponent:op,savedAt:t,finalizedAt:finalize?t:null,clearedAt:null};m.resultComplete=true;m.resultCompleteAt=t;if(finalize){m.status='finished';m.finalizedByUser=true;m.endedAt=t}else if(m.status!=='finished'){m.status='live';m.endedAt=null}try{scoutSyncCompetition?.(m)}catch(_){}try{scoutSave?.(false)}catch(_){}try{await window.scoutV680Backup?.('v120-final-result',true)}catch(_){}try{await window.v119SaveAll?.(navigator.onLine)}catch(_){}v120CloseFinalResult();v120RenderManagement();if(finalize){setTimeout(()=>{try{window.showView?.('scout-analysis',window.botonVista?.('scout-analysis'));window.scoutRenderAnalysis?.()}catch(_){}},80)}else{try{window.v900Render?.()}catch(_){}}};
+window.v120SaveFinalResult=async function(finalize=false){const m=active();if(!m)return;const us=Math.max(0,Math.min(5,Number($('v120-result-us').value)||0)),op=Math.max(0,Math.min(5,Number($('v120-result-op').value)||0));if(us===op)return alert('El resultado final no puede quedar empatado.');if(us===0&&op===0)return alert('Introduce el resultado final en sets.');if(finalize&&arr(m.liveRally?.actions).length&&!confirm('Hay acciones en el rally actual sin cerrar. No se convertirán en un rally. ¿Finalizar igualmente?'))return;const t=now();m.manualFinalResult={active:true,us,opponent:op,savedAt:t,finalizedAt:finalize?t:null,clearedAt:null};m.resultComplete=true;m.resultCompleteAt=t;if(finalize){m.status='finished';m.finalizedByUser=true;m.endedAt=t}else if(m.status!=='finished'){m.status='live';m.endedAt=null}try{scoutSyncCompetition?.(m)}catch(_){}try{scoutSave?.(false)}catch(_){}try{await window.scoutV680Backup?.('v120-final-result',true)}catch(_){}try{await window.v119SaveAll?.(true)}catch(_){}v120CloseFinalResult();v120RenderManagement();if(finalize){setTimeout(()=>{try{window.showView?.('scout-analysis',window.botonVista?.('scout-analysis'));window.scoutRenderAnalysis?.()}catch(_){}},80)}else{try{window.v900Render?.()}catch(_){}}};
 
 /* Public professional entry points. Old implementations remain as compatibility only. */
 if(!window.VC_V120_LEGACY){window.VC_V120_LEGACY={openSubstitution:window.scoutOpenSubstitution,openEvent:window.scoutV690OpenEvent,openFinishSet:window.scoutV861OpenFinishSet,openFinalResult:window.scoutV861OpenFinalResult}}
@@ -29138,15 +29207,14 @@ function cell(id,state,main,sub){const c=$(id+'-cell'),b=$(id+'-main'),s=$(id+'-
 function toast(title,copy='',error=false){ensureUI();const el=$('v137-save-toast');if(!el)return;el.className='v137-save-toast'+(error?' error':'');el.innerHTML=`<b>${String(title||'')}</b><span>${String(copy||'')}</span>`;requestAnimationFrame(()=>el.classList.add('show'));clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
 function render(){
   if(!ensureUI())return;const m=active(),ld=localDiag(),cd=cloudDiag();
-  if(!m){cell('v137-local','', 'Sin scouting activo','El resto de la app usa su guardado habitual');cell('v137-snapshot','', '—','Crea o abre un scouting');cell('v137-cloud',navigator.onLine?'':'pending',navigator.onLine?'Nube disponible':'Sin conexión','Sin partido activo');cell('v137-sync','',cd.lastWriteAt?time(cd.lastWriteAt):'—',cd.lastWriteAt?age(cd.lastWriteAt):'Sin sincronización');return}
+  if(!m){cell('v137-local','', 'Sin scouting activo','El resto de la app usa su guardado habitual');cell('v137-snapshot','', '—','Crea o abre un scouting');cell('v137-cloud',cd.connected?'ok':'pending',cd.connected?'Nube conectada':'Nube no conectada',cd.connected?'Sin partido activo · sincronización disponible':'Inicia sesión para sincronizar');cell('v137-sync','',cd.lastWriteAt?time(cd.lastWriteAt):'—',cd.lastWriteAt?age(cd.lastWriteAt):'Sin sincronización');return}
   const mutationPending=lastMutationAt&&(!ld.lastFullAt||Number(ld.lastFullAt)<lastMutationAt), pending=!!ld.commitPending||!!ld.commitBusy||mutationPending;
   if(lastError)cell('v137-local','error','Revisar guardado',lastError);
   else if(pending)cell('v137-local','pending','Protegido · consolidando','journal inmediato · estado completo pendiente');
   else cell('v137-local','ok','Guardado local ✓',lastLocalAt||ld.lastFullAt?`${age(Math.max(lastLocalAt,Number(ld.lastFullAt)||0))}`:'journal activo');
   cell('v137-snapshot',lastSnapshotAt?'ok':'pending',lastSnapshotAt?'Checkpoint ✓':'Checkpoint pendiente',lastSnapshotAt?`${age(lastSnapshotAt)} · actual + anterior`:'se crea automáticamente');
   let cloudState='',cloudMain='',cloudSub='';
-  if(!navigator.onLine){cloudState='pending';cloudMain='Offline · pendiente';cloudSub='se sincronizará al volver la red'}
-  else if(!cd.connected){cloudState='';cloudMain='Nube no conectada';cloudSub='guardado local sigue activo'}
+  if(!cd.connected){cloudState='';cloudMain='Nube no conectada';cloudSub='guardado local sigue activo'}
   else if(cd.syncing){cloudState='pending';cloudMain='Sincronizando…';cloudSub='fusionando cambios seguros'}
   else if(cd.dirty){cloudState='pending';cloudMain='Cambios pendientes';cloudSub='cola automática activa'}
   else{cloudState='ok';cloudMain='Nube sincronizada ✓';cloudSub=cd.lastWriteAt?age(cd.lastWriteAt):'sin cambios pendientes'}
@@ -29168,11 +29236,11 @@ async function saveNow(){
     if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();else window.scoutSave?.(false);
     lastLocalAt=now();localStorage.setItem('v137_last_local_at',String(lastLocalAt));
     await periodicSnapshot(true,'v137-manual');
-    if(navigator.onLine&&cloudDiag().connected){try{await window.v962ForceSync?.('v137-manual')}catch(err){console.warn('V13.7 manual cloud',err)}}
+    if(cloudDiag().connected){try{await window.v962ForceSync?.('v137-manual')}catch(err){console.warn('V13.7 manual cloud',err)}}
     render();const cd=cloudDiag();toast('Guardado confirmado ✓',cd.connected&&!cd.dirty?'Local + nube sincronizados':'Copia local y recuperación protegidas');return true;
   }catch(err){lastError=String(err?.message||'Error al consolidar el estado local');console.error('V13.7 save now',err);render();toast('Incidencia de guardado',lastError,true);return false}
 }
-async function syncNow(){if(!navigator.onLine)return toast('Sin conexión','Los cambios quedan protegidos localmente y se enviarán al recuperar la red.',true);try{toast('Sincronizando…','Fusionando cambios con la nube.');await window.v962ForceSync?.('v137-button');render();const d=cloudDiag();toast(d.dirty?'Sincronización pendiente':'Nube al día ✓',d.dirty?'Quedan cambios en cola.':'No hay cambios pendientes.')}catch(err){toast('Error de sincronización',String(err?.message||err),true)}}
+async function syncNow(){try{toast('Sincronizando…','Fusionando cambios con la nube.');const ok=await window.v962ForceSync?.('v137-button');render();const d=cloudDiag();if(ok===false&&d.connected===false){toast('Nube no conectada','Inicia sesión en la misma cuenta en ambos dispositivos.',true);return false}toast(d.dirty?'Sincronización pendiente':'Nube al día ✓',d.dirty?'Los datos locales están protegidos y se reintentará la nube.':'No hay cambios pendientes.');return ok}catch(err){toast('Error de sincronización',String(err?.message||err),true);return false}}
 function openRecovery(){try{window.scoutV892OpenRecoveryCenter?.()}catch(err){console.error(err)}}
 function installHooks(){
   const baseSave=window.scoutSave;if(typeof baseSave==='function'&&!baseSave.__v137){const wrapped=function(...args){noteMutation();try{return baseSave.apply(this,args)}catch(err){lastError=String(err?.message||err);render();throw err}};wrapped.__v137=true;window.scoutSave=wrapped;try{scoutSave=wrapped}catch(_){} }
@@ -29226,7 +29294,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="v138-realtime-mobile-runtime">
 (()=>{
 'use strict';
-const VERSION='13.8.0', DEVICE_KEY='vc_v138_device_id', DEVICE_NAME_KEY='vc_v138_device_name', META_KEY='vc_v138_sync_meta', POLL_ACTIVE_MS=9000, POLL_IDLE_MS=30000;
+const VERSION='15.2.2', DEVICE_KEY='vc_v138_device_id', DEVICE_NAME_KEY='vc_v138_device_name', META_KEY='vc_v138_sync_meta', POLL_ACTIVE_MS=9000, POLL_IDLE_MS=30000;
 const $=id=>document.getElementById(id), now=()=>Date.now();
 const isMobile=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 function makeId(){try{return crypto.randomUUID()}catch(_){return 'dev_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10)}}
@@ -29237,7 +29305,7 @@ let seq=Number(localStorage.getItem('vc_v138_device_seq'))||0,lastChangedAt=Numb
 let channel=null,channelUser='',rtState='offline',lastRemoteAt=0,lastRemoteDevice='',lastRemoteName='',lastPullAt=0,pollTimer=null,remoteSyncTimer=null,knownDevices={};
 try{knownDevices=JSON.parse(localStorage.getItem('vc_v138_known_devices')||'{}')||{}}catch(_){knownDevices={}}
 function active(){try{return window.MatchState?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
-function cloudConnected(){try{return !!cloudClient&&!!cloudUser&&navigator.onLine}catch(_){return false}}
+function cloudConnected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false}}
 function persistKnown(){try{localStorage.setItem('vc_v138_known_devices',JSON.stringify(knownDevices))}catch(_){}}
 function touchMeta(reason='change'){
   seq++;lastChangedAt=now();try{localStorage.setItem('vc_v138_device_seq',String(seq));localStorage.setItem('vc_v138_device_changed',String(lastChangedAt))}catch(_){}
@@ -29258,7 +29326,7 @@ function ensureUI(){
 function age(t){if(!t)return'—';const s=Math.max(0,Math.round((now()-Number(t))/1000));return s<3?'ahora':s<60?`hace ${s} s`:s<3600?`hace ${Math.floor(s/60)} min`:new Date(Number(t)).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}
 function setCell(prefix,state,main,sub){const c=$(`v138-${prefix}-cell`),b=$(`v138-${prefix}-main`),s=$(`v138-${prefix}-sub`);if(c)c.dataset.state=state||'';if(b)b.textContent=main;if(s)s.textContent=sub||''}
 function peer(){const list=Object.values(knownDevices).filter(d=>d&&d.id!==deviceId).sort((a,b)=>Number(b.lastSeen||0)-Number(a.lastSeen||0));return list[0]||null}
-function render(){if(!ensureUI())return;const p=peer();setCell('this','ok',deviceName,`${isMobile()?'Móvil':'Portátil / PC'} · ${deviceId.slice(0,8)}`);if(!navigator.onLine)setCell('live','pending','Offline','cola local activa');else if(!cloudConnected())setCell('live','pending','Nube no conectada','inicia sesión en ambos dispositivos');else if(rtState==='SUBSCRIBED')setCell('live','ok','Tiempo real ✓','Realtime activo · respaldo periódico');else if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT')setCell('live','pending','Respaldo activo','Realtime no disponible · sincronización periódica');else setCell('live','pending','Conectando…','preparando canal de tiempo real');if(p)setCell('peer',now()-Number(p.lastSeen||0)<120000?'ok':'',p.name||'Otro dispositivo',`${p.type==='mobile'?'Móvil':'PC'} · ${age(p.lastSeen)}`);else setCell('peer','', '—','abre la app con la misma cuenta');if(lastRemoteAt)setCell('remote','ok',age(lastRemoteAt),`${lastRemoteName||lastRemoteDevice||'otro dispositivo'} · partido actualizado`);else setCell('remote','', '—','sin cambios recibidos en esta sesión')}
+function render(){if(!ensureUI())return;const p=peer(),syncDiag=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};setCell('this','ok',deviceName,`${isMobile()?'Móvil':'Portátil / PC'} · ${deviceId.slice(0,8)}`);if(!cloudConnected())setCell('live','pending','Nube no conectada','inicia sesión en ambos dispositivos');else if(Number(syncDiag.failureCount||0)>0)setCell('live','pending','Nube pendiente','los datos locales siguen protegidos · reintentando');else if(rtState==='SUBSCRIBED')setCell('live','ok','Tiempo real ✓','Realtime activo · respaldo periódico');else if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setCell('live','pending','Respaldo activo','recreando Realtime · sincronización periódica');else setCell('live','pending','Conectando…',navigator.onLine===false?'red no confirmada por el navegador · probando nube':'preparando canal de tiempo real');if(p)setCell('peer',now()-Number(p.lastSeen||0)<120000?'ok':'',p.name||'Otro dispositivo',`${p.type==='mobile'?'Móvil':'PC'} · ${age(p.lastSeen)}`);else setCell('peer','', '—','abre la app con la misma cuenta');if(lastRemoteAt)setCell('remote','ok',age(lastRemoteAt),`${lastRemoteName||lastRemoteDevice||'otro dispositivo'} · partido actualizado`);else setCell('remote','', '—','sin cambios recibidos en esta sesión')}
 async function syncRemote(reason='realtime'){
   if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}
   try{const engine=window.VC_V962_CLOUD_EFFICIENT;if(!engine?.sync)return false;const wasDirty=!!engine.diagnostics?.().dirty;lastPullAt=now();await engine.sync({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});if(wasDirty)engine.markDirty?.('remote-merge');render();return true}catch(err){console.warn('V13.8 remote sync',err);return false}
@@ -29266,10 +29334,24 @@ async function syncRemote(reason='realtime'){
 function onRemote(payload){
   try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;lastRemoteAt=now();lastRemoteDevice=String(meta?.deviceId||'');lastRemoteName=String(meta?.deviceName||'Otro dispositivo');render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('realtime'),220)}catch(err){console.warn('V13.8 realtime event',err)}
 }
-function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState=navigator.onLine?'disconnected':'offline';render()}
+function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState='disconnected';render()}
 function connectRealtime(){
-  if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid)return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();
-  try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}}).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).subscribe(status=>{rtState=String(status||'');render()});return true}catch(err){console.warn('V13.8 realtime unavailable',err);rtState='CHANNEL_ERROR';render();return false}
+  if(!cloudConnected()){disconnectRealtime();return false}
+  const uid=String(cloudUser?.id||'');if(!uid)return false;
+  if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;
+  /* CHANNEL_ERROR / TIMED_OUT / CLOSED channels are dead on Safari too: recreate them. */
+  disconnectRealtime();channelUser=uid;rtState='connecting';render();
+  try{
+    channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}})
+      .on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote)
+      .subscribe(status=>{
+        rtState=String(status||'');render();
+        if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED'){
+          setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2500);
+        }
+      });
+    return true
+  }catch(err){console.warn('V15.2.2 realtime unavailable',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},3000);return false}
 }
 function poll(){clearTimeout(pollTimer);const activeMatch=!!active(),delay=activeMatch?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()){const safetyGap=rtState==='SUBSCRIBED'?25000:7000;if(now()-lastPullAt>=safetyGap)await syncRemote(rtState==='SUBSCRIBED'?'safety':'fallback')}poll()},delay)}
 function hardenTouch(){
@@ -29278,10 +29360,11 @@ function hardenTouch(){
   document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[role="button"][onclick]')){e.preventDefault();e.target.click()}},true);
 }
 function auditTouch(){const bad=[];if(isMobile()){document.querySelectorAll('button,summary,[role="button"],select').forEach(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);if(r.width&&r.height&&cs.display!=='none'&&cs.visibility!=='hidden'&&(r.height<36||r.width<30))bad.push({id:el.id||'',tag:el.tagName,w:Math.round(r.width),h:Math.round(r.height),text:(el.textContent||'').trim().slice(0,40)})})}return bad.slice(0,80)}
-function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('device-register')}catch(_){};try{window.MatchState?.subscribe?.(()=>{touchMeta('matchstate');render()})}catch(_){};window.addEventListener('online',()=>{connectRealtime();setTimeout(()=>syncRemote('online'),500);render()});window.addEventListener('offline',()=>{disconnectRealtime();render()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){connectRealtime();render()}});setInterval(()=>{if(document.visibilityState==='visible'){connectRealtime();render()}},15000);setTimeout(connectRealtime,300);poll();render()}
+async function resumeSync(reason='resume'){try{await window.v141EnsureCloudLibrary?.();if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(err){console.warn('V15.2.2 resume cloud',err)}connectRealtime();setTimeout(()=>syncRemote(reason),250);render()}
+function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('device-register')}catch(_){};try{window.MatchState?.subscribe?.(()=>{touchMeta('matchstate');render()})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('offline',()=>{disconnectRealtime();render()});window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible')connectRealtime()},15000);setTimeout(()=>resumeSync('startup'),300);poll();render()}
 window.v138SyncNow=()=>syncRemote('manual');
 window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),touchIssues:auditTouch(),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS})};
-try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/13.8'}}catch(_){}
+try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.2'}}catch(_){}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
@@ -29621,7 +29704,7 @@ async function ensureCloud(){
   return cloudPromise;
 }
 window.v141EnsureCloudLibrary=ensureCloud;
-function warmCloud(){if(!navigator.onLine)return;const run=()=>ensureCloud().catch(err=>console.warn('V15 cloud library',err));if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1800});else setTimeout(run,500)}
+function warmCloud(){const run=()=>ensureCloud().catch(err=>console.warn('V15 cloud library',err));if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1800});else setTimeout(run,500)}
 window.addEventListener('online',warmCloud,{passive:true});
 warmCloud();
 
@@ -29755,7 +29838,7 @@ function matchOptions(selected=''){return filteredMatches().slice().reverse().ma
 function setText(id,v){const e=$(id);if(e)e.textContent=v}
 function panel(tab){document.querySelectorAll('.v151-panel').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));document.querySelectorAll('.v151-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));state.tab=tab;localStorage.setItem('vc_v151_tab',tab)}
 function inject(){const sec=$('scout-season');if(!sec||$('v151-season-root'))return;sec.innerHTML=`<div id="v151-season-root" class="v151-shell">
-<div class="v151-head"><div><span>TEMPORADA PRO · V15.2</span><h2>Rendimiento de temporada</h2><p>Acumulados, evolución, comparación y seguimiento individual construidos sobre los mismos rallies y acciones validados del scouting.</p></div><div class="v151-head-actions"><button class="ghost" onclick="v11Navigate('analysis')">Análisis partido</button><button class="ghost" onclick="v11Navigate('players')">Plantilla</button><button class="primary" onclick="v151PrintCurrentPlayer()">Informe jugadora</button></div></div>
+<div class="v151-head"><div><span>TEMPORADA PRO · V15.2.1</span><h2>Rendimiento de temporada</h2><p>Acumulados, evolución, comparación y seguimiento individual construidos sobre los mismos rallies y acciones validados del scouting.</p></div><div class="v151-head-actions"><button class="ghost" onclick="v11Navigate('analysis')">Análisis partido</button><button class="ghost" onclick="v11Navigate('players')">Plantilla</button><button class="primary" onclick="v151PrintCurrentPlayer()">Informe jugadora</button></div></div>
 <div class="v151-filters"><label><span>Periodo</span><select id="v151-period" onchange="v151PeriodChanged()"><option value="all">Toda la temporada</option><option value="30">Últimos 30 días</option><option value="90">Últimos 90 días</option><option value="year">Este año</option><option value="custom">Personalizado</option></select></label><label><span>Jugadora / ámbito</span><select id="v151-player" onchange="v151PlayerChanged()"></select></label><div class="v151-filter-custom"><label><span>Desde</span><input id="v151-from" type="date" onchange="v151CustomChanged()"></label><label><span>Hasta</span><input id="v151-to" type="date" onchange="v151CustomChanged()"></label></div><div id="v151-filter-summary" class="v151-filter-summary">—</div></div>
 <nav class="v151-tabs" aria-label="Áreas de temporada"><button data-tab="dashboard" onclick="v151Tab('dashboard')"><span>▦</span>Dashboard</button><button data-tab="players" onclick="v151Tab('players')"><span>◎</span>Jugadoras</button><button data-tab="evolution" onclick="v151Tab('evolution')"><span>↗</span>Evolución</button><button data-tab="compare" onclick="v151Tab('compare')"><span>⇄</span>Comparar</button><button data-tab="rotations" onclick="v151Tab('rotations')"><span>R</span>Rotaciones</button><button data-tab="trends" onclick="v151Tab('trends')"><span>≋</span>Tendencias</button><button data-tab="lineups" onclick="v151Tab('lineups')"><span>6</span>Alineaciones</button><button data-tab="report" onclick="v151Tab('report')"><span>▤</span>Informe individual</button></nav>
 <section class="v151-panel" data-tab="dashboard"><div id="v151-dashboard-kpis" class="v151-kpis"></div><div class="v151-grid-2"><div class="v151-card"><div class="v151-card-head"><div><span>FORMA</span><h3>Evolución por partido</h3><p>Últimos partidos del periodo seleccionado.</p></div><button class="ghost" onclick="v151Tab('evolution')">Ver detalle</button></div><div id="v151-dashboard-form" class="v151-card-body"></div></div><div class="v151-card"><div class="v151-card-head"><div><span>IMPACTO</span><h3>Jugadoras destacadas</h3><p>G-P y fundamentos con muestra real.</p></div></div><div id="v151-dashboard-leaders" class="v151-card-body"></div></div></div><div class="v151-card"><div class="v151-card-head"><div><span>ROTACIONES</span><h3>Mejor y peor rendimiento</h3><p>K1, K2 y balance global R1–R6.</p></div><button class="ghost" onclick="v151Tab('rotations')">Abrir rotaciones</button></div><div id="v151-dashboard-rotations" class="v151-card-body"></div></div></section>
@@ -29798,7 +29881,7 @@ window.VC_V151_SEASON={version:VERSION,render:renderAll,players:()=>aggregatePla
 </script>
 
 <style id="v152-smart-exchange-style">
-/* ===== V15.2 · SMART RALLY + ADVANCED PLAYER REPORTS + PROFESSIONAL EXCHANGE ===== */
+/* ===== V15.2.1 · SMART RALLY + ADVANCED PLAYER REPORTS + PROFESSIONAL EXCHANGE ===== */
 .v152-smart-strip{display:grid;grid-template-columns:minmax(280px,1.15fr) minmax(220px,.85fr) minmax(260px,1fr);gap:7px;margin:8px 0;padding:8px;border:1px solid #dbe5ea;border-radius:11px;background:#f8fafb}
 .v152-smart-card{min-width:0;border:1px solid #e0e7eb;border-radius:9px;background:#fff;padding:9px 10px}.v152-smart-card>span{display:block;font:950 6.3px Arial;letter-spacing:.09em;color:#698397;text-transform:uppercase}.v152-smart-card b{color:#183c55}.v152-smart-modes{display:flex;gap:4px;margin-top:6px}.v152-smart-modes button{flex:1;min-height:34px!important;padding:5px 7px!important;font-size:7px!important;background:#f4f7f9!important;color:#5e7484!important;border:1px solid #dde6eb!important}.v152-smart-modes button.active{background:#173d59!important;color:#fff!important;border-color:#173d59!important}.v152-smart-main{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;margin-top:5px}.v152-smart-icon{width:38px;height:38px;border-radius:9px;background:#edf4f8;display:grid;place-items:center;font:950 15px Arial;color:#397da6}.v152-smart-main strong{display:block;font-size:9px;color:#203f56}.v152-smart-main small{display:block;margin-top:2px;font-size:6.7px;color:#7b8d99}.v152-smart-actions{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}.v152-smart-actions button{min-height:30px!important;padding:5px 8px!important;font-size:6.8px!important}.v152-smart-pending{border-color:#e5c99c;background:#fffaf2}.v152-smart-pending.good{border-color:#c7dfd1;background:#f4faf6}.v152-smart-pending.bad{border-color:#e3c6c2;background:#fff6f4}.v152-smart-pending strong{display:block;margin-top:4px;font-size:9px}.v152-smart-pending p{margin:3px 0 0;font-size:6.8px;color:#728591}.v152-smart-confidence{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:3px 6px;border-radius:999px;background:#edf3f6;font-size:6px;font-weight:900;color:#617988}
 .v152-adv-report{display:grid;gap:8px;margin-top:9px}.v152-adv-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;padding:10px 12px;border:1px solid #dce5ea;border-radius:10px;background:#fbfcfd}.v152-adv-head span{display:block;font:950 6.3px Arial;letter-spacing:.09em;color:#4d84a5}.v152-adv-head h3{margin:2px 0!important;font-size:13px!important;color:#173b55!important}.v152-adv-head p{margin:0;font-size:7px;color:#7a8d98}.v152-adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.v152-adv-card{border:1px solid #dfe7eb;border-radius:10px;background:#fff;overflow:hidden}.v152-adv-card header{padding:8px 10px;border-bottom:1px solid #e8edf0;background:#fafcfd}.v152-adv-card header span{font:900 6px Arial;color:#4a82a4;letter-spacing:.08em}.v152-adv-card header b{display:block;margin-top:2px;font-size:9px;color:#25475e}.v152-adv-body{padding:9px 10px}.v152-metric-compare{display:grid;grid-template-columns:1fr 70px 70px 58px;gap:5px;align-items:center;padding:5px 0;border-bottom:1px solid #edf1f3;font-size:7px}.v152-metric-compare:last-child{border-bottom:0}.v152-metric-compare span{color:#587083}.v152-metric-compare b{text-align:right}.v152-metric-compare i{text-align:right;font-style:normal;font-weight:950}.v152-metric-compare i.up{color:#337658}.v152-metric-compare i.down{color:#9a4b47}.v152-mini-table{width:100%;border-collapse:collapse;font-size:6.8px}.v152-mini-table th,.v152-mini-table td{padding:5px 4px;border-bottom:1px solid #edf1f3;text-align:center}.v152-mini-table th{font-size:5.8px;color:#748792;background:#f6f9fa}.v152-mini-table th:first-child,.v152-mini-table td:first-child{text-align:left}.v152-insights{display:grid;gap:5px}.v152-insight{padding:7px 8px;border-left:3px solid #5f89a5;background:#f7fafb;border-radius:5px;font-size:7px;color:#455f71}.v152-insight.good{border-color:#4d8a68}.v152-insight.warn{border-color:#b07b39}.v152-insight.bad{border-color:#a95853}
@@ -29808,7 +29891,7 @@ window.VC_V151_SEASON={version:VERSION,render:renderAll,players:()=>aggregatePla
 <script id="v152-smart-rally-reports-exchange">
 (()=>{
 'use strict';
-const VERSION='15.2.0',$=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[],B=()=>window.VC_SCOUT_REPORT_BRIDGE||null,V=()=>window.VC_SCOUT_VIDEO_BRIDGE||null;
+const VERSION='15.2.1',$=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[],B=()=>window.VC_SCOUT_REPORT_BRIDGE||null,V=()=>window.VC_SCOUT_VIDEO_BRIDGE||null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number(v)||0,pct=(n,d)=>d?Math.round(num(n)*100/num(d)):null,fmt=v=>v==null?'—':`${Math.round(v)}%`,gp=v=>`${num(v)>0?'+':''}${num(v)}`;
 function active(){try{return window.MatchState?.getActive?.()||V()?.getActive?.()||window.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}}
