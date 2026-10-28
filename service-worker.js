@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.4-monolithic';
+const CACHE_NAME = 'volley-coach-v16.0.8-monolithic';
 
 const APP_SHELL = [
   './',
