@@ -854,6 +854,68 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 .v1633-detail-quality strong{font-weight:850}.v1633-detail-quality p{font-size:12px;margin:8px 0}
 
 </style>
+<style id="v1635-season-setters-style">
+/* V16.3.5 - Informe de colocadores de temporada */
+.v1635-card{margin-top:12px;overflow:hidden}
+.v1635-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px}
+.v1635-head h3{margin:4px 0 6px}
+.v1635-head p,.v1635-note{color:#647b8b;font-size:12px;line-height:1.5}
+.v1635-head label{font-size:12px;font-weight:700;display:grid;gap:5px;min-width:190px}
+.v1635-head select{padding:9px;border:1px solid #cbdce6;border-radius:8px;background:white;color:#18364c;max-width:100%}
+.v1635-metrics,.v1635-evals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.v1635-metrics button,.v1635-evals button{background:#f5f8fb;color:#18364c;border:1px solid #d5e3ea;border-radius:10px;padding:10px;display:grid;gap:4px;text-align:left;cursor:pointer;min-width:0}
+.v1635-metrics button.good,.v1635-evals button.good{background:#eef8f2;border-color:#b4dcca}
+.v1635-metrics button.bad,.v1635-evals button.bad{background:#fff1ef;border-color:#e9c4c1}
+.v1635-metrics small,.v1635-evals small{font-size:11px;color:#536979}
+.v1635-metrics b{font-size:22px;font-weight:850}
+.v1635-evals{grid-template-columns:repeat(6,minmax(0,1fr))}
+.v1635-evals button{justify-items:center;text-align:center}
+.v1635-evals strong{font-size:20px}
+.v1635-evals b{font-size:15px}
+.v1635-scroll{width:100%;overflow:auto;max-height:410px;margin:12px 0}
+.v1635-table{width:100%;border-collapse:collapse;min-width:700px;font-size:12px}
+.v1635-table th,.v1635-table td{padding:9px;border-bottom:1px solid #e2eaf0;text-align:left;white-space:nowrap}
+.v1635-table th{background:#f2f7fa;color:#36536a;position:sticky;top:0;z-index:1}
+.v1635-table td button,.v1635-subhead button{background:white;color:#245e82;border:1px solid #d4e0e8;border-radius:7px;padding:6px 9px;margin-right:4px;cursor:pointer}
+.v1635-table td button:disabled{color:#9baab5;border-color:#edf1f4;cursor:not-allowed}
+.v1635-subhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.v1635-subhead h4{margin:0;font-size:14px}.v1635-subhead h3{margin:0}
+.v1635-report{margin-top:18px;background:#f8fbfd;padding:16px;border:1px solid #d7e7ee;border-radius:12px;color:#18364c}
+.v1635-report p{font-size:12px;color:#61798c}
+@media(max-width:700px){.v1635-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v1635-evals{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+<style id="v164-video-library-style">
+/* V16.4 · Biblioteca de vídeo, comparación y calibración asistida */
+.v164-filters{display:grid;grid-template-columns:repeat(4,minmax(135px,1fr));gap:10px;align-items:end}
+.v164-filters label,.v164-compare-select label{display:grid;gap:5px;font-size:12px;color:#405d70;font-weight:700}
+.v164-filters select,.v164-compare-select select{border:1px solid #cbdae4;padding:9px;border-radius:8px;background:#fff;color:#183c52;min-width:0;width:100%}
+.v164-filters .v164-check{display:flex;align-items:center;gap:8px;padding-bottom:8px}
+.v164-summary{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}
+.v164-summary span{padding:9px 12px;border-radius:9px;background:#f2f7fa;border:1px solid #dce7ef;font-size:12px;color:#416075}
+.v164-summary b{font-size:16px;color:#193d57}
+.v164-actions,.v164-smart-buttons{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.v164-list{max-height:530px;overflow:auto;border-top:1px solid #dce5ec;margin-top:14px}
+.v164-item{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 4px;border-bottom:1px solid #e3edf2}
+.v164-item-main{min-width:0;display:grid;gap:4px}
+.v164-item-main b{color:#1b405b;font-size:13px}
+.v164-item-main small{color:#617d8f;font-size:11px;overflow-wrap:anywhere}
+.v164-item button{flex-shrink:0}
+.v164-compare{margin-top:22px;padding:14px;background:#f7fafc;border:1px solid #dbe6ee;border-radius:12px}
+.v164-compare h4{margin:0 0 10px;color:#173c56}
+.v164-compare-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v164-table{margin-top:12px;border-collapse:collapse;width:100%;font-size:12px}
+.v164-table td,.v164-table th{padding:9px;border-bottom:1px solid #dce7ed;text-align:left}
+.v164-table th{color:#36556a}
+.v164-note{font-size:12px;color:#627d8d;line-height:1.5;margin:8px 0}
+.v164-smart{margin:12px 0 18px;background:#f5f9fc;border:1px solid #bfd8e6;border-radius:12px;padding:14px;color:#284d64}
+.v164-smart-head{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.v164-smart-head>div:first-child{min-width:210px;flex:1;display:grid;gap:5px}
+.v164-smart-head small{font-size:11px;color:#57778d;max-width:670px}
+#v164-smart-state{overflow-wrap:anywhere;margin-top:8px}
+#v164-smart-state strong{color:#a34c31}
+@media(max-width:840px){.v164-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.v164-filters{grid-template-columns:1fr}.v164-compare-select{grid-template-columns:1fr}.v164-item{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <body class="v11-shell">
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V7.0.1 · VIDEO SCOUTING</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
@@ -20620,7 +20682,15 @@ function anchorList(m){return arr(profile(m)?.anchors).filter(a=>Number.isFinite
 function mapped(m,ms){
  const x=meta(m),t=Number(ms);if(!Number.isFinite(t)||x?.syncOffset==null)return null;
  const anchors=anchorList(m);let off=Number(x.syncOffset);
- if(anchors.length){let chosen=anchors[0];for(const a of anchors){if(Number(a.scoutMs)>t)break;chosen=a}off=Number(chosen.videoTime)-Number(chosen.scoutMs)/1000;}
+ if(anchors.length){let chosen=anchors[0],next=null;
+   for(const a of anchors){if(Number(a.scoutMs)>t){next=a;break}chosen=a}
+   off=Number(chosen.videoTime)-Number(chosen.scoutMs)/1000;
+   /* Interpolar solo pequeñas derivas; no interpolar sobre saltos por corte de vídeo. */
+   if(next&&Number(next.scoutMs)>Number(chosen.scoutMs)){
+     const other=Number(next.videoTime)-Number(next.scoutMs)/1000;
+     if(Math.abs(other-off)<=2){const ratio=(t-Number(chosen.scoutMs))/(Number(next.scoutMs)-Number(chosen.scoutMs));off+=(other-off)*ratio}
+   }
+ }
  return Math.max(0,t/1000+off);
 }
 function actionSourceKey(a){
@@ -21252,7 +21322,7 @@ window.v780CreateSmartClips=function(type='visible'){
   let rows=type==='visible'?state.lastRows:smartRows(type);rows=rows.filter(r=>r.type==='action'&&actionVideoTime(r.a,m)!=null);
   if(!rows.length){alert('No hay acciones con timestamp de vídeo en esta selección.');return}
   x.clips=arr(x.clips);const existing=new Set(x.clips.map(c=>String(c.sourceKey||'')));let added=0;
-  rows.forEach(r=>{if(existing.has(r.key))return;const t=actionVideoTime(r.a,m),start=Math.max(0,t-8),end=t+5;x.clips.push({id:`v133_${Date.now()}_${added}_${Math.random().toString(36).slice(2,6)}`,name:`${r.player||'Jugador'} · ${r.label}`,tag:r.team==='opponent'?'opponent':'technical',note:`${r.copy} · clip automático −8/+5`,start,end,duration:end-start,sourceKey:r.key,type:'action',set:r.set,team:r.team||'',skill:r.skill||'',evaluation:r.evaluation||'',player:r.player||'',createdAt:new Date().toISOString(),source:x.source||'',videoTimestamp:t,auto:true});existing.add(r.key);added++});
+  rows.forEach(r=>{if(existing.has(r.key))return;const t=actionVideoTime(r.a,m),start=Math.max(0,t-8),end=t+5;x.clips.push({id:`v133_${Date.now()}_${added}_${Math.random().toString(36).slice(2,6)}`,name:`${r.player||'Jugador'} · ${r.label}`,tag:r.team==='opponent'?'opponent':'technical',note:`${r.copy} · clip automático −8/+5`,start,end,duration:end-start,sourceKey:r.key,type:'action',set:r.set,team:r.team||'',skill:r.skill||'',evaluation:r.evaluation||'',player:r.player||'',createdAt:new Date().toISOString(),source:state.mediaKey||x.source||'',youtubeId:isYouTube()?state.youtubeId:null,recordingId:state.loadedRecording?.id||null,videoTimestamp:t,auto:true});existing.add(r.key);added++});
   save();renderAll();$('v780-playlist-state').textContent=`${added} clips automáticos creados · −8 s / +5 s`;if(!added)alert('Las acciones seleccionadas ya tenían clip guardado.');
 };
 window.VC_VIDEO_REVIEW_API={version:'13.3.0',openAt:window.v780OpenAt,select:key=>window.v780Select?.(key),play:key=>window.v780PlayKey?.(key),createClip:key=>window.v780CreateClip?.(key),createVisibleClips:()=>window.v780CreateSmartClips('visible'),currentTime:()=>mediaCurrentTime(),loaded:()=>mediaLoaded(),timeline:()=>timeline(currentMatch())};
@@ -31358,7 +31428,10 @@ async function openClip(m,c,gen){if(!m||!c)return false;await openReview(m);if(g
  const diag=window.v780Diagnostics?.()||{},targetId=c.youtubeId||ytid(c.source);
  if(targetId){if(diag.mediaType!=='youtube'||diag.youtubeId!==targetId||!diag.videoLoaded){window.v782LoadYouTube?.(`https://www.youtube.com/watch?v=${encodeURIComponent(targetId)}`);if(!await waitLoaded(targetId,gen)){message('El vídeo de YouTube no se puede cargar o no permite reproducción insertada.');return false}}}
  else if(c.recordingId){const rec=window.VC_V1632_MEDIA;if(!rec?.loadRecordingById||!await rec.loadRecordingById(c.recordingId)){message('No se ha podido cargar esta grabación. Importa el archivo original desde Recording Studio.');return false}}
- else if(!diag.videoLoaded){message('Carga el archivo local de este partido antes de reproducir el clip.');return false}
+ else {const expected=String(c.source||'').replace(/^sync:/,'');const loadedKey=window.VC_V1634_TIME?.currentKey?.()||'';
+  if(!diag.videoLoaded||diag.mediaType==='youtube'||expected&&/^(file:|local:)/.test(expected)&&loadedKey!==expected){
+   message('Carga en Video Review el archivo local original de este clip; no se reproducirá sobre otra fuente.');return false}
+ }
  const d=window.v780Diagnostics?.()||{};if(!targetId&&d.mediaType==='youtube'){message('Este clip es de archivo/REC, no de YouTube. Carga la fuente correcta.');return false}
  if(gen!==playGeneration)return false;
  return window.v780OpenAt?.(Number(c.start)||0,c.sourceKey||'',{pre:0,post:Math.max(.3,Number(c.end)-Number(c.start))})===true;
@@ -31448,6 +31521,682 @@ function boot(){studioShell();renderSetter();renderStudio();
  document.addEventListener('change',e=>{if(['scout-analysis-match','scout-player-team-scope','v780-match'].includes(e.target?.id))schedule()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+</script>
+<script id="v1635-season-setters-module">
+(()=>{
+'use strict';
+/* V16.3.5 - calidad de colocación de temporada. Solo lectura de scouting,
+   no altera datos, clips, anclas, ni la sincronización con Supabase. */
+const VERSION='16.3.5', $=id=>document.getElementById(id), arr=v=>Array.isArray(v)?v:[];
+const SKILLS={'#':'Excelente','+':'Buena','!':'Regular','-':'Mala','/':'Muy mala','=':'Error'};
+const EVALS=['#','+','!','-','/','='], GOOD=new Set(['#','+']),BAD=new Set(['-','/','=']);
+const html=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const number=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null};
+const fmt=n=>{const v=number(n);if(v==null)return '—';const x=Math.max(0,Math.floor(v));return `${String(Math.floor(x/60)).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`};
+const pct=(n,total)=>total?`${Math.round(n*100/total)}%`:'—';
+const BR=()=>window.VC_SCOUT_VIDEO_BRIDGE,SEASON=()=>window.VC_V151_SEASON;
+let chosenKey='',category='all',limit=120,lastEvidence=new Map(),opening=false;
+function role(p){return [p?.position,p?.posicion,p?.role,p?.rol,p?.positions,p?.posiciones,p?.roles].flat(Infinity).filter(Boolean).join(' ').toLowerCase()}
+function isSetter(p){return /colocador|colocadora|setter|\bcol\b/.test(role(p))}
+function fallbackName(a){return String(a?.playerNameSnapshot||a?.playerLabel||a?.playerNumberSnapshot||'Sin identificar').trim()}
+function keyOf(a){const id=number(a?.playerId);return id!=null&&id>0?`ours:${id}`:`anon:${fallbackName(a).toLowerCase()}`}
+function roster(m){return arr(m?.rosterSnapshotV136).length?arr(m.rosterSnapshotV136):arr(BR()?.getPlayers?.())}
+function data(){
+ const ms=arr(SEASON()?.matches?.()),scores=arr(SEASON()?.players?.());
+ const lookup=new Map(scores.map(p=>[String(p.key),p]));
+ const players=new Map();
+ function add(k,name,marked=false){if(!players.has(k))players.set(k,{key:k,name,role:marked,items:[],byMatch:new Map()});const p=players.get(k);if(marked)p.role=true;if((!p.name||p.name==='Sin identificar')&&name)p.name=name;return p}
+ for(const m of ms){
+   for(const p of roster(m)){
+     if(!isSetter(p))continue;
+     const id=number(p?.id);if(id==null||id<=0)continue;
+     const k=`ours:${id}`;
+     const name=lookup.get(k)?.label||`${p.number!=null&&p.number!==''?'#'+p.number+' · ':''}${p.name||p.nombre||'Colocador'}`;
+     add(k,name,true);
+   }
+   for(const s of arr(m?.sets))for(const r of arr(s?.rallies))for(const a of arr(r?.actions)){
+     if(a?.team!=='ours'||a?.skill!=='E')continue;
+     const k=keyOf(a),name=lookup.get(k)?.label||fallbackName(a);
+     const p=add(k,name);
+     const item={m,matchId:String(m.id),set:Number(s.number)||1,rallyId:String(r?.id),actionId:String(a.id),a,
+       playerKey:k,rotation:number(a.rotation)??number(r.rotationBefore),date:String(m.date||m.createdAt||'').slice(0,10)};
+     p.items.push(item);
+     if(!p.byMatch.has(item.matchId))p.byMatch.set(item.matchId,[]);
+     p.byMatch.get(item.matchId).push(item);
+   }
+ }
+ return [...players.values()].sort((a,b)=>Number(b.role)-Number(a.role)||b.items.length-a.items.length||a.name.localeCompare(b.name,'es'));
+}
+function stats(items){const e=Object.fromEntries(EVALS.map(v=>[v,0]));let missing=0;
+ for(const x of items){const v=String(x.a.evaluation||'');if(v in e)e[v]++;else missing++}
+ const good=e['#']+e['+'],neutral=e['!'],bad=e['-']+e['/']+e['='];
+ return {e,good,neutral,bad,missing,total:items.length};
+}
+function getSource(x){
+ const vcResolved=window.VC_V164?.resolve?.(x.m,x.a);
+ if(vcResolved?.sec!=null&&vcResolved.key)return vcResolved.key;
+ const a=x.a,m=x.m;const recorded=a.videoRecordingId?`recording:${a.videoRecordingId}`:'';
+ if(recorded)return recorded;
+ let src=String(a.videoSource||'');if(src.startsWith('sync:'))src=src.slice(5);
+ const match=src.match(/^(?:youtube:|YouTube\s*[·-]\s*)([A-Za-z0-9_-]{11})$/i);
+ if(match)return `youtube:${match[1]}`;
+ if(/^(recording:|file:|local:)/.test(src))return src;
+ // Una fuente única es no ambigua; con varias fuentes NO se adivina cuál corresponde.
+ const profiles=m?.video?.syncProfiles||{},keys=Object.keys(profiles);
+ return keys.length===1?keys[0]:'';
+}
+function timeFor(x){
+ const intelligent=window.VC_V164;
+ if(intelligent){const t=intelligent.resolve(x.m,x.a);return t.sec==null?null:t.sec}
+ const a=x.a,m=x.m,key=getSource(x);
+ if(!key)return null;
+ // Los tiempos exactos están ligados a una fuente identificada.
+ if(a.videoExact===true||a.videoRecordingId){
+   for(const k of ['videoTimestamp','videoAction','videoTime','liveVideoTime']){
+     const n=number(a[k]);if(n!=null&&n>=0)return n;
+   }
+ }
+ const ms=number(a.scoutMs),p=m.video?.syncProfiles?.[key];
+ if(ms==null||!p)return null;
+ const anchors=arr(p.anchors).filter(z=>number(z.scoutMs)!=null&&number(z.videoTime)!=null).sort((a,b)=>Number(a.scoutMs)-Number(b.scoutMs));
+ let off=number(p.offset);
+ if(anchors.length){let selected=anchors[0];for(const z of anchors){if(number(z.scoutMs)>ms)break;selected=z}off=number(selected.videoTime)-number(selected.scoutMs)/1000}
+ return off==null?null:Math.max(0,ms/1000+off);
+}
+function sourceName(key){return key.startsWith('youtube:')?'YouTube':key.startsWith('recording:')?'Grabación':key.startsWith('file:')||key.startsWith('local:')?'Archivo':'Sin fuente identificada'}
+function matchLabel(m){return `${String(m.date||m.createdAt||'').slice(0,10)||'Sin fecha'} · ${m.opponent||'Rival'}`}
+function catMatch(item,cat){const v=item.a.evaluation;return cat==='all'||cat==='good'&&GOOD.has(v)||cat==='neutral'&&v==='!'||cat==='bad'&&BAD.has(v)||cat==='missing'&&!EVALS.includes(v)||cat===v}
+function ensure(){
+ const t=$('v151-player-table');if(!t)return;
+ let b=$('v1635-season-setters');
+ if(!b){b=document.createElement('section');b.id='v1635-season-setters';b.className='v151-card v1635-card';
+ const card=t.closest('.v151-card');(card||t.parentElement).insertAdjacentElement('afterend',b);b.addEventListener('click',click);b.addEventListener('change',change)}
+ return b;
+}
+function buttons(c){return `<div class="v1635-metrics">
+ <button data-cat="all"><small>Total</small><b>${c.total}</b></button>
+ <button data-cat="good" class="good"><small>Buenas #/+</small><b>${c.good}</b><small>${pct(c.good,c.total)}</small></button>
+ <button data-cat="neutral"><small>Regulares !</small><b>${c.neutral}</b><small>${pct(c.neutral,c.total)}</small></button>
+ <button data-cat="bad" class="bad"><small>Malas - / =</small><b>${c.bad}</b><small>${pct(c.bad,c.total)}</small></button>
+ ${c.missing?`<button data-cat="missing"><small>Sin valorar</small><b>${c.missing}</b></button>`:''}
+ </div><div class="v1635-evals">${EVALS.map(e=>`<button data-cat="${html(e)}" class="${GOOD.has(e)?'good':BAD.has(e)?'bad':''}"><strong>${html(e)}</strong><small>${SKILLS[e]}</small><b>${c.e[e]}</b></button>`).join('')}</div>`}
+function renderTable(items,compact=false){
+ lastEvidence.clear();const visible=items.slice(0,limit);
+ const body=visible.map((x,i)=>{
+   lastEvidence.set(String(i),x);
+   const source=getSource(x),time=timeFor(x),canOpen=!!source&&time!=null;
+   return `<tr><td>${html(matchLabel(x.m))}</td><td>${x.set}</td><td>R${x.rotation??'—'}</td><td><strong>${html(x.a.evaluation||'—')}</strong></td><td>${html(x.a.code||'—')}</td><td>${html(source?sourceName(source):'Sin calibrar')}</td><td>${fmt(time)}</td><td><button data-video="${i}" ${canOpen?'':'disabled'} title="${canOpen?'Abrir jugada':'Necesita una fuente de vídeo y calibración'}">▶ Vídeo</button><button data-match="${i}">Partido</button></td></tr>`}).join('');
+ return `<div class="v1635-scroll"><table class="v1635-table"><thead><tr><th>Partido</th><th>Set</th><th>Rot.</th><th>Val.</th><th>Código</th><th>Fuente</th><th>Tiempo</th><th>Acción</th></tr></thead><tbody>${body||'<tr><td colspan="8">No hay acciones en esta categoría.</td></tr>'}</tbody></table></div>
+ ${items.length>visible.length?`<button data-more="1" class="ghost">Mostrar más (${items.length-visible.length} pendientes)</button>`:''}
+ <p class="v1635-note">Los enlaces ▶ solo están activos si la fuente y el tiempo se pueden identificar. No se inventan marcas de vídeo.</p>`;
+}
+function renderMain(){const box=ensure();if(!box)return;const people=data();if(!people.length){box.innerHTML='<div class="v151-card-head"><h3>Calidad de colocación · Temporada</h3></div><div class="v151-card-body">Sin acciones de colocación ni colocadores identificados en este periodo.</div>';return}
+ if(!people.some(p=>p.key===chosenKey)){const selected=$('v151-player')?.value;chosenKey=people.find(p=>p.key===selected)?.key||people[0].key;category='all'}
+ const p=people.find(p=>p.key===chosenKey),c=stats(p.items);
+ const byMatch=[...p.byMatch.values()].map(xs=>({x:xs[0].m,c:stats(xs),items:xs})).sort((a,b)=>matchLabel(a.x).localeCompare(matchLabel(b.x)));
+ const filtered=p.items.filter(x=>catMatch(x,category)).sort((a,b)=>matchLabel(b.m).localeCompare(matchLabel(a.m))||b.set-a.set);
+ box.innerHTML=`<div class="v151-card-head v1635-head"><div><span>TEMPORADA · COLOCACIÓN</span><h3>Análisis individual de colocadores</h3><p>Acumulado del periodo seleccionado, separado por calidad y partido; jugadas enlazadas a vídeo cuando hay fuente calibrada.</p></div>
+ <label>Colocador<select id="v1635-season-player">${people.map(z=>`<option value="${html(z.key)}" ${z.key===chosenKey?'selected':''}>${html(z.name)}${z.role?'':' · acciones E'}</option>`).join('')}</select></label></div>
+ <div class="v151-card-body">${buttons(c)}<h4>Por partido</h4>
+ <div class="v1635-scroll"><table class="v1635-table"><thead><tr><th>Partido</th><th>Balones</th><th>Buenas</th><th>Regulares</th><th>Malas</th><th>% buenas</th></tr></thead><tbody>${byMatch.map(v=>`<tr><td>${html(matchLabel(v.x))}</td><td>${v.c.total}</td><td>${v.c.good}</td><td>${v.c.neutral}</td><td>${v.c.bad}</td><td>${pct(v.c.good,v.c.total)}</td></tr>`).join('')||'<tr><td colspan="6">Sin colocaciones codificadas</td></tr>'}</tbody></table></div>
+ <div class="v1635-subhead"><h4>Acciones ${html(category==='all'?'registradas':category==='good'?'buenas':category==='bad'?'malas':category==='neutral'?'regulares':category==='missing'?'sin valorar':category)} · ${filtered.length}</h4><button class="ghost" data-export="1">CSV</button></div>
+ ${renderTable(filtered)}</div>`;
+}
+function reportData(){const selected=$('v151-player')?.value||SEASON()?.players?.()?.[0]?.key||'';return data().find(p=>p.key===selected)||null}
+function renderReport(){const parent=$('v151-player-report');if(!parent)return;parent.querySelector('#v1635-setter-report')?.remove();const p=reportData();if(!p)return;
+ const c=stats(p.items),n=document.createElement('section');n.id='v1635-setter-report';n.className='v1635-report';
+ n.innerHTML=`<div class="v1635-subhead"><div><h3>Calidad de la colocación · Temporada</h3><p>${html(p.name)} · ${c.total} balones codificados</p></div><button class="ghost" id="v1635-show-setter">Ver detalle y vídeos</button></div>${buttons(c)}<p class="v1635-note">Buenas #/+: ${c.good} · Regulares !: ${c.neutral} · Malas - / =: ${c.bad}${c.missing?` · Sin valorar: ${c.missing}`:''}. Solo acciones E registradas; se mantiene el mismo criterio que en el análisis de partido.</p>`;
+ parent.appendChild(n);
+ n.querySelector('#v1635-show-setter').addEventListener('click',()=>{chosenKey=p.key;category='all';window.v151Tab?.('players');renderMain();$('v1635-season-setters')?.scrollIntoView?.({behavior:'smooth',block:'start'})});
+ n.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{chosenKey=p.key;category=b.dataset.cat;window.v151Tab?.('players');renderMain();$('v1635-season-setters')?.scrollIntoView?.({behavior:'smooth',block:'start'})}));
+}
+function refresh(){if(!$('v151-season-root'))return;renderMain();renderReport()}
+function change(e){if(e.target?.id==='v1635-season-player'){chosenKey=e.target.value;category='all';limit=120;renderMain()}}
+function click(e){const b=e.target.closest('button');if(!b)return;
+ if(b.hasAttribute('data-cat')){category=b.dataset.cat;limit=120;renderMain();return}
+ if(b.hasAttribute('data-more')){limit+=120;renderMain();return}
+ if(b.hasAttribute('data-video')){const x=lastEvidence.get(b.dataset.video);if(x)void openVideo(x);return}
+ if(b.hasAttribute('data-match')){const x=lastEvidence.get(b.dataset.match);if(x)void openMatch(x);return}
+ if(b.hasAttribute('data-export'))exportCSV();
+}
+function exportCSV(){const p=data().find(z=>z.key===chosenKey);if(!p)return;
+ const cols=['Fecha','Partido','Set','Rotación','Jugador','Código','Evaluación','Fuente','Segundo vídeo'];
+ const csv=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const rows=p.items.map(x=>[x.date,x.m.opponent||'',x.set,x.rotation,p.name,x.a.code||'',x.a.evaluation||'',getSource(x),timeFor(x)]);
+ const out=[cols,...rows].map(r=>r.map(csv).join(';')).join('\r\n'),url=URL.createObjectURL(new Blob(['\ufeff',out],{type:'text/csv;charset=utf-8'}));
+ const a=document.createElement('a');a.href=url;a.download=`colocacion_temporada_${String(p.key).replace(/[^\w-]/g,'_')}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+async function openMatch(x){try{await window.v151OpenMatch?.(x.m.id);setTimeout(()=>window.VC_V1633?.focusSetter?.(String(x.a.playerId),'all'),250)}catch(err){console.warn('V16.3.5 abrir partido',err)}}
+async function openVideo(x){if(opening)return;opening=true;try{
+ const key=getSource(x),t=timeFor(x);if(!key||t==null){alert('Este balón no tiene una referencia de vídeo verificable. Abre el partido y calibra el vídeo.');return false}
+ window.v11Navigate?.('video');await new Promise(r=>setTimeout(r,140));
+ const s=$('v780-match');if(!s){alert('Video Review no está disponible.');return false}
+ if(String(s.value)!==String(x.m.id)){s.value=String(x.m.id);await Promise.resolve(window.v780MatchChanged?.());await new Promise(r=>setTimeout(r,120))}
+ const d=window.v780Diagnostics?.()||{};
+ if(key.startsWith('youtube:')){
+   const id=key.slice(8);
+   if(!d.videoLoaded||d.mediaType!=='youtube'||d.youtubeId!==id){window.v782LoadYouTube?.(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`)}
+   let ready=false;for(let i=0;i<36;i++){const v=window.v780Diagnostics?.()||{};if(v.videoLoaded&&v.mediaType==='youtube'&&v.youtubeId===id){ready=true;break}await new Promise(r=>setTimeout(r,200))}
+   if(!ready){alert('YouTube no ha podido abrir el vídeo insertado. Comprueba que permite reproducción externa.');return false}
+ }else if(key.startsWith('recording:')){
+   const rid=key.slice(10);if(d.recording!==rid||!d.videoLoaded){const loaded=await window.VC_V1632_MEDIA?.loadRecordingById?.(rid);if(!loaded){alert('La grabación no está guardada en este dispositivo. Importa el archivo correcto en Recording Studio.');return false}}
+ }else{
+   const state=window.v780Diagnostics?.()||{},mediaKey=window.VC_V1634_TIME?.currentKey?.();
+   if(!state.videoLoaded||state.mediaType==='youtube'||mediaKey!==key){alert('Carga en Video Review el archivo original asociado a esta jugada antes de reproducirla.');return false}
+ }
+ const now=window.v780Diagnostics?.()||{};
+ if(String(now.match)!==String(x.m.id)){alert('El vídeo abierto corresponde a otro partido.');return false}
+ return !!window.v780OpenAt?.(t,`a:${x.set}:${x.rallyId}:${x.actionId}`,{pre:8,post:5});
+ }catch(err){console.error('V16.3.5 video',err);alert('No se ha podido abrir la jugada: '+String(err?.message||err));return false}
+ finally{opening=false}}
+function wrap(name){const fn=window[name];if(typeof fn!=='function'||fn.__v1635)return;
+ const bound=function(...args){const result=fn.apply(this,args);queueMicrotask(refresh);return result};bound.__v1635=true;window[name]=bound;
+}
+function boot(){
+ for(const n of ['v151OpenSeason','v151Tab','v151PeriodChanged','v151CustomChanged','v151PlayerChanged','v151SelectPlayer'])wrap(n);
+ if(typeof window.VC_V151_SEASON?.render==='function'){
+   const base=window.VC_V151_SEASON.render;
+   window.VC_V151_SEASON.render=function(...a){const r=base.apply(this,a);queueMicrotask(refresh);return r};
+ }
+ document.addEventListener('vc:matchstatechange',()=>{if($('scout-season')?.classList.contains('active'))queueMicrotask(refresh)});
+ refresh();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.VC_V1635_SEASON_SETTERS={version:VERSION,refresh,stats:()=>data().map(p=>({key:p.key,name:p.name,role:p.role,...stats(p.items)})),diagnostics:()=>({version:VERSION,people:data().length,selected:chosenKey})};
+})();
+
+</script>
+<script id="v164-video-library-module">
+(()=>{
+'use strict';
+/* V16.4 · Biblioteca de temporada + sincronización asistida.
+   Solo guarda metadatos de referencias, no contenido audiovisual; no toca el motor cloud. */
+const VERSION='16.4.0',$=id=>document.getElementById(id),arr=x=>Array.isArray(x)?x:[];
+const ESC=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=x=>x===null||x===undefined||x===''?null:(Number.isFinite(Number(x))?Number(x):null);
+const fmt=x=>x==null?'—':`${String(Math.floor(Math.max(0,x)/60)).padStart(2,'0')}:${String(Math.floor(Math.max(0,x)%60)).padStart(2,'0')}`;
+const SK={E:'Colocación',S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const GOOD=new Set(['#','+']),BAD=new Set(['-','/','=']);
+const BR=()=>window.VC_SCOUT_VIDEO_BRIDGE;
+const MS=()=>arr(window.VC_V151_SEASON?.matches?.());
+const ALL=()=>arr(BR()?.getMatches?.());
+let player='',skill='',evaluation='',rotation='',onlyPlayable=false,compA='',compB='',shown=80;
+let playToken=0,playlistTimer=null,libraryRows=[],opening=false,queueRender=false;
+function getMatch(id){return ALL().find(m=>String(m.id)===String(id))||null}
+function getReviewMatch(){return getMatch($('v780-match')?.value)}
+function vdata(m){if(!m)return {};if(!m.video||typeof m.video!=='object')m.video={};return m.video}
+function clips(m){return arr(m?.video?.clips)}
+function sources(m){const v=m?.video||{},out=new Set(Object.keys(v.syncProfiles||{}));
+ for(const x of arr(v.recordingRefs))if(x.id)out.add('recording:'+x.id);
+ for(const c of clips(m)){const k=keyForClip(c);if(k)out.add(k)}
+ if(v.youtubeId&&/^[\w-]{11}$/.test(String(v.youtubeId)))out.add('youtube:'+v.youtubeId);
+ if(v.v164PrimarySourceKey)out.add(v.v164PrimarySourceKey);
+ return [...out].filter(x=>/^(youtube:|recording:|file:|local:)/.test(x));}
+function sourceOf(a){if(a?.videoRecordingId)return 'recording:'+a.videoRecordingId;
+ const src=String(a?.videoSource||'').replace(/^sync:/,'');
+ if(/^(youtube:[\w-]{11}|recording:.+|file:.+|local:.+)$/i.test(src))return src;
+ const yt=src.match(/^YouTube\s*[·-]\s*([\w-]{11})$/i);return yt?'youtube:'+yt[1]:'';}
+function keyForClip(c){if(c?.recordingId)return 'recording:'+c.recordingId;if(c?.youtubeId)return 'youtube:'+c.youtubeId;const src=String(c?.source||'').replace(/^sync:/,'');const legacy=src.match(/^YouTube\s*[·-]\s*([\w-]{11})$/i);return legacy?'youtube:'+legacy[1]:/^(youtube:|recording:|file:|local:)/.test(src)?src:''}
+function candidates(m){const v=m?.video||{},p=v.syncProfiles||{};const confident=Object.keys(p).filter(k=>calibrated(p[k]));
+ if(v.v164PrimarySourceKey&&confident.includes(v.v164PrimarySourceKey))return v.v164PrimarySourceKey;
+ return confident.length===1?confident[0]:'';
+}
+function calibrated(p){return !!(p&&(arr(p.anchors).some(z=>num(z.scoutMs)!=null&&num(z.videoTime)!=null)||num(p.offset)!=null));}
+function anchors(p){return arr(p?.anchors).filter(x=>num(x.scoutMs)!=null&&num(x.videoTime)!=null).slice().sort((a,b)=>Number(a.scoutMs)-Number(b.scoutMs));}
+function timestamp(p,scoutMs){const ms=num(scoutMs);if(ms==null||!calibrated(p))return null;
+ const aa=anchors(p);if(!aa.length)return num(p.offset)==null?null:Math.max(0,ms/1000+Number(p.offset));
+ let left=aa[0],right=null;
+ for(let i=0;i<aa.length;i++){if(Number(aa[i].scoutMs)>ms){right=aa[i];break}left=aa[i]}
+ const leftOffset=Number(left.videoTime)-Number(left.scoutMs)/1000;
+ if(right){const rightOffset=Number(right.videoTime)-Number(right.scoutMs)/1000;
+  if(Math.abs(rightOffset-leftOffset)<=2&&Number(right.scoutMs)>Number(left.scoutMs)){
+   const ratio=(ms-Number(left.scoutMs))/(Number(right.scoutMs)-Number(left.scoutMs));
+   return Math.max(0,ms/1000+leftOffset+(rightOffset-leftOffset)*ratio);
+  }
+ }
+ return Math.max(0,ms/1000+leftOffset);
+}
+function discontinuities(p){const aa=anchors(p);let cuts=0;for(let i=1;i<aa.length;i++){
+ const pre=Number(aa[i-1].videoTime)-Number(aa[i-1].scoutMs)/1000;
+ const next=Number(aa[i].videoTime)-Number(aa[i].scoutMs)/1000;
+ if(Math.abs(next-pre)>2)cuts++;
+ }return cuts}
+function resolve(m,a,forcedKey=''){
+ if(!m||!a)return {status:'none',sec:null,key:'',why:'Sin jugada'};
+ const v=m.video||{},own=sourceOf(a),primary=candidates(m),key=own||forcedKey||primary;
+ if(!key)return {status:'none',sec:null,key:'',why:'Selecciona una fuente y calibra una jugada'};
+ if(own&&forcedKey&&own!==forcedKey)return {status:'conflict',sec:null,key:own,why:'Esta acción pertenece a otro vídeo'};
+ const exact=own&&a.videoExact===true;
+ if(exact){const t=['videoTimestamp','videoAction','videoTime','liveVideoTime'].map(k=>num(a[k])).find(t=>t!=null&&t>=0);
+  if(t!=null)return {status:'exact',sec:t,key,why:'Tiempo REC/origen exacto'};
+ }
+ const profile=v.syncProfiles?.[key];if(!calibrated(profile))return {status:'none',sec:null,key,why:'Falta calibración para esta fuente'};
+ const sec=timestamp(profile,a.scoutMs);
+ if(sec==null)return {status:'none',sec:null,key,why:'La jugada no tiene tiempo de scouting'};
+ return {status:discontinuities(profile)?'estimated-cut':'estimated',sec,key,why:discontinuities(profile)?'Vídeo con cortes: revisar este tramo':'Estimación mediante anclas'};
+}
+function actionRows(m){const out=[];
+ for(const s of arr(m?.sets))for(const r of arr(s.rallies))for(const a of arr(r.actions)){
+  if(!a||a.team!=='ours')continue;
+  out.push({m,a,matchId:String(m.id),set:Number(s.number)||1,rallyId:String(r.id),actionId:String(a.id),
+   sourceKey:`a:${s.number}:${r.id}:${a.id}`,rot:num(a.rotation)??num(r.rotationBefore),
+   playerKey:a.playerId!=null?`ours:${a.playerId}`:`anon:${String(a.playerNameSnapshot||a.playerLabel||'').toLowerCase()}`,
+   playerName:String(a.playerNameSnapshot||a.playerLabel||a.playerNumberSnapshot||'Sin jugadora')});
+ }
+ return out;
+}
+function clubPlayers(){const map=new Map();for(const m of MS())for(const r of actionRows(m)){
+ if(!map.has(r.playerKey))map.set(r.playerKey,r.playerName);
+ }for(const p of arr(window.VC_V151_SEASON?.players?.()))if(map.has(p.key))map.set(p.key,p.label);
+ return [...map.entries()].map(([key,label])=>({key,label})).sort((a,b)=>a.label.localeCompare(b.label,'es'))}
+function matchName(m){return `${String(m?.date||m?.createdAt||'').slice(0,10)||'Sin fecha'} · ${String(m?.opponent||'Rival')}`}
+function clipPlayerKey(c){return c.playerId!=null?`ours:${c.playerId}`:c.player?`anon:${String(c.player).toLowerCase()}`:''}
+function inventory(){const out=[];
+ for(const m of MS()){
+  for(const c of clips(m)){
+   const start=num(c.start);if(start==null||start<0)continue;
+   const key=keyForClip(c),id=String(c.id||'');
+   out.push({kind:'clip',m,c,id,matchId:String(m.id),name:String(c.name||'Clip'),start,end:num(c.end)??start+5,source:key,
+    playerKey:clipPlayerKey(c),player:String(c.player||''),skill:String(c.skill||''),evaluation:String(c.evaluation||''),rotation:num(c.rotation),
+    set:num(c.set),status:key?'ready':'unknown'});
+  }
+ }
+ return out;
+}
+function eligibleActions(){let out=[];for(const m of MS())for(const r of actionRows(m)){
+ const z=resolve(m,r.a);out.push({...r,link:z});
+ }return out;}
+function currentFilter(){return {player,skill,evaluation,rotation,onlyPlayable}}
+// Filters intentionally written as separate clauses for understandable diagnostics.
+function matchesFilter(x){if(player&&x.playerKey!==player)return false;if(skill&&x.skill!==skill)return false;
+ if(evaluation){const ev=x.evaluation;if(evaluation==='good'?!GOOD.has(ev):evaluation==='bad'?!BAD.has(ev):evaluation==='regular'?ev!=='!':evaluation!==ev)return false}
+ if(rotation&&String(x.rotation||'')!==rotation)return false;
+ if(onlyPlayable&&!(x.kind==='clip'&&x.source||x.kind!=='clip'&&x.link?.sec!=null))return false;
+ return true}
+function compared(key){const xs=eligibleActions().filter(x=>x.playerKey===key&&x.a.skill==='E'),ev={'#':0,'+':0,'!':0,'-':0,'/':0,'=':0};
+ let linked=0;for(const x of xs){if(Object.hasOwn(ev,x.a.evaluation))ev[x.a.evaluation]++;if(x.link.sec!=null)linked++}
+ const good=ev['#']+ev['+'],bad=ev['-']+ev['/']+ev['='];return {n:xs.length,good,bad,regular:ev['!'],linked,percent:xs.length?Math.round(good*100/xs.length):null};}
+function options(el,values,placeholder){if(!el)return;const was=el.value;
+ el.innerHTML=`<option value="">${ESC(placeholder)}</option>`+values.map(x=>`<option value="${ESC(x.key)}">${ESC(x.label)}</option>`).join('');
+ if(values.some(x=>x.key===was))el.value=was;
+}
+function sourceLabel(k){return k.startsWith('youtube:')?'YouTube':k.startsWith('recording:')?'REC':k.startsWith('file:')||k.startsWith('local:')?'Archivo':'Sin fuente'}
+function shortStat(x){return `<div class="v164-kpi"><b>${x}</b></div>`}
+function ensureSeason(){const shell=$('v151-season-root');if(!shell)return false;
+ const nav=shell.querySelector('.v151-tabs');if(nav&&!nav.querySelector('[data-tab="videos"]')){
+  const b=document.createElement('button');b.type='button';b.dataset.tab='videos';b.innerHTML='<span>▣</span> Biblioteca de vídeo';b.onclick=()=>window.v151Tab?.('videos');nav.appendChild(b);
+ }
+ if(!shell.querySelector('[data-tab="videos"].v151-panel')){
+  const sec=document.createElement('section');sec.className='v151-panel';sec.dataset.tab='videos';sec.id='v164-season-videos';
+  sec.innerHTML=`<div class="v151-card"><div class="v151-card-head"><div><span>V16.4 · TODA LA TEMPORADA</span><h3>Biblioteca de vídeo y clips</h3><p>Filtra por jugadora y fundamento. Los enlaces YouTube son online; los archivos de REC permanecen en su dispositivo original hasta importarlos.</p></div><button type="button" class="ghost" id="v164-export">Exportar índice CSV</button></div>
+  <div class="v151-card-body"><div class="v164-filters">
+  <label>Jugadora<select id="v164-player"></select></label><label>Fundamento<select id="v164-skill"></select></label>
+  <label>Calidad<select id="v164-eval"><option value="">Todas</option><option value="good">Buenas #/+</option><option value="regular">Regulares !</option><option value="bad">Malas - / =</option><option value="#">#</option><option value="+">+</option><option value="!">!</option><option value="-">-</option><option value="/">/</option><option value="=">=</option></select></label>
+  <label>Rotación<select id="v164-rot"><option value="">Todas</option>${[1,2,3,4,5,6].map(n=>`<option value="${n}">R${n}</option>`).join('')}</select></label>
+  <label class="v164-check"><input type="checkbox" id="v164-playable"> Solo con referencia de vídeo</label></div>
+  <div id="v164-summary" class="v164-summary" aria-live="polite"></div>
+  <div class="v164-actions"><button id="v164-create" type="button" class="primary">Crear clips de las acciones filtradas</button><button id="v164-playall" type="button" class="ghost">▶ Reproducir secuencia</button><button id="v164-stop" type="button" class="ghost">■ Detener</button><button id="v164-more" type="button" class="ghost">Mostrar más</button></div>
+  <div id="v164-list" class="v164-list"></div>
+  <div class="v164-compare"><h4>Comparar colocadoras</h4><div class="v164-compare-select"><label>Colocadora A<select id="v164-a"></select></label><label>Colocadora B<select id="v164-b"></select></label></div><div id="v164-comparison"></div></div>
+  </div></div>`;
+  shell.appendChild(sec);setupListeners(sec);
+ }
+ return true;
+}
+function setupListeners(sec){
+ for(const [id,field] of [['v164-player','player'],['v164-skill','skill'],['v164-eval','evaluation'],['v164-rot','rotation'],['v164-a','compA'],['v164-b','compB']]){
+  $(id)?.addEventListener('change',e=>{const v=e.target.value;switch(field){case'player':player=v;break;case'skill':skill=v;break;case'evaluation':evaluation=v;break;case'rotation':rotation=v;break;case'compA':compA=v;break;case'compB':compB=v;break;}shown=80;renderSeason()})
+ }
+ $('v164-playable')?.addEventListener('change',e=>{onlyPlayable=e.target.checked;shown=80;renderSeason()});
+ $('v164-more')?.addEventListener('click',()=>{shown+=80;renderSeason()});
+ $('v164-create')?.addEventListener('click',()=>void bulkCreate());
+ $('v164-playall')?.addEventListener('click',()=>void playAll());
+ $('v164-stop')?.addEventListener('click',stopPlay);
+ $('v164-export')?.addEventListener('click',exportCSV);
+ sec.addEventListener('click',e=>{const b=e.target.closest('button[data-v164-play]');if(!b)return;const row=libraryRows[Number(b.dataset.v164Play)];if(row)void playOne(row)})
+}
+function renderSeason(){if(!ensureSeason())return;
+ const people=clubPlayers();const names=people.map(x=>({key:x.key,label:x.label}));
+ options($('v164-player'),names,'Todas las jugadoras');if(player&&!names.some(x=>x.key===player))player='';$('v164-player').value=player;
+ options($('v164-skill'),Object.entries(SK).map(([key,label])=>({key,label})),'Todos');$('v164-skill').value=skill;
+ $('v164-eval').value=evaluation;$('v164-rot').value=rotation;$('v164-playable').checked=onlyPlayable;
+ const allActions=eligibleActions();
+ const setters=people.filter(p=>allActions.some(x=>x.playerKey===p.key&&x.a.skill==='E'));
+ options($('v164-a'),setters,'Colocadora A');options($('v164-b'),setters,'Colocadora B');
+ if(compA&&!setters.some(x=>x.key===compA))compA='';if(compB&&!setters.some(x=>x.key===compB))compB='';
+ $('v164-a').value=compA;$('v164-b').value=compB;
+ const cs=inventory().filter(matchesFilter);const actions=allActions.filter(x=>matchesFilter({kind:'action',...x,skill:x.a.skill,evaluation:x.a.evaluation}));
+ const connected=actions.filter(x=>x.link.sec!=null),ms=MS();
+ $('v164-summary').innerHTML=`<span><b>${ms.length}</b> partidos</span><span><b>${cs.length}</b> clips guardados</span><span><b>${actions.length}</b> acciones</span><span><b>${connected.length}</b> acciones vinculables</span>`;
+ const all=cs.slice().sort((a,b)=>matchName(b.m).localeCompare(matchName(a.m))||a.start-b.start);
+ libraryRows=all;$('v164-list').innerHTML=all.length?all.slice(0,shown).map((x,i)=>`<div class="v164-item"><div class="v164-item-main"><b>${ESC(x.name)}</b><small>${ESC(matchName(x.m))} · ${ESC(x.player||'Equipo')} · ${ESC(SK[x.skill]||x.skill||'General')} ${ESC(x.evaluation||'')} · ${fmt(x.start)}–${fmt(x.end)}</small><small>${ESC(sourceLabel(x.source))}${x.c.syncQuality?' · '+ESC(x.c.syncQuality==='exact'?'marca exacta':x.c.syncQuality==='estimated-cut'?'estimado con posibles cortes':'tiempo estimado'):''}${x.set?' · Set '+x.set:''}${x.rotation?' · R'+x.rotation:''}</small></div><button type="button" class="ghost" data-v164-play="${i}" ${x.source?'':'disabled'}>▶ Ver</button></div>`).join(''):'<p class="v164-note">No hay clips con estos filtros. Puedes crear referencias desde acciones sincronizadas.</p>';
+ $('v164-more').hidden=all.length<=shown;
+ const a=compared(compA),b=compared(compB);
+ $('v164-comparison').innerHTML=(compA||compB)?`<table class="v164-table"><thead><tr><th>Colocación</th><th>${ESC(people.find(x=>x.key===compA)?.label||'A')}</th><th>${ESC(people.find(x=>x.key===compB)?.label||'B')}</th></tr></thead><tbody>${[['Balones','n'],['Buenas #/+','good'],['Regulares !','regular'],['Malas - / =','bad'],['% buenas','percent'],['Con vídeo','linked']].map(([label,key])=>`<tr><td>${label}</td><td>${a[key]??'—'}${key==='percent'&&a[key]!=null?'%':''}</td><td>${b[key]??'—'}${key==='percent'&&b[key]!=null?'%':''}</td></tr>`).join('')}</tbody></table>`:'<p class="v164-note">Selecciona dos colocadoras para comparar el volumen y la calidad de sus colocaciones.</p>';
+}
+function ensureReview(){const root=$('scout-video-hub'),target=root?.querySelector('.v780-sync-panel');if(!root||!target)return;
+ if($('v164-smart-sync'))return;
+ const el=document.createElement('section');el.id='v164-smart-sync';el.className='v164-smart';el.innerHTML=`<div class="v164-smart-head"><div><b>Enlace inteligente de acciones</b><small>Una única calibración sirve para vincular las acciones de este vídeo. Si hay cortes, calibra al menos una jugada después de cada corte.</small></div><div class="v164-smart-buttons"><button id="v164-primary" class="ghost" type="button">Usar este vídeo como fuente principal</button><button id="v164-bind" class="primary" type="button">Vincular acciones compatibles</button><button id="v164-repair-clips" class="ghost" type="button">Actualizar clips automáticos</button></div></div><div id="v164-smart-state" class="v164-note" aria-live="polite">Selecciona un partido y una fuente de vídeo.</div>`;
+ target.insertAdjacentElement('afterend',el);
+ $('v164-primary').addEventListener('click',savePrimary);
+ $('v164-bind').addEventListener('click',()=>void autoBind());
+ $('v164-repair-clips').addEventListener('click',()=>void repairClips());
+}
+function renderReview(){ensureReview();const el=$('v164-smart-state');if(!el)return;
+ const m=getReviewMatch(),d=window.v780Diagnostics?.()||{},k=window.VC_V1634_TIME?.currentKey?.()||'';
+ if(!m){el.textContent='Selecciona primero un partido.';return}
+ const p=k?m.video?.syncProfiles?.[k]:null,aa=anchors(p);
+ const rows=actionRows(m),exact=rows.filter(r=>resolve(m,r.a,k||'').status==='exact').length;
+ const mapped=rows.filter(r=>{const x=resolve(m,r.a,k||'');return x.sec!=null&&x.key===k&&x.status!=='exact'}).length;
+ const conflicts=rows.filter(r=>sourceOf(r.a)&&k&&sourceOf(r.a)!==k).length;
+ const gaps=discontinuities(p),selected=m.video?.v164PrimarySourceKey===k;
+ el.innerHTML=`<span><b>${ESC(k?sourceLabel(k):'Sin fuente cargada')}</b> ${ESC(k||'')}</span> · <b>${aa.length}</b> anclas · <b>${exact}</b> marcas exactas · <b>${mapped}</b> estimadas · <b>${conflicts}</b> otras fuentes.${gaps?` <strong>Atención: ${gaps} salto(s) de tiempo detectados; revisa los clips alrededor de los cortes.</strong>`:''} ${selected?'· Fuente principal confirmada':''}`;
+ $('v164-primary').disabled=!k||!d.videoLoaded;
+ $('v164-bind').disabled=!k||!calibrated(p);$('v164-repair-clips').disabled=!k||!calibrated(p);
+}
+function refresh(){if(!queueRender){queueRender=true;setTimeout(()=>{queueRender=false;if($('scout-season')?.classList.contains('active'))renderSeason();if($('scout-video-hub')?.classList.contains('active'))renderReview()},160)}}
+function save(){BR()?.save?.();refresh()}
+function savePrimary(){const m=getReviewMatch(),d=window.v780Diagnostics?.()||{},key=window.VC_V1634_TIME?.currentKey?.();
+ if(!m||!d.videoLoaded||!key)return alert('Carga primero la fuente de vídeo y selecciona el partido.');
+ vdata(m).v164PrimarySourceKey=key;vdata(m).v164PrimaryAt=new Date().toISOString();save();renderReview();
+}
+async function checkpoint(label){try{const cp=window.VolleySafeCheckpoint?.checkpoint;
+ if(typeof cp==='function'){const result=await cp(typeof window.estadoLocal==='function'?window.estadoLocal():null,label);return result!==false}
+ const backup=window.VolleyBackups?.save;if(typeof backup!=='function')return false;await backup(label);return true
+ }catch(e){console.warn('V16.4 backup',e);return false}}
+function bindingCandidates(m,key){const out=[];
+ for(const row of actionRows(m)){
+  const a=row.a,own=sourceOf(a);if(a.videoRecordingId||a.videoExact===true||own&&own!==key)continue;
+  const z=resolve(m,a,key);if(z.sec==null||z.key!==key)continue;
+  if(own===key&&a.videoLinkStatus==='auto-v164')continue;
+  out.push({row,z});
+ }return out;
+}
+async function autoBind(){const m=getReviewMatch(),d=window.v780Diagnostics?.()||{},key=window.VC_V1634_TIME?.currentKey?.()||'';
+ if(!m||!d.videoLoaded||!key)return alert('Selecciona el partido y carga su vídeo.');
+ const p=m.video?.syncProfiles?.[key];if(!calibrated(p))return alert('Necesitas al menos una jugada de referencia. Selecciónala y pulsa «Sincronizar con selección».');
+ const found=bindingCandidates(m,key);if(!found.length)return alert('No hay nuevas acciones compatibles sin enlazar en este partido.');
+ if(!confirm(`Vincular ${found.length} acciones al vídeo ${sourceLabel(key)}. Se conservarán las grabaciones y las marcas exactas, y no se vincularán acciones de otra fuente.\n\n${discontinuities(p)?'Hay cortes detectados: revisa los tramos afectados antes de generar clips.':'Los tiempos no verificados son estimaciones; comprueba varias jugadas.'}\n\n¿Continuar?`))return;
+ if(!await checkpoint('pre-v164-auto-bind'))return alert('No se pudo proteger el estado antes de vincular los vídeos. Operación cancelada.');
+ for(const {row} of found){const a=row.a;a.videoSource=`sync:${key}`;a.videoExact=false;a.videoLinkStatus='auto-v164';a.videoLinkedAt=new Date().toISOString();}
+ save();renderReview();alert(`${found.length} acciones vinculadas. Verifica una jugada al principio y otra al final del vídeo.`);
+}
+async function repairClips(){const m=getReviewMatch(),d=window.v780Diagnostics?.()||{},key=window.VC_V1634_TIME?.currentKey?.()||'';
+ if(!m||!d.videoLoaded||!key)return alert('Abre el vídeo correcto de este partido.');
+ if(!calibrated(m.video?.syncProfiles?.[key]))return alert('Sincroniza primero el vídeo usando una acción reconocible.');
+ const byAction=new Map(actionRows(m).map(r=>[r.sourceKey,r]));const edits=[];
+ for(const c of clips(m)){
+  if(c.type!=='action'||!c.sourceKey||!byAction.has(c.sourceKey))continue;
+  const clipKey=keyForClip(c);if(clipKey!==key)continue;
+  const row=byAction.get(c.sourceKey),z=resolve(m,row.a,key);
+  if(z.sec==null||z.key!==key||z.status==='exact')continue;
+  const start=Math.max(0,z.sec-8),end=z.sec+5;
+  if(Math.abs(start-Number(c.start))>.05||Math.abs(end-Number(c.end))>.05)edits.push({c,start,end,z});
+ }
+ if(!edits.length)return alert('Los clips automáticos compatibles ya coinciden con esta calibración.');
+ if(!confirm(`Actualizar el intervalo de ${edits.length} clips de acciones de esta fuente.
+No se modificarán clips manuales, de REC exacto ni de otros vídeos. ¿Continuar?`))return;
+ if(!await checkpoint('pre-v164-repair-clips'))return alert('No se pudo crear la copia de seguridad. Operación cancelada.');
+ for(const x of edits)Object.assign(x.c,{start:x.start,end:x.end,duration:x.end-x.start,syncQuality:x.z.status,updatedAt:new Date().toISOString()});
+ save();renderReview();alert(`${edits.length} clips corregidos. Comprueba dos jugadas alejadas antes de utilizar el montaje.`);
+}
+function clipName(row){return `${SK[row.a.skill]||row.a.skill||'Acción'} ${row.a.evaluation||''} · ${row.playerName}`}
+function sourceInfo(key){return key.startsWith('youtube:')?{mediaKind:'youtube',youtubeId:key.slice(8),source:key}:key.startsWith('recording:')?{mediaKind:'recording',recordingId:key.slice(10),source:key}:{mediaKind:'local',source:key};}
+function newClip(row,link){const t=link.sec,key=link.key;return {id:`v164_${Date.now()}_${Math.random().toString(36).slice(2,10)}`,name:clipName(row),
+ note:'V16.4 · referencia generada desde el scouting',tag:row.a.skill==='E'?'technical':'highlights',type:'action',sourceKey:row.sourceKey,
+ start:Math.max(0,t-8),end:t+5,duration:Math.min(t,8)+5,player:row.playerName,playerId:row.a.playerId??null,
+ skill:row.a.skill||'',evaluation:row.a.evaluation||'',team:row.a.team||'ours',set:row.set,rotation:row.rot,
+ syncQuality:link.status,createdAt:new Date().toISOString(),...sourceInfo(key)};}
+async function bulkCreate(){const rr=eligibleActions().filter(x=>matchesFilter({kind:'action',...x,skill:x.a.skill,evaluation:x.a.evaluation}));const list=rr.filter(r=>r.link.sec!=null);
+ let made=0,existing=0;const changes=new Map();for(const r of list){const c=clips(r.m);
+  if(c.some(x=>x.sourceKey===r.sourceKey&&keyForClip(x)===r.link.key)){existing++;continue}
+  if(!changes.has(r.m))changes.set(r.m,[]);changes.get(r.m).push(newClip(r,r.link));
+ }
+ const total=[...changes.values()].reduce((s,l)=>s+l.length,0);
+ if(!total)return alert(`No hay clips nuevos. ${existing} ya existían y ${rr.length-list.length} acciones no tienen una referencia calibrada.`);
+ if(!confirm(`Crear ${total} referencias de clips en ${changes.size} partidos. No se descargarán ni copiarán vídeos de YouTube.\n\n¿Continuar?`))return;
+ if(!await checkpoint('pre-v164-season-clips'))return alert('No se pudo proteger el estado. Operación cancelada.');
+ for(const [m,more] of changes){const v=vdata(m);v.clips=arr(v.clips);v.clips.push(...more);made+=more.length}
+ save();renderSeason();alert(`${made} clips creados · ${existing} ya existentes · ${rr.length-list.length} acciones sin tiempo de vídeo.`)
+}
+async function selectReview(m){window.v11Navigate?.('video');
+ if(!await waitFor(()=>!!$('v780-match')&&[...$('v780-match').options].some(x=>String(x.value)===String(m.id)),3500))return false;
+ const sel=$('v780-match');if(String(sel.value)!==String(m.id)){sel.value=String(m.id);await Promise.resolve(window.v780MatchChanged?.());}
+ return true;
+}
+async function waitFor(check,timeout=10000){for(let i=0;i<Math.ceil(timeout/180);i++){if(check())return true;await new Promise(r=>setTimeout(r,180))}return false}
+async function playOne(row,fromList=false){if(!row)return false;if(opening)return false;opening=true;
+ try{const m=row.m,k=row.source,diag=()=>window.v780Diagnostics?.()||{};
+  if(!k)return false;
+  if(!await selectReview(m))return false;
+  if(k.startsWith('youtube:')){const id=k.slice(8);
+   if(diag().youtubeId!==id||diag().mediaType!=='youtube'||!diag().videoLoaded)window.v782LoadYouTube?.(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`);
+   if(!await waitFor(()=>diag().videoLoaded&&String(diag().match)===String(m.id)&&diag().youtubeId===id)){
+    if(!fromList)alert('Este vídeo de YouTube no permite reproducirse en la aplicación.');return false;}
+  }else if(k.startsWith('recording:')){
+   const id=k.slice(10);
+   if(diag().recording!==id||!diag().videoLoaded){if(!await window.VC_V1632_MEDIA?.loadRecordingById?.(id)){
+    if(!fromList)alert('Esta grabación no está disponible en este dispositivo. Importa el archivo original.');return false;}}
+  }else{
+   if(!diag().videoLoaded||window.VC_V1634_TIME?.currentKey?.()!==k){
+    if(!fromList)alert('Carga manualmente en Video Review el archivo de esta fuente antes de reproducirlo.');return false;}
+  }
+  if(String(diag().match)!==String(m.id))return false;
+  return !!window.v780OpenAt?.(Number(row.start),row.c.sourceKey||'',{pre:0,post:Math.max(.3,Number(row.end)-Number(row.start))});
+ }catch(err){console.error('V16.4 abrir clip',err);if(!fromList)alert('No se ha podido abrir el clip: '+String(err.message||err));return false}
+ finally{opening=false}
+}
+function stopPlay(){playToken++;if(playlistTimer){clearInterval(playlistTimer);playlistTimer=null}try{window.VC_V1633?.stopPlaylist?.()}catch(_){}
+}
+async function playAll(){stopPlay();const token=playToken,rr=libraryRows.slice(0,100).filter(x=>x.source);
+ if(!rr.length)return alert('No hay clips con una fuente identificada.');
+ if(!confirm(`Reproducir hasta ${rr.length} clips de esta selección, cambiando de partido y vídeo cuando sea necesario. Los enlaces YouTube requieren conexión. ¿Continuar?`))return;
+ for(const row of rr){if(token!==playToken)return;const played=await playOne(row,true);if(!played){if(token===playToken)alert(`La secuencia se detuvo: no se pudo abrir ${row.name}.`);return}
+  const end=Number(row.end);const didFinish=await new Promise(resolve=>{let ticks=0;playlistTimer=setInterval(()=>{
+   if(token!==playToken){clearInterval(playlistTimer);playlistTimer=null;resolve(false);return}
+   const d=window.v780Diagnostics?.()||{};
+   if(d.currentTime>=end-.18||++ticks>Math.min(600,Math.ceil((end-row.start+20)*3))){clearInterval(playlistTimer);playlistTimer=null;resolve(true)}
+  },350)});if(!didFinish)return;
+ }
+}
+function csvCell(x){return '"'+String(x??'').replace(/"/g,'""')+'"'}
+function exportCSV(){const rows=inventory().filter(matchesFilter);const content=[['Partido','Fecha','Rival','Jugadora','Fundamento','Valoración','Set','Rotación','Inicio (s)','Final (s)','Origen','URL YouTube']];
+ for(const r of rows)content.push([r.matchId,String(r.m.date||'').slice(0,10),r.m.opponent||'',r.player,SK[r.skill]||r.skill,r.evaluation,r.set||'',r.rotation||'',r.start,r.end,r.source,r.source.startsWith('youtube:')?`https://www.youtube.com/watch?v=${encodeURIComponent(r.source.slice(8))}&t=${Math.floor(r.start)}s`:'']);
+ const blob=new Blob([content.map(x=>x.map(csvCell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='volley_biblioteca_video_temporada.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function boot(){ensureReview();ensureSeason();renderReview();renderSeason();
+ try{if(localStorage.getItem('vc_v151_tab')==='videos')window.v151Tab?.('videos')}catch(_){}
+ for(const fn of ['v151OpenSeason','v151PeriodChanged','v151CustomChanged','v151Tab']){
+  const original=window[fn];if(typeof original!=='function'||original.__v164)continue;
+  const wrapped=function(...args){const r=original.apply(this,args);ensureSeason();if(fn==='v151Tab'&&args[0]==='videos')renderSeason();else if(fn!=='v151Tab')refresh();return r};wrapped.__v164=true;window[fn]=wrapped;
+ }
+ for(const fn of ['v780SyncSelected','v780MatchChanged','v780Nudge','v1634ClearCalibration','v782LoadYouTube','v780LoadFile']){
+  const original=window[fn];if(typeof original!=='function'||original.__v164)continue;
+  const wrapped=function(...args){const r=original.apply(this,args);setTimeout(renderReview,250);return r};wrapped.__v164=true;window[fn]=wrapped;
+ }
+ document.addEventListener('vc:matchstatechange',refresh);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh()});
+}
+window.VC_V164={version:VERSION,resolve,sourceOf,candidates,anchors,timestamp,discontinuities,actionRows,inventory,compared,renderSeason,renderReview,autoBind,savePrimary,repairClips,bulkCreate,openClip:playOne,diagnostics:()=>({version:VERSION,matches:MS().length,clips:inventory().length,seasonTab:!!$('v164-season-videos'),smartSync:!!$('v164-smart-sync')})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+</script>
+
+<script id="v165-reliability">
+/* Volley Coach V16.5.0 · Auditoría de integridad, guardado explícito y diagnóstico.
+ * Extensión aditiva: NO reescribe los rallies ni el modelo Supabase.
+ */
+(()=>{
+'use strict';
+if(window.VC_V165_RELIABILITY)return;
+const VERSION='16.5.0';
+const $=id=>document.getElementById(id);
+const rows=v=>Array.isArray(v)?v:[];
+const num=v=>Number.isFinite(Number(v))?Number(v):NaN;
+const active=()=>window.MatchState?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null;
+const matches=()=>window.MatchState?.list?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[];
+const now=()=>new Date().toISOString();
+let lastScan=null,lastSave=null,saveBusy=false;
+function scanMatch(m){
+ const issues=[],put=(severity,set,index,code,description)=>issues.push({severity,set,index,code,description});
+ if(!m||typeof m!=='object')return{matchId:0,issues:[{severity:'error',set:0,index:0,code:'EMPTY_MATCH',description:'Partido no válido'}]};
+ const seenSets=new Set();
+ for(const s of rows(m.sets)){
+  const no=Number(s.number)||0;
+  if(!Number.isInteger(no)||no<1||no>5)put('error',no,0,'SET_RANGE','Número de set fuera del rango 1–5');
+  if(seenSets.has(no))put('error',no,0,'SET_DUPLICATED','Número de set repetido');
+  seenSets.add(no);
+  const us=num(s.scoreUs),op=num(s.scoreOpponent);
+  if(!Number.isInteger(us)||!Number.isInteger(op)||us<0||op<0)put('error',no,0,'SCORE_INVALID','Marcador inválido');
+  let expected={us:0,opponent:0},seq=0;const seenRallies=new Set();
+  for(const r of rows(s.rallies)){
+   ++seq;const id=String(r.id??'');
+   if(id&&seenRallies.has(id))put('error',no,seq,'RALLY_DUPLICATED','Identificador de rally duplicado');
+   seenRallies.add(id);
+   const b=r.scoreBefore||{},a=r.scoreAfter||{};
+   const bu=num(b.us),bo=num(b.opponent),au=num(a.us),ao=num(a.opponent);
+   if(![bu,bo,au,ao].every(Number.isInteger)||Math.min(bu,bo,au,ao)<0){put('error',no,seq,'RALLY_SCORE_INVALID','Marcador de rally inválido');continue}
+   if(bu!==expected.us||bo!==expected.opponent)put('warning',no,seq,'SCORE_CHAIN','El marcador previo no coincide con el rally anterior; revisa ediciones manuales');
+   const du=au-bu,dop=ao-bo;
+   if(du+dop!==1||du<0||dop<0)put('warning',no,seq,'RALLY_DELTA','Un rally normalmente debe sumar un solo punto; revisa correcciones manuales');
+   if((r.winner==='ours'&&du!==1)||(r.winner==='opponent'&&dop!==1))put('warning',no,seq,'WINNER_MISMATCH','El ganador registrado no coincide con el incremento del marcador');
+   expected={us:au,opponent:ao};
+  }
+  if(rows(s.rallies).length&&(us!==expected.us||op!==expected.opponent))put('warning',no,0,'SET_SCORE_MISMATCH','El marcador del set difiere del último rally; comprueba si hubo edición manual');
+  if(s.finished&&s.winner&&((s.winner==='ours'&&us<=op)||(s.winner==='opponent'&&op<=us)))put('warning',no,0,'SET_WINNER','El ganador del set no coincide con el marcador');
+ }
+ if(!seenSets.has(Number(m.currentSet)))put('error',Number(m.currentSet)||0,0,'CURRENT_SET_MISSING','El set activo no existe en la lista');
+ return{matchId:Number(m.id)||0,setCount:rows(m.sets).length,rallyCount:rows(m.sets).reduce((a,s)=>a+rows(s.rallies).length,0),issues};
+}
+function inspect(){
+ const list=rows(matches()),found=list.map(scanMatch);lastScan={at:now(),version:VERSION,matches:found.length,sets:found.reduce((a,r)=>a+r.setCount,0),rallies:found.reduce((a,r)=>a+r.rallyCount,0),errors:found.reduce((a,r)=>a+r.issues.filter(x=>x.severity==='error').length,0),warnings:found.reduce((a,r)=>a+r.issues.filter(x=>x.severity==='warning').length,0),records:found};return lastScan;
+}
+function health(){
+ const cloud=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{},journal=window.scoutV902PerformanceDiagnostics?.()||{},backup=window.VolleyBackups;
+ return {version:VERSION,at:now(),matchIntegrity:lastScan||inspect(),cloud:{connected:!!cloud.connected,dirty:!!cloud.dirty,syncing:!!cloud.syncing,accountBlocked:!!cloud.accountBlocked,failureCount:cloud.failureCount||0,compareAndSwap:cloud.compareAndSwap!==false,lastSyncError:String(cloud.lastSyncError||'').slice(0,160),lastReadAt:cloud.lastReadAt||null,lastWriteAt:cloud.lastWriteAt||null},journal:{commitPending:!!journal.commitPending,commitBusy:!!journal.commitBusy,lastFullAt:journal.lastFullAt||0},backupAvailable:typeof backup?.save==='function',lastSave};
+}
+function downloadDiagnostic(){const h=health();const txt=JSON.stringify(h,null,2);const blob=new Blob([txt],{type:'application/json'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='volley-diagnostico-v165-'+now().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),3000);return true}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function openPanel(){const p=$('vc-v165-panel');if(!p)return false;p.hidden=false;refreshPanel();return true}
+function closePanel(){const p=$('vc-v165-panel');if(p)p.hidden=true}
+function refreshPanel(){const r=inspect(),h=health(),out=$('vc-v165-detail');if(!out)return r;
+ const bad=r.records.flatMap(x=>x.issues.map(i=>({...i,matchId:x.matchId}))).slice(0,35);
+ out.innerHTML=`<p><strong>${r.matches} partidos · ${r.sets} sets · ${r.rallies} rallies</strong></p><p>${r.errors} incidencias graves · ${r.warnings} avisos para revisar. Esta comprobación no cambia datos.</p><p>Local: ${h.journal.commitPending?'guardado completo pendiente':'sin guardado completo en cola'} · Nube: ${!h.cloud.connected?'desconectada':h.cloud.accountBlocked?'cuenta bloqueada':h.cloud.dirty?'cambios pendientes':h.cloud.syncing?'comprobando':'sin cambios locales pendientes'}</p>${h.cloud.lastSyncError?`<p style="color:#ad4e38">Último error de nube: ${escapeHtml(h.cloud.lastSyncError)}</p>`:''}<div class="vc-v165-issues">${bad.length?bad.map(i=>`<div><b>${i.severity==='error'?'ERROR':'AVISO'} · partido ${i.matchId} · S${i.set}${i.index?' · rally '+i.index:''}</b><span>${escapeHtml(i.description)}</span></div>`).join(''):'<p>Sin inconsistencias detectadas por las reglas básicas. No sustituye una revisión real de estadísticas.</p>'}</div>`;
+ return r;
+}
+async function safeSave(){if(saveBusy)return false;saveBusy=true;const status=$('vc-v165-save-status');if(status)status.textContent='Protegiendo datos locales…';try{
+  const commit=window.scoutV902Flush?.();if(commit&&typeof commit.then==='function')await commit;
+  let backup=false;try{if(typeof window.VolleyBackups?.save==='function'){await window.VolleyBackups.save('v165-manual-save');backup=true}}catch(e){console.warn('V16.5 copia IndexedDB',e)}
+  const cloud=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+  lastSave={at:now(),localCommit:commit!==false,independentBackup:backup,cloudConfirmed:false};
+  if(status)status.textContent=(commit===false?'Guardado completo en cola':'Guardado local solicitado')+(backup?' · copia adicional creada':' · copia adicional no disponible')+(cloud.dirty?' · nube pendiente':' · comprueba estado de nube');
+  refreshPanel();return true;
+ }catch(e){lastSave={at:now(),error:String(e?.message||e).slice(0,140)};if(status)status.textContent='No se pudo completar el guardado. Abre Recuperación.';console.error(e);return false}finally{saveBusy=false}}
+function createUI(){
+ if($('vc-v165-panel'))return;
+ const css=document.createElement('style');css.id='vc-v165-style';css.textContent=`#vc-v165-panel[hidden]{display:none!important}#vc-v165-panel{position:fixed;inset:0;z-index:20000;background:#071c2c80;display:flex;align-items:center;justify-content:center;padding:12px}#vc-v165-panel .vc-v165-card{background:#fff;color:#172a3c;width:min(760px,100%);max-height:88vh;overflow:auto;padding:20px;border-radius:15px;box-shadow:0 15px 60px #102b4755}#vc-v165-panel header{display:flex;align-items:center;justify-content:space-between;gap:8px}#vc-v165-panel .vc-v165-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}#vc-v165-panel button{padding:9px 12px;border:1px solid #cad3de;border-radius:8px;background:#f7fafc;cursor:pointer;color:#132f45;font:inherit}#vc-v165-panel .vc-v165-issues{max-height:36vh;overflow:auto}#vc-v165-panel .vc-v165-issues>div{display:flex;flex-direction:column;gap:3px;padding:8px 4px;border-bottom:1px solid #e8ebef}#vc-v165-panel .vc-v165-issues span{font-size:13px}#vc-v165-save-status{font-size:13px;color:#426076}#vc-v165-open{margin-left:6px}`;document.head.appendChild(css);
+ const panel=document.createElement('div');panel.id='vc-v165-panel';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Diagnóstico y guardado de Volley Coach');panel.innerHTML=`<div class="vc-v165-card"><header><h3>Diagnóstico y seguridad · V16.5</h3><button type="button" id="vc-v165-close">Cerrar</button></header><div id="vc-v165-detail"></div><div class="vc-v165-actions"><button id="vc-v165-check" type="button">Comprobar de nuevo</button><button id="vc-v165-save" type="button">Guardar copia segura</button><button id="vc-v165-download" type="button">Descargar diagnóstico</button></div><p id="vc-v165-save-status">El diagnóstico no modifica datos ni repara partidos automáticamente.</p></div>`;
+ document.body.appendChild(panel);$('vc-v165-close').addEventListener('click',closePanel);$('vc-v165-check').addEventListener('click',refreshPanel);$('vc-v165-save').addEventListener('click',safeSave);$('vc-v165-download').addEventListener('click',downloadDiagnostic);panel.addEventListener('click',e=>{if(e.target===panel)closePanel()});
+ const holder=document.querySelector('#scout-match-mode');if(holder){const b=document.createElement('button');b.id='vc-v165-open';b.type='button';b.className='ghost';b.textContent='Diagnóstico / guardado';b.addEventListener('click',openPanel);const h=holder.querySelector('.v117-pro-toolbar, .scout-v800-toolbar, .v800-header, .v117-pro-actions')||holder;b.setAttribute('title','Comprobar puntuaciones, rallies, guardado local y nube');h.appendChild(b)}
+ const cloud=$('cloud-modal');if(cloud){const b=document.createElement('button');b.type='button';b.className='ghost';b.textContent='Diagnóstico V16.5';b.addEventListener('click',openPanel);cloud.querySelector('.cloud-card')?.appendChild(b)}
+}
+window.VC_V165_RELIABILITY=Object.freeze({version:VERSION,scanMatch,inspect,health,openPanel,closePanel,safeSave,downloadDiagnostic});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',createUI,{once:true});else createUI();
+})();
+
+</script>
+<script id="v166-match-control">
+/* Volley Coach V16.6.0 · Control de puntos y ergonomía de Modo Partido.
+ * Se encadena al motor real de V16.4 y a MatchState. No sustituye rotaciones ni edición de acciones.
+ */
+(()=>{
+'use strict';
+if(window.VC_V166_MATCH)return;
+const VERSION='16.6.0',DEBOUNCE_MS=320;
+const $=id=>document.getElementById(id);
+const active=()=>window.MatchState?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null;
+const setOf=m=>window.MatchState?.getSet?.(m)||window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null;
+const rallies=s=>Array.isArray(s?.rallies)?s.rallies:[];
+const liveActions=m=>Array.isArray(m?.liveRally?.actions)?m.liveRally.actions:[];
+let lastPoint=null,pointBusy=false,undoBusy=false,counters={points:0,blockedDouble:0,verified:0,failed:0,undos:0};
+let suppressNoticeTimer=null;
+const n=v=>Number(v)||0;
+function state(){const m=active(),s=setOf(m);return{m,s,matchId:Number(m?.id)||0,setNo:Number(s?.number)||0,us:n(s?.scoreUs),op:n(s?.scoreOpponent),count:rallies(s).length,lastId:String(rallies(s).at(-1)?.id??'')}}
+function notify(msg,kind='ok'){const p=$('vc-v166-status');if(p){p.textContent=msg;p.dataset.kind=kind}if(kind==='error')console.warn('V16.6',msg)}
+function lastCode(){const m=active(),s=setOf(m),last=liveActions(m).at(-1)||rallies(s).at(-1)?.actions?.at(-1)||null;return last?.code|| (last?.skill?String(last.skill)+(last.evaluation||''):'—')}
+function update(){const snap=state(),b=$('vc-v166-context'),last=$('vc-v166-last-code'),btnUs=$('vc-v166-point-us'),btnOp=$('vc-v166-point-op'),undo=$('vc-v166-undo');
+ if(b)b.textContent=snap.s?`Set ${snap.setNo} · ${snap.us}–${snap.op} · ${snap.count} rallies`:'Abre un scouting para puntuar';
+ if(last)last.textContent='Último código: '+lastCode();
+ const locked=!snap.s||snap.m?.status==='finished'||!!snap.s?.finished;
+ if(btnUs)btnUs.disabled=locked;if(btnOp)btnOp.disabled=locked;if(undo)undo.disabled=locked||!snap.count;
+}
+if(typeof window.scoutAwardPoint!=='function'||typeof window.scoutUndoRally!=='function'){
+ console.warn('V16.6: motor de puntos no disponible; no se instalan wrappers');return;
+}
+const basePoint=window.scoutAwardPoint,baseUndo=window.scoutUndoRally;
+window.scoutAwardPoint=function(winner){
+ winner=winner==='opponent'?'opponent':'ours';const before=state();
+ if(pointBusy)return false;
+ if(!before.s||before.m?.status==='finished'||before.s?.finished){notify('No hay un set abierto.','warning');update();return false}
+ const now=Date.now();
+ if(lastPoint&&lastPoint.matchId===before.matchId&&lastPoint.setNo===before.setNo&&lastPoint.winner===winner&&now-lastPoint.at<DEBOUNCE_MS){
+  counters.blockedDouble++;notify('Pulsación duplicada ignorada (puedes seguir puntuando).','warning');return false;
+ }
+ pointBusy=true;
+ try{
+  const result=basePoint.call(this,winner);if(result&&typeof result.then==='function')throw new Error('El adaptador de puntos ha dejado de ser síncrono');
+  const after=state(),expectedUs=before.us+(winner==='ours'?1:0),expectedOp=before.op+(winner==='opponent'?1:0);
+  const valid=after.matchId===before.matchId&&after.setNo===before.setNo&&after.us===expectedUs&&after.op===expectedOp&&after.count===before.count+1;
+  if(!valid){if(result!==false)counters.failed++;notify('Punto no confirmado. Revisa el marcador antes de volver a pulsar.','error');update();return false}
+  lastPoint={at:now,matchId:before.matchId,setNo:before.setNo,winner,rallyId:after.lastId};
+  counters.points++;counters.verified++;notify(`✓ Un punto registrado · ${after.us}–${after.op}`);update();return result===false?true:result;
+ }catch(err){counters.failed++;notify('Error en el motor de puntos: revisa el marcador y recuperación.','error');console.error('V16.6 point',err);update();return false}
+ finally{pointBusy=false}
+};
+window.scoutUndoRally=function(){
+ if(undoBusy||pointBusy)return false;const before=state();
+ if(!before.s||!before.count){notify('No hay un rally cerrado para deshacer.','warning');return false}
+ undoBusy=true;
+ try{
+  const r=rallies(before.s).at(-1),oldScore=r?.scoreBefore||{};
+  const result=baseUndo.call(this);if(result&&typeof result.then==='function')throw new Error('El adaptador de deshacer ha dejado de ser síncrono');
+  const after=state();
+  const valid=after.matchId===before.matchId&&after.count===before.count-1&&after.us===n(oldScore.us)&&after.op===n(oldScore.opponent);
+  if(!valid){if(result!==false)counters.failed++;notify('Deshacer no confirmado. Revisa el editor y el marcador.','error');update();return false}
+  lastPoint=null;counters.undos++;notify(`↶ Rally deshecho · ${after.us}–${after.op}`);update();return true;
+ }catch(err){counters.failed++;notify('Error al deshacer; revisa los rallies antes de repetir.','error');console.error(err);return false}
+ finally{undoBusy=false}
+};
+function hasOpenModal(){return !!document.querySelector('.modal.open, .cloud-modal.open, .v800-modal:not(.hidden), [role="dialog"][aria-modal="true"]:not([hidden])');}
+function onKey(e){
+ const matchMode=$('scout-match-mode');if(!matchMode?.classList.contains('active'))return;
+ if(!e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||e.repeat)return;
+ if(e.target?.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]')||hasOpenModal())return;
+ let action=null;if(e.code==='Digit1')action='ours';else if(e.code==='Digit2')action='opponent';else if(e.code==='Backspace')action='undo';
+ if(!action)return;e.preventDefault();
+ if(action==='undo'){const snap=state();if(snap.count)window.v121UndoRally?.();}
+ else window.v121Point?.(action);
+}
+function createUi(){if($('vc-v166-quickbar'))return;
+ const css=document.createElement('style');css.id='vc-v166-style';css.textContent=`#vc-v166-quickbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;border:1px solid #d9e4ec;border-radius:12px;padding:10px 12px;background:#f9fbfd;color:#122d40;margin:10px 0}#vc-v166-quickbar button{border:1px solid #afc8d6;background:#fff;border-radius:9px;padding:9px 12px;font-weight:650;cursor:pointer}#vc-v166-quickbar button:disabled{opacity:.42;cursor:not-allowed}#vc-v166-point-us{border-color:#8bbca0!important}#vc-v166-point-op{border-color:#d5a5a0!important}#vc-v166-context{font-weight:700}#vc-v166-last-code{color:#45667c;font-size:13px}#vc-v166-status{font-size:13px;min-height:1.2em;color:#2d7455;flex-basis:100%}#vc-v166-status[data-kind="error"]{color:#b22f39}#vc-v166-status[data-kind="warning"]{color:#9d661b}#vc-v166-hint{font-size:11px;color:#617c90}`;document.head.appendChild(css);
+ const root=$('scout-match-mode');if(!root)return;
+ const bar=document.createElement('div');bar.id='vc-v166-quickbar';bar.innerHTML=`<span id="vc-v166-context">Modo Partido</span><button type="button" id="vc-v166-point-us" title="Alt+1">+ Punto nuestro</button><button type="button" id="vc-v166-point-op" title="Alt+2">+ Punto rival</button><button type="button" id="vc-v166-undo" title="Deshacer último rally">↶ Deshacer</button><span id="vc-v166-last-code">Último código: —</span><small id="vc-v166-hint">Teclado: Alt+1 / Alt+2 · no funciona al escribir códigos</small><div id="vc-v166-status" aria-live="polite">Verificación de puntos activada</div>`;
+ const host=root.querySelector('.v117-pro-top, .v800-top, .v113-match-layout, .v800-shell')||root.firstElementChild;
+ if(host&&host.parentElement===root)host.insertAdjacentElement('afterend',bar);else root.insertBefore(bar,root.firstChild);
+ $('vc-v166-point-us').addEventListener('click',()=>window.v121Point?.('ours'));
+ $('vc-v166-point-op').addEventListener('click',()=>window.v121Point?.('opponent'));
+ $('vc-v166-undo').addEventListener('click',()=>window.v121UndoRally?.());
+ document.addEventListener('keydown',onKey);
+ document.addEventListener('vc:matchstatechange',()=>requestAnimationFrame(update));
+ new MutationObserver(()=>{if(root.classList.contains('active'))update()}).observe(root,{attributes:true,attributeFilter:['class']});
+ update();
+}
+window.VC_V166_MATCH=Object.freeze({version:VERSION,getDiagnostics:()=>({...counters,lastPoint,pointBusy,undoBusy}),state,update,lastCode});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',createUi,{once:true});else createUi();
 })();
 
 </script>
