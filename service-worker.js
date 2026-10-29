@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.3.4-video-calibration';
+const CACHE_NAME = 'volley-coach-v16.6.0-safe-match';
 
 const APP_SHELL = [
   './',
