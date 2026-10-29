@@ -826,7 +826,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
 </style>
 <style id="v1633-clip-setter-styles">
-/* Volley Coach V16.3.3 — Clip Studio Pro y analítica de colocadores */
+/* Volley Coach V16.3.4 — Clip Studio Pro y analítica de colocadores */
 .v1633-panel{border:1px solid #dbe5eb;background:#fff;color:#18344a;border-radius:16px;padding:18px;margin:16px 0;box-shadow:0 4px 19px rgba(18,38,57,.045);font-size:13px;min-width:0}
 .v1633-panel *{box-sizing:border-box}
 .v1633-title{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px}
@@ -1601,6 +1601,12 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
           <button onclick="v117ReviewFullscreen()">⛶ Pantalla completa</button>
         </div>
 
+        <style id="v1634-video-sync-css">
+/* V16.3.4 Video Review: herramientas de calibración */
+#scout-video-hub .v780-sync-actions{flex-wrap:wrap;max-width:680px;gap:5px}
+#scout-video-hub .v780-sync-actions button{white-space:nowrap}
+@media(max-width:850px){#scout-video-hub .v780-sync-panel{flex-direction:column;align-items:stretch}}
+</style>
         <div class="v780-sync-panel">
           <div>
             <span class="pro-kicker">SINCRONIZACIÓN</span>
@@ -1613,6 +1619,9 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
             <button class="primary" onclick="v780SyncSelected()">Sincronizar con selección</button>
             <button class="ghost" onclick="v780Nudge(.25)">+0,25</button>
             <button class="ghost" onclick="v780Nudge(1)">+1 s</button>
+            <button class="ghost" onclick="v1634CheckSelected()" title="Comprueba una segunda jugada del mismo partido">Comprobar</button>
+            <button class="ghost" onclick="v1634RepairLinks()" title="Recalcula los enlaces estimados solo para este vídeo">Recalcular enlaces</button>
+            <button class="ghost" onclick="v1634ClearCalibration()" title="Elimina la calibración del vídeo actual">Borrar anclas</button>
           </div>
         </div>
 
@@ -10600,7 +10609,7 @@ const v700Num=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
 const v700Clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 function v700Video(){return v700$('scout-v700-player')}
 function v700Match(){const id=Number(v700$('scout-v700-match')?.value)||0;return scoutingMatches.find(m=>Number(m.id)===id)||null}
-function v700Meta(m){if(!m)return null;const raw=m.video&&typeof m.video==='object'?m.video:{};m.video={syncOffset:raw.syncOffset==null?null:Number(raw.syncOffset),source:String(raw.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll ?? 2)),postRoll:Math.max(0,Number(raw.postRoll ?? 2)),clips:scoutArr(raw.clips)};return m.video}
+function v700Meta(m){if(!m)return null;const raw=m.video&&typeof m.video==='object'?m.video:{};m.video={...raw,syncOffset:raw.syncOffset==null?null:Number(raw.syncOffset),source:String(raw.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll ?? 2)),postRoll:Math.max(0,Number(raw.postRoll ?? 2)),clips:scoutArr(raw.clips)};return m.video}
 function v700Persist(){try{scoutSave(false)}catch(err){console.error('V7 video persist',err)}}
 function v700Fmt(sec){if(sec==null||!Number.isFinite(Number(sec)))return '—';sec=Math.max(0,Number(sec));const m=Math.floor(sec/60),s=sec-m*60;return `${String(m).padStart(2,'0')}:${s.toFixed(1).padStart(4,'0')}`}
 /* V12.5 removed unreachable function: v700FileSize */
@@ -10635,7 +10644,7 @@ setTimeout(()=>{const v=v700Video();if(v){v.addEventListener('timeupdate',v700On
 // Preserve video fields during every normalization pass.
 const v700NormActionBase=scoutNormalizeAction;scoutNormalizeAction=function(a){const x=v700NormActionBase(a);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};
 const v700NormRallyBase=scoutNormalizeRally;scoutNormalizeRally=function(r){const x=v700NormRallyBase(r);x.videoStart=r?.videoStart==null?null:Number(r.videoStart);x.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);return x};
-const v700NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v700NormMatchBase(m),raw=m?.video&&typeof m.video==='object'?m.video:{};x.dataVersion=V700_VERSION;x.video={...x.video,syncOffset:raw.syncOffset==null?x.video?.syncOffset??null:Number(raw.syncOffset),source:String(raw.source||x.video?.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll??2)),postRoll:Math.max(0,Number(raw.postRoll??2)),clips:scoutArr(raw.clips||x.video?.clips)};return x};
+const v700NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v700NormMatchBase(m),raw=m?.video&&typeof m.video==='object'?m.video:{};x.dataVersion=V700_VERSION;x.video={...x.video,...raw,syncOffset:raw.syncOffset==null?x.video?.syncOffset??null:Number(raw.syncOffset),source:String(raw.source||x.video?.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll??2)),postRoll:Math.max(0,Number(raw.postRoll??2)),clips:scoutArr(raw.clips||x.video?.clips)};return x};
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutingMatches.forEach(m=>{if(m.video?.syncOffset!=null)v700ApplyMapping(m)});
 
 // Add a direct video jump beside closed rallies in the live screen.
@@ -20310,7 +20319,7 @@ const state={
   stopAt:null,playlist:[],playlistIndex:-1,playlistName:'',
   lastRows:[],loadedRecording:null,rotation:0,tv:false,
   mediaType:'local',youtubePlayer:null,youtubeId:null,youtubeUrl:'',
-  youtubeReady:false,youtubeApiPromise:null,youtubeTicker:null
+  youtubeReady:false,youtubeApiPromise:null,youtubeTicker:null,mediaKey:null
 };
 
 function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
@@ -20483,7 +20492,10 @@ function mediaTick(){
 }
 async function loadYouTubeById(id,url=''){
   const m=currentMatch();if(!m)throw new Error('Selecciona primero un partido.');
+  const was=meta(m);const legacy=!was.activeMediaKey&&was.youtubeId===id&&/^YouTube/.test(was.source||'');
   releaseVideo();
+  state.mediaKey=`youtube:${id}`;
+  restoreProfile(m,state.mediaKey,legacy);
   state.mediaType='youtube';
   state.fileMatchId=Number(m.id);
   state.youtubeId=id;
@@ -20578,22 +20590,121 @@ function meta(m){
 }
 function rallyStartMs(r){const a=arr(r?.actions);return a.length?(Number(a[0].scoutMs)||Number(r?.scoutStartMs)||0):(Number(r?.scoutStartMs)||0)}
 function rallyEndMs(r){const a=arr(r?.actions);return a.length?(Number(a[a.length-1].scoutMs)||Number(r?.scoutEndMs)||rallyStartMs(r)):(Number(r?.scoutEndMs)||rallyStartMs(r))}
-function mapped(m,ms){const x=meta(m);return x?.syncOffset==null?null:Math.max(0,(Number(ms)||0)/1000+Number(x.syncOffset))}
+/* V16.3.4: cada fuente de vídeo tiene sus propias anclas.
+   Ninguna calibración de YouTube puede heredarse por una grabación diferente. */
+function profile(m,key=state.mediaKey){
+ const x=meta(m);if(!x||!key)return null;
+ x.syncProfiles=x.syncProfiles&&typeof x.syncProfiles==='object'?x.syncProfiles:{};
+ return x.syncProfiles[key]||null;
+}
+function saveProfile(m){
+ const x=meta(m),key=state.mediaKey;if(!x||!key)return;
+ x.syncProfiles=x.syncProfiles&&typeof x.syncProfiles==='object'?x.syncProfiles:{};
+ x.syncProfiles[key]={offset:x.syncOffset==null?null:Number(x.syncOffset),anchor:x.anchor||null,
+   anchors:arr(x.syncProfiles[key]?.anchors),updatedAt:new Date().toISOString()};
+ x.activeMediaKey=key;
+}
+function restoreProfile(m,key,legacy=false){
+ const x=meta(m);if(!x||!key)return;
+ x.syncProfiles=x.syncProfiles&&typeof x.syncProfiles==='object'?x.syncProfiles:{};
+ let p=x.syncProfiles[key];
+ if(!p&&legacy&&x.syncOffset!=null&&Number.isFinite(Number(x.syncOffset))){
+   p={offset:Number(x.syncOffset),anchor:x.anchor||null,anchors:[],legacy:true};
+   x.syncProfiles[key]=p;
+ }
+ x.activeMediaKey=key;
+ x.syncOffset=p?.offset==null?null:Number(p.offset);
+ x.anchor=p?.anchor||null;
+}
+function anchorList(m){return arr(profile(m)?.anchors).filter(a=>Number.isFinite(Number(a.scoutMs))&&Number.isFinite(Number(a.videoTime))).slice().sort((a,b)=>a.scoutMs-b.scoutMs)}
+function mapped(m,ms){
+ const x=meta(m),t=Number(ms);if(!Number.isFinite(t)||x?.syncOffset==null)return null;
+ const anchors=anchorList(m);let off=Number(x.syncOffset);
+ if(anchors.length){let chosen=anchors[0];for(const a of anchors){if(Number(a.scoutMs)>t)break;chosen=a}off=Number(chosen.videoTime)-Number(chosen.scoutMs)/1000;}
+ return Math.max(0,t/1000+off);
+}
+function actionSourceKey(a){
+ if(a?.videoRecordingId)return `recording:${a.videoRecordingId}`;
+ const src=String(a?.videoSource||'');
+ if(src.startsWith('sync:'))return src.slice(5);
+ const y=src.match(/^(?:youtube:|YouTube\s*[·-]\s*)([A-Za-z0-9_-]{11})$/i);
+ if(y)return `youtube:${y[1]}`;
+ if(src.startsWith('recording:'))return src;
+ return null;
+}
+function actionCompatible(a){
+ const key=state.mediaKey;if(!key)return false;
+ const actionKey=actionSourceKey(a);if(actionKey)return actionKey===key;
+ const src=String(a?.videoSource||'');
+ if(/^local:/.test(src))return key.startsWith('file:')&&key.toLowerCase().includes(src.slice(6).toLowerCase());
+ if(/^file:/.test(src))return key.startsWith('file:')&&key.toLowerCase().includes(src.slice(5).toLowerCase());
+ // Legacy/ambiguous source: never silently treat an exact stamp as belonging to another video.
+ return false;
+}
+function addCalibration(m,row,videoTime){
+ if(!m||!row||!state.mediaKey)return;
+ const x=meta(m),key=state.mediaKey;
+ x.syncProfiles=x.syncProfiles&&typeof x.syncProfiles==='object'?x.syncProfiles:{};
+ const p=x.syncProfiles[key]||{anchors:[]};
+ const anchors=arr(p.anchors).filter(a=>String(a.key)!==String(row.key));
+ anchors.push({key:row.key,set:Number(row.set)||null,scoutMs:Number(row.ms),videoTime:Number(videoTime),createdAt:new Date().toISOString()});
+ anchors.sort((a,b)=>a.scoutMs-b.scoutMs);
+ p.anchors=anchors;p.offset=Number(videoTime)-Number(row.ms)/1000;
+ p.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:Number(videoTime),recordingId:state.loadedRecording?.id||null,mediaKey:key};
+ p.updatedAt=new Date().toISOString();x.syncProfiles[key]=p;x.syncOffset=p.offset;x.anchor=p.anchor;x.activeMediaKey=key;x.syncedAt=p.updatedAt;
+}
+function eachAction(m,fn){arr(m?.sets).forEach(s=>arr(s.rallies).forEach(r=>arr(r.actions).forEach(a=>fn(a,s,r))));arr(m?.liveRally?.actions).forEach(a=>fn(a,null,m.liveRally))}
+function recalibrateLinked(m){
+ const key=state.mediaKey,x=meta(m);if(!m||!key||x?.syncOffset==null)return 0;
+ let count=0;eachAction(m,a=>{
+   if(a.videoRecordingId)return;
+   const src=String(a.videoSource||'');
+   if(a.videoExact===true&&!actionCompatible(a))return;
+   const linked=actionSourceKey(a);
+   if(linked&&linked!==key)return;
+   if(src&&(/^(youtube:|local:|file:|recording:)/i.test(src))&&linked!==key&&!actionCompatible(a))return;
+   if(a.scoutMs==null||!Number.isFinite(Number(a.scoutMs)))return;
+   const t=mapped(m,a.scoutMs);if(t==null)return;
+   a.videoTimestamp=null;a.videoAction=null;a.videoTime=null;a.liveVideoTime=null;
+   a.videoStart=Math.max(0,t-8);a.videoEnd=t+5;
+   a.videoExact=false;a.videoSource=`sync:${key}`;a.videoLinkStatus='calibrated';count++;
+ });
+ // Update only clips made from actions of THIS source, never clips from another video.
+ const byKey=new Map();arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>arr(r.actions).forEach(a=>byKey.set(`a:${s.number}:${r.id}:${a.id}`,a))));
+ for(const c of arr(x.clips)){
+   const a=byKey.get(String(c.sourceKey||''));if(!a||a.videoSource!==`sync:${key}`||c.recordingId)continue;
+   if(c.youtubeId&&key!==`youtube:${c.youtubeId}`)continue;
+   if(c.source&&/^(?:youtube:|recording:|file:|sync:)/.test(String(c.source))){const origin=String(c.source).replace(/^sync:/,'');if(origin!==key)continue;}
+   const t=mapped(m,a.scoutMs);if(t==null)continue;
+   const pre=c.type==='action'?8:Math.min(8,Number(c.start)||0),post=c.type==='action'?5:Math.max(0,Number(c.end)-Number(c.start)-pre);
+   c.start=Math.max(0,t-pre);c.end=t+post;c.duration=c.end-c.start;c.source=key;
+   if(key.startsWith('youtube:')){c.youtubeId=key.slice(8);c.mediaKind='youtube'}
+   c.updatedAt=new Date().toISOString();
+ }
+ return count;
+}
+window.VC_V1634_TIME={
+ currentKey:()=>state.mediaKey,sourceKey:actionSourceKey,compatible:actionCompatible,
+ actionTime:(a,m=currentMatch())=>actionVideoTime(a,m),mapped:(ms,m=currentMatch())=>mapped(m,ms),
+ profile:(m=currentMatch())=>profile(m),anchors:(m=currentMatch())=>anchorList(m),
+ syncState:()=>({mediaKey:state.mediaKey,matchId:currentMatch()?.id||null,anchors:anchorList(currentMatch()),offset:meta(currentMatch())?.syncOffset??null})
+};
 function applyMap(m){
   const x=meta(m);if(!m||x.syncOffset==null)return;
   arr(m.sets).forEach(s=>arr(s.rallies).forEach(r=>{
     r.videoStart=mapped(m,rallyStartMs(r));r.videoEnd=mapped(m,rallyEndMs(r));
     arr(r.actions).forEach(a=>{
-      a.videoAction=a.videoTime!=null?Number(a.videoTime):mapped(m,a.scoutMs);
-      a.videoStart=a.videoAction==null?null:Math.max(0,a.videoAction-x.preRoll);
-      a.videoEnd=a.videoAction==null?null:a.videoAction+x.postRoll;
+      if(a.videoRecordingId||a.videoExact===true)return; // proteger fuentes exactas/REC
+      const t=mapped(m,a.scoutMs);
+      a.videoStart=t==null?null:Math.max(0,t-x.preRoll);
+      a.videoEnd=t==null?null:t+x.postRoll;
     });
   }));
 }
 function releaseVideo(){
   clearInterval(state.youtubeTicker);state.youtubeTicker=null;
   if(state.objectUrl){try{URL.revokeObjectURL(state.objectUrl)}catch(_){}state.objectUrl=null}
-  state.file=null;state.fileMatchId=null;state.loadedRecording=null;state.stopAt=null;
+  state.file=null;state.fileMatchId=null;state.loadedRecording=null;state.stopAt=null;state.mediaKey=null;
   const v=video();if(v){try{v.pause()}catch(_){}v.removeAttribute('src');try{v.load()}catch(_){}}
   if(state.youtubePlayer||state.youtubeId)destroyYouTube();
   state.mediaType='local';
@@ -20602,10 +20713,12 @@ function releaseVideo(){
 }
 function loadBlob(blob,name='',recording=null){
   const m=currentMatch();if(!m)throw new Error('Selecciona primero un partido.');
-  releaseVideo();
+  const prev=meta(m),key=recording?.id?`recording:${recording.id}`:`file:${name}:${blob.size||0}`;
+  const legacy=!prev.activeMediaKey&&(recording?.id?String(prev.anchor?.recordingId||'')===String(recording.id):String(prev.source||'')===String(name));
+  releaseVideo();state.mediaKey=key;restoreProfile(m,key,legacy);
   state.objectUrl=URL.createObjectURL(blob);
   state.fileMatchId=Number(m.id);
-  state.loadedRecording=recording||null;
+  state.loadedRecording=recording||null;state.file=(!recording&&blob instanceof File)?blob:null;
   state.mediaType='local';
   const v=video();v.classList.remove('hidden');youtubeWrap()?.classList.add('hidden');v.src=state.objectUrl;v.load();
   const x=meta(m);x.source=name||recording?.filename||'Vídeo';
@@ -20623,8 +20736,8 @@ function autoSyncRecording(rec,m){
   if(!rec||!m)return false;
   if(rec.match?.id!=null&&String(rec.match.id)!==String(m.id))return false;
   const x=meta(m);
-  // Mantener una calibración manual ya realizada para ESTA grabación.
-  if(x.anchor?.recordingId===rec.id&&x.anchor.type!=='recording-auto'&&x.anchor.type!=='recording-start')return true;
+  // Mantener todas las calibraciones manuales de esta grabación, nunca sustituirlas.
+  if(anchorList(m).length||x.anchor?.recordingId===rec.id&&x.anchor.type!=='recording-auto'&&x.anchor.type!=='recording-start')return true;
   const ref=arr(x.recordingRefs).find(r=>String(r.id)===String(rec.id));
   const startMs=ref?.scoutMsAtStart;
   if(startMs!=null&&Number.isFinite(Number(startMs))){
@@ -20640,7 +20753,7 @@ function autoSyncRecording(rec,m){
   }
   x.recordingId=String(rec.id);
   x.syncedAt=new Date().toISOString();
-  applyMap(m);save();return true;
+  saveProfile(m);applyMap(m);save();return true;
 }
 function timeline(m){
   const out=[];
@@ -20674,15 +20787,22 @@ function timeline(m){
   return out.sort((a,b)=>a.ms-b.ms);
 }
 function actionVideoTime(a,m=currentMatch()){
-  // V16.3.2: No reproducir marcas de la grabación A sobre la B.
-  if(a?.videoRecordingId&&String(a.videoRecordingId)!==String(state.loadedRecording?.id||''))return null;
-  for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){
-    const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n;
+  if(!a||!mediaLoaded())return null;
+  const key=state.mediaKey,src=String(a.videoSource||''),identity=actionSourceKey(a);
+  if(identity&&identity!==key)return null;
+  if((src.startsWith('local:')||src.startsWith('file:'))&&!actionCompatible(a))return null;
+  // Derivadas = siempre recalcular desde el scout. No usar un timestamp obsoleto.
+  if(a.videoExact!==true){
+    if(meta(m)?.syncOffset!=null&&a.scoutMs!=null)return mapped(m,a.scoutMs);
+    // Un timestamp estimado sin calibración de esta fuente no es fiable.
+    return null;
   }
-  const offset=meta(m)?.syncOffset;
-  if(offset==null||a?.scoutMs==null)return null; // Number(null)===0 NO significa sincronizado
-  const off=Number(offset),ms=Number(a.scoutMs);
-  return Number.isFinite(off)&&Number.isFinite(ms)?Math.max(0,ms/1000+off):null;
+  // Marca exacta solo cuando se puede identificar con seguridad la misma fuente.
+  if(!actionCompatible(a))return meta(m)?.syncOffset!=null&&a.scoutMs!=null?mapped(m,a.scoutMs):null;
+  for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){
+    const raw=a[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n;
+  }
+  return meta(m)?.syncOffset!=null&&a.scoutMs!=null?mapped(m,a.scoutMs):null;
 }
 function rowRange(row,m=currentMatch()){
   if(!row||!m)return null;
@@ -20731,7 +20851,7 @@ function updatePlayhead(){
   const head=$('v780-ruler-playhead'),duration=mediaDuration(),current=mediaCurrentTime();
   if(head&&duration>0)head.style.left=`${Math.max(0,Math.min(100,current/duration*100))}%`;
   const m=currentMatch();
-  if(m&&meta(m)?.syncOffset!=null&&mediaLoaded()){
+  if(m&&meta(m)?.syncOffset!=null&&mediaLoaded()&&anchorList(m).length<=1){
     const scoutMs=(current-Number(meta(m).syncOffset))*1000;
     const rows=timeline(m);
     const closest=rows.reduce((best,r)=>Math.abs(r.ms-scoutMs)<Math.abs((best?.ms??1e15)-scoutMs)?r:best,null);
@@ -20779,7 +20899,7 @@ function renderStatus(){
   $('v780-video-source').textContent=loaded?(x?.source||state.file?.name||'Vídeo'):(x?.source?`${x.source} · volver a cargar`:'Selecciona archivo, grabación o YouTube');
   $('v780-sync-state').textContent=x?.syncOffset==null?'Pendiente':'Sincronizado';
   $('v780-sync-copy').textContent=x?.syncOffset==null?'—':`${x.syncOffset>=0?'+':''}${Number(x.syncOffset).toFixed(2)} s`;
-  $('v780-sync-title').textContent=x?.syncOffset==null?'Vídeo todavía no sincronizado':`Sincronizado · offset ${x.syncOffset>=0?'+':''}${Number(x.syncOffset).toFixed(2)} s`;
+  $('v780-sync-title').textContent=x?.syncOffset==null?'Este vídeo todavía no está calibrado':`Calibrado · ${anchorList(m).length||1} referencia(s) · desfase ${x.syncOffset>=0?'+':''}${Number(x.syncOffset).toFixed(2)} s`;
 }
 function renderSelection(){
   const row=selectedRow(),t=$('v780-selected-title'),c=$('v780-selected-copy');
@@ -20956,11 +21076,36 @@ window.v780SpeedChanged=function(){mediaSetSpeed(Number($('v780-speed')?.value)|
 window.v780Fullscreen=async function(){const el=$('v780-video-frame'),v=video();try{if(document.fullscreenElement)return document.exitFullscreen();if(el?.requestFullscreen)return el.requestFullscreen();if(!isYouTube()&&v?.webkitEnterFullscreen)return v.webkitEnterFullscreen()}catch(err){console.warn(err)}};
 window.v780RulerSeek=function(e){const box=$('v780-ruler'),duration=mediaDuration();if(!mediaLoaded()||duration<=0||!box)return;const r=box.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));mediaSeek(x*duration)};
 window.v780SyncSelected=function(){
-  const m=currentMatch(),row=selectedRow();if(!m||!row){alert('Selecciona un rally o una acción.');return}if(!mediaLoaded()){alert('Carga primero el vídeo.');return}
-  const current=mediaCurrentTime(),x=meta(m);x.syncOffset=current-(Number(row.ms)||0)/1000;x.syncedAt=new Date().toISOString();x.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:current,recordingId:state.loadedRecording?.id||null};
-  applyMap(m);save();renderAll();
+  const m=currentMatch(),row=selectedRow();if(!m||!row){alert('Selecciona un rally o una acción.');return}
+  if(!mediaLoaded()||!state.mediaKey){alert('Carga primero el vídeo correcto.');return}
+  if(row.ms==null||!Number.isFinite(Number(row.ms))){alert('No existe un tiempo de scouting válido para esta acción.');return}
+  const t=mediaCurrentTime();
+  addCalibration(m,row,t);applyMap(m);save();renderAll();
 };
-window.v780Nudge=function(delta){const m=currentMatch(),x=meta(m);if(!m||x?.syncOffset==null){alert('Sincroniza primero el vídeo.');return}x.syncOffset+=Number(delta||0);if(state.loadedRecording?.id)x.anchor={...(x.anchor||{}),type:'recording-manual-adjusted',recordingId:state.loadedRecording.id};applyMap(m);save();renderAll()};
+window.v780Nudge=function(delta){
+  const m=currentMatch(),x=meta(m),p=profile(m);if(!m||x?.syncOffset==null||!p){alert('Sincroniza primero este vídeo.');return}
+  const d=Number(delta)||0;x.syncOffset+=d;
+  p.anchors=arr(p.anchors).map(a=>({...a,videoTime:Number(a.videoTime)+d}));
+  if(x.anchor&&x.anchor.videoTime!=null)x.anchor={...x.anchor,videoTime:Number(x.anchor.videoTime)+d};
+  saveProfile(m);applyMap(m);save();renderAll();
+};
+window.v1634CheckSelected=function(){
+  const m=currentMatch(),r=selectedRow();if(!m||!r||!mediaLoaded())return alert('Selecciona una acción y carga el vídeo.');
+  const calc=mapped(m,r.ms);if(calc==null)return alert('Primero sincroniza una jugada de este vídeo.');
+  const actual=mediaCurrentTime(),diff=actual-calc;
+  alert(`Comprobación de la jugada\n\nPredicción: ${fmt(calc)}\nVídeo ahora: ${fmt(actual)}\nDiferencia: ${diff>=0?'+':''}${diff.toFixed(2)} s\n\nSi estás situado en el instante de esa acción y difiere, pulsa «Sincronizar con selección» para añadir una referencia en este punto. Las anteriores se conservarán.`);
+};
+window.v1634RepairLinks=async function(){
+  const m=currentMatch(),p=profile(m);if(!m||!p||p.offset==null)return alert('Primero sincroniza este vídeo con una acción.');
+  if(!confirm('¿Recalcular las referencias estimadas y los clips de ESTE vídeo usando las anclas?\n\nSe conservarán el scouting, los puntos, los códigos y todas las grabaciones originales. Las marcas exactas de otras fuentes no se modificarán.'))return;
+  try{const backup=await window.VolleySafeCheckpoint?.checkpoint?.(typeof window.estadoLocal==='function'?window.estadoLocal():null,'pre-video-recalibration');if(backup===false){alert('No se pudo crear el punto seguro. Recalibración cancelada.');return}}catch(e){console.warn('Backup V16.3.4',e);alert('No se pudo comprobar la copia de seguridad. Guarda primero una copia y vuelve a intentarlo.');return}
+  const count=recalibrateLinked(m);applyMap(m);save();renderAll();alert(`Recalculadas ${count} acciones de esta fuente. Revisa varios clips antes de utilizar el partido.`);
+};
+window.v1634ClearCalibration=function(){
+  const m=currentMatch(),x=meta(m),key=state.mediaKey;if(!m||!key)return;
+  if(!confirm('¿Borrar únicamente las anclas de sincronización de este vídeo? Los puntos, acciones y clips no se borrarán.'))return;
+  if(x.syncProfiles)delete x.syncProfiles[key];x.syncOffset=null;x.anchor=null;save();renderAll();
+};
 window.v780LoadFile=function(ev){
   const f=ev?.target?.files?.[0];if(!f)return;
   if(!String(f.type||'').startsWith('video/')&&!/\.(webm|mp4|mov|m4v)$/i.test(f.name)){alert('Selecciona un archivo de vídeo compatible.');return}
@@ -20977,7 +21122,7 @@ window.v780CreateClip=function(key){
     /* V7.2 works on its own modal/player, so persist mapped ranges and create a compatible clip directly. */
     const range=rowRange(row,m);if(!range)return;
     x.clips=arr(x.clips);
-    x.clips.push({id:`hub_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,name:row.label,tag:row.team==='opponent'?'opponent':row.type==='action'?'technical':'general',note:row.copy,start:range.start,end:range.end,duration:range.end-range.start,sourceKey:key,type:row.type,set:row.set,team:row.team||'',skill:row.skill||'',evaluation:row.evaluation||'',player:row.player||'',createdAt:new Date().toISOString(),source:x.source||''});
+    x.clips.push({id:`hub_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,name:row.label,tag:row.team==='opponent'?'opponent':row.type==='action'?'technical':'general',note:row.copy,start:range.start,end:range.end,duration:range.end-range.start,sourceKey:key,type:row.type,set:row.set,team:row.team||'',skill:row.skill||'',evaluation:row.evaluation||'',player:row.player||'',createdAt:new Date().toISOString(),source:state.mediaKey||x.source||'',youtubeId:isYouTube()?state.youtubeId:null,recordingId:state.loadedRecording?.id||null});
     save();
     alert(isYouTube()
       ? 'Referencia de clip guardada. En YouTube se conserva el intervalo para análisis, pero Volley Coach no descarga ni recorta el vídeo de YouTube.'
@@ -31077,6 +31222,8 @@ function video(m){if(!m)return null;m.video=m.video&&typeof m.video==='object'?m
 function getClips(m){return video(m)?.clips||[]}
 function save(){try{BR()?.save?.()}catch(err){console.warn('V16.3.3 saving clips',err)}}
 function stamp(a,m){
+ const core=window.VC_V1634_TIME;
+ if(core)return core.actionTime(a,m); // rechaza marcas de otra fuente y recalcula estimaciones
  if(!a)return null;
  for(const key of ['videoTimestamp','videoAction','videoTime','liveVideoTime']){
   if(a[key]==null||a[key]==='')continue;
@@ -31112,14 +31259,15 @@ function fmt(n){if(n==null||!Number.isFinite(Number(n)))return '—';n=Math.max(
 function ytid(raw){let s=String(raw||'');let match=s.match(/(?:youtube:|YouTube\s*[·-]\s*|youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);return match?match[1]:null}
 function clipOrigin(m,action=null){
  const meta=video(m)||{},src=String(action?.videoSource||'');
- const rec=action?.videoRecordingId||(src.startsWith('recording:')?src.slice(10):'');
+ const core=window.VC_V1634_TIME,key=core?.currentKey?.()||'',rec=action?.videoRecordingId||'';
  if(rec)return {mediaKind:'recording',recordingId:String(rec),youtubeId:null,source:`recording:${rec}`};
  const fromAction=ytid(src);
  if(fromAction)return {mediaKind:'youtube',recordingId:null,youtubeId:fromAction,source:`youtube:${fromAction}`};
  if(src&&/^(local:|file:)/.test(src))return {mediaKind:'local',recordingId:null,youtubeId:null,source:src};
- if(src&&!/^(sync|youtube)/i.test(src))return {mediaKind:'unknown',recordingId:null,youtubeId:null,source:src};
- if(meta.youtubeId&&(src==='sync'||src.includes('YouTube')||(!src&&action?.videoExact!==true&&meta.syncOffset!=null)))return {mediaKind:'youtube',recordingId:null,youtubeId:String(meta.youtubeId),source:`youtube:${meta.youtubeId}`};
- return {mediaKind:'local',recordingId:null,youtubeId:null,source:String(meta.source||'')};
+ if(key.startsWith('youtube:'))return {mediaKind:'youtube',recordingId:null,youtubeId:key.slice(8),source:key};
+ if(key.startsWith('recording:'))return {mediaKind:'recording',recordingId:key.slice(10),youtubeId:null,source:key};
+ if(key.startsWith('file:'))return {mediaKind:'local',recordingId:null,youtubeId:null,source:key};
+ return {mediaKind:'unknown',recordingId:null,youtubeId:null,source:String(meta.source||'')};
 }
 function displayName(r){return `${NAMES[r.a.skill]||r.a.skill} ${r.a.evaluation||''} · ${r.player}`}
 function makeClip(m,r,opts={}){
