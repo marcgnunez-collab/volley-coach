@@ -825,6 +825,35 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 @media(max-width:650px){#v161-match-buffer-state{margin-left:0;flex-basis:100%}#v161-video-active{left:12px;right:12px;bottom:10px}}
 
 </style>
+<style id="v1633-clip-setter-styles">
+/* Volley Coach V16.3.3 — Clip Studio Pro y analítica de colocadores */
+.v1633-panel{border:1px solid #dbe5eb;background:#fff;color:#18344a;border-radius:16px;padding:18px;margin:16px 0;box-shadow:0 4px 19px rgba(18,38,57,.045);font-size:13px;min-width:0}
+.v1633-panel *{box-sizing:border-box}
+.v1633-title{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.v1633-title>div{flex:1;min-width:240px}.v1633-title span{display:block;color:#607c90;font-size:10px;font-weight:800;letter-spacing:.11em}.v1633-title h3{margin:4px 0 3px;color:#102e42;font-size:19px;font-weight:850}.v1633-title p{margin:0;color:#667b89;font-size:12px}
+.v1633-panel label{color:#4a6171;font-size:11px;font-weight:750;display:flex;flex-direction:column;gap:4px}
+.v1633-panel label select,.v1633-panel label input,.v1633-mark input{width:100%;min-height:35px;border:1px solid #d7e1e8;border-radius:8px;background:#fff;padding:7px 10px;color:#1c3c50;font-size:12px;max-width:100%}
+.v1633-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.v1633-metrics button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:#f4f8fa;border:1px solid #e3ebef;border-radius:12px;padding:13px;text-align:left;cursor:pointer;color:#24465d}
+.v1633-metrics b{font-size:23px;line-height:1.1;font-weight:850}.v1633-metrics small{font-size:11px;font-weight:800;color:#617e90}.v1633-metrics span{color:#34795c;font-weight:800}
+.v1633-metrics .v1633-good{background:#edf7f1;border-color:#cde7d6}.v1633-metrics .v1633-bad{background:#fbf0ed;border-color:#ecd2cd}.v1633-metrics .v1633-bad span{color:#a05e50}
+.v1633-eval-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.v1633-eval-grid button{display:flex;flex-direction:column;gap:4px;align-items:center;border:1px solid #e2e9ed;background:#f8fafb;border-radius:10px;padding:10px 4px;cursor:pointer}.v1633-eval-grid b{font-size:19px}.v1633-eval-grid strong{font-size:18px}.v1633-eval-grid span{font-size:10px}
+.v1633-eval-grid .v1633-good{background:#edf7f1;color:#1e6f47;border-color:#d0e9da}.v1633-eval-grid .v1633-bad{background:#fff2ee;color:#9b4537;border-color:#f0d8d1}
+.v1633-row-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0}.v1633-row-tools button{white-space:normal}
+.v1633-info{color:#6c8090;font-size:11px;margin:9px 0;line-height:1.5}.v1633-evidence-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:14px 0 7px}.v1633-evidence-head strong{font-size:12px}
+.v1633-scroll{max-height:420px;overflow:auto;border:1px solid #e2e9ee;border-radius:8px}.v1633-table{border-collapse:collapse;width:100%;font-size:11px}.v1633-table th{position:sticky;top:0;background:#edf3f6;text-align:left;color:#4b6373;z-index:1;padding:8px}.v1633-table td{padding:8px;border-top:1px solid #ebeff2;vertical-align:middle}.v1633-table code{font-size:10px}
+.v1633-table .v1633-good{color:#247547;font-weight:800}.v1633-table .v1633-bad{color:#b34a3a;font-weight:800}.v1633-muted{color:#8c9ba5;font-size:10px}
+.v1633-filters{display:grid;grid-template-columns:repeat(6,minmax(100px,1fr));gap:7px}.v1633-mark{display:flex;gap:7px;align-items:center;flex-wrap:wrap;background:#f3f7f9;border-radius:9px;padding:9px;margin-bottom:10px}.v1633-mark b{min-width:42px;font-variant-numeric:tabular-nums}.v1633-mark input{width:200px;max-width:100%;flex:1}
+#v1633-clip-list{display:grid;gap:7px;max-height:500px;overflow:auto}.v1633-clip{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e0e8ed;border-radius:10px;padding:10px;background:#fafcfd}
+.v1633-clip>div:first-child{flex:1;min-width:0}.v1633-clip b{display:block;color:#1f4059;font-size:12px;overflow-wrap:anywhere}.v1633-clip small{display:block;color:#58768b;font-size:11px;margin:3px 0}.v1633-clip span{color:#778b9a;font-size:11px}.v1633-clip-actions{display:flex;gap:5px;flex-wrap:wrap}.v1633-clip-actions button{padding:7px 10px;font-size:11px}
+.v1633-panel button:focus-visible,.v1633-panel input:focus-visible,.v1633-panel select:focus-visible{outline:2px solid #1c82c1;outline-offset:2px}
+@media(max-width:850px){.v1633-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.v1633-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v1633-eval-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.v1633-clip{flex-direction:column;align-items:stretch}.v1633-scroll{max-width:100%}}
+@media(max-width:520px){.v1633-panel{padding:12px}.v1633-title h3{font-size:17px}.v1633-row-tools button{font-size:11px}.v1633-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.v1633-detail-quality{width:100%;border:1px solid #cfe0e9;border-radius:12px;background:#f6fafc;padding:12px;margin:10px 0;color:#19415b}
+.v1633-detail-quality strong{font-weight:850}.v1633-detail-quality p{font-size:12px;margin:8px 0}
+
+</style>
 </head>
 <body class="v11-shell">
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V7.0.1 · VIDEO SCOUTING</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
@@ -3026,7 +3055,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <section id="vc-recording-studio" class="vc-recording-studio">
       <div class="vc-recording-head">
         <div>
-          <span class="pro-kicker">V7.7 · RECORDING STUDIO</span>
+          <span class="pro-kicker">V16.3.2 · RECORDING STUDIO</span>
           <strong>Grabar partido o entrenamiento completo</strong>
           <small>La grabación usa el vídeo directo y funciona a la vez que el Live Delay.</small>
         </div>
@@ -3074,15 +3103,17 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="ghost" type="button" onclick="vcRecordingRecover()">Recuperar grabaciones</button>
         <button id="vc-recording-gallery-save" class="ghost hidden" type="button" onclick="vcRecordingSaveToGallery()">Guardar en Fotos / Galería</button>
         <a id="vc-recording-download" class="vc-recording-download hidden" href="#" download>Guardar archivo de vídeo</a>
+        <button id="vc-recording-export-large" class="ghost hidden" type="button" onclick="vcRecordingExportLarge()">Exportar vídeo grande</button>
         <span id="vc-recording-last" class="vc-recording-last"></span>
       </div>
 
+      <div class="vc-rec-storage-advice"><span id="vc-recording-space">Almacenamiento por comprobar</span> · Para partidos de 2 h, elige <b>Modo cámara (archivo del dispositivo)</b> desde Chrome/Edge en el portátil. En móvil, el almacenamiento del navegador puede ser insuficiente.</div>
       <div id="vc-recording-markers" class="vc-recording-markers"></div>
 
       <div class="v959-rec-health-note"><b>Protección V9.5.9:</b> REC comprueba fotogramas LIVE, intenta recuperar la señal si se corta y detiene el archivo si no vuelve para evitar grabaciones largas congeladas.</div><div class="vc-recording-help">
         <b>Modo cámara:</b> graba directamente a un archivo normal del dispositivo. Al iniciar eliges dónde guardarlo una sola vez y, al finalizar, el vídeo ya está allí. Volley Coach prioriza <b>MP4</b> si el navegador/dispositivo puede grabarlo.
         <b>Fotos / Galería:</b> pensado para móvil. Al finalizar prepara el vídeo y abre el guardado/compartir nativo del sistema para pasarlo a Fotos o Galería. iOS/Android pueden exigir un último toque por seguridad.
-        <b>Navegador:</b> mantiene una copia recuperable en IndexedDB. Live Delay por sí solo no graba: debes pulsar <b>● Iniciar REC</b>.
+        <b>Navegador:</b> mantiene fragmentos recuperables en IndexedDB. Los vídeos grandes se exportan por streaming desde Chrome/Edge de escritorio; no borres los datos de esta web antes de exportarlos. <b>Cerrar el navegador o suspender el móvil puede interrumpir REC</b>; un archivo directo a disco no está garantizado hasta pulsar Finalizar y guardar. Live Delay por sí solo no graba: pulsa <b>● Iniciar REC</b>.
       </div>
     </section>
 
@@ -19225,6 +19256,14 @@ window.vcRemoteCameraDiagnostics=function(){
 .vc-rec-recovery{position:fixed;inset:0;z-index:80000;background:rgba(7,23,37,.68);display:grid;place-items:center;padding:18px}.vc-rec-recovery-card{width:min(680px,96vw);max-height:85vh;overflow:auto;background:#fff;border-radius:13px;padding:15px;color:#29475f}.vc-rec-recovery-card h3{margin:0 0 4px!important;border:0!important;padding:0!important}.vc-rec-recovery-list{display:grid;gap:6px;margin-top:10px}.vc-rec-recovery-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #e2e7eb;border-radius:8px;padding:8px;background:#fafbfc}.vc-rec-recovery-row strong{display:block;font-size:9px}.vc-rec-recovery-row small{display:block;font-size:7.5px;color:#7d8b95;margin-top:2px}.vc-rec-recovery-row div:last-child{display:flex;gap:4px}.vc-rec-recovery-row button{font-size:7px!important;padding:5px 6px!important}
 @media(max-width:980px){.vc-recording-toolbar{grid-template-columns:1fr 1fr}.vc-recording-main-actions{justify-content:flex-start}.vc-recording-metrics{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.vc-recording-toolbar{grid-template-columns:1fr}.vc-recording-metrics{grid-template-columns:1fr 1fr}.vc-recording-main-actions button{flex:1}.vc-recording-last{width:100%;margin-left:0}.vc-rec-recovery-row{grid-template-columns:1fr}}
+.vc-rec-storage-advice{padding:7px 9px;margin:5px 0;border:1px solid #d5e3ea;background:#f5f9fb;border-radius:8px;font-size:8px;color:#456377}
+#vc-rec-global{position:fixed;bottom:16px;right:16px;z-index:79000;display:flex;align-items:center;gap:7px;padding:10px 12px;border:1px solid #b8c8d2;background:#fff;box-shadow:0 8px 30px rgba(0,20,40,.2);border-radius:13px;color:#16344e;font:700 12px Arial,sans-serif;flex-wrap:wrap;max-width:min(96vw,480px)}
+#vc-rec-global[hidden]{display:none!important}
+#vc-rec-global b{display:flex;align-items:center;gap:6px;font-size:12px}
+#vc-rec-global button{font-size:10px!important;padding:7px 9px!important;border-radius:8px!important}
+#vc-rec-global-end{background:#f9eaea!important;color:#a03835!important;border:1px solid #ecc8c5!important}
+.vc-rec-dot{display:inline-block;width:8px;height:8px;background:#ca3f38;border-radius:50%;animation:vcRecPulse 1.2s infinite}
+@media(max-width:600px){#vc-rec-global{left:10px;right:10px;bottom:9px;justify-content:center;padding:8px 9px}}
 </style>
 
 
@@ -19232,9 +19271,11 @@ window.vcRemoteCameraDiagnostics=function(){
 (()=>{
 'use strict';
 
-const VERSION='7.7.0';
+const VERSION='16.3.1';
+const LARGE_EXPORT_BYTES=256*1024*1024; // Evitar reunir varios GB de vídeo en memoria.
 const DB_NAME='VolleyCoachRecordingsV770';
 const DB_VERSION=1;
+const recoverySessionCache=new Map();
 const $=id=>document.getElementById(id);
 
 const state={
@@ -19269,7 +19310,10 @@ const state={
   healthTimer:null,
   healthRecovering:false,
   sourceFailureSince:0,
-  wakeLock:null
+  wakeLock:null,
+  stopping:false,stopPromise:null,lastCheckpointAt:0,confirmedBytes:0,
+  quotaBusy:false,lastQuotaCheck:0,lastQuotaWarning:0,quotaText:'Almacenamiento por comprobar',
+  largeExportId:null
 };
 
 function nowIso(){return new Date().toISOString()}
@@ -19372,6 +19416,16 @@ function updateUI(){
   $('vc-recording-pause')?.classList.toggle('hidden',!state.active);
   $('vc-recording-stop')?.classList.toggle('hidden',!state.active);
   if($('vc-recording-pause'))$('vc-recording-pause').textContent=state.paused?'Reanudar':'Pausar';
+  if($('vc-recording-stop'))$('vc-recording-stop').disabled=!!state.stopping;
+  const floating=$('vc-rec-global');
+  if(floating){
+    floating.hidden=!state.active;
+    $('vc-rec-global-time').textContent=fmtTime(elapsed);
+    $('vc-rec-global-mode').textContent=state.stopping?'GUARDANDO':state.paused?'PAUSA':'REC';
+  }
+  if($('vc-recording-space'))$('vc-recording-space').textContent=state.quotaText;
+  const exportBig=$('vc-recording-export-large');
+  if(exportBig)exportBig.classList.toggle('hidden',!state.largeExportId);
 
   const box=$('vc-recording-markers');
   if(box){
@@ -19389,13 +19443,18 @@ function startTimer(){
         addMarkerInternal(`Set ${setNo}`,true);
       }
     }
+    // Consultar capacidad con poca frecuencia; no bloquear ni consultar Supabase.
+    if(state.active&&Date.now()-state.lastQuotaCheck>20000)void checkStorageHealth();
   },500);
 }
 function stopTimer(){clearInterval(state.timer);state.timer=null}
 
 /* ---------- IndexedDB ---------- */
+let cachedDB=null,dbOpenPromise=null;
 function openDB(){
-  return new Promise((resolve,reject)=>{
+  if(cachedDB)return Promise.resolve(cachedDB);
+  if(dbOpenPromise)return dbOpenPromise;
+  dbOpenPromise=new Promise((resolve,reject)=>{
     const req=indexedDB.open(DB_NAME,DB_VERSION);
     req.onupgradeneeded=()=>{
       const db=req.result;
@@ -19405,9 +19464,15 @@ function openDB(){
         st.createIndex('sessionId','sessionId',{unique:false});
       }
     };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
+    req.onsuccess=()=>{
+      cachedDB=req.result;
+      cachedDB.onversionchange=()=>{cachedDB.close();cachedDB=null;dbOpenPromise=null};
+      resolve(cachedDB);
+    };
+    req.onerror=()=>{dbOpenPromise=null;reject(req.error||new Error('No se puede abrir el almacenamiento de REC'))};
+    req.onblocked=()=>{console.warn('V16.3.1: la base de grabaciones está bloqueada por otra pestaña')};
   });
+  return dbOpenPromise;
 }
 async function dbPutSession(patch){
   const db=await openDB();
@@ -19420,7 +19485,6 @@ async function dbPutSession(patch){
     tx.objectStore('sessions').put({...existing,...patch});
     tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
   });
-  db.close();
 }
 async function dbPutChunk(sessionId,index,blob){
   const db=await openDB();
@@ -19429,7 +19493,6 @@ async function dbPutChunk(sessionId,index,blob){
     tx.objectStore('chunks').put({key:`${sessionId}:${String(index).padStart(8,'0')}`,sessionId,index,blob,size:blob.size});
     tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
   });
-  db.close();
 }
 async function dbChunks(sessionId){
   const db=await openDB();
@@ -19437,16 +19500,33 @@ async function dbChunks(sessionId){
     const tx=db.transaction('chunks','readonly'),idx=tx.objectStore('chunks').index('sessionId'),r=idx.getAll(sessionId);
     r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);
   });
-  db.close();
   return out.sort((a,b)=>a.index-b.index);
 }
+async function dbChunkPage(sessionId,fromIndex=0,limit=24){
+  const db=await openDB(),out=[];
+  const prefix=`${sessionId}:`;
+  const first=`${prefix}${String(fromIndex).padStart(8,'0')}`;
+  const range=IDBKeyRange.bound(first,`${prefix}\uffff`);
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('chunks','readonly');
+    const r=tx.objectStore('chunks').openCursor(range);
+    r.onsuccess=()=>{
+      const cursor=r.result;
+      if(!cursor||out.length>=limit)return;
+      out.push(cursor.value);
+      if(out.length<limit)cursor.continue();
+    };
+    tx.oncomplete=()=>resolve(out);
+    tx.onerror=()=>reject(tx.error||new Error('No se pudieron leer los fragmentos'));
+  });
+}
+
 async function dbSessions(){
   const db=await openDB();
   const out=await new Promise((resolve,reject)=>{
     const tx=db.transaction('sessions','readonly'),r=tx.objectStore('sessions').getAll();
     r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);
   });
-  db.close();
   return out.sort((a,b)=>String(b.startedAt||'').localeCompare(String(a.startedAt||'')));
 }
 async function dbDeleteSession(id){
@@ -19461,7 +19541,6 @@ async function dbDeleteSession(id){
     const cs=tx.objectStore('chunks');chunks.forEach(k=>cs.delete(k));
     tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
   });
-  db.close();
 }
 
 /* ---------- Recording ---------- */
@@ -19515,23 +19594,59 @@ function downloadJSON(obj,name){
   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 async function writeChunk(blob){
-  state.bytes+=blob.size;
   const idx=state.chunkIndex++;
   const task=async()=>{
+    if(state.writeError)return;
     if(state.mode==='disk'&&state.writer)await state.writer.write(blob);
     else await dbPutChunk(state.sessionId,idx,blob);
+    // Bytes confirmados, no bytes recibidos pero todavía pendientes de escribir.
+    state.bytes+=blob.size;
+    state.confirmedBytes=state.bytes;
+    const now=Date.now();
+    if(now-state.lastCheckpointAt>=5000){
+      state.lastCheckpointAt=now;
+      await dbPutSession({id:state.sessionId,bytes:state.bytes,
+        durationMs:recordingElapsed(),lastChunkIndex:idx,updatedAt:nowIso()});
+    }
+    updateUI();
   };
-  /* Always continue from the previous task, even if it failed, so one failed
-     write does not permanently poison every later chunk in the promise chain. */
-  state.writeQueue=state.writeQueue
-    .catch(()=>{})
-    .then(task)
-    .catch(err=>{
-      if(!state.writeError)state.writeError=err;
-      console.error('V9.5.9 chunk write',err);
-      setState('ERROR DE GUARDADO','bad');
-    });
-  updateUI();
+  state.writeQueue=state.writeQueue.then(task).catch(err=>{
+    if(!state.writeError)state.writeError=err;
+    console.error('V16.3.1 fragmento no guardado',err);
+    setState('ERROR DE GUARDADO','bad');
+  });
+  return state.writeQueue;
+}
+async function checkStorageHealth(){
+  if(state.quotaBusy||Date.now()-state.lastQuotaCheck<12000)return;
+  state.quotaBusy=true;state.lastQuotaCheck=Date.now();
+  try{
+    const estimate=await navigator.storage?.estimate?.();
+    if(!estimate?.quota){state.quotaText='Espacio disponible no verificable';return}
+    const free=Math.max(0,estimate.quota-(estimate.usage||0));
+    state.quotaText=`Libre estimado: ${fmtBytes(free)} (navegador)`;
+    if(state.active&&state.mode!=='disk'&&free<200*1024*1024&&Date.now()-state.lastQuotaWarning>60000){
+      state.lastQuotaWarning=Date.now();
+      const note=$('vc-recording-status-note');
+      if(note)note.textContent='ALERTA: poco espacio local. Finaliza REC y exporta el vídeo.';
+      setState('POCO ESPACIO','pause');
+    }
+  }catch(_){state.quotaText='Espacio disponible no verificable'}
+  finally{state.quotaBusy=false;updateUI()}
+}
+async function checkPreflightSpace(mode){
+  if(mode==='disk')return true;
+  try{
+    await navigator.storage?.persist?.(); // Petición no bloqueante; el navegador puede denegarla.
+    const e=await navigator.storage?.estimate?.();
+    if(e?.quota){
+      const free=Math.max(0,e.quota-(e.usage||0));
+      if(free<300*1024*1024){
+        return confirm(`Hay aproximadamente ${fmtBytes(free)} libres para grabaciones en este navegador. Un partido completo podría no caber.\n\n¿Quieres empezar igualmente?`);
+      }
+    }
+  }catch(_){}
+  return true;
 }
 function addMarkerInternal(label,automatic=false){
   if(!state.active)return null;
@@ -19661,6 +19776,10 @@ function startRecordingHealth(){
       state.recorderError=new Error('MediaRecorder se ha detenido inesperadamente.');
     }
 
+    if(state.sourceKind==='local'&&state.stream&&!state.stream.getVideoTracks().some(t=>t.readyState==='live')){
+      state.recorderError=state.recorderError||new Error('La cámara local dejó de transmitir.');
+      void window.vcRecordingStop(false);return;
+    }
     if(state.sourceKind==='remote'){
       const d=window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||{};
       const age=Number(d.lastFrameAgeMs);
@@ -19691,7 +19810,13 @@ function startRecordingHealth(){
 window.vcRecordingStart=async function(){
   if(state.active)return;
   const source=getSourceStream();
+  const selected=$('live-delay-source')?.value||'local';
+  if(selected==='remote'&&typeof window.VC_REMOTE_CAMERA?.getStream==='function'
+     &&!window.VC_REMOTE_CAMERA.getStream()?.getVideoTracks?.().some(t=>t.readyState==='live')){
+    alert('El móvil todavía no está conectado por QR. REC no utilizará otra cámara por error.');return;
+  }
   if(!source){alert('Primero inicia la cámara o conecta el móvil y activa Live Delay.');return}
+
   if(typeof MediaRecorder==='undefined'){alert('Este navegador no dispone de MediaRecorder.');return}
 
   let mode=$('vc-recording-storage')?.value||'disk';
@@ -19700,6 +19825,10 @@ window.vcRecordingStart=async function(){
     if($('vc-recording-storage'))$('vc-recording-storage').value=mode;
   }
   if(mode==='gallery'&&!galleryShareSupported())mode='browser';
+  if(!await checkPreflightSpace(mode))return;
+  if(mode==='browser'&&typeof window.showSaveFilePicker!=='function'){
+    if(!confirm('Este navegador no permite exportar directamente vídeos grandes (>256 MB). Para partidos completos, usa Grabación a archivo en Chrome/Edge del portátil. ¿Continuar con grabación recuperable en este dispositivo?'))return;
+  }
 
   const mime=chooseMime(mode==='disk'||mode==='gallery');
   if(!mime){alert('No se ha encontrado un formato de vídeo compatible para grabar.');return}
@@ -19728,12 +19857,14 @@ window.vcRecordingStart=async function(){
     const sessionId=makeId(),m=currentMatch();
     Object.assign(state,{
       active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
-      sessionId,filename,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
+      sessionId,filename,startedAt:Date.now(),recordingMatchId:m?.id??null,
+      pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
       writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0,
       sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'
         ?`LIVE móvil directo · ${window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()?.outputOrientation==='portrait'?'vertical 9:16':'horizontal 16:9'} · independiente del Delay`
         :'LIVE cámara local · independiente del Delay',
-      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0
+      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0,
+      stopping:false,stopPromise:null,lastCheckpointAt:0,confirmedBytes:0,largeExportId:null
     });
 
     const initialSession={
@@ -19768,6 +19899,13 @@ window.vcRecordingStart=async function(){
       setTimeout(()=>{if(state.active)window.vcRecordingStop(false)},0);
     });
     recorder.addEventListener('start',()=>setState('● REC','rec'),{once:true});
+    recorder.addEventListener('stop',()=>{
+      // Cierre involuntario del codificador: finalizar lo recuperable en vez de dejar REC ficticio.
+      if(state.active&&!state.stopping){
+        state.recorderError=state.recorderError||new Error('El codificador de vídeo se detuvo inesperadamente.');
+        queueMicrotask(()=>{if(state.active&&!state.stopping)void window.vcRecordingStop(false)});
+      }
+    });
     recorder.start(1000);
     await requestRecordingWakeLock();
     startRecordingHealth();
@@ -19832,6 +19970,14 @@ async function finalizeSession(){
       last.classList.remove('v871-warn');last.classList.add('v871-saved');
       last.textContent=`✓ Vídeo guardado como archivo normal · ${state.filename}.${state.extension} · ${fmtTime(durationMs)} · ${fmtBytes(state.bytes)}`;
     }
+  }else if(state.mode==='browser'&&state.bytes>LARGE_EXPORT_BYTES){
+    // IndexedDB ya contiene los fragmentos persistentes: no crear Blob de varios GB.
+    state.largeExportId=state.sessionId;
+    const last=$('vc-recording-last');
+    if(last){
+      last.classList.add('v871-warn');
+      last.textContent=`Grabación de ${fmtBytes(state.bytes)} protegida en este navegador. Pulsa Exportar vídeo grande para guardarla por streaming.`;
+    }
   }else{
     const chunks=await dbChunks(state.sessionId);
     if(!chunks.length)throw new Error('La grabación no contiene fragmentos recuperables.');
@@ -19880,47 +20026,49 @@ async function finalizeSession(){
 
   const session={...baseSession,bytes:finalBytes,completed:true,error:null};
   await dbPutSession(session);
+  recoverySessionCache.set(session.id,session);
   return session;
 }
-window.vcRecordingStop=async function(silent=false){
-  if(!state.active)return null;
-  stopTimer();
-  setState('GUARDANDO','pause');
-
-  const recorder=state.recorder;
-  const stopped=recorder&&recorder.state!=='inactive'
-    ?new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}))
-    :Promise.resolve();
-
-  try{
-    if(recorder&&recorder.state!=='inactive'){
-      try{if(recorder.state==='recording')recorder.requestData?.()}catch(_){}
-      recorder.stop();
+window.vcRecordingStop=function(silent=false){
+  if(state.stopPromise)return state.stopPromise;
+  if(!state.active)return Promise.resolve(null);
+  state.stopping=true;
+  state.stopPromise=(async()=>{
+    stopTimer();setState('GUARDANDO','pause');updateUI();
+    const recorder=state.recorder;
+    const stopped=recorder&&recorder.state!=='inactive'
+      ?new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}))
+      :Promise.resolve();
+    try{
+      if(recorder&&recorder.state!=='inactive'){
+        try{if(recorder.state==='recording')recorder.requestData?.()}catch(_){}
+        recorder.stop();
+      }
+      await stopped;
+      const session=await finalizeSession();
+      setState('GUARDADO','done');
+      if(!silent){
+        if(state.mode==='disk')alert(`Vídeo finalizado y guardado en el dispositivo.\n\n${state.filename}.${state.extension}`);
+        else if(state.largeExportId)alert('La grabación grande se ha conservado en el navegador. Pulsa «Exportar vídeo grande» para crear el archivo sin cargarlo entero en memoria.');
+        else if(state.mode==='gallery')alert('Grabación finalizada. Usa «Guardar en Fotos / Galería» si el sistema no ha completado el guardado.');
+        else if(autosaveEnabled())alert('Grabación finalizada. Comprueba que el navegador haya guardado el archivo. También permanece recuperable en este dispositivo.');
+      }
+      return session;
+    }catch(err){
+      console.error('V16.3.1 finalize',err);setState('ERROR','bad');
+      if(!silent)alert('Ha ocurrido un error al finalizar. Comprueba el archivo y usa «Recuperar grabaciones» para los fragmentos que sí se guardaron.\n\n'+String(err?.message||err));
+      return null;
+    }finally{
+      stopRecordingHealth();await releaseRecordingWakeLock();
+      try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+      try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
+      Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,
+        fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:'',writeError:null,
+        recorderError:null,healthRecovering:false,sourceFailureSince:0});
+      updateUI();
     }
-    await stopped;
-    const session=await finalizeSession();
-    setState('GUARDADO','done');
-    if(!silent){
-      if(state.mode==='disk')alert(`Grabación guardada como vídeo normal del dispositivo.\n\n${state.filename}.${state.extension}`);
-      else if(state.mode==='gallery'){
-        if(state.lastGalleryFile)alert('Grabación finalizada. Si el sistema no la ha añadido todavía a Fotos/Galería, pulsa “Guardar en Fotos / Galería”.');
-      }else if(autosaveEnabled())alert(`Grabación finalizada. Se ha preparado el archivo de vídeo.\n\n${state.filename}.${state.extension}`);
-      else alert('Grabación finalizada. Puedes guardarla con “Guardar archivo de vídeo”.');
-    }
-    return session;
-  }catch(err){
-    console.error('V7.7 finalize',err);
-    setState('ERROR','bad');
-    if(!silent)alert('La grabación se ha detenido, pero ha ocurrido un error al finalizarla.\nPuedes intentar recuperarla desde “Recuperar grabaciones”.\n\n'+String(err?.message||err));
-    return null;
-  }finally{
-    stopRecordingHealth();
-    await releaseRecordingWakeLock();
-    try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
-    try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
-    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:'',writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0});
-    updateUI();
-  }
+  })().finally(()=>{state.stopping=false;state.stopPromise=null;updateUI()});
+  return state.stopPromise;
 };
 
 /* ---------- Recovery ---------- */
@@ -19928,6 +20076,7 @@ window.vcRecordingRecover=async function(){
   try{
     const sessions=await dbSessions();
     const browserSessions=sessions.filter(s=>s.mode==='browser'||s.mode==='gallery');
+    browserSessions.forEach(s=>recoverySessionCache.set(s.id,s));
     let modal=document.getElementById('vc-rec-recovery');
     if(modal)modal.remove();
     modal=document.createElement('div');modal.id='vc-rec-recovery';modal.className='vc-rec-recovery';
@@ -19935,37 +20084,89 @@ window.vcRecordingRecover=async function(){
       <div><strong>${String(s.filename||s.id)}</strong><small>${String(s.startedAt||'')} · ${fmtTime(s.durationMs||0)} · ${fmtBytes(s.bytes||0)} · ${s.completed?'finalizada':'interrumpida / recuperable'}</small></div>
       <div><button class="primary" onclick="vcRecordingExportRecovered('${s.id}')">Descargar</button><button class="danger" onclick="vcRecordingDeleteRecovered('${s.id}')">Eliminar</button></div>
     </div>`).join('');
-    modal.innerHTML=`<div class="vc-rec-recovery-card"><h3>Grabaciones recuperables</h3><p style="font-size:9px;color:#71818d">Fragmentos guardados en este navegador. Puedes descargar o eliminar cada sesión.</p><div class="vc-rec-recovery-list">${rows||'<div class="vc-recording-help">No hay grabaciones guardadas en el navegador.</div>'}</div><div style="margin-top:10px;text-align:right"><button class="ghost" id="vc-rec-recovery-close">Cerrar</button></div></div>`;
+    modal.innerHTML=`<div class="vc-rec-recovery-card"><h3>Grabaciones recuperables</h3><p style="font-size:9px;color:#71818d">Fragmentos recuperables guardados en este navegador. Las grabaciones directas a disco se encuentran en la carpeta elegida al iniciar REC; si se cierra el navegador antes de finalizar, el archivo puede no quedar completo.</p><div class="vc-rec-recovery-list">${rows||'<div class="vc-recording-help">No hay grabaciones guardadas en el navegador.</div>'}</div><div style="margin-top:10px;text-align:right"><button class="ghost" id="vc-rec-recovery-close">Cerrar</button></div></div>`;
     modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
     document.body.appendChild(modal);
     $('vc-rec-recovery-close')?.addEventListener('click',()=>modal.remove());
   }catch(err){alert('No se han podido leer las grabaciones recuperables.\n\n'+String(err?.message||err))}
 };
+async function streamRecoveredToWriter(id,writer){
+  let next=0,total=0;
+  for(;;){
+    const batch=await dbChunkPage(id,next,24);
+    if(!batch.length)break;
+    for(const row of batch){await writer.write(row.blob);total+=row.size||row.blob.size;next=row.index+1}
+  }
+  return total;
+}
 window.vcRecordingExportRecovered=async function(id){
   try{
-    const sessions=await dbSessions(),s=sessions.find(x=>x.id===id);
-    if(!s)throw new Error('No se encuentra la sesión.');
+    const s=recoverySessionCache.get(id)||(await dbSessions()).find(x=>x.id===id);
+    if(!s)throw new Error('No se encuentra la grabación.');
+    const filename=`${s.filename}.${extForMime(s.mime)}`;
+    if(typeof window.showSaveFilePicker==='function'){
+      // Pedir permiso desde el propio clic; no después de operaciones asincrónicas.
+      const handle=await chooseDiskFile(s.filename,s.mime);
+      if(!handle)return false;
+      const writer=await handle.createWritable();let written=0;
+      try{written=await streamRecoveredToWriter(id,writer);await writer.close()}
+      catch(err){try{await writer.abort()}catch(_){}throw err}
+      if(!written)throw new Error('No había fragmentos de vídeo guardados.');
+      downloadJSON(metadataPayload({...s,bytes:written}),`${s.filename}_marcadores.json`);
+      const last=$('vc-recording-last');
+      if(last)last.textContent=`✓ Exportado ${filename} · ${fmtBytes(written)}. Conserva el archivo en tu dispositivo.`;
+      if(state.largeExportId===id){state.largeExportId=null;updateUI()}
+      return true;
+    }
+    if((s.bytes||0)>LARGE_EXPORT_BYTES)throw new Error('Esta grabación es demasiado grande para descargarla de una sola vez. Ábrela desde Chrome/Edge en un ordenador con guardado directo a archivo. Mantén este navegador y sus datos sin borrar hasta exportarla.');
     const chunks=await dbChunks(id);
     if(!chunks.length)throw new Error('No hay fragmentos guardados.');
     const blob=new Blob(chunks.map(x=>x.blob),{type:s.mime||'video/webm'});
-    offerDownload(blob,`${s.filename}.${extForMime(s.mime)}`);
+    offerDownload(blob,filename,true);
     downloadJSON(metadataPayload({...s,bytes:blob.size}),`${s.filename}_marcadores.json`);
-  }catch(err){alert('No se ha podido recuperar la grabación.\n\n'+String(err?.message||err))}
+    return true;
+  }catch(err){
+    if(err?.name==='AbortError')return false;
+    alert('No se ha podido exportar la grabación.\n\n'+String(err?.message||err));return false;
+  }
 };
+window.vcRecordingExportLarge=function(){
+  if(!state.largeExportId)return;
+  return window.vcRecordingExportRecovered(state.largeExportId);
+};
+
 window.vcRecordingDeleteRecovered=async function(id){
   if(!confirm('¿Eliminar definitivamente esta grabación recuperable del navegador?'))return;
   await dbDeleteSession(id);window.vcRecordingRecover();
 };
+
+/* ---------- Persistent REC indicator across app views ---------- */
+function createGlobalRecIndicator(){
+  if($('vc-rec-global'))return;
+  const el=document.createElement('div');
+  el.id='vc-rec-global';el.hidden=true;
+  el.setAttribute('role','status');
+  el.setAttribute('aria-label','Grabación de vídeo activa');
+  el.innerHTML='<b><span class="vc-rec-dot"></span> <span id="vc-rec-global-mode">REC</span> <span id="vc-rec-global-time">00:00:00</span></b>'+
+    '<button type="button" id="vc-rec-global-open">Ver REC</button>'+
+    '<button type="button" id="vc-rec-global-mark">Marcar</button>'+
+    '<button type="button" id="vc-rec-global-end">Finalizar</button>';
+  document.body.appendChild(el);
+  $('vc-rec-global-open').onclick=()=>window.openLiveDelay?.('scouting');
+  $('vc-rec-global-mark').onclick=()=>window.vcRecordingAddMarker?.('Momento');
+  $('vc-rec-global-end').onclick=()=>{
+    if(confirm('¿Finalizar y guardar el vídeo actual?'))void window.vcRecordingStop(false);
+  };
+}
+createGlobalRecIndicator();
 
 /* ---------- Integration / safeguards ---------- */
 const baseStopLive=window.stopLiveDelay;
 window.stopLiveDelay=function(...args){
   /* V9.5.8: REC is independent from the Delay buffer.
      In remote mode, stopping/changing Delay must never stop the LIVE recording. */
-  const remoteIndependent=state.active&&state.sourceKind==='remote';
-  if(state.active&&!remoteIndependent){
-    window.vcRecordingStop(true).catch(()=>{});
-  }
+  // El codificador REC tiene su pista LIVE clonada; cambiar/cerrar DELAY
+  // no debe finalizarlo. Si una cámara realmente se pierde, health lo detectará.
   return baseStopLive?.apply(this,args);
 };
 
@@ -19980,7 +20181,13 @@ document.addEventListener('visibilitychange',()=>{
 window.vcRecordingDiagnostics=function(){
   return {
     version:VERSION,
-    active:state.active,paused:state.paused,mode:state.mode,mime:state.mime,
+    active:state.active,paused:state.paused,stopping:state.stopping,
+    sessionId:state.sessionId||null,filename:state.filename||'',
+    startedAt:state.startedAt?new Date(state.startedAt).toISOString():null,
+    matchId:state.active?(state.recordingMatchId||null):null,
+    mode:state.mode,mime:state.mime,
+    confirmedBytes:state.confirmedBytes,chunkCount:state.chunkIndex,
+    quota:state.quotaText,largePendingExport:!!state.largeExportId,
     bytes:state.bytes,elapsedMs:recordingElapsed(),markers:state.markers,
     diskDirectSupported:typeof window.showSaveFilePicker==='function',
     indexedDB:typeof indexedDB!=='undefined',
@@ -20006,10 +20213,10 @@ window.vcRecordingDiagnostics=function(){
   if($('vc-recording-name')&&!$('vc-recording-name').value)$('vc-recording-name').value=defaultName();
   const storage=$('vc-recording-storage');
   if(storage&&typeof window.showSaveFilePicker!=='function')storage.value=galleryShareSupported()?'gallery':'browser';
-  updateUI();
+  updateUI();void checkStorageHealth();
   try{
     const sessions=await dbSessions();
-    const interrupted=sessions.filter(s=>s.mode==='browser'&&!s.completed);
+    const interrupted=sessions.filter(s=>(s.mode==='browser'||s.mode==='gallery')&&!s.completed);
     if(interrupted.length&&$('vc-recording-last'))$('vc-recording-last').textContent=`${interrupted.length} grabación(es) recuperable(s)`;
   }catch(_){}
 })();
@@ -20414,13 +20621,25 @@ function loadBlob(blob,name='',recording=null){
 }
 function autoSyncRecording(rec,m){
   if(!rec||!m)return false;
-  const recStart=Date.parse(rec.startedAt||'');
-  const scoutStart=Date.parse(m.clockStartedAt||m.createdAt||'');
-  if(!Number.isFinite(recStart)||!Number.isFinite(scoutStart))return false;
+  if(rec.match?.id!=null&&String(rec.match.id)!==String(m.id))return false;
   const x=meta(m);
-  x.syncOffset=(scoutStart-recStart)/1000;
+  // Mantener una calibración manual ya realizada para ESTA grabación.
+  if(x.anchor?.recordingId===rec.id&&x.anchor.type!=='recording-auto'&&x.anchor.type!=='recording-start')return true;
+  const ref=arr(x.recordingRefs).find(r=>String(r.id)===String(rec.id));
+  const startMs=ref?.scoutMsAtStart;
+  if(startMs!=null&&Number.isFinite(Number(startMs))){
+    x.syncOffset=-Number(startMs)/1000;
+    x.anchor={type:'recording-start',recordingId:rec.id,scoutMsAtStart:Number(startMs),recordingStart:rec.startedAt};
+  }else{
+    // Grabaciones antiguas (V16.3.1) sin ancla explícita: calibración aproximada.
+    const recStart=Date.parse(rec.startedAt||'');
+    const scoutStart=Date.parse(m.clockStartedAt||m.createdAt||'');
+    if(!Number.isFinite(recStart)||!Number.isFinite(scoutStart))return false;
+    x.syncOffset=(scoutStart-recStart)/1000;
+    x.anchor={type:'recording-auto',recordingId:rec.id,scoutStart:m.clockStartedAt||m.createdAt,recordingStart:rec.startedAt};
+  }
+  x.recordingId=String(rec.id);
   x.syncedAt=new Date().toISOString();
-  x.anchor={type:'recording-auto',recordingId:rec.id,scoutStart:m.clockStartedAt||m.createdAt,recordingStart:rec.startedAt};
   applyMap(m);save();return true;
 }
 function timeline(m){
@@ -20455,10 +20674,14 @@ function timeline(m){
   return out.sort((a,b)=>a.ms-b.ms);
 }
 function actionVideoTime(a,m=currentMatch()){
+  // V16.3.2: No reproducir marcas de la grabación A sobre la B.
+  if(a?.videoRecordingId&&String(a.videoRecordingId)!==String(state.loadedRecording?.id||''))return null;
   for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){
     const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n;
   }
-  const off=Number(meta(m)?.syncOffset),ms=Number(a?.scoutMs);
+  const offset=meta(m)?.syncOffset;
+  if(offset==null||a?.scoutMs==null)return null; // Number(null)===0 NO significa sincronizado
+  const off=Number(offset),ms=Number(a.scoutMs);
   return Number.isFinite(off)&&Number.isFinite(ms)?Math.max(0,ms/1000+off):null;
 }
 function rowRange(row,m=currentMatch()){
@@ -20734,14 +20957,17 @@ window.v780Fullscreen=async function(){const el=$('v780-video-frame'),v=video();
 window.v780RulerSeek=function(e){const box=$('v780-ruler'),duration=mediaDuration();if(!mediaLoaded()||duration<=0||!box)return;const r=box.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));mediaSeek(x*duration)};
 window.v780SyncSelected=function(){
   const m=currentMatch(),row=selectedRow();if(!m||!row){alert('Selecciona un rally o una acción.');return}if(!mediaLoaded()){alert('Carga primero el vídeo.');return}
-  const current=mediaCurrentTime(),x=meta(m);x.syncOffset=current-(Number(row.ms)||0)/1000;x.syncedAt=new Date().toISOString();x.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:current};
+  const current=mediaCurrentTime(),x=meta(m);x.syncOffset=current-(Number(row.ms)||0)/1000;x.syncedAt=new Date().toISOString();x.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:current,recordingId:state.loadedRecording?.id||null};
   applyMap(m);save();renderAll();
 };
-window.v780Nudge=function(delta){const m=currentMatch(),x=meta(m);if(!m||x?.syncOffset==null){alert('Sincroniza primero el vídeo.');return}x.syncOffset+=Number(delta||0);applyMap(m);save();renderAll()};
+window.v780Nudge=function(delta){const m=currentMatch(),x=meta(m);if(!m||x?.syncOffset==null){alert('Sincroniza primero el vídeo.');return}x.syncOffset+=Number(delta||0);if(state.loadedRecording?.id)x.anchor={...(x.anchor||{}),type:'recording-manual-adjusted',recordingId:state.loadedRecording.id};applyMap(m);save();renderAll()};
 window.v780LoadFile=function(ev){
   const f=ev?.target?.files?.[0];if(!f)return;
   if(!String(f.type||'').startsWith('video/')&&!/\.(webm|mp4|mov|m4v)$/i.test(f.name)){alert('Selecciona un archivo de vídeo compatible.');return}
-  state.file=f;loadBlob(f,f.name,null);
+  const pending=state.pendingV1632;
+  state.pendingV1632=null;
+  const valid=pending&&String(f.name).toLowerCase().startsWith(String(pending.filename||'').toLowerCase()+'.');
+  state.file=f;loadBlob(f,f.name,valid?pending:null);
 };
 window.v780CreateClip=function(key){
   state.selectedKey=key;renderSelection();
@@ -20849,6 +21075,25 @@ window.v780PlaySmartPreset=function(type){
   if(type==='playerKills'&&!($('v780-player')?.value||'')){alert('Selecciona primero una jugadora en el filtro superior.');return}
   const names={playerKills:'Ataques # del jugador',recepMinusBang:'Recepciones − / !',r6:'Rotación R6',sideoutLost:'Side-out perdido',oppZ4:'Ataques rivales desde Z4'};
   startPlaylist(smartRows(type),names[type]||'Playlist táctica');
+};
+/* V16.3.2: abrir una grabación por su identidad (no por un timestamp aislado). */
+window.VC_V1632_MEDIA={
+  loadedRecordingId:()=>state.loadedRecording?.id||null,
+  matchId:()=>currentMatch()?.id??null,
+  loadRecordingById:async function(id){
+    const m=currentMatch();if(!m||!id)return false;
+    if(String(state.loadedRecording?.id||'')===String(id)&&mediaLoaded())return true;
+    const all=await recSessions(),rec=all.find(s=>String(s.id)===String(id));
+    if(!rec||rec.match?.id!=null&&String(rec.match.id)!==String(m.id))return false;
+    if(rec.mode==='browser'&&Number(rec.bytes)>256*1024*1024){
+      // El visor V7.8 concatena chunks en RAM: evitar bloqueo con archivos largos.
+      console.warn('V16.3.2: vídeo grande, exporta desde Recording Studio y selecciona archivo');
+      return false;
+    }
+    if(rec.mode!=='browser')state.pendingV1632=rec;
+    await openRecording(rec);
+    return !!mediaLoaded()&&String(state.loadedRecording?.id||'')===String(id);
+  }
 };
 window.v780OpenAt=function(sec,key='',opts={}){
   const t=Number(sec);if(!Number.isFinite(t)||t<0)return false;
@@ -29004,7 +29249,7 @@ window.v132OpenActionEditor=function(index){if(readonly())return alert('Partido 
   $('v132-edit-meta').innerHTML=`<span>ID ${esc(a.id)}</span><span>${ref.live?'Rally actual':'Rally '+ref.rallyId}</span><span>S${ref.setNo}</span><span>R${ref.rotation}</span>${actionTime(a)!=null?`<span>Vídeo ${fmtVideo(actionTime(a))}</span>`:''}`;$('v132-action-edit-modal').classList.add('open');$('v132-action-edit-modal').setAttribute('aria-hidden','false')};
 window.v132EditTeamChanged=function(){const a=refAction(editRef);if(!a)return;const team=$('v132-edit-team').value;const sel=$('v132-edit-player');sel.innerHTML=editPlayerOptions(a,team)};
 window.v132CloseActionEditor=function(){editRef=null;$('v132-action-edit-modal')?.classList.remove('open');$('v132-action-edit-modal')?.setAttribute('aria-hidden','true')};
-function preserveVideo(src,dst){['id','uid','seq','createdAt','scoutMs','videoTime','videoSource','videoStart','videoAction','videoEnd','liveVideoTime','liveVideoSessionId','liveVideoLinkedAt','videoTimestamp','clipId'].forEach(k=>{if(src?.[k]!==undefined)dst[k]=src[k]})}
+function preserveVideo(src,dst){['id','uid','seq','createdAt','scoutMs','videoTime','videoSource','videoStart','videoAction','videoEnd','liveVideoTime','liveVideoSessionId','liveVideoLinkedAt','videoTimestamp','videoRecordingId','videoLinkStatus','clipId'].forEach(k=>{if(src?.[k]!==undefined)dst[k]=src[k]})}
 function saveDirect(a){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(_){}try{State()?.sync?.('v13.2:action-edit')}catch(_){}try{window.v900Render?.()}catch(_){}queueRender()}
 window.v132SaveActionEdit=function(){if(!editRef||readonly())return;const old=refAction(editRef);if(!old)return;const raw=String($('v132-edit-code')?.value||'').trim();let next={...old};if(raw&&raw!==String(old.code||'')){const parsed=window.VC_SCOUT_CORE?.parse?.(raw,match(),old);if(parsed?.error||!parsed?.action)return alert(parsed?.error||'Código no válido.');next={...old,...parsed.action};preserveVideo(old,next)}else{next.team=$('v132-edit-team').value==='opponent'?'opponent':'ours';const pv=$('v132-edit-player').value;if(next.team==='ours'){const p=players().find(x=>String(x.id)===String(pv));next.playerId=p?Number(p.id):null;next.playerLabel='';if(p){next.playerNumberSnapshot=p.number??'';next.playerNameSnapshot=p.name||''}}else{next.playerId=null;next.playerLabel=pv;next.playerNumberSnapshot='';next.playerNameSnapshot=''}next.skill=$('v132-edit-skill').value;next.evaluation=$('v132-edit-eval').value;next.startZone=String($('v132-edit-start').value||'').trim().toUpperCase();next.endZone=String($('v132-edit-end').value||'').trim().toUpperCase();next.phase=$('v132-edit-phase').value;try{next.code=window.scoutBuildCode?.(next)||next.code}catch(_){}}const m=match();if(editRef.live)m.liveRally.actions[editRef.index]=next;else{const s=(m.sets||[]).find(x=>Number(x.number)===Number(editRef.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(editRef.rallyId));if(!r)return;r.actions[editRef.index]=next;r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1}m.updatedAt=new Date().toISOString();saveDirect(next);v132CloseActionEditor()};
 window.v132DeleteEditedAction=function(){if(!editRef||readonly())return;if(!confirm('¿Eliminar esta acción del scouting? El marcador del rally no cambiará.'))return;const m=match();if(editRef.live)m.liveRally.actions.splice(editRef.index,1);else{const s=(m.sets||[]).find(x=>Number(x.number)===Number(editRef.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(editRef.rallyId));if(!r)return;r.actions.splice(editRef.index,1);r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1}m.updatedAt=new Date().toISOString();saveDirect();v132CloseActionEditor()};
@@ -29038,7 +29283,7 @@ function exactStamp(m=match()){
   try{const x=typeof window.v850MediaStamp==='function'?window.v850MediaStamp():null;if(x?.videoExact&&Number.isFinite(Number(x.videoTime)))return {time:Math.max(0,Number(x.videoTime)),source:String(x.videoSource||''),exact:true,kind:x.kind||'video'}}catch(_){}
   try{const media=window.VC_MATCH_MODE_MEDIA;if(media?.isReview?.()&&media?.loaded?.()){const source=String(media.source?.()||'video');return {time:Math.max(0,Number(media.current?.())||0),source:source==='youtube'?`youtube:${media.youtubeId?.()||''}`:`local:${media.localName?.()||''}`,exact:true,kind:source}}}catch(_){}
   try{const d=window.vcRecordingDiagnostics?.();if(d?.active)return {time:Math.max(0,Number(d.elapsedMs||0)/1000),source:`recording:${d.source||'live'}`,exact:true,kind:'recording'}}catch(_){}
-  const s=setOf(m),elapsed=(()=>{try{return Number(window.VC_SCOUT_VIDEO_BRIDGE?.elapsedMs?.(m))||0}catch(_){return 0}})(),off=Number(m?.video?.syncOffset);
+  const s=setOf(m),elapsed=(()=>{try{return Number(window.VC_SCOUT_VIDEO_BRIDGE?.elapsedMs?.(m))||0}catch(_){return 0}})(),off=m?.video?.syncOffset==null?NaN:Number(m.video.syncOffset);
   if(Number.isFinite(off))return {time:Math.max(0,elapsed/1000+off),source:String(m?.video?.source||'sync'),exact:false,kind:'mapped'};
   return {time:null,source:'',exact:false,kind:'scout'};
 }
@@ -29048,7 +29293,7 @@ function storedActionTime(a){
 }
 function actionTime(a,m=match()){
   const direct=storedActionTime(a);if(direct!=null)return direct;
-  const off=Number(m?.video?.syncOffset),ms=Number(a?.scoutMs);return Number.isFinite(off)&&Number.isFinite(ms)?Math.max(0,ms/1000+off):null;
+  const off=m?.video?.syncOffset==null?NaN:Number(m.video.syncOffset),ms=a?.scoutMs==null?NaN:Number(a.scoutMs);return Number.isFinite(off)&&Number.isFinite(ms)?Math.max(0,ms/1000+off):null;
 }
 function linkAction(a,stamp,m=match()){
   if(!a)return false;let changed=false,t=storedActionTime(a);
@@ -30553,6 +30798,508 @@ window.VC_V161_VIDEO={
   diagnostics:()=>({version:VERSION,matchMode:matchMode(),teleported,delay:delayDiag(),qr:window.VC_REMOTE_CAMERA?.diagnostics?.()||null,recording:window.vcRecordingDiagnostics?.()||null,orientation:currentOrientation(),remoteRestartPending:lostRemoteWithDelay,sourceIsOriginalMSE:true})
 };
 ensureUI();update();
+})();
+
+</script>
+
+<style id="v1632-video-link-style">
+/* V16.3.2: estado de sincronía de REC, sin añadir otra pantalla. */
+.v1632-status{display:inline-flex;align-items:center;max-width:100%;font-size:10px;font-weight:750;line-height:1.45;padding:5px 8px;margin:4px 0;border:1px solid #d9e5ec;border-radius:8px;background:#f4f9fb;color:#2b5770;white-space:normal}
+.v1632-status.warn{background:#fff8e8;border-color:#f4dfaa;color:#765819}
+@media(max-width:700px){.v1632-status{font-size:9px}}
+
+</style>
+<script id="v1632-scout-video-recording-link">
+(()=>{
+'use strict';
+/* Volley Coach V16.3.2 · Vinculación exacta REC ↔ scouting.
+   Este módulo se limita a metadatos. Nunca sube blobs a la nube. */
+const VERSION='16.3.2',BRIDGE=()=>window.VC_SCOUT_VIDEO_BRIDGE;
+const arr=x=>Array.isArray(x)?x:[];
+const $=id=>document.getElementById(id);
+let saveTimer=null,uiTimer=null,opening=null;
+const active=()=>window.MatchState?.getActive?.()||BRIDGE()?.getActive?.()||null;
+const stamp=()=>{try{return window.vcRecordingDiagnostics?.()||{}}catch(_){return {}}};
+function scoutMs(m){
+  try{const v=BRIDGE()?.elapsedMs?.(m);if(Number.isFinite(Number(v)))return Math.max(0,Number(v))}catch(_){}
+  try{const v=window.scoutElapsed?.(m);if(Number.isFinite(Number(v)))return Math.max(0,Number(v))}catch(_){}
+  return null;
+}
+function persist(){
+  if(saveTimer)return;
+  saveTimer=setTimeout(()=>{saveTimer=null;try{BRIDGE()?.save?.()}catch(e){console.warn('V16.3.2 guardado',e)}},160);
+}
+function refs(m){
+  m.video=m.video&&typeof m.video==='object'?m.video:{};
+  if(!Array.isArray(m.video.recordingRefs))m.video.recordingRefs=[];
+  return m.video.recordingRefs;
+}
+function refFor(m,id){return refs(m).find(r=>String(r.id)===String(id))||null}
+function startReference(d=stamp(),m=active()){
+  if(!m||!d.active||!d.sessionId||String(d.matchId)!==String(m.id))return null;
+  let ref=refFor(m,d.sessionId);
+  if(!ref){
+    ref={id:String(d.sessionId),startedAt:d.startedAt||new Date().toISOString(),scoutMsAtStart:scoutMs(m),
+      source:String(d.sourceKind||'live'),state:'recording',linkedActions:0,createdAt:new Date().toISOString()};
+    refs(m).push(ref);
+  }
+  if(!m.video.recordingId)m.video.recordingId=ref.id;
+  m.video.source=m.video.source||String(d.filename||'');
+  persist();renderSoon();return ref;
+}
+function markRecordedAction(a,m,d=stamp()){
+  if(!a||!m||!d.active||String(d.matchId)!==String(m.id)||!d.sessionId)return false;
+  const ref=startReference(d,m);if(!ref)return false;
+  if(d.paused){
+    // No existe material grabado durante una pausa. Eliminar únicamente
+    // timestamps que añadió automáticamente la capa V13.3 al reloj REC congelado.
+    if(!a.videoRecordingId && /^recording:/.test(String(a.videoSource||''))){
+      for(const key of ['videoTimestamp','videoAction','videoTime','videoStart','videoEnd'])a[key]=null;
+      a.videoExact=false;a.videoSource='';
+    }
+    a.videoLinkStatus='recording-paused';return false;
+  }
+  const t=Number(d.elapsedMs)/1000;
+  if(!Number.isFinite(t)||t<0)return false;
+  const wasSame=String(a.videoRecordingId||'')===String(ref.id);
+  // La marca viene del reloj real de Recording Studio, no del delay ni del reloj del partido.
+  Object.assign(a,{
+    videoRecordingId:ref.id,videoTimestamp:t,videoAction:t,videoTime:t,
+    videoStart:Math.max(0,t-8),videoEnd:t+5,videoSource:`recording:${ref.id}`,
+    videoExact:true,videoLinkedAt:a.videoLinkedAt||new Date().toISOString(),videoLinkStatus:'recorded'
+  });
+  if(!wasSame)ref.linkedActions=(Number(ref.linkedActions)||0)+1;
+  m.updatedAt=new Date().toISOString();persist();renderSoon();return true;
+}
+function matchAction(key,m=active()){
+  const p=String(key||'').split(':');if(!m||p[0]!=='a'||p.length!==4)return null;
+  const s=arr(m.sets).find(x=>String(x.number)===p[1]);
+  const r=arr(s?.rallies).find(x=>String(x.id)===p[2])||
+    (String(m.liveRally?.id)===p[2]&&String(m.currentSet)===p[1]?m.liveRally:null);
+  return arr(r?.actions).find(x=>String(x.id)===p[3])||null;
+}
+function actionTime(a,m){
+  if(!a)return null;
+  for(const key of ['videoTimestamp','videoAction','videoTime','liveVideoTime']){
+    const raw=a[key];if(raw===null||raw===undefined||raw==='')continue;
+    const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n;
+  }
+  const off=m?.video?.syncOffset;
+  if(off==null||a.scoutMs==null)return null;
+  const n=Number(a.scoutMs)/1000+Number(off);
+  return Number.isFinite(n)?Math.max(0,n):null;
+}
+function setStatus(msg,warning=false){
+  for(const id of ['v1632-scout-status','v1632-review-status']){
+    const el=$(id);if(el){el.textContent=msg;el.classList.toggle('warn',!!warning)}
+  }
+}
+function renderSoon(){
+  if(uiTimer)return;
+  uiTimer=setTimeout(()=>{uiTimer=null;render()},300);
+}
+function render(){
+  const m=active(),d=stamp();
+  const items=arr(m?.sets).flatMap(s=>arr(s.rallies).flatMap(r=>arr(r.actions))).concat(arr(m?.liveRally?.actions));
+  const n=items.filter(a=>a.videoRecordingId||actionTime(a,m)!=null).length;
+  let msg=m?`${n}/${items.length} acciones con referencia de vídeo`:'Selecciona un partido';
+  if(d.active&&m&&String(d.matchId)===String(m.id))msg=`${d.paused?'REC EN PAUSA':'● REC'} · ${msg} · ${Math.floor((d.elapsedMs||0)/1000)} s`;
+  else if(m?.video?.recordingId)msg+=` · REC ${String(m.video.recordingId).slice(-7)}`;
+  setStatus(msg,!!d.paused);
+}
+function buildStatus(){
+  const places=[
+    ['v132-recent-card','.v132-recent-head','v1632-scout-status'],
+    ['scout-video-hub','.v780-section-head','v1632-review-status']
+  ];
+  for(const [parent,selector,id] of places){
+    const base=$(parent);if(!base||$(id))continue;
+    const el=document.createElement('span');el.id=id;el.className='v1632-status';
+    (base.querySelector(selector)||base).appendChild(el);
+  }
+  renderSoon();
+}
+function linkExistingForRecording(m=active(),id){
+  if(!m||!id)return 0;
+  const ref=refFor(m,id);if(!ref||!Number.isFinite(Number(ref.scoutMsAtStart)))return 0;
+  let linked=0;
+  const actions=arr(m.sets).flatMap(s=>arr(s.rallies).flatMap(r=>arr(r.actions))).concat(arr(m.liveRally?.actions));
+  for(const a of actions){
+    if(a.videoRecordingId||a.scoutMs==null)continue;
+    const s=Number(a.scoutMs)/1000-Number(ref.scoutMsAtStart)/1000;
+    if(s<0||!Number.isFinite(s))continue;
+    // No se reconstruyen tiempos posteriores al inicio de pausas ni de un cierre REC.
+    if(ref.pauses?.length||ref.endedAt)continue;
+    Object.assign(a,{videoRecordingId:ref.id,videoTimestamp:s,videoAction:s,videoTime:s,
+      videoStart:Math.max(0,s-8),videoEnd:s+5,videoSource:`recording:${ref.id}`,
+      videoExact:false,videoLinkStatus:'estimated'});
+    linked++;
+  }
+  if(linked){ref.linkedActions=(Number(ref.linkedActions)||0)+linked;persist();renderSoon()}
+  return linked;
+}
+async function openAction(key,matchId=null){
+  const m=active();if(!m){alert('Selecciona un scouting.');return false}
+  if(matchId!=null&&String(m.id)!==String(matchId)){alert('Primero selecciona el partido al que pertenece esta acción.');return false}
+  const a=matchAction(key,m),t=actionTime(a,m);
+  if(!a||t==null){alert('Esta jugada no tiene un tiempo de vídeo válido. Sincroniza el vídeo antes de reproducirla.');return false}
+  if(opening)return opening;
+  opening=(async()=>{
+    try{
+      const recId=a.videoRecordingId||'';
+      if(recId){
+        const d=stamp();
+        if(d.active&&String(d.sessionId)===String(recId)){
+          alert('La grabación sigue en curso. Para recuperar esta jugada desde el archivo, finaliza y guarda REC. Puedes utilizar el Live Delay mientras tanto.');return false;
+        }
+      }
+      window.v11Navigate?.('video');
+      // El selector de Video Review puede cambiar después de navegar.
+      await new Promise(r=>setTimeout(r,100));
+      const select=$('v780-match');
+      if(select&&String(select.value)!==String(m.id)){
+        select.value=String(m.id);
+        await window.v780MatchChanged?.();
+      }
+      const currentId=window.VC_V1632_MEDIA?.loadedRecordingId?.();
+      if(recId&&String(currentId||'')!==String(recId)){
+        let ok=false;
+        try{ok=!!(await window.VC_V1632_MEDIA?.loadRecordingById?.(recId))}
+        catch(err){console.warn('V16.3.2 apertura REC',err)}
+        if(!ok){
+          alert('La acción está vinculada a una grabación concreta, pero el archivo todavía no está disponible aquí. Abre esa grabación desde Recording Studio o selecciónala en Video Review. No se reproducirá otro vídeo por error.');
+          return false;
+        }
+      }
+      // El Blob puede estar asignado antes de que el reproductor lea sus metadatos.
+      // Esperar evita saltos que se pierden al cargar un archivo grande.
+      const player=$('v780-player-video');
+      if(recId&&player?.src&&player.readyState<1){
+        await new Promise(resolve=>{
+          let done=false;
+          const finish=()=>{if(done)return;done=true;clearTimeout(timer);player.removeEventListener('loadedmetadata',finish);player.removeEventListener('error',finish);resolve()};
+          const timer=setTimeout(finish,7000);
+          player.addEventListener('loadedmetadata',finish,{once:true});
+          player.addEventListener('error',finish,{once:true});
+          if(player.readyState>=1)finish();
+        });
+      }
+      // No saltar a un archivo de otro partido ni a una grabación diferente.
+      if(String(window.VC_V1632_MEDIA?.matchId?.()||'')!==String(m.id))return false;
+      window.v780Select?.(key);
+      const played=window.v780OpenAt?.(t,key,{pre:8,post:5});
+      return played!==false;
+    }finally{opening=null;renderSoon()}
+  })();
+  return opening;
+}
+// La capa V13.3 ya registra timestamps. Este adaptador solo agrega la identidad
+// de Recording Studio cuando REC está activo, sin alterar códigos, puntos ni rallies.
+const prevPush=window.scoutPushAction;
+if(typeof prevPush==='function'&&!prevPush.__v1632){
+  const wrapped=function(...args){
+    const m=active(),before=arr(m?.liveRally?.actions).length,d=stamp();
+    const out=prevPush.apply(this,args);
+    const mm=active(),aa=arr(mm?.liveRally?.actions);
+    if(mm&&aa.length>before&&d.active)markRecordedAction(aa[aa.length-1],mm,d);
+    return out;
+  };
+  wrapped.__v1632=true;window.scoutPushAction=wrapped;
+  if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.push=a=>window.scoutPushAction(a);
+}
+const prevStart=window.vcRecordingStart;
+if(typeof prevStart==='function')window.vcRecordingStart=async function(...args){
+  const out=await prevStart.apply(this,args);
+  const d=stamp();if(d.active)startReference(d,active());
+  return out;
+};
+const prevPause=window.vcRecordingTogglePause;
+if(typeof prevPause==='function')window.vcRecordingTogglePause=function(...args){
+  const d=stamp(),m=active(),ref=m&&d.sessionId?refFor(m,d.sessionId):null;
+  const out=prevPause.apply(this,args);
+  const next=stamp();
+  if(ref&&d.active&&d.paused!==next.paused){
+    ref.pauses=arr(ref.pauses);
+    if(next.paused)ref.pauses.push({at:next.elapsedMs,startedAt:new Date().toISOString()});
+    else if(ref.pauses.length&&!ref.pauses[ref.pauses.length-1].endedAt)ref.pauses[ref.pauses.length-1].endedAt=new Date().toISOString();
+    persist();
+  }
+  renderSoon();return out;
+};
+const prevStop=window.vcRecordingStop;
+if(typeof prevStop==='function')window.vcRecordingStop=function(...args){
+  const d=stamp(),m=active(),ref=m&&d.sessionId?refFor(m,d.sessionId):null;
+  const promise=prevStop.apply(this,args);
+  Promise.resolve(promise).then(result=>{
+    if(ref){ref.endedAt=new Date().toISOString();ref.durationMs=Number(d.elapsedMs)||0;ref.state=result?'completed':'interrupted';persist();renderSoon()}
+  }).catch(err=>{console.warn('V16.3.2 cierre REC',err);if(ref){ref.state='interrupted';persist()}});
+  return promise;
+};
+const prevRecent=window.v133OpenRecentVideo;
+window.v133OpenRecentVideo=function(i){
+  const ref=window.__v132Recent?.[Number(i)],m=active();if(!ref||!m)return prevRecent?.(i);
+  const s=arr(m.sets).find(x=>String(x.number)===String(ref.setNo));
+  const r=arr(s?.rallies).find(x=>String(x.id)===String(ref.rallyId));
+  const a=(ref.live?arr(m.liveRally?.actions):arr(r?.actions))[Number(ref.index)];
+  if(!a)return prevRecent?.(i);
+  return openAction(`a:${ref.setNo}:${ref.rallyId}:${a.id}`,m.id);
+};
+window.v1632OpenAction=openAction;
+const prevPlay=window.v132PlayAction;
+if(typeof prevPlay==='function')window.v132PlayAction=function(key){
+  const a=matchAction(key);return a?.videoRecordingId?openAction(key):prevPlay(key);
+};
+window.VC_V1632={version:VERSION,recordingRef:startReference,linkAction:markRecordedAction,linkExisting:linkExistingForRecording,openAction,
+  diagnostics:()=>{const m=active(),d=stamp();return {version:VERSION,match:m?.id||null,recordingId:d.sessionId||null,recordingActive:!!d.active,recordingPaused:!!d.paused,references:arr(m?.video?.recordingRefs).length,linkedActions:arr(m?.sets).flatMap(s=>arr(s.rallies).flatMap(r=>arr(r.actions))).filter(a=>a.videoRecordingId).length}}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildStatus,{once:true});else buildStatus();
+})();
+
+</script>
+<script id="v1633-clip-setter-pro">
+(()=>{
+'use strict';
+/* Volley Coach 16.3.3: SETTER QUALITY & CLIP STUDIO PRO.
+   Metadata only. Does not store/record YouTube video or duplicate media blobs. */
+const VERSION='16.3.3', $=id=>document.getElementById(id),arr=v=>Array.isArray(v)?v:[];
+const BR=()=>window.VC_SCOUT_VIDEO_BRIDGE, REPORT=()=>window.VC_SCOUT_REPORT_BRIDGE;
+const NAMES={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
+const EVA={'#':'Excelente','+':'Bueno','!':'Regular','-':'Malo','/':'Muy malo','=':'Error'};
+const GOOD=new Set(['#','+']),BAD=new Set(['-','/','=']);
+let chosenSetter='',selectedEvidence=[],playingList=[],playIndex=-1,playlistTimer=null,playGeneration=0,markIn=null,markOut=null;
+let paintScheduled=false;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function chosenMatch(){
+ const i=Number($('scout-analysis-match')?.value)||0,all=arr(BR()?.getMatches?.());
+ return all.find(m=>Number(m.id)===i)||REPORT()?.getMatchForAnalysis?.()||BR()?.getActive?.()||null;
+}
+function reviewMatch(){const i=Number($('v780-match')?.value)||0;return arr(BR()?.getMatches?.()).find(m=>Number(m.id)===i)||null}
+function video(m){if(!m)return null;m.video=m.video&&typeof m.video==='object'?m.video:{};m.video.clips=arr(m.video.clips);return m.video}
+function getClips(m){return video(m)?.clips||[]}
+function save(){try{BR()?.save?.()}catch(err){console.warn('V16.3.3 saving clips',err)}}
+function stamp(a,m){
+ if(!a)return null;
+ for(const key of ['videoTimestamp','videoAction','videoTime','liveVideoTime']){
+  if(a[key]==null||a[key]==='')continue;
+  const n=Number(a[key]);if(Number.isFinite(n)&&n>=0)return n;
+ }
+ if(m?.video?.syncOffset==null||a.scoutMs==null)return null;
+ const n=Number(m.video.syncOffset)+Number(a.scoutMs)/1000;
+ return Number.isFinite(n)?Math.max(0,n):null;
+}
+function role(p){const values=[p?.position,p?.posicion,p?.role,p?.rol,p?.positions,p?.posiciones,p?.roles].flat(Infinity).filter(Boolean);return values.map(v=>String(v).toLowerCase()).join(' ')}
+function isSetter(p){return /colocador|colocadora|setter|\bcol\b/.test(role(p))}
+function rows(m,team='ours',onlyLive=false){const ret=[];if(!m)return ret;
+ const sets=arr(m.sets);for(const s of sets)for(const r of arr(s.rallies))for(let ix=0;ix<arr(r.actions).length;ix++){
+   const a=r.actions[ix];if(a.team!==team)continue;
+   ret.push({a,key:`a:${s.number}:${r.id}:${a.id}`,set:Number(s.number)||0,rotation:Number(a.rotation)||null,playerId:a.playerId??null,player:String(a.playerNameSnapshot||a.playerLabel||a.playerNumberSnapshot||'Sin nombre')});
+ }
+ if(onlyLive&&m.liveRally)for(const a of arr(m.liveRally.actions))if(a.team===team)ret.push({a,key:`a:${m.currentSet||1}:${m.liveRally.id}:${a.id}`,set:Number(m.currentSet)||1,rotation:Number(a.rotation)||null,playerId:a.playerId??null,player:String(a.playerNameSnapshot||a.playerLabel||a.playerNumberSnapshot||'Sin nombre'),live:true});
+ return ret;
+}
+function setters(m){const roster=arr(m?.rosterSnapshotV136).length?arr(m.rosterSnapshotV136):arr(BR()?.getPlayers?.()),all=rows(m,'ours');const map=new Map();
+ for(const p of roster){if(!isSetter(p))continue;map.set(String(p.id),{id:String(p.id),name:`${p.number!=null&&p.number!==''?'#'+p.number+' · ':''}${p.name||'Colocador'}`,role:true,actions:[]})}
+ for(const r of all.filter(r=>r.a.skill==='E')){
+  const k=r.playerId!=null?String(r.playerId):`label:${r.player}`;
+  if(!map.has(k))map.set(k,{id:k,name:r.player,role:false,actions:[]});
+  map.get(k).actions.push(r);
+ }
+ return [...map.values()].sort((a,b)=>Number(b.role)-Number(a.role)||a.name.localeCompare(b.name,'es'));
+}
+function count(rows){const c={'#':0,'+':0,'!':0,'-':0,'/':0,'=':0};for(const x of rows)if(Object.prototype.hasOwnProperty.call(c,x.a.evaluation))c[x.a.evaluation]++;
+ const n=rows.length;return {...c,total:n,good:c['#']+c['+'],bad:c['-']+c['/']+c['='],neutral:c['!'],goodPct:n?Math.round(100*(c['#']+c['+'])/n):null};
+}
+function fmt(n){if(n==null||!Number.isFinite(Number(n)))return '—';n=Math.max(0,Number(n));return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(Math.floor(n%60)).padStart(2,'0')}`}
+function ytid(raw){let s=String(raw||'');let match=s.match(/(?:youtube:|YouTube\s*[·-]\s*|youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);return match?match[1]:null}
+function clipOrigin(m,action=null){
+ const meta=video(m)||{},src=String(action?.videoSource||'');
+ const rec=action?.videoRecordingId||(src.startsWith('recording:')?src.slice(10):'');
+ if(rec)return {mediaKind:'recording',recordingId:String(rec),youtubeId:null,source:`recording:${rec}`};
+ const fromAction=ytid(src);
+ if(fromAction)return {mediaKind:'youtube',recordingId:null,youtubeId:fromAction,source:`youtube:${fromAction}`};
+ if(src&&/^(local:|file:)/.test(src))return {mediaKind:'local',recordingId:null,youtubeId:null,source:src};
+ if(src&&!/^(sync|youtube)/i.test(src))return {mediaKind:'unknown',recordingId:null,youtubeId:null,source:src};
+ if(meta.youtubeId&&(src==='sync'||src.includes('YouTube')||(!src&&action?.videoExact!==true&&meta.syncOffset!=null)))return {mediaKind:'youtube',recordingId:null,youtubeId:String(meta.youtubeId),source:`youtube:${meta.youtubeId}`};
+ return {mediaKind:'local',recordingId:null,youtubeId:null,source:String(meta.source||'')};
+}
+function displayName(r){return `${NAMES[r.a.skill]||r.a.skill} ${r.a.evaluation||''} · ${r.player}`}
+function makeClip(m,r,opts={}){
+ if(!m||!r)return null;const t=stamp(r.a,m);if(t==null)return null;
+ const x=video(m),origin=clipOrigin(m,r.a);
+ const start=Math.max(0,t-(opts.pre??8)),end=t+(opts.post??5);
+ const exists=getClips(m).find(c=>c.sourceKey===r.key);if(exists)return exists;
+ const clip={id:`v1633_${Date.now()}_${Math.random().toString(36).slice(2,9)}`,name:displayName(r),tag:r.a.skill==='E'?'technical':'highlights',
+  note:'Creado desde el scouting · −8/+5 s',start,end,duration:end-start,sourceKey:r.key,type:'action',
+  set:r.set,team:r.a.team||'ours',skill:r.a.skill||'',evaluation:r.a.evaluation||'',player:r.player,playerId:r.playerId,
+  rotation:r.rotation,createdAt:new Date().toISOString(),...origin};
+ x.clips.push(clip);r.a.clipId=clip.id;return clip;
+}
+function addBatch(m,rr){let made=0,missing=0,existing=0;for(const r of rr){if(stamp(r.a,m)==null){missing++;continue}if(getClips(m).some(c=>c.sourceKey===r.key)){existing++;continue}if(makeClip(m,r))made++}
+ if(made)save();refresh();return {made,missing,existing};
+}
+function currentSource(m){const diag=window.v780Diagnostics?.()||{},meta=video(m)||{};
+ if(diag.mediaType==='youtube'&&diag.youtubeId&&String(diag.match)===String(m.id))return {mediaKind:'youtube',youtubeId:diag.youtubeId,recordingId:null,source:`youtube:${diag.youtubeId}`};
+ if(diag.recording&&String(diag.match)===String(m.id))return {mediaKind:'recording',recordingId:diag.recording,youtubeId:null,source:`recording:${diag.recording}`};
+ return {mediaKind:'local',recordingId:null,youtubeId:null,source:meta.source||''};
+}
+function makeManual(m){const s=Number(markIn),en=Number(markOut);if(markIn==null||markOut==null||!Number.isFinite(s)||!Number.isFinite(en)||Math.abs(en-s)<.2)return null;
+ const start=Math.max(0,Math.min(s,en)),end=Math.max(s,en);const name=String($('v1633-manual-name')?.value||`Clip manual ${fmt(start)}`).trim().slice(0,110);
+ const c={id:`v1633_${Date.now()}_${Math.random().toString(36).slice(2,9)}`,name,tag:'general',note:'Marcado desde Video Review',start,end,duration:end-start,sourceKey:null,type:'manual',set:Number($('v780-set')?.value)||null,team:'ours',skill:'',evaluation:'',player:'',createdAt:new Date().toISOString(),...currentSource(m)};
+ getClips(m).push(c);save();markIn=null;markOut=null;refresh();return c;
+}
+function applyClass(ev){return GOOD.has(ev)?'v1633-good':BAD.has(ev)?'v1633-bad':'v1633-neutral'}
+function ensureAnalysis(){const box=$('scout-analysis-players');if(!box)return null;let p=$('v1633-setter-analysis');if(!p){p=document.createElement('section');p.id='v1633-setter-analysis';p.className='v1633-panel';box.insertAdjacentElement('afterend',p)}return p}
+function renderSetter(){const el=ensureAnalysis(),m=chosenMatch();if(!el)return;
+ if(!m){el.innerHTML='';return}
+ const found=setters(m),all=rows(m,'ours');
+ const selected=found.find(s=>s.id===chosenSetter)||found[0];if(!found.length){el.innerHTML='<h3>Calidad de la colocación</h3><p class="v1633-info">No hay colocadores configurados ni acciones de colocación codificadas en este partido.</p>';return}
+ if(selected)chosenSetter=selected.id;
+ const c=count(selected.actions),good=selected.actions.filter(r=>GOOD.has(r.a.evaluation)),bad=selected.actions.filter(r=>BAD.has(r.a.evaluation));
+ const selector=found.map(s=>`<option value="${esc(s.id)}" ${s.id===chosenSetter?'selected':''}>${esc(s.name)}${s.role?'':' (acciones E)'}</option>`).join('');
+ el.innerHTML=`<div class="v1633-title"><div><span>ANÁLISIS POR JUGADOR · COLOCADORES</span><h3>Calidad de la colocación y vídeo</h3><p>Valoraciones registradas en los códigos E. Pulsa una categoría para ver cada balón y su vídeo.</p></div><label>Colocador <select id="v1633-setter-select" onchange="VC_V1633.selectSetter(this.value)">${selector}</select></label></div>
+ <div class="v1633-metrics"><button onclick="VC_V1633.showSetter('all')"><small>Colocaciones</small><b>${c.total}</b></button><button class="v1633-good" onclick="VC_V1633.showSetter('good')"><small>Buenas #/+</small><b>${c.good}</b><span>${c.goodPct??'—'}%</span></button><button onclick="VC_V1633.showSetter('neutral')"><small>Regulares !</small><b>${c.neutral}</b></button><button class="v1633-bad" onclick="VC_V1633.showSetter('bad')"><small>Malas − / =</small><b>${c.bad}</b></button></div>
+ <div class="v1633-eval-grid">${Object.keys(EVA).map(ev=>`<button class="${applyClass(ev)}" onclick="VC_V1633.showSetter('${ev}')"><b>${esc(ev)}</b><span>${esc(EVA[ev])}</span><strong>${c[ev]}</strong></button>`).join('')}</div>
+ <div class="v1633-row-tools"><button type="button" class="ghost" onclick="VC_V1633.showSetter('all')">Ver acciones</button><button type="button" class="ghost" onclick="VC_V1633.batchSetter('good')">Crear clips de buenas (${good.length})</button><button type="button" class="ghost" onclick="VC_V1633.batchSetter('bad')">Crear clips de malas (${bad.length})</button><button type="button" class="ghost" onclick="VC_V1633.openReview()">Abrir Video Review</button></div>
+ <p class="v1633-info">Criterio: buenas = # y +; regulares = !; malas = −, / y =. No se infiere calidad de balones sin código E.</p><div id="v1633-setter-actions"></div>`;
+ if(selectedEvidence.length&&selectedEvidence[0]?.matchId===m.id)renderEvidence();
+}
+function selectedSetterRows(type='all'){
+ const m=chosenMatch(),s=setters(m).find(x=>x.id===chosenSetter);if(!s)return [];
+ return s.actions.filter(r=>type==='all'||type==='good'&&GOOD.has(r.a.evaluation)||type==='bad'&&BAD.has(r.a.evaluation)||type==='neutral'&&r.a.evaluation==='!'||type===r.a.evaluation);
+}
+function renderEvidence(){const box=$('v1633-setter-actions');if(!box)return;
+ if(!selectedEvidence.length){box.innerHTML='<p class="v1633-info">No hay acciones en esta categoría.</p>';return}
+ const m=chosenMatch();box.innerHTML=`<div class="v1633-evidence-head"><strong>${selectedEvidence.length} balones registrados</strong><button class="ghost" type="button" onclick="VC_V1633.clipEvidence()">Crear clips de esta selección</button></div><div class="v1633-scroll"><table class="v1633-table"><thead><tr><th>Set</th><th>Jugador</th><th>Val.</th><th>Rot.</th><th>Destino / tempo</th><th>Acción</th><th>Vídeo</th></tr></thead><tbody>${selectedEvidence.slice(0,350).map((r,i)=>{const a=r.a,t=stamp(a,m),dest=[a.setTarget||a.dvEndZone||a.endZone||'',a.setTempo||a.dvSetType||''].filter(Boolean).join(' · ');return `<tr><td>${r.set}</td><td>${esc(r.player)}</td><td class="${applyClass(a.evaluation)}">${esc(a.evaluation||'—')}</td><td>${r.rotation?'R'+r.rotation:'—'}</td><td>${esc(dest||'—')}</td><td><code>${esc(a.code||'—')}</code></td><td>${t==null?'<span class="v1633-muted">Sin tiempo</span>':`<button class="ghost" onclick="VC_V1633.playEvidence(${i})">▶ ${fmt(t)}</button> <button class="ghost" onclick="VC_V1633.clipEvidenceOne(${i})">+ Clip</button>`}</td></tr>`}).join('')}</tbody></table></div>`;
+}
+function modalSetter(team,encodedKey){
+ if(team!=='ours')return;
+ const key=decodeURIComponent(String(encodedKey||'')),id=key.startsWith('ours:')?key.slice(5):'';
+ const m=chosenMatch(),setter=setters(m).find(s=>s.id===id);if(!setter)return;
+ const parent=$('scout-player-detail-skills');if(!parent)return;
+ parent.querySelector('#v1633-detail-quality')?.remove();
+ const n=count(setter.actions),box=document.createElement('div');box.id='v1633-detail-quality';box.className='v1633-detail-quality';
+ box.innerHTML=`<strong>Calidad de colocación · ${n.total} balones</strong><p>Buenos #/+ <b>${n.good}</b> (${n.goodPct??'—'}%) · Regulares ! <b>${n.neutral}</b> · Malos −/= <b>${n.bad}</b></p><div class="v1633-row-tools"><button class="ghost" onclick="VC_V1633.focusSetter(decodeURIComponent('${encodeURIComponent(id).replace(/'/g,'%27')}'),'good')">Buenas + vídeo</button><button class="ghost" onclick="VC_V1633.focusSetter(decodeURIComponent('${encodeURIComponent(id).replace(/'/g,'%27')}'),'bad')">Malas + vídeo</button><button class="ghost" onclick="VC_V1633.focusSetter(decodeURIComponent('${encodeURIComponent(id).replace(/'/g,'%27')}'),'all')">Todas las colocaciones</button></div>`;
+ parent.appendChild(box);
+}
+function ensureStudio(){const parent=$('scout-video-hub');if(!parent)return null;let p=$('v1633-clip-pro');if(!p){p=document.createElement('section');p.id='v1633-clip-pro';p.className='v1633-panel v1633-studio';const anchor=parent.querySelector('.v780-main');if(anchor)anchor.insertAdjacentElement('afterend',p);else parent.appendChild(p)}return p}
+function studioFilters(){return {player:$('v1633-clip-player')?.value||'',skill:$('v1633-clip-skill')?.value||'',evaluation:$('v1633-clip-eval')?.value||'',set:$('v1633-clip-set')?.value||'',rotation:$('v1633-clip-rot')?.value||'',q:($('v1633-clip-q')?.value||'').trim().toLowerCase()}}
+function filteredClips(m){const f=studioFilters();return getClips(m).filter(c=>(!f.player||String(c.playerId??c.player??'')===f.player)&&(!f.skill||c.skill===f.skill)&&(!f.evaluation||c.evaluation===f.evaluation)&&(!f.set||String(c.set)===f.set)&&(!f.rotation||String(c.rotation)===f.rotation)&&(!f.q||`${c.name} ${c.note} ${c.sourceKey} ${c.player}`.toLowerCase().includes(f.q))).sort((a,b)=>Number(a.set||0)-Number(b.set||0)||Number(a.start)-Number(b.start))}
+function options(select,items,caption){if(!select)return;const old=select.value;select.innerHTML=`<option value="">${caption}</option>`+items.map(([v,label])=>`<option value="${esc(v)}">${esc(label)}</option>`).join('');select.value=items.some(x=>x[0]===old)?old:''}
+function studioShell(){const box=ensureStudio();if(!box||box.dataset.v1633==='1')return;box.dataset.v1633='1';box.innerHTML=`<div class="v1633-title"><div><span>CLIP STUDIO PRO · V16.3.3</span><h3>Clips vinculados al scouting</h3><p>Montajes por jugadora, fundamento, valoración, set y fuente de vídeo; también YouTube.</p></div><strong id="v1633-clip-total">0 clips</strong></div>
+ <div class="v1633-filters"><label>Jugadora<select id="v1633-clip-player" onchange="VC_V1633.renderStudio()"><option value="">Todas</option></select></label><label>Fundamento<select id="v1633-clip-skill" onchange="VC_V1633.renderStudio()"><option value="">Todos</option></select></label><label>Valoración<select id="v1633-clip-eval" onchange="VC_V1633.renderStudio()"><option value="">Todas</option></select></label><label>Set<select id="v1633-clip-set" onchange="VC_V1633.renderStudio()"><option value="">Todos</option></select></label><label>Rotación<select id="v1633-clip-rot" onchange="VC_V1633.renderStudio()"><option value="">Todas</option></select></label><label>Buscar<input id="v1633-clip-q" placeholder="Nombre, nota, acción" oninput="VC_V1633.renderStudio()"></label></div>
+ <div class="v1633-row-tools"><button class="primary" onclick="VC_V1633.playFiltered()">▶ Reproducir selección</button><button class="ghost" onclick="VC_V1633.stopPlaylist()">■ Detener montaje</button><button class="ghost" onclick="VC_V1633.createFilteredActions()">Crear desde acciones filtradas</button><button class="ghost" onclick="VC_V1633.exportCSV()">CSV</button><button class="ghost" onclick="VC_V1633.exportJSON()">JSON</button><button class="ghost" onclick="VC_V1633.exportMontage()">Exportar selección WebM (local)</button></div>
+ <div class="v1633-mark"><button class="ghost" onclick="VC_V1633.mark('in')">IN</button><b id="v1633-in">—</b><button class="ghost" onclick="VC_V1633.mark('out')">OUT</button><b id="v1633-out">—</b><input id="v1633-manual-name" placeholder="Nombre clip manual"><button class="ghost" onclick="VC_V1633.saveManual()">Guardar IN–OUT</button></div>
+ <p class="v1633-info">YouTube: se guardan marcadores y enlaces al intervalo para reproducirlo online. Exportar el vídeo como WebM solo está disponible para archivos locales compatibles desde Clip Studio clásico.</p>
+ <p id="v1633-msg" class="v1633-info" aria-live="polite"></p><div id="v1633-clip-list"></div>`;}
+function message(s){const p=$('v1633-msg');if(p)p.textContent=s}
+function sourceText(c){return c.mediaKind==='youtube'||c.youtubeId?'YouTube':c.recordingId?'REC':(c.mediaKind==='local'?'Archivo':'Fuente original')}
+function youtubeUrl(c){const id=c.youtubeId||ytid(c.source);return id?`https://www.youtube.com/watch?v=${encodeURIComponent(id)}&t=${Math.floor(Math.max(0,Number(c.start)||0))}s`:null}
+function renderStudio(){studioShell();const m=reviewMatch(),list=$('v1633-clip-list');if(!list)return;if(!m){list.innerHTML='<p class="v1633-info">Selecciona un partido en Video Review.</p>';return}
+ const cc=getClips(m),f=studioFilters();
+ options($('v1633-clip-player'),[...new Map(cc.filter(c=>c.player).map(c=>[String(c.playerId??c.player),[String(c.playerId??c.player),String(c.player)]])).values()].sort((a,b)=>a[1].localeCompare(b[1],'es')),'Todas');
+ options($('v1633-clip-skill'),[...new Set(cc.map(c=>c.skill).filter(Boolean))].map(k=>[k,NAMES[k]||k]),'Todos');
+ options($('v1633-clip-eval'),[...new Set(cc.map(c=>c.evaluation).filter(Boolean))].map(k=>[k,EVA[k]||k]),'Todas');
+ options($('v1633-clip-set'),[...new Set(cc.map(c=>String(c.set||'')).filter(Boolean))].sort().map(k=>[k,`Set ${k}`]),'Todos');
+ options($('v1633-clip-rot'),[...new Set(cc.map(c=>String(c.rotation||'')).filter(Boolean))].sort().map(k=>[k,`R${k}`]),'Todas');
+ const subset=filteredClips(m);$('v1633-clip-total').textContent=`${subset.length}/${cc.length} clips`;
+ list.innerHTML=subset.length?subset.map(c=>{const index=cc.indexOf(c);const url=youtubeUrl(c);return `<article class="v1633-clip"><div><b>${esc(c.name||'Clip')}</b><small>${fmt(c.start)} – ${fmt(c.end)} · ${Math.max(0,Number(c.end)-Number(c.start)).toFixed(1)} s · ${esc(sourceText(c))}</small><span>${esc([c.player,NAMES[c.skill]||c.skill,c.evaluation?EVA[c.evaluation]:null,c.set?'Set '+c.set:null,c.rotation?'R'+c.rotation:null].filter(Boolean).join(' · '))}</span></div><div class="v1633-clip-actions"><button class="primary" onclick="VC_V1633.play(${index})">▶</button>${url?`<button class="ghost" onclick="VC_V1633.copyYoutube(${index})">Enlace YouTube</button>`:''}<button class="ghost" onclick="VC_V1633.edit(${index})">Editar</button><button class="danger" onclick="VC_V1633.remove(${index})">Eliminar</button></div></article>`}).join(''):'<p class="v1633-info">Sin clips para estos filtros. Selecciona una acción o marca IN–OUT sobre el vídeo.</p>';
+}
+async function selectMatchForReview(m){if(!m)return false;const sel=$('v780-match');if(!sel)return false;if(String(sel.value)!==String(m.id)){sel.value=String(m.id);await Promise.resolve(window.v780MatchChanged?.())}return true}
+async function openReview(m){if(!m)return false;try{window.v11Navigate?.('video')}catch(_){try{window.showView?.('scout-video-hub')}catch(__){}}await new Promise(r=>setTimeout(r,125));return selectMatchForReview(m)}
+async function waitLoaded(id,gen){for(let i=0;i<50;i++){if(gen!==playGeneration)return false;const d=window.v780Diagnostics?.()||{};if(d.mediaType==='youtube'&&d.youtubeId===id&&d.videoLoaded)return true;await new Promise(r=>setTimeout(r,160))}return false}
+async function openClip(m,c,gen){if(!m||!c)return false;await openReview(m);if(gen!==playGeneration)return false;
+ const diag=window.v780Diagnostics?.()||{},targetId=c.youtubeId||ytid(c.source);
+ if(targetId){if(diag.mediaType!=='youtube'||diag.youtubeId!==targetId||!diag.videoLoaded){window.v782LoadYouTube?.(`https://www.youtube.com/watch?v=${encodeURIComponent(targetId)}`);if(!await waitLoaded(targetId,gen)){message('El vídeo de YouTube no se puede cargar o no permite reproducción insertada.');return false}}}
+ else if(c.recordingId){const rec=window.VC_V1632_MEDIA;if(!rec?.loadRecordingById||!await rec.loadRecordingById(c.recordingId)){message('No se ha podido cargar esta grabación. Importa el archivo original desde Recording Studio.');return false}}
+ else if(!diag.videoLoaded){message('Carga el archivo local de este partido antes de reproducir el clip.');return false}
+ const d=window.v780Diagnostics?.()||{};if(!targetId&&d.mediaType==='youtube'){message('Este clip es de archivo/REC, no de YouTube. Carga la fuente correcta.');return false}
+ if(gen!==playGeneration)return false;
+ return window.v780OpenAt?.(Number(c.start)||0,c.sourceKey||'',{pre:0,post:Math.max(.3,Number(c.end)-Number(c.start))})===true;
+}
+function stopList(){playingList=[];playIndex=-1;playGeneration++;clearInterval(playlistTimer);playlistTimer=null;message('Montaje detenido')}
+async function playClip(c,m){stopList();const gen=playGeneration;await openClip(m,c,gen)}
+async function nextClip(gen){if(gen!==playGeneration||!playingList.length)return;
+ playIndex++;clearInterval(playlistTimer);playlistTimer=null;if(playIndex>=playingList.length){playingList=[];message('Montaje completado');return}
+ const m=reviewMatch(),c=playingList[playIndex];message(`Montaje · ${playIndex+1}/${playingList.length}: ${c.name}`);
+ if(!await openClip(m,c,gen)){stopList();return}
+ playlistTimer=setInterval(()=>{if(gen!==playGeneration){clearInterval(playlistTimer);return}
+ const d=window.v780Diagnostics?.()||{},t=Number(d.currentTime);
+ if(Number.isFinite(t)&&t>=Number(c.end)-.18){clearInterval(playlistTimer);playlistTimer=null;void nextClip(gen)}},300);
+}
+function download(contents,name,type){const blob=new Blob([contents],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}
+function csv(v){const s=String(v??'');return '"'+s.replace(/"/g,'""')+'"'}
+async function exportMontage(){
+ const m=reviewMatch(),clips=filteredClips(m),d=window.v780Diagnostics?.()||{},v=$('v780-player-video');
+ if(!m||!clips.length)return message('No hay clips seleccionados');
+ if(d.mediaType==='youtube'||clips.some(c=>c.youtubeId||ytid(c.source)))return message('Los vídeos de YouTube solo admiten enlaces y reproducción online, no exportación WebM.');
+ if(!d.videoLoaded||!v?.src)return message('Carga un archivo de vídeo local en Video Review antes de exportar.');
+ if(clips.some(c=>c.recordingId&&String(c.recordingId)!==String(d.recording||'')))return message('Hay clips de otra grabación: abre la grabación correcta o filtra la selección.');
+ const total=clips.reduce((sum,c)=>sum+Math.max(0,Number(c.end)-Number(c.start)),0);
+ if(clips.length>50||total>240)return message('Para proteger el navegador, exporta un máximo de 50 clips o 4 minutos por montaje.');
+ const capture=v.captureStream||v.mozCaptureStream;
+ if(!capture||typeof MediaRecorder==='undefined')return message('La exportación WebM requiere un navegador compatible (Chrome/Edge).');
+ const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(x=>MediaRecorder.isTypeSupported?.(x));
+ if(!mime)return message('El navegador no admite codificación WebM desde el reproductor.');
+ stopList();const previous={t:v.currentTime,rate:v.playbackRate,paused:v.paused,muted:v.muted};
+ let rec=null,stream=null;const parts=[];let recordingError=null;
+ async function seek(sec){if(Math.abs(v.currentTime-sec)<.05)return;await new Promise((resolve,reject)=>{
+   let timeout;const cleanup=()=>{v.removeEventListener('seeked',done);v.removeEventListener('error',bad);clearTimeout(timeout)};
+   const done=()=>{cleanup();resolve()},bad=()=>{cleanup();reject(new Error('No se pudo saltar al clip'))};
+   v.addEventListener('seeked',done,{once:true});v.addEventListener('error',bad,{once:true});timeout=setTimeout(bad,7000);v.currentTime=sec;
+  })}
+ async function until(end){await new Promise((resolve,reject)=>{
+  let timer;const cleanup=()=>{v.removeEventListener('timeupdate',check);v.removeEventListener('ended',endEarly);v.removeEventListener('error',bad);clearTimeout(timer)};
+  const check=()=>{if(v.currentTime>=end-.07){cleanup();resolve()}};
+  const endEarly=()=>{cleanup();resolve()};const bad=()=>{cleanup();reject(new Error('Error reproduciendo el clip'))};
+  v.addEventListener('timeupdate',check);v.addEventListener('ended',endEarly,{once:true});v.addEventListener('error',bad,{once:true});timer=setTimeout(()=>{cleanup();reject(new Error('Tiempo de exportación excedido'))},Math.max(5000,(end-v.currentTime+4)*2000));check();
+ })}
+ try{
+  message(`Exportando ${clips.length} clips (${Math.round(total)} s)… Mantén Video Review abierto.`);
+  v.pause();v.playbackRate=1;
+  await seek(Number(clips[0].start)||0);
+  stream=capture.call(v);rec=new MediaRecorder(stream,{mimeType:mime});
+  rec.ondataavailable=e=>{if(e.data?.size)parts.push(e.data)};
+  rec.onerror=e=>{recordingError=e.error||new Error('Error en el codificador')};
+  const stopped=new Promise(resolve=>rec.addEventListener('stop',resolve,{once:true}));rec.start(250);
+  for(let i=0;i<clips.length;i++){
+   const c=clips[i];message(`Exportando ${i+1}/${clips.length} · ${c.name}`);
+   v.pause();await seek(Math.max(0,Number(c.start)||0));await v.play();await until(Number(c.end));v.pause();
+   if(recordingError)throw recordingError;
+  }
+  if(rec.state!=='inactive')rec.stop();await stopped;
+  const blob=new Blob(parts,{type:mime});if(!blob.size)throw new Error('El archivo exportado está vacío');
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`volley_montaje_${m.id}.webm`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+  message(`Montaje WebM exportado · ${clips.length} clips · ${(blob.size/1048576).toFixed(1)} MB`);
+ }catch(e){console.error('V16.3.3 export montage',e);message('No se pudo exportar el montaje: '+String(e.message||e))}
+ finally{
+  try{if(rec?.state!=='inactive')rec.stop()}catch(_){}
+  try{stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
+  try{v.pause();v.playbackRate=previous.rate||1;v.currentTime=previous.t;v.muted=previous.muted;if(!previous.paused)v.play().catch(()=>{})}catch(_){}
+ }
+}
+const API={version:VERSION,focusSetter(id,type='all'){chosenSetter=String(id);selectedEvidence=[];window.scoutClosePlayerAnalysis?.();renderSetter();API.showSetter(type);$('v1633-setter-analysis')?.scrollIntoView?.({behavior:'smooth',block:'start'})},selectSetter(v){chosenSetter=String(v);selectedEvidence=[];renderSetter()},showSetter(type){selectedEvidence=selectedSetterRows(type).map(r=>({...r,matchId:chosenMatch()?.id}));renderEvidence();$('v1633-setter-actions')?.scrollIntoView?.({behavior:'smooth',block:'nearest'})},batchSetter(type){const m=chosenMatch(),result=addBatch(m,selectedSetterRows(type));alert(`${result.made} clips creados · ${result.existing} existentes · ${result.missing} sin tiempo de vídeo.`)},clipEvidence(){const r=addBatch(chosenMatch(),selectedEvidence);message(`${r.made} clips creados`);alert(`${r.made} clips creados · ${r.missing} sin vídeo.`)},clipEvidenceOne(i){const r=selectedEvidence[Number(i)],m=chosenMatch();if(!r||!m)return;const c=makeClip(m,r);if(c){save();refresh();message('Clip vinculado a la jugada')}else alert('Esta acción no tiene tiempo de vídeo.')},async playEvidence(i){const r=selectedEvidence[Number(i)],m=chosenMatch();if(!r||!m)return;const t=stamp(r.a,m);if(t==null)return;const origin=clipOrigin(m,r.a),c={start:Math.max(0,t-8),end:t+5,sourceKey:r.key,...origin};await playClip(c,m)},openReview(){void openReview(chosenMatch())},renderSetter,renderStudio,
+ createFilteredActions(){const m=reviewMatch();if(!m)return;const f=studioFilters();const candidates=rows(m,'ours').filter(r=>!f.player||String(r.playerId??r.player)===f.player).filter(r=>!f.skill||r.a.skill===f.skill).filter(r=>!f.evaluation||r.a.evaluation===f.evaluation).filter(r=>!f.set||String(r.set)===f.set).filter(r=>!f.rotation||String(r.rotation)===f.rotation).filter(r=>!f.q||`${r.a.code} ${r.player}`.toLowerCase().includes(f.q));const r=addBatch(m,candidates);message(`${r.made} clips nuevos, ${r.existing} existentes, ${r.missing} sin tiempo de vídeo`)},
+ mark(which){const m=reviewMatch(),d=window.v780Diagnostics?.()||{};if(!m||!d.videoLoaded){message('Carga primero un archivo o YouTube en Video Review');return}const t=Number(d.currentTime)||0;if(which==='in')markIn=t;else markOut=t;const a=$('v1633-in'),b=$('v1633-out');if(a)a.textContent=fmt(markIn);if(b)b.textContent=fmt(markOut)},saveManual(){const c=makeManual(reviewMatch());if(!c)message('Marca dos tiempos IN y OUT separados al menos 0,2 segundos.');else message(`Clip “${c.name}” guardado`)},
+ async play(i){const m=reviewMatch(),c=getClips(m)[Number(i)];if(c&&m)await playClip(c,m)},async playFiltered(){const m=reviewMatch();if(!m)return;stopList();playingList=filteredClips(m);playIndex=-1;if(!playingList.length)return message('No hay clips en este filtro');const gen=playGeneration;await nextClip(gen)},stopPlaylist:stopList,
+ copyYoutube(i){const c=getClips(reviewMatch())[Number(i)],url=youtubeUrl(c);if(!url)return;try{navigator.clipboard?.writeText?.(url).then(()=>message('Enlace copiado')).catch(()=>window.prompt('Copia el enlace:',url))}catch(_){window.prompt('Copia el enlace:',url)}},
+ edit(i){const m=reviewMatch(),c=getClips(m)[Number(i)];if(!c)return;const name=prompt('Nombre del clip',c.name);if(name==null)return;const note=prompt('Nota',c.note||'');if(note==null)return;c.name=name.trim()||c.name;c.note=note.trim();c.updatedAt=new Date().toISOString();save();refresh()},remove(i){const m=reviewMatch(),c=getClips(m)[Number(i)];if(!c||!confirm(`¿Eliminar el clip “${c.name}”?`))return;video(m).clips= getClips(m).filter(x=>x!==c);save();refresh()},
+ exportCSV(){const m=reviewMatch();if(!m)return;const a=[['Nombre','Jugador','Fundamento','Evaluación','Set','Rotación','Inicio_s','Fin_s','Fuente','YouTube URL','Acción']];for(const c of filteredClips(m))a.push([c.name,c.player,c.skill,c.evaluation,c.set,c.rotation,c.start,c.end,sourceText(c),youtubeUrl(c)||'',c.sourceKey]);download(a.map(row=>row.map(csv).join(';')).join('\r\n'),`volley_clips_${m.id}.csv`,'text/csv;charset=utf-8')},
+ exportMontage,exportJSON(){const m=reviewMatch();if(!m)return;download(JSON.stringify({format:'Volley Coach Clips',version:VERSION,matchId:m.id,clips:filteredClips(m)},null,2),`volley_clips_${m.id}.json`,'application/json;charset=utf-8')},
+ diagnostics:()=>({version:VERSION,setterCount:setters(chosenMatch()).length,clips:getClips(reviewMatch()).length,youtubeLinks:getClips(reviewMatch()).filter(c=>!!youtubeUrl(c)).length})};
+window.VC_V1633=API;
+function refresh(){if($('scout-analysis')?.classList.contains('active'))renderSetter();if($('scout-video-hub')?.classList.contains('active'))renderStudio()}
+function schedule(){if(paintScheduled)return;paintScheduled=true;setTimeout(()=>{paintScheduled=false;refresh()},150)}
+function boot(){studioShell();renderSetter();renderStudio();
+ // Non-destructive wrappers: preserve previous analytics/video rendering.
+ for(const method of ['scoutRenderPlayerAnalytics','scoutRenderAnalysis','v780MatchChanged']){
+  const original=window[method];if(typeof original!=='function'||original.__v1633)continue;
+  const wrapped=function(...args){const out=original.apply(this,args);schedule();return out};wrapped.__v1633=true;window[method]=wrapped;
+ }
+ const oldOpen=window.scoutOpenPlayerAnalysis;
+ if(typeof oldOpen==='function'&&!oldOpen.__v1633){const wrapped=function(...args){const out=oldOpen.apply(this,args);setTimeout(()=>modalSetter(args[0],args[1]),0);return out};wrapped.__v1633=true;window.scoutOpenPlayerAnalysis=wrapped}
+ document.addEventListener('vc:matchstatechange',schedule);
+ document.addEventListener('change',e=>{if(['scout-analysis-match','scout-player-team-scope','v780-match'].includes(e.target?.id))schedule()});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 
 </script>
