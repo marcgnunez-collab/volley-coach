@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
+<meta name="volley-coach-build" content="16.6.1" />
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Volley Coach | Dossier Táctico Profesional</title>
 <link rel="manifest" href="./manifest.webmanifest">
@@ -918,7 +920,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 </style>
 </head>
 <body class="v11-shell">
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V7.0.1 · VIDEO SCOUTING</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V16.6.1 · SCOUTING Y VÍDEO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -5878,63 +5880,89 @@ matchCard=function(m){
 renderCompetition();renderPlanificacion();
 </script>
 
-<script>
-/* Actualización automática de Volley Coach PWA */
-if ('serviceWorker' in navigator) {
-  let refreshing = false;
-
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
+<script id="vc-pwa-stable-update-v1661">
+/* V16.6.1 · Actualización PWA coherente y sin recargas por ETag.
+   La revisión del código (Service Worker) es independiente de la sincronización cloud. */
+(()=>{
+  'use strict';
+  const BUILD='16.6.1';
+  const SW_URL='./service-worker.js?v=16.6.1';
+  const RECHECK_MS=10*60*1000;
+  let registration=null,lastCheck=0,reloadPending=false,reloading=false;
+  const diag={version:BUILD,worker:null,lastCheck:null,pending:false,updated:false,lastError:null};
+  function compare(a,b){
+    const A=String(a||'').split('.').map(n=>Number(n)||0),B=String(b||'').split('.').map(n=>Number(n)||0);
+    for(let i=0;i<Math.max(A.length,B.length);i++){if((A[i]||0)!==(B[i]||0))return (A[i]||0)>(B[i]||0)?1:-1}
+    return 0;
+  }
+  function busy(){
+    try{if(window.vcRecordingDiagnostics?.()?.active)return true}catch(_){}
+    try{
+      const active=document.querySelector('.view.active')?.id||'';
+      if((active==='scout-match-mode'||active==='scouting'||active==='scout-workspace-v900') && window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.())return true;
+    }catch(_){}
+    return false;
+  }
+  function showPending(){
+    if(document.getElementById('vc-pwa-update-pending'))return;
+    const el=document.createElement('button');el.id='vc-pwa-update-pending';el.type='button';
+    el.textContent='Nueva versión lista · Actualizar al terminar';
+    el.style.cssText='position:fixed;bottom:16px;left:16px;z-index:2147483000;padding:10px 14px;border-radius:8px;background:#122d49;color:#fff;font:600 13px Arial,sans-serif;box-shadow:0 4px 18px #0003;max-width:calc(100vw - 32px)';
+    el.addEventListener('click',()=>reloadOnce(diag.worker||BUILD));
+    document.body?.appendChild(el);
+  }
+  function reloadOnce(target){
+    if(reloading)return;
+    if(busy()){reloadPending=true;diag.pending=true;showPending();return}
+    const key='vc-pwa-v1661-last-reload-'+String(target||BUILD);
+    try{
+      const prev=Number(sessionStorage.getItem(key))||0;
+      if(Date.now()-prev<30000){diag.lastError='Recarga repetida evitada';return}
+      sessionStorage.setItem(key,String(Date.now()));
+    }catch(_){}
+    reloading=true;
+    // Se conserva el almacenamiento local y la identidad de la nube.
     window.location.reload();
+  }
+  async function controllerBuild(){
+    const sw=navigator.serviceWorker.controller;
+    if(!sw)return null;
+    return await new Promise(resolve=>{
+      let done=false;
+      const channel=new MessageChannel();
+      const finish=v=>{if(done)return;done=true;clearTimeout(timer);channel.port1.close();resolve(v)};
+      const timer=setTimeout(()=>finish(null),1800);
+      channel.port1.onmessage=e=>finish(e.data?.version||null);
+      try{sw.postMessage({type:'VC_GET_BUILD'},[channel.port2])}catch(_){finish(null)}
+    });
+  }
+  async function checkController(){
+    const version=await controllerBuild();
+    diag.worker=version;
+    if(version&&compare(version,BUILD)>0){diag.updated=true;reloadOnce(version)}
+    if(reloadPending&&!busy())reloadOnce(version||BUILD);
+  }
+  async function check(force=false){
+    if(!registration||!navigator.onLine||document.visibilityState==='hidden')return;
+    if(!force&&Date.now()-lastCheck<RECHECK_MS)return;
+    lastCheck=Date.now();diag.lastCheck=new Date().toISOString();
+    try{await registration.update();diag.lastError=null}
+    catch(e){diag.lastError=String(e?.message||e)}
+    finally{await checkController()}
+  }
+  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.6.1-stable-pwa'}),check:()=>check(true)};
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>void checkController());
+  window.addEventListener('load',async()=>{
+    try{
+      registration=await navigator.serviceWorker.register(SW_URL,{scope:'./',updateViaCache:'none'});
+      await check(true);
+      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(reloadPending&&!busy())reloadOnce(diag.worker||BUILD);void check(false)}});
+      window.addEventListener('online',()=>void check(true));
+      setInterval(()=>{if(document.visibilityState==='visible')void check(false)},RECHECK_MS);
+    }catch(e){diag.lastError=String(e?.message||e);console.warn('Volley Coach PWA actualización',e)}
   });
-
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=15.0.0', {
-        updateViaCache: 'none'
-      });
-
-      // Comprueba si el service worker publicado ha cambiado.
-      await registration.update();
-      setInterval(() => { if(document.visibilityState==='visible') registration.update().catch(() => {}); }, 5 * 60 * 1000);
-
-      // También comprueba si index.html de GitHub Pages ha cambiado.
-      // GitHub Pages normalmente envía ETag/Last-Modified; si cambia, recarga la app.
-      const checkPublishedVersion = async () => {
-        if (!navigator.onLine || document.visibilityState === 'hidden') return;
-        try {
-          const response = await fetch('./index.html?update-check=' + Date.now(), {
-            method: 'HEAD',
-            cache: 'no-store'
-          });
-          if (!response.ok) return;
-
-          const tag = response.headers.get('etag') || response.headers.get('last-modified');
-          if (!tag) return;
-
-          const key = 'volleyCoachPublishedVersion';
-          const previous = localStorage.getItem(key);
-          localStorage.setItem(key, tag);
-
-          if (previous && previous !== tag) {
-            window.location.reload();
-          }
-        } catch (_) {
-          // Sin conexión o comprobación no disponible: la app sigue funcionando offline.
-        }
-      };
-
-      await checkPublishedVersion();
-      setInterval(checkPublishedVersion, 5 * 60 * 1000);
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') checkPublishedVersion();
-      });
-    } catch (error) {
-      console.error('Error registrando la PWA:', error);
-    }
-  });
-}
+})();
 </script>
 \n<script id="planning-match-v5112-script">
 /* ===== V5.11.2 · PARTIDOS DENTRO DE PLANIFICACIÓN ===== */
