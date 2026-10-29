@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="volley-coach-build" content="16.6.1" />
+<meta name="volley-coach-build" content="16.7.0" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Volley Coach | Dossier Táctico Profesional</title>
@@ -920,7 +920,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 </style>
 </head>
 <body class="v11-shell">
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V16.6.1 · SCOUTING Y VÍDEO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V16.7.0 · SCOUTING Y VÍDEO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -3704,10 +3704,14 @@ function cargarBorradosBiblioteca(){
 function guardarBorradosBiblioteca(lista){
   try{localStorage.setItem(LIBRARY_DELETED_KEY,JSON.stringify([...(new Set(lista||[]))]))}catch(_){ }
 }
-function guardarBibliotecaIndependiente(){
+let v167LibraryLastJson=null,v167TeamLastJson=null,v167LocalWrites=0,v167LocalSkips=0,v167LibraryWrites=0;
+function guardarBibliotecaIndependiente(serialized=null){
   try{
-    localStorage.setItem(LIBRARY_STORAGE_KEY,JSON.stringify({version:1,updatedAt:new Date().toISOString(),total:baseDeDatos.length,ejercicios:clonar(baseDeDatos)}));
-  }catch(err){console.warn('No se pudo guardar la biblioteca independiente',err)}
+    const json=typeof serialized==='string'?serialized:JSON.stringify(baseDeDatos);
+    if(json===v167LibraryLastJson&&localStorage.getItem(LIBRARY_STORAGE_KEY))return false;
+    localStorage.setItem(LIBRARY_STORAGE_KEY,`{"version":1,"updatedAt":${JSON.stringify(new Date().toISOString())},"total":${baseDeDatos.length},"ejercicios":${json}}`);
+    v167LibraryLastJson=json;v167LibraryWrites++;return true;
+  }catch(err){console.warn('No se pudo guardar la biblioteca independiente',err);return false}
 }
 function aplicarBorradosBiblioteca(lista){
   const borrados=new Set(cargarBorradosBiblioteca());
@@ -3789,9 +3793,16 @@ function cargarEstadoLocal(){
   else setTimeout(persistNormalized,1400);
 }
 function guardarEstadoLocalSinCloud(){
-  localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:new Date().toISOString(),equiposData:clonar(equiposData)}));
-  guardarBibliotecaIndependiente();
-  localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo);
+  /* V16.7: serialize each structure ONCE, not clone → serialize → clone → serialize.
+     Keep the exact same JSON schema; no-op writes are avoided to reduce mobile main-thread stalls. */
+  const lib=JSON.stringify(baseDeDatos),teams=JSON.stringify(equiposData);
+  if(lib!==v167LibraryLastJson||teams!==v167TeamLastJson||!localStorage.getItem(APP_STORAGE_KEY)){
+    const serialized=`{"version":5.8,"bibliotecaCompartida":${lib},"bibliotecaVersion":1,"bibliotecaUpdatedAt":${JSON.stringify(new Date().toISOString())},"equiposData":${teams}}`;
+    localStorage.setItem(APP_STORAGE_KEY,serialized);
+    v167TeamLastJson=teams;v167LocalWrites++;
+  }else v167LocalSkips++;
+  guardarBibliotecaIndependiente(lib);
+  if(localStorage.getItem(ACTIVE_TEAM_KEY)!==String(equipoActivo))localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo);
 }
 function guardarEquipoEnMemoria(){
   if(!equiposData)equiposData={};
@@ -4588,7 +4599,8 @@ function fusionarScoutingsSeguros(localList,remoteList){
   const map=new Map();
   [...(Array.isArray(localList)?localList:[]),...(Array.isArray(remoteList)?remoteList:[])].forEach(m=>{
     const id=Number(m?.id);if(!id)return;const prev=map.get(id);if(!prev){map.set(id,clonar(m));return}
-    const a=scoutGenericCounts(m),b=scoutGenericCounts(prev),use=a.actions>b.actions||a.rallies>b.rallies||(a.actions===b.actions&&a.rallies===b.rallies&&scoutGenericStamp(m)>scoutGenericStamp(prev));
+    const a=scoutGenericCounts(m),b=scoutGenericCounts(prev),ma=Date.parse(m?.updatedAt||m?.editedAt||'')||0,mb=Date.parse(prev?.updatedAt||prev?.editedAt||'')||0;
+    const use=(ma&&mb&&ma!==mb)?ma>mb:(a.actions>b.actions||a.rallies>b.rallies||(a.actions===b.actions&&a.rallies===b.rallies&&scoutGenericStamp(m)>scoutGenericStamp(prev)));
     if(use)map.set(id,clonar(m));
   });
   return [...map.values()].sort((a,b)=>scoutGenericStamp(b)-scoutGenericStamp(a));
@@ -5881,12 +5893,12 @@ renderCompetition();renderPlanificacion();
 </script>
 
 <script id="vc-pwa-stable-update-v1661">
-/* V16.6.1 · Actualización PWA coherente y sin recargas por ETag.
+/* V16.7.0 · Actualización PWA coherente y sin recargas por ETag.
    La revisión del código (Service Worker) es independiente de la sincronización cloud. */
 (()=>{
   'use strict';
-  const BUILD='16.6.1';
-  const SW_URL='./service-worker.js?v=16.6.1';
+  const BUILD='16.7.0';
+  const SW_URL='./service-worker.js?v=16.7.0';
   const RECHECK_MS=10*60*1000;
   let registration=null,lastCheck=0,reloadPending=false,reloading=false;
   const diag={version:BUILD,worker:null,lastCheck:null,pending:false,updated:false,lastError:null};
@@ -5950,7 +5962,7 @@ renderCompetition();renderPlanificacion();
     catch(e){diag.lastError=String(e?.message||e)}
     finally{await checkController()}
   }
-  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.6.1-stable-pwa'}),check:()=>check(true)};
+  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.7.0-stable-pwa'}),check:()=>check(true)};
   if(!('serviceWorker' in navigator))return;
   navigator.serviceWorker.addEventListener('controllerchange',()=>void checkController());
   window.addEventListener('load',async()=>{
@@ -25390,9 +25402,15 @@ function mergeScoutings956(local,remote,tombstones=[]){
     const prev=map.get(id);
     if(!prev){map.set(id,clone(m));return}
     const richness=scoutRichness956(m),prevRichness=scoutRichness956(prev);
-    const use=richness>prevRichness
-      ||(richness===prevRichness&&stamp>scoutStamp956(prev))
-      ||(richness===prevRichness&&stamp===scoutStamp956(prev)&&source==='local');
+    const explicitStamp=Date.parse(m.updatedAt||m.editedAt||'')||0;
+    const prevExplicit=Date.parse(prev.updatedAt||prev.editedAt||'')||0;
+    /* An undo legitimately has fewer actions. A richer but older scouting must not resurrect it.
+       If neither has a trustworthy modification time, retain legacy richness fallback. */
+    const use=(explicitStamp&&prevExplicit&&explicitStamp!==prevExplicit)
+      ? explicitStamp>prevExplicit
+      : (richness>prevRichness
+         ||(richness===prevRichness&&stamp>scoutStamp956(prev))
+         ||(richness===prevRichness&&stamp===scoutStamp956(prev)&&source==='local'));
     if(use)map.set(id,clone(m));
   };
   (Array.isArray(remote)?remote:[]).forEach(m=>add(m,'remote'));
@@ -26899,6 +26917,7 @@ let lastMerge=null;try{lastMerge=JSON.parse(localStorage.getItem(MERGE_KEY)||'nu
 let syncedStamp=(()=>{const a=localStorage.getItem(BASE_KEY)||'',b=localStorage.getItem(REMOTE_STAMP_KEY)||'';if(!a)return b;if(!b)return a;const x=stampMs(a),y=stampMs(b);return(Number.isFinite(y)&&(!Number.isFinite(x)||y>x))?b:a})();
 let syncedFingerprint='';
 let checkpointRequired=true; // Se conserva la copia local obligatoria antes de cada subida.
+ let firstFullReadPending=true; // V16.7: no confiar solo en el stamp guardado en otra sesión
 /* El bloqueo permanente de V16.0.3 ya no existe: se limpia cualquier marca antigua de "conflicto". */
 try{localStorage.removeItem('v1603_sync_conflict')}catch(_){}
 
@@ -27047,7 +27066,7 @@ function hasLocalRecoveries(remoteState){
 async function cycle(o){
   const {manual,allowWrite,pullOnly,reason}=o;
   const out={applied:false,merged:false,wrote:false,unchanged:false,verified:false};
-  let lastExpected='',mustReadFull=!!(manual&&pullOnly);
+  let lastExpected='',mustReadFull=firstFullReadPending||!!(manual&&pullOnly);
   for(let attempt=1;attempt<=MAX_ATTEMPTS;attempt++){
     /* La consulta ligera evita descargar megabytes al guardar un solo punto. */
     let remote=null,hasState=false,rStamp='',isNew=false;
@@ -27059,10 +27078,12 @@ async function cycle(o){
       }else mustReadFull=true;
     }else mustReadFull=true;
     if(mustReadFull){
+      const forceStartupApply=firstFullReadPending;
       remote=await readRemote();
+      firstFullReadPending=false;
       rStamp=String(remote?.updated_at||'');
       hasState=!!(remote&&remote.state&&typeof remote.state==='object');
-      isNew=hasState&&(!syncedStamp||!sameStamp(rStamp,syncedStamp));
+      isNew=hasState&&(forceStartupApply||!syncedStamp||!sameStamp(rStamp,syncedStamp));
       if(hasState&&(isNew||(manual&&pullOnly))){
         const wasDirty=dirty;
         if(wasDirty){setStatus('Fusionando cambios…','syncing');await backupBeforeMerge()}
@@ -27179,7 +27200,7 @@ setInterval(()=>{
 },PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);
 setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,fastHeadSkips,mergedWritebacks,remoteNotifications,inFlightMode,accountBlocked,connected:connected(),dirty,dirtySince:dirtySince||null,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,lightChecksThisSession:lightChecks,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:!!window.VC_DEVICE_SYNC?.diagnostics?.().realtimeState?.includes('SUBSCRIBED'),conflict:null,merges,lastMerge,staleRetries,compareAndSwap:!casBroken,syncedStamp:syncedStamp||null,baseRemoteStamp:syncedStamp||null,lastVerifiedAt:lastVerifiedAt||null,lastVerificationError:lastVerificationError||null,checkpoint:window.VolleySafeCheckpoint?.diagnostics?.()||null})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,fastHeadSkips,mergedWritebacks,remoteNotifications,inFlightMode,accountBlocked,connected:connected(),dirty,dirtySince:dirtySince||null,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,lightChecksThisSession:lightChecks,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,bootFullReadPending:firstFullReadPending,fastRealtime:!!window.VC_DEVICE_SYNC?.diagnostics?.().realtimeState?.includes('SUBSCRIBED'),conflict:null,merges,lastMerge,staleRetries,compareAndSwap:!casBroken,syncedStamp:syncedStamp||null,baseRemoteStamp:syncedStamp||null,lastVerifiedAt:lastVerifiedAt||null,lastVerificationError:lastVerificationError||null,checkpoint:window.VolleySafeCheckpoint?.diagnostics?.()||null})};
 })();
 </script>
 
@@ -29988,13 +30009,13 @@ function ensureUI(){if($('v138-device-strip'))return true;const save=$('v137-sav
 function age(t){if(!t)return'—';const s=Math.max(0,Math.round((now()-Number(t))/1000));return s<2?'ahora':s<60?`hace ${s} s`:s<3600?`hace ${Math.floor(s/60)} min`:new Date(Number(t)).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}
 function setCell(prefix,state,main,sub){const c=$(`v138-${prefix}-cell`),b=$(`v138-${prefix}-main`),s=$(`v138-${prefix}-sub`);if(c)c.dataset.state=state||'';if(b)b.textContent=main;if(s)s.textContent=sub||''}
 function peer(){return Object.values(knownDevices).filter(d=>d&&d.id!==deviceId).sort((a,b)=>Number(b.lastSeen||0)-Number(a.lastSeen||0))[0]||null}
-function render(){if(!ensureUI())return;const p=peer();setCell('this','ok',deviceName,`${isMobile()?'Móvil':'Portátil / PC'} · ${deviceId.slice(0,8)}`);if(!cloudConnected())setCell('live','pending','Nube no conectada','inicia sesión en ambos dispositivos');else if(rtState==='SUBSCRIBED')setCell('live','ok','Tiempo real inmediato ✓','Broadcast activo · guardado durable en segundo plano');else if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setCell('live','pending','Reconectando…','los datos locales siguen protegidos');else setCell('live','pending','Conectando…','preparando canal Realtime');if(p)setCell('peer',now()-Number(p.lastSeen||0)<120000?'ok':'',p.name||'Otro dispositivo',`${p.type==='mobile'?'Móvil':'PC'} · ${age(p.lastSeen)}`);else setCell('peer','','—','abre la app con la misma cuenta');if(lastRemoteAt)setCell('remote','ok',age(lastRemoteAt),`${lastRemoteName||lastRemoteDevice||'otro dispositivo'} · actualización instantánea`);else setCell('remote','','—','sin cambios recibidos en esta sesión')}
-function scheduleLocalPersist(){clearTimeout(localPersistTimer);localPersistTimer=setTimeout(()=>{try{guardarEstadoLocalSinCloud?.()}catch(_){}},1400)}
+function render(){if(!ensureUI())return;const p=peer();setCell('this','ok',deviceName,`${isMobile()?'Móvil':'Portátil / PC'} · ${deviceId.slice(0,8)}`);if(!cloudConnected())setCell('live','pending','Nube no conectada','inicia sesión en ambos dispositivos');else if(rtState==='SUBSCRIBED')setCell('live','ok',localCloudDirty()?'En vivo · guardando…':'Tiempo real conectado','Broadcast inmediato · confirmación en nube por separado');else if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setCell('live','pending','Reconectando…','los datos locales siguen protegidos');else setCell('live','pending','Conectando…','preparando canal Realtime');if(p)setCell('peer',now()-Number(p.lastSeen||0)<120000?'ok':'',p.name||'Otro dispositivo',`${p.type==='mobile'?'Móvil':'PC'} · ${age(p.lastSeen)}`);else setCell('peer','','—','abre la app con la misma cuenta');if(lastRemoteAt)setCell('remote','ok',age(lastRemoteAt),`${lastRemoteName||lastRemoteDevice||'otro dispositivo'} · actualización instantánea`);else setCell('remote','','—','sin cambios recibidos en esta sesión')}
+function persistReceived(){clearTimeout(localPersistTimer);localPersistTimer=null;try{guardarEstadoLocalSinCloud?.()}catch(e){console.warn('V16.7 receiver local persist',e)}}function scheduleLocalPersist(){clearTimeout(localPersistTimer);localPersistTimer=setTimeout(persistReceived,260)}window.addEventListener('pagehide',()=>{if(localPersistTimer)persistReceived()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&localPersistTimer)persistReceived()});
 function findLocalMatch(teamId,matchId){const t=equiposData?.[teamId],list=Array.isArray(t?.scoutingMatches)?t.scoutingMatches:[];return list.find(m=>Number(m?.id)===Number(matchId))||null}
-function applyPatchToMatch(m,p){if(!m||!p)return false;const reserved=new Set(['set','setIndex','setSummaries','updatedAt','remoteUpdatedAt']);Object.keys(p).forEach(k=>{if(!reserved.has(k)&&p[k]!==undefined)m[k]=clone(p[k])});if(p.set){m.sets=Array.isArray(m.sets)?m.sets:[];const idx=Math.max(0,Number(p.setIndex)||0);m.sets[idx]=clone(p.set)}if(Array.isArray(p.setSummaries)){m.sets=Array.isArray(m.sets)?m.sets:[];p.setSummaries.forEach((s,i)=>{if(!s)return;if(!m.sets[i])m.sets[i]={};['scoreUs','scoreOpponent','finished','winner','number','setNo'].forEach(k=>{if(s[k]!==undefined)m.sets[i][k]=clone(s[k])})})}return true}
+function applyPatchToMatch(m,p){if(!m||!p)return false;const reserved=new Set(['set','setIndex','setSummaries','updatedAt','remoteUpdatedAt']);Object.keys(p).forEach(k=>{if(!reserved.has(k)&&p[k]!==undefined)m[k]=clone(p[k])});if(p.remoteUpdatedAt && (!m.updatedAt || Date.parse(p.remoteUpdatedAt)>=Date.parse(m.updatedAt)))m.updatedAt=String(p.remoteUpdatedAt);if(p.set){m.sets=Array.isArray(m.sets)?m.sets:[];const idx=Math.max(0,Number(p.setIndex)||0);m.sets[idx]=clone(p.set)}if(Array.isArray(p.setSummaries)){m.sets=Array.isArray(m.sets)?m.sets:[];p.setSummaries.forEach((s,i)=>{if(!s)return;if(!m.sets[i])m.sets[i]={};['scoreUs','scoreOpponent','finished','winner','number','setNo'].forEach(k=>{if(s[k]!==undefined)m.sets[i][k]=clone(s[k])})})}return true}
 function refreshFastUi(){try{window.MatchState?.sync?.('remote-fast')}catch(_){};try{window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}catch(_){};if(document.getElementById('scout-match-mode')?.classList.contains('active'))try{window.v800Render?.()}catch(_){} }
 function localCloudDirty(){try{return window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().dirty===true||localStorage.getItem('v1523_cloud_dirty')==='1'}catch(_){return localStorage.getItem('v1523_cloud_dirty')==='1'}}
-function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];if(!localCloudDirty()){team.scoutingMatches=[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)]}else{team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local}target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}scheduleLocalPersist();lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
+function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const source=String(payload.deviceId||'');const incomingSeq=Number(payload.seq)||0;const observedSeq=Number(knownDevices[source]?.seq)||0;if(source&&incomingSeq>0&&observedSeq>=incomingSeq)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];if(!localCloudDirty()){team.scoutingMatches=[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)]}else{team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local}target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}scheduleLocalPersist();/* Realtime is NOT durable: receiver must also commit the patch via CAS. */try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('received-realtime-patch')}catch(_){}lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
 function onFast(message){try{applyFastPatch(message?.payload||message)}catch(err){console.warn('V15.2.6 fast patch',err)}}
 let lastCommitNotice=0,lastResumeAt=0;
 function notifyCloudChanged(stamp){
@@ -30016,7 +30037,7 @@ function queueFast(reason='matchstate'){if(fastApplying||rtState!=='SUBSCRIBED'|
 async function syncRemote(reason='fallback'){if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}if(reason==='focus'||reason==='pageshow'||reason==='visible'||reason==='startup'){if(now()-lastPullAt<8000)return false}try{lastPullAt=now();await window.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});render();return true}catch(err){console.warn('V15.2.6 remote sync',err);return false}}
 function onRemote(payload){try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;clearTimeout(remoteSyncTimer);const recentFast=meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000;remoteSyncTimer=setTimeout(()=>void syncRemote(recentFast?'db-complete-after-fast':'db-change'),recentFast?700:350)}catch(err){console.warn('V15.2.6 postgres event',err)}}
 function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState='disconnected';render()}
-function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:FAST_EVENT},onFast).on('broadcast',{event:CLOUD_COMMIT_EVENT},onCloudCommit).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED')queueFast('reconnect');if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.6 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
+function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:FAST_EVENT},onFast).on('broadcast',{event:CLOUD_COMMIT_EVENT},onCloudCommit).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED')void syncRemote('reconnect-pull');if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.6 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
 function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()&&now()-lastPullAt>=delay)await syncRemote('safety');poll()},delay)}
 function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
 async function resumeSync(reason='resume'){if(now()-lastResumeAt<2500&&reason!=='online')return;lastResumeAt=now();try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
@@ -32227,5 +32248,8 @@ window.VC_V166_MATCH=Object.freeze({version:VERSION,getDiagnostics:()=>({...coun
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',createUi,{once:true});else createUi();
 })();
 
+</script>
+<script id="v167-performance-diagnostics">
+(()=>{'use strict';window.VC_V167_PERFORMANCE=Object.freeze({version:'16.7.0',diagnostics:()=>({localWrites:v167LocalWrites,skippedIdenticalLocalWrites:v167LocalSkips,libraryWrites:v167LibraryWrites,realtime:window.VC_DEVICE_SYNC?.diagnostics?.(),cloud:window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()})});})();
 </script>
 </body></html>
