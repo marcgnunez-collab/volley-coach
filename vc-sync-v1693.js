@@ -15,7 +15,10 @@ const own=(o,k)=>obj(o)&&Object.prototype.hasOwnProperty.call(o,k)?o[k]:MISSING;
 function keyFor(x,kind){if(!obj(x))return null;const v=kind==='seasonPlan'?x.weekStart:kind==='sets'?x.number:x.id;return v===undefined||v===null||v===''?null:String(v)}
 function containsBusinessData(s){if(!obj(s))return false;const es=obj(s.equiposData)?Object.values(s.equiposData):[];return es.some(t=>['jugadores','historial','planificacion','partidos','scoutingMatches','teamGoals','seasonPlan','plantillas'].some(k=>arr(t?.[k]).length>0))}
 function makeConflict(path,b,l,r){return {path,base:b===MISSING?null:clone(b),local:l===MISSING?null:clone(l),remote:r===MISSING?null:clone(r),localMissing:l===MISSING,remoteMissing:r===MISSING}}
+function deletedIds(...states){const out={};for(const st of states){for(const [team,t] of Object.entries(st?.equiposData||{})){for(const [id,time] of Object.entries(t?.scoutingDeleted||{})){if(time){(out[team]??={})[id]=String(time)}}}}return out}
+function enforceDeletions(st,deleted){if(!st)return st;st=clone(st);for(const [team,ids] of Object.entries(deleted)){const t=st.equiposData?.[team];if(!t)continue;t.scoutingDeleted={...(t.scoutingDeleted||{}),...ids};t.scoutingMatches=arr(t.scoutingMatches).filter(m=>!ids[String(m.id)]);if(ids[String(t.scoutingActiveId)])t.scoutingActiveId=null}return st}
 function mergeThree(base,local,remote){
+ const deleted=deletedIds(base,local,remote);base=enforceDeletions(base,deleted);local=enforceDeletions(local,deleted);remote=enforceDeletions(remote,deleted);
  const conflicts=[];
  function visit(b,l,r,path='',key=''){
   // An unexplained disappearance from the remote scouting archive is never applied.
@@ -89,7 +92,7 @@ function mergeThree(base,local,remote){
   conflicts.push(makeConflict(path,b,l,r));return clone(l);
  }
  const merged=visit(base===undefined?MISSING:base,local===undefined?MISSING:local,remote===undefined?MISSING:remote);
- return {merged,conflicts};
+ return {merged:enforceDeletions(merged,deleted),conflicts};
 }
 let database=null,dbPromise=null;
 function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{
