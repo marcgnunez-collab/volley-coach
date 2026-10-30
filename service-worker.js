@@ -36,9 +36,10 @@ async function precache(){
   const html=await verifiedPage(PAGE);
   const cache=await caches.open(CACHE_NAME);
   await cache.put(PAGE,html);
-  await Promise.allSettled(ASSETS.map(async url=>{
+  await Promise.all(ASSETS.map(async url=>{
     const r=await fetch(url,{cache:'no-store'});
-    if(r&&(r.ok||r.type==='opaque'))await cache.put(url,r.clone());
+    if(!r||!r.ok)throw new Error('Recurso obligatorio no disponible: '+url);
+    await cache.put(url,r.clone());
   }));
 }
 self.addEventListener('install',event=>event.waitUntil(precache().then(()=>self.skipWaiting())));
