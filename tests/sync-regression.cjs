@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const source=fs.readFileSync('vc-sync-v1692.js','utf8');
+const source=fs.readFileSync('vc-sync-v1693.js','utf8');
 const start=source.indexOf("const now=()=>");
 const end=source.indexOf("let database=null",start);
 assert(start>0&&end>start,'Merge helpers missing');
@@ -60,9 +60,11 @@ const copy=x=>JSON.parse(JSON.stringify(x));
  assert(result.conflicts.length>0,'concurrent rally edits must be blocked as conflicts');
  assert(ids.includes('a2'),'local changes must be preserved during conflict');
 }
-assert.equal(source.includes("const VERSION='16.9.2'"),true);
+assert.equal(source.includes("const VERSION='16.9.3'"),true);
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('service-worker.js','utf8');
-assert(html.includes('src="./vc-sync-v1692.js"'));
-assert(worker.includes("./vc-sync-v1692.js"));
-assert(html.includes('name="volley-coach-build" content="16.9.2"'));
-console.log('PASS: regression checks for guarded synchronization V16.9.2');
+assert(html.includes('src="./vc-sync-v1693.js"'));
+assert(worker.includes("./vc-sync-v1693.js"));
+assert(html.includes('name="volley-coach-build" content="16.9.3"'));
+assert(source.includes("if(base&&!pending&&!force&&equal(initial,base.state))"),'unchanged remote stamp must not hide local differences');
+assert(source.includes("if(!remoteCoversLocal(initial,remoteState)&&!(base&&equal(initial,base.state)))"),'clean baseline should permit remote updates without false lock');
+console.log('PASS: regression checks for guarded synchronization V16.9.3');
