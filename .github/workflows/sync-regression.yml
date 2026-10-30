@@ -16,4 +16,4 @@ jobs:
       - name: Syntax check
         run: node --check vc-sync-v1693.js && node --check vc-recovery-v169.js && node --check vc-csv-reconcile-v1691.js && node --check service-worker.js
       - name: Guard tests
-        run: node tests/sync-regression.cjs
+        run: node tests/sync-regression.cjs && node tests/index-integrity.cjs
