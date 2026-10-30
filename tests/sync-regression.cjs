@@ -67,4 +67,14 @@ assert(worker.includes("./vc-sync-v1693.js"));
 assert(html.includes('name="volley-coach-build" content="16.9.3"'));
 assert(source.includes("if(base&&!pending&&!force&&equal(initial,base.state))"),'unchanged remote stamp must not hide local differences');
 assert(source.includes("if(!remoteCoversLocal(initial,remoteState)&&!(base&&equal(initial,base.state)))"),'clean baseline should permit remote updates without false lock');
+// A local value can change even if every remote field is still present.
+{
+ const base=data(),local=copy(base),remote=copy(base);
+ local.equiposData.cadete.scoutingMatches[0].notes='edited offline';
+ assert.equal(remoteCoversLocal(local,remote),true,'field coverage is not evidence of equal values');
+ assert.notDeepEqual(local,base,'the local data differs from its acknowledged baseline');
+ assert(source.includes("if(base&&!pending&&!equal(initial,base.state))"),'untracked edits must be captured before remote reads');
+ assert(source.includes("pending=true;changeRevision++"),'untracked edits must become pending writes');
+}
+assert(!source.includes("await archive('before-apply:'+reason,initial)"),'avoid duplicate full-state archive');
 console.log('PASS: regression checks for guarded synchronization V16.9.3');
