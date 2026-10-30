@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
-<meta name="volley-coach-build" content="16.9.1" />
+<meta name="volley-coach-build" content="16.9.2" />
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Volley Coach | Dossier Táctico Profesional</title>
 <link href="./manifest.webmanifest" rel="manifest"/>
@@ -5637,12 +5637,12 @@ matchCard=function(m){
 renderCompetition();renderPlanificacion();
 </script>
 <script id="vc-pwa-stable-update-v1661">
-/* V16.9.1 · Actualización PWA coherente y sin recargas por ETag.
+/* V16.9.2 · Actualización PWA coherente y sin recargas por ETag.
    La revisión del código (Service Worker) es independiente de la sincronización cloud. */
 (()=>{
   'use strict';
-  const BUILD='16.9.1';
-  const SW_URL='./service-worker.js?v=16.9.1';
+  const BUILD='16.9.2';
+  const SW_URL='./service-worker.js?v=16.9.2';
   const RECHECK_MS=10*60*1000;
   let registration=null,lastCheck=0,reloadPending=false,reloading=false;
   const diag={version:BUILD,worker:null,lastCheck:null,pending:false,updated:false,lastError:null};
@@ -5706,7 +5706,7 @@ renderCompetition();renderPlanificacion();
     catch(e){diag.lastError=String(e?.message||e)}
     finally{await checkController()}
   }
-  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.9.1-stable-pwa'}),check:()=>check(true)};
+  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.9.2-stable-pwa'}),check:()=>check(true)};
   if(!('serviceWorker' in navigator))return;
   navigator.serviceWorker.addEventListener('controllerchange',()=>void checkController());
   window.addEventListener('load',async()=>{
@@ -30747,6 +30747,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 </script>
-<script defer="True" src="./vc-sync-v1691.js"></script>
+<script defer="True" src="./vc-sync-v1692.js"></script>
 <script defer="True" src="./vc-recovery-v169.js"></script>
 <script defer="True" src="./vc-csv-reconcile-v1691.js"></script></body></html>
