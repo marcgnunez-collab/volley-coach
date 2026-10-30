@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
-<meta content="16.8.0" name="volley-coach-build"/>
+<meta content="16.9.0" name="volley-coach-build"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Volley Coach | Dossier Táctico Profesional</title>
 <link href="./manifest.webmanifest" rel="manifest"/>
@@ -5637,12 +5637,12 @@ matchCard=function(m){
 renderCompetition();renderPlanificacion();
 </script>
 <script id="vc-pwa-stable-update-v1661">
-/* V16.8.0 · Actualización PWA coherente y sin recargas por ETag.
+/* V16.9.0 · Actualización PWA coherente y sin recargas por ETag.
    La revisión del código (Service Worker) es independiente de la sincronización cloud. */
 (()=>{
   'use strict';
-  const BUILD='16.8.0';
-  const SW_URL='./service-worker.js?v=16.8.0';
+  const BUILD='16.9.0';
+  const SW_URL='./service-worker.js?v=16.9.0';
   const RECHECK_MS=10*60*1000;
   let registration=null,lastCheck=0,reloadPending=false,reloading=false;
   const diag={version:BUILD,worker:null,lastCheck:null,pending:false,updated:false,lastError:null};
@@ -5706,7 +5706,7 @@ renderCompetition();renderPlanificacion();
     catch(e){diag.lastError=String(e?.message||e)}
     finally{await checkController()}
   }
-  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.8.0-stable-pwa'}),check:()=>check(true)};
+  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.9.0-stable-pwa'}),check:()=>check(true)};
   if(!('serviceWorker' in navigator))return;
   navigator.serviceWorker.addEventListener('controllerchange',()=>void checkController());
   window.addEventListener('load',async()=>{
@@ -24948,7 +24948,6 @@ window.VC_SYNC_SAFE={version:'16.7.5',merge,mergeMany,prefer,remember,versions,c
 })();
 
 </script>
-
 <style id="v953-training-controls-style">
 #entrenamiento.active,
 #planificacion.active{pointer-events:auto!important}
@@ -25166,7 +25165,6 @@ window.VC_V954_NEW_SET={
 }
 .live-delay-long-note b{color:#17324d}
 </style>
-
 <style id="v956-mobile-scout-analysis-style">
 .v956-scout-sync-status{
   align-self:center;
@@ -25548,7 +25546,6 @@ window.VC_V954_NEW_SET={
   #scout-analysis .scout-analysis-toolbar select{grid-column:auto!important}
 }
 </style>
-
 <style id="v957-clock-sync-style">
 #v800-clock::after{
   content:" ACTIVO";
@@ -25793,7 +25790,6 @@ window.VolleyBackups=Object.freeze({save,list,download,inspectFile,accessAudit})
  });
 })();
 </script>
-
 <style id="v962-cloud-efficient-style">
 .v962-cloud-note{
   margin-top:7px;padding:7px 9px;border:1px solid #dfe6ea;border-radius:8px;
@@ -28495,7 +28491,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   body.v11-shell button:active,body.v11-shell summary:active,body.v11-shell [role="button"]:active{filter:brightness(.96)}
 }
 </style>
-
 <style id="v139-stability-style">
 /* V13.9 · stabilization guard + dynamic touch safety */
 html.v139-booting body{visibility:hidden!important}
@@ -30752,5 +30747,5 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 </script>
-
-<script defer="True" src="./vc-sync-v1680.js"></script></body></html>
+<script defer="True" src="./vc-sync-v169.js"></script>
+<script defer="True" src="./vc-recovery-v169.js"></script></body></html>
