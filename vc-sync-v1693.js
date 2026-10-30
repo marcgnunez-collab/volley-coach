@@ -457,6 +457,20 @@ async function restoreMissing(candidates){
   return {added,skipped};
  }finally{pauseWrites=false}
 }
+async function deleteScouting(team,id){
+ team=String(team);id=String(id);
+ if(!userId()||outboxHold||pauseWrites)throw Error('Borrado bloqueado hasta sincronizar');
+ if(working)await working;
+ const t=equiposData?.[team],list=arr(t?.scoutingMatches);
+ if(!list.some(m=>String(m.id)===id))throw Error('Scouting inexistente');
+ await archive('before-delete:'+team+':'+id,localState());
+ t.scoutingDeleted={...t.scoutingDeleted,[id]:now()};
+ t.scoutingMatches=list.filter(m=>String(m.id)!==id);
+ if(String(t.scoutingActiveId)===id)t.scoutingActiveId=null;
+ guardarEstadoLocalSinCloud();schedule('delete-scouting');
+ if(!(await capture('delete-scouting')))throw Error('Guardado protegido fallido');
+ return true;
+}
 function onMutation(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
  schedule(reason);
 }
@@ -502,7 +516,7 @@ function boot(){ensurePanel();connect();if(connected())void sync({reason:'startu
  pollLoop();
 }
 window.VC_SYNC_V1680={version:VERSION,onMutation,flush,pull,sync,connect,capture,exportProtected,exportDiag,restoreMissing,initializeAccount,
- mergeThree,remoteCoversLocal,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
+ mergeThree,remoteCoversLocal,deleteScouting,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
 window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty:()=>{schedule('legacy-mark')},sync:options=>sync({reason:options?.reason||'legacy',write:options?.allowWrite!==false&&!options?.pullOnly}),forceSync:flush,diagnostics:()=>({...window.VC_SYNC_V1680.diagnostics(),dirty:pending,lastWriteAt:lastPersisted,compareAndSwap:true})};
 window.VC_DEVICE_SYNC={version:VERSION,connect,broadcast:()=>{},notifyCloudChanged:notify,diagnostics:()=>({deviceId,realtimeState:realtimeStatus,cloudConnected:connected()})};
 window.v962ForceSync=flush;window.v953SyncNow=flush;window.v956SyncScoutingsNow=flush;window.v957SyncScoutingsNow=flush;window.v138SyncNow=pull;
