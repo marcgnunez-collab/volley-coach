@@ -4,7 +4,7 @@
 */
 (()=>{
 'use strict';
-const VERSION='16.9.0',DB='VolleyCoachSyncV1680',STORE='records',TABLE='volley_state',MISSING=Symbol('missing');
+const VERSION='16.9.1',DB='VolleyCoachSyncV1680',STORE='records',TABLE='volley_state',MISSING=Symbol('missing');
 const LAUNCH_KEY='vc1680_sync_device',QUICK_WAIT=650,ACTIVE_POLL=3500,IDLE_POLL=11000,CONNECTION_CHECK=4000;
 const now=()=>new Date().toISOString(),arr=x=>Array.isArray(x)?x:[],obj=x=>!!x&&typeof x==='object'&&!Array.isArray(x);
 const clone=x=>x===MISSING?MISSING:x===undefined?undefined:JSON.parse(JSON.stringify(x));
@@ -255,6 +255,41 @@ function integrateScoutMirror(st){
  }
  return s;
 }
+// Never accept a cloud snapshot that omits ANY previously stored business record.
+// This check is intentionally conservative: a legitimate removal is deferred for
+// explicit conflict review rather than mistaken for stale-device data.
+function remoteCoversLocal(local,remote){
+ if(!obj(local)||!obj(remote))return false;
+ const collectionKeys=['jugadores','historial','planificacion','partidos','scoutingMatches','seasonPlan','teamGoals'];
+ for(const [teamId,lt] of Object.entries(local.equiposData||{})){
+  const rt=remote.equiposData?.[teamId];
+  if(!obj(rt)){
+   if(collectionKeys.some(k=>arr(lt?.[k]).length))return false;
+   continue;
+  }
+  for(const key of collectionKeys){
+   const saved=arr(lt?.[key]),fromCloud=arr(rt[key]);
+   const byId=new Map(fromCloud.map(x=>[keyFor(x,key),x]));
+   for(const record of saved){
+    const id=keyFor(record,key);if(id==null)continue;
+    const counterpart=byId.get(id);if(!counterpart)return false;
+    if(key==='scoutingMatches'){
+     const remoteSets=new Map(arr(counterpart.sets).map(x=>[String(x.number),x]));
+     for(const set of arr(record.sets)){
+      const rs=remoteSets.get(String(set.number));if(!rs)return false;
+      const remoteRallies=new Map(arr(rs.rallies).map(x=>[String(x.id),x]));
+      for(const rally of arr(set.rallies)){
+       const rr=remoteRallies.get(String(rally.id));if(!rr)return false;
+       const remoteActions=new Set(arr(rr.actions).map(x=>String(x.id)));
+       if(arr(rally.actions).some(a=>!remoteActions.has(String(a.id))))return false;
+      }
+     }
+    }
+   }
+  }
+ }
+ return true;
+}
 async function sync({reason='manual',write=false,force=false}={}){
  if(working){if(write||force||/remote|reconnect|postgres|hint|live/i.test(reason)){rerunNeeded=true;rerunForce=rerunForce||force}return working;}
  if(!connected()){setStatus('Sin sesión · guardado local');return false}
@@ -274,12 +309,25 @@ async function sync({reason='manual',write=false,force=false}={}){
    const remoteState=remote?.state?integrateScoutMirror(remote.state):null,stamp=remote?.updated_at||null;
    let joined;
    if(!remoteState){joined=initial}
+   else if(!pending){
+    // Reopening a phone is a READ, never a write. Do not merge its stale
+    // incidental local timestamps back over the laptop's confirmed changes.
+    // Preserve copies if remote would omit any previously recorded entity.
+    if(!remoteCoversLocal(initial,remoteState)){
+     await archive('stale-device-protected:'+reason,initial);
+     await saveConflict(remoteState,initial,[makeConflict('local records absent from cloud',initial,initial,remoteState)],stamp);
+     outboxHold=true;
+     setStatus('Copias distintas · exportar y revisar (sin sobrescribir)');return false;
+    }
+    joined=clone(remoteState);
+   }
    else if(!base&&!containsBusinessData(initial))joined=clone(remoteState);
    else {
     const result=mergeThree(base?.state,initial,remoteState);joined=result.merged;
     if(result.conflicts.length){
      await archive('before-conflict:'+reason,initial);
      await saveConflict(remoteState,initial,result.conflicts,stamp);
+     outboxHold=true;
      setStatus('Conflicto protegido · revisión necesaria');pending=true;return false;
     }
    }
@@ -303,7 +351,15 @@ async function sync({reason='manual',write=false,force=false}={}){
    // Verified full pull can record its base only AFTER successful local apply.
    if(remoteState)await saveBase(stamp,remoteState);
    if(!equal(joined,remoteState)){
-    if(!write&&remoteState){pending=true;setStatus('Cambios locales pendientes de nube');setTimeout(()=>void sync({reason:'writeback',write:true}),500);return true}
+    // Never schedule an upload merely because an old device was opened.
+    // A durable, explicit local mutation is required to send any state.
+    if(!pending){
+      await archive('divergent-readonly:'+reason,initial);
+      await saveConflict(remoteState||{},initial,[makeConflict('not-authorized-for-write',remoteState||{},initial,joined)],stamp);
+      outboxHold=true;
+      setStatus('Diferencia conservada · subida bloqueada');return false;
+    }
+    if(!write){setStatus('Cambios locales pendientes · aún no enviados');return true}
     setStatus('Guardando en nube…');
     if(!(await capture('before-cloud-write'))){pending=true;return false}
     await outboxChain;
@@ -391,7 +447,7 @@ function onMutation(reason='change'){if(typeof cloudApplying!=='undefined'&&clou
 function flush(reason='manual'){return sync({reason,write:true,force:true})}
 function pull(reason='manual'){return sync({reason,write:false,force:true})}
 async function exportDiag(){const data={version:VERSION,at:now(),deviceId,connected:connected(),pending,lastError,status,lastAck,conflictCount,lastPersisted,lastCheck,remoteSeen,outboxHold,outboxFailure,writeConfirmedAt,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads};
- const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='VolleyCoach_sync_diagnostico_V1690.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='VolleyCoach_sync_diagnostico_V1691.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 async function exportProtected(){
  const d=await openDb();const list=await new Promise((resolve,reject)=>{const q=d.transaction(STORE,'readonly').objectStore(STORE).getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)});
  const blob=new Blob([JSON.stringify({version:VERSION,exportedAt:now(),rows:list},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='VolleyCoach_sync_copias_protegidas_V1680.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)
@@ -399,7 +455,7 @@ async function exportProtected(){
 function ensurePanel(){if(document.getElementById('vc1680-panel'))return;
  const shell=document.querySelector('#scout-workspace-v900 .v900-shell')||document.querySelector('#scout-workspace-v900');if(!shell)return;
  const el=document.createElement('section');el.id='vc1680-panel';el.style.cssText='padding:12px;background:#fff;border:1px solid #d9e2ec;border-radius:9px;margin:12px 0;font:12px Arial';
- const title=document.createElement('strong');title.textContent='Sincronización V16.9.0 · motor único';el.append(title);
+ const title=document.createElement('strong');title.textContent='Sincronización V16.9.1 · móvil sin sobrescritura';el.append(title);
  const state=document.createElement('div');state.id='vc1680-status';state.style.cssText='padding:8px 0';state.textContent=status;el.append(state);
  for(const [label,fn] of [['Guardar en nube',()=>flush('manual')],['Comprobar nube',()=>pull('manual')],['Exportar copias',()=>exportProtected()],['Diagnóstico',()=>exportDiag()]]){
   const b=document.createElement('button');b.type='button';b.className='ghost';b.style.margin='3px';b.textContent=label;b.onclick=()=>{void Promise.resolve(fn()).catch(e=>alert(String(e)))};el.append(b)
@@ -439,10 +495,14 @@ try{programarSubidaCloud=scheduleCompat;subirNube=(manual=false)=>flush(manual?'
 window.programarSubidaCloud=scheduleCompat;window.subirNube=manual=>flush(manual?'manual':'legacy-upload');window.bajarNube=manual=>pull(manual?'manual':'legacy-pull');
 // Capture every remaining local-only mutation (not just callbacks that call programarSubidaCloud).
 // This closes a historical gap where UI buttons updated memory and localStorage but not Supabase.
+let vcLastUserGesture=0;
+for(const evt of ['pointerdown','keydown','touchstart'])window.addEventListener(evt,()=>{vcLastUserGesture=Date.now()},{passive:true,capture:true});
 try{const originalLocalSave=guardarEstadoLocalSinCloud;
  if(typeof originalLocalSave==='function'&&!originalLocalSave.__v1680){
   const hooked=function(...args){const out=originalLocalSave.apply(this,args);
-    if(!cloudApplying)onMutation('local-storage-save');return out};
+    // Legacy boot/render paths call local saves even without editing.
+    // True scout-save and cloud-schedule hooks continue working independently.
+    if(!cloudApplying&&Date.now()-vcLastUserGesture<3000)onMutation('local-storage-save');return out};
   hooked.__v1680=true;guardarEstadoLocalSinCloud=hooked;window.guardarEstadoLocalSinCloud=hooked;
  }}catch(e){console.warn('VC1680 local save bridge',e)}
 
