@@ -57,7 +57,7 @@ const copy=x=>JSON.parse(JSON.stringify(x));
  remote.equiposData.cadete.scoutingMatches[0].sets[0].rallies[0].actions.push({id:'a3',type:'dig'});
  const result=mergeThree(base,local,remote);
  const ids=result.merged.equiposData.cadete.scoutingMatches[0].sets[0].rallies[0].actions.map(a=>a.id);
- assert(ids.includes('a2')&&ids.includes('a3'),'merge independent actions');
+ assert(result.conflicts.length>0,'concurrent rally edits must be blocked as conflicts');\n assert(ids.includes('a2'),'local changes must be preserved during conflict');
 }
 assert.equal(source.includes("const VERSION='16.9.2'"),true);
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('service-worker.js','utf8');
