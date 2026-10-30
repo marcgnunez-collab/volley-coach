@@ -116,7 +116,7 @@ function localState(){
  if(team&&Array.isArray(current)&&(current.length||!arr(teams[team]?.scoutingMatches).length)){
   teams[team]=teams[team]||{};
   // The active in-memory scouting is authoritative while its debounced save is pending.
-  teams[team].scoutingMatches=clone(current);
+  teams[team].scoutingMatches=clone(current).filter(m=>!teams[team].scoutingDeleted?.[String(m.id)]);
   const active=window.VC_SCOUT_VIDEO_BRIDGE?.getActiveId?.();
   if(active!==undefined&&active!==null)teams[team].scoutingActiveId=active;
  }
@@ -466,6 +466,7 @@ async function deleteScouting(team,id){
  await archive('before-delete:'+team+':'+id,localState());
  t.scoutingDeleted={...t.scoutingDeleted,[id]:now()};
  t.scoutingMatches=list.filter(m=>String(m.id)!==id);
+ if(String(typeof equipoActivo!=='undefined'?equipoActivo:'')===team)window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(t.scoutingMatches,null);
  if(String(t.scoutingActiveId)===id)t.scoutingActiveId=null;
  guardarEstadoLocalSinCloud();schedule('delete-scouting');
  if(!(await capture('delete-scouting')))throw Error('Guardado protegido fallido');
