@@ -322,19 +322,21 @@ async function sync({reason='manual',write=false,force=false}={}){
      if(head&&stampEqual(head,base.stamp)){lastCheck=Date.now();setStatus('Nube confirmada ✓');return true}}
    const remote=await readCloud();remoteReads++;lastCheck=Date.now();
    const remoteState=remote?.state?integrateScoutMirror(remote.state):null,stamp=remote?.updated_at||null;
+   const deletionSet=deletedIds(base?.state,initial,remoteState);
+   const cloudSafe=enforceDeletions(remoteState,deletionSet),localSafe=enforceDeletions(initial,deletionSet);
    let joined;
-   if(!remoteState){joined=initial}
+   if(!remoteState){joined=localSafe}
    else if(!pending){
     // Reopening a phone is a READ, never a write. Do not merge its stale
     // incidental local timestamps back over the laptop's confirmed changes.
     // Preserve copies if remote would omit any previously recorded entity.
-    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(initial,remoteState))){
+    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(localSafe,cloudSafe))){
      await archive('stale-device-protected:'+reason,initial);
      await saveConflict(remoteState,initial,[makeConflict('local records absent from cloud',initial,initial,remoteState)],stamp);
      outboxHold=true;
      setStatus('Copias distintas · exportar y revisar (sin sobrescribir)');return false;
     }
-    joined=clone(remoteState);
+    joined=clone(cloudSafe);
    }
    else if(!base&&!containsBusinessData(initial))joined=clone(remoteState);
    else {
