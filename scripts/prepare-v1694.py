@@ -25,3 +25,5 @@ sw=sw.replace("'./vc-sync-v1693.js',","'./vc-sync-v1693.js','./vc-reopen-safe-v1
 for path,content in [(html_path,html),(sw_path,sw)]:
     path.write_text(content,encoding='utf-8')
 print('Staged V16.9.4 script assets and cache.')
+
+# Guarded staging patch: run only on the feature branch.
