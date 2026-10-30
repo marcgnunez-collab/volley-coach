@@ -307,6 +307,13 @@ async function sync({reason='manual',write=false,force=false}={}){
    setStatus('Comprobando nube…');
    const revisionAtStart=changeRevision;
    const base=await loadBase(),initial=localState();
+   // Legacy UI may mutate memory without signaling the cloud bridge.
+   // Capture those edits before any cloud read can replace them.
+   if(base&&!pending&&!equal(initial,base.state)){
+    pending=true;changeRevision++;
+    if(!(await capture('untracked-local-change')))return false;
+    rerunNeeded=true;setStatus('Cambio local detectado · guardando antes de consultar');return false;
+   }
    // An unchanged cloud version requires no multi-megabyte download or archive.
    if(base&&!pending&&!force&&equal(initial,base.state)){const head=await readCloudStamp();
      if(head&&stampEqual(head,base.stamp)){lastCheck=Date.now();setStatus('Nube confirmada ✓');return true}}
@@ -318,7 +325,7 @@ async function sync({reason='manual',write=false,force=false}={}){
     // Reopening a phone is a READ, never a write. Do not merge its stale
     // incidental local timestamps back over the laptop's confirmed changes.
     // Preserve copies if remote would omit any previously recorded entity.
-    if(!remoteCoversLocal(initial,remoteState)&&!(base&&equal(initial,base.state))){
+    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(initial,remoteState))){
      await archive('stale-device-protected:'+reason,initial);
      await saveConflict(remoteState,initial,[makeConflict('local records absent from cloud',initial,initial,remoteState)],stamp);
      outboxHold=true;
@@ -346,7 +353,6 @@ async function sync({reason='manual',write=false,force=false}={}){
    const differences=!equal(initial,joined)||!equal(joined,remoteState);
    if(differences){
      await archive('before-mutation:'+reason,initial);
-     await archive('before-apply:'+reason,initial);
      if(remoteState)await archive('remote-before-merge:'+reason,remoteState);
    }
    if(!equal(initial,joined)){
