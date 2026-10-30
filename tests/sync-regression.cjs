@@ -65,4 +65,6 @@ const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('service-
 assert(html.includes('src="./vc-sync-v1693.js"'));
 assert(worker.includes("./vc-sync-v1693.js"));
 assert(html.includes('name="volley-coach-build" content="16.9.3"'));
+assert(source.includes("if(base&&!pending&&!force&&equal(initial,base.state))"),'unchanged remote stamp must not hide local differences');
+assert(source.includes("if(!remoteCoversLocal(initial,remoteState)&&!(base&&equal(initial,base.state)))"),'clean baseline should permit remote updates without false lock');
 console.log('PASS: regression checks for guarded synchronization V16.9.3');
