@@ -158,7 +158,8 @@ async function restore(){
  if(!confirm('Crear una COPIA recuperada del scouting con '+result.match.sets.length+' sets. No modifica el partido original. ¿Confirmar?'))return;
  // This export contains the complete team before inserting any imported record.
  download('VolleyCoach_ANTES_de_importar_CSV_'+team+'_'+Date.now()+'.json',{teamId:team,equipo:original,exportedAt:now(),reason:'copia-previa-importacion-csv'});
- await window.VC_SYNC_V1680?.capture?.('before-csv-restore');
+ if(!window.VC_SYNC_V1680?.capture)throw Error('Motor de guardado seguro no disponible. Importación cancelada');
+ if(!(await window.VC_SYNC_V1680.capture('before-csv-restore')))throw Error('No se pudo guardar la copia previa. Importación cancelada');
  const list=arr(original.scoutingMatches);
  if(list.some(x=>x.restoredFromCSV?.file===sourceName&&x.originMatchId===result.match.originMatchId)){
   throw Error('Ya hay una copia importada de este archivo para ese partido. No se ha duplicado.');
@@ -171,7 +172,7 @@ async function restore(){
  // Preserve the complete imported version before any cloud attempt.
  if(typeof guardarEstadoLocalSinCloud==='function')guardarEstadoLocalSinCloud();
  window.VC_SYNC_V1680?.onMutation?.('csv-restored-copy');
- await window.VC_SYNC_V1680?.capture?.('csv-restored-copy');
+ if(!(await window.VC_SYNC_V1680.capture('csv-restored-copy')))throw Error('El scouting se creó en memoria pero no se pudo confirmar su guardado local. Conserva la copia JSON antes de cerrar');
  alert('Copia recuperada creada: '+result.match.sets.length+' sets. Está guardada localmente y pendiente de confirmar en nube. Abre «Archivo de scoutings» para consultarla.');
  if(window.VC_ARCHIVE?.open)void window.VC_ARCHIVE.open();
 }

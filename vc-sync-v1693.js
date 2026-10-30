@@ -15,7 +15,10 @@ const own=(o,k)=>obj(o)&&Object.prototype.hasOwnProperty.call(o,k)?o[k]:MISSING;
 function keyFor(x,kind){if(!obj(x))return null;const v=kind==='seasonPlan'?x.weekStart:kind==='sets'?x.number:x.id;return v===undefined||v===null||v===''?null:String(v)}
 function containsBusinessData(s){if(!obj(s))return false;const es=obj(s.equiposData)?Object.values(s.equiposData):[];return es.some(t=>['jugadores','historial','planificacion','partidos','scoutingMatches','teamGoals','seasonPlan','plantillas'].some(k=>arr(t?.[k]).length>0))}
 function makeConflict(path,b,l,r){return {path,base:b===MISSING?null:clone(b),local:l===MISSING?null:clone(l),remote:r===MISSING?null:clone(r),localMissing:l===MISSING,remoteMissing:r===MISSING}}
+function deletedIds(...states){const out={};for(const st of states){for(const [team,t] of Object.entries(st?.equiposData||{})){for(const [id,time] of Object.entries(t?.scoutingDeleted||{})){if(time){(out[team]??={})[id]=String(time)}}}}return out}
+function enforceDeletions(st,deleted){if(!st)return st;st=clone(st);for(const [team,ids] of Object.entries(deleted)){const t=st.equiposData?.[team];if(!t)continue;t.scoutingDeleted={...(t.scoutingDeleted||{}),...ids};t.scoutingMatches=arr(t.scoutingMatches).filter(m=>!ids[String(m.id)]);if(ids[String(t.scoutingActiveId)])t.scoutingActiveId=null}return st}
 function mergeThree(base,local,remote){
+ const deleted=deletedIds(base,local,remote);base=enforceDeletions(base,deleted);local=enforceDeletions(local,deleted);remote=enforceDeletions(remote,deleted);
  const conflicts=[];
  function visit(b,l,r,path='',key=''){
   // An unexplained disappearance from the remote scouting archive is never applied.
@@ -89,7 +92,7 @@ function mergeThree(base,local,remote){
   conflicts.push(makeConflict(path,b,l,r));return clone(l);
  }
  const merged=visit(base===undefined?MISSING:base,local===undefined?MISSING:local,remote===undefined?MISSING:remote);
- return {merged,conflicts};
+ return {merged:enforceDeletions(merged,deleted),conflicts};
 }
 let database=null,dbPromise=null;
 function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{
@@ -113,7 +116,7 @@ function localState(){
  if(team&&Array.isArray(current)&&(current.length||!arr(teams[team]?.scoutingMatches).length)){
   teams[team]=teams[team]||{};
   // The active in-memory scouting is authoritative while its debounced save is pending.
-  teams[team].scoutingMatches=clone(current);
+  teams[team].scoutingMatches=clone(current).filter(m=>!teams[team].scoutingDeleted?.[String(m.id)]);
   const active=window.VC_SCOUT_VIDEO_BRIDGE?.getActiveId?.();
   if(active!==undefined&&active!==null)teams[team].scoutingActiveId=active;
  }
@@ -319,19 +322,21 @@ async function sync({reason='manual',write=false,force=false}={}){
      if(head&&stampEqual(head,base.stamp)){lastCheck=Date.now();setStatus('Nube confirmada ✓');return true}}
    const remote=await readCloud();remoteReads++;lastCheck=Date.now();
    const remoteState=remote?.state?integrateScoutMirror(remote.state):null,stamp=remote?.updated_at||null;
+   const deletionSet=deletedIds(base?.state,initial,remoteState);
+   const cloudSafe=enforceDeletions(remoteState,deletionSet),localSafe=enforceDeletions(initial,deletionSet);
    let joined;
-   if(!remoteState){joined=initial}
+   if(!remoteState){joined=localSafe}
    else if(!pending){
     // Reopening a phone is a READ, never a write. Do not merge its stale
     // incidental local timestamps back over the laptop's confirmed changes.
     // Preserve copies if remote would omit any previously recorded entity.
-    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(initial,remoteState))){
+    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(localSafe,cloudSafe))){
      await archive('stale-device-protected:'+reason,initial);
      await saveConflict(remoteState,initial,[makeConflict('local records absent from cloud',initial,initial,remoteState)],stamp);
      outboxHold=true;
      setStatus('Copias distintas · exportar y revisar (sin sobrescribir)');return false;
     }
-    joined=clone(remoteState);
+    joined=clone(cloudSafe);
    }
    else if(!base&&!containsBusinessData(initial))joined=clone(remoteState);
    else {
@@ -452,6 +457,21 @@ async function restoreMissing(candidates){
   return {added,skipped};
  }finally{pauseWrites=false}
 }
+async function deleteScouting(team,id){
+ team=String(team);id=String(id);
+ if(!userId()||outboxHold||pauseWrites)throw Error('Borrado bloqueado hasta sincronizar');
+ if(working)await working;
+ const t=equiposData?.[team],list=arr(t?.scoutingMatches);
+ if(!list.some(m=>String(m.id)===id))throw Error('Scouting inexistente');
+ await archive('before-delete:'+team+':'+id,localState());
+ t.scoutingDeleted={...t.scoutingDeleted,[id]:now()};
+ t.scoutingMatches=list.filter(m=>String(m.id)!==id);
+ if(String(typeof equipoActivo!=='undefined'?equipoActivo:'')===team)window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(t.scoutingMatches,null);
+ if(String(t.scoutingActiveId)===id)t.scoutingActiveId=null;
+ guardarEstadoLocalSinCloud();schedule('delete-scouting');
+ if(!(await capture('delete-scouting')))throw Error('Guardado protegido fallido');
+ return true;
+}
 function onMutation(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
  schedule(reason);
 }
@@ -497,7 +517,7 @@ function boot(){ensurePanel();connect();if(connected())void sync({reason:'startu
  pollLoop();
 }
 window.VC_SYNC_V1680={version:VERSION,onMutation,flush,pull,sync,connect,capture,exportProtected,exportDiag,restoreMissing,initializeAccount,
- mergeThree,remoteCoversLocal,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
+ mergeThree,remoteCoversLocal,deleteScouting,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
 window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty:()=>{schedule('legacy-mark')},sync:options=>sync({reason:options?.reason||'legacy',write:options?.allowWrite!==false&&!options?.pullOnly}),forceSync:flush,diagnostics:()=>({...window.VC_SYNC_V1680.diagnostics(),dirty:pending,lastWriteAt:lastPersisted,compareAndSwap:true})};
 window.VC_DEVICE_SYNC={version:VERSION,connect,broadcast:()=>{},notifyCloudChanged:notify,diagnostics:()=>({deviceId,realtimeState:realtimeStatus,cloudConnected:connected()})};
 window.v962ForceSync=flush;window.v953SyncNow=flush;window.v956SyncScoutingsNow=flush;window.v957SyncScoutingsNow=flush;window.v138SyncNow=pull;
