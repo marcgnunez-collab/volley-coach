@@ -60,13 +60,25 @@ const copy=x=>JSON.parse(JSON.stringify(x));
  assert(result.conflicts.length>0,'concurrent rally edits must be blocked as conflicts');
  assert(ids.includes('a2'),'local changes must be preserved during conflict');
 }
+{
+ const base=data(),local=copy(base),remote=copy(base);
+ local.equiposData.cadete.scoutingDeleted={'7':'2026-10-30T17:00:00.000Z'};
+ const result=mergeThree(base,local,remote);
+ assert.equal(result.merged.equiposData.cadete.scoutingMatches.length,0,'deleted match cannot return from stale cloud');
+ assert.equal(result.merged.equiposData.cadete.scoutingDeleted['7'],'2026-10-30T17:00:00.000Z');
+}
+{
+ const base=data(),local=copy(base),remote=copy(base);
+ remote.equiposData.cadete.scoutingDeleted={'7':'2026-10-30T17:00:00.000Z'};
+ assert.equal(mergeThree(base,local,remote).merged.equiposData.cadete.scoutingMatches.length,0,'remote delete must win over stale local match');
+}
 assert.equal(source.includes("const VERSION='16.9.3'"),true);
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('service-worker.js','utf8');
 assert(html.includes('src="./vc-sync-v1693.js"'));
 assert(worker.includes("./vc-sync-v1693.js"));
 assert(html.includes('name="volley-coach-build" content="16.9.4"'));
 assert(source.includes("if(base&&!pending&&!force&&equal(initial,base.state))"),'unchanged remote stamp must not hide local differences');
-assert(source.includes("if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(initial,remoteState)))"),'untracked differences must block unsafe replacement while baseline reads remain allowed');
+assert(source.includes("if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(localSafe,cloudSafe)))"),'untracked differences must block unsafe replacement while baseline reads remain allowed');
 // A local value can change even if every remote field is still present.
 {
  const base=data(),local=copy(base),remote=copy(base);
