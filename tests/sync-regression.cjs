@@ -9,7 +9,7 @@ assert(start>0&&end>start,'Merge helpers missing');
 const guardStart=source.indexOf("function remoteCoversLocal(");
 const guardEnd=source.indexOf("\nasync function sync(",guardStart);
 assert(guardStart>0&&guardEnd>guardStart,'Remote coverage guard missing');
-const core=source.slice(start,end)+'\n'+source.slice(guardStart,guardEnd)+
+const core="const MISSING=Symbol('missing');\n"+source.slice(start,end)+'\n'+source.slice(guardStart,guardEnd)+
  '\nthis.testApi={mergeThree,remoteCoversLocal};';
 const context={console,Date,JSON,Map,Set,Symbol,Array,Object,Number,String};
 vm.runInNewContext(core,context,{timeout:3000});
