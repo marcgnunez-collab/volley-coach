@@ -1,9 +1,9 @@
-/* Volley Coach V16.7.5 · PWA estable y anti-retroceso.
+/* Volley Coach V16.7.0 · PWA estable y anti-retroceso.
    Solo activa esta revisión cuando el HTML publicado es de la misma versión.
    Los datos de entrenamiento/scouting se conservan en storage y Supabase. */
 'use strict';
-const BUILD='16.7.5';
-const CACHE_NAME='volley-coach-v16.7.5-stable-pwa';
+const BUILD='16.7.0';
+const CACHE_NAME='volley-coach-v16.7.0-stable-pwa';
 const PAGE='./index.html';
 const ASSETS=['./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 const EXTRA=['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js','https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
