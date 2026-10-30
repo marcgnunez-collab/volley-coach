@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="volley-coach-build" content="16.7.0" />
+<meta name="volley-coach-build" content="16.7.5" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Volley Coach | Dossier Táctico Profesional</title>
@@ -920,7 +920,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 </style>
 </head>
 <body class="v11-shell">
-<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V16.7.0 · SCOUTING Y VÍDEO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
+<header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V16.7.5 · SCOUTING Y VÍDEO</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
     <button class="ghost cloud-close" onclick="cerrarCloud()">✕</button>
@@ -4585,6 +4585,15 @@ const DEFAULT_CLOUD_URL='https://iyoxalmcboeomnqgbxdi.supabase.co';
 const DEFAULT_CLOUD_KEY='sb_publishable_PsRLv4V2ZG9CjuIcGK0o2g_h8dlLW_z';
 function estadoLocal(){
   guardarEquipoEnMemoria();
+  /* V16.7.5: the active scouting can be newer than equiposData because its
+     lightweight journal has not completed the debounced whole-state commit. */
+  try{
+    const live=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.();
+    if(Array.isArray(live)&&live.length&&equiposData?.[equipoActivo]){
+      equiposData[equipoActivo].scoutingMatches=window.VC_SYNC_SAFE?.merge?.(
+        equiposData[equipoActivo].scoutingMatches,live,String(equipoActivo),'before-cloud-upload')||clonar(live);
+    }
+  }catch(e){console.warn('V16.7.5 active-state upload protection',e)}
   /* V15.2.4: no duplicar biblioteca ni scoutings dentro del payload cloud.
      equiposData ya contiene scoutingMatches y bibliotecaCompartida es la copia canónica. */
   return {version:15.23,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaBorrados:clonar(cargarBorradosBiblioteca()),bibliotecaVersion:1,equiposData:clonar(equiposData),updatedAt:new Date().toISOString()}
@@ -4596,6 +4605,7 @@ function scoutGenericCounts(m){
 }
 function scoutGenericStamp(m){for(const x of [m?.updatedAt,m?.manualSavedAt,m?.resultCompleteAt,m?.endedAt,m?.createdAt,m?.date]){const t=Date.parse(x||'');if(Number.isFinite(t))return t}return 0}
 function fusionarScoutingsSeguros(localList,remoteList){
+  if(window.VC_SYNC_SAFE?.merge)return window.VC_SYNC_SAFE.merge(localList,remoteList,String(equipoActivo||'equipo'),'cloud-legacy');
   const map=new Map();
   [...(Array.isArray(localList)?localList:[]),...(Array.isArray(remoteList)?remoteList:[])].forEach(m=>{
     const id=Number(m?.id);if(!id)return;const prev=map.get(id);if(!prev){map.set(id,clonar(m));return}
@@ -4609,11 +4619,22 @@ function fusionarScoutingsSeguros(localList,remoteList){
 
 function aplicarEstadoCloud(s){
   if(!s)return;
+  try{window.VC_SYNC_SAFE?.beforeCloud?.(s)}catch(_){}
   cloudApplying=true;
   const eraAnterior=!(Array.isArray(s.bibliotecaCompartida)&&s.equiposData);
   const conv=convertirEstadoPersistido(s);
   if(!conv){cloudApplying=false;return}
   const equiposAntes=clonar(equiposData||{});
+  /* V16.7.5: preserve uncommitted active rallies before cloud replacement. */
+  try{
+    const live=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.();
+    if(Array.isArray(live)&&live.length){
+      const id=String(equipoActivo);
+      equiposAntes[id]=equiposAntes[id]||{};
+      equiposAntes[id].scoutingMatches=window.VC_SYNC_SAFE?.merge?.(
+        equiposAntes[id].scoutingMatches,live,id,'pre-cloud-active')||clonar(live);
+    }
+  }catch(e){console.warn('V16.7.5 cloud apply protection',e)}
   const bibliotecaAntes=clonar(baseDeDatos||[]),bibliotecaNube=fusionarBibliotecas(conv.bibliotecaCompartida||[],Array.isArray(s.bibliotecaIndependiente)?s.bibliotecaIndependiente:[]),tamNube=bibliotecaNube.length;
   if(Array.isArray(s.bibliotecaBorrados)&&s.bibliotecaBorrados.length){guardarBorradosBiblioteca([...cargarBorradosBiblioteca(),...s.bibliotecaBorrados])}
   baseDeDatos=bibliotecaFusionadaSegura(bibliotecaAntes,bibliotecaNube);migrarFundamentos();
@@ -5893,12 +5914,12 @@ renderCompetition();renderPlanificacion();
 </script>
 
 <script id="vc-pwa-stable-update-v1661">
-/* V16.7.0 · Actualización PWA coherente y sin recargas por ETag.
+/* V16.7.4 · Actualización PWA coherente y sin recargas por ETag.
    La revisión del código (Service Worker) es independiente de la sincronización cloud. */
 (()=>{
   'use strict';
-  const BUILD='16.7.0';
-  const SW_URL='./service-worker.js?v=16.7.0';
+  const BUILD='16.7.5';
+  const SW_URL='./service-worker.js?v=16.7.5';
   const RECHECK_MS=10*60*1000;
   let registration=null,lastCheck=0,reloadPending=false,reloading=false;
   const diag={version:BUILD,worker:null,lastCheck:null,pending:false,updated:false,lastError:null};
@@ -5962,7 +5983,7 @@ renderCompetition();renderPlanificacion();
     catch(e){diag.lastError=String(e?.message||e)}
     finally{await checkController()}
   }
-  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.7.0-stable-pwa'}),check:()=>check(true)};
+  window.VC_PWA_VERSION={version:BUILD,diagnostics:()=>({...diag,controlled:!!navigator.serviceWorker?.controller,cacheVersion:'volley-coach-v16.7.4-stable-pwa'}),check:()=>check(true)};
   if(!('serviceWorker' in navigator))return;
   navigator.serviceWorker.addEventListener('controllerchange',()=>void checkController());
   window.addEventListener('load',async()=>{
@@ -25322,6 +25343,155 @@ window.VC_V952_SESSION_FIX={
 
 
 
+<script id="v1674-sync-guard">
+/* Volley Coach V16.7.4 · Escudo de datos de scouting.
+   Adición compatible con V16.7.0: ninguna versión desplazada se elimina sin dejar copia.
+   No escribe ni borra datos de Supabase por sí misma. */
+(()=>{
+'use strict';
+if(window.VC_SYNC_SAFE)return;
+const DB_NAME='VolleyCoachProtectedScoutingV1674',STORE='versions',FALLBACK_PREFIX='vc1675_branch_';
+const arr=x=>Array.isArray(x)?x:[];
+const clone=x=>{try{return structuredClone(x)}catch(_){try{return JSON.parse(JSON.stringify(x))}catch(__){return x}}};
+const stamp=x=>{const t=Date.parse(x?.updatedAt||x?.editedAt||x?.manualSavedAt||x?.endedAt||x?.createdAt||'');return Number.isFinite(t)?t:0};
+const count=m=>{const sets=arr(m?.sets),rallies=sets.reduce((n,s)=>n+arr(s?.rallies).length,0),actions=sets.reduce((n,s)=>n+arr(s?.rallies).reduce((z,r)=>z+arr(r?.actions).length,0),0)+arr(m?.liveRally?.actions).length;return{sets:sets.length,rallies,actions}};
+const contentKey=m=>{try{return JSON.stringify([m?.status,m?.sets,m?.liveRally,m?.events,m?.video,m?.manualFinalResult])}catch(_){return String(m?.updatedAt||'')}};
+const hash=s=>{let n=2166136261>>>0;for(let i=0;i<s.length;i++)n=Math.imul(n^s.charCodeAt(i),16777619)>>>0;return n.toString(36)+'-'+s.length};
+const matchKey=m=>{const team=String(m?.__team||'');return team+':'+String(m?.id||'')};
+let dbPromise=null, lastError='', captured=0, mergeConflicts=0;
+function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{if(!('indexedDB'in window))return reject(new Error('IndexedDB no disponible'));const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'key'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Error al abrir archivo de protección'))}).catch(err=>{dbPromise=null;lastError=String(err);throw err});return dbPromise}
+async function remember(m,teamId,reason='checkpoint'){
+ if(!m||!Number(m.id))return false;
+ const rec=clone(m),keyContent=contentKey(rec),key=String(teamId||'equipo')+':'+String(rec.id)+':'+hash(keyContent);
+ const row={key,teamId:String(teamId||'equipo'),matchId:Number(rec.id),source:String(reason),savedAt:new Date().toISOString(),contentHash:hash(keyContent),counts:count(rec),match:rec};
+ try{const db=await openDb();return await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(row);tx.oncomplete=()=>{captured++;resolve(true)};tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)})}catch(e){lastError=String(e?.message||e);console.warn('V16.7.4 copia protegida',e);return false}
+}
+async function versions(){
+ let rows=[];try{const db=await openDb();rows=await new Promise((resolve,reject)=>{const req=db.transaction(STORE,'readonly').objectStore(STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error)})}catch(_){}
+ try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(FALLBACK_PREFIX)){const x=JSON.parse(localStorage.getItem(k)||'null');if(x?.match)rows.push(x)}}}catch(_){}
+ return rows;
+}
+function capture(m,team,reason){if(m&&Number(m.id))void remember(m,team,reason)}
+function isUndo(newer,older){
+ // An absent rally is ambiguous (undo or truncated/stale transfer).
+ // Only a deliberate user action recorded on this version proves the deletion.
+ const action=Number(newer?.v1674UndoAt)||0,previous=Number(older?.v1674UndoAt)||0;
+ return action>0&&action>previous&&stamp(newer)>=stamp(older);
+}
+
+function byNumber(m){return new Map(arr(m?.sets).map((s,i)=>[Number(s?.number)||i+1,s]))}
+function rallyIds(s){return arr(s?.rallies).map(r=>String(r?.id||''))}
+function prefix(short,long){return short.length<=long.length&&short.every((id,i)=>id===long[i])}
+const collisionKeys=new Set(),confirmedKeys=new Set();const conflicts=[];
+function reportConflict(current,incoming,teamId,reason){
+ const id=String(teamId)+':'+String(current?.id||incoming?.id);
+ const a=hash(contentKey(current)),b=hash(contentKey(incoming));
+ const k=id+':'+[a,b].sort().join(':');if(collisionKeys.has(k)||confirmedKeys.has(k))return;
+ collisionKeys.add(k);const c={key:k,teamId:String(teamId),matchId:Number(current?.id||incoming?.id)||0,
+  reason:String(reason),at:new Date().toISOString(),localHash:a,remoteHash:b,
+  local:count(current),incoming:count(incoming)};
+ conflicts.push(c);if(conflicts.length>100)conflicts.shift();
+ // A synchronous fallback remains readable by the Archive if the page closes before IndexedDB writes finish.
+ try{const key=FALLBACK_PREFIX+String(teamId)+':'+String(c.matchId)+':'+k.split(':').slice(-2).join('-');
+  const rec={key,teamId:String(teamId),matchId:c.matchId,source:'Conflicto protegido (respaldo local)',savedAt:c.at,match:clone(incoming)};
+  localStorage.setItem(key,JSON.stringify(rec));
+ }catch(e){lastError='No se pudo escribir respaldo síncrono; exporta las copias antes de cerrar: '+String(e?.message||e)}
+ try{window.dispatchEvent(new CustomEvent('vc:sync-conflict',{detail:c}))}catch(_){}
+}
+function compareHistories(current,incoming){
+ const am=byNumber(current),bm=byNumber(incoming),nums=new Set([...am.keys(),...bm.keys()]);
+ let aGrows=false,bGrows=false,divergent=false;
+ nums.forEach(n=>{
+  const sa=am.get(n),sb=bm.get(n),as=rallyIds(sa),bs=rallyIds(sb);
+  if(!sa&&sb){bGrows=true;return}if(sa&&!sb){aGrows=true;return}
+  if(prefix(as,bs)){if(bs.length>as.length)bGrows=true}
+  else if(prefix(bs,as)){if(as.length>bs.length)aGrows=true}
+  else divergent=true;
+ });
+ return {aGrows,bGrows,divergent};
+}
+function keepExtras(chosen,other){
+ const out=clone(chosen);
+ // Media links and clips are additive; no recording from the other device is discarded.
+ if(other?.video&&typeof other.video==='object'){
+  const ours=out.video&&typeof out.video==='object'?out.video:{};
+  const rem=other.video;
+  const clips=new Map();[...arr(rem.clips),...arr(ours.clips)].forEach(c=>{const key=String(c?.id||c?.sourceKey||hash(JSON.stringify(c)));if(!clips.has(key))clips.set(key,clone(c))});
+  out.video={...clone(rem),...clone(ours),syncProfiles:{...(rem.syncProfiles||{}),...(ours.syncProfiles||{})},clips:[...clips.values()]};
+ }
+ // This is safe only for independent event records identified by stable IDs.
+ const e=new Map();[...arr(other?.events),...arr(out.events)].forEach(v=>{const id=String(v?.id||hash(JSON.stringify(v)));if(!e.has(id))e.set(id,clone(v))});
+ if(e.size)out.events=[...e.values()];
+ return out;
+}
+function prefer(current,incoming,teamId,reason){
+ if(!current)return clone(incoming);if(!incoming)return clone(current);
+ const a=count(current),b=count(incoming),sa=stamp(current),sb=stamp(incoming),unchanged=contentKey(current)===contentKey(incoming);
+ if(unchanged)return keepExtras(sb>sa?incoming:current,sb>sa?current:incoming);
+ capture(current,teamId,reason+':before');capture(incoming,teamId,reason+':received');mergeConflicts++;
+ const undoIncoming=isUndo(incoming,current),undoCurrent=isUndo(current,incoming);
+ if(undoIncoming&&!undoCurrent)return keepExtras(incoming,current);
+ if(undoCurrent&&!undoIncoming)return keepExtras(current,incoming);
+ const rel=compareHistories(current,incoming);
+ if(!rel.divergent&&rel.aGrows&&rel.bGrows){
+  // Concurrent work in DIFFERENT sets is independent and can be merged.
+  const newer=sb>sa?incoming:current,older=newer===incoming?current:incoming;
+  const merged=keepExtras(newer,older),sm=byNumber(current),tm=byNumber(incoming);
+  merged.sets=[...new Set([...sm.keys(),...tm.keys()])].sort((x,y)=>x-y).map(n=>{
+   const first=sm.get(n),second=tm.get(n);if(!first)return clone(second);if(!second)return clone(first);
+   const f=rallyIds(first),g=rallyIds(second);
+   if(prefix(f,g)&&g.length>f.length)return clone(second);
+   if(prefix(g,f)&&f.length>g.length)return clone(first);
+   return clone(newer===incoming?second:first);
+  });
+  return merged;
+ }
+ if(rel.divergent){
+  // Two devices changed different branches of the same match. Never auto-delete a branch.
+  reportConflict(current,incoming,teamId,reason);
+  // Prefer active/local visible match until the coach chooses a correction in Recovery.
+  return keepExtras(current,incoming);
+ }
+ if(rel.bGrows&&!rel.aGrows)return keepExtras(incoming,current);
+ if(rel.aGrows&&!rel.bGrows)return keepExtras(current,incoming);
+ // Two scorers can register independent ACTIONS in the same ongoing rally.
+ const aLive=current?.liveRally,bLive=incoming?.liveRally;
+ if(aLive&&bLive&&String(aLive.id)===String(bLive.id)&&
+   arr(current.sets).every((s,i)=>rallyIds(s).join(',')===rallyIds(incoming.sets?.[i]).join(','))){
+  const aa=arr(aLive.actions),bb=arr(bLive.actions);
+  const ids=new Map();[...aa,...bb].forEach(x=>{const id=String(x?.id||hash(JSON.stringify(x)));if(!ids.has(id))ids.set(id,clone(x))});
+  if(ids.size>Math.max(aa.length,bb.length)){
+   const newer=sb>sa?incoming:current,older=newer===incoming?current:incoming;
+   const merged=keepExtras(newer,older);
+   merged.liveRally={...clone(newer.liveRally),actions:[...ids.values()].sort((a,b)=>(Number(a.scoutMs)||0)-(Number(b.scoutMs)||0)||(Number(a.seq)||0)-(Number(b.seq)||0)).map((a,i)=>({...a,seq:i+1}))};
+   return merged;
+  }
+ }
+ // Same history; editing an existing rally or different metadata. Both snapshots archived.
+ if(sb!==sa)return keepExtras(sb>sa?incoming:current,sb>sa?current:incoming);
+ // Stable tie without silently dropping video clips or match events.
+ return keepExtras(current,incoming);
+}
+
+function mergeMany(lists,tombs=[],teamId='equipo',reason='merge'){
+ const deleted=new Map();arr(tombs).forEach(t=>{const id=Number(t?.id??t),time=Number(t?.at)||0;if(id)deleted.set(id,Math.max(deleted.get(id)||0,time))});
+ const map=new Map();arr(lists).forEach(list=>arr(list).forEach(m=>{const id=Number(m?.id)||0;if(!id)return;const at=deleted.get(id)||0;if(at&&at>=stamp(m)){capture(m,teamId,reason+':deleted');return}const prev=map.get(id);map.set(id,prev?prefer(prev,m,teamId,reason):clone(m))}));
+ return [...map.values()].sort((a,b)=>stamp(b)-stamp(a));
+}
+function merge(a,b,teamId='equipo',reason='merge',tombs=[]){return mergeMany([a,b],tombs,teamId,reason)}
+function beforeCloud(state){try{
+  const remote=state?.equiposData||{},index=state?.scoutingSyncIndex||{};
+  for(const team of new Set([...Object.keys(equiposData||{}),...Object.keys(remote),...Object.keys(index)])){
+   const local=team===String(equipoActivo)?(typeof scoutingMatches!=='undefined'?scoutingMatches:[]):[];
+   [...arr(local),...arr(equiposData?.[team]?.scoutingMatches),...arr(remote?.[team]?.scoutingMatches),...arr(index?.[team])].forEach(m=>capture(m,team,'pre-cloud-apply'));
+  }
+ }catch(err){console.warn('V16.7.4 precloud',err)}}
+function tagUndo(m){if(!m)return;const now=Date.now();m.v1674UndoAt=now;m.updatedAt=new Date(now).toISOString();}
+function confirmCurrent(){conflicts.forEach(c=>confirmedKeys.add(c.key));conflicts.length=0;try{window.dispatchEvent(new CustomEvent('vc:sync-conflict-resolved'))}catch(_){}return true;}
+window.VC_SYNC_SAFE={version:'16.7.5',merge,mergeMany,prefer,remember,versions,capture,beforeCloud,count,tagUndo,confirmCurrent,conflicts:()=>conflicts.slice(),unresolved:()=>conflicts.length,diagnostics:()=>({captured,mergeConflicts,unresolved:conflicts.length,lastError,db:DB_NAME})};
+})();
+
+</script>
 <script id="v953-training-cloud-sync-runtime">
 (()=>{
 'use strict';
@@ -25393,6 +25563,7 @@ function scoutRichness956(m){
   return c.actions*100000+c.rallies*1000+c.finishedSets*100+c.sets*10+c.events;
 }
 function mergeScoutings956(local,remote,tombstones=[]){
+  if(window.VC_SYNC_SAFE?.merge)return window.VC_SYNC_SAFE.merge(local,remote,String(equipoActivo||'equipo'),'cloud-training',tombstones);
   const deleted=tombstoneMap(tombstones),map=new Map();
   const add=(m,source)=>{
     if(!m||m.id==null)return;
@@ -25459,7 +25630,7 @@ function mergeTeam(local,remote){
 
   /* Preserve module-specific fields from both sides. Local wins ties. */
   ['seasonPlan','teamGoals','scoutingGamePlans','scoutLineupTemplatesV690','scoutRivalProfilesV6100'].forEach(k=>{
-    if(Array.isArray(local[k])||Array.isArray(remote[k]))out[k]=mergeRecords(local[k],remote[k]);
+    if(Array.isArray(local[k])||Array.isArray(remote[k]))out[k]=k==='seasonPlan'?(()=>{const result=new Map();[...((Array.isArray(remote[k])?remote[k]:[])),...((Array.isArray(local[k])?local[k]:[]))].forEach(r=>{const key=String(r?.weekStart||'');if(!key)return;const p=result.get(key);if(!p||recordStamp(r)>=recordStamp(p))result.set(key,clone(r))});return [...result.values()].sort((a,b)=>String(a.weekStart).localeCompare(String(b.weekStart)))})():mergeRecords(local[k],remote[k]);
   });
   /* V15.2.6: team profile is a mutable object, not an array. The older merge
      always preferred the local object, so roles/liberos/lineups edited on
@@ -26387,7 +26558,8 @@ function tombMap(...lists){
 function tombList(map){
   return [...map.entries()].map(([id,at])=>({id,at})).sort((a,b)=>b.at-a.at).slice(0,500);
 }
-function mergeScoutLists(lists,tombs){
+function mergeScoutLists(lists,tombs,teamId=equipoActivo){
+  if(window.VC_SYNC_SAFE?.mergeMany)return window.VC_SYNC_SAFE.mergeMany(lists,tombs,String(teamId||'equipo'),'canonical-sync');
   const deleted=tombMap(tombs),map=new Map();
   lists.forEach((list,listIndex)=>{
     (Array.isArray(list)?list:[]).forEach(m=>{
@@ -26437,7 +26609,7 @@ function collectCanonical(remoteState){
     tombsByTeam[teamId]=tombList(tombs);
     index[teamId]=mergeScoutLists(
       [...currentLocalLists(teamId),rt.scoutingMatches||[],remoteIndex?.[teamId]||[]],
-      tombsByTeam[teamId]
+      tombsByTeam[teamId],teamId
     );
   });
   return {index,tombsByTeam};
@@ -26509,7 +26681,7 @@ async function syncCanonical({upload=true,quiet=false}={}){
         const remoteIdx=remote.state.scoutingSyncIndex||{};
         const ids=new Set([...Object.keys(remoteTeams),...Object.keys(remoteIdx)]);
         ids.forEach(teamId=>{
-          rawRemoteIndex[teamId]=mergeScoutLists([remoteIdx?.[teamId]||[],remoteTeams?.[teamId]?.scoutingMatches||[]],remoteTeams?.[teamId]?.v956DeletedScoutIds||[]);
+          rawRemoteIndex[teamId]=mergeScoutLists([remoteIdx?.[teamId]||[],remoteTeams?.[teamId]?.scoutingMatches||[]],remoteTeams?.[teamId]?.v956DeletedScoutIds||[],teamId);
         });
         const remoteSig=canonicalSignature(rawRemoteIndex);
         if(remoteSig!==after||!remote.state.scoutingSyncIndex)await uploadCanonical(canonical,remote.state);
@@ -26896,7 +27068,7 @@ function stampMs(s){
   t=t.replace(/(\.\d{3})\d+/,'$1');                             /* microsegundos → milisegundos */
   return Date.parse(t);
 }
-function sameStamp(a,b){const x=stampMs(a),y=stampMs(b);if(Number.isFinite(x)&&Number.isFinite(y))return x===y;return String(a||'')===String(b||'')}
+function sameStamp(a,b){if(String(a||'')===String(b||''))return true;const x=stampMs(a),y=stampMs(b);if(!Number.isFinite(x)||!Number.isFinite(y)||x!==y)return false;const us=v=>(String(v||'').match(/\.(\d+)/)?.[1]||'').padEnd(6,'0').slice(0,6);return us(a)===us(b)}
 function hashText(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return s.length+':'+h}
 function fingerprint(state){try{const c={...state};delete c.updatedAt;delete c.v138SyncMeta;return hashText(JSON.stringify(c))}catch(_){return ''}}
 function staleError(){const e=new Error('La nube cambió mientras se guardaba');e.code='VC_STALE';return e}
@@ -26978,6 +27150,10 @@ async function readRemoteStamp(){
 /* expectedRaw = updated_at EXACTO (texto del servidor) de la versión sobre la que se basa este guardado.
    Si alguien ha escrito después, el UPDATE no afecta a ninguna fila → VC_STALE (y se fusiona de nuevo). */
 async function writeRemote(state,expectedRaw){
+  if(window.VC_SYNC_SAFE?.unresolved?.()>0){
+    const e=new Error('Dos dispositivos han modificado el mismo scouting en paralelo. Ambas copias están protegidas. Abre Archivo de scoutings y revisa el conflicto antes de seguir guardando en nube.');
+    e.code='VC_BRANCH_CONFLICT';throw e;
+  }
   const protectedLocally=await window.VolleySafeCheckpoint?.checkpoint(state,'before-cloud-write');
   if(protectedLocally===false)throw new Error('No se pudo proteger el estado antes de subirlo');
   const uid=cloudUser.id,stampNow=new Date().toISOString(),table=()=>cloudClient.from('volley_state');
@@ -29995,6 +30171,7 @@ const $=id=>document.getElementById(id),now=()=>Date.now(),clone=v=>{try{return 
 const isMobile=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 function makeId(){try{return crypto.randomUUID()}catch(_){return 'dev_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10)}}
 const deviceId=localStorage.getItem(DEVICE_KEY)||makeId();localStorage.setItem(DEVICE_KEY,deviceId);const defaultName=isMobile()?'Móvil':'Portátil / PC',deviceName=localStorage.getItem(DEVICE_NAME_KEY)||defaultName;localStorage.setItem(DEVICE_NAME_KEY,deviceName);
+let appliedSeq={};
 let seq=Number(localStorage.getItem('vc_v138_device_seq'))||0,lastChangedAt=Number(localStorage.getItem('vc_v138_device_changed'))||0,channel=null,channelUser='',rtState='offline',lastRemoteAt=0,lastRemoteDevice='',lastRemoteName='',lastPullAt=0,pollTimer=null,remoteSyncTimer=null,fastTimer=null,fastApplying=false,localPersistTimer=null,knownDevices={};
 try{knownDevices=JSON.parse(localStorage.getItem('vc_v138_known_devices')||'{}')||{}}catch(_){knownDevices={}}
 function active(){try{return window.MatchState?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
@@ -30015,7 +30192,12 @@ function findLocalMatch(teamId,matchId){const t=equiposData?.[teamId],list=Array
 function applyPatchToMatch(m,p){if(!m||!p)return false;const reserved=new Set(['set','setIndex','setSummaries','updatedAt','remoteUpdatedAt']);Object.keys(p).forEach(k=>{if(!reserved.has(k)&&p[k]!==undefined)m[k]=clone(p[k])});if(p.remoteUpdatedAt && (!m.updatedAt || Date.parse(p.remoteUpdatedAt)>=Date.parse(m.updatedAt)))m.updatedAt=String(p.remoteUpdatedAt);if(p.set){m.sets=Array.isArray(m.sets)?m.sets:[];const idx=Math.max(0,Number(p.setIndex)||0);m.sets[idx]=clone(p.set)}if(Array.isArray(p.setSummaries)){m.sets=Array.isArray(m.sets)?m.sets:[];p.setSummaries.forEach((s,i)=>{if(!s)return;if(!m.sets[i])m.sets[i]={};['scoreUs','scoreOpponent','finished','winner','number','setNo'].forEach(k=>{if(s[k]!==undefined)m.sets[i][k]=clone(s[k])})})}return true}
 function refreshFastUi(){try{window.MatchState?.sync?.('remote-fast')}catch(_){};try{window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}catch(_){};if(document.getElementById('scout-match-mode')?.classList.contains('active'))try{window.v800Render?.()}catch(_){} }
 function localCloudDirty(){try{return window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().dirty===true||localStorage.getItem('v1523_cloud_dirty')==='1'}catch(_){return localStorage.getItem('v1523_cloud_dirty')==='1'}}
-function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const source=String(payload.deviceId||'');const incomingSeq=Number(payload.seq)||0;const observedSeq=Number(knownDevices[source]?.seq)||0;if(source&&incomingSeq>0&&observedSeq>=incomingSeq)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];if(!localCloudDirty()){team.scoutingMatches=[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)]}else{team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local}target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}scheduleLocalPersist();/* Realtime is NOT durable: receiver must also commit the patch via CAS. */try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('received-realtime-patch')}catch(_){}lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
+function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const source=String(payload.deviceId||'');const incomingSeq=Number(payload.seq)||0;const observedSeq=Number(appliedSeq[source])||0;if(source&&incomingSeq>0&&observedSeq>=incomingSeq)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];const activeRows=teamId===String(equipoActivo)?(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]):[];
+  const safeLocal=window.VC_SYNC_SAFE?.merge?.(local,activeRows,teamId,'realtime-vs-active')||local;
+  team.scoutingMatches=window.VC_SYNC_SAFE?.merge?.(safeLocal,[payload.match],teamId,'realtime-full')||
+  (typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local);target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch){const activeNow=teamId===String(equipoActivo)?(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]).find(x=>Number(x.id)===Number(target.id)):null;const base=activeNow?(window.VC_SYNC_SAFE?.prefer?.(target,activeNow,teamId,'delta-vs-active')||target):target;window.VC_SYNC_SAFE?.capture?.(base,teamId,'before-realtime-patch');const draft=clone(base);applyPatchToMatch(draft,payload.patch);const accepted=window.VC_SYNC_SAFE?.prefer?.(base,draft,teamId,'realtime-delta')||draft;team.scoutingMatches=(Array.isArray(team.scoutingMatches)?team.scoutingMatches:[]).map(x=>Number(x.id)===Number(target.id)?accepted:x);target=accepted;window.VC_SYNC_SAFE?.capture?.(target,teamId,'after-realtime-patch')}else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}persistReceived();
+  if(source&&incomingSeq>0)appliedSeq[source]=Math.max(Number(appliedSeq[source])||0,incomingSeq);
+  /* Realtime is NOT durable: receiver must also commit the patch via CAS. */try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('received-realtime-patch')}catch(_){}lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
 function onFast(message){try{applyFastPatch(message?.payload||message)}catch(err){console.warn('V15.2.6 fast patch',err)}}
 let lastCommitNotice=0,lastResumeAt=0;
 function notifyCloudChanged(stamp){
@@ -30032,7 +30214,7 @@ function onCloudCommit(message){
  remoteSyncTimer=setTimeout(()=>void syncRemote('cloud-commit'),150);
 }
 
-function buildFastPayload(reason){const m=active();if(!m)return null;const s=currentSet(m),setIndex=Math.max(0,(Number(m.currentSet)||1)-1),why=String(reason||'');const full=/reconnect|selected|new|create|boot|result|final|rally:edit|rally-edit|undo.*rally|restore|import/i.test(why)||!s;const base={version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:now(),teamId:String(equipoActivo||''),matchId:Number(m.id)||0,mode:full?'full':'patch'};if(full){base.match=clone(m);return base}const top=clone(m);delete top.sets;delete top.updatedAt;base.patch={...top,remoteUpdatedAt:m.updatedAt,setIndex,set:clone(s),setSummaries:(Array.isArray(m.sets)?m.sets:[]).map(x=>x?{number:x.number,setNo:x.setNo,scoreUs:x.scoreUs,scoreOpponent:x.scoreOpponent,finished:x.finished,winner:x.winner}:null)};return base}
+function buildFastPayload(reason){const m=active();if(!m)return null;const s=currentSet(m),setIndex=Math.max(0,(Number(m.currentSet)||1)-1),why=String(reason||'');const full=/reconnect|selected|new|create|boot|result|final|rally:edit|rally-edit|undo.*rally|restore|import|point|score|rotation|set:|rally/i.test(why)||!s;const base={version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:now(),teamId:String(equipoActivo||''),matchId:Number(m.id)||0,mode:full?'full':'patch'};if(full){base.match=clone(m);return base}const top=clone(m);delete top.sets;delete top.updatedAt;base.patch={...top,remoteUpdatedAt:m.updatedAt,setIndex,set:clone(s),setSummaries:(Array.isArray(m.sets)?m.sets:[]).map(x=>x?{number:x.number,setNo:x.setNo,scoreUs:x.scoreUs,scoreOpponent:x.scoreOpponent,finished:x.finished,winner:x.winner}:null)};return base}
 function queueFast(reason='matchstate'){if(fastApplying||rtState!=='SUBSCRIBED'||!channel||!cloudConnected())return;clearTimeout(fastTimer);fastTimer=setTimeout(async()=>{if(rtState!=='SUBSCRIBED'||!channel)return;touchMeta(reason);const payload=buildFastPayload(reason);if(!payload)return;try{await channel.send({type:'broadcast',event:FAST_EVENT,payload})}catch(err){console.warn('V15.2.6 broadcast',err)}},45)}
 async function syncRemote(reason='fallback'){if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}if(reason==='focus'||reason==='pageshow'||reason==='visible'||reason==='startup'){if(now()-lastPullAt<8000)return false}try{lastPullAt=now();await window.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});render();return true}catch(err){console.warn('V15.2.6 remote sync',err);return false}}
 function onRemote(payload){try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;clearTimeout(remoteSyncTimer);const recentFast=meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000;remoteSyncTimer=setTimeout(()=>void syncRemote(recentFast?'db-complete-after-fast':'db-change'),recentFast?700:350)}catch(err){console.warn('V15.2.6 postgres event',err)}}
@@ -30041,7 +30223,7 @@ function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return fal
 function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()&&now()-lastPullAt>=delay)await syncRemote('safety');poll()},delay)}
 function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
 async function resumeSync(reason='resume'){if(now()-lastResumeAt<2500&&reason!=='online')return;lastResumeAt=now();try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
-function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();queueFast(d?.reason||'matchstate');if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
+function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();if(!String(d?.reason||'').startsWith('remote-')){queueFast(d?.reason||'matchstate');if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')}})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
 window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,broadcast:queueFast,notifyCloudChanged,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true,durableCompletion:true,allTopLevelMatchFields:true})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
@@ -32251,5 +32433,115 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <script id="v167-performance-diagnostics">
 (()=>{'use strict';window.VC_V167_PERFORMANCE=Object.freeze({version:'16.7.0',diagnostics:()=>({localWrites:v167LocalWrites,skippedIdenticalLocalWrites:v167LocalSkips,libraryWrites:v167LibraryWrites,realtime:window.VC_DEVICE_SYNC?.diagnostics?.(),cloud:window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()})});})();
+</script>
+
+<script id="v1674-compat-archive-boot">
+(()=>{
+'use strict';
+// Normalization must preserve the undo marker across cloud and local rehydration.
+try{const old=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=old(m);if(m?.v1674UndoAt)x.v1674UndoAt=m.v1674UndoAt;return x}}catch(_){}
+// Local undo is an explicit deletion of the last rally, never a broken cloud packet.
+for(const name of ['scoutUndoRally','v121UndoRally']){const base=window[name];if(typeof base!=='function'||base.__v1674)continue;const wrapped=function(...args){const m=window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.();const before=m?JSON.stringify([m?.sets,m?.liveRally]):'';if(m)window.VC_SYNC_SAFE?.capture?.(m,String(equipoActivo),'before-undo');const out=base.apply(this,args);if(m&&JSON.stringify([m?.sets,m?.liveRally])!==before){window.VC_SYNC_SAFE?.tagUndo?.(m);window.VC_SYNC_SAFE?.capture?.(m,String(equipoActivo),'after-undo');try{scoutSave(false)}catch(_){}}return out};wrapped.__v1674=true;window[name]=wrapped}
+// On save/finalize preserve the last complete image independently from the active pointer.
+for(const name of ['scoutV6102SaveAndExit','scoutV6102FinalizeAndExit','scoutFinishMatch']){
+ const original=window[name];if(typeof original!=='function'||original.__v1674)continue;
+ const wrapped=async function(...args){const m=window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.(),team=String(equipoActivo||'equipo');if(m)await window.VC_SYNC_SAFE?.remember?.(m,team,'before-save-or-finalize');const result=await original.apply(this,args);const saved=(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]).find(x=>Number(x.id)===Number(m?.id));if(saved){await window.VC_SYNC_SAFE?.remember?.(saved,team,'after-save-or-finalize');try{await window.scoutV902Flush?.()}catch(_){};try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('finalized-scouting')}catch(_){}}return result};wrapped.__v1674=true;window[name]=wrapped;
+}
+})();
+</script>
+<script id="v1674-safe-archive">
+/* Volley Coach V16.7.4 · Archivo seguro y consulta de partidos finalizados.
+   Nunca activa, modifica, borra ni restaura un scouting sin acción explícita. */
+(()=>{
+'use strict';
+if(window.VC_ARCHIVE)return;
+const $=id=>document.getElementById(id),safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const arr=v=>Array.isArray(v)?v:[],count=m=>window.VC_SYNC_SAFE?.count(m)||{sets:arr(m?.sets).length,rallies:0,actions:0};
+let items=[],selected=null,loading=false,lastError='';
+function allMemory(){const out=[];try{for(const [team,obj] of Object.entries(equiposData||{}))arr(obj?.scoutingMatches).forEach(m=>out.push({team,match:m,source:'Datos actuales'}))}catch(_){}try{arr(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()).forEach(m=>out.push({team:String(equipoActivo),match:m,source:'Scouting cargado'}))}catch(_){}return out}
+async function collect(includeCloud=false){
+ const all=allMemory();
+ if(includeCloud){try{if(typeof cloudClient!=='undefined'&&typeof cloudUser!=='undefined'&&cloudClient&&cloudUser){const {data,error}=await cloudClient.from('volley_state').select('state').eq('user_id',cloudUser.id).maybeSingle();if(error)throw error;for(const [team,t] of Object.entries(data?.state?.equiposData||{}))arr(t?.scoutingMatches).forEach(m=>all.push({team,match:m,source:'Nube · solo lectura'}));for(const [team,list] of Object.entries(data?.state?.scoutingSyncIndex||{}))arr(list).forEach(m=>all.push({team,match:m,source:'Índice nube · solo lectura'}))}}catch(err){lastError=String(err?.message||err)}}
+ try{const rows=await window.VC_SYNC_SAFE?.versions?.()||[];rows.forEach(x=>{if(x?.match)all.push({team:x.teamId,match:x.match,source:'Copia protegida · '+new Date(x.savedAt).toLocaleString('es-ES')})})}catch(err){lastError=String(err)}
+ try{const journal=await window.scoutV902JournalReadAll?.()||[];journal.forEach(x=>{if(x?.match)all.push({team:x.teamId||String(equipoActivo),match:x.match,source:'Diario de recuperación'})})}catch(err){console.warn('Archivo V16.7.4 journal',err)}
+ const uniq=new Map();all.forEach(x=>{const m=x.match,id=Number(m?.id)||0;if(!id)return;const c=count(m),key=x.team+':'+id+':'+JSON.stringify([m?.status,c.rallies,c.actions,m?.updatedAt,m?.sets,m?.liveRally]);if(!uniq.has(key))uniq.set(key,x)});
+ items=[...uniq.values()].sort((a,b)=>String(b.match?.date||b.match?.updatedAt||'').localeCompare(String(a.match?.date||a.match?.updatedAt||'')));
+ return items;
+}
+function ensureUi(){
+ if($('v1674-archive-modal'))return;
+ const style=document.createElement('style');style.id='v1674-archive-style';style.textContent=`
+ #v1674-archive-modal{position:fixed;inset:0;z-index:2147483000;background:rgba(6,24,42,.68);display:none;align-items:center;justify-content:center;padding:12px}
+ #v1674-archive-modal.open{display:flex}#v1674-archive-pane{background:#fff;border-radius:14px;width:min(1050px,98vw);height:min(90vh,920px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 70px #07162666;color:#192c40}
+ .v1674-top{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e0e7ed}.v1674-top h3{margin:0!important;font:800 19px Arial!important;border:0!important;padding:0!important}
+ .v1674-body{padding:15px 18px;overflow:auto;flex:1}.v1674-row{border:1px solid #dce4ea;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.v1674-row small{display:block;color:#687786;margin-top:4px}
+ .v1674-row button,.v1674-top button,.v1674-tools button{font-size:12px!important;text-transform:none!important;padding:8px 10px!important}.v1674-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.v1674-detail{background:#f7f9fa;padding:12px;border-radius:10px;margin-bottom:12px}
+ .v1674-table{width:100%;border-collapse:collapse;font:12px Arial;min-width:460px}.v1674-table th,.v1674-table td{padding:8px;border-bottom:1px solid #e5ebef;text-align:left;vertical-align:top}.v1674-tablewrap{overflow-x:auto}.v1674-headline{font:800 16px Arial;margin:12px 0 8px}.v1674-revision{border-left:3px solid #d99731;padding:8px;margin-bottom:10px;font:12px Arial}
+ #v1674-archive-entry{margin:8px 0;background:#eaf2f8;border:1px solid #bacddd;color:#153c5c;font-weight:800;border-radius:8px;padding:10px!important}
+ `;document.head.appendChild(style);
+ const node=document.createElement('div');node.id='v1674-archive-modal';node.innerHTML=`<section id="v1674-archive-pane" role="dialog" aria-modal="true" aria-label="Archivo de scouting"><div class="v1674-top"><h3>Archivo protegido · Scoutings</h3><button class="ghost" type="button" id="v1674-close">Cerrar</button></div><div class="v1674-body" id="v1674-archive-content"></div></section>`;document.body.appendChild(node);
+ $('v1674-close').addEventListener('click',close);node.addEventListener('click',e=>{if(e.target===node)close()});node.addEventListener('click',handleClick);
+}
+function ensureEntry(){ensureUi();if($('v1674-archive-entry'))return;const b=document.createElement('button');b.id='v1674-archive-entry';b.type='button';b.textContent='Archivo de scoutings · Ver finalizados';b.onclick=()=>void open();const anchor=$('v123-scout-switchbar')||$('scout-saved-list')||$('v151-match-list')||document.querySelector('#scout-workspace-v900 .v900-shell');if(anchor)anchor.insertAdjacentElement('afterend',b);else {b.style.cssText='position:fixed;bottom:12px;right:12px;z-index:2500';document.body.appendChild(b)}}
+function download(name,data){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+function summary(m){const c=count(m);return `${c.sets} sets · ${c.rallies} rallies · ${c.actions} acciones`}
+function label(m){return `${m.date||''} · ${m.opponent||'Rival'}`}
+function listHtml(){const grouped=new Map();items.forEach((x,i)=>{const key=x.team+':'+x.match.id;if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push({x,i})});return `<div class="v1674-tools"><button class="ghost" data-action="reload">Actualizar listado</button><button class="ghost" data-action="cloud">Buscar también en nube (solo lectura)</button><button class="ghost" data-action="export-all">Exportar todas las copias</button></div><p class="small">Consulta de solo lectura. Los partidos finalizados no se reactivan ni se modifican. Si hay varias copias de un partido, puedes elegir cuál revisar.</p>${lastError?`<div class="v1674-revision">Algunas copias no están disponibles: ${safe(lastError)}</div>`:''}${[...grouped.values()].map(group=>{const newest=group.sort((a,b)=>count(b.x.match).actions-count(a.x.match).actions||count(b.x.match).rallies-count(a.x.match).rallies)[0];return `<div class="v1674-row"><div><strong>${safe(label(newest.x.match))}</strong><small>${safe(newest.x.team)} · ${safe(newest.x.match.status==='finished'?'Finalizado':'Guardado / en curso')} · ${safe(summary(newest.x.match))}</small><small>${group.length} ${group.length===1?'copia disponible':'copias disponibles'} · ${safe(newest.x.source)}</small></div><div><button class="primary" data-action="open" data-index="${newest.i}">Consultar</button></div></div>`}).join('')||'<p>No se han encontrado scoutings. Comprueba que estás en el dispositivo que conserva las copias.</p>'}`}
+function detailHtml(x,i){const m=x.match,c=count(m),sets=arr(m.sets),lines=sets.map(s=>{const rows=arr(s.rallies);return `<h4 class="v1674-headline">Set ${safe(s.number)} · ${safe(s.scoreUs)}–${safe(s.scoreOpponent)} · ${rows.length} rallies</h4><div class="v1674-tablewrap"><table class="v1674-table"><thead><tr><th>Rally</th><th>Marcador</th><th>Ganador</th><th>Rotación</th><th>Acciones / códigos</th></tr></thead><tbody>${rows.map((r,j)=>`<tr><td>${j+1}</td><td>${safe(r.scoreAfter?.us)}–${safe(r.scoreAfter?.opponent)}</td><td>${safe(r.winner==='ours'?'Nuestro':r.winner==='opponent'?'Rival':'—')}</td><td>R${safe(r.rotationBefore||'—')}</td><td>${arr(r.actions).map(a=>safe(a.code||[a.playerNumberSnapshot,a.skill,a.evaluation].filter(Boolean).join(''))).join(' · ')||'Sin acciones'}</td></tr>`).join('')}</tbody></table></div>`}).join('');const variants=items.map((q,j)=>({q,j})).filter(z=>String(z.q.team)===String(x.team)&&Number(z.q.match.id)===Number(m.id));return `<div class="v1674-tools"><button class="ghost" data-action="back">Volver al listado</button><button class="primary" data-action="export" data-index="${i}">Descargar este scouting JSON</button>${variants.length>1?`<select id="v1674-variants">${variants.map(({q,j})=>`<option value="${j}" ${j===i?'selected':''}>${safe(q.source)} · ${safe(summary(q.match))}</option>`).join('')}</select><button class="ghost" data-action="variant">Ver copia seleccionada</button>`:''}</div><div class="v1674-detail"><strong>${safe(label(m))}</strong><p>${safe(x.team)} · ${safe(m.status==='finished'?'FINALIZADO — SOLO CONSULTA':'Guardado / en curso')} · ${safe(summary(m))}</p><small>ID: ${safe(m.id)} · Fuente: ${safe(x.source)} · Último cambio: ${safe(m.updatedAt||'—')}</small></div>${lines||'<p>Este registro no contiene rallies cerrados.</p>'}`}
+function render(){ensureUi();$('v1674-archive-content').innerHTML=selected==null?listHtml():detailHtml(items[selected],selected)}
+async function open(includeCloud=false){ensureEntry();ensureUi();$('v1674-archive-modal').classList.add('open');selected=null;loading=true;$('v1674-archive-content').textContent='Buscando datos guardados y copias protegidas…';try{await collect(includeCloud);render()}finally{loading=false}}
+function close(){$('v1674-archive-modal')?.classList.remove('open')}
+async function openMatch(team,id){await open();const a=items.map((x,i)=>({x,i})).filter(v=>Number(v.x.match.id)===Number(id)&&(!team||v.x.team===team)).sort((a,b)=>count(b.x.match).actions-count(a.x.match).actions);if(!a.length){$('v1674-archive-content').innerHTML=`<div class="v1674-tools"><button class="ghost" data-action="back">Volver</button></div><p>No se ha encontrado ese ID en las copias disponibles. No se ha eliminado ningún dato.</p>`;return false}selected=a[0].i;render();return true}
+function handleClick(e){const b=e.target.closest?.('[data-action]');if(!b)return;const cmd=b.dataset.action,i=Number(b.dataset.index);if(cmd==='back'){selected=null;render()}else if(cmd==='open'){selected=i;render()}else if(cmd==='variant'){selected=Number($('v1674-variants')?.value)||0;render()}else if(cmd==='reload'){void open()}else if(cmd==='cloud'){void open(true)}else if(cmd==='export'&&items[i])download(`VolleyCoach_scout_${items[i].team}_${items[i].match.id}.json`,{format:'volley-coach-scout-archive-v1674',teamId:items[i].team,source:items[i].source,match:items[i].match});else if(cmd==='export-all')download('VolleyCoach_archivo_scoutings_v1674.json',{format:'volley-coach-scout-archive-v1674',at:new Date().toISOString(),versions:items.map(x=>({teamId:x.team,source:x.source,match:x.match}))})}
+// Maintain the existing analysis/navigation for live matches, but provide an independent archive for finished matches.
+const oldSaved=window.scoutOpenSaved;window.scoutOpenSaved=function(id){const m=window.MatchState?.getById?.(id)||(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]).find(x=>Number(x.id)===Number(id));if(m?.status==='finished'||!m){void openMatch(String(equipoActivo),id);return true}return oldSaved?.apply(this,arguments)};
+const oldSeason=window.v151OpenMatch;window.v151OpenMatch=async function(id){const m=window.MatchState?.getById?.(id);if(m?.status==='finished'||!m)return openMatch(String(equipoActivo),id);return oldSeason?.apply(this,arguments)};
+for(const name of ['v119SwitchMatch','v122SwitchMatch','v123SwitchMatch','v130SwitchMatch']){const prior=window[name];if(typeof prior!=='function')continue;window[name]=function(id){const m=window.MatchState?.getById?.(id);if(!m||m.status==='finished')return openMatch(String(equipoActivo),id);return prior.apply(this,arguments)}}
+window.VC_ARCHIVE={version:'16.7.5',open,openMatch,collect,close,list:()=>items,diagnostics:()=>({matches:items.length,error:lastError,loading})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureEntry,{once:true});else ensureEntry();
+})();
+
+</script>
+<script id="v1675-sync-safety-panel">
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+let lastReason='';
+function render(){
+ const d=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+ const r=window.VC_DEVICE_SYNC?.diagnostics?.()||{};
+ const n=window.VC_SYNC_SAFE?.unresolved?.()||0;
+ const box=$('v1675-sync-panel');if(!box)return;
+ const connected=d.connected===true,online=r.realtimeState==='SUBSCRIBED';
+ box.querySelector('[data-v=state]').textContent=!connected?'Nube sin conexión':n?'CONFLICTO: revisar copias':d.dirty?'Guardando cambios pendientes…':online?'Tiempo real conectado · nube confirmada':'Nube conectada · esperando tiempo real';
+ box.querySelector('[data-v=state]').style.color=n?'#9b2424':'#264c66';
+ box.querySelector('[data-v=detail]').textContent=n?`${n} conflicto(s). Se conservan ambas versiones; la escritura automática de nube se ha detenido para no borrar jugadas.`:
+ `Realtime: ${r.realtimeState||'desconectado'} · pendientes: ${d.dirty?'sí':'no'} · escrituras confirmadas: ${d.writesThisSession||0}`;
+ box.querySelector('[data-v=open]').hidden=!n;
+ box.querySelector('[data-v=confirm]').hidden=!n;
+}
+function download(){
+ const diag={at:new Date().toISOString(),version:'16.7.5',cloud:window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.(),realtime:window.VC_DEVICE_SYNC?.diagnostics?.(),protected:window.VC_SYNC_SAFE?.diagnostics?.(),conflicts:window.VC_SYNC_SAFE?.conflicts?.()};
+ const blob=new Blob([JSON.stringify(diag,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='VolleyCoach_sync_diagnostico_1675.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+function boot(){
+ if($('v1675-sync-panel'))return;
+ const el=document.createElement('section');el.id='v1675-sync-panel';el.style.cssText='background:#fff;border:1px solid #cfdae2;border-radius:9px;padding:11px 13px;margin:10px 0;color:#274356;font:12px Arial,sans-serif';
+ el.innerHTML='<strong>Sincronización entre dispositivos · V16.7.5</strong><div data-v="state" style="font-weight:750;margin:6px 0"></div><div data-v="detail" style="color:#627687;margin-bottom:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" data-v="save" class="ghost">Confirmar nube ahora</button><button type="button" data-v="open" class="ghost">Revisar copias</button><button type="button" data-v="confirm" class="ghost">Confirmar versión actual</button><button type="button" data-v="diag" class="ghost">Exportar diagnóstico</button></div>';
+ const anchor=$('v138-device-strip')||$('v137-save-strip')||$('scout-workspace-v900');anchor?.insertAdjacentElement('afterend',el);
+ el.querySelector('[data-v=save]').addEventListener('click',async()=>{try{await window.scoutV902Flush?.();await window.VC_V962_CLOUD_EFFICIENT?.sync?.({manual:true,reason:'v1675-confirm',allowWrite:true})}catch(e){console.warn('Confirmación de nube',e)}render()});
+ el.querySelector('[data-v=open]').addEventListener('click',()=>window.VC_ARCHIVE?.open?.(true));
+ el.querySelector('[data-v=confirm]').addEventListener('click',async()=>{
+  if(!confirm('¿Has revisado y exportado las DOS copias del partido en Archivo de scoutings?\n\nConfirmar autoriza subir la versión que tienes abierta. La otra permanecerá protegida en el archivo local de este dispositivo.'))return;
+  if(!confirm('Confirmación final: ¿usar la versión ACTUAL como referencia para sincronizar? Esta decisión puede reemplazar otra rama del partido en la nube.'))return;
+  window.VC_SYNC_SAFE?.confirmCurrent?.();window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('manual-branch-choice');
+  await window.VC_V962_CLOUD_EFFICIENT?.sync?.({manual:true,reason:'manual-branch-choice',allowWrite:true});render();
+ });
+ el.querySelector('[data-v=diag]').addEventListener('click',download);
+ window.addEventListener('vc:sync-conflict',render);window.addEventListener('vc:sync-conflict-resolved',render);window.addEventListener('online',render);window.addEventListener('offline',render);
+ setInterval(()=>{if(document.visibilityState==='visible')render()},2500);render();
+}
+window.VC_V1675_SYNC={version:'16.7.5',render,download,diagnostics:()=>({conflicts:window.VC_SYNC_SAFE?.conflicts?.()||[],cloud:window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.(),realtime:window.VC_DEVICE_SYNC?.diagnostics?.()})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
 </script>
 </body></html>
