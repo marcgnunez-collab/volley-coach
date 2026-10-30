@@ -8,7 +8,7 @@ for(const name of expected){
  assert(html.includes('src="./'+name+'"'),'Required script missing: '+name);
  assert(fs.existsSync(name),'Required JS asset absent from repo: '+name);
 }
-const scripts=[...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script\\s*>/gi)];
+const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)];
 let checked=0;
 for(const [,body] of scripts){
  if(!body.trim())continue;
