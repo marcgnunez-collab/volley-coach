@@ -1,0 +1,19 @@
+name: Sync guard regression
+on:
+  push:
+    branches: ['fix/v16.9.1-sync-loader']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check vc-sync-v1692.js && node --check service-worker.js
+      - name: Guard tests
+        run: node tests/sync-regression.cjs
