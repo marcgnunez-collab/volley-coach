@@ -1,11 +1,11 @@
-/* Volley Coach V16.9.2 · PWA estable y anti-retroceso.
+/* Volley Coach V16.9.3 · PWA estable y anti-retroceso.
    Solo activa esta revisión cuando el HTML publicado es de la misma versión.
    Los datos de entrenamiento/scouting se conservan en storage y Supabase. */
 'use strict';
-const BUILD='16.9.2';
-const CACHE_NAME='volley-coach-v16.9.2-stable-pwa';
+const BUILD='16.9.3';
+const CACHE_NAME='volley-coach-v16.9.3-stable-pwa';
 const PAGE='./index.html';
-const ASSETS=['./vc-sync-v1692.js','./vc-recovery-v169.js','./vc-csv-reconcile-v1691.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
+const ASSETS=['./vc-sync-v1693.js','./vc-recovery-v169.js','./vc-csv-reconcile-v1691.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 const EXTRA=['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js','https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'];
 const scopePath=new URL(self.registration.scope).pathname;
 function compare(a,b){
