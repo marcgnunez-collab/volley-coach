@@ -77,7 +77,7 @@ const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('service-
 assert(html.includes('src="./vc-sync-v1693.js"'));
 assert(worker.includes("./vc-sync-v1693.js"));
 assert(html.includes('name="volley-coach-build" content="16.9.5"'));
-assert(source.includes("if(base&&!pending&&!force&&equal(initial,base.state))"),'unchanged remote stamp must not hide local differences');
+assert(source.includes("if(base&&!pending&&!force&&localUnchanged(initial,base,shadow))"),'unchanged remote stamp must not hide local differences');
 assert(source.includes("if((base&&!localUnchanged(initial,base,shadow))||(!base&&containsBusinessData(initial)&&!remoteCoversLocal(localSafe,cloudSafe)))"),'untracked differences must block unsafe replacement while baseline reads remain allowed');
 // A local value can change even if every remote field is still present.
 {
