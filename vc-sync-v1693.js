@@ -482,6 +482,25 @@ async function deleteScouting(team,id){
  if(!(await capture('delete-scouting')))throw Error('Guardado protegido fallido');
  return true;
 }
+async function recoverScouting(team,match){
+ team=String(team);
+ if(!userId()||outboxHold||pauseWrites)throw Error('Recuperación bloqueada: inicia sesión y resuelve conflictos');
+ if(!obj(match)||!Array.isArray(match.sets)||!equiposData?.[team])throw Error('Copia inválida');
+ if(working)await working;
+ await archive('before-scout-recovery:'+team,localState());
+ const t=equiposData[team],oldId=String(match.id);
+ const exists=arr(t.scoutingMatches).some(m=>String(m.id)===oldId);
+ const deleted=!!t.scoutingDeleted?.[oldId];
+ if(exists&&!deleted)throw Error('Este scouting ya está activo');
+ const ids=new Set(arr(t.scoutingMatches).map(m=>String(m.id)));
+ let newId=Date.now();while(ids.has(String(newId))||t.scoutingDeleted?.[String(newId)])newId++;
+ const recovered=clone(match);recovered.id=newId;recovered.restoredFromId=oldId;recovered.restoredAt=now();recovered.updatedAt=now();
+ t.scoutingMatches=[...arr(t.scoutingMatches),recovered];
+ if(String(typeof equipoActivo!=='undefined'?equipoActivo:'')===team)window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(t.scoutingMatches,t.scoutingActiveId);
+ guardarEstadoLocalSinCloud();schedule('recover-scouting');
+ if(!(await capture('recover-scouting')))throw Error('Recuperación local no confirmada');
+ return recovered;
+}
 function onMutation(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
  schedule(reason);
 }
@@ -527,7 +546,7 @@ function boot(){ensurePanel();connect();if(connected())void sync({reason:'startu
  pollLoop();
 }
 window.VC_SYNC_V1680={version:VERSION,onMutation,flush,pull,sync,connect,capture,exportProtected,exportDiag,restoreMissing,initializeAccount,
- mergeThree,remoteCoversLocal,deleteScouting,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
+ mergeThree,remoteCoversLocal,deleteScouting,recoverScouting,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
 window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty:()=>{schedule('legacy-mark')},sync:options=>sync({reason:options?.reason||'legacy',write:options?.allowWrite!==false&&!options?.pullOnly}),forceSync:flush,diagnostics:()=>({...window.VC_SYNC_V1680.diagnostics(),dirty:pending,lastWriteAt:lastPersisted,compareAndSwap:true})};
 window.VC_DEVICE_SYNC={version:VERSION,connect,broadcast:()=>{},notifyCloudChanged:notify,diagnostics:()=>({deviceId,realtimeState:realtimeStatus,cloudConnected:connected()})};
 window.v962ForceSync=flush;window.v953SyncNow=flush;window.v956SyncScoutingsNow=flush;window.v957SyncScoutingsNow=flush;window.v138SyncNow=pull;
