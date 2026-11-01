@@ -19,3 +19,5 @@ sw.write_text(worker,encoding='utf-8')
 print('Installed Gestión Scoutings into V16.9.5 candidate.')
 
 # Candidate build is isolated from main.
+
+# Revised baseline-aware synchronization assertions.
