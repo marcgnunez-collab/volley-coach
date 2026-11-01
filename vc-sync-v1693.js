@@ -254,6 +254,13 @@ async function casWrite(s,stamp){const uid=userId(),sent=new Date(Math.max(Date.
 }
 async function loadBase(){const uid=userId();return uid?await readRecord('base:'+uid):null}
 async function saveBase(stamp,state){await putRecord({key:'base:'+userId(),kind:'base',at:now(),stamp,state:clone(state)});lastAck=stamp}
+async function loadLocalShadow(){const uid=userId();return uid?await readRecord('shadow:'+uid):null}
+async function saveLocalShadow(){const uid=userId();if(uid)await putRecord({key:'shadow:'+uid,kind:'local-shadow',account:uid,at:now(),state:localState()})}
+function comparableRemote(st){
+ if(!obj(st))return st;
+ return {version:16.8,bibliotecaCompartida:arr(st.bibliotecaCompartida),bibliotecaBorrados:arr(st.bibliotecaBorrados),bibliotecaVersion:1,equiposData:obj(st.equiposData)?st.equiposData:{}};
+}
+function localUnchanged(initial,base,shadow){return !!(shadow?.state?equal(initial,shadow.state):base?.state&&equal(initial,comparableRemote(base.state)))}
 async function saveConflict(remote,local,conflicts,stamp){
  const uid=userId(),key='conflict:'+uid+':'+Date.now()+':'+(++seq);
  await putRecord({key,kind:'conflict',at:now(),account:uid,stamp,conflicts,remote:clone(remote),local:clone(local)});
@@ -309,16 +316,17 @@ async function sync({reason='manual',write=false,force=false}={}){
    if(outboxHold||pauseWrites){setStatus('Datos protegidos · revisión pendiente');return false}
    setStatus('Comprobando nube…');
    const revisionAtStart=changeRevision;
-   const base=await loadBase(),initial=localState();
+   const base=await loadBase(),initial=localState(),shadow=await loadLocalShadow();
+   // Compare against the last applied LOCAL state, not raw cloud metadata.
    // Legacy UI may mutate memory without signaling the cloud bridge.
    // Capture those edits before any cloud read can replace them.
-   if(base&&!pending&&!equal(initial,base.state)){
+   if(base&&!pending&&!localUnchanged(initial,base,shadow)){
     pending=true;changeRevision++;
     if(!(await capture('untracked-local-change')))return false;
     rerunNeeded=true;setStatus('Cambio local detectado · guardando antes de consultar');return false;
    }
    // An unchanged cloud version requires no multi-megabyte download or archive.
-   if(base&&!pending&&!force&&equal(initial,base.state)){const head=await readCloudStamp();
+   if(base&&!pending&&!force&&localUnchanged(initial,base,shadow)){const head=await readCloudStamp();
      if(head&&stampEqual(head,base.stamp)){lastCheck=Date.now();setStatus('Nube confirmada ✓');return true}}
    const remote=await readCloud();remoteReads++;lastCheck=Date.now();
    const remoteState=remote?.state?integrateScoutMirror(remote.state):null,stamp=remote?.updated_at||null;
@@ -330,7 +338,7 @@ async function sync({reason='manual',write=false,force=false}={}){
     // Reopening a phone is a READ, never a write. Do not merge its stale
     // incidental local timestamps back over the laptop's confirmed changes.
     // Preserve copies if remote would omit any previously recorded entity.
-    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(localSafe,cloudSafe))){
+    if((base&&!localUnchanged(initial,base,shadow))||(!base&&containsBusinessData(initial)&&!remoteCoversLocal(localSafe,cloudSafe))){
      await archive('stale-device-protected:'+reason,initial);
      await saveConflict(remoteState,initial,[makeConflict('local records absent from cloud',initial,initial,remoteState)],stamp);
      outboxHold=true;
@@ -364,6 +372,7 @@ async function sync({reason='manual',write=false,force=false}={}){
     applyState(joined);
     await checkpoint('merged:'+reason,joined);
    }
+   if(!pending)await saveLocalShadow();
    // Verified full pull can record its base only AFTER successful local apply.
    if(remoteState)await saveBase(stamp,remoteState);
    if(!equal(joined,remoteState)){
@@ -390,13 +399,14 @@ async function sync({reason='manual',write=false,force=false}={}){
       pending=true;setStatus('Guardado sin verificar · reintentando');return false;
     }
     await saveBase(saved,confirmed.state);
+    if(changeRevision===revisionAtStart)await saveLocalShadow();
     lastPersisted=Date.now();writeConfirmedAt=lastPersisted;pending=changeRevision!==revisionAtStart;
     if(!pending)await markOutboxDone(revisionAtStart);
     setStatus(pending?'Cambios adicionales pendientes':'Nube confirmada ✓');
     notify(saved);return true;
    }
    pending=changeRevision!==revisionAtStart;lastPersisted=Date.now();
-   if(!pending)await markOutboxDone(revisionAtStart);
+   if(!pending){await markOutboxDone(revisionAtStart);await saveLocalShadow()}
    setStatus(pending?'Cambios adicionales pendientes':'Nube confirmada ✓');return true;
   }catch(e){lastError=String(e?.message||e);pending=true;setStatus('Error de sincronización · datos locales protegidos');console.error('VC1680 sync',reason,e);return false}
   finally{working=null;if(rerunNeeded){const mustForce=rerunForce;rerunNeeded=false;rerunForce=false;setTimeout(()=>void sync({reason:'queued-retry',write:pending,force:mustForce}),180)}}
