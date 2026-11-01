@@ -254,6 +254,13 @@ async function casWrite(s,stamp){const uid=userId(),sent=new Date(Math.max(Date.
 }
 async function loadBase(){const uid=userId();return uid?await readRecord('base:'+uid):null}
 async function saveBase(stamp,state){await putRecord({key:'base:'+userId(),kind:'base',at:now(),stamp,state:clone(state)});lastAck=stamp}
+async function loadLocalShadow(){const uid=userId();return uid?await readRecord('shadow:'+uid):null}
+async function saveLocalShadow(){const uid=userId();if(uid)await putRecord({key:'shadow:'+uid,kind:'local-shadow',account:uid,at:now(),state:localState()})}
+function comparableRemote(st){
+ if(!obj(st))return st;
+ return {version:16.8,bibliotecaCompartida:arr(st.bibliotecaCompartida),bibliotecaBorrados:arr(st.bibliotecaBorrados),bibliotecaVersion:1,equiposData:obj(st.equiposData)?st.equiposData:{}};
+}
+function localUnchanged(initial,base,shadow){return !!(shadow?.state?equal(initial,shadow.state):base?.state&&equal(initial,comparableRemote(base.state)))}
 async function saveConflict(remote,local,conflicts,stamp){
  const uid=userId(),key='conflict:'+uid+':'+Date.now()+':'+(++seq);
  await putRecord({key,kind:'conflict',at:now(),account:uid,stamp,conflicts,remote:clone(remote),local:clone(local)});
@@ -309,16 +316,17 @@ async function sync({reason='manual',write=false,force=false}={}){
    if(outboxHold||pauseWrites){setStatus('Datos protegidos · revisión pendiente');return false}
    setStatus('Comprobando nube…');
    const revisionAtStart=changeRevision;
-   const base=await loadBase(),initial=localState();
+   const base=await loadBase(),initial=localState(),shadow=await loadLocalShadow();
+   // Compare against the last applied LOCAL state, not raw cloud metadata.
    // Legacy UI may mutate memory without signaling the cloud bridge.
    // Capture those edits before any cloud read can replace them.
-   if(base&&!pending&&!equal(initial,base.state)){
+   if(base&&!pending&&!localUnchanged(initial,base,shadow)){
     pending=true;changeRevision++;
     if(!(await capture('untracked-local-change')))return false;
     rerunNeeded=true;setStatus('Cambio local detectado · guardando antes de consultar');return false;
    }
    // An unchanged cloud version requires no multi-megabyte download or archive.
-   if(base&&!pending&&!force&&equal(initial,base.state)){const head=await readCloudStamp();
+   if(base&&!pending&&!force&&localUnchanged(initial,base,shadow)){const head=await readCloudStamp();
      if(head&&stampEqual(head,base.stamp)){lastCheck=Date.now();setStatus('Nube confirmada ✓');return true}}
    const remote=await readCloud();remoteReads++;lastCheck=Date.now();
    const remoteState=remote?.state?integrateScoutMirror(remote.state):null,stamp=remote?.updated_at||null;
@@ -330,7 +338,7 @@ async function sync({reason='manual',write=false,force=false}={}){
     // Reopening a phone is a READ, never a write. Do not merge its stale
     // incidental local timestamps back over the laptop's confirmed changes.
     // Preserve copies if remote would omit any previously recorded entity.
-    if((base&&!equal(initial,base.state))||(!base&&!remoteCoversLocal(localSafe,cloudSafe))){
+    if((base&&!localUnchanged(initial,base,shadow))||(!base&&containsBusinessData(initial)&&!remoteCoversLocal(localSafe,cloudSafe))){
      await archive('stale-device-protected:'+reason,initial);
      await saveConflict(remoteState,initial,[makeConflict('local records absent from cloud',initial,initial,remoteState)],stamp);
      outboxHold=true;
@@ -364,6 +372,7 @@ async function sync({reason='manual',write=false,force=false}={}){
     applyState(joined);
     await checkpoint('merged:'+reason,joined);
    }
+   if(!pending)await saveLocalShadow();
    // Verified full pull can record its base only AFTER successful local apply.
    if(remoteState)await saveBase(stamp,remoteState);
    if(!equal(joined,remoteState)){
@@ -390,13 +399,14 @@ async function sync({reason='manual',write=false,force=false}={}){
       pending=true;setStatus('Guardado sin verificar · reintentando');return false;
     }
     await saveBase(saved,confirmed.state);
+    if(changeRevision===revisionAtStart)await saveLocalShadow();
     lastPersisted=Date.now();writeConfirmedAt=lastPersisted;pending=changeRevision!==revisionAtStart;
     if(!pending)await markOutboxDone(revisionAtStart);
     setStatus(pending?'Cambios adicionales pendientes':'Nube confirmada ✓');
     notify(saved);return true;
    }
    pending=changeRevision!==revisionAtStart;lastPersisted=Date.now();
-   if(!pending)await markOutboxDone(revisionAtStart);
+   if(!pending){await markOutboxDone(revisionAtStart);await saveLocalShadow()}
    setStatus(pending?'Cambios adicionales pendientes':'Nube confirmada ✓');return true;
   }catch(e){lastError=String(e?.message||e);pending=true;setStatus('Error de sincronización · datos locales protegidos');console.error('VC1680 sync',reason,e);return false}
   finally{working=null;if(rerunNeeded){const mustForce=rerunForce;rerunNeeded=false;rerunForce=false;setTimeout(()=>void sync({reason:'queued-retry',write:pending,force:mustForce}),180)}}
@@ -472,6 +482,25 @@ async function deleteScouting(team,id){
  if(!(await capture('delete-scouting')))throw Error('Guardado protegido fallido');
  return true;
 }
+async function recoverScouting(team,match){
+ team=String(team);
+ if(!userId()||outboxHold||pauseWrites)throw Error('Recuperación bloqueada: inicia sesión y resuelve conflictos');
+ if(!obj(match)||!Array.isArray(match.sets)||!equiposData?.[team])throw Error('Copia inválida');
+ if(working)await working;
+ await archive('before-scout-recovery:'+team,localState());
+ const t=equiposData[team],oldId=String(match.id);
+ const exists=arr(t.scoutingMatches).some(m=>String(m.id)===oldId);
+ const deleted=!!t.scoutingDeleted?.[oldId];
+ if(exists&&!deleted)throw Error('Este scouting ya está activo');
+ const ids=new Set(arr(t.scoutingMatches).map(m=>String(m.id)));
+ let newId=Date.now();while(ids.has(String(newId))||t.scoutingDeleted?.[String(newId)])newId++;
+ const recovered=clone(match);recovered.id=newId;recovered.restoredFromId=oldId;recovered.restoredAt=now();recovered.updatedAt=now();
+ t.scoutingMatches=[...arr(t.scoutingMatches),recovered];
+ if(String(typeof equipoActivo!=='undefined'?equipoActivo:'')===team)window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(t.scoutingMatches,t.scoutingActiveId);
+ guardarEstadoLocalSinCloud();schedule('recover-scouting');
+ if(!(await capture('recover-scouting')))throw Error('Recuperación local no confirmada');
+ return recovered;
+}
 function onMutation(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
  schedule(reason);
 }
@@ -517,7 +546,7 @@ function boot(){ensurePanel();connect();if(connected())void sync({reason:'startu
  pollLoop();
 }
 window.VC_SYNC_V1680={version:VERSION,onMutation,flush,pull,sync,connect,capture,exportProtected,exportDiag,restoreMissing,initializeAccount,
- mergeThree,remoteCoversLocal,deleteScouting,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
+ mergeThree,remoteCoversLocal,deleteScouting,recoverScouting,diagnostics:()=>({version:VERSION,connected:connected(),pending,syncing:!!working,status,lastAck,lastPersisted,lastCheck,lastError,conflictCount,deviceId,realtimeStatus,lastRealtimeAt,lastHintAt,lastRemoteApplyAt,remoteReads,pollActiveMs:ACTIVE_POLL,outboxHold,outboxFailure,writeConfirmedAt})};
 window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty:()=>{schedule('legacy-mark')},sync:options=>sync({reason:options?.reason||'legacy',write:options?.allowWrite!==false&&!options?.pullOnly}),forceSync:flush,diagnostics:()=>({...window.VC_SYNC_V1680.diagnostics(),dirty:pending,lastWriteAt:lastPersisted,compareAndSwap:true})};
 window.VC_DEVICE_SYNC={version:VERSION,connect,broadcast:()=>{},notifyCloudChanged:notify,diagnostics:()=>({deviceId,realtimeState:realtimeStatus,cloudConnected:connected()})};
 window.v962ForceSync=flush;window.v953SyncNow=flush;window.v956SyncScoutingsNow=flush;window.v957SyncScoutingsNow=flush;window.v138SyncNow=pull;
