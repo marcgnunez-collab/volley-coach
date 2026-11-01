@@ -17,5 +17,5 @@ for(const [,body] of scripts){
  checked++;
 }
 assert(checked>50,'Unexpectedly few inline scripts, index may be truncated');
-assert(html.includes('name="volley-coach-build" content="16.9.4"'),'Build marker drift');
+assert(html.includes('name="volley-coach-build" content="16.9.5"'),'Build marker drift');
 console.log('PASS: index.html '+checked+' inline scripts and external assets');
