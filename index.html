@@ -4498,6 +4498,28 @@ function aplicarEstadoCloud(s){
     delete equiposData[id].scoutingSafeCloud;
     if(!equiposData[id].scoutingActiveId&&localTeam.scoutingActiveId)equiposData[id].scoutingActiveId=localTeam.scoutingActiveId;
   });
+  // Apply the existing V9.5.6 tombstones AFTER the old cloud merge.
+  // This prevents a stale device and the old richness-based merge from
+  // silently recreating scoutings explicitly removed in Gestion.
+  Object.entries(equiposData||{}).forEach(([id,team])=>{
+    const before=equiposAntes?.[id]||{};
+    const tombs=mergeTombstones(before.v956DeletedScoutIds,team.v956DeletedScoutIds);
+    team.v956DeletedScoutIds=tombs;
+    // Preserve archived full copies even if an older remote state does not yet
+    // contain them. The regular mergeTeam below also unions these snapshots.
+    const recycle=new Map();
+    for(const row of [...(Array.isArray(team.scoutingRecycleBin)?team.scoutingRecycleBin:[]),...(Array.isArray(before.scoutingRecycleBin)?before.scoutingRecycleBin:[])]){
+      const mid=Number(row?.match?.id)||0;if(!mid)continue;
+      const prev=recycle.get(mid);
+      if(!prev||Date.parse(row.archivedAt||'')>=Date.parse(prev.archivedAt||''))recycle.set(mid,row);
+    }
+    team.scoutingRecycleBin=[...recycle.values()];
+    const removed=new Set(tombs.map(x=>Number(x?.id??x)).filter(Boolean));
+    if(removed.size){
+      team.scoutingMatches=(Array.isArray(team.scoutingMatches)?team.scoutingMatches:[]).filter(m=>!removed.has(Number(m?.id)));
+      if(removed.has(Number(team.scoutingActiveId)))team.scoutingActiveId=null;
+    }
+  });
   const cambiosRecepcion=aplicarLimpiezaRecepcionV1();
   const cambiosColocacion=aplicarLimpiezaColocacionV1();
   const cambiosAtaque=aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();
@@ -24798,7 +24820,7 @@ function mergeTombstones(a,b){
     const id=Number(x?.id??x),at=Number(x?.at)||tsv(x?.updatedAt)||0;
     if(id)m.set(id,Math.max(m.get(id)||0,at));
   });
-  return [...m.entries()].map(([id,at])=>({id,at})).sort((x,y)=>y.at-x.at).slice(0,500);
+  return [...m.entries()].map(([id,at])=>({id,at})).sort((x,y)=>y.at-x.at);
 }
 function mergeRecords(local,remote,tombstones=[]){
   const deleted=tombstoneMap(tombstones),map=new Map();
@@ -24872,6 +24894,14 @@ function mergeTeam(local,remote){
   out.v953DeletedPlanIds=mergeTombstones(local.v953DeletedPlanIds,remote.v953DeletedPlanIds);
   out.v953DeletedHistoryIds=mergeTombstones(local.v953DeletedHistoryIds,remote.v953DeletedHistoryIds);
   out.v956DeletedScoutIds=mergeTombstones(local.v956DeletedScoutIds,remote.v956DeletedScoutIds);
+  // Archive copies are additive and never used as authoritative live matches.
+  const recycle=new Map();
+  for(const row of [...(Array.isArray(remote.scoutingRecycleBin)?remote.scoutingRecycleBin:[]),...(Array.isArray(local.scoutingRecycleBin)?local.scoutingRecycleBin:[])]){
+    const id=Number(row?.match?.id)||0;if(!id)continue;
+    const previous=recycle.get(id);
+    if(!previous||Date.parse(row.archivedAt||'')>=Date.parse(previous.archivedAt||''))recycle.set(id,clone(row));
+  }
+  out.scoutingRecycleBin=[...recycle.values()];
   out.planificacion=mergeRecords(local.planificacion,remote.planificacion,out.v953DeletedPlanIds);
   out.historial=mergeRecords(local.historial,remote.historial,out.v953DeletedHistoryIds);
 
@@ -25323,7 +25353,7 @@ function mergeTombs(list,id){
     if(n)map.set(n,Math.max(map.get(n)||0,at));
   });
   const n=Number(id)||0;if(n)map.set(n,Date.now());
-  return [...map.entries()].map(([id,at])=>({id,at})).sort((a,b)=>b.at-a.at).slice(0,500);
+  return [...map.entries()].map(([id,at])=>({id,at})).sort((a,b)=>b.at-a.at);
 }
 
 /* Delete on one device must not be resurrected by the other one. */
@@ -26226,6 +26256,7 @@ const MAX_DIRTY_NORMAL_MS=9000;
 const DIRTY_KEY='v1523_cloud_dirty';
 const REMOTE_STAMP_KEY='v1523_remote_stamp';
 let dirty=localStorage.getItem(DIRTY_KEY)==='1';
+let localRevision=0;
 let dirtySince=dirty?Date.now():0,dirtyTimer=null,syncPromise=null;
 let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
 let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
@@ -26238,7 +26269,7 @@ function activeScouting(){try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.
 function localState(){return typeof estadoLocal==='function'?estadoLocal():null}
 function setStatus(text,kind='online'){try{setCloudUI?.(kind,text)}catch(_){}}
 function setDirty(v){dirty=!!v;try{dirty?localStorage.setItem(DIRTY_KEY,'1'):localStorage.removeItem(DIRTY_KEY)}catch(_){};if(!dirty)dirtySince=0}
-function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
+function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
 function scheduleDirty(reason='change'){if(!dirty||!connected())return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,manual:false,allowWrite:true}),delay)}
 async function readRemote(){if(!connected())return null;const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
 async function writeRemote(state){const updatedAt=new Date().toISOString();const {error}=await cloudClient.from('volley_state').upsert({user_id:cloudUser.id,state,updated_at:updatedAt},{onConflict:'user_id'});writes++;persistCounters();if(error)throw error;lastWriteAt=Date.now();lastRemoteStamp=updatedAt;try{localStorage.setItem('volleyCloudLastSync',updatedAt);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,updatedAt)}catch(_){};return updatedAt}
@@ -26254,7 +26285,14 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
       try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
     }
     let mustWrite=allowWrite&&!pullOnly&&(dirty||!remote?.state);
-    if(mustWrite){const state=localState();if(state){await writeRemote(state);setDirty(false)}else mustWrite=false}else skippedWrites++;
+    if(mustWrite){const state=localState();if(state){
+      const sentRevision=localRevision;
+      await writeRemote(state);
+      // A rally may be added while Supabase is saving this snapshot.
+      // Keep that new change pending rather than reporting it as confirmed.
+      if(localRevision===sentRevision)setDirty(false);
+      else setDirty(true);
+    }else mustWrite=false}else skippedWrites++;
     persistCounters();failureCount=0;lastSyncError='';renderVisible();
     const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · sincronizados ✓`;
     setStatus(mustWrite?'Nube sincronizada':(remoteApplied?'Cambios recibidos ✓':'Nube al día'),'online');const indicator=document.getElementById('save-indicator');if(indicator)indicator.textContent=mustWrite?'✓ Guardado y sincronizado':'✓ Guardado · nube al día';
@@ -26262,7 +26300,7 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
     return remoteApplied||mustWrite;
   }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.2.6 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}
 
-Los datos locales siguen protegidos.`)}else setStatus('Nube pendiente · reintentando','syncing');if(dirty)scheduleDirty('retry');return false}finally{syncPromise=null}})();return syncPromise;
+Los datos locales siguen protegidos.`)}else setStatus('Nube pendiente · reintentando','syncing');if(dirty)scheduleDirty('retry');return false}finally{syncPromise=null;if(dirty&&connected())scheduleDirty('after-inflight-change')}})();return syncPromise;
 }
 async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'||reason.startsWith('auth-')){if(dirty||reason!=='manual')setDirty(true)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
 function visibilitySync(){if(document.visibilityState!=='visible'||!connected())return;if(dirty)void sync({reason:'visible-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS)void sync({reason:'visible',allowWrite:false,pullOnly:true})}
@@ -29088,7 +29126,10 @@ function findLocalMatch(teamId,matchId){const t=equiposData?.[teamId],list=Array
 function applyPatchToMatch(m,p){if(!m||!p)return false;const reserved=new Set(['set','setIndex','setSummaries','updatedAt','remoteUpdatedAt']);Object.keys(p).forEach(k=>{if(!reserved.has(k)&&p[k]!==undefined)m[k]=clone(p[k])});if(p.set){m.sets=Array.isArray(m.sets)?m.sets:[];const idx=Math.max(0,Number(p.setIndex)||0);m.sets[idx]=clone(p.set)}if(Array.isArray(p.setSummaries)){m.sets=Array.isArray(m.sets)?m.sets:[];p.setSummaries.forEach((s,i)=>{if(!s)return;if(!m.sets[i])m.sets[i]={};['scoreUs','scoreOpponent','finished','winner','number','setNo'].forEach(k=>{if(s[k]!==undefined)m.sets[i][k]=clone(s[k])})})}return true}
 function refreshFastUi(){try{window.MatchState?.sync?.('remote-fast')}catch(_){};try{window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}catch(_){};if(document.getElementById('scout-match-mode')?.classList.contains('active'))try{window.v800Render?.()}catch(_){} }
 function localCloudDirty(){try{return window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().dirty===true||localStorage.getItem('v1523_cloud_dirty')==='1'}catch(_){return localStorage.getItem('v1523_cloud_dirty')==='1'}}
-function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];if(!localCloudDirty()){team.scoutingMatches=[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)]}else{team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local}target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}scheduleLocalPersist();lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
+function applyFastPatch(payload){if(!payload||payload.deviceId===deviceId)return false;const teamId=String(payload.teamId||'');if(!teamId||typeof equiposData==='undefined')return false;
+ const incomingId=Number(payload.matchId||payload.match?.id)||0;
+ if(incomingId&&Array.isArray(equiposData?.[teamId]?.v956DeletedScoutIds)&&equiposData[teamId].v956DeletedScoutIds.some(x=>Number(x?.id??x)===incomingId))return false;
+ fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];if(!localCloudDirty()){team.scoutingMatches=[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)]}else{team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local}target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}scheduleLocalPersist();lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
 function onFast(message){try{applyFastPatch(message?.payload||message)}catch(err){console.warn('V15.2.6 fast patch',err)}}
 function buildFastPayload(reason){const m=active();if(!m)return null;const s=currentSet(m),setIndex=Math.max(0,(Number(m.currentSet)||1)-1),why=String(reason||'');const full=/reconnect|selected|new|create|boot|result|final|rally:edit|rally-edit|undo.*rally|restore|import/i.test(why)||!s;const base={version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:now(),teamId:String(equipoActivo||''),matchId:Number(m.id)||0,mode:full?'full':'patch'};if(full){base.match=clone(m);return base}const top=clone(m);delete top.sets;delete top.updatedAt;base.patch={...top,remoteUpdatedAt:m.updatedAt,setIndex,set:clone(s),setSummaries:(Array.isArray(m.sets)?m.sets:[]).map(x=>x?{number:x.number,setNo:x.setNo,scoreUs:x.scoreUs,scoreOpponent:x.scoreOpponent,finished:x.finished,winner:x.winner}:null)};return base}
 function queueFast(reason='matchstate'){if(fastApplying||rtState!=='SUBSCRIBED'||!channel||!cloudConnected())return;clearTimeout(fastTimer);fastTimer=setTimeout(async()=>{if(rtState!=='SUBSCRIBED'||!channel)return;touchMeta(reason);const payload=buildFastPayload(reason);if(!payload)return;try{await channel.send({type:'broadcast',event:FAST_EVENT,payload})}catch(err){console.warn('V15.2.6 broadcast',err)}},45)}
@@ -29875,4 +29916,191 @@ window.VC_V1525_TRAINING_FIX={version:VERSION,openExerciseDetails};
 })();
 </script>
 
+<script id="vc-v1527-scout-management">
+/* Volley Coach V15.2.7 · Gestión de scoutings.
+   Se integra en el HTML estable, sin instalar otros motores de sincronización. */
+(()=>{
+'use strict';
+if(window.VC_MANAGE_SCOUTS_1527)return;
+const byId=id=>document.getElementById(id),list=v=>Array.isArray(v)?v:[],copy=v=>JSON.parse(JSON.stringify(v));
+const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now=()=>new Date().toISOString();
+let teamId='',busy=false,localArchived=[];
+function activeTeams(){return typeof equiposData==='object'&&equiposData?equiposData:{}}
+function team(){return activeTeams()[teamId]||{}}
+function tombed(id){return list(team().v956DeletedScoutIds).some(x=>Number(x?.id??x)===Number(id))}
+function currentMatch(id){return list(team().scoutingMatches).find(m=>Number(m?.id)===Number(id))||null}
+function getUser(){try{return cloudUser?.id||'local'}catch(_){return 'local'}}
+function mark(reason){
+ try{window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('management:'+reason)}catch(err){console.warn('Cloud sync scheduling',err)}
+}
+async function backup(teamId,m,reason){
+ // Durable and independent of the current app localStorage quota.
+ const key=[getUser(),teamId,String(m.id),Date.now(),reason].join(':');
+ await new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(Error('IndexedDB no disponible'));return}
+  const req=indexedDB.open('VolleyCoachScoutManagementV1527',1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('copies'))req.result.createObjectStore('copies',{keyPath:'key'})};
+  req.onerror=()=>reject(req.error||Error('No se pudo abrir la copia protegida'));
+  req.onsuccess=()=>{const db=req.result;try{
+   const tx=db.transaction('copies','readwrite');
+   tx.objectStore('copies').put({key,user:getUser(),team:teamId,id:Number(m.id),match:copy(m),reason,savedAt:now()});
+   tx.oncomplete=()=>{db.close();resolve()};
+   tx.onerror=()=>{db.close();reject(tx.error||Error('Copia fallida'))};
+   tx.onabort=()=>{db.close();reject(tx.error||Error('Copia interrumpida'))};
+  }catch(e){db.close();reject(e)}};
+ });
+}
+async function archived(){
+ return new Promise(resolve=>{
+  if(!window.indexedDB){resolve([]);return}
+  const req=indexedDB.open('VolleyCoachScoutManagementV1527',1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('copies'))req.result.createObjectStore('copies',{keyPath:'key'})};
+  req.onerror=()=>resolve([]);
+  req.onsuccess=()=>{const db=req.result;try{
+   const tx=db.transaction('copies','readonly'),query=tx.objectStore('copies').getAll();
+   query.onsuccess=()=>{const rows=list(query.result).filter(x=>x.user===getUser());db.close();resolve(rows)};
+   query.onerror=()=>{db.close();resolve([])};
+  }catch(_){db.close();resolve([])}};
+ });
+}
+async function save(teamId,reason){
+ if(typeof guardarEstadoLocalSinCloud!=='function')throw Error('Guardado local no disponible');
+ guardarEstadoLocalSinCloud();
+ mark(reason);
+ try{window.MatchState?.sync?.('management:'+reason)}catch(_){}
+}
+function ensure(){
+ const grid=document.querySelector('#v11-management .v11-management-grid');
+ if(!grid)return false;
+ if(!byId('vc1527-open')){
+  const btn=document.createElement('button');btn.id='vc1527-open';btn.type='button';
+  btn.innerHTML='<span>▤</span><div><b>Scoutings</b><small>Reabrir, eliminar y recuperar partidos</small></div><strong>→</strong>';
+  btn.onclick=()=>void open();grid.append(btn);
+ }
+ if(byId('vc1527-modal'))return true;
+ const css=document.createElement('style');css.textContent=`
+ #vc1527-modal{position:fixed;inset:0;z-index:2147483001;display:none;align-items:center;justify-content:center;background:#061b2eaa;padding:12px}
+ #vc1527-modal.open{display:flex}#vc1527-pane{width:min(1050px,99vw);max-height:90vh;background:#fff;color:#173049;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px #0005;font:13px Arial}
+ #vc1527-head,#vc1527-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 17px;border-bottom:1px solid #dce4eb}
+ #vc1527-head{justify-content:space-between}#vc1527-head h3{margin:0;font:800 19px Arial}#vc1527-body{overflow:auto;padding:16px}
+ .vc1527-row{border:1px solid #dce4eb;border-radius:9px;padding:12px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+ .vc1527-row small{display:block;color:#667d8d;margin-top:5px}.vc1527-buttons{display:flex;gap:6px;flex-wrap:wrap}
+ .vc1527-buttons button,#vc1527-bar button{font-size:12px!important;padding:9px!important;text-transform:none!important}
+ .vc1527-note{background:#f3f7fa;padding:10px;border-radius:8px;margin:10px 0;line-height:1.5}
+ @media(max-width:650px){#vc1527-pane{max-height:95vh}.vc1527-row{display:block}.vc1527-buttons{margin-top:10px}}
+ `;document.head.append(css);
+ const modal=document.createElement('div');modal.id='vc1527-modal';modal.innerHTML=`
+ <section id="vc1527-pane" role="dialog" aria-modal="true" aria-label="Gestión de scoutings">
+ <header id="vc1527-head"><h3>Gestión de scoutings</h3><button class="ghost" id="vc1527-close">Cerrar</button></header>
+ <div id="vc1527-bar"><label>Equipo <select id="vc1527-team"></select></label><button class="ghost" id="vc1527-refresh">Actualizar</button><button class="ghost" id="vc1527-export">Exportar datos</button><small id="vc1527-sync-status"></small></div>
+ <div id="vc1527-body"></div></section>`;
+ document.body.append(modal);
+ byId('vc1527-close').onclick=close;
+ modal.addEventListener('click',e=>{if(e.target===modal)close()});
+ byId('vc1527-team').onchange=e=>{teamId=e.target.value;void refresh()};
+ byId('vc1527-refresh').onclick=()=>void refresh();
+ byId('vc1527-export').onclick=()=>{
+  try{const state=estadoLocal(),blob=new Blob([JSON.stringify({exportedAt:now(),version:'15.2.7',state},null,2)],{type:'application/json'});
+   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='VolleyCoach_respaldo_'+Date.now()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+  catch(e){alert('Error al exportar: '+String(e?.message||e))}
+ };
+ byId('vc1527-body').addEventListener('click',handleClick);
+ return true;
+}
+function allRows(){
+ const t=team(),rows=new Map();
+ list(t.scoutingMatches).forEach(m=>{if(m?.id!=null&&!tombed(m.id))rows.set(String(m.id),{match:m,kind:'current'})});
+ list(t.scoutingRecycleBin).forEach(x=>{const m=x?.match;if(m?.id!=null&&!rows.has(String(m.id)))rows.set(String(m.id),{match:m,kind:'recycle'})});
+ localArchived.filter(x=>x.team===teamId).forEach(x=>{const m=x?.match;if(m?.id!=null&&!rows.has(String(m.id)))rows.set(String(m.id),{match:m,kind:'backup'})});
+ return [...rows.values()].sort((a,b)=>String(b.match.updatedAt||b.match.date||'').localeCompare(String(a.match.updatedAt||a.match.date||'')));
+}
+function paint(){
+ const host=byId('vc1527-body');if(!host)return;
+ const rows=allRows(),d=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+ byId('vc1527-sync-status').textContent=d.connected?(d.dirty?'Pendiente de guardar en nube':'Nube conectada'):'Solo guardado local · nube no conectada';
+ host.innerHTML=`<div class="vc1527-note">Puedes consultar y reabrir partidos finalizados. Antes de eliminar uno se guarda una copia protegida. Recuperar crea un nuevo scouting; el borrado original no se deshace. Los cambios se guardan localmente y se envían mediante la sincronización habitual.</div>
+ ${rows.map(x=>{const m=x.match,id=String(m.id),current=x.kind==='current';const desc=current?(m.status==='finished'?'Finalizado':'Guardado / en curso'):'Copia recuperable';return `<article class="vc1527-row"><div><b>${safe(m.date||'Sin fecha')} · ${safe(m.opponent||'Rival')}</b><small>${safe(teamId)} · ID ${safe(id)} · ${desc} · ${list(m.sets).length} sets</small></div><div class="vc1527-buttons">${current?`<button class="ghost" data-act="view" data-id="${safe(id)}">Abrir</button>${m.status==='finished'?`<button class="primary" data-act="reopen" data-id="${safe(id)}">Reabrir</button>`:''}<button class="danger" data-act="delete" data-id="${safe(id)}">Eliminar</button>`:`<button class="primary" data-act="restore" data-id="${safe(id)}">Recuperar copia</button>`}</div></article>`}).join('')||'<p>No hay scoutings en este equipo.</p>'}`;
+}
+async function refresh(){localArchived=await archived();paint()}
+function close(){byId('vc1527-modal')?.classList.remove('open')}
+async function open(){if(!ensure())return;const teams=Object.keys(activeTeams()).filter(k=>!!(typeof EQUIPOS==='undefined'||EQUIPOS[k]));const keys=teams.length?teams:Object.keys(typeof EQUIPOS==='undefined'?{}:EQUIPOS);
+ teamId=keys.includes(String(equipoActivo))?String(equipoActivo):keys[0]||'';
+ const sel=byId('vc1527-team');sel.innerHTML=keys.map(k=>`<option value="${safe(k)}">${safe(typeof EQUIPOS==='undefined'?k:EQUIPOS[k]?.nombre||k)}</option>`).join('');sel.value=teamId;
+ byId('vc1527-modal').classList.add('open');await refresh();
+}
+async function selectTeam(){
+ if(teamId===String(equipoActivo))return;
+ if(typeof cambiarEquipo!=='function')throw Error('No se puede cambiar de equipo');
+ cambiarEquipo(teamId);
+ if(String(equipoActivo)!==teamId)throw Error('No se ha cambiado al equipo del scouting');
+}
+async function viewMatch(id){
+ await selectTeam();close();
+ if(!window.MatchState?.select)throw Error('El selector de scoutings no está disponible');
+ await window.MatchState.select(id,{saveCurrent:true,openWorkspace:true});
+}
+async function mutate(id,action,match){
+ if(action==='view'){await viewMatch(id);return}
+ if(action==='delete'){
+  if(!confirm('¿Eliminar este scouting? Guardaremos una copia protegida y se sincronizará la eliminación con los otros dispositivos.'))return;
+  await window.scoutV902Flush?.();
+  const m=currentMatch(id);if(!m)throw Error('No se encuentra el scouting activo');
+  await backup(teamId,m,'before-delete');
+  const t=team(),before=copy(t);
+  try{
+   const archive=copy(m);
+   t.scoutingRecycleBin=list(t.scoutingRecycleBin).filter(x=>Number(x?.match?.id)!==id);
+   t.scoutingRecycleBin.push({match:archive,archivedAt:now()});
+   const listTomb=list(t.v956DeletedScoutIds).filter(x=>Number(x?.id??x)!==id);
+   // Permanent tombstone for this ID. Recovery uses a new ID.
+   listTomb.push({id,at:Number.MAX_SAFE_INTEGER});t.v956DeletedScoutIds=listTomb;
+   t.scoutingMatches=list(t.scoutingMatches).filter(x=>Number(x?.id)!==id);
+   if(Number(t.scoutingActiveId)===id)t.scoutingActiveId=null;
+   if(teamId===String(equipoActivo))window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(t.scoutingMatches,t.scoutingActiveId);
+   await save(teamId,'delete');
+  }catch(e){activeTeams()[teamId]=before;if(teamId===String(equipoActivo))window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(before.scoutingMatches,before.scoutingActiveId);throw e}
+ }else if(action==='reopen'){
+  if(!confirm('¿Reabrir este scouting finalizado para editarlo? Se conservarán sus rallies y sets.'))return;
+  await selectTeam();
+  const m=currentMatch(id);if(!m)throw Error('Scouting no encontrado');
+  await backup(teamId,m,'before-reopen');
+  const t=team(),before=copy(m);
+  try{
+   m.status='live';m.endedAt=null;m.reopenedAt=now();m.updatedAt=now();
+   const live=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.find(x=>Number(x.id)===id);
+   if(live&&live!==m){live.status='live';live.endedAt=null;live.reopenedAt=m.reopenedAt;live.updatedAt=m.updatedAt}
+   await window.MatchState?.select?.(id,{saveCurrent:true,openWorkspace:true});
+   await save(teamId,'reopen');
+   window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900')||null);
+   try{window.VC_V123?.render?.();window.v119RefreshPro?.()}catch(_){}
+   close();
+  }catch(e){Object.assign(m,before);throw e}
+ }else if(action==='restore'){
+  if(!confirm('¿Recuperar esta copia como un scouting NUEVO? El original eliminado se conservará en el archivo.'))return;
+  await backup(teamId,match,'before-restore');
+  const t=team(),before=copy(t);
+  try{
+   const restored=copy(match),used=new Set([...list(t.scoutingMatches),...list(t.v956DeletedScoutIds)].map(x=>Number(x?.match?.id??x?.id??x)));
+   let next=Date.now();while(used.has(next))next++;
+   restored.restoredFromId=Number(restored.id);restored.id=next;restored.restoredAt=now();restored.updatedAt=now();
+   t.scoutingMatches=[...list(t.scoutingMatches),restored];
+   if(teamId===String(equipoActivo))window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(t.scoutingMatches,t.scoutingActiveId);
+   await save(teamId,'restore');
+  }catch(e){activeTeams()[teamId]=before;if(teamId===String(equipoActivo))window.VC_SCOUT_VIDEO_BRIDGE?.replaceMatches?.(before.scoutingMatches,before.scoutingActiveId);throw e}
+ }
+}
+async function handleClick(e){
+ const btn=e.target.closest('button[data-act]');if(!btn||busy)return;
+ const id=Number(btn.dataset.id),action=btn.dataset.act,row=allRows().find(x=>Number(x.match.id)===id);
+ if(!row)return;busy=true;btn.disabled=true;
+ try{await mutate(id,action,row.match);if(action!=='view'&&action!=='reopen')await refresh()}
+ catch(err){alert('No se ha completado la operación: '+String(err?.message||err));console.warn('VC1527 Gestion',err)}
+ finally{busy=false;btn.disabled=false}
+}
+window.VC_MANAGE_SCOUTS_1527={version:'15.2.7',open,refresh,diagnostics:()=>({teams:Object.keys(activeTeams()).length,active:String(equipoActivo),connected:!!window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().connected})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure,{once:true});else ensure();
+})();
+
+</script>
 </body></html>
