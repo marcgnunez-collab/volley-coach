@@ -1,9 +1,9 @@
-/* Volley Coach V16.9.6: activación atómica con todos los módulos disponibles. */
+/* Volley Coach V16.9.7: sincronización y gestión integradas en index.html. */
 'use strict';
-const BUILD='16.9.5';
-const CACHE_NAME='volley-coach-v16.9.5-sync-rescue-1';
+const BUILD='16.9.7';
+const CACHE_NAME='volley-coach-v16.9.7-compact';
 const PAGE='./index.html';
-const ASSETS=['./vc-sync-v1693.js','./vc-scout-management-v1695.js','./vc-reopen-safe-v1694.js','./vc-reopen-entry-v1694.js','./vc-delete-entry-v1694.js','./vc-recovery-v169.js','./vc-csv-reconcile-v1691.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
+const ASSETS=['./vc-reopen-safe-v1694.js','./vc-reopen-entry-v1694.js','./vc-delete-entry-v1694.js','./vc-recovery-v169.js','./vc-csv-reconcile-v1691.js','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 const scopePath=new URL(self.registration.scope).pathname;
 const tag=/<meta\b(?=[^>]*\bname\s*=\s*["']volley-coach-build["'])(?=[^>]*\bcontent\s*=\s*["']([\d.]+)["'])[^>]*>/i;
 function compare(a,b){const A=String(a||'').split('.').map(x=>Number(x)||0),B=String(b||'').split('.').map(x=>Number(x)||0);for(let i=0;i<Math.max(A.length,B.length);i++){if((A[i]||0)!==(B[i]||0))return A[i]>B[i]?1:-1}return 0}
