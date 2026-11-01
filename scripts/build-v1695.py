@@ -17,3 +17,5 @@ worker=worker.replace("'./vc-sync-v1693.js'","'./vc-sync-v1693.js','./vc-scout-m
 h.write_text(html,encoding='utf-8')
 sw.write_text(worker,encoding='utf-8')
 print('Installed Gestión Scoutings into V16.9.5 candidate.')
+
+# Candidate build is isolated from main.
