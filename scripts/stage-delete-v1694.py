@@ -17,3 +17,5 @@ if asset not in sw:
 h.write_text(html,encoding="utf-8")
 w.write_text(sw,encoding="utf-8")
 print('Deletion button and required PWA asset added.')
+
+# Activation: candidate archive actions.
