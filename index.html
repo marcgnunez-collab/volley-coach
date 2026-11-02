@@ -3020,6 +3020,12 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <b>Preparado.</b> La cámara no se envía a ningún servidor; el búfer temporal permanece en este dispositivo.
     </div>
 
+    <div id="vc160-video-health" class="vc160-health" role="status" aria-live="polite">
+      <div class="vc160-health-header"><strong>V16.0 · Estado del vídeo</strong><button type="button" class="ghost" onclick="vc160CopyDiagnostics()">Copiar diagnóstico</button></div>
+      <div class="vc160-health-grid"><span id="vc160-health-remote">Cámara remota: —</span><span id="vc160-health-delay">Delay: detenido</span><span id="vc160-health-rec">REC: detenido</span><span id="vc160-health-queue">Fragmentos pendientes: 0</span></div>
+      <small>Las alertas del delay no detienen REC. Para un partido largo prioriza la grabación directa a un archivo.</small>
+    </div>
+
     <div class="live-delay-grid">
       <section class="live-delay-pane">
         <div class="live-delay-pane-head">
@@ -15464,6 +15470,12 @@ setTimeout(()=>{render();decorateTimeline()},0);
 .live-delay-help{margin-top:8px;padding:9px 10px;border-radius:8px;background:#eef4f8;border:1px solid #d7e3eb;color:#536b7e;font-size:9px;line-height:1.45}
 @media(max-width:900px){.live-delay-toolbar{grid-template-columns:1fr 1fr}.live-delay-field.camera{grid-column:1/-1}.live-delay-main-actions{justify-content:flex-end}.live-delay-grid{grid-template-columns:1fr}.live-delay-metrics{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.live-delay-toolbar{grid-template-columns:1fr}.live-delay-field.camera{grid-column:auto}.live-delay-main-actions{justify-content:stretch}.live-delay-main-actions button{flex:1}.live-delay-metrics{grid-template-columns:1fr 1fr}.live-delay-training-tools{align-items:flex-start;flex-direction:column}.live-delay-replay-actions{justify-content:flex-start;width:100%}.live-delay-replay-actions button{flex:1}.live-delay-controls button{flex:1 1 calc(33% - 5px)}}
+.vc160-health{padding:10px 12px;margin:8px 0 12px;border-radius:9px;background:#f5f9fd;border:1px solid #d8e4ef;color:#244058;font-size:11px}
+.vc160-health-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:9px}
+.vc160-health-header button{font-size:10px!important;padding:6px 9px!important}
+.vc160-health-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px;font-size:10px;line-height:1.5}
+.vc160-health small{display:block;margin-top:7px;color:#566f84;font-size:9px}
+@media(max-width:600px){.vc160-health-grid{grid-template-columns:1fr}}
 </style>
 
 
@@ -15471,7 +15483,7 @@ setTimeout(()=>{render();decorateTimeline()},0);
 (()=>{
 'use strict';
 
-const VERSION='7.3.0';
+const VERSION='16.0.0';
 const $=id=>document.getElementById(id);
 const state={
   context:'training',
@@ -15493,7 +15505,18 @@ const state={
   prunePending:false,
   cameraReady:false,
   lastCameraId:'',
-  streamStartedAt:0
+  streamStartedAt:0,
+  generation:0,
+  chunkSerial:Promise.resolve(),
+  queueBytes:0,
+  pendingBlobBytes:0,
+  chunkCount:0,
+  lastChunkAt:0,
+  overloads:0,
+  quotaFailures:0,
+  lastError:'',
+  lastBufferEnd:null,
+  stalledSince:0
 };
 
 function setStatus(text,kind=''){
@@ -15588,7 +15611,7 @@ function chooseMime(){
 function destroyMse(){
   const v=delayed();
   try{if(state.sourceBuffer&&state.mediaSource?.readyState==='open')state.mediaSource.endOfStream()}catch(_){}
-  state.sourceBuffer=null;state.mediaSource=null;state.appendQueue=[];state.appendBusy=false;state.prunePending=false;
+  state.sourceBuffer=null;state.mediaSource=null;state.appendQueue=[];state.queueBytes=0;state.appendBusy=false;state.prunePending=false;
   if(v){try{v.pause()}catch(_){};v.removeAttribute('src');try{v.load()}catch(_){}}
   if(state.mediaUrl){try{URL.revokeObjectURL(state.mediaUrl)}catch(_){}state.mediaUrl=null}
 }
@@ -15604,13 +15627,14 @@ function createMse(){
         state.sourceBuffer=sb;
         sb.mode='segments';
         sb.addEventListener('updateend',()=>{
+          if(state.appendBusy)state.quotaFailures=0;
           state.appendBusy=false;
           pruneBuffer();
           appendNext();
           maintainDelay();
           updateMetrics();
         });
-        sb.addEventListener('error',()=>setStatus('<b>Error del búfer.</b> Detén y vuelve a iniciar Live Delay.','bad'));
+        sb.addEventListener('error',()=>failDelay('Error de decodificación o almacenamiento del búfer.'));
         resolve();
       }catch(err){reject(err)}
     };
@@ -15618,16 +15642,27 @@ function createMse(){
     setTimeout(()=>{if(!state.sourceBuffer)reject(new Error('MediaSource no se abrió.'))},5000);
   });
 }
+function failDelay(reason){
+  if(!state.running)return;
+  state.lastError=String(reason||'Error de Live Delay');
+  state.overloads++;
+  window.stopLiveDelay(true);
+  setStatus('<b>Live Delay detenido para evitar saltos no detectados.</b> '+state.lastError+' La grabación REC independiente no se ha detenido. Reinicia el Delay después de comprobar la señal.','bad');
+  setState('live-delay-review-state','ERROR',false);
+}
 function appendNext(){
   if(!state.running||!state.sourceBuffer||state.appendBusy||state.sourceBuffer.updating||!state.appendQueue.length)return;
-  const buf=state.appendQueue.shift();state.appendBusy=true;
+  const buf=state.appendQueue.shift();state.queueBytes=Math.max(0,state.queueBytes-buf.byteLength);state.appendBusy=true;
   try{state.sourceBuffer.appendBuffer(buf)}catch(err){
     state.appendBusy=false;
     if(err?.name==='QuotaExceededError'){
-      state.appendQueue.unshift(buf);pruneBuffer(true);
+      state.appendQueue.unshift(buf);state.queueBytes+=buf.byteLength;
+      state.quotaFailures++;
+      if(state.quotaFailures>=4){failDelay('El navegador ha agotado la memoria de vídeo. Reduce el búfer o usa otro dispositivo.');return;}
+      pruneBuffer(true);
     }else{
       console.error('Live Delay append',err);
-      setStatus('<b>No se pudo añadir vídeo al búfer.</b> Prueba a reiniciar la cámara.','bad');
+      failDelay('No se pudo añadir un fragmento de vídeo al búfer.');
     }
   }
 }
@@ -15675,7 +15710,17 @@ function updateMetrics(){
 }
 function startTicker(){
   stopTicker();
-  state.timer=setInterval(()=>{maintainDelay();updateMetrics()},500);
+  state.timer=setInterval(()=>{
+    if(!state.running)return;
+    // Reintentar tras una eliminación por límite de memoria; nunca omitir fragmentos.
+    appendNext();maintainDelay();updateMetrics();
+    const age=Date.now()-(state.lastChunkAt||state.streamStartedAt);
+    if(age>20000)failDelay('Sin nuevos fotogramas de cámara desde hace más de 20 segundos. Comprueba móvil, Wi-Fi y permisos.');
+    else if(age>7000){
+      setState('live-delay-review-state','SEÑAL INESTABLE',false);
+      setStatus('<b>La cámara no entrega fragmentos nuevos.</b> Revisando conexión; no se descartan fotogramas sin avisar.','warn');
+    }
+  },1000);
 }
 function stopTicker(){if(state.timer){clearInterval(state.timer);state.timer=null}}
 async function requestStream(){
@@ -15724,18 +15769,38 @@ async function startRecorder(){
 
   const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:2500000}:{videoBitsPerSecond:2500000};
   const rec=new MediaRecorder(recorderStream,options);state.recorder=rec;
-  rec.addEventListener('dataavailable',async e=>{
+  rec.addEventListener('dataavailable',e=>{
     if(!state.running||!e.data||!e.data.size)return;
-    try{
+    const generation=state.generation;
+    state.pendingBlobBytes+=e.data.size;
+    if(state.pendingBlobBytes+state.queueBytes>24*1024*1024){
+      failDelay('El navegador está acumulando más de 24 MB de vídeo pendientes de procesamiento. El Delay se detiene antes de perder continuidad.');
+      return;
+    }
+    // Serializar también la conversión Blob->ArrayBuffer: lecturas asíncronas
+    // completadas fuera de orden pueden romper MediaSource incluso sin pérdida.
+    state.chunkSerial=state.chunkSerial.then(async()=>{
       const ab=await e.data.arrayBuffer();
+      if(generation===state.generation)state.pendingBlobBytes=Math.max(0,state.pendingBlobBytes-e.data.size);
+      if(!state.running||generation!==state.generation)return;
+      const LIMIT=24*1024*1024;
+      if(state.queueBytes+ab.byteLength>LIMIT){
+        failDelay('El reproductor no alcanza a procesar la señal (cola superior a 24 MB). Se ha detenido solo la revisión, sin descartar vídeo silenciosamente.');
+        return;
+      }
       state.appendQueue.push(ab);
-      if(state.appendQueue.length>40)state.appendQueue.splice(0,state.appendQueue.length-40);
+      state.queueBytes+=ab.byteLength;
+      state.chunkCount++;
+      state.lastChunkAt=Date.now();
       appendNext();
-    }catch(err){console.error('Live Delay chunk',err)}
+    }).catch(err=>{console.error('Live Delay chunk',err);if(generation===state.generation)failDelay('No se ha podido leer un fragmento de la cámara.')});
   });
   rec.addEventListener('error',e=>{
     console.error('Live Delay recorder',e);
-    setStatus('<b>Error de captura.</b> El navegador ha detenido el grabador.','bad');
+    failDelay('MediaRecorder ha informado de un error de captura.');
+  });
+  rec.addEventListener('stop',()=>{
+    if(state.running)failDelay('La grabación temporal del Delay terminó de forma inesperada.');
   });
   rec.start(500);
 }
@@ -15760,6 +15825,9 @@ window.startLiveDelay=async function(){
       if(state.lastCameraId&&$('live-delay-camera'))$('live-delay-camera').value=state.lastCameraId;
     }
     savePrefs();
+    state.generation++;
+    state.chunkSerial=Promise.resolve();
+    state.queueBytes=0;state.pendingBlobBytes=0;state.chunkCount=0;state.quotaFailures=0;state.lastChunkAt=0;state.lastError='';
     await createMse();
     state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
     await startRecorder();startTicker();updateUi();updateMetrics();
@@ -15772,7 +15840,7 @@ window.startLiveDelay=async function(){
   }
 };
 window.stopLiveDelay=function(silent=false){
-  stopTicker();state.running=false;state.mode='delay';
+  stopTicker();state.running=false;state.generation++;state.pendingBlobBytes=0;state.mode='delay';
   try{state.recorder?.stop()}catch(_){}
   state.recorder=null;
   try{window.VC_REMOTE_CAMERA?.stopDelayNormalizedStream?.()}catch(_){}
@@ -15845,8 +15913,9 @@ window.openLiveDelay=async function(context='training'){
   loadPrefs();updateUi();
   $('live-delay-modal')?.classList.add('open');
   await populateCameras();
-  const supported=!!navigator.mediaDevices?.getUserMedia&&!!chooseMime();
-  if(!supported)setStatus('<b>Compatibilidad limitada.</b> Live Delay necesita acceso a cámara, MediaRecorder y MediaSource. Prueba Chrome o Edge actualizados.','warn');
+  const remoteSelected=($('live-delay-source')?.value==='remote');
+  const supported=!!chooseMime()&&(remoteSelected?!!window.VC_REMOTE_CAMERA?.getStream:!!navigator.mediaDevices?.getUserMedia);
+  if(!supported)setStatus('<b>Compatibilidad limitada.</b> Live Delay necesita MediaRecorder y MediaSource. Para la cámara local se requiere permiso de cámara; para móvil, conecta primero el QR.','warn');
   else if(!state.running)setStatus('<b>Preparado.</b> La cámara no se envía a ningún servidor; el búfer temporal permanece en este dispositivo.','');
 };
 window.closeLiveDelay=function(){
@@ -15870,7 +15939,14 @@ window.liveDelayDiagnostics=function(){
     actualDelay:r&&v?Math.max(0,r.end-(Number(v.currentTime)||0)):null,
     cameraApi:!!navigator.mediaDevices?.getUserMedia,
     mediaRecorder:typeof MediaRecorder!=='undefined',
-    mediaSource:typeof MediaSource!=='undefined'
+    mediaSource:typeof MediaSource!=='undefined',
+    queuedChunks:state.appendQueue.length,
+    queuedBytes:state.queueBytes,
+    pendingBlobBytes:state.pendingBlobBytes,
+    chunksReceived:state.chunkCount,
+    lastChunkAgeMs:state.lastChunkAt?Date.now()-state.lastChunkAt:null,
+    interruptions:state.overloads,
+    error:state.lastError||null
   };
 };
 
@@ -18262,6 +18338,10 @@ const state={
   connected:false,
   preparing:false,
   viewerPromise:null,
+  viewerWanted:false,
+  reconnectTimer:null,
+  reconnectAttempts:0,
+  reconnecting:false,
   source:'local',
   publisher:null,
   publisherStream:null,
@@ -18330,8 +18410,8 @@ function loadScript(src,test,timeout=12000){
 async function ensureVDOSDK(){
   if(window.VDONinjaSDK)return;
   const sources=[
-    'https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@latest/vdoninja-sdk.min.js',
-    'https://unpkg.com/@vdoninja/sdk/vdoninja-sdk.min.js'
+    'https://cdn.jsdelivr.net/npm/@vdoninja/sdk@1.6.2/vdoninja-sdk.min.js',
+    'https://unpkg.com/@vdoninja/sdk@1.6.2/vdoninja-sdk.min.js'
   ];
   let last;
   for(const src of sources){
@@ -18372,6 +18452,33 @@ async function renderQR(){
     box.innerHTML='<span>No se pudo dibujar el QR. Usa “Copiar enlace” y ábrelo en el móvil.</span>';
   }
 }
+function cancelReconnect(){
+  if(state.reconnectTimer){clearTimeout(state.reconnectTimer);state.reconnectTimer=null;}
+}
+function scheduleReconnect(reason){
+  if(!state.viewerWanted||!state.room||!state.key||state.connected||state.reconnecting||state.reconnectTimer)return;
+  if(state.reconnectAttempts>=4){
+    setRemoteStatus('SIN CONEXIÓN · REINTENTAR','bad');
+    setPreviewEmpty('No se ha podido reconectar automáticamente. Pulsa «Reintentar conexión».',false);
+    return;
+  }
+  const seconds=Math.min(16,2**state.reconnectAttempts*2);
+  state.reconnectAttempts++;
+  setRemoteStatus(`RECONECTANDO · ${state.reconnectAttempts}/4`,'wait');
+  state.reconnectTimer=setTimeout(async()=>{
+    state.reconnectTimer=null;
+    if(!state.viewerWanted||state.connected)return;
+    state.reconnecting=true;
+    try{await connectViewer();}
+    catch(err){console.warn('V16.0 reconectar WebRTC',err);}
+    finally{
+      state.reconnecting=false;
+      if(!state.connected&&state.viewerWanted){
+        setTimeout(()=>scheduleReconnect('sin fotogramas'),3000);
+      }
+    }
+  },seconds*1000);
+}
 async function disconnectViewer(keepSession=true){
   state.connected=false;
   const preview=$('vc-remote-preview');
@@ -18397,10 +18504,10 @@ async function connectViewer(){
 
   sdk.addEventListener('track',event=>{
     const track=event?.detail?.track;
-    if(!track||track.kind!=='video')return;
+    if(sdk!==state.sdk||!track||track.kind!=='video')return;
     if(!incoming.getVideoTracks().some(t=>t.id===track.id))incoming.addTrack(track);
     state.stream=incoming;
-    state.connected=true;
+    state.connected=true;state.reconnectAttempts=0;cancelReconnect();
     const pv=$('vc-remote-preview');
     if(pv){
       pv.srcObject=incoming;pv.muted=true;
@@ -18410,23 +18517,31 @@ async function connectViewer(){
     setRemoteStatus('MÓVIL CONECTADO','on');
     if($('live-delay-live-title'))$('live-delay-live-title').textContent='Móvil remoto';
     track.addEventListener('ended',()=>{
+      if(sdk!==state.sdk)return;
       state.connected=false;
       setRemoteStatus('SEÑAL PERDIDA','bad');
-      setPreviewEmpty('Se ha perdido la señal del móvil.',false);
+      setPreviewEmpty('Se ha perdido la señal del móvil. Reconectando…',false);
+      scheduleReconnect('pista terminada');
     },{once:true});
   });
 
   sdk.addEventListener?.('connectionstate',e=>{
+    if(sdk!==state.sdk)return;
     const s=String(e?.detail?.state||e?.detail||'');
-    if(/failed|disconnected|closed/i.test(s)&&!state.connected)setRemoteStatus('SIN SEÑAL','bad');
+    if(/failed|disconnected|closed/i.test(s)){
+      state.connected=false;
+      setRemoteStatus('SIN SEÑAL','bad');
+      scheduleReconnect(s);
+    }
   });
 
   await sdk.connect();
   await sdk.joinRoom({room:state.room,password:state.key});
   state.viewerPromise=sdk.view(state.streamId,{audio:false,video:true});
   Promise.resolve(state.viewerPromise).catch(err=>{
+    if(sdk!==state.sdk)return;
     console.warn('V7.6 remote view',err);
-    if(!state.connected)setRemoteStatus('REINTENTAR','bad');
+    if(!state.connected){setRemoteStatus('REINTENTAR','bad');scheduleReconnect('fallo de visualización');}
   });
 }
 window.vcRemotePrepare=async function(reset=false){
@@ -18439,6 +18554,7 @@ window.vcRemotePrepare=async function(reset=false){
       state.streamId=randomToken('cam_',10);
       state.key=randomToken('',14);
     }
+    state.viewerWanted=true;state.reconnectAttempts=0;cancelReconnect();
     setRemoteStatus('PREPARANDO…','wait');
     await renderQR();
     const note=$('vc-remote-session-note');
@@ -18452,9 +18568,10 @@ window.vcRemotePrepare=async function(reset=false){
   }finally{state.preparing=false}
 };
 window.vcRemoteReconnect=async function(){
+  state.viewerWanted=true;state.reconnectAttempts=0;cancelReconnect();
   try{await connectViewer()}catch(err){setRemoteStatus('ERROR','bad');alert(String(err?.message||err))}
 };
-window.vcRemoteDisconnect=async function(){await disconnectViewer(true)};
+window.vcRemoteDisconnect=async function(){state.viewerWanted=false;cancelReconnect();await disconnectViewer(true)};
 window.vcRemoteCopyLink=async function(){
   const link=$('vc-remote-link')?.value||publisherUrl();
   try{await navigator.clipboard.writeText(link);setRemoteStatus('ENLACE COPIADO','on')}
@@ -18476,7 +18593,7 @@ window.VC_REMOTE_CAMERA={
   isConnected:()=>state.connected&&!!state.stream?.getVideoTracks?.().some(t=>t.readyState==='live'),
   prepare:window.vcRemotePrepare,
   disconnect:window.vcRemoteDisconnect,
-  diagnostics:()=>({version:VERSION,source:state.source,room:state.room,streamId:state.streamId,connected:state.connected,tracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]})
+  diagnostics:()=>({version:VERSION,source:state.source,connected:state.connected,viewerWanted:state.viewerWanted,reconnectAttempts:state.reconnectAttempts,reconnecting:state.reconnecting,tracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]})
 };
 
 
@@ -19765,7 +19882,19 @@ function startRecordingHealth(){
       }
     }
 
-    if(state.writeError&&state.active){
+    if(state.active&&state.mode!=='disk'&&navigator.storage?.estimate&&
+       Date.now()-(state.storageLastCheckAt||0)>30000){
+      state.storageLastCheckAt=Date.now();
+      try{
+        const info=await navigator.storage.estimate();
+        const free=Number(info.quota)-Number(info.usage||0);
+        if(Number.isFinite(free)&&free>0&&free<64*1024*1024){
+          state.writeError=state.writeError||new Error('Espacio del navegador inferior a 64 MB.');
+          setState('ESPACIO AGOTÁNDOSE','bad');
+        }
+      }catch(_){}
+    }
+    if(state.writeError&&state.active&&!state.stopping){
       const note=$('vc-recording-status-note');
       if(note)note.textContent='Error al guardar un fragmento. Cerrando la grabación para conservar lo ya escrito.';
       setTimeout(()=>window.vcRecordingStop(false),0);
@@ -19773,8 +19902,29 @@ function startRecordingHealth(){
   },2000);
 }
 
+async function storagePreflight(mode){
+  if(mode==='disk'||!navigator.storage?.estimate)return true;
+  try{
+    const info=await navigator.storage.estimate();
+    const free=Number(info.quota)-Number(info.usage||0);
+    if(!Number.isFinite(free)||free<=0)return true;
+    // Vídeo 3,5 Mbps + margen de metadatos; estimación, no garantía.
+    const minutes=Math.floor(free/(3500000/8*1.15)/60);
+    if(free<150*1024*1024){
+      alert('Espacio estimado inferior a 150 MB: no es seguro iniciar la grabación recuperable. Selecciona archivo directo o libera espacio.');
+      return false;
+    }
+    if(minutes<60){
+      return confirm(`Almacenamiento disponible estimado: ${minutes} minutos al bitrate actual. Para un partido largo se recomienda grabar directamente a archivo. ¿Quieres iniciar REC recuperable igualmente?`);
+    }
+    try{await navigator.storage.persist?.()}catch(_){}
+  }catch(err){console.warn('V16.0 storage estimate',err)}
+  return true;
+}
 window.vcRecordingStart=async function(){
-  if(state.active)return;
+  if(state.active||state.starting)return;
+  state.starting=true;
+  try{
   const source=getSourceStream();
   if(!source){alert('Primero inicia la cámara o conecta el móvil y activa Live Delay.');return}
   if(typeof MediaRecorder==='undefined'){alert('Este navegador no dispone de MediaRecorder.');return}
@@ -19786,6 +19936,7 @@ window.vcRecordingStart=async function(){
   }
   if(mode==='gallery'&&!galleryShareSupported())mode='browser';
 
+  if(!(await storagePreflight(mode)))return;
   const mime=chooseMime(mode==='disk'||mode==='gallery');
   if(!mime){alert('No se ha encontrado un formato de vídeo compatible para grabar.');return}
 
@@ -19818,7 +19969,7 @@ window.vcRecordingStart=async function(){
       sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'
         ?`LIVE móvil directo · ${window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()?.outputOrientation==='portrait'?'vertical 9:16':'horizontal 16:9'} · independiente del Delay`
         :'LIVE cámara local · independiente del Delay',
-      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0
+      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0,stopping:false,storageLastCheckAt:0
     });
 
     const initialSession={
@@ -19876,6 +20027,7 @@ window.vcRecordingStart=async function(){
     setState('ERROR','bad');
     alert('No se ha podido iniciar la grabación.\n\n'+String(err?.message||err));
   }
+  }finally{state.starting=false;}
 };
 
 window.vcRecordingTogglePause=function(){
@@ -19968,7 +20120,8 @@ async function finalizeSession(){
   return session;
 }
 window.vcRecordingStop=async function(silent=false){
-  if(!state.active)return null;
+  if(!state.active||state.stopping)return null;
+  state.stopping=true;
   stopTimer();
   setState('GUARDANDO','pause');
 
@@ -20003,7 +20156,7 @@ window.vcRecordingStop=async function(silent=false){
     await releaseRecordingWakeLock();
     try{state.stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
     try{window.VC_REMOTE_CAMERA?.stopLiveRecordingStream?.()}catch(_){}
-    Object.assign(state,{active:false,paused:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:'',writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0});
+    Object.assign(state,{active:false,paused:false,stopping:false,recorder:null,stream:null,writer:null,fileHandle:null,pausedAt:0,sourceKind:'',sourceLabelAtStart:'',writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0});
     updateUI();
   }
 };
@@ -20081,6 +20234,7 @@ window.vcRecordingDiagnostics=function(){
     writeError:state.writeError?String(state.writeError?.message||state.writeError):null,
     recorderError:state.recorderError?String(state.recorderError?.message||state.recorderError):null,
     healthActive:!!state.healthTimer,
+    stopping:!!state.stopping,
     sourceFailureSince:state.sourceFailureSince||0,
     liveFrames:window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()||null
   };
@@ -31320,4 +31474,35 @@ document.addEventListener('vc:matchstatechange',()=>{if($('scout-video-hub')?.cl
 
 
 
+
+<script id="vc160-video-health-module">
+(()=>{
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ function report(){
+   const safe=fn=>{try{return fn()||{}}catch(_){return{}}};
+   const delay=safe(()=>window.liveDelayDiagnostics?.());
+   const remote=safe(()=>window.VC_REMOTE_CAMERA?.diagnostics?.());
+   const rec=safe(()=>window.vcRecordingDiagnostics?.());
+   return {version:'16.0.0',delay,remote,recording:{active:!!rec.active,mode:rec.mode||'',bytes:rec.bytes||0,stopping:!!rec.stopping,writeError:rec.writeError||null,recorderError:rec.recorderError||null,healthActive:!!rec.healthActive,liveFrames:rec.liveFrames||null},time:new Date().toISOString()};
+ }
+ function render(){
+   if(!$('live-delay-modal')?.classList.contains('open'))return;
+   const d=report();
+   const age=d.delay.lastChunkAgeMs;
+   const v=$('vc160-health-remote');if(v)v.textContent=d.remote.connected?'Cámara remota: conectada':d.remote.viewerWanted?'Cámara remota: esperando/reconectando':'Cámara remota: desconectada';
+   const dl=$('vc160-health-delay');if(dl)dl.textContent=!d.delay.running?'Delay: detenido':age!=null&&age>7000?'Delay: señal sin fragmentos nuevos':`Delay: activo · ${Math.round(d.delay.actualDelay||0)} s reales`;
+   const r=$('vc160-health-rec');if(r)r.textContent=d.recording.active?`REC: activo · ${d.recording.mode||'—'}${d.recording.writeError?' · ERROR DE GUARDADO':''}`:'REC: detenido';
+   const q=$('vc160-health-queue');if(q)q.textContent=`Cola delay: ${d.delay.queuedChunks||0} fragmentos · ${Math.round((d.delay.queuedBytes||0)/1024/1024*10)/10} MB`;
+ }
+ window.VC_VIDEO_V160={version:'16.0.0',diagnostics:report};
+ window.vc160CopyDiagnostics=async function(){
+   const data=JSON.stringify(report(),null,2);
+   try{await navigator.clipboard.writeText(data);alert('Diagnóstico copiado. No contiene claves de conexión ni datos personales del partido.');}
+   catch(_){window.prompt('Copia el diagnóstico:',data)}
+ };
+ setInterval(render,1500);
+ document.addEventListener('visibilitychange',render);
+})();
+</script>
 </body></html>
