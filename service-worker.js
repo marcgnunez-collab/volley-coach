@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v15.3.1-csv-quota';
+const CACHE_NAME = 'volley-coach-v15.3.2-scroll-cloud-diagnostic';
 
 const APP_SHELL = [
   './',
