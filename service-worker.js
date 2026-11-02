@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.2.1-flat';
+const CACHE_NAME = 'volley-coach-v16.0.2.4-scout-bridge';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",
@@ -38,7 +38,8 @@ const MODULE_ASSETS = [
   "./099-vc158-bench-runtime.js",
   "./100-vc159-stats-video-runtime.js",
   "./101-vc160-video-health-module.js",
-  "./102-vc1601-analysis-performance.js"
+  "./102-vc1601-analysis-performance.js",
+  "./104-vc16023-analysis-render-guard.js"
 ];
 
 const APP_SHELL = [

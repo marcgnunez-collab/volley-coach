@@ -262,6 +262,88 @@ window.VC_SCOUT_VIDEO_BRIDGE={
     scoutSave(false);
     return m;
   },
+  // V16.0.2.4: API pública para la interfaz V11.9, que vive en otro IIFE.
+  // No exportar ni reasignar las variables privadas del motor de scouting.
+  getPlannedMatches:()=>scoutClone(scoutArr(equiposData?.[equipoActivo]?.partidos||partidosEquipo)),
+  prepareProMatch:(m=scoutActive())=>m?vcEnsureProMatch(m):null,
+  createProMatch:(options={})=>{
+    const opponent=String(options.opponent||'').trim();
+    if(!opponent)throw new Error('Escribe el rival.');
+    const now=scoutNow();
+    let id=Date.now();
+    while(scoutingMatches.some(m=>Number(m.id)===id))id++;
+    const servingTeam=options.servingTeam==='opponent'?'opponent':'ours';
+    const rotationNo=Math.min(6,Math.max(1,Number(options.rotationNo)||1));
+    const m=scoutNormalizeMatch({
+      id,linkedMatchId:Number(options.linkedMatchId)||null,
+      date:String(options.date||fechaLocalISO()),opponent,
+      competition:String(options.competition||'').trim(),
+      servingTeam,rotationNo,opponentRotationNo:1,
+      lineup:scoutEmptyLineup(),sets:[scoutEmptySet(1)],events:[],
+      currentSet:1,status:'live',clockStartedAt:now,
+      clockAccumulatedMs:0,clockMode:'active-only',createdAt:now,updatedAt:now
+    });
+    const previous=scoutActive();
+    if(previous)scoutClockPause(previous);
+    scoutingMatches.push(m);
+    scoutingActiveId=id;
+    vcEnsureProMatch(m);
+    scoutClockResume(m);
+    scoutSave(false);
+    return m;
+  },
+  finalizePreset:(m=scoutActive())=>{
+    if(!m||Number(m.id)!==Number(scoutActive()?.id))return false;
+    vcEnsureProMatch(m);
+    vcApplyAutoLibero(m,false);
+    scoutV6107SyncOpponentLineup(m);
+    scoutV690EnsureMatch(m);
+    scoutSave(false);
+    return true;
+  },
+  saveProLineup:(patch={})=>{
+    const m=scoutActive();
+    if(!m)throw new Error('No hay un scouting activo.');
+    const ids=SCOUT_POS.map(p=>Number(patch.ours?.[p])||null);
+    if(ids.filter(Boolean).length!==6||new Set(ids).size!==6){
+      throw new Error('Debes asignar seis jugadores distintos.');
+    }
+    const libId=Number(patch.liberoId)||null;
+    if(libId&&ids.includes(libId))throw new Error('El líbero no puede ocupar una posición rotacional.');
+    const nextBase=scoutNormalizeLineup(m.baseLineup||m.lineup);
+    const nextRoles=scoutNormalizeRoles(m.lineupRoles);
+    SCOUT_POS.forEach((pos,i)=>{
+      nextBase.ours[pos]=ids[i];
+      nextBase.opponent[pos]=String(patch.opponent?.[pos]||'').trim();
+      nextRoles.ours[pos]=vcPlayerRole(ids[i]);
+      nextRoles.opponent[pos]=String(patch.opponentRoles?.[pos]||'');
+    });
+    m.baseLineup=nextBase;
+    m.lineupRoles=nextRoles;
+    m.rotationNo=Math.min(6,Math.max(1,Number(patch.rotationNo)||1));
+    m.opponentRotationNo=Math.min(6,Math.max(1,Number(patch.opponentRotationNo)||1));
+    m.libero=scoutNormalizeLibero(m.libero);
+    m.libero.playerId=libId;
+    m.libero.enabled=!!libId;
+    m.libero.auto=patch.liberoAuto!==false;
+    m.libero.centralIds=ids.filter(id=>vcHasRole(scoutPlayer(id),'Central'));
+    m.libero.activeForId=null;
+    m.libero.activePosition='';
+    m.lineup=scoutClone(m.baseLineup);
+    vcApplyAutoLibero(m,false);
+    scoutV6107SyncOpponentLineup(m);
+    scoutV690EnsureMatch(m);
+    const set=scoutSet(m);
+    if(set&&!scoutArr(set.rallies).length&&!m.workflow?.setLineups?.[String(m.currentSet)]){
+      m.workflow.setLineups[String(m.currentSet)]={
+        baseLineup:scoutClone(m.baseLineup),lineup:scoutClone(m.lineup),
+        lineupRoles:scoutClone(m.lineupRoles),libero:scoutClone(m.libero),
+        rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo,savedAt:scoutNow()
+      };
+    }
+    scoutSave(false);
+    return m;
+  },
   playerLabel:(a)=>{try{return scoutActionPlayerLabel(a)}catch(_){return String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}}
 };
 /* Estado por equipo / Supabase */
