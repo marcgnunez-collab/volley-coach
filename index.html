@@ -3417,6 +3417,76 @@ function getFundamentosSeleccionados(){return [...document.querySelectorAll('inp
 function setFundamentosSeleccionados(valores){const fs=Array.isArray(valores)?valores:[];document.querySelectorAll('input[name="nuevo-fundamento"]').forEach(x=>x.checked=fs.includes(x.value))}
 migrarFundamentos();
 
+/* V15.3.1 · Guardado local compacto de contingencia.
+   Solo se activa al superar la cuota, y comprueba round-trip antes de sustituir la copia.
+   El formato anterior sigue siendo legible. No borra otras claves ni almacenes. */
+const VC1531_PACK_PREFIX='VC-LZW16-1:';
+let vc1531CompactActive=false;
+function vc1531Pack(raw){
+  const input=new TextEncoder().encode(raw),words=new Map(),codes=[];
+  let code=256,w='';
+  for(let i=0;i<input.length;i++){
+    const c=String.fromCharCode(input[i]),wc=w+c;
+    if(w && words.has(wc)){w=wc;continue}
+    if(w)codes.push(w.length===1?w.charCodeAt(0):words.get(w));
+    if(w && code<65536)words.set(wc,code++);
+    w=c;
+  }
+  if(w)codes.push(w.length===1?w.charCodeAt(0):words.get(w));
+  const buf=new Uint8Array(codes.length*2);
+  for(let i=0;i<codes.length;i++){buf[2*i]=codes[i]&255;buf[2*i+1]=codes[i]>>>8}
+  let binary='';for(let i=0;i<buf.length;i+=16384)binary+=String.fromCharCode(...buf.subarray(i,i+16384));
+  return VC1531_PACK_PREFIX+btoa(binary);
+}
+function vc1531Unpack(packed){
+  const binary=atob(packed.slice(VC1531_PACK_PREFIX.length));
+  if(binary.length%2)throw Error('Estado compacto truncado');
+  const dict=[],parts=[];let next=256,prev='';
+  for(let i=0;i<binary.length;i+=2){
+    const code=binary.charCodeAt(i)|(binary.charCodeAt(i+1)<<8);
+    let entry;
+    if(code<256)entry=String.fromCharCode(code);
+    else if(dict[code]!==undefined)entry=dict[code];
+    else if(code===next&&prev)entry=prev+prev[0];
+    else throw Error('Estado compacto corrupto, código '+code);
+    parts.push(entry);
+    if(prev&&next<65536)dict[next++]=prev+entry[0];
+    prev=entry;
+  }
+  const len=parts.reduce((n,x)=>n+x.length,0),buf=new Uint8Array(len);
+  let pos=0;for(const part of parts)for(let i=0;i<part.length;i++)buf[pos++]=part.charCodeAt(i);
+  return new TextDecoder('utf-8',{fatal:true}).decode(buf);
+}
+function vc1531ReadState(raw){
+  if(!raw)return null;
+  if(raw.startsWith(VC1531_PACK_PREFIX)){
+    vc1531CompactActive=true;
+    return JSON.parse(vc1531Unpack(raw));
+  }
+  return JSON.parse(raw);
+}
+function vc1531WriteState(key,raw){
+  const old=localStorage.getItem(key);
+  // No realizar una compresión costosa en todos los puntos si aún cabe el formato normal.
+  if(!vc1531CompactActive && !(old||'').startsWith(VC1531_PACK_PREFIX)){
+    try{localStorage.setItem(key,raw);return 'normal'}
+    catch(err){if(err?.name!=='QuotaExceededError'&&err?.code!==22&&err?.code!==1014)throw err}
+  }
+  const packed=vc1531Pack(raw);
+  if(packed.length>=raw.length)throw Error('No cabe el estado local ni comprimido. Exporta una copia, no borres datos.');
+  // Prueba de integridad antes de sustituir la versión anterior.
+  if(vc1531Unpack(packed)!==raw)throw Error('La comprobación de integridad del estado comprimido ha fallado');
+  try{localStorage.setItem(key,packed)}catch(err){
+    if(err?.name==='QuotaExceededError'||err?.code===22||err?.code===1014)
+      throw Error('Almacenamiento local lleno incluso en formato compacto. La importación se ha cancelado sin eliminar tus datos; exporta una copia de seguridad y avisa del error.');
+    throw err;
+  }
+  if(localStorage.getItem(key)!==packed)throw Error('No se pudo verificar el almacenamiento local');
+  vc1531CompactActive=true;
+  return 'compacto';
+}
+window.VC_STORAGE_QUOTA_1531={version:'15.3.1',getMode:()=>vc1531CompactActive?'compacto':'normal',pack:vc1531Pack,unpack:vc1531Unpack};
+
 const APP_STORAGE_KEY='volleyCoachStateV43';
 const LIBRARY_STORAGE_KEY='volleyCoachLibraryV1';
 const LIBRARY_DELETED_KEY='volleyCoachLibraryDeletedV1';
@@ -3627,7 +3697,7 @@ function bibliotecasLocalesRescatables(){
   const agregar=v=>{if(Array.isArray(v)&&v.length)listas.push(v)};
   agregar(cargarBibliotecaIndependiente());
   try{
-    const actual=JSON.parse(localStorage.getItem(APP_STORAGE_KEY));
+    const actual=vc1531ReadState(localStorage.getItem(APP_STORAGE_KEY));
     if(actual){
       agregar(actual.bibliotecaCompartida);agregar(actual.baseDeDatos);
       if(actual.equiposData){agregar(actual.equiposData.infantil?.baseDeDatos);agregar(actual.equiposData.cadete?.baseDeDatos)}
@@ -3649,7 +3719,15 @@ function bibliotecaFusionadaSegura(...extras){
 }
 function cargarEstadoLocal(){
   let estado=null;
-  try{estado=convertirEstadoPersistido(JSON.parse(localStorage.getItem(APP_STORAGE_KEY)))}catch(_){estado=null}
+  try{estado=convertirEstadoPersistido(vc1531ReadState(localStorage.getItem(APP_STORAGE_KEY)))}catch(err){
+    console.error('No se pudo cargar el estado principal',err);
+    // Nunca sobreescribir un estado compacto corrupto con un estado vacío de migración.
+    if((localStorage.getItem(APP_STORAGE_KEY)||'').startsWith(VC1531_PACK_PREFIX)){
+      alert('No se ha podido verificar el estado local compacto. No borres datos: recupera una copia JSON o contacta con soporte.');
+      throw err;
+    }
+    estado=null;
+  }
   if(!estado)estado=migrarLocalAnterior();
   baseDeDatos=bibliotecaFusionadaSegura(estado.bibliotecaCompartida||[],baseDeDatos||[]);migrarFundamentos();asegurarEjerciciosPropios183();asegurarEjerciciosPropios287Nuevos();
   equiposData=estado.equiposData||{infantil:estadoEquipoVacio('infantil'),cadete:estadoEquipoVacio('cadete')};
@@ -3666,9 +3744,11 @@ function cargarEstadoLocal(){
   else setTimeout(persistNormalized,1400);
 }
 function guardarEstadoLocalSinCloud(){
-  localStorage.setItem(APP_STORAGE_KEY,JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:new Date().toISOString(),equiposData:clonar(equiposData)}));
+  const raw=JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:new Date().toISOString(),equiposData:clonar(equiposData)});
+  const mode=vc1531WriteState(APP_STORAGE_KEY,raw);
+  if(mode==='compacto')console.info('V15.3.1 · Estado guardado en modo compacto,',Math.round(raw.length/1024),'KiB originales');
   guardarBibliotecaIndependiente();
-  localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo);
+  try{localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo)}catch(err){console.warn('No se pudo actualizar el selector de equipo en localStorage',err)}
 }
 function guardarEquipoEnMemoria(){
   if(!equiposData)equiposData={};
@@ -13701,7 +13781,7 @@ async function v892ReadAll(name,store){try{const db=await v892OpenDB(name,1);if(
 async function v892WriteV702(teamId,matches,activeId=null){try{const db=await v892OpenDB('VolleyCoachScoutingV702',1);if(!db.objectStoreNames.contains('scoutingByTeam')){db.close();return false}await new Promise((resolve,reject)=>{const tx=db.transaction('scoutingByTeam','readwrite');tx.objectStore('scoutingByTeam').put({teamId:String(teamId),version:V892_VERSION,savedAt:new Date().toISOString(),reason:'recovery-v892',activeId:activeId?Number(activeId):null,matches:scoutClone(matches)});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)});db.close();return true}catch(err){console.warn('V8.9.2 write V702',err);return false}}
 function v892ScanKnownLocalStorage(){
   const sources={};
-  const inspect=(key,label)=>{try{const raw=localStorage.getItem(key);if(!raw)return;const obj=JSON.parse(raw);sources[label]=(sources[label]||0)+1;v892ExtractMatches(obj,label,'',0,key)}catch(_){}};
+  const inspect=(key,label)=>{try{const raw=localStorage.getItem(key);if(!raw)return;const obj=key===APP_STORAGE_KEY?vc1531ReadState(raw):JSON.parse(raw);sources[label]=(sources[label]||0)+1;v892ExtractMatches(obj,label,'',0,key)}catch(_){}};
   inspect('volleyCoachStateV43','Estado principal V43');inspect('volleyCoachTeamsV42','Estado antiguo V42');
   for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i)||'';if(!/^(volleyCoach|volley_|volleyV)/i.test(key)||['volleyCoachStateV43','volleyCoachTeamsV42'].includes(key))continue;try{const raw=localStorage.getItem(key);if(!raw||raw.length<20||(!raw.startsWith('{')&&!raw.startsWith('[')))continue;const obj=JSON.parse(raw),before=v892Candidates.size;v892ExtractMatches(obj,'LocalStorage '+key,'',0,key);if(v892Candidates.size>before)sources['Otras copias localStorage']=(sources['Otras copias localStorage']||0)+1}catch(_){}}
   return sources;
@@ -30100,7 +30180,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 </script>
 <script id="vc-v1528-csv-recovery">
-/* Volley Coach V15.2.8 · recuperación de scoutings desde CSV.
+/* Volley Coach V15.3.1 · recuperación de scoutings desde CSV con guardado local compacto.
    No sustituye motores de sincronización ni modifica registros preexistentes. */
 (()=>{
 'use strict';
@@ -30261,6 +30341,116 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else observer.observe(document.body,{childList:true,subtree:true});
 window.VC_CSV_SCOUT_RECOVERY_1528={version:'15.2.8',parse:build};
 })();
+
+</script>
+<script id="vc-sync-pilot-v1530">
+/* Volley Coach V15.3.0 — piloto de operaciones seguro (SHADOW).
+ * Sin cambios en volley_state, v962, v138 ni MatchState. No aplica eventos remotos.
+ * Pilot IDB writes -> RPC append-only -> server acknowledgements -> remote audit.
+ */
+(function(root){
+'use strict';
+const VERSION='15.3.0',DB_NAME='VolleyCoachSyncPilot1530',DB_VERSION=1;
+const MAX_OPERATIONS=60,RETRY_INTERVAL_MS=15000;
+const Core={
+  stable(v){return JSON.stringify(v,(_,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.keys(value).sort().reduce((a,k)=>(a[k]=value[k],a),{}):value)},
+  actionMap(match){
+    const result={};
+    const sets=Array.isArray(match?.sets)?match.sets:[];
+    sets.forEach((set,si)=>{
+      const rallies=Array.isArray(set?.rallies)?set.rallies:[];
+      rallies.forEach((rally,ri)=>{
+        (Array.isArray(rally?.actions)?rally.actions:[]).forEach((a,ai)=>{
+          result[`set:${si}:rally:${ri}:action:${ai}`]=a;
+        });
+      });
+      const score={us:set?.scoreUs??null,opponent:set?.scoreOpponent??null,finished:!!set?.finished};
+      result[`set:${si}:score`]=score;
+    });
+    if(Array.isArray(match?.liveRally?.actions)){
+      match.liveRally.actions.forEach((a,ai)=>{result[`live:action:${ai}`]=a});
+    }
+    result['match:status']={status:match?.status??null,activeSet:match?.activeSet??null};
+    return result;
+  },
+  diff(previous,current){
+    if(!previous)return []; // primer registro = línea base; no se reenvía todo el histórico
+    const old=Core.actionMap(previous),fresh=Core.actionMap(current),changes=[];
+    for(const key of Object.keys(fresh)){
+      if(!(key in old)||Core.stable(old[key])!==Core.stable(fresh[key])){
+        changes.push({action_type:key.includes(':action:')?'action.put':key==='match:status'?'match.status':'set.score',resource_key:key,payload:{value:fresh[key],previous:key in old?old[key]:null}});
+      }
+    }
+    for(const key of Object.keys(old)){
+      if(!(key in fresh))changes.push({action_type:key.includes(':action:')?'action.delete':key==='match:status'?'match.status':'set.score',resource_key:key,payload:{previous:old[key],value:null}});
+    }
+    return changes;
+  },
+  groupPending(ops){const groups=new Map();for(const op of ops){if(!groups.has(op.stream_id))groups.set(op.stream_id,[]);groups.get(op.stream_id).push(op)}return groups},
+  validateAck(ops,reply){const allowed=new Set(ops.map(x=>x.op_id));const confirmed=new Set();for(const item of Array.isArray(reply?.ack)?reply.ack:[]){if(allowed.has(item?.op_id))confirmed.add(item.op_id)}return [...confirmed]},
+  async streamUuid(uid,team,matchId,cryptoAPI){const source=`vc1530-v1|${uid}|${team}|${matchId}`;const bytes=new Uint8Array(await cryptoAPI.subtle.digest('SHA-256',new TextEncoder().encode(source)));bytes[6]=(bytes[6]&15)|0x80;bytes[8]=(bytes[8]&63)|0x80;const hex=Array.from(bytes.slice(0,16),x=>x.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`},
+  retryDelay(attempt){return Math.min(120000,1500*Math.pow(2,Math.min(6,Math.max(0,attempt))))}
+};
+if(typeof module!=='undefined'&&module.exports){module.exports=Core;return}
+if(!root||root.VC_SYNC_PILOT_1530)return;
+const g=root,$=id=>document.getElementById(id),clone=v=>JSON.parse(JSON.stringify(v));
+const enabledKey='vc1530_pilot_capture_enabled';
+const pausedKey='vc1530_pilot_paused';
+const deviceKey='vc1530_device_id';
+const uid=()=>{try{return typeof cloudUser!=='undefined'&&cloudUser?.id?String(cloudUser.id):null}catch(_){return null}};
+const client=()=>{try{return typeof cloudClient!=='undefined'?cloudClient:null}catch(_){return null}};
+const deviceId=(()=>{let s=localStorage.getItem(deviceKey);if(!s){s=crypto.randomUUID();localStorage.setItem(deviceKey,s)}return s})();
+let enabled=localStorage.getItem(enabledKey)==='1',paused=localStorage.getItem(pausedKey)==='1';
+let dbPromise=null,running=null,captureTimer=null,capturing=false,captureAgain=false,failures=0,lastError='',lastAckAt=0,lastPullAt=0,lastRemote=[],lastConflicts=[],knownStreams=new Set(),lastDeviceUser='';
+function db(){if(dbPromise)return dbPromise;dbPromise=new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains('ops')){const s=d.createObjectStore('ops',{keyPath:'op_id'});s.createIndex('stream_id','stream_id',{unique:false})}if(!d.objectStoreNames.contains('snapshots'))d.createObjectStore('snapshots',{keyPath:'key'});if(!d.objectStoreNames.contains('meta'))d.createObjectStore('meta',{keyPath:'key'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>{dbPromise=null;reject(req.error||Error('IndexedDB no disponible'))}});return dbPromise}
+async function get(store,key){const d=await db();return new Promise((res,rej)=>{const tx=d.transaction(store,'readonly'),rq=tx.objectStore(store).get(key);rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>rej(rq.error)})}
+async function all(store){const d=await db();return new Promise((res,rej)=>{const tx=d.transaction(store,'readonly'),rq=tx.objectStore(store).getAll();rq.onsuccess=()=>res(rq.result||[]);rq.onerror=()=>rej(rq.error)})}
+async function put(store,obj){const d=await db();return new Promise((res,rej)=>{const tx=d.transaction(store,'readwrite');tx.objectStore(store).put(obj);tx.oncomplete=()=>res(true);tx.onabort=()=>rej(tx.error);tx.onerror=()=>rej(tx.error)})}
+async function removeBatch(store,keys){if(!keys.length)return;const d=await db();await new Promise((res,rej)=>{const tx=d.transaction(store,'readwrite'),s=tx.objectStore(store);for(const key of keys)s.delete(key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error)})}
+async function atomicRecord(snapshotKey,snapshot,ops){const d=await db();await new Promise((res,rej)=>{const tx=d.transaction(['ops','snapshots'],'readwrite');for(const op of ops)tx.objectStore('ops').put(op);tx.objectStore('snapshots').put({key:snapshotKey,match:snapshot,updated_at:Date.now()});tx.oncomplete=res;tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error)});return ops.length}
+function setError(error){lastError=String(error?.message||error||'Error desconocido').slice(0,350);failures++;console.warn('[V15.3 piloto]',lastError);void render()}
+async function listPending(){const user=uid();return (await all('ops')).filter(x=>x.owner_id===user).sort((a,b)=>a.created_ms-b.created_ms)}
+async function trackStream(stream){knownStreams.add(stream);const user=uid();if(!user)return;const key=`streams:${user}`;const current=(await get('meta',key))?.value||[];if(!current.includes(stream))await put('meta',{key,value:[...current,stream].slice(-40)});}
+async function restoreStreams(){const user=uid();if(!user)return;lastDeviceUser=user;knownStreams=new Set((await get('meta',`streams:${user}`))?.value||[])}
+async function ensureAuth(){const c=client(),u=uid();if(!c||!u)throw Error('Inicia sesión en Nube con tu cuenta antes de activar el piloto V15.3.');const {data,error}=await c.auth.getUser();if(error||!data?.user?.id||data.user.id!==u)throw Error('La sesión Supabase no está validada. Cierra y vuelve a iniciar sesión.');return {c,u}}
+async function makeStream(team,match){const u=uid();if(!u)throw Error('Cuenta de nube no conectada');const s=await Core.streamUuid(u,team,match,crypto);await trackStream(s);return s}
+async function enqueue(stream,changes){const user=uid();if(!user)throw Error('Cuenta de nube no conectada');if(changes.length>2000)throw Error('Demasiados cambios a la vez. Exporta una copia y divide la operación.');const base=(await get('meta',`cursor:${user}:${stream}`))?.value||0;const saved=Date.now();const ops=changes.map((o,i)=>({op_id:crypto.randomUUID(),stream_id:stream,owner_id:user,device_id:deviceId,resource_key:o.resource_key,action_type:o.action_type,payload:o.payload,base_seq:base,created_ms:saved+i}));for(const o of ops){if(JSON.stringify(o.payload).length>28000)throw Error('Acción demasiado grande para el registro piloto (28 kB). Se mantiene en la aplicación estable.')}return ops}
+async function currentMatchData(){const m=g.MatchState?.getActive?.()||g.VC_SCOUT_VIDEO_BRIDGE?.getActive?.();if(!m?.id)return null;const team=String(typeof equipoActivo!=='undefined'?equipoActivo:'');if(!team)return null;return {team,match:clone(m)}}
+async function capture(){if(!enabled)return 0;if(capturing){captureAgain=true;return 0}capturing=true;try{
+  const {u}=await ensureAuth(),item=await currentMatchData();if(!item)return 0;
+  const key=`snapshot:${u}:${item.team}:${item.match.id}`,prev=(await get('snapshots',key))?.match||null;
+  const changes=Core.diff(prev,item.match);
+  if(changes.length===0){if(!prev)await put('snapshots',{key,match:item.match,updated_at:Date.now()});return 0}
+  const stream=await makeStream(item.team,item.match.id);const ops=await enqueue(stream,changes);
+  // La línea base solo avanza en la misma transacción que registra todos los cambios.
+  await atomicRecord(key,item.match,ops);schedule(50);void render();return ops.length;
+}catch(e){setError(e);return 0}finally{capturing=false;if(captureAgain){captureAgain=false;requestCapture()}}}
+function requestCapture(){if(!enabled)return;clearTimeout(captureTimer);captureTimer=setTimeout(()=>void capture(),850)}
+async function appendOps(stream,ops){const {c}=await ensureAuth();const payload=ops.map(o=>({op_id:o.op_id,device_id:o.device_id,resource_key:o.resource_key,action_type:o.action_type,payload:o.payload,base_seq:o.base_seq}));const {data,error}=await c.rpc('vc_sync_append_ops_v1',{p_stream_id:stream,p_ops:payload});if(error)throw Error(`RPC V15.3: ${error.message}`);if(!data||!Array.isArray(data.ack))throw Error('Supabase no devolvió confirmaciones verificables');return data}
+async function flush(){if(paused)return 0;await ensureAuth();const ops=await listPending(),groups=Core.groupPending(ops);let count=0;
+for(const [stream,items] of groups){for(let start=0;start<items.length;start+=MAX_OPERATIONS){const batch=items.slice(start,start+MAX_OPERATIONS);const result=await appendOps(stream,batch);const ack=Core.validateAck(batch,result);if(ack.length!==batch.length)throw Error(`Confirmación incompleta (${ack.length}/${batch.length})`);await removeBatch('ops',ack);count+=ack.length;lastAckAt=Date.now();if(Array.isArray(result.conflicts)&&result.conflicts.length)lastConflicts=[...result.conflicts,...lastConflicts].slice(0,30)}}return count}
+async function pull(){const {c,u}=await ensureAuth();if(lastDeviceUser!==u)await restoreStreams();let count=0;
+for(const stream of knownStreams){let cursor=Number((await get('meta',`cursor:${u}:${stream}`))?.value||0);for(let page=0;page<5;page++){
+ const {data,error}=await c.from('vc_sync_operations').select('seq,op_id,device_id,resource_key,action_type,payload,conflict,created_at').eq('stream_id',stream).gt('seq',cursor).order('seq',{ascending:true}).limit(100);
+ if(error)throw Error(`Lectura V15.3: ${error.message}`);if(!data?.length)break;
+ for(const event of data){lastRemote.unshift({stream,...event});if(event.conflict)lastConflicts.unshift({op_id:event.op_id,resource_key:event.resource_key,seq:event.seq})}
+ lastRemote=lastRemote.slice(0,30);lastConflicts=lastConflicts.slice(0,30);cursor=Number(data[data.length-1].seq);
+ await put('meta',{key:`cursor:${u}:${stream}`,value:cursor});count+=data.length;
+ if(data.length<100)break;
+ }
+}lastPullAt=Date.now();return count}
+let scheduled=null;
+function schedule(delay=300){if(scheduled)clearTimeout(scheduled);scheduled=setTimeout(()=>{scheduled=null;void cycle()},delay)}
+async function cycle(){if(running)return running;running=(async()=>{try{if(!uid())return false;if(!enabled&&!knownStreams.size&&!(await listPending()).length)return true;if(paused){void render();return false}await flush();await pull();failures=0;lastError='';await render();return true}catch(e){setError(e);return false}finally{running=null}})();const ok=await running;if(!ok&&!paused&&uid())schedule(Core.retryDelay(failures));return ok}
+async function addTest(){try{await ensureAuth();const stream=await makeStream('diagnostic','piloto-compartido');const c=Date.now();const op=await enqueue(stream,[{action_type:'diagnostic.ping',resource_key:`ping:${deviceId}:${c}`,payload:{message:'Evento de prueba',at:new Date().toISOString(),device_id:deviceId}}]);for(const row of op)await put('ops',row);schedule(10);await render()}catch(e){setError(e);alert(lastError)}}
+async function exportDiag(){const user=uid(),ops=await all('ops'),snapshots=await all('snapshots'),metadata=await all('meta');const report={version:VERSION,generated_at:new Date().toISOString(),account:user,device_id:deviceId,enabled,paused,pending:ops.filter(x=>x.owner_id===user),snapshots:snapshots.filter(x=>x.key.startsWith(`snapshot:${user}:`)),metadata:metadata.filter(x=>x.key.endsWith(`:${user}`)||x.key.includes(`:${user}:`)),lastRemote,lastConflicts,lastError};const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`VolleyCoach_V1530_diagnostico_${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+function ensurePanel(){if($('vc1530-open'))return true;const grid=document.querySelector('#v11-management .v11-management-grid');if(!grid)return false;const btn=document.createElement('button');btn.type='button';btn.id='vc1530-open';btn.innerHTML='<span>⇅</span><div><b>Sincronización V15.3 · piloto</b><small>Operaciones verificadas sin sustituir la nube estable</small></div><strong>→</strong>';btn.onclick=()=>void openPanel();grid.append(btn);return true}
+function makePanel(){if($('vc1530-modal'))return;const style=document.createElement('style');style.textContent=`#vc1530-modal{position:fixed;inset:0;background:#001827ba;z-index:2147483002;display:none;align-items:center;justify-content:center;padding:12px}#vc1530-modal.open{display:flex}#vc1530-panel{width:min(800px,98vw);max-height:91vh;overflow:auto;background:#fff;color:#1b3346;border-radius:13px;padding:18px;font:13px/1.45 Arial}#vc1530-panel h3{font-size:20px;margin:0 0 12px}#vc1530-panel p{line-height:1.5}#vc1530-panel button{padding:9px 12px;margin:3px;border:1px solid #bfd0da;border-radius:8px;background:#eef5f8;color:#17364a;font-size:12px}#vc1530-panel button[disabled]{opacity:.45}#vc1530-panel button.danger{border-color:#b8a05d;background:#fff5d6}#vc1530-panel .vc1530-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin:10px 0}#vc1530-panel .vc1530-kpis div{border:1px solid #d6e1e8;border-radius:8px;padding:9px}#vc1530-panel .vc1530-kpis b{display:block;font-size:15px}#vc1530-panel pre{font:11px/1.5 monospace;white-space:pre-wrap;word-break:break-word;background:#eef4f7;padding:10px;border-radius:8px;max-height:180px;overflow:auto}`;document.head.append(style);const m=document.createElement('div');m.id='vc1530-modal';m.innerHTML=`<section id="vc1530-panel" role="dialog" aria-modal="true" aria-labelledby="vc1530-title"><div style="display:flex;justify-content:space-between;gap:10px"><h3 id="vc1530-title">V15.3.0 · Piloto de sincronización</h3><button id="vc1530-close">Cerrar</button></div><p><b>Modo de seguridad:</b> este motor guarda un registro separado de operaciones y confirmaciones. <b>NO sustituye</b> la sincronización V15.2.8 ni aplica cambios remotos al scouting. No se debe usar aún como única copia.</p><div id="vc1530-kpis" class="vc1530-kpis"></div><div><button id="vc1530-enable" class="danger">Activar registro de acciones (piloto)</button><button id="vc1530-pause">Pausar envíos</button><button id="vc1530-test">Enviar operación de prueba</button><button id="vc1530-sync">Comprobar nube V15.3</button><button id="vc1530-export">Exportar diagnóstico y cola</button></div><p style="font-size:12px">Para comparar dos dispositivos utiliza la misma cuenta de Supabase y pulsa «Enviar operación de prueba» en ambos. El servidor debe tener instalado el SQL del paquete. Los cambios de esta sección no modifican partidos reales.</p><pre id="vc1530-log"></pre></section>`;document.body.append(m);$('vc1530-close').onclick=()=>m.classList.remove('open');m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});$('vc1530-enable').onclick=async()=>{if(!enabled&&!confirm('¿Activar el registro paralelo de acciones? El motor actual seguirá funcionando igual. Se enviarán copias de cambios futuros a las tablas de prueba V15.3.'))return;enabled=!enabled;localStorage.setItem(enabledKey,enabled?'1':'0');if(enabled)await capture();await render()};$('vc1530-pause').onclick=async()=>{paused=!paused;localStorage.setItem(pausedKey,paused?'1':'0');if(!paused)schedule(50);await render()};$('vc1530-test').onclick=()=>void addTest();$('vc1530-sync').onclick=()=>void cycle();$('vc1530-export').onclick=()=>void exportDiag().catch(setError)}
+async function openPanel(){makePanel();$('vc1530-modal').classList.add('open');await render()}
+async function render(){const el=$('vc1530-kpis');if(!el)return;let pending='—';try{pending=String((await listPending()).length)}catch(_){pending='ERROR'}const raw=[['Cuenta',uid()?'Conectada':'Sin sesión'],['Motor estable','V15.2.8 activo'],['Registro paralelo',enabled?'Activado':'Desactivado'],['Operaciones pendientes',pending],['Última confirmación',lastAckAt?new Date(lastAckAt).toLocaleTimeString('es-ES'):'—'],['Última lectura',lastPullAt?new Date(lastPullAt).toLocaleTimeString('es-ES'):'—'],['Conflictos detectados',String(lastConflicts.length)],['Envío',paused?'Pausado':running?'Trabajando':'Disponible']];el.replaceChildren(...raw.map(([name,value])=>{const item=document.createElement('div'),small=document.createElement('small'),b=document.createElement('b');small.textContent=name;b.textContent=value;item.append(small,b);return item}));$('vc1530-enable').textContent=enabled?'Desactivar registro paralelo':'Activar registro de acciones (piloto)';$('vc1530-pause').textContent=paused?'Reanudar envíos':'Pausar envíos';$('vc1530-log').textContent=`Errores: ${lastError||'—'}\nÚltimos eventos leídos: ${lastRemote.length}\nÚltimos conflictos: ${lastConflicts.length}\n`+lastRemote.slice(0,7).map(x=>`${x.seq} · ${x.action_type} · ${x.resource_key} ${x.conflict?'[CONFLICTO]':''}`).join('\n')}
+function boot(){ensurePanel();const obs=new MutationObserver(()=>ensurePanel());obs.observe(document.body,{subtree:true,childList:true});try{g.MatchState?.subscribe?.(()=>requestCapture())}catch(e){setError(e)};g.addEventListener('online',()=>schedule(500));g.addEventListener('focus',()=>schedule(500));g.addEventListener('pageshow',()=>schedule(700));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')schedule(800)});setInterval(()=>{if(document.visibilityState==='visible'){schedule(RETRY_INTERVAL_MS);if(enabled)requestCapture()}},6000);setTimeout(()=>{void restoreStreams().catch(setError);if(enabled)void capture();schedule(2000)},1500)}
+g.VC_SYNC_PILOT_1530={version:VERSION,core:Core,open:openPanel,capture,cycle,enqueue,exportDiag,diagnostics:async()=>({version:VERSION,enabled,paused,deviceId,user:uid(),pending:(await listPending()).length,knownStreams:[...knownStreams],lastAckAt,lastPullAt,lastError,conflicts:lastConflicts.length})};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})(typeof window==='undefined'?null:window);
 
 </script>
 </body></html>
