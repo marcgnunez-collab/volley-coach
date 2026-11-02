@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v15.6-analisis-historico';
+const CACHE_NAME = 'volley-coach-v15.8-banquillo-personalizable';
 
 const APP_SHELL = [
   './',

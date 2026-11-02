@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | Análisis Histórico Pro · V15.6.0</title>
+<title>Volley Coach | Banquillo Pro · V15.8.0</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1662,12 +1662,12 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
   <div class="vc155-shell">
     <header class="vc155-hero">
       <div>
-        <span class="vc155-eyebrow">VOLLEY COACH · BANQUILLO PRO V15.5</span>
-        <h2>Banquillo en directo</h2>
+        <span class="vc155-eyebrow">VOLLEY COACH · BANQUILLO PRO V15.8</span>
+        <h2>Banquillo en directo · V15.8</h2>
         <p>Estadísticas calculadas con rallies cerrados del Scouting Pro. Esta pantalla no modifica partidos.</p>
       </div>
       <div class="vc155-head-actions">
-        <button type="button" class="vc155-outline" id="vc155-copy-link">Copiar enlace de la vista</button>
+        <button type="button" class="vc155-outline" id="vc155-copy-link" title="Solo muestra una vista; no otorga permisos de acceso">Copiar enlace de consulta</button>
         <button type="button" class="vc155-primary" id="vc155-to-match">Abrir Modo Partido</button>
       </div>
     </header>
@@ -29300,12 +29300,18 @@ async function trackPresence(){
   catch(err){console.warn('VC Presence track',err)}
 }
 function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState='disconnected';presencePeers=[];render();syncPresence()}
-function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false},presence:{key:deviceId}}}).on('broadcast',{event:FAST_EVENT},onFast).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).on('presence',{event:'sync'},syncPresence).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED'){queueFast('reconnect');void trackPresence()}if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.6 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
+function onBenchNote(message){try{window.VC_V158_BENCH?.receiveNote?.(message?.payload||message)}catch(err){console.warn('VC bench message',err)}}
+async function sendBenchNote(payload){
+ if(!channel||rtState!=='SUBSCRIBED'||!cloudConnected())return {ok:false,reason:'Realtime no conectado'};
+ if(!payload||payload.userId!==String(cloudUser?.id||'')||String(payload.teamId||'')!==String(equipoActivo||''))return {ok:false,reason:'Cuenta o equipo no coinciden'};
+ try{const result=await channel.send({type:'broadcast',event:'bench_note',payload});return {ok:result==='ok',reason:result==='ok'?'':String(result||'sin confirmación del canal')}}catch(error){return {ok:false,reason:String(error?.message||error)}}
+}
+function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false},presence:{key:deviceId}}}).on('broadcast',{event:FAST_EVENT},onFast).on('broadcast',{event:'bench_note'},onBenchNote).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).on('presence',{event:'sync'},syncPresence).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED'){queueFast('reconnect');void trackPresence()}if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.6 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
 function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()&&now()-lastPullAt>=delay)await syncRemote('safety');poll()},delay)}
 function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
 async function resumeSync(reason='resume'){try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
 function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();queueFast(d?.reason||'matchstate');if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
-window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true,durableCompletion:true,allTopLevelMatchFields:true,presencePeers:presencePeers.slice()})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,sendBenchNote,connect:connectRealtime,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true,durableCompletion:true,allTopLevelMatchFields:true,presencePeers:presencePeers.slice()})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
 
@@ -30734,8 +30740,8 @@ function followMatch(destination){const m=selected();go(destination);if(!m)retur
  if(destination==='analysis'){setTimeout(()=>{const sel=$('scout-analysis-match');if(sel){sel.value=String(m.id);try{window.scoutRenderAnalysis?.()}catch(_){}}},90)}
  if(destination==='video'){setTimeout(()=>{const sel=$('v780-match');if(sel){sel.value=String(m.id);try{window.v780MatchChanged?.()}catch(_){}}},120)}
 }
-function copyLink(){let u;try{u=new URL(location.href);u.searchParams.set('banquillo','1');u.hash='';}catch(_){return}
-  const text=u.toString();const b=$('vc155-copy-link');if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>{b.textContent='Enlace copiado';setTimeout(()=>{if(b)b.textContent='Copiar enlace de la vista'},1600)},()=>window.prompt('Copia este enlace:',text))}else window.prompt('Copia este enlace:',text)
+function copyLink(){let u;try{u=new URL(location.href);u.searchParams.set('banquillo','1');u.searchParams.set('modo','consulta');u.hash='';}catch(_){return}
+  const text=u.toString();const b=$('vc155-copy-link');if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>{b.textContent='Enlace copiado';setTimeout(()=>{if(b)b.textContent='Copiar enlace de consulta'},1600)},()=>window.prompt('Copia este enlace:',text))}else window.prompt('Copia este enlace:',text)
 }
 function cleanStrayText(){
   /* Earlier monolithic releases have escaped newline-only text nodes after sections. */
@@ -30889,6 +30895,275 @@ function init(){ensure();renderWrapper();let savedTab='';try{savedTab=localStora
 }
 window.VC_V156_HISTORY={version:VERSION,render:renderWrapper,compute,aggregate,stats,diagnostics:()=>({version:VERSION,hasPanel:!!$('v156-history'),periodMatches:matches().length,visible:!!$('v156-history')?.classList.contains('active'),rows:state.lastRows.length,readOnly:true})};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
+<style id="vc157-opponent-style">
+#v157-opponent{font-family:inherit;color:#16374b}
+#v157-opponent .v157-intro{padding:18px 20px;border-radius:14px;background:linear-gradient(110deg,#f0f8fb,#fff);border:1px solid #d5e6ee;margin:12px 0 16px}
+#v157-opponent h3{font-size:23px!important;margin:4px 0 5px!important;color:#14384e!important}
+#v157-opponent h4{margin:21px 0 8px!important;color:#173f58!important;font-size:16px!important}
+#v157-opponent p{line-height:1.45}
+#v157-opponent .v157-eyebrow{font-size:11px;font-weight:800;letter-spacing:.11em;color:#236580}
+#v157-opponent .v157-muted{font-size:12px;color:#526f80;margin:6px 0}
+#v157-opponent .v157-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:12px 0}
+#v157-opponent .v157-filters label{display:flex;flex-direction:column;gap:4px;color:#375468;font-weight:650;font-size:12px;min-width:0}
+#v157-opponent select{height:39px;width:100%;min-width:0;padding:6px 10px;border:1px solid #ccdce5;background:#fff;border-radius:8px;color:#16374b;font:inherit;font-size:13px}
+#v157-opponent .v157-controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+#v157-opponent .v157-controls button,#v157-opponent .v157-open{cursor:pointer;border:1px solid #9fbfd0;background:#fff;color:#14587d;font-weight:650;padding:9px 13px;border-radius:8px}
+#v157-opponent .v157-controls .v157-main{background:#155e80;color:white;border-color:#155e80}
+#v157-opponent .v157-controls button:hover,#v157-opponent .v157-open:hover{filter:brightness(.95)}
+#v157-opponent .v157-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#v157-opponent .v157-kpi{border:1px solid #d5e4ed;border-radius:12px;padding:12px;background:white;min-width:0}
+#v157-opponent .v157-kpi span{display:block;font-size:11px;color:#536e80;font-weight:700}
+#v157-opponent .v157-kpi strong{display:block;font-size:25px;margin:7px 0 4px;color:#103d59;line-height:1}
+#v157-opponent .v157-kpi small{color:#607787;font-size:11px}
+#v157-opponent .v157-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#v157-opponent .v157-card{background:#fff;border:1px solid #dce8ed;border-radius:12px;padding:12px;min-width:0}
+#v157-opponent .v157-scroll{overflow-x:auto;max-width:100%;border:1px solid #dce8ed;border-radius:9px}
+#v157-opponent table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+#v157-opponent th{background:#edf5f8;color:#30556b;font-size:11px;text-align:left;padding:9px 8px}
+#v157-opponent td{border-top:1px solid #e7eef2;padding:8px;color:#25475b}
+#v157-opponent tbody tr:hover{background:#f6fafd}
+#v157-opponent td.v157-number{text-align:right;font-variant-numeric:tabular-nums}
+#v157-opponent .v157-note{border-radius:9px;padding:9px 12px;font-size:12px;background:#eff6fa;border:1px solid #d2e6ef;color:#28546a;margin:8px 0}
+#v157-opponent .v157-note.warn{background:#fff6e6;border-color:#f1d9ae;color:#7c5323}
+#v157-opponent .v157-empty{border:1px dashed #b9d0db;border-radius:9px;padding:16px;color:#49697d;font-size:13px;background:#fff}
+#v157-opponent .v157-insight{border-left:3px solid #2f86a6;padding:10px 12px;background:#f1f8fa;border-radius:4px;margin-bottom:8px;font-size:13px}
+#v157-opponent .v157-insight b{display:block;font-size:13px;color:#183e52;margin-bottom:3px}
+#v157-opponent .v157-track{height:7px;width:100px;background:#e1edf1;border-radius:9px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
+#v157-opponent .v157-track i{height:100%;display:block;background:#2584a3}
+#v157-opponent .v157-flag{font-size:11px;color:#9b6f38;font-weight:700}
+#v157-opponent [hidden]{display:none!important}
+#v151-season-root .v151-tabs{display:flex;flex-wrap:wrap;gap:3px}
+#v151-season-root .v151-tabs button[data-tab="opponentPro"]{color:#145c80!important}
+#v151-season-root .v151-tabs button[data-tab="opponentPro"].active{background:#e0f1f8!important;color:#123d56!important}
+@media(max-width:900px){#v157-opponent .v157-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#v157-opponent .v157-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#v157-opponent .v157-grid{grid-template-columns:1fr}}
+@media(max-width:570px){#v157-opponent .v157-filters{grid-template-columns:1fr}#v157-opponent .v157-intro{padding:12px}#v157-opponent .v157-kpi strong{font-size:21px}#v157-opponent .v157-kpis{gap:7px}#v157-opponent .v157-kpi{padding:10px}#v157-opponent .v157-controls button{flex:1}}
+</style>
+<script id="vc157-opponent-intelligence-module">
+(()=>{
+'use strict';
+if(window.VC_V157_OPPONENT)return;
+const VERSION='15.7.0', arr=x=>Array.isArray(x)?x:[], $=x=>document.getElementById(x);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=x=>Number.isFinite(Number(x))?Number(x):0;
+const pct=(a,b)=>b?Math.round(a*1000/b)/10:null;
+const fmt=x=>x==null?'—':`${x.toLocaleString('es-ES',{maximumFractionDigits:1})}%`;
+const context={rival:'',rotation:'',phase:'',quality:'',setter:'',score:'',set:'',scope:'finished'};
+let lastSelection=[],lastAttacks=[],lastRallies=[],lastVersion='';
+function matches(){try{return arr(window.VC_V151_SEASON?.matches?.()).filter(x=>x&&x.id!=null)}catch(_){return[]}}
+function label(a){const s=String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'').trim();return s||'Jugador sin identificar'}
+function date(m){return String(m?.date||m?.createdAt||'').slice(0,10)}
+function finished(m){return m.status==='finished'||m.resultComplete===true||m.manualFinalResult?.active===true}
+function quality(a){if(!a)return 'unknown';const q=String(a.evaluation||'');if(q==='#'||q==='+')return 'good';if(q==='!')return 'medium';if(['-','/','='].includes(q))return 'bad';return 'unknown'}
+function isTight(r){const a=Number(r?.scoreBefore?.us),b=Number(r?.scoreBefore?.opponent);return Number.isFinite(a)&&Number.isFinite(b)&&a>=20&&b>=20&&Math.abs(a-b)<=2}
+function allRallies(ms){const result=[];ms.forEach(m=>arr(m.sets).forEach(s=>arr(s.rallies).forEach((r,i)=>{if(!['ours','opponent'].includes(r?.winner)||!['ours','opponent'].includes(r?.servingBefore))return;
+  const actions=arr(r.actions).filter(x=>x&&['ours','opponent'].includes(x.team));const op=actions.filter(a=>a.team==='opponent');const receive=op.find(a=>a.skill==='R')||null;
+  const phase=r.servingBefore==='ours'?'K1':'K2';const rotation=num(r.opponentRotationBefore);
+  let setter=null;const attacks=[];op.forEach(a=>{if(a.skill==='E')setter=label(a);else if(a.skill==='A')attacks.push({a,player:label(a),setter:setter||'Sin colocadora codificada',hasSetter:!!setter,combo:String(a.attackCombo||a.setTarget||'').trim(),direction:String(a.attackDirection||'').trim(),zone:String(a.endZone||a.dvEndZone||'').trim(),tempo:String(a.attackTempo||'').trim()})});
+  result.push({m,s,r,index:i+1,id:String(m.id)+'-'+String(s.number)+'-'+String(r.id||i),phase,rotation,op,receive,q:quality(receive),attacks,won:r.winner==='opponent',tight:isTight(r)});
+ })));return result}
+function getMatchSubset(){return matches().filter(m=>(!context.rival||String(m.opponent||'Rival')===context.rival)&&(context.scope!=='finished'||finished(m)))}
+function selectedRallies(){return allRallies(getMatchSubset()).filter(x=>(!context.rotation||x.rotation===num(context.rotation))&&(!context.phase||x.phase===context.phase)&&(!context.quality||x.q===context.quality)&&(!context.set||num(x.s.number)===num(context.set))&&(!context.score||context.score==='tight'&&x.tight||context.score==='normal'&&!x.tight)&&(!context.setter||x.attacks.some(a=>a.hasSetter&&a.setter===context.setter)))}
+function attacksFor(rallies){return rallies.flatMap(x=>x.attacks.filter(a=>!context.setter||(a.hasSetter&&a.setter===context.setter)).map(a=>({...a,rally:x})))}
+function getStats(rallies,attacks){const k1=rallies.filter(x=>x.phase==='K1'),k2=rallies.filter(x=>x.phase==='K2'),rec=rallies.filter(x=>x.receive),positive=rec.filter(x=>x.q==='good').length;
+ const points=attacks.filter(x=>x.a.evaluation==='#').length,errors=attacks.filter(x=>x.a.evaluation==='=').length,blocked=attacks.filter(x=>x.a.evaluation==='/').length;
+ return {rallies:rallies.length,k1:k1.length,k1w:k1.filter(x=>x.won).length,k2:k2.length,k2w:k2.filter(x=>x.won).length,rec:rec.length,positive,att:attacks.length,points,errors,blocked,withSetter:attacks.filter(x=>x.hasSetter).length,withDir:attacks.filter(x=>x.direction).length,
+   k1Pct:pct(k1.filter(x=>x.won).length,k1.length),k2Pct:pct(k2.filter(x=>x.won).length,k2.length),recPct:pct(positive,rec.length),attEff:pct(points-errors-blocked,attacks.length)} }
+function group(data,fn){const map=new Map();data.forEach(x=>{const key=String(fn(x)||'Sin dato');if(!map.has(key))map.set(key,[]);map.get(key).push(x)});return [...map.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'es'))}
+function filters(ralliesBase){const ms=matches();const choices={rival:[...new Set(ms.map(m=>String(m.opponent||'Rival')))],setter:[...new Set(ralliesBase.flatMap(x=>x.attacks.filter(a=>a.hasSetter).map(a=>a.setter)))],set:[...new Set(ralliesBase.map(x=>String(x.s.number)))]};choices.rival.sort((a,b)=>a.localeCompare(b,'es'));choices.setter.sort((a,b)=>a.localeCompare(b,'es'));choices.set.sort((a,b)=>num(a)-num(b));
+ for(const [k,values] of Object.entries(choices)){const el=$('v157-'+k);if(!el)continue;const heading={rival:'Todos los rivales',setter:'Todas las colocadoras',set:'Todos los sets'}[k];const old=context[k];el.replaceChildren(new Option(heading,''),...values.map(x=>new Option(x,x)));if(old&&values.includes(old)){el.value=old}else{context[k]='';el.value=''}}}
+function kpis(stats,ms){const items=[['Partidos analizados',String(ms.length),`${stats.rallies} rallies con ganador`],['K1 rival · side-out',fmt(stats.k1Pct),`${stats.k1w}/${stats.k1} rallies`],['K2 rival · break',fmt(stats.k2Pct),`${stats.k2w}/${stats.k2} rallies`],['Recepción positiva',fmt(stats.recPct),`${stats.positive}/${stats.rec} recepciones codificadas`],['Eficiencia de ataque',fmt(stats.attEff),`(${stats.points}−${stats.errors}−${stats.blocked})/${stats.att}`],['Ataques registrados',String(stats.att),`${stats.withSetter} vinculados a colocación`],['Ataques con dirección',String(stats.withDir),`${stats.att} ataques en total`],['Rallies sin recepción rival',String(stats.rallies-stats.rec),`No son recepciones negativas`]];
+ $('v157-kpis').innerHTML=items.map(([k,v,desc])=>`<article class="v157-kpi"><span>${esc(k)}</span><strong>${esc(v)}</strong><small>${esc(desc)}</small></article>`).join('')}
+function rotationTable(rallies){const rows=Array.from({length:6},(_,i)=>{const rr=rallies.filter(x=>x.rotation===i+1),a=attacksFor(rr),s=getStats(rr,a);return {no:i+1,...s}});
+ $('v157-rotations').innerHTML=`<thead><tr><th>Rival</th><th>Rallies</th><th>K1</th><th>K2</th><th>ATQ eff</th><th>Recepción +/#</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>R${r.no}</b></td><td>${r.rallies}</td><td>${fmt(r.k1Pct)} <small>(${r.k1w}/${r.k1})</small>${r.k1>0&&r.k1<5?' <span class="v157-flag">*</span>':''}</td><td>${fmt(r.k2Pct)} <small>(${r.k2w}/${r.k2})</small></td><td>${fmt(r.attEff)} <small>(n=${r.att})</small></td><td>${fmt(r.recPct)} <small>(n=${r.rec})</small></td></tr>`).join('')}</tbody>`}
+function attackTables(attacks){const total=attacks.length;
+ const players=group(attacks,x=>x.player);$('v157-attackers').innerHTML=`<thead><tr><th>Atacante rival</th><th>Intentos</th><th>Uso</th><th>Puntos / errores / bloqueados</th><th>Eficiencia</th></tr></thead><tbody>${players.length?players.map(([player,aa])=>{const s=getStats([],aa);return `<tr><td>${esc(player)}</td><td>${aa.length}</td><td>${fmt(pct(aa.length,total))}</td><td>${s.points} / ${s.errors} / ${s.blocked}</td><td>${fmt(s.attEff)}${aa.length<5?' <span class="v157-flag">*</span>':''}</td></tr>`}).join(''):'<tr><td colspan="5">No hay ataques rivales codificados con estos filtros.</td></tr>'}</tbody>`;
+ const details=[['Combinación',x=>x.combo],['Dirección',x=>x.direction],['Zona de destino',x=>x.zone],['Tempo',x=>x.tempo]];$('v157-patterns').innerHTML=details.map(([label,fn])=>{const have=attacks.filter(x=>fn(x));const groups=group(have,fn).slice(0,7);return `<div class="v157-card"><b>${esc(label)}</b><p class="v157-muted">${have.length}/${total} ataques incluyen este dato</p>${groups.length?`<div class="v157-scroll"><table><thead><tr><th>Dato</th><th>N</th><th>Sobre codificados</th></tr></thead><tbody>${groups.map(([k,items])=>`<tr><td>${esc(k)}</td><td>${items.length}</td><td>${fmt(pct(items.length,have.length))}<span class="v157-track"><i style="width:${Math.min(100,pct(items.length,have.length)||0)}%"></i></span></td></tr>`).join('')}</tbody></table></div>`:'<p class="v157-muted">No hay registros suficientes.</p>'}</div>`}).join('');
+ const setterRows=group(attacks,x=>x.setter+'|||'+x.player);$('v157-setter-map').innerHTML=`<thead><tr><th>Colocadora → atacante</th><th>Intentos</th><th>Uso sobre ataques</th><th>Eficiencia</th></tr></thead><tbody>${setterRows.length?setterRows.slice(0,40).map(([key,aa])=>{const [setter,player]=key.split('|||');const s=getStats([],aa);return `<tr><td>${esc(setter)} → ${esc(player)}</td><td>${aa.length}</td><td>${fmt(pct(aa.length,total))}</td><td>${fmt(s.attEff)}</td></tr>`}).join(''):'<tr><td colspan="4">No hay ataques del rival.</td></tr>'}</tbody>`}
+function insights(rallies,attacks,stats){const results=[];const rotations=Array.from({length:6},(_,i)=>{const a=rallies.filter(x=>x.rotation===i+1&&x.phase==='K1');return {no:i+1,n:a.length,won:a.filter(x=>x.won).length,p:pct(a.filter(x=>x.won).length,a.length)}}).filter(r=>r.n>=8);
+ if(rotations.length){const best=[...rotations].sort((a,b)=>b.p-a.p)[0];results.push({h:`Side-out rival más sólido: R${best.no}`,d:`${best.won}/${best.n} (${fmt(best.p)}). Solo se comparan rotaciones con al menos 8 rallies de K1.`})}
+ const leaders=group(attacks,x=>x.player).filter(([,xs])=>xs.length>=8);if(leaders.length){const [player,xs]=leaders[0];results.push({h:`Principal atacante observado: ${player}`,d:`${xs.length}/${attacks.length} ataques codificados (${fmt(pct(xs.length,attacks.length))}). Esto describe uso, no necesariamente eficacia.`})}
+ if(stats.att>0&&stats.withSetter<stats.att)results.push({h:'Colocación parcialmente codificada',d:`${stats.withSetter}/${stats.att} ataques tienen una colocadora identificable antes de la acción. Los restantes se mantienen como «sin colocadora codificada».`});
+ if(stats.rallies>0&&stats.rec<stats.rallies)results.push({h:'Cobertura de recepción limitada',d:`${stats.rec}/${stats.rallies} rallies contienen recepción rival. Los rallies sin este dato no se interpretan como errores.`});
+ if(!results.length)results.push({h:'Todavía no hay muestra suficiente',d:'Registra rallies cerrados y acciones del rival para obtener patrones tácticos fiables.'});$('v157-insights').innerHTML=results.map(r=>`<div class="v157-insight"><b>${esc(r.h)}</b>${esc(r.d)}</div>`).join('')}
+function evidence(rallies){const sorted=rallies.slice().sort((a,b)=>String(b.m.date||'').localeCompare(String(a.m.date||''))||num(b.s.number)-num(a.s.number)||b.index-a.index);
+ lastSelection=sorted;$('v157-evidence').innerHTML=`<thead><tr><th>Partido</th><th>Set / rally</th><th>Marcador previo</th><th>Rival</th><th>Fase</th><th>Recepción</th><th>Ataques</th><th></th></tr></thead><tbody>${sorted.length?sorted.slice(0,120).map((x,i)=>`<tr><td>${esc(date(x.m))} · ${esc(x.m.opponent||'Rival')}</td><td>S${num(x.s.number)} · ${x.index}</td><td>${num(x.r.scoreBefore?.us)}–${num(x.r.scoreBefore?.opponent)}</td><td>R${x.rotation||'—'}</td><td>${x.phase}</td><td>${x.receive?esc(x.receive.evaluation):'Sin dato'}</td><td>${x.attacks.length}</td><td><button type="button" class="v157-open" data-v157-open="${i}">Abrir partido</button></td></tr>`).join(''):'<tr><td colspan="8">No hay rallies cerrados que coincidan con los filtros.</td></tr>'}</tbody>`;
+ $('v157-evidence-note').textContent=sorted.length>120?`Se muestran 120 de ${sorted.length} rallies. El CSV contiene todos.`:`${sorted.length} rallies con ganador identificado.`}
+function render(){ensure();if(!$('v157-opponent'))return;const all=matches();filters(allRallies(all));const ms=getMatchSubset(),base=allRallies(ms),selected=selectedRallies(),attacks=attacksFor(selected),s=getStats(selected,attacks);lastRallies=selected;lastAttacks=attacks;
+ kpis(s,ms);rotationTable(selected);attackTables(attacks);insights(selected,attacks,s);evidence(selected);
+ const warning=$('v157-warning');const totalWithout=selected.length-s.rec;warning.hidden=!selected.length;warning.textContent=selected.length?`Muestra: ${selected.length} rallies cerrados de ${ms.length} partidos; ${s.att} ataques rivales registrados. Recepción rival sin codificar en ${totalWithout} rallies. Las tendencias con n<5 deben tratarse con cautela. Los filtros condicionan los porcentajes K1/K2.`:'';
+ $('v157-filters-note').textContent=`Periodo: el seleccionado en Temporada. ${all.length} partidos en el periodo · ${ms.length} con estos filtros de rival/estado. En «calidad recepción», «Sin dato» NO equivale a negativa.`;
+ lastVersion=ms.map(m=>String(m.id)+':'+String(m.updatedAt||'')+':'+arr(m.sets).reduce((a,s)=>a+arr(s.rallies).length,0)).join('|');
+}
+function csv(){if(!lastRallies.length)return alert('No hay rallies para exportar.');const headers=['fecha','rival','partido_id','set','rally','rotacion_rival','fase_rival','ganador','recepcion_evaluacion','marcador_previo_us','marcador_previo_rival','ataques_rivales','partido_finalizado'];
+ const records=lastRallies.map(x=>[date(x.m),x.m.opponent||'Rival',x.m.id,x.s.number,x.index,x.rotation,x.phase,x.r.winner,x.receive?.evaluation||'',x.r.scoreBefore?.us??'',x.r.scoreBefore?.opponent??'',x.attacks.length,finished(x.m)]);const q=x=>'"'+String(x??'').replace(/"/g,'""')+'"';const content='\ufeff'+[headers,...records].map(row=>row.map(q).join(';')).join('\r\n');const href=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=href;a.download='volley_coach_analisis_rival_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(href),1200)}
+function ensure(){const root=$('v151-season-root');if(!root)return;const nav=root.querySelector('.v151-tabs');if(nav&&!nav.querySelector('[data-tab="opponentPro"]')){const b=document.createElement('button');b.type='button';b.dataset.tab='opponentPro';b.innerHTML='<span>◎</span> Rival Pro';b.addEventListener('click',()=>window.v151Tab?.('opponentPro'));nav.appendChild(b)}
+ if($('v157-opponent'))return;
+ const section=document.createElement('section');section.id='v157-opponent';section.className='v151-panel';section.dataset.tab='opponentPro';section.innerHTML=`
+ <div class="v157-intro"><span class="v157-eyebrow">VOLLEY COACH · V15.7 · INTELIGENCIA TÁCTICA</span><h3>Análisis avanzado del rival</h3><p>Explora las rotaciones, los K1/K2 y la distribución ofensiva rival a partir de rallies cerrados. Los filtros se pueden combinar y cada cifra indica su muestra.</p></div>
+ <div class="v157-filters">
+ <label>Rival<select id="v157-rival"><option value="">Todos los rivales</option></select></label>
+ <label>Rotación rival<select id="v157-rotation"><option value="">R1–R6</option><option value="1">R1</option><option value="2">R2</option><option value="3">R3</option><option value="4">R4</option><option value="5">R5</option><option value="6">R6</option></select></label>
+ <label>Fase del rival<select id="v157-phase"><option value="">K1 y K2</option><option value="K1">K1 · recibe</option><option value="K2">K2 · saca</option></select></label>
+ <label>Recepción rival<select id="v157-quality"><option value="">Todas las calidades</option><option value="good">Positiva / excelente (#,+)</option><option value="medium">Neutra (!)</option><option value="bad">Negativa / error (-,/ ,=)</option><option value="unknown">Sin dato codificado</option></select></label>
+ <label>Colocadora rival<select id="v157-setter"><option value="">Todas las colocadoras</option></select></label>
+ <label>Marcador previo<select id="v157-score"><option value="">Todos los marcadores</option><option value="tight">Final ajustado (ambos ≥20; diferencia ≤2)</option><option value="normal">Otras situaciones</option></select></label>
+ <label>Set<select id="v157-set"><option value="">Todos los sets</option></select></label>
+ <label>Partidos<select id="v157-scope"><option value="finished">Solo finalizados</option><option value="all">Incluir en curso</option></select></label>
+ </div>
+ <div class="v157-controls"><button id="v157-refresh" class="v157-main" type="button">Actualizar análisis</button><button id="v157-reset" type="button">Restablecer filtros</button><button id="v157-export" type="button">Exportar rallies CSV</button></div>
+ <p id="v157-filters-note" class="v157-muted"></p><div id="v157-warning" class="v157-note warn" hidden></div>
+ <div id="v157-kpis" class="v157-kpis"></div>
+ <h4>K1 / K2 por rotación del rival</h4><p class="v157-muted">K1 rival = punto al recibir nuestro saque; K2 rival = punto al sacar. Los porcentajes son rallies ganados / rallies de esa fase.</p><div class="v157-scroll"><table id="v157-rotations"></table></div>
+ <h4>Distribución de ataque</h4><div class="v157-grid"><div class="v157-card"><b>Atacantes observados</b><p class="v157-muted">Eficiencia = (ataques # − errores = − bloqueados /) / total de ataques</p><div class="v157-scroll"><table id="v157-attackers"></table></div></div><div class="v157-card"><b>Conexión colocadora → atacante</b><p class="v157-muted">Solo se asigna colocadora cuando aparece una acción E anterior al ataque en el mismo rally.</p><div class="v157-scroll"><table id="v157-setter-map"></table></div></div></div>
+ <h4>Patrones de juego registrados</h4><div id="v157-patterns" class="v157-grid"></div>
+ <h4>Lectura táctica con tamaño de muestra</h4><div id="v157-insights"></div>
+ <h4>Evidencia · rallies originales</h4><p class="v157-muted">Al pulsar «Abrir partido» se muestra su análisis original para revisar todas las acciones. No se inventan datos de recepción, colocación ni dirección.</p><p id="v157-evidence-note" class="v157-muted"></p><div class="v157-scroll"><table id="v157-evidence"></table></div>
+ <p class="v157-note">Importante: esta versión lee los scoutings locales/sincronizados existentes. No modifica partidos, datos ni motor Realtime. Las distribuciones solo reflejan acciones que se han codificado.</p>`;
+ root.appendChild(section);
+ section.querySelectorAll('select').forEach(el=>el.addEventListener('change',()=>{const field=el.id.slice(5);context[field]=el.value;render()}));
+ $('v157-refresh').addEventListener('click',render);$('v157-export').addEventListener('click',csv);$('v157-reset').addEventListener('click',()=>{Object.assign(context,{rival:'',rotation:'',phase:'',quality:'',setter:'',score:'',set:'',scope:'finished'});section.querySelectorAll('select').forEach(el=>{el.value=context[el.id.slice(5)]||''});$('v157-scope').value=context.scope;render()});
+ section.addEventListener('click',ev=>{const b=ev.target.closest('[data-v157-open]');if(!b)return;const ix=Number(b.dataset.v157Open),x=lastSelection[ix];if(!x)return;window.v151OpenMatch?.(Number(x.m.id))});
+ Object.keys(context).forEach(k=>{const el=$('v157-'+k);if(el)el.value=context[k]});}
+function init(){ensure();const baseTab=window.v151Tab;if(typeof baseTab==='function'&&!baseTab.__vc157){const w=function(tab){const out=baseTab.apply(this,arguments);if(tab==='opponentPro')render();return out};w.__vc157=true;window.v151Tab=w}
+ const oldOpen=window.v151OpenSeason;if(typeof oldOpen==='function'&&!oldOpen.__vc157){const w=function(){const out=oldOpen.apply(this,arguments);ensure();if($('v157-opponent')?.classList.contains('active'))render();return out};w.__vc157=true;window.v151OpenSeason=w;window.v790Open=w}
+ try{if(localStorage.getItem('vc_v151_tab')==='opponentPro')window.v151Tab?.('opponentPro')}catch(_){}
+ document.addEventListener('vc:matchstatechange',()=>{if($('v157-opponent')?.classList.contains('active'))setTimeout(render,150)});
+ document.addEventListener('change',ev=>{if(['v151-period','v151-from','v151-to'].includes(ev.target?.id)&&$('v157-opponent')?.classList.contains('active'))setTimeout(render,100)});
+ }
+window.VC_V157_OPPONENT={version:VERSION,render,quality,allRallies,getStats,attacksFor,selectedRallies,diagnostics:()=>({version:VERSION,hasPanel:!!$('v157-opponent'),selectedRallies:lastRallies.length,selectedAttacks:lastAttacks.length,readOnly:true,cloudEngineUntouched:true})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
+<style id="vc158-bench-style">
+/* V15.8 Banquillo configurado y mensajeria volatil. No altera el estado del partido. */
+#vc155-bench .vc158-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:2px}
+#vc155-bench .vc158-toolbar button,#vc158-scout-compose button{background:#f2f8fb!important;border:1px solid #c9dfe9!important;color:#1c5274!important}
+#vc155-bench .vc158-toolbar .vc158-accent,#vc158-scout-compose .vc158-accent{background:#237fac!important;color:#fff!important;border-color:#237fac!important}
+#vc155-bench .vc158-config{background:white;border:1px solid #d8e4eb;border-radius:13px;padding:15px;display:grid;gap:10px}
+#vc155-bench .vc158-config[hidden]{display:none!important}
+#vc155-bench .vc158-config h3{font-size:16px!important;margin:0!important;color:#244d64!important}
+#vc155-bench .vc158-config p,#vc155-bench .vc158-help{color:#61798b;font-size:11px;line-height:1.5;margin:0}
+#vc155-bench .vc158-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#vc155-bench .vc158-config-box{border:1px solid #e0eaf0;border-radius:9px;padding:10px;display:grid;gap:7px;align-content:start}
+#vc155-bench .vc158-config-box>strong{font-size:12px}
+#vc155-bench .vc158-choice{display:grid;grid-template-columns:24px minmax(0,1fr) 32px 32px;align-items:center;gap:6px;border-radius:8px;background:#f7fafc;padding:6px 8px;font-size:11px}
+#vc155-bench .vc158-choice input{width:16px;height:16px;min-height:0}
+#vc155-bench .vc158-choice button{font-size:15px!important;padding:4px!important;min-height:27px!important}
+#vc155-bench .vc158-choice button:disabled{opacity:.35;cursor:default}
+#vc155-bench .vc158-config-actions{display:flex;flex-wrap:wrap;gap:8px}
+#vc155-bench .vc158-note-panel{grid-column:1/-1}
+#vc155-bench .vc158-note-panel header{display:flex;flex-wrap:wrap}
+#vc155-bench .vc158-messages{display:grid;gap:7px;max-height:280px;overflow-y:auto;min-height:50px}
+#vc155-bench .vc158-message,#vc158-scout-messages .vc158-message{border:1px solid #dae7ee;border-radius:9px;padding:9px 11px;background:#f7fafc;overflow-wrap:anywhere}
+#vc155-bench .vc158-message.mine,#vc158-scout-messages .vc158-message.mine{background:#eaf5fa;border-color:#c4e1ee}
+#vc155-bench .vc158-message-head,#vc158-scout-messages .vc158-message-head{display:flex;gap:8px;justify-content:space-between;font-size:10px;color:#638094;margin-bottom:4px}
+#vc155-bench .vc158-message-body,#vc158-scout-messages .vc158-message-body{font-size:12px;color:#23485e;white-space:pre-wrap}
+#vc155-bench .vc158-compose{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin:11px 0 7px}
+#vc155-bench .vc158-compose button{background:#237fac!important;color:#fff!important;border:1px solid #237fac!important}
+#vc155-bench .vc158-quick-notes button{background:#f3f8fb!important;color:#265b78!important;border:1px solid #d2e3eb!important}
+#vc155-bench .vc158-compose input,#vc158-scout-compose input{width:100%;padding:10px 11px;border:1px solid #cbdfe9;border-radius:9px;background:white;color:#16364d;min-width:0;font-size:13px}
+#vc155-bench .vc158-state,#vc158-scout-state{color:#648294;font-size:11px;line-height:1.45}
+#vc155-bench .vc158-quick-notes{display:flex;flex-wrap:wrap;gap:6px}
+#vc155-bench .vc158-quick-notes button{min-height:29px!important;padding:5px 8px!important;font-size:10px!important}
+#vc155-bench[data-v158-layout="1"] .vc155-rotation-panel,#vc155-bench[data-v158-layout="1"] .vc155-shortcuts{display:block}
+#vc155-bench .vc155-panels>[data-v158-panel],#vc155-bench .vc155-kpis>[data-v158-kpi]{min-width:0}
+#vc158-scout-modal[hidden]{display:none!important}
+#vc158-scout-modal{position:fixed;inset:0;z-index:999995;background:#172f40b0;display:flex;align-items:center;justify-content:center;padding:14px}
+#vc158-scout-modal .vc158-dialog{width:min(480px,100%);max-height:86vh;overflow:auto;background:white;border-radius:14px;padding:18px;color:#213e51;display:grid;gap:12px;box-shadow:0 20px 65px #15293650}
+#vc158-scout-modal .vc158-dialog header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#vc158-scout-modal .vc158-dialog h3{font-size:18px;margin:0;color:#173d57}
+#vc158-scout-modal .vc158-dialog button{cursor:pointer;border:1px solid #c9dfe9;border-radius:8px;min-height:36px;background:white;color:#1d506d;padding:7px 11px}
+#vc158-scout-modal .vc158-dialog p{font-size:11px;color:#657d8d;margin:0;line-height:1.5}
+#vc158-scout-messages{display:grid;gap:7px;max-height:270px;overflow-y:auto;min-height:75px}
+#vc158-scout-compose{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+body.v158-view-only .v11-sidebar,body.v158-view-only #v11-topbar,body.v158-view-only .v11-menu-toggle,body.v158-view-only #quick-actions-trigger,body.v158-view-only #quick-actions-menu{display:none!important}
+body.v158-view-only #vc155-to-match,body.v158-view-only #vc155-go-scouter,body.v158-view-only #vc155-go-analysis,body.v158-view-only #vc155-go-season,body.v158-view-only #vc155-go-video,body.v158-view-only #vc158-customize,body.v158-view-only #vc158-note-compose,body.v158-view-only #vc158-note-quick,body.v158-view-only #vc158-copy-layout,body.v158-view-only #vc158-import-layout{display:none!important}
+body.v158-view-only #vc155-bench .vc158-toolbar button:not(#vc158-readonly){display:none!important}
+body.v158-view-only #vc158-scout-modal{display:none!important}
+@media(max-width:700px){#vc155-bench .vc158-config-grid{grid-template-columns:1fr}#vc155-bench .vc158-note-panel{grid-column:1}#vc155-bench .vc158-compose{grid-template-columns:1fr}#vc155-bench .vc158-config{padding:10px}#vc155-bench .vc158-choice{grid-template-columns:20px minmax(0,1fr) 29px 29px}}
+</style>
+<script id="vc158-bench-runtime">
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),KEY='vc158_bench_layouts_v1',MSG_KEY='vc158_bench_messages_v1';
+const KPI=[['so','Side-out K1'],['bp','Break point K2'],['rots','Side-out rotación'],['recent','Últimos cinco rallies']];
+const PANELS=[['alerts','Alertas tácticas'],['rotations','Side-out por rotación'],['rallies','Últimos rallies'],['shortcuts','Enlaces de análisis'],['messages','Mensajes del banquillo']];
+const IDS={so:'vc155-so',bp:'vc155-bp',rots:'vc155-rots',recent:'vc155-recent'};
+const validRoles=['coach','assistant','analyst'];
+const defaultLayouts={
+ coach:{kpi:['so','bp','recent','rots'],panels:['alerts','rallies','messages','shortcuts','rotations'],hidden:['rots','rotations']},
+ assistant:{kpi:['so','bp','rots','recent'],panels:['alerts','rotations','rallies','messages','shortcuts'],hidden:['shortcuts']},
+ analyst:{kpi:['so','bp','rots','recent'],panels:['rotations','alerts','rallies','messages','shortcuts'],hidden:[]}
+};
+const copy=x=>JSON.parse(JSON.stringify(x)),arr=x=>Array.isArray(x)?x:[];
+let roles={},notes=[],configOpen=false,currentScope='',renderId='',ready=false;
+let lastMessageState='';
+function normalizeOrder(input,valid){const list=arr(input).filter(x=>valid.includes(x));return [...new Set([...list,...valid])];}
+function normalize(obj,fallback){const base=copy(fallback||defaultLayouts.coach),valid=[...KPI.map(x=>x[0]),...PANELS.map(x=>x[0])];const o=obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:base;const kpi=normalizeOrder(o.kpi,KPI.map(x=>x[0])),panels=normalizeOrder(o.panels,PANELS.map(x=>x[0]));const hidden=[...new Set(arr(o.hidden).filter(x=>valid.includes(x)))];if(KPI.every(([id])=>hidden.includes(id)))hidden.splice(hidden.indexOf(KPI[0][0]),1);if(PANELS.every(([id])=>hidden.includes(id)))hidden.splice(hidden.indexOf(PANELS[0][0]),1);return{kpi,panels,hidden};}
+function loadRoles(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'{}');validRoles.forEach(r=>roles[r]=normalize(raw[r],defaultLayouts[r]));}catch(_){validRoles.forEach(r=>roles[r]=copy(defaultLayouts[r]));}}
+function saveRoles(){try{localStorage.setItem(KEY,JSON.stringify(roles))}catch(_){}}
+function role(){const x=$('vc155-role')?.value;return validRoles.includes(x)?x:'coach'}
+function layout(){return roles[role()]||copy(defaultLayouts.coach)}
+function activeMatch(){return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}
+function selectedMatch(){const m=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[];const id=String($('vc155-match')?.value||'');return arr(m).find(x=>String(x.id)===id)||activeMatch()}
+function teamId(){return String(window.VC_SCOUT_VIDEO_BRIDGE?.getTeamId?.()||'')}
+function userId(){try{return String(window.VC_DEVICE_SYNC?.diagnostics?.().cloudConnected&&typeof cloudUser!=='undefined'?cloudUser?.id||'':'')}catch(_){return ''}}
+function scope(match=selectedMatch()){return userId()+'|'+teamId()+'|'+String(match?.id||'')}
+function mine(){return String(window.VC_DEVICE_SYNC?.deviceId||'')}
+function cacheNotes(){try{const raw=JSON.parse(localStorage.getItem(MSG_KEY)||'[]');notes=arr(raw).filter(m=>m&&typeof m==='object'&&typeof m.id==='string').slice(-180)}catch(_){notes=[]}}
+function saveNotes(){try{localStorage.setItem(MSG_KEY,JSON.stringify(notes.slice(-180)))}catch(_){}}
+function cleanMsg(m){if(!m||typeof m!=='object')return null;const id=String(m.id||'').slice(0,110),text=String(m.text||'').trim().slice(0,180),user=String(m.userId||'').slice(0,100),team=String(m.teamId||'').slice(0,100),match=String(m.matchId||'').slice(0,100),stamp=Number(m.time)||0;if(!id||!text||stamp<=0||stamp>Date.now()+60000||!user||!team||!match)return null;return {id,text,userId:user,teamId:team,matchId:match,time:stamp,deviceId:String(m.deviceId||'').slice(0,110),sender:String(m.sender||'Entrenador').slice(0,45)};}
+function addNote(raw){const m=cleanMsg(raw);if(!m||m.userId!==userId()||m.teamId!==teamId()||!m.matchId)return false;if(notes.some(x=>x.id===m.id))return false;notes.push(m);notes=notes.slice(-180);saveNotes();paintMessages();return true}
+function currentNotes(match){const sc=scope(match);return notes.filter(n=>n.userId+'|'+n.teamId+'|'+n.matchId===sc).sort((a,b)=>a.time-b.time).slice(-35)}
+function fmtTime(t){try{return new Date(t).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(_){return ''}}
+function paintList(el,match){if(!el)return;el.replaceChildren();const list=currentNotes(match);if(!list.length){const p=document.createElement('p');p.className='vc158-help';p.textContent='Sin mensajes en este dispositivo para este partido. Los avisos son en directo: no se recuperan automáticamente si estabas desconectado.';el.appendChild(p);return}
+ list.forEach(m=>{const item=document.createElement('div');item.className='vc158-message'+(m.deviceId===mine()?' mine':'');const head=document.createElement('div');head.className='vc158-message-head';const name=document.createElement('strong');name.textContent=m.sender;const time=document.createElement('span');time.textContent=fmtTime(m.time);head.append(name,time);const body=document.createElement('div');body.className='vc158-message-body';body.textContent=m.text;item.append(head,body);el.appendChild(item)});}
+function paintMessages(){paintList($('vc158-messages'),selectedMatch());paintList($('vc158-scout-messages'),activeMatch())}
+function setMsgState(s){lastMessageState=s;[$('vc158-state'),$('vc158-scout-state')].forEach(el=>{if(el)el.textContent=s})}
+async function send(text,match,source){const t=String(text||'').trim().slice(0,180);if(!t||!match?.id){setMsgState('Selecciona un partido e introduce un mensaje.');return false}
+ const diag=window.VC_DEVICE_SYNC?.diagnostics?.();if(!diag?.cloudConnected||diag.realtimeState!=='SUBSCRIBED'){setMsgState('No enviado: conecta ambos dispositivos a Supabase Realtime.');return false}
+ const uid=userId(),team=teamId();if(!uid||!team){setMsgState('No enviado: falta la sesión o el equipo activo.');return false}
+ const msg={id:(globalThis.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.random().toString(36).slice(2)),text:t,userId:uid,teamId:team,matchId:String(match.id),time:Date.now(),deviceId:mine(),sender:String(window.VC_DEVICE_SYNC?.deviceName||'Entrenador')};
+ const result=await window.VC_DEVICE_SYNC?.sendBenchNote?.(msg);if(result?.ok){addNote(msg);setMsgState('Enviado al canal en directo. No confirma lectura ni guarda un historial en la nube.');const el=$(source);if(el)el.value='';return true}setMsgState('No enviado: '+String(result?.reason||'el canal no confirmó el envío'));return false;}
+function quick(text){const input=$('vc158-note-input');if(input)input.value=text}
+function receiveNote(data){const ok=addNote(data);if(ok&&document.getElementById('scout-workspace-v900')?.classList.contains('active')){const btn=$('vc158-scout-button');if(btn){btn.textContent='Mensajes · nuevo';btn.classList.add('vc158-unread')}}return ok}
+function makeChoice(id,label,kind,index,lay){const row=document.createElement('div');row.className='vc158-choice';const check=document.createElement('input');check.type='checkbox';check.checked=!lay.hidden.includes(id);check.setAttribute('aria-label','Mostrar '+label);check.addEventListener('change',()=>{const l=layout();l.hidden=l.hidden.filter(x=>x!==id);if(!check.checked)l.hidden.push(id);roles[role()]=normalize(l,defaultLayouts[role()]);saveRoles();apply();paintConfig()});const text=document.createElement('span');text.textContent=label;const arr=kind==='kpi'?lay.kpi:lay.panels;const up=document.createElement('button');up.type='button';up.textContent='↑';up.title='Subir '+label;up.disabled=index===0;up.addEventListener('click',()=>move(kind,id,-1));const down=document.createElement('button');down.type='button';down.textContent='↓';down.title='Bajar '+label;down.disabled=index===arr.length-1;down.addEventListener('click',()=>move(kind,id,1));row.append(check,text,up,down);return row;}
+function move(kind,id,delta){const l=layout(),a=l[kind],from=a.indexOf(id),to=from+delta;if(from<0||to<0||to>=a.length)return;[a[from],a[to]]=[a[to],a[from]];saveRoles();apply();paintConfig()}
+function paintConfig(){const l=layout();for(const kind of ['kpi','panels']){const root=$(kind==='kpi'?'vc158-config-kpi':'vc158-config-panels');if(!root)continue;root.replaceChildren();l[kind].forEach((id,i)=>{const found=(kind==='kpi'?KPI:PANELS).find(x=>x[0]===id);if(found)root.appendChild(makeChoice(id,found[1],kind,i,l))})}}
+function apply(){const l=layout(),kpi=$('vc155-bench')?.querySelectorAll('[data-v158-kpi]')||[],panels=$('vc155-bench')?.querySelectorAll('[data-v158-panel]')||[];
+ kpi.forEach(el=>{const key=el.dataset.v158Kpi;el.style.order=String(l.kpi.indexOf(key));el.style.display=l.hidden.includes(key)?'none':'flex'});
+ panels.forEach(el=>{const key=el.dataset.v158Panel;el.style.order=String(l.panels.indexOf(key));el.style.display=l.hidden.includes(key)?'none':'block'});
+ $('vc155-bench')?.setAttribute('data-v158-layout','1');paintMessages();}
+function readonly(on){document.body.classList.toggle('v158-view-only',!!on);const btn=$('vc158-readonly');if(btn)btn.textContent=on?'Salir de consulta':'Modo consulta';const info=$('vc158-readonly-note');if(info)info.hidden=!on;if(on){configOpen=false;const p=$('vc158-config');if(p)p.hidden=true;}try{const u=new URL(location.href);if(on){u.searchParams.set('banquillo','1');u.searchParams.set('modo','consulta')}else{u.searchParams.delete('modo')}history.replaceState(null,'',u)}catch(_){}}
+function install(){if(ready)return;ready=true;loadRoles();cacheNotes();const baseRole=$('vc155-role');
+ const original=$('vc155-bench');if(!original)return;original.querySelectorAll('.vc155-kpi').forEach((el,i)=>el.dataset.v158Kpi=KPI[i][0]);const panelKeys=['alerts','rotations','rallies','shortcuts'];original.querySelectorAll('.vc155-panels>.vc155-panel').forEach((el,i)=>el.dataset.v158Panel=panelKeys[i]);
+ const toolbar=document.createElement('div');toolbar.className='vc158-toolbar';toolbar.innerHTML='<button type="button" id="vc158-customize">Personalizar mi panel</button><button type="button" id="vc158-readonly">Modo consulta</button><button type="button" id="vc158-copy-layout">Copiar diseño</button><button type="button" id="vc158-import-layout">Importar diseño</button>';
+ $('vc155-connection')?.parentElement?.insertAdjacentElement('afterend',toolbar);
+ const note=document.createElement('p');note.className='vc158-help';note.id='vc158-readonly-note';note.hidden=true;note.textContent='Vista de consulta visual, no es una cuenta ni un permiso seguro de solo lectura. Para ver datos en otro dispositivo hay que iniciar sesión en una cuenta autorizada.';toolbar.insertAdjacentElement('afterend',note);
+ const cfg=document.createElement('section');cfg.className='vc158-config';cfg.id='vc158-config';cfg.hidden=true;cfg.innerHTML='<h3>Configurar panel por perfil</h3><p>Oculta indicadores o secciones y utiliza las flechas para ordenarlos. El diseño se guarda solo en este navegador, sin modificar el scouting ni la nube.</p><div class="vc158-config-grid"><div class="vc158-config-box"><strong>Indicadores del marcador</strong><div id="vc158-config-kpi"></div></div><div class="vc158-config-box"><strong>Paneles del banquillo</strong><div id="vc158-config-panels"></div></div></div><div class="vc158-config-actions"><button id="vc158-restore" type="button">Restaurar perfil predeterminado</button><button id="vc158-done" type="button">Cerrar personalización</button></div>';note.insertAdjacentElement('afterend',cfg);
+ const p=document.createElement('section');p.className='vc155-panel vc158-note-panel';p.id='vc158-message-panel';p.dataset.v158Panel='messages';p.innerHTML='<header><div><span>SCOUT ↔ BANQUILLO</span><h3>Avisos rápidos</h3></div><span class="vc155-pill">Realtime · sin historial en nube</span></header><div id="vc158-messages" class="vc158-messages" aria-live="polite"></div><form class="vc158-compose" id="vc158-note-compose"><input id="vc158-note-input" maxlength="180" autocomplete="off" placeholder="Escribe un aviso (máx. 180 caracteres)" aria-label="Mensaje para el cuerpo técnico"><button class="vc158-accent" type="submit">Enviar aviso</button></form><div class="vc158-quick-notes" id="vc158-note-quick"><button type="button" data-note="Solicito tiempo muerto">Tiempo muerto</button><button type="button" data-note="Revisar rotación">Revisar rotación</button><button type="button" data-note="Revisar recepción">Recepción</button><button type="button" data-note="Atención al saque rival">Saque rival</button></div><p class="vc158-help">Los mensajes se envían al canal de la cuenta Supabase conectada. No son persistentes entre dispositivos y no incluyen confirmación de lectura; para comunicaciones críticas, utiliza el procedimiento del equipo.</p><div class="vc158-state" id="vc158-state" role="status"></div>';
+ original.querySelector('.vc155-panels')?.appendChild(p);
+ const scout=$('scout-workspace-v900')?.querySelector('.v900-top-actions');if(scout){const btn=document.createElement('button');btn.type='button';btn.className='ghost';btn.id='vc158-scout-button';btn.textContent='Mensajes banquillo';scout.prepend(btn);btn.addEventListener('click',()=>{btn.classList.remove('vc158-unread');btn.textContent='Mensajes banquillo';const modal=$('vc158-scout-modal');if(modal){modal.hidden=false;paintMessages()}})}
+ const modal=document.createElement('div');modal.id='vc158-scout-modal';modal.hidden=true;modal.innerHTML='<div class="vc158-dialog" role="dialog" aria-modal="true" aria-label="Mensajes scout banquillo"><header><h3>Mensajes scout ↔ banquillo</h3><button type="button" id="vc158-close-scout">Cerrar</button></header><p>Envía avisos rápidos al dispositivo que esté siguiendo el partido con la misma cuenta y equipo. No se guarda un historial compartido.</p><div id="vc158-scout-messages"></div><form id="vc158-scout-compose"><input id="vc158-scout-input" maxlength="180" placeholder="Mensaje (180 caracteres)" aria-label="Mensaje scout"><button type="submit" class="vc158-accent">Enviar</button></form><div class="vc158-state" id="vc158-scout-state" role="status"></div></div>';document.body.appendChild(modal);
+ modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true});$('vc158-close-scout')?.addEventListener('click',()=>modal.hidden=true);
+ $('vc158-customize')?.addEventListener('click',()=>{configOpen=!configOpen;cfg.hidden=!configOpen;if(configOpen)paintConfig()});$('vc158-done')?.addEventListener('click',()=>{configOpen=false;cfg.hidden=true});$('vc158-restore')?.addEventListener('click',()=>{roles[role()]=copy(defaultLayouts[role()]);saveRoles();apply();paintConfig()});
+ $('vc158-readonly')?.addEventListener('click',()=>readonly(!document.body.classList.contains('v158-view-only')));
+ $('vc158-copy-layout')?.addEventListener('click',async()=>{const data=JSON.stringify({version:1,role:role(),layout:layout()});try{await navigator.clipboard.writeText(data);setMsgState('Diseño copiado. Puedes importarlo en otro dispositivo.')}catch(_){window.prompt('Copia el diseño:',data)}});
+ $('vc158-import-layout')?.addEventListener('click',()=>{const raw=window.prompt('Pega aquí el diseño que has copiado:');if(!raw)return;try{if(raw.length>3000)throw Error('Diseño demasiado grande');const data=JSON.parse(raw);if(data.version!==1||!data.layout||!validRoles.includes(data.role))throw Error('Formato no compatible');roles[role()]=normalize(data.layout,defaultLayouts[role()]);saveRoles();apply();paintConfig();setMsgState('Diseño importado para el perfil actual.')}catch(e){setMsgState('No se pudo importar: '+e.message)}});
+ $('vc158-note-compose')?.addEventListener('submit',e=>{e.preventDefault();void send($('vc158-note-input')?.value,selectedMatch(),'vc158-note-input')});
+ $('vc158-scout-compose')?.addEventListener('submit',e=>{e.preventDefault();void send($('vc158-scout-input')?.value,activeMatch(),'vc158-scout-input')});
+ $('vc158-note-quick')?.addEventListener('click',e=>{const v=e.target.closest('[data-note]')?.dataset.note;if(v)quick(v)});
+ baseRole?.addEventListener('change',()=>{apply();paintConfig()});$('vc155-match')?.addEventListener('change',paintMessages);
+ window.addEventListener('focus',paintMessages);
+ if(new URL(location.href).searchParams.get('modo')==='consulta'&&new URL(location.href).searchParams.get('banquillo')==='1')readonly(true);
+ apply();setMsgState('Sin mensajes pendientes. Canal de mensajes disponible cuando Realtime esté conectado.');
+}
+window.VC_V158_BENCH={version:'15.8.0',receiveNote,apply,paintMessages,send,readonly,diagnostics:()=>({version:'15.8.0',role:role(),layout:layout(),notesLocal:notes.length,readOnlyUi:document.body.classList.contains('v158-view-only'),channel:window.VC_DEVICE_SYNC?.diagnostics?.().realtimeState||'no disponible'})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 </script>
 
