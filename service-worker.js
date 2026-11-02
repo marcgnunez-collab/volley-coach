@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.2.4-scout-bridge';
+const CACHE_NAME = 'volley-coach-v16.0.2.5-scout-bridge-scouting-1626';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",

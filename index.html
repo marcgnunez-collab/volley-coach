@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.2.2 · Diagnóstico opcional</title>
+<title>Volley Coach | V16.0.2.6 · Scouting estable</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5501,7 +5501,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=16.0.2.4" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=16.0.2.6" data-vc-module="true"></script>
 
 
 
@@ -6877,7 +6877,7 @@ body.v781-tv-lock{overflow:hidden!important}
 </style>
 
 
-<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.5" data-vc-module="true"></script>
 
 
 
@@ -12025,6 +12025,7 @@ body.v11-shell #scouting{display:none!important}
         <label><span>Líbero automático</span><select id="v119-lineup-libero"><option value="">Sin líbero automático</option></select></label>
       </div>
       <label style="display:flex;gap:7px;align-items:center;margin-top:10px;font-size:8px;color:#597283"><input id="v119-lineup-libero-auto" type="checkbox" checked> Aplicar automáticamente el líbero cuando corresponda</label>
+      <div id="v119-libero-centrals" style="margin-top:8px;padding:9px;border:1px solid #d7e3eb;border-radius:9px;background:#f7fafc"><b style="font-size:10px">Centrales que sustituirá el líbero</b><div id="v119-centrals-options" style="display:flex;flex-wrap:wrap;gap:9px;margin:7px 0"></div><small style="font-size:9px;color:#526e80">Marca uno o dos centrales de los seis rotacionales. El líbero entrará únicamente en sus posiciones zagueras (salvo P1 si estamos sacando).</small></div>
     </div>
     <div class="v119-modal-foot"><button class="ghost" onclick="v119CloseLineup()">Cancelar</button><button class="primary" onclick="v119SaveLineup()">Guardar alineación</button></div>
   </div>
@@ -12093,17 +12094,34 @@ window.v119CreateMatch=function(){
   }catch(err){console.error('V16.0.2.4 create match',err);alert('No se ha podido crear el scouting: '+String(err?.message||err))}
 };
 function roleFor(id){try{return vcPlayerRole?.(id)||''}catch(_){const p=players().find(x=>Number(x.id)===Number(id));return p?.role||p?.position||''}}
+window.v119RefreshCentrals=function(preserve=true){
+  const m=active(),box=$('v119-centrals-options');if(!box||!m)return;
+  const existing=preserve?[...box.querySelectorAll('input:checked')].map(el=>Number(el.value)):[];
+  const known=new Set(existing.length?existing:(m.libero?.centralIds||[]).map(Number));
+  const rows=POS.map(pos=>{const id=Number($(`v119-own-${pos}`)?.value)||0;return {pos,id,p:players().find(x=>Number(x.id)===id)}}).filter(x=>x.id);
+  const detected=rows.filter(x=>/central/i.test([x.p?.position,x.p?.role,...(Array.isArray(x.p?.positions)?x.p.positions:[])].join(' '))).map(x=>x.id);
+  const chosen=known.size?known:new Set(detected);
+  box.innerHTML=rows.length?rows.map(x=>`<label style="display:flex;align-items:center;gap:4px;font-size:10px"><input type="checkbox" value="${x.id}" ${chosen.has(x.id)?'checked':''}> ${esc(playerLabel(x.p))} · ${x.pos.toUpperCase()}</label>`).join(''):'<span>Asigna los seis jugadores primero.</span>';
+};
 window.v119OpenLineup=function(){
   const m=active();if(!m)return alert('Crea primero un scouting.');
   try{window.VC_SCOUT_VIDEO_BRIDGE?.prepareProMatch?.(m)}catch(_){}
   const own=$('v119-lineup-own'),rival=$('v119-lineup-rival'),pl=players(),base=m.baseLineup||m.lineup||{};
   $('v119-lineup-own-name').textContent=teamName();$('v119-lineup-rival-name').textContent=m.opponent||'Rival';
-  if(own)own.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador</span><select id="v119-own-${pos}"><option value="">— Sin asignar —</option>${pl.map(p=>`<option value="${Number(p.id)}" ${Number(base?.ours?.[pos])===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}</select></label><small style="font-size:6.5px;color:#84939c">${esc(roleFor(base?.ours?.[pos])||'')}</small></div>`).join('');
+  if(own)own.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador</span><select id="v119-own-${pos}" onchange="v119RefreshCentrals()"><option value="">— Sin asignar —</option>${pl.map(p=>`<option value="${Number(p.id)}" ${Number(base?.ours?.[pos])===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}</select></label><small style="font-size:6.5px;color:#84939c">${esc(roleFor(base?.ours?.[pos])||'')}</small></div>`).join('');
   const roles=['','Colocador','Receptor','Central','Opuesto','Líbero','Universal'];
   if(rival)rival.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador rival</span><input id="v119-rival-${pos}" value="${esc(base?.opponent?.[pos]||m.lineup?.opponent?.[pos]||'')}" placeholder="#7 · Nombre"></label><label><span>Rol</span><select id="v119-rival-role-${pos}">${roles.map(r=>`<option value="${esc(r)}" ${String(m.lineupRoles?.opponent?.[pos]||'')===r?'selected':''}>${esc(r||'— Rol —')}</option>`).join('')}</select></label></div>`).join('');
   $('v119-lineup-rotation').value=String(m.rotationNo||1);$('v119-lineup-rival-rotation').value=String(m.opponentRotationNo||1);
-  const lib=$('v119-lineup-libero');if(lib){const candidates=pl.filter(p=>{try{return vcHasRole?.(p,'Líbero')||/lib/i.test(String(p.role||p.position||''))}catch(_){return /lib/i.test(String(p.role||p.position||''))}});lib.innerHTML='<option value="">Sin líbero automático</option>'+candidates.map(p=>`<option value="${Number(p.id)}" ${Number(m.libero?.playerId)===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}
+  const lib=$('v119-lineup-libero');if(lib){const pLibs=window.VC_TEAM_PROFILE?.get?.()?.liberoIds||[];
+    const configured=new Set(pLibs.map(Number));
+    const six=new Set(POS.map(pos=>Number(base?.ours?.[pos])||0));
+    const savedLib=Number(m.libero?.playerId)||0;
+    const candidates=pl.filter(p=>configured.has(Number(p.id))||Number(p.id)===savedLib||/l[ií]bero|\blib\b/i.test([p.role,p.position,...(Array.isArray(p.positions)?p.positions:[])].join(' ')));
+    const selectable=candidates.length?candidates:pl.filter(p=>!six.has(Number(p.id)));
+    lib.innerHTML='<option value="">Sin líbero automático</option>'+selectable.map(p=>`<option value="${Number(p.id)}" ${savedLib===Number(p.id)?'selected':''}>${esc(playerLabel(p))}${candidates.length?'':' · marcar como líbero'}</option>`).join('');
+    if(!savedLib&&selectable.length===1)lib.value=String(selectable[0].id);}
   $('v119-lineup-libero-auto').checked=m.libero?.auto!==false;
+  window.v119RefreshCentrals?.(false);
   const s=(m.sets||[]).find(x=>Number(x.number)===Number(m.currentSet));$('v119-lineup-info').innerHTML=`<span class="ok">Set ${Number(m.currentSet)||1}</span><span>${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}</span><span>R${Number(m.rotationNo)||1} vs R${Number(m.opponentRotationNo)||1}</span><span>${m.servingTeam==='ours'?'Saque nuestro':'Saque rival'}</span>`;
   $('v119-lineup-modal')?.classList.add('open');
 };
@@ -12127,6 +12145,7 @@ window.v119SaveLineup=function(){
     if(typeof engine?.saveProLineup!=='function')throw new Error('El motor de alineaciones no está disponible.');
     engine.saveProLineup({ours,opponent,opponentRoles,
       liberoId:libId,liberoAuto:$('v119-lineup-libero-auto')?.checked!==false,
+      centralIds:[...document.querySelectorAll('#v119-centrals-options input:checked')].map(el=>Number(el.value)),
       rotationNo:Number($('v119-lineup-rotation')?.value)||1,
       opponentRotationNo:Number($('v119-lineup-rival-rotation')?.value)||1
     });
@@ -12244,7 +12263,7 @@ window.VC_V119={version:VERSION,refresh:renderPicker,active,save:window.v119Save
   </div>
 </div>
 
-<script id="v120-native-management-script" src="./070-v120-native-management-script.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v120-native-management-script" src="./070-v120-native-management-script.js?v=16.0.2.5" data-vc-module="true"></script>
 
 
 
@@ -12984,7 +13003,7 @@ body.v11-shell #scout-analysis .v115-analysis-nav button span{font-size:12px!imp
   </div>
 </div>
 
-<script id="v136-team-roster-runtime" src="./081-v136-team-roster-runtime.js?v=16.0.2.4" data-vc-module="true"></script>
+<script id="v136-team-roster-runtime" src="./081-v136-team-roster-runtime.js?v=16.0.2.5" data-vc-module="true"></script>
 
 
 <style id="v137-save-system-style">
