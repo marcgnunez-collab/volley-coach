@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.2.1 · Módulos sin carpetas</title>
+<title>Volley Coach | V16.0.2.2 · Diagnóstico opcional</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14419,4 +14419,16 @@ body.v158-view-only #vc158-scout-modal{display:none!important}
 
 <!-- V16.0.1 · Analysis performance: tab-scoped calculation, no cloud changes -->
 <script id="vc1601-analysis-performance" src="./102-vc1601-analysis-performance.js?v=16.0.2.1" data-vc-module="true"></script>
+
+<!-- V16.0.2.2 · Diagnóstico optativo; no modifica la lógica del programa.
+     Activar: añade ?vc_perf=1 a la URL de la aplicación. -->
+<script id="vc16022-performance-loader">
+if(new URLSearchParams(location.search).get('vc_perf')==='1'){
+  const probe=document.createElement('script');
+  probe.id='vc16022-performance-probe';
+  probe.src='./103-vc16022-diagnostico-rendimiento.js?v=16.0.2.2';
+  probe.onerror=()=>console.warn('Diagnóstico no disponible: comprueba 103-vc16022-diagnostico-rendimiento.js');
+  document.body.appendChild(probe);
+}
+</script>
 </body></html>
