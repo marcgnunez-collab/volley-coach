@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | Dossier Táctico Profesional · V15.3.2</title>
+<title>Volley Coach | Análisis Histórico Pro · V15.6.0</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -880,6 +880,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
     <label>SCOUTING</label>
     <button data-v11-nav="scout-home" onclick="v11Navigate('scout-home')"><span>⌂</span><div><b>Centro de scouting</b><small>Partido · análisis · gestión</small></div></button>
     <button data-v11-nav="match" onclick="v11Navigate('match')"><span>◆</span><div><b>Modo Partido</b><small>Directo · vídeo · marcador</small></div></button>
+    <button data-v11-nav="bench" onclick="v11Navigate('bench')"><span>▣</span><div><b>Banquillo Pro</b><small>Decisiones en directo</small></div></button>
     <button data-v11-nav="scouting" onclick="v11Navigate('scouting')"><span>⌁</span><div><b>Scouting Pro</b><small>Codificación profesional</small></div></button>
     <button data-v11-nav="analysis" onclick="v11Navigate('analysis')"><span>▥</span><div><b>Análisis</b><small>Estadísticas completas</small></div></button>
     <button data-v11-nav="reports" onclick="v11Navigate('reports')"><span>▤</span><div><b>Informes</b><small>PDF · CSV · JSON</small></div></button>
@@ -1319,6 +1320,7 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
 
     <nav class="v118-scout-modules" aria-label="Flujo profesional de scouting">
       <button class="v118-module match" onclick="v11Navigate('match')"><span>01</span><div><small>PARTIDO</small><b>Modo Partido</b><p>Marcador, rotaciones, vídeo + código y control del set.</p></div><strong>→</strong></button>
+      <button class="v118-module match" onclick="v11Navigate('bench')"><span>◎</span><div><small>BANQUILLO</small><b>Banquillo Pro</b><p>Marcador, fases de juego y alertas tácticas en directo.</p></div><strong>→</strong></button>
       <button class="v118-module coding" onclick="v11Navigate('scouting')"><span>02</span><div><small>REGISTRO</small><b>Scouting Pro</b><p>Codificación visual y DataVolley sin volver al clásico.</p></div><strong>→</strong></button>
       <button class="v118-module video" onclick="v11Navigate('video')"><span>03</span><div><small>VÍDEO</small><b>Video Review</b><p>Live, Delay, YouTube, archivo, clips y sincronización.</p></div><strong>→</strong></button>
       <button class="v118-module analysis" onclick="v11Navigate('analysis')"><span>04</span><div><small>LECTURA</small><b>Análisis</b><p>G-P, K1/K2, rotaciones, jugadores y patrones tácticos.</p></div><strong>→</strong></button>
@@ -1652,6 +1654,64 @@ body.scout-live-compact .scout-live-session-fab{display:flex!important}
       </div>
       <div id="v780-timeline" class="v780-timeline"></div>
     </section>
+  </div>
+</section>
+
+<!-- V15.5 · BANQUILLO PRO · VISTA DE SOLO LECTURA -->
+<section id="vc155-bench" class="view" aria-label="Banquillo Pro">
+  <div class="vc155-shell">
+    <header class="vc155-hero">
+      <div>
+        <span class="vc155-eyebrow">VOLLEY COACH · BANQUILLO PRO V15.5</span>
+        <h2>Banquillo en directo</h2>
+        <p>Estadísticas calculadas con rallies cerrados del Scouting Pro. Esta pantalla no modifica partidos.</p>
+      </div>
+      <div class="vc155-head-actions">
+        <button type="button" class="vc155-outline" id="vc155-copy-link">Copiar enlace de la vista</button>
+        <button type="button" class="vc155-primary" id="vc155-to-match">Abrir Modo Partido</button>
+      </div>
+    </header>
+    <div class="vc155-toolbar">
+      <label>Partido <select id="vc155-match" aria-label="Seleccionar partido"></select></label>
+      <label>Vista <select id="vc155-role" aria-label="Perfil del banquillo"><option value="coach">Entrenador principal</option><option value="assistant">Segundo entrenador</option><option value="analyst">Analista</option></select></label>
+      <div class="vc155-live-label" id="vc155-connection" aria-live="polite">Comprobando datos…</div>
+    </div>
+    <div id="vc155-no-match" class="vc155-empty" hidden>No hay partidos disponibles. Crea un scouting y registra rallies para visualizar las estadísticas.</div>
+    <div id="vc155-main">
+      <div class="vc155-scoreboard">
+        <div class="vc155-team"><span>NUESTRO EQUIPO</span><strong id="vc155-us-name">Equipo</strong></div>
+        <div class="vc155-score"><b id="vc155-us-score">0</b><span>–</span><b id="vc155-opp-score">0</b><small id="vc155-set">SET 1</small></div>
+        <div class="vc155-team vc155-team-op"><span>RIVAL</span><strong id="vc155-op-name">Rival</strong></div>
+      </div>
+      <div class="vc155-meta"><span id="vc155-sets">Sets 0–0</span><span id="vc155-rotation">Rotación R1</span><span id="vc155-serve">Saque propio</span><span id="vc155-rallies">0 rallies cerrados</span></div>
+      <div class="vc155-kpis">
+        <article class="vc155-kpi"><span>SIDE-OUT · K1</span><strong id="vc155-so">—</strong><small id="vc155-so-sub">0/0 ganados</small></article>
+        <article class="vc155-kpi"><span>BREAK POINT · K2</span><strong id="vc155-bp">—</strong><small id="vc155-bp-sub">0/0 ganados</small></article>
+        <article class="vc155-kpi"><span>SIDE-OUT ROTACIÓN</span><strong id="vc155-rots">—</strong><small id="vc155-rots-sub">R1 · sin datos</small></article>
+        <article class="vc155-kpi"><span>ÚLTIMOS 5 RALLIES</span><strong id="vc155-recent">—</strong><small id="vc155-recent-sub">Sin muestra</small></article>
+      </div>
+      <div class="vc155-panels">
+        <section class="vc155-panel vc155-alert-panel">
+          <header><div><span>DECISIONES EN EL BANQUILLO</span><h3>Alertas tácticas</h3></div><span class="vc155-pill">Muestra mínima</span></header>
+          <div id="vc155-alerts" class="vc155-alerts" aria-live="polite"></div>
+          <small class="vc155-disclaimer">Las alertas describen tendencias registradas. No son recomendaciones automáticas de sustitución ni sustituyen el criterio del entrenador.</small>
+        </section>
+        <section class="vc155-panel vc155-rotation-panel">
+          <header><div><span>FASE K1 · POR ROTACIÓN</span><h3>Side-out R1–R6</h3></div><span class="vc155-pill">Todos los sets</span></header>
+          <div id="vc155-rotation-list" class="vc155-rotations"></div>
+          <small class="vc155-disclaimer">Porcentajes sólo para rallies cerrados en recepción. Las muestras pequeñas se marcan como preliminares.</small>
+        </section>
+        <section class="vc155-panel vc155-recent-panel">
+          <header><div><span>LECTURA INMEDIATA</span><h3>Últimos rallies del set</h3></div><button type="button" class="vc155-textlink" id="vc155-go-video">Abrir Vídeo Review</button></header>
+          <div id="vc155-recent-list" class="vc155-rallies"></div>
+        </section>
+        <section class="vc155-panel vc155-shortcuts">
+          <header><div><span>ANÁLISIS DEL EQUIPO</span><h3>Continuar trabajando</h3></div></header>
+          <div class="vc155-shortcut-buttons"><button type="button" id="vc155-go-analysis">Análisis completo</button><button type="button" id="vc155-go-season">Temporada</button><button type="button" id="vc155-go-scouter">Scouting Pro</button></div>
+          <p>Los análisis históricos y por jugador continúan en las pantallas actuales. Banquillo Pro utiliza los mismos partidos, sin crear una copia de los datos.</p>
+        </section>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -4711,6 +4771,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 // ===== V5.8.9 CLOUD LIBRARY : biblioteca independiente + PDF con porcentajes robustos =====
 // ===== V5.8 PROFESSIONAL+ : resumen, planificación, biblioteca, plantillas y PDF =====
+let semanaBase=new Date(); // V15.3.3: initialize legacy planning calendar before first render
 let vistaPlanificacion='semana';
 let vistaBiblioteca='compacta';
 let modoModalPlantillas='usar';
@@ -25984,23 +26045,16 @@ async function readRemote(){
   return data||null;
 }
 async function uploadCanonical(canonical,remoteState){
-  const state=typeof estadoLocal==='function'?estadoLocal():clone(remoteState||{});
-  state.scoutingSyncIndex=clone(canonical.index);
-  state.equiposData=state.equiposData||{};
-  Object.keys(canonical.index).forEach(teamId=>{
-    if(!state.equiposData[teamId])state.equiposData[teamId]=clone(equiposData?.[teamId]||{});
-    state.equiposData[teamId].scoutingMatches=clone(canonical.index[teamId]);
-    state.equiposData[teamId].v956DeletedScoutIds=clone(canonical.tombsByTeam[teamId]||[]);
-  });
-  const updatedAt=new Date().toISOString();
-  const {error}=await cloudClient.from('volley_state').upsert(
-    {user_id:cloudUser.id,state,updated_at:updatedAt},
-    {onConflict:'user_id'}
-  );
-  if(error)throw error;
-  localStorage.setItem('volleyCloudLastSync',updatedAt);
-  localStorage.setItem('v957_scout_signature',canonicalSignature(canonical.index));
+  /* V15.3.3: preserve canonical merge locally, then use the only protected
+     cloud writer. Direct upsert here previously bypassed conflict control. */
+  /* installCanonical was already executed by syncCanonical */
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  if(!engine)throw Error('Motor de nube V15.3.3 no disponible');
+  engine.markDirty('canonical-scoutings');
+  const ok=await engine.sync({reason:'canonical-scoutings',allowWrite:true});
+  if(!ok&&engine.diagnostics().dirty)throw Error('El archivo de scoutings está pendiente de confirmar en la nube');
   lastCanonicalSignature=canonicalSignature(canonical.index);
+  localStorage.setItem('v957_scout_signature',lastCanonicalSignature);
 }
 async function syncCanonical({upload=true,quiet=false}={}){
   if(syncPromise)return syncPromise;
@@ -26297,64 +26351,115 @@ const badge=document.getElementById('scout-v753-pdf-ready');if(badge){badge.text
 <script id="v962-cloud-efficient-runtime">
 (()=>{
 'use strict';
-const VERSION='15.2.6';
-const PASSIVE_INTERVAL_MS=120000;
-const VISIBLE_MIN_GAP_MS=30000;
-const QUIET_SCOUT_MS=1100;
-const QUIET_NORMAL_MS=2600;
-const MAX_DIRTY_SCOUT_MS=3200;
-const MAX_DIRTY_NORMAL_MS=9000;
-const DIRTY_KEY='v1523_cloud_dirty';
-const REMOTE_STAMP_KEY='v1523_remote_stamp';
+/* Volley Coach V15.3.3: compare-and-set persistence, local revision journal,
+   bounded conflict retries. Broadcast from V15.2.6 is unchanged. */
+const VERSION='15.3.3';
+const PASSIVE_INTERVAL_MS=120000,VISIBLE_MIN_GAP_MS=30000;
+const QUIET_SCOUT_MS=1100,QUIET_NORMAL_MS=2600;
+const MAX_DIRTY_SCOUT_MS=3200,MAX_DIRTY_NORMAL_MS=9000;
+const DIRTY_KEY='v1523_cloud_dirty',REMOTE_STAMP_KEY='v1523_remote_stamp';
+const MAX_CONFLICT_RETRIES=5;
 let dirty=localStorage.getItem(DIRTY_KEY)==='1';
-let dirtySince=dirty?Date.now():0,dirtyTimer=null,syncPromise=null;
+let localRevision=0,dirtySince=dirty?Date.now():0,dirtyTimer=null,syncPromise=null;
 let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
 let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
 let lastRemoteStamp=localStorage.getItem(REMOTE_STAMP_KEY)||'';
 let reads=Number(sessionStorage.getItem('v962_reads'))||0,writes=Number(sessionStorage.getItem('v962_writes'))||0,skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
-let failureCount=0,lastSyncError='';
+let failureCount=0,lastSyncError='',conflictCount=0,lastConfirmedRevision=-1,lastWriteConflict=null;
 function persistCounters(){try{sessionStorage.setItem('v962_reads',String(reads));sessionStorage.setItem('v962_writes',String(writes));sessionStorage.setItem('v962_skipped_writes',String(skippedWrites))}catch(_){}}
 function connected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false}}
 function activeScouting(){try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}}
 function localState(){return typeof estadoLocal==='function'?estadoLocal():null}
 function setStatus(text,kind='online'){try{setCloudUI?.(kind,text)}catch(_){}}
 function setDirty(v){dirty=!!v;try{dirty?localStorage.setItem(DIRTY_KEY,'1'):localStorage.removeItem(DIRTY_KEY)}catch(_){};if(!dirty)dirtySince=0}
-function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
-function scheduleDirty(reason='change'){if(!dirty||!connected())return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,manual:false,allowWrite:true}),delay)}
+function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
+function scheduleDirty(reason='change'){if(!dirty||!connected())return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,allowWrite:true}),delay)}
 async function readRemote(){if(!connected())return null;const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
-async function writeRemote(state){const updatedAt=new Date().toISOString();const {error}=await cloudClient.from('volley_state').upsert({user_id:cloudUser.id,state,updated_at:updatedAt},{onConflict:'user_id'});writes++;persistCounters();if(error)throw error;lastWriteAt=Date.now();lastRemoteStamp=updatedAt;try{localStorage.setItem('volleyCloudLastSync',updatedAt);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,updatedAt)}catch(_){};return updatedAt}
-function renderVisible(){const id=document.querySelector('.view.active')?.id||'';try{if(id==='dashboard')renderDashboard?.();else if(id==='entrenamiento'){renderizarSesion?.();cargarMeta?.()}else if(id==='ejercicios')filtrarEjercicios?.();else if(id==='planificacion')renderPlanificacion?.();else if(id==='historial')renderHistorial?.();else if(id==='estadisticas')renderStats?.();else if(id==='jugadores'){renderPlayers?.();renderDashboardPlayers?.()}else if(id==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}else if(id==='scout-match-mode'){window.v800Render?.()}else if(id==='scout-analysis'){window.scoutRenderAnalysis?.()}else if(id==='scout-season'){window.VC_V151?.render?.()}}catch(_){}}
-async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
-  if(syncPromise)return syncPromise;if(!connected()){if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');return false}
-  clearTimeout(dirtyTimer);dirtyTimer=null;
-  syncPromise=(async()=>{if(manual)setStatus('Sincronizando…','syncing');try{
-    const remote=await readRemote();let remoteApplied=false;
-    const stamp=String(remote?.updated_at||'');
-    if(remote?.state&&(manual||!stamp||stamp!==lastRemoteStamp)){
-      window.aplicarEstadoCloud?.(remote.state);remoteApplied=true;lastRemoteStamp=stamp;
-      try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
-    }
-    let mustWrite=allowWrite&&!pullOnly&&(dirty||!remote?.state);
-    if(mustWrite){const state=localState();if(state){await writeRemote(state);setDirty(false)}else mustWrite=false}else skippedWrites++;
-    persistCounters();failureCount=0;lastSyncError='';renderVisible();
-    const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · sincronizados ✓`;
-    setStatus(mustWrite?'Nube sincronizada':(remoteApplied?'Cambios recibidos ✓':'Nube al día'),'online');const indicator=document.getElementById('save-indicator');if(indicator)indicator.textContent=mustWrite?'✓ Guardado y sincronizado':'✓ Guardado · nube al día';
-    if(manual)alert(mustWrite?'Datos fusionados y sincronizados con la nube.':(remoteApplied?'Cambios de la nube recibidos.':'Nube comprobada. No había cambios pendientes.'));
-    return remoteApplied||mustWrite;
-  }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.2.6 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}
-
-Los datos locales siguen protegidos.`)}else setStatus('Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty)scheduleDirty('retry');return false}finally{syncPromise=null}})();return syncPromise;
+function nextStamp(previous){const prev=Date.parse(previous||'')||0;return new Date(Math.max(Date.now(),prev+1)).toISOString()}
+async function writeRemote(state,remote){
+  const updatedAt=nextStamp(remote?.updated_at),payload={state,updated_at:updatedAt};
+  let response;
+  if(remote?.updated_at){
+    /* PostgreSQL performs the condition and UPDATE atomically. If another device
+       wrote after our SELECT, the row does not match and we must merge/retry. */
+    response=await cloudClient.from('volley_state').update(payload).eq('user_id',cloudUser.id).eq('updated_at',remote.updated_at).select('updated_at').maybeSingle();
+  }else if(remote){
+    /* Legacy rows without a timestamp need their own conditional update. */
+    response=await cloudClient.from('volley_state').update(payload).eq('user_id',cloudUser.id).is('updated_at',null).select('updated_at').maybeSingle();
+  }else{
+    response=await cloudClient.from('volley_state').insert({user_id:cloudUser.id,...payload}).select('updated_at').maybeSingle();
+  }
+  writes++;persistCounters();
+  if(response?.error){
+    if(!remote&&String(response.error.code)==='23505')return {conflict:true};
+    throw response.error;
+  }
+  if(!response?.data?.updated_at)return {conflict:true};
+  const confirmed=String(response.data.updated_at);
+  lastWriteAt=Date.now();lastRemoteStamp=confirmed;
+  try{localStorage.setItem('volleyCloudLastSync',confirmed);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,confirmed)}catch(_){}
+  return {conflict:false,stamp:confirmed};
 }
-async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'||reason.startsWith('auth-')){if(dirty||reason!=='manual')setDirty(true)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
+function renderVisible(){const id=document.querySelector('.view.active')?.id||'';try{if(id==='dashboard')renderDashboard?.();else if(id==='entrenamiento'){renderizarSesion?.();cargarMeta?.()}else if(id==='ejercicios')filtrarEjercicios?.();else if(id==='planificacion')renderPlanificacion?.();else if(id==='historial')renderHistorial?.();else if(id==='estadisticas')renderStats?.();else if(id==='jugadores'){renderPlayers?.();renderDashboardPlayers?.()}else if(id==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}else if(id==='scout-match-mode'){window.v800Render?.()}else if(id==='scout-analysis'){window.scoutRenderAnalysis?.()}else if(id==='scout-season'){window.VC_V151?.render?.()}}catch(err){console.warn('V15.3.3 render',err)}}
+async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
+  if(syncPromise)return syncPromise;
+  if(!connected()){if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');return false}
+  clearTimeout(dirtyTimer);dirtyTimer=null;
+  syncPromise=(async()=>{
+    if(manual)setStatus('Sincronizando…','syncing');
+    try{
+      let remoteApplied=false,mustWrite=false,wasConflict=false,confirmed=false;
+      for(let attempt=0;attempt<MAX_CONFLICT_RETRIES;attempt++){
+        const remote=await readRemote(),stamp=String(remote?.updated_at||'');
+        if(remote?.state&&(manual||stamp!==lastRemoteStamp||wasConflict)){
+          /* Existing merger retains matches and training records; the writer
+             checks the exact row version to avoid stale full-state overwrites. */
+          window.aplicarEstadoCloud?.(remote.state);
+          remoteApplied=true;lastRemoteStamp=stamp;
+          try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
+        }
+        mustWrite=allowWrite&&!pullOnly&&(dirty||!remote?.state||wasConflict);
+        if(!mustWrite){skippedWrites++;break}
+        const snapshotRevision=localRevision;
+        const state=localState();
+        if(!state){mustWrite=false;break}
+        const result=await writeRemote(state,remote);
+        if(result.conflict){
+          conflictCount++;lastWriteConflict=Date.now();wasConflict=true;
+          if(!dirty)dirtySince=Date.now();setDirty(true);
+          continue;
+        }
+        confirmed=true;lastConfirmedRevision=snapshotRevision;
+        /* A user can edit while the HTTP request is in flight. Never clear
+           the dirty flag unless the exact revision sent was acknowledged. */
+        if(localRevision===snapshotRevision){setDirty(false)}
+        else{if(!dirty)dirtySince=Date.now();setDirty(true)}
+        break;
+      }
+      if(mustWrite&&!confirmed){if(!dirty)dirtySince=Date.now();setDirty(true);throw Error('Cambios simultáneos: no se ha confirmado esta subida. Se volverá a intentar.')}
+      persistCounters();failureCount=0;lastSyncError='';renderVisible();
+      const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
+      if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · ${dirty?'cambios pendientes':'sincronizados ✓'}`;
+      setStatus(dirty?'Nube pendiente · cambios locales protegidos':(confirmed?'Nube sincronizada':remoteApplied?'Cambios recibidos ✓':'Nube al día'),dirty?'syncing':'online');
+      const indicator=document.getElementById('save-indicator');
+      if(indicator)indicator.textContent=dirty?'◷ Guardado local · nube pendiente':confirmed?'✓ Confirmado por la nube':'✓ Guardado · nube al día';
+      if(manual)alert(dirty?'Se han recibido cambios, pero quedan modificaciones por subir.':confirmed?'Datos fusionados y confirmados por la nube.':remoteApplied?'Cambios recibidos de la nube.':'Nube comprobada. No había cambios pendientes.');
+      return remoteApplied||confirmed;
+    }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.3.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}else setStatus('Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty)scheduleDirty('retry');return false}
+    finally{syncPromise=null;if(dirty&&connected())scheduleDirty('revision-pending')}
+  })();return syncPromise;
+}
+async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'||reason.startsWith('auth-')){if(dirty||reason!=='manual')markDirty('force:'+reason)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
 function visibilitySync(){if(document.visibilityState!=='visible'||!connected())return;if(dirty)void sync({reason:'visible-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS)void sync({reason:'visible',allowWrite:false,pullOnly:true})}
 function onOnline(){if(!connected())return;if(dirty)void sync({reason:'online',allowWrite:true});else void sync({reason:'online-pull',allowWrite:false,pullOnly:true})}
 const efficientSchedule=function(){return markDirty('autosave')};window.programarSubidaCloud=efficientSchedule;try{programarSubidaCloud=efficientSchedule}catch(_){}
-const efficientUpload=function(manual=false){if(manual){setDirty(true);return sync({reason:'manual-upload',manual:true,allowWrite:true})}markDirty('legacy-upload');return Promise.resolve(true)};window.subirNube=efficientUpload;try{subirNube=efficientUpload}catch(_){}
+const efficientUpload=function(manual=false){if(manual){markDirty('manual-upload');return sync({reason:'manual-upload',manual:true,allowWrite:true})}markDirty('legacy-upload');return Promise.resolve(true)};window.subirNube=efficientUpload;try{subirNube=efficientUpload}catch(_){}
 const efficientDownload=function(manual=false){return sync({reason:'manual-download',manual:!!manual,allowWrite:false,pullOnly:true})};window.bajarNube=efficientDownload;try{bajarNube=efficientDownload}catch(_){}
 window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNow=()=>sync({reason:'manual',manual:true,allowWrite:true});window.v956SyncScoutingsNow=()=>sync({reason:'manual-scout',manual:true,allowWrite:true});window.v957SyncScoutingsNow=window.v956SyncScoutingsNow;
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
-document.addEventListener('visibilitychange',visibilitySync);setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:true})};
+document.addEventListener('visibilitychange',visibilitySync);
+setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:true,compareAndSet:true})};
 })();
 </script>
 
@@ -27539,7 +27644,8 @@ const meta={
   attack:['CONSTRUCCIÓN OFENSIVA','Distribución y ataque','Uso de colocadores, destinos, tempos y direcciones reales de ataque.',['Distribución','Direcciones','Eficiencia']],
   receive:['PRIMER CONTACTO / RED','Recepción y bloqueo','Calidad de recepción, origen del saque, zonas de contacto y comportamiento del bloqueo.',['Recepción','Bloqueo','Zonas']],
   context:['LECTURA AVANZADA','Contexto técnico','Campos DataVolley, marcador contextual y tendencias tácticas por jugador.',['DataVolley','Context score','Tendencias']],
-  opponent:['SCOUTING RIVAL','Rival y cambios','Histórico del rival, patrones estables y registro de sustituciones/líbero.',['Histórico','Patrones','Cambios']]
+  opponent:['SCOUTING RIVAL','Rival y cambios','Histórico del rival, patrones estables y registro de sustituciones/líbero.',['Histórico','Patrones','Cambios']],
+  all:['HOJA COMPLETA','Todas las estadísticas','Vista completa con las secciones históricas y las métricas avanzadas.',['Individual','K1/K2','DataVolley','Tendencias']]
 };
 function sectionFor(id){return $(id)?.closest('section')||null}
 function tagSections(){Object.entries(groups).forEach(([g,ids])=>ids.forEach(id=>{const s=sectionFor(id);if(s)s.dataset.v115Group=g}))}
@@ -28890,8 +28996,8 @@ function buildToolbar(){const bar=document.querySelector('#scout-analysis .scout
   bar.appendChild(mk('▶ Video Review','ghost',()=>window.v135OpenVideoReview()));bar.appendChild(mk('PDF hoja oficial','ghost',()=>window.scoutV752ExportOfficialPDF?.()));bar.appendChild(mk('PDF análisis Pro','primary',()=>window.scoutV752ExportAnalysisPDF?.()));
   const d=document.createElement('details');d.className='v135-tools';d.innerHTML='<summary>Más herramientas ▾</summary><div class="v135-tools-menu"></div>';const menu=d.querySelector('div');[['Auditoría estadística',()=>window.v134OpenStatAudit?.()],['Sincronizar scoutings',()=>window.v957SyncScoutingsNow?.()],['Referencia de códigos',()=>window.scoutOpenCodeReference?.()],['CSV estadístico',()=>window.scoutExportStatsCSV?.()],['CSV acciones',()=>window.scoutExportCSV?.()],['Copia JSON',()=>window.scoutExportJSON?.()]].forEach(([t,f])=>menu.appendChild(mk(t,'ghost',()=>{d.open=false;f()})));bar.appendChild(d)
 }
-function rebuildNav(){const nav=$('v115-analysis-nav');if(!nav||nav.dataset.v135==='1')return;nav.dataset.v135='1';const items=[['summary','▦','Resumen'],['players','◎','Individual'],['phases','↻','Rotaciones / K1-K2'],['attack','↗','Ataque / distribución'],['receive','⌁','Recepción / bloqueo'],['opponent','◉','Rival / vídeo']];nav.innerHTML=items.map(([k,i,l])=>`<button type="button" data-tab="${k}" onclick="v115SetAnalysisTab('${k}')"><span>${i}</span>${l}</button>`).join('');
-  const ctxIds=['scout-v890-datavolley-detail','scout-v850-context-analysis','scout-v640-tendencies'];ctxIds.forEach(id=>{const s=$(id)?.closest('section');if(s)s.dataset.v115Group='advanced'});const oppIds=['scout-v650-body','scout-analysis-events'];oppIds.forEach(id=>{const s=$(id)?.closest('section');if(s)s.dataset.v115Group='opponent'});const view=$('scout-analysis');if(view?.dataset.v115Tab==='context'){view.classList.add('v135-show-advanced');try{window.v115SetAnalysisTab?.('summary')}catch(_){view.dataset.v115Tab='summary'}}
+function rebuildNav(){const nav=$('v115-analysis-nav');if(!nav||nav.dataset.v135==='1')return;nav.dataset.v135='1';const items=[['summary','▦','Resumen'],['players','◎','Individual'],['phases','↻','Rotaciones / K1-K2'],['attack','↗','Ataque / distribución'],['receive','⌁','Recepción / bloqueo'],['context','≡','Contexto técnico'],['opponent','◉','Rival / vídeo'],['all','▤','Estadísticas completas']];nav.innerHTML=items.map(([k,i,l])=>`<button type="button" data-tab="${k}" onclick="v115SetAnalysisTab('${k}')"><span>${i}</span>${l}</button>`).join('');
+  const ctxIds=['scout-v890-datavolley-detail','scout-v850-context-analysis','scout-v640-tendencies'];ctxIds.forEach(id=>{const s=$(id)?.closest('section');if(s)s.dataset.v115Group='advanced'});const oppIds=['scout-v650-body','scout-analysis-events'];oppIds.forEach(id=>{const s=$(id)?.closest('section');if(s)s.dataset.v115Group='opponent'});const view=$('scout-analysis');if(view?.dataset.v115Tab==='context')view.classList.add('v135-show-advanced')
 }
 function ensureCockpit(){const intro=$('v115-section-intro');if(!intro||$('v135-decision-cockpit'))return;const el=document.createElement('div');el.id='v135-decision-cockpit';el.className='v135-decision-cockpit';el.innerHTML='<div id="v135-kpis" class="v135-kpis"></div><div class="v135-cockpit-grid"><section class="v135-card"><div class="v135-card-head"><div><span>R1–R6 · DECISION VIEW</span><h3>Rotaciones y fases</h3><p>Pulsa K1 o K2 para abrir las acciones originales de esa rotación.</p></div><button type="button" class="ghost" onclick="v115SetAnalysisTab(\'phases\')">Análisis completo</button></div><div id="v135-rotations" class="v135-card-body v135-rotations"></div></section><section class="v135-card"><div class="v135-card-head"><div><span>STAFF READING</span><h3>Lectura rápida</h3><p>Conclusiones descriptivas con muestra visible.</p></div></div><div id="v135-insights" class="v135-card-body v135-insights"></div></section></div><section class="v135-card"><div class="v135-card-head"><div><span>TRAZABILIDAD</span><h3>Scouting ↔ acciones ↔ vídeo</h3><p>La estadística puede volver a la acción original y, cuando existe timestamp, a la jugada.</p></div><button id="v135-advanced-toggle" type="button" class="ghost" onclick="v135ToggleAdvanced()">Detalle técnico</button></div><div id="v135-video-summary" class="v135-card-body"></div></section>';intro.insertAdjacentElement('afterend',el)}
 function renderKpis(m,t){const box=$('v135-kpis');if(!box)return;const blockPts=Number(t.blk?.perfect)||0,recPos=t.rec?.total?t.rec.posPct:null,recExc=t.rec?.total?t.rec.excPct:null,attPct=t.att?.total?t.att.ptsPct:null,attGp=t.att?.total?t.att.gp:null,pm=t.pm;box.innerHTML=`<button class="v135-kpi ${statusClass(t.sidePct,60,45)}" onclick="v135OpenEvidence('phase','sideout','ours')"><span>Side-out · K1</span><b>${t.sidePct==null?'—':t.sidePct+'%'}</b><small>${t.k1w}/${t.k1.length} rallies · ver evidencia</small></button><button class="v135-kpi ${statusClass(t.breakPct,40,25)}" onclick="v135OpenEvidence('phase','break','ours')"><span>Break point · K2</span><b>${t.breakPct==null?'—':t.breakPct+'%'}</b><small>${t.k2w}/${t.k2.length} rallies · ver evidencia</small></button><button class="v135-kpi ${(pm?.gp||0)>0?'good':(pm?.gp||0)<0?'bad':''}" onclick="v135OpenEvidence('gp','all','ours')"><span>G-P equipo</span><b>${pm?gp(pm.gp):'—'}</b><small>${pm?`${pm.won} ganados · ${pm.lost} perdidos`:'Sin muestra'}</small></button><button class="v135-kpi ${statusClass(recPos,60,45)}" onclick="v135OpenEvidence('skill','R','ours')"><span>Recepción</span><b>${recPos==null?'—':recPos+'%'}</b><small>${t.rec?.total?`Exc ${recExc}% · ${t.rec.total} tot.`:'Sin muestra'}</small></button><button class="v135-kpi ${statusClass(attPct,45,30)}" onclick="v135OpenEvidence('skill','A','ours')"><span>Ataque</span><b>${attPct==null?'—':attPct+'%'}</b><small>${t.att?.total?`G-P ${gp(attGp)} · ${t.att.perfect}/${t.att.total}`:'Sin muestra'}</small></button><button class="v135-kpi" onclick="v135OpenEvidence('skill','B','ours')"><span>Bloqueo</span><b>${t.blk?.total?blockPts:'—'}</b><small>${t.blk?.total?`${t.blk.total} acciones registradas`:'Sin muestra'}</small></button>`}
@@ -29176,13 +29282,30 @@ function buildFastPayload(reason){const m=active();if(!m)return null;const s=cur
 function queueFast(reason='matchstate'){if(fastApplying||rtState!=='SUBSCRIBED'||!channel||!cloudConnected())return;clearTimeout(fastTimer);fastTimer=setTimeout(async()=>{if(rtState!=='SUBSCRIBED'||!channel)return;touchMeta(reason);const payload=buildFastPayload(reason);if(!payload)return;try{await channel.send({type:'broadcast',event:FAST_EVENT,payload})}catch(err){console.warn('V15.2.6 broadcast',err)}},45)}
 async function syncRemote(reason='fallback'){if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}try{lastPullAt=now();await window.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});render();return true}catch(err){console.warn('V15.2.6 remote sync',err);return false}}
 function onRemote(payload){try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;clearTimeout(remoteSyncTimer);const recentFast=meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000;remoteSyncTimer=setTimeout(()=>void syncRemote(recentFast?'db-complete-after-fast':'db-change'),recentFast?700:350)}catch(err){console.warn('V15.2.6 postgres event',err)}}
-function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState='disconnected';render()}
-function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false}}}).on('broadcast',{event:FAST_EVENT},onFast).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED')queueFast('reconnect');if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.6 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
+let presencePeers=[];
+function syncPresence(){
+  try{
+    const state=channel?.presenceState?.()||{};
+    const seen=new Map();
+    Object.values(state).forEach(values=>(Array.isArray(values)?values:[]).forEach(p=>{
+      const k=String(p.deviceId||p.presence_ref||'');if(k)seen.set(k,{deviceId:k,name:String(p.name||'Entrenador'),type:String(p.type||''),teamId:String(p.teamId||''),view:String(p.view||'')});
+    }));
+    presencePeers=[...seen.values()];
+  }catch(err){console.warn('VC Presence',err);presencePeers=[]}
+  try{window.VC_V154_COLLAB?.render?.()}catch(_){}
+}
+async function trackPresence(){
+  if(!channel||rtState!=='SUBSCRIBED')return;
+  try{await channel.track({deviceId,name:deviceName,type:isMobile()?'mobile':'desktop',teamId:String(equipoActivo||''),view:document.querySelector('.view.active')?.id||'',joinedAt:new Date().toISOString()})}
+  catch(err){console.warn('VC Presence track',err)}
+}
+function disconnectRealtime(){if(channel&&cloudClient){try{cloudClient.removeChannel(channel)}catch(_){try{channel.unsubscribe?.()}catch(__){}}}channel=null;channelUser='';rtState='disconnected';presencePeers=[];render();syncPresence()}
+function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return false}const uid=String(cloudUser?.id||'');if(!uid)return false;if(channel&&channelUser===uid&&(rtState==='SUBSCRIBED'||rtState==='SUBSCRIBING'||rtState==='connecting'))return true;disconnectRealtime();channelUser=uid;rtState='connecting';render();try{channel=cloudClient.channel(`vc-matchstate-${uid}`,{config:{broadcast:{self:false},presence:{key:deviceId}}}).on('broadcast',{event:FAST_EVENT},onFast).on('postgres_changes',{event:'*',schema:'public',table:'volley_state',filter:`user_id=eq.${uid}`},onRemote).on('presence',{event:'sync'},syncPresence).subscribe(status=>{rtState=String(status||'');render();if(rtState==='SUBSCRIBED'){queueFast('reconnect');void trackPresence()}if(rtState==='CHANNEL_ERROR'||rtState==='TIMED_OUT'||rtState==='CLOSED')setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},1800)});return true}catch(err){console.warn('V15.2.6 realtime',err);rtState='CHANNEL_ERROR';render();setTimeout(()=>{if(document.visibilityState==='visible'&&cloudConnected())connectRealtime()},2200);return false}}
 function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()&&now()-lastPullAt>=delay)await syncRemote('safety');poll()},delay)}
 function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
 async function resumeSync(reason='resume'){try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
 function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();queueFast(d?.reason||'matchstate');if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
-window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true,durableCompletion:true,allTopLevelMatchFields:true})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,connect:connectRealtime,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true,durableCompletion:true,allTopLevelMatchFields:true,presencePeers:presencePeers.slice()})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
 
@@ -30353,12 +30476,14 @@ window.vc1532ShowCloudDiagnostic=function(){
   var r=window.VC_DEVICE_SYNC?.diagnostics?.()||{};
   var account=!!v.connected;
   var lines=[
-    'Volley Coach · diagnostico de nube V15.3.2',
+    'Volley Coach · diagnostico de nube V15.4',
     'Sesión activa: '+(account?'sí':'no'),
     'Realtime: '+String(r.realtimeState||'no disponible'),
     'Pendientes: '+(v.dirty?'sí':'no'),
     'Enviando: '+(v.syncing?'sí':'no'),
     'Errores consecutivos: '+Number(v.failureCount||0),
+    'Conflictos de versión detectados: '+Number(v.conflictCount||0),
+    'Revisión local / última confirmada: '+Number(v.localRevision||0)+' / '+Number(v.lastConfirmedRevision??-1),
     'Último error: '+String(v.lastSyncError||'ninguno'),
     'Última lectura: '+(v.lastReadAt?new Date(v.lastReadAt).toLocaleString('es-ES'):'ninguna'),
     'Última escritura: '+(v.lastWriteAt?new Date(v.lastWriteAt).toLocaleString('es-ES'):'ninguna'),
@@ -30382,4 +30507,389 @@ window.vc1532ShowCloudDiagnostic=function(){
   document.getElementById('vc1532-cloud-text').textContent=report;
 };
 </script>
+
+<style id="vc154-collaboration-style">
+#vc154-presence-button{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #c9dce6;border-radius:9px;color:#1b4964;background:#f2f8fb;font-size:11px;font-weight:800;cursor:pointer}
+#vc154-presence-dot{width:7px;height:7px;background:#91a1ac;border-radius:50%;display:inline-block}
+#vc154-presence-button.online #vc154-presence-dot{background:#2a9e6d}
+#vc154-presence-button.offline{border-color:#ead0c4;background:#fff5f1}
+#vc154-collab-modal{position:fixed;inset:0;z-index:51000;background:rgba(9,29,44,.62);display:none;align-items:center;justify-content:center;padding:16px}
+#vc154-collab-modal.open{display:flex}
+#vc154-collab-card{width:min(750px,96vw);max-height:90vh;overflow:auto;border-radius:14px;padding:20px;background:#fff;color:#19374b;box-shadow:0 15px 60px #0004}
+#vc154-collab-card header{display:flex;justify-content:space-between;align-items:center;gap:15px}
+#vc154-collab-card h3{margin:0;font-size:20px}
+#vc154-collab-card p{font-size:12px;color:#597181;line-height:1.5}
+#vc154-collab-card h4{font-size:13px;margin:15px 0 7px}
+#vc154-collab-card ul{padding:0;list-style:none;display:grid;gap:6px;margin:6px 0 14px}
+#vc154-collab-card li{padding:8px 10px;border:1px solid #e2e9ed;border-radius:8px;font-size:12px;background:#fafcfd}
+#vc154-collab-card small{display:block;font-size:10px;color:#6a7c89;margin-top:3px}
+#vc154-collab-card button{padding:8px 12px;cursor:pointer}
+#vc154-collab-info{font-size:11px;padding:9px 10px;background:#f1f6f9;border-radius:8px}
+</style>
+<script id="vc154-collaboration-runtime">
+(()=>{
+'use strict';
+const VERSION='15.4.0',LOG_KEY='vc154_activity',DEVICE=window.VC_DEVICE_SYNC?.deviceId||'unknown',NAME=window.VC_DEVICE_SYNC?.deviceName||'Dispositivo';
+const $=id=>document.getElementById(id);
+let logs=[],lastLogKey='',lastLogAt=0;
+try{logs=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');if(!Array.isArray(logs))logs=[]}catch(_){logs=[]}
+function persist(){logs=logs.filter(x=>x&&x.id&&x.at).sort((a,b)=>String(a.at).localeCompare(String(b.at))).slice(-90);try{localStorage.setItem(LOG_KEY,JSON.stringify(logs))}catch(_){}}
+function mergeActivity(remote){const map=new Map();[...logs,...(Array.isArray(remote)?remote:[])].forEach(e=>{if(e?.id&&e?.at)map.set(String(e.id),{id:String(e.id),at:String(e.at),device:String(e.device||''),name:String(e.name||''),team:String(e.team||''),category:String(e.category||''),detail:String(e.detail||'')})});logs=[...map.values()];persist();if($('vc154-collab-modal')?.classList.contains('open'))render()}
+function record(category,detail='Cambio guardado localmente'){
+  if(typeof cloudApplying!=='undefined'&&cloudApplying)return;
+  const key=category+':'+detail,now=Date.now();if(key===lastLogKey&&now-lastLogAt<7000)return;
+  lastLogKey=key;lastLogAt=now;const id=`${DEVICE}:${now}:${Math.random().toString(36).slice(2,8)}`;
+  logs.push({id,at:new Date(now).toISOString(),device:DEVICE,name:NAME,team:String(typeof equipoActivo!=='undefined'?equipoActivo:''),category:String(category||'general'),detail:String(detail||'Modificación').slice(0,150)});
+  persist();if($('vc154-collab-modal')?.classList.contains('open'))render();
+}
+/* Cloud state is augmented without changing existing persisted training structures. */
+const baseExport=window.estadoLocal;
+if(typeof baseExport==='function'){const wrapped=function(){const out=baseExport.apply(this,arguments)||{};out.v154Activity=logs.slice(-90);return out};window.estadoLocal=wrapped;try{estadoLocal=wrapped}catch(_){}}
+const baseApply=window.aplicarEstadoCloud;
+if(typeof baseApply==='function'){const wrapped=function(state){const out=baseApply.apply(this,arguments);mergeActivity(state?.v154Activity);return out};window.aplicarEstadoCloud=wrapped;try{aplicarEstadoCloud=wrapped}catch(_){}}
+const baseSchedule=window.programarSubidaCloud;
+if(typeof baseSchedule==='function'){const wrapped=function(){record(document.querySelector('.view.active')?.id||'entrenamiento','Solicitud de guardado local');return baseSchedule.apply(this,arguments)};window.programarSubidaCloud=wrapped;try{programarSubidaCloud=wrapped}catch(_){}}
+try{window.MatchState?.subscribe?.(e=>{const r=String(e?.reason||'Acción de partido');if(!/^(boot|init|startup|migration|subscribe)/i.test(r))record('scouting',r)})}catch(_){ }
+function peers(){const d=window.VC_DEVICE_SYNC?.diagnostics?.()||{};return {online:d.realtimeState==='SUBSCRIBED',people:Array.isArray(d.presencePeers)?d.presencePeers:[],state:d.realtimeState||'no disponible'}}
+function ensureUI(){
+  if(!$('vc154-presence-button')){
+    const host=document.querySelector('#v11-topbar .v11-topbar-actions')||document.querySelector('#v11-topbar')||document.querySelector('#v138-device-strip');
+    if(host){const b=document.createElement('button');b.id='vc154-presence-button';b.type='button';b.onclick=()=>window.v154OpenCollaboration();b.innerHTML='<span id="vc154-presence-dot"></span><span id="vc154-presence-count">Equipo conectado</span>';host.appendChild(b)}
+  }
+  if(!$('vc154-collab-modal')){
+    const modal=document.createElement('div');modal.id='vc154-collab-modal';modal.innerHTML='<div id="vc154-collab-card"><header><h3>Colaboración · V15.4</h3><button type="button" id="vc154-collab-close">Cerrar</button></header><p>Dispositivos conectados a la misma cuenta de Supabase. Presencia en tiempo real; no sustituye usuarios y permisos independientes.</p><div id="vc154-collab-info"></div><h4>En línea</h4><ul id="vc154-peers"></ul><h4>Historial reciente de actividad</h4><ul id="vc154-activity"></ul></div>';
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});document.body.appendChild(modal);$('vc154-collab-close').onclick=()=>modal.classList.remove('open');
+  }
+}
+function row(parent,title,subtitle){const li=document.createElement('li');li.textContent=title;const sub=document.createElement('small');sub.textContent=subtitle;li.appendChild(sub);parent.appendChild(li)}
+function render(){ensureUI();const d=peers(),b=$('vc154-presence-button'),label=$('vc154-presence-count');if(b){b.classList.toggle('online',d.online);b.classList.toggle('offline',!d.online)}if(label)label.textContent=d.online?`${d.people.length||1} dispositivo(s) en línea`:'Presencia no conectada';
+  const info=$('vc154-collab-info');if(info)info.textContent=`Realtime: ${d.state} · ${d.people.length} dispositivo(s) detectado(s). Los cambios se guardan por separado en Supabase.`;
+  const ul=$('vc154-peers');if(ul){ul.replaceChildren();if(!d.people.length)row(ul,'Sin datos de presencia',d.online?'Otro dispositivo puede no haber actualizado todavía':'Revisa la sesión de nube y la conexión');else d.people.forEach(p=>row(ul,(p.deviceId===DEVICE?'Este dispositivo · ':'')+p.name,`${p.type||'dispositivo'} · equipo ${p.teamId||'sin seleccionar'} · ${p.deviceId.slice(0,10)}`))}
+  const hist=$('vc154-activity');if(hist){hist.replaceChildren();logs.slice(-35).reverse().forEach(x=>row(hist,`${x.name||'Dispositivo'} · ${x.category||'actividad'}`,`${x.detail} · ${new Date(x.at).toLocaleString('es-ES')}`));if(!logs.length)row(hist,'Todavía no hay cambios registrados','Se empezará a registrar actividad local en esta versión')}
+}
+window.v154OpenCollaboration=()=>{render();$('vc154-collab-modal')?.classList.add('open')};
+window.VC_V154_COLLAB={version:VERSION,render,record,mergeActivity,diagnostics:()=>({version:VERSION,presence:peers(),activityCount:logs.length})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{render();setInterval(render,15000)},{once:true});else{render();setInterval(render,15000)}
+})();
+</script>
+<style id="vc154-analysis-recovery-style">
+/* V13.5 hid historical context panels; V15.4 restores their original groups. */
+#scout-analysis[data-v115-tab="context"] .scout-analysis-grid>section[data-v115-group="advanced"]{display:block!important;grid-column:1/-1!important}
+#scout-analysis[data-v115-tab="all"] .scout-analysis-grid>section{display:block!important;grid-column:1/-1!important}
+#scout-analysis[data-v115-tab="all"] .scout-v750-pro-panel{display:block!important}
+#scout-analysis[data-v115-tab="all"] .scout-analysis-grid>section[data-v115-group="advanced"]{display:block!important}
+body.v11-shell #scout-analysis .v115-analysis-nav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media(max-width:850px){body.v11-shell #scout-analysis .v115-analysis-nav{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+</style>
+
+<style id="vc155-bench-style">
+/* V15.5: read-only match console, scoped to avoid altering training/scouting layout. */
+#vc155-bench .vc155-shell{max-width:1450px;margin:auto;display:grid;gap:12px;color:#16364d;font-family:Inter,Arial,sans-serif}
+#vc155-bench .vc155-hero{display:flex;justify-content:space-between;align-items:center;gap:16px;background:#fff;border:1px solid #dbe6ed;border-radius:16px;padding:22px;box-shadow:0 8px 25px #243e5910}
+#vc155-bench .vc155-eyebrow{color:#3687b7;letter-spacing:.12em;font-weight:850;font-size:10px}
+#vc155-bench h2{font-size:27px!important;line-height:1.25!important;margin:4px 0 6px!important;color:#17364e!important}
+#vc155-bench .vc155-hero p,#vc155-bench .vc155-shortcuts p{color:#637f90;font-size:12px;line-height:1.55;margin:0}
+#vc155-bench .vc155-head-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#vc155-bench button{font-family:Inter,Arial,sans-serif!important;cursor:pointer;border-radius:9px!important;min-height:37px;text-transform:none!important;font-size:12px!important;font-weight:750!important;letter-spacing:0!important;padding:8px 12px!important}
+#vc155-bench .vc155-primary{background:#237fac!important;color:#fff!important;border:1px solid #237fac!important}
+#vc155-bench .vc155-outline,#vc155-bench .vc155-shortcut-buttons button{background:#f8fbfc!important;color:#285978!important;border:1px solid #cfdee7!important}
+#vc155-bench .vc155-toolbar{display:flex;align-items:end;flex-wrap:wrap;gap:12px;background:#fff;border:1px solid #dbe6ed;padding:12px 16px;border-radius:12px}
+#vc155-bench .vc155-toolbar label{display:grid;gap:6px;color:#6d8291;font-size:10px;font-weight:800;letter-spacing:.04em;min-width:min(270px,100%)}
+#vc155-bench .vc155-toolbar select{min-height:36px;border:1px solid #d4e2e9;background:#f9fbfc;border-radius:8px;padding:5px 8px;color:#17364e;font-size:12px}
+#vc155-bench .vc155-live-label{margin-left:auto;font-size:11px;font-weight:800;color:#667d8b;padding:9px 11px;border-radius:20px;background:#f2f5f7;border:1px solid #e2e8ec}
+#vc155-bench .vc155-live-label.connected{color:#13714d;background:#ebf8f1;border-color:#bde3ce}
+#vc155-bench .vc155-live-label.offline{color:#96602e;background:#fff7e8;border-color:#f1dfbf}
+#vc155-bench .vc155-empty{border:1px dashed #c5d7e3;padding:28px;border-radius:12px;background:#fff;color:#6b8292;font-size:13px}
+#vc155-bench .vc155-scoreboard{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:12px;background:linear-gradient(105deg,#f6fbff 0%,#fff 50%,#fafcfd 100%);border:1px solid #d2e2ed;padding:18px 28px;border-radius:15px;min-height:142px}
+#vc155-bench .vc155-team{display:grid;gap:8px;min-width:0}
+#vc155-bench .vc155-team span{color:#7591a2;font-size:10px;font-weight:850;letter-spacing:.1em}
+#vc155-bench .vc155-team strong{color:#17394e;font-size:21px;overflow-wrap:anywhere}
+#vc155-bench .vc155-team-op{text-align:right}
+#vc155-bench .vc155-score{display:grid;grid-template-columns:auto auto auto;justify-content:center;align-items:center;gap:13px;position:relative;padding-bottom:20px}
+#vc155-bench .vc155-score b{font-size:51px;font-weight:850;font-variant-numeric:tabular-nums;line-height:1;color:#153c59}
+#vc155-bench .vc155-score span{font-size:28px;color:#afbbc6}
+#vc155-bench .vc155-score small{position:absolute;bottom:-1px;left:0;right:0;text-align:center;color:#56819e;font-size:10px;font-weight:850}
+#vc155-bench .vc155-meta{display:flex;gap:16px;flex-wrap:wrap;border-radius:10px;padding:10px 15px;background:#eaf3f9;color:#3c6881;font-size:11px;font-weight:800}
+#vc155-bench .vc155-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#vc155-bench .vc155-kpi{background:#fff;border:1px solid #d9e6ee;border-radius:12px;padding:17px;display:flex;flex-direction:column;gap:9px;min-width:0;box-shadow:0 5px 15px #253e5909}
+#vc155-bench .vc155-kpi>span{font-size:10px;font-weight:850;color:#6b8798;letter-spacing:.05em}
+#vc155-bench .vc155-kpi>strong{font-size:33px;line-height:1.08;color:#194c71;font-variant-numeric:tabular-nums}
+#vc155-bench .vc155-kpi>small{color:#7990a0;font-size:11px}
+#vc155-bench .vc155-panels{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#vc155-bench .vc155-panel{background:#fff;border:1px solid #dbe6ed;border-radius:13px;padding:18px;min-width:0;box-shadow:0 6px 18px #203d560a}
+#vc155-bench .vc155-panel header{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #e7eff3;padding-bottom:12px;margin-bottom:12px}
+#vc155-bench .vc155-panel header span:not(.vc155-pill){font-size:9px;font-weight:850;color:#7a95a5;letter-spacing:.08em}
+#vc155-bench .vc155-panel header h3{font-family:Inter,Arial,sans-serif!important;font-size:16px!important;margin:3px 0 0!important;border:0!important;padding:0!important;color:#183c57!important;font-weight:850!important}
+#vc155-bench .vc155-pill{border-radius:20px;padding:6px 9px;background:#eef5f9;color:#6a8495;font-size:10px;font-weight:700;white-space:nowrap}
+#vc155-bench .vc155-disclaimer{display:block;margin-top:11px;font-size:10px;line-height:1.5;color:#8296a2}
+#vc155-bench .vc155-alerts{display:grid;gap:8px}
+#vc155-bench .vc155-alert{border:1px solid #e4ebef;border-left:3px solid #91abb8;background:#f8fbfc;padding:11px 13px;border-radius:8px}
+#vc155-bench .vc155-alert.is-danger{border-left-color:#c45d4b;background:#fff7f5}
+#vc155-bench .vc155-alert.is-warning{border-left-color:#d49a3c;background:#fffcf6}
+#vc155-bench .vc155-alert b{display:block;color:#27495e;font-size:12px;margin:0 0 4px}
+#vc155-bench .vc155-alert small{display:block;color:#688292;font-size:11px;line-height:1.45}
+#vc155-bench .vc155-rotations{display:grid;gap:9px}
+#vc155-bench .vc155-rotation{display:grid;grid-template-columns:40px 1fr 98px;align-items:center;gap:10px;font-size:11px;color:#496b7f}
+#vc155-bench .vc155-rotation strong{font-size:12px;color:#24485d}
+#vc155-bench .vc155-rotation.current strong{color:#1b83b5}
+#vc155-bench .vc155-track{height:9px;border-radius:999px;background:#eaf0f4;overflow:hidden}
+#vc155-bench .vc155-track i{display:block;height:100%;background:#3183b0;border-radius:inherit}
+#vc155-bench .vc155-rotation em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:#567486}
+#vc155-bench .vc155-rallies{display:grid;gap:7px}
+#vc155-bench .vc155-rally{display:grid;grid-template-columns:65px 1fr auto;gap:10px;align-items:center;background:#f8fbfc;border:1px solid #e4edf2;border-radius:8px;padding:9px 11px;font-size:11px}
+#vc155-bench .vc155-rally b{color:#214d68;font-variant-numeric:tabular-nums}
+#vc155-bench .vc155-rally span{color:#648191}
+#vc155-bench .vc155-rally strong{font-size:10px;color:#2a865f}
+#vc155-bench .vc155-rally.lost strong{color:#bc654f}
+#vc155-bench .vc155-alert.is-danger{background:#fff4f1!important;border:1px solid #ebd4ce!important;border-left:3px solid #c45d4b!important}
+#vc155-bench .vc155-alert.is-danger b{color:#9c4237!important}
+#vc155-bench .vc155-alert.is-danger small{color:#875e58!important}
+body:has(#vc155-bench.active) #quick-actions-trigger,body:has(#vc155-bench.active) #quick-actions-menu{display:none!important}
+#vc155-bench .vc155-shortcut-buttons{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 13px}
+#vc155-bench .vc155-textlink{background:transparent!important;color:#227da9!important;border:0!important;padding:4px!important}
+#vc155-bench[data-vc155-role="coach"] .vc155-rotation-panel{display:none}
+#vc155-bench[data-vc155-role="coach"] .vc155-recent-panel{grid-column:1/-1}
+#vc155-bench[data-vc155-role="assistant"] .vc155-shortcuts{display:none}
+#vc155-bench[data-vc155-role="analyst"] .vc155-panels{grid-template-columns:1fr 1fr}
+@media(max-width:900px){#vc155-bench .vc155-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#vc155-bench .vc155-panels{grid-template-columns:1fr!important}#vc155-bench .vc155-recent-panel{grid-column:auto!important}#vc155-bench .vc155-hero{align-items:flex-start;flex-direction:column}#vc155-bench .vc155-head-actions{justify-content:flex-start}#vc155-bench .vc155-live-label{margin-left:0}}
+@media(max-width:540px){#vc155-bench .vc155-scoreboard{padding:16px 10px;gap:5px;grid-template-columns:1fr 1.25fr 1fr;min-height:112px}#vc155-bench .vc155-team strong{font-size:14px}#vc155-bench .vc155-team span{font-size:8px}#vc155-bench .vc155-score{gap:6px}#vc155-bench .vc155-score b{font-size:35px}#vc155-bench .vc155-kpi{padding:13px}#vc155-bench .vc155-kpi>strong{font-size:27px}#vc155-bench .vc155-rotation{grid-template-columns:30px 1fr 80px}#vc155-bench .vc155-hero{padding:15px}#vc155-bench .vc155-meta{gap:8px}}
+</style>
+<script id="vc155-bench-runtime">
+(()=>{
+'use strict';
+const VERSION='15.5.0', $=id=>document.getElementById(id), B=()=>window.VC_SCOUT_VIDEO_BRIDGE||null;
+const arr=x=>Array.isArray(x)?x:[];
+const pct=(w,n)=>n?`${Math.round(100*w/n)}%`:'—';
+const number=x=>Number.isFinite(Number(x))?Number(x):0;
+const escapeText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let lastSelector='',lastSignature='',lastTeam='',viewReady=false;
+function analyse(m){
+  const sets=arr(m?.sets),cur=sets.find(s=>number(s.number)===number(m?.currentSet))||sets.at(-1)||null;
+  const all=sets.flatMap(s=>arr(s?.rallies).filter(r=>r?.winner==='ours'||r?.winner==='opponent').map(r=>({...r,__set:number(s.number)})));
+  const current=arr(cur?.rallies).filter(r=>r?.winner==='ours'||r?.winner==='opponent');
+  const side=all.filter(r=>r.servingBefore==='opponent'),breaks=all.filter(r=>r.servingBefore==='ours');
+  const soWins=side.filter(r=>r.winner==='ours').length,bpWins=breaks.filter(r=>r.winner==='ours').length;
+  const rot=Number(m?.rotationNo)||1;
+  const rotations=Array.from({length:6},(_,i)=>{const r=i+1,rallies=side.filter(x=>number(x.rotationBefore)===r);return {rotation:r,total:rallies.length,wins:rallies.filter(x=>x.winner==='ours').length}});
+  const own=current.filter(r=>r.winner==='ours').length,opp=current.length-own;
+  const recent=current.slice(-5),recentWon=recent.filter(r=>r.winner==='ours').length;
+  let losses=0;for(let i=current.length-1;i>=0&&current[i]?.winner==='opponent';i--)losses++;
+  const alerts=[];
+  if(losses>=3)alerts.push({level:'danger',title:`${losses} puntos consecutivos del rival`,detail:'Revisar la secuencia de recepción y la rotación antes de decidir un ajuste.'});
+  const rotation=rotations.find(x=>x.rotation===rot);
+  if(rotation&&rotation.total>=5&&rotation.wins/rotation.total<.45)alerts.push({level:'warning',title:`K1 bajo en R${rot}: ${pct(rotation.wins,rotation.total)}`,detail:`${rotation.wins} de ${rotation.total} side-outs ganados en esta rotación. Conviene contrastar con el vídeo.`});
+  const rec=all.flatMap(r=>arr(r.actions)).filter(a=>a?.team==='ours'&&a?.skill==='R').slice(-12);
+  const bad=rec.filter(a=>['-','/','='].includes(a.evaluation)).length;
+  if(rec.length>=6&&bad/rec.length>=.5)alerts.push({level:'warning',title:'Recepción negativa en las últimas acciones',detail:`${bad} de ${rec.length} recepciones evaluadas como negativas, muy negativas o error.`});
+  if(cur&&Math.max(number(cur.scoreUs),number(cur.scoreOpponent))>=20&&Math.abs(number(cur.scoreUs)-number(cur.scoreOpponent))<=2&&m?.status!=='finished')alerts.push({level:'info',title:'Final de set igualado',detail:`Marcador ${number(cur.scoreUs)}–${number(cur.scoreOpponent)}: comprobar saque, orden de rotación y próximos enfrentamientos.`});
+  return {cur,all,current,side,breaks,soWins,bpWins,rot,rotations,rotation,recent,recentWon,losses,alerts,own,opp,sets};
+}
+function selected(){const all=arr(B()?.getMatches?.()).filter(x=>x&&x.id),wanted=String($('vc155-match')?.value||'');return all.find(x=>String(x.id)===wanted)||B()?.getActive?.()||all.slice().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')))[0]||null}
+function chooseMatches(force=false){
+  const select=$('vc155-match');if(!select)return;
+  const all=arr(B()?.getMatches?.()).filter(m=>m&&m.id).slice().sort((a,b)=>String(b.updatedAt||b.date||'').localeCompare(String(a.updatedAt||a.date||'')));
+  const key=all.map(m=>[m.id,m.updatedAt?.slice(0,10),m.opponent,m.status].join(':')).join('|');
+  if(!force&&key===lastSelector)return;
+  const old=select.value,active=String(B()?.getActiveId?.()||''),want=old&&all.some(m=>String(m.id)===old)?old:(active&&all.some(m=>String(m.id)===active)?active:String(all[0]?.id||''));
+  select.replaceChildren();
+  if(!all.length){const opt=document.createElement('option');opt.textContent='Sin partidos';opt.value='';select.appendChild(opt)}
+  all.forEach(m=>{const option=document.createElement('option');option.value=String(m.id);option.textContent=`${m.date||''} · ${m.opponent||'Rival'} · ${m.status==='finished'?'Finalizado':'En curso'}`;select.appendChild(option)});
+  select.value=want;lastSelector=key;
+}
+function set(id,value){const el=$(id);if(el)el.textContent=String(value??'')}
+function connection(){
+  const el=$('vc155-connection');if(!el)return;
+  let state='';try{state=String(window.VC_DEVICE_SYNC?.diagnostics?.()?.realtimeState||'')}catch(_){}
+  const online=typeof navigator.onLine==='boolean'?navigator.onLine:true;
+  el.classList.toggle('connected',online&&state==='SUBSCRIBED');el.classList.toggle('offline',!online);
+  el.textContent=!online?'Sin conexión · datos locales':state==='SUBSCRIBED'?'Realtime conectado · lectura':'Datos disponibles · nube sin confirmar';
+}
+function render(force=false){
+  const root=$('vc155-bench');if(!root||(!root.classList.contains('active')&&!force))return;
+  chooseMatches(force);connection();
+  const m=selected();$('vc155-no-match').hidden=!!m;$('vc155-main').hidden=!m;if(!m)return;
+  const team=String(B()?.getTeamId?.()||'');
+  const key=JSON.stringify([team,m.id,m.updatedAt,m.status,m.currentSet,m.rotationNo,m.servingTeam,arr(m.sets).map(s=>[s.number,s.scoreUs,s.scoreOpponent,s.finished,arr(s.rallies).length,arr(s.rallies).slice(-5).map(r=>[r.id,r.winner,r.editedAt,arr(r.actions).length])]),arr(m.liveRally?.actions).length]);
+  if(!force&&key===lastSignature)return;lastSignature=key;lastTeam=team;
+  const d=analyse(m),s=d.cur;
+  set('vc155-us-name',B()?.teamName?.()||'Nuestro equipo');set('vc155-op-name',m.opponent||'Rival');
+  set('vc155-us-score',s?.scoreUs??0);set('vc155-opp-score',s?.scoreOpponent??0);set('vc155-set',`SET ${s?.number||m.currentSet||1}${m.status==='finished'?' · FINALIZADO':''}`);
+  const won=d.sets.filter(x=>x.finished&&x.winner==='ours').length,lost=d.sets.filter(x=>x.finished&&x.winner==='opponent').length;
+  set('vc155-sets',`Sets ${won}–${lost}`);set('vc155-rotation',`Rotación R${d.rot}`);set('vc155-serve',m.servingTeam==='ours'?'Saque nuestro':'Saque rival');set('vc155-rallies',`${d.all.length} rallies cerrados`);
+  set('vc155-so',pct(d.soWins,d.side.length));set('vc155-so-sub',`${d.soWins}/${d.side.length} · K1`);
+  set('vc155-bp',pct(d.bpWins,d.breaks.length));set('vc155-bp-sub',`${d.bpWins}/${d.breaks.length} · K2`);
+  set('vc155-rots',pct(d.rotation?.wins||0,d.rotation?.total||0));set('vc155-rots-sub',`R${d.rot} · ${d.rotation?.wins||0}/${d.rotation?.total||0} · ${d.rotation?.total<5?'muestra pequeña':'muestra observada'}`);
+  set('vc155-recent',d.recent.length?`${d.recentWon}–${d.recent.length-d.recentWon}`:'—');set('vc155-recent-sub',`${d.recent.length} rallies · ganados–perdidos`);
+  const alertBox=$('vc155-alerts');alertBox.replaceChildren();
+  const alerts=d.alerts.length?d.alerts:[{level:'info',title:d.all.length<5?'Muestra insuficiente':'Sin alertas automáticas',detail:d.all.length<5?'Registra al menos cinco rallies cerrados para obtener una primera lectura fiable.':'No se han alcanzado los umbrales definidos para avisos tácticos.'}];
+  alerts.forEach(a=>{const div=document.createElement('div');div.className='vc155-alert is-'+a.level;const b=document.createElement('b');b.textContent=a.title;const small=document.createElement('small');small.textContent=a.detail;div.append(b,small);alertBox.appendChild(div)});
+  const rotations=$('vc155-rotation-list');rotations.replaceChildren();
+  d.rotations.forEach(r=>{const div=document.createElement('div');div.className='vc155-rotation'+(r.rotation===d.rot?' current':'');const name=document.createElement('strong');name.textContent='R'+r.rotation;const bar=document.createElement('div');bar.className='vc155-track';const fill=document.createElement('i');fill.style.width=r.total?(r.wins/r.total*100)+'%':'0%';bar.appendChild(fill);const val=document.createElement('em');val.textContent=`${pct(r.wins,r.total)} · ${r.wins}/${r.total}${r.total>0&&r.total<5?' *':''}`;div.append(name,bar,val);rotations.appendChild(div)});
+  const recent=$('vc155-recent-list');recent.replaceChildren();
+  if(!d.current.length){const p=document.createElement('p');p.textContent='Todavía no hay rallies cerrados en este set.';recent.appendChild(p)}
+  d.current.slice(-7).reverse().forEach(r=>{const div=document.createElement('div');div.className='vc155-rally'+(r.winner==='opponent'?' lost':'');const score=document.createElement('b');score.textContent=`${number(r.scoreAfter?.us)}–${number(r.scoreAfter?.opponent)}`;const detail=document.createElement('span');detail.textContent=`R${r.rotationBefore||'?'} · ${r.servingBefore==='ours'?'Saque nuestro':'Recepción nuestra'} · ${arr(r.actions).length} acciones`;const result=document.createElement('strong');result.textContent=r.winner==='ours'?'GANADO':'PERDIDO';div.append(score,detail,result);recent.appendChild(div)});
+}
+function go(destination){window.v11Navigate?.(destination)}
+function followMatch(destination){const m=selected();go(destination);if(!m)return;
+ if(destination==='analysis'){setTimeout(()=>{const sel=$('scout-analysis-match');if(sel){sel.value=String(m.id);try{window.scoutRenderAnalysis?.()}catch(_){}}},90)}
+ if(destination==='video'){setTimeout(()=>{const sel=$('v780-match');if(sel){sel.value=String(m.id);try{window.v780MatchChanged?.()}catch(_){}}},120)}
+}
+function copyLink(){let u;try{u=new URL(location.href);u.searchParams.set('banquillo','1');u.hash='';}catch(_){return}
+  const text=u.toString();const b=$('vc155-copy-link');if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>{b.textContent='Enlace copiado';setTimeout(()=>{if(b)b.textContent='Copiar enlace de la vista'},1600)},()=>window.prompt('Copia este enlace:',text))}else window.prompt('Copia este enlace:',text)
+}
+function cleanStrayText(){
+  /* Earlier monolithic releases have escaped newline-only text nodes after sections. */
+  [...document.body.childNodes].forEach(n=>{if(n.nodeType===3&&/^(?:\s|\\n)+$/.test(n.textContent||''))n.remove()});
+}
+function init(){if(viewReady)return;viewReady=true;cleanStrayText();
+  $('vc155-match')?.addEventListener('change',()=>{lastSignature='';render(true)});
+  const role=$('vc155-role');if(role){try{role.value=localStorage.getItem('vc155_bench_role')||'coach'}catch(_){role.value='coach'}$('vc155-bench').dataset.vc155Role=role.value;role.addEventListener('change',()=>{const value=['coach','assistant','analyst'].includes(role.value)?role.value:'coach';$('vc155-bench').dataset.vc155Role=value;try{localStorage.setItem('vc155_bench_role',value)}catch(_){}})}
+  [['vc155-copy-link',copyLink],['vc155-to-match',()=>go('match')],['vc155-go-analysis',()=>followMatch('analysis')],['vc155-go-season',()=>go('season')],['vc155-go-video',()=>followMatch('video')],['vc155-go-scouter',()=>go('scouting')]].forEach(([id,fn])=>$(id)?.addEventListener('click',fn));
+  const nav=window.v11Navigate;
+  if(typeof nav==='function'&&!nav.__vc155){const wrapped=function(target){if(target!=='bench')return nav.apply(this,arguments);try{window.openWorkspace?.('scouting')}catch(_){}
+      window.showView?.('vc155-bench',null);document.querySelectorAll('[data-v11-nav]').forEach(b=>b.classList.toggle('active',b.dataset.v11Nav==='bench'));
+      set('v11-breadcrumb','SCOUTING / BANQUILLO');set('v11-page-title','Banquillo Pro');try{window.v11ToggleSidebar?.(false)}catch(_){}
+      lastSignature='';render(true);return true};wrapped.__vc155=true;window.v11Navigate=wrapped}
+  window.addEventListener('focus',()=>render(true));document.addEventListener('visibilitychange',()=>{if(!document.hidden)render(true)});
+  setInterval(()=>{if($('vc155-bench')?.classList.contains('active'))render()},1300);
+  try{const params=new URL(location.href).searchParams;if(params.get('banquillo')==='1')setTimeout(()=>window.v11Navigate?.('bench'),900)}catch(_){}
+}
+window.VC_V155_BENCH={version:VERSION,analyse,render,diagnostics:()=>({version:VERSION,viewActive:!!$('vc155-bench')?.classList.contains('active'),hasBridge:!!B(),selectedMatchId:selected()?.id||null})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
+<style id="vc156-history-style">
+/* V15.6 · Análisis histórico PRO. Solo lectura; no modifica el estado compartido. */
+#v151-season-root .v151-tabs{grid-template-columns:repeat(9,minmax(0,1fr))}
+#v151-season-root .v151-tabs button[data-tab="historical"]{color:#156c92!important}
+#v151-season-root .v151-tabs button[data-tab="historical"].active{color:#123e59!important}
+#v156-history{font-family:inherit;color:#203c50;min-width:0}
+#v156-history *{box-sizing:border-box}
+#v156-history .v156-intro{padding:17px 19px;background:#f6f9fc;border:1px solid #dce7ed;border-radius:12px;margin-bottom:12px}
+#v156-history .v156-intro h3{font-size:19px!important;color:#143b56!important;margin:4px 0 5px!important}
+#v156-history .v156-intro p{font-size:12px!important;line-height:1.5;color:#5b7181;margin:0!important}
+#v156-history .v156-label{font-size:10px!important;font-weight:900;letter-spacing:.08em;color:#367b9c}
+#v156-history .v156-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end;margin-bottom:12px}
+#v156-history .v156-tools label{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:11px!important;font-weight:700;color:#496276}
+#v156-history select,#v156-history button{min-height:37px!important;max-width:100%;border:1px solid #cbdde7;border-radius:8px;font-size:12px!important;padding:7px 9px;background:white;color:#1d425d}
+#v156-history button{cursor:pointer;font-weight:700}
+#v156-history button:focus-visible,#v156-history select:focus-visible{outline:2px solid #247aa8;outline-offset:2px}
+#v156-history .v156-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0 14px}
+#v156-history .v156-actions button{background:#174e71;color:white;border-color:#174e71}
+#v156-history .v156-actions button.v156-muted{background:white;color:#174e71;border-color:#cbdde7}
+#v156-history .v156-note{font-size:11px!important;color:#587287;line-height:1.5;margin:8px 0!important}
+#v156-history .v156-warning{border:1px solid #e4d1a8;background:#fff9ed;border-radius:8px;padding:11px 13px;font-size:12px!important;color:#78551c;margin-bottom:12px}
+#v156-history .v156-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#v156-history .v156-summary article{border:1px solid #dbe5eb;border-radius:10px;padding:12px;background:white}
+#v156-history .v156-summary span{display:block;font-size:10px;color:#60798a;font-weight:700}
+#v156-history .v156-summary b{display:block;font-size:21px;margin:6px 0 2px;font-variant-numeric:tabular-nums;color:#173c55}
+#v156-history .v156-summary small{font-size:10px!important;color:#637d8e}
+#v156-history h4{font-size:15px!important;margin:17px 0 8px!important;color:#183d55}
+#v156-history .v156-scroll{overflow-x:auto;max-width:100%;border-radius:9px;border:1px solid #dce7ec;background:white;-webkit-overflow-scrolling:touch}
+#v156-history table{width:100%;min-width:680px;border-collapse:collapse;font-size:12px!important;font-variant-numeric:tabular-nums}
+#v156-history th{background:#f1f6f9;color:#455e72;text-align:left;font-size:11px!important;font-weight:800;white-space:nowrap;padding:10px!important}
+#v156-history td{border-top:1px solid #e5edf1;padding:10px!important;white-space:nowrap;color:#274559;font-size:12px!important}
+#v156-history tbody tr:hover{background:#f8fafc}
+#v156-history td.v156-pos{color:#226b4b;font-weight:800}
+#v156-history td.v156-neg{color:#ad5145;font-weight:800}
+#v156-history td.v156-low{color:#986b2a}
+#v156-history .v156-table-link{border:0!important;padding:1px 0!important;background:transparent!important;color:#1b729e!important;text-decoration:underline;font-weight:800;min-height:0!important}
+#v156-history .v156-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#v156-history .v156-sample{color:#7f929d;font-size:10px!important;display:block;margin-top:3px}
+#v156-history .v156-empty{padding:24px 14px;text-align:center;border:1px dashed #bfd0d9;border-radius:9px;color:#5b7181;font-size:13px!important}
+#v156-history .v156-kpi{font-size:20px!important;font-weight:800;color:#173c55}
+@media(max-width:900px){#v151-season-root .v151-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}#v156-history .v156-tools{grid-template-columns:repeat(2,minmax(0,1fr))}#v156-history .v156-grid{grid-template-columns:1fr}}
+@media(max-width:560px){#v151-season-root .v151-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}#v156-history .v156-tools{grid-template-columns:1fr}#v156-history .v156-summary{grid-template-columns:1fr 1fr}#v156-history .v156-intro{padding:12px}#v156-history .v156-intro h3{font-size:17px!important}}
+</style>
+<script id="vc156-historical-pro-runtime">
+(()=>{
+'use strict';
+const VERSION='15.6.0', $=id=>document.getElementById(id), arr=x=>Array.isArray(x)?x:[], B=()=>window.VC_SCOUT_REPORT_BRIDGE||null, S=()=>window.VC_STATS_ENGINE||null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const n=v=>Number.isFinite(Number(v))?Number(v):0;
+const percentage=(value,total)=>total>0?Math.round(value*1000/total)/10:null;
+const pct=v=>v==null?'—':`${v.toLocaleString('es-ES',{maximumFractionDigits:1})}%`;
+const signed=v=>v>0?'+'+v:String(v);
+const delta=(a,b)=>a==null||b==null?null:Math.round((b-a)*10)/10;
+const fmt=v=>v==null?'—':String(v);
+const state={n:3,rival:'',player:'',finishedOnly:true,signature:'',lastRows:[],selectionMode:'team'};
+function matches(){try{return arr(window.VC_V151_SEASON?.matches?.()).filter(x=>x&&x.id!=null)}catch(_){return []}}
+function date(m){return String(m?.date||m?.createdAt||m?.startedAt||'').slice(0,10)}
+function compareMatches(a,b){const d=date(a).localeCompare(date(b));if(d)return d;const x=Number(a.id),y=Number(b.id);return Number.isFinite(x)&&Number.isFinite(y)?x-y:String(a.id).localeCompare(String(b.id))}
+function isFinished(m){return m?.status==='finished'||m?.resultComplete===true||m?.manualFinalResult?.active===true}
+function setScore(m){let w=0,l=0;arr(m?.sets).forEach(s=>{const u=n(s?.scoreUs??s?.score?.us),r=n(s?.scoreOpponent??s?.score?.opponent);if(u>r)w++;else if(r>u)l++});return `${w}–${l}`}
+function getRows(m){try{return arr(B()?.actionRows?.(m,false))}catch(_){return[]}}
+function stats(m,key=''){
+ const b=B(),rows=getRows(m),ours=rows.filter(a=>a?.team==='ours');
+ let st=null;try{const full=b?.fullStats?.(m,'ours',false);st=key?arr(full?.players).find(p=>String(p?.key)===String(key)):full?.teamStat}catch(_){}
+ const playerRows=key?ours.filter(a=>String(a?.playerKey??a?.playerId??'')===String(key)):ours;
+ const rec=st?b?.reception?.(st):null,att=st?b?.attack?.(st):null,serve=st?b?.skill?.(st,'S'):null,block=st?b?.skill?.(st,'B'):null;
+ let impact=null;try{impact=S()?.canonicalImpact?.(rows,'ours',key||'team')||b?.pointMetrics?.(m,'ours',key||'team',key?playerRows:ours)}catch(_){}
+ let rallies=[];if(!key){try{rallies=arr(b?.rallies?.(m,'ours',false)).filter(x=>x?.phase==='K1'||x?.phase==='K2')}catch(_){}}
+ const k1=rallies.filter(x=>x.phase==='K1'),k2=rallies.filter(x=>x.phase==='K2');
+ const value={id:String(m?.id??''),date:date(m),opponent:String(m?.opponent||'Rival'),finished:isFinished(m),score:setScore(m),actions:key?arr(st?.rows).length||n(st?.total):ours.length,
+   gp:n(impact?.gp),won:n(impact?.won),lost:n(impact?.lost),fp:n(impact?.fp),
+   rec:n(rec?.total),recPos:n(rec?.positive),recExc:n(rec?.perfect),
+   att:n(att?.total),attPts:n(att?.perfect),attErr:n(att?.error),attBlk:n(att?.blocked),
+   serve:n(serve?.total),aces:n(serve?.perfect),serveErr:n(serve?.error),blocks:n(block?.perfect),
+   k1:k1.length,k1w:k1.filter(x=>x.win===true).length,k2:k2.length,k2w:k2.filter(x=>x.win===true).length};
+ return compute(value);
+}
+function compute(v){return {...v,recPct:percentage(v.recPos,v.rec),recExcPct:percentage(v.recExc,v.rec),attPtsPct:percentage(v.attPts,v.att),attEff:percentage(v.attPts-v.attErr-v.attBlk,v.att),serveEff:percentage(v.aces-v.serveErr,v.serve),sideout:percentage(v.k1w,v.k1),breakPct:percentage(v.k2w,v.k2)}}
+function aggregate(rows){const base={matches:rows.length,finished:0,actions:0,gp:0,won:0,lost:0,fp:0,rec:0,recPos:0,recExc:0,att:0,attPts:0,attErr:0,attBlk:0,serve:0,aces:0,serveErr:0,blocks:0,k1:0,k1w:0,k2:0,k2w:0};for(const x of rows){base.finished+=x.finished?1:0;for(const k of Object.keys(base)){if(k==='matches'||k==='finished')continue;base[k]+=n(x[k])}}return compute(base)}
+function filtered(){const all=matches(),rivals=[...new Set(all.map(m=>String(m.opponent||'Rival')))].sort((a,b)=>a.localeCompare(b,'es'));
+ const selector=$('v156-rival');if(selector){const prev=state.rival;selector.replaceChildren(new Option('Todos los rivales',''),...rivals.map(x=>new Option(x,x)));if(prev&&rivals.includes(prev))selector.value=prev;else{state.rival='';selector.value=''}}
+ return all.filter(m=>(!state.rival||String(m.opponent||'Rival')===state.rival)&&(!state.finishedOnly||isFinished(m)))
+ .sort(compareMatches)}
+function selected(){const ms=filtered(),rows=ms.map(m=>stats(m,state.player)),latest=rows.slice(-state.n),previous=rows.slice(-2*state.n,-state.n);
+ return {matches:ms,rows,latest,previous,latestStats:aggregate(latest),previousStats:aggregate(previous)}
+}
+function diffCell(a,b,threshold=false,denA=0,denB=0,suffix='%'){
+ if(a==null||b==null)return'<td>—</td>';
+ const d=delta(a,b),low=threshold&&(denA<5||denB<5),klass=low?'v156-low':d>0?'v156-pos':d<0?'v156-neg':'';
+ return `<td class="${klass}">${d>0?'+':''}${d.toLocaleString('es-ES',{maximumFractionDigits:1})}${suffix}${low?' *':''}</td>`;
+}
+function metRow(label,a,b,k,nKey='',suffix='%',units=''){
+ const va=a[k],vb=b[k],pctType=suffix==='%',denA=nKey?a[nKey]:0,denB=nKey?b[nKey]:0;
+ const fmtVal=(v,d)=>v==null?'—':`${pctType?pct(v):v+units}${pctType?` <span class="v156-sample">n=${d}</span>`:''}`;
+ return `<tr><td>${esc(label)}</td><td>${fmtVal(va,denA)}</td><td>${fmtVal(vb,denB)}</td>${diffCell(va,vb,pctType,denA,denB,suffix)}</tr>`;
+}
+function render(){ensure();if(!$('v156-history'))return;const {rows,latest,previous,latestStats:b,previousStats:a}=selected();state.lastRows=rows;
+ const info=$('v156-data-info'),note=$('v156-warning'),sum=$('v156-summary'),table=$('v156-comparison'),history=$('v156-matches'),rot=$('v156-rotations'),players=$('v156-players');
+ if(info)info.textContent=`${rows.length} partidos en el filtro · comparación: ${previous.length} anteriores y ${latest.length} recientes · solo rallies cerrados`;
+ if(note){note.hidden=latest.length===state.n&&previous.length===state.n;note.textContent=rows.length===0?'No hay partidos en este filtro. Cambia el periodo o activa «Incluir en curso».':`Muestra incompleta: para comparar ${state.n} vs ${state.n} necesitas ${state.n*2} partidos; hay ${rows.length}. Las diferencias son descriptivas.`}
+ if(sum)sum.innerHTML=[['Bloque anterior',previous.length,previous.length?`${previous[0].date} → ${previous.at(-1).date}`:'Sin partidos'],['Bloque reciente',latest.length,latest.length?`${latest[0].date} → ${latest.at(-1).date}`:'Sin partidos'],['G-P reciente',signed(b.gp),`${b.won} positivos / ${b.lost} negativos`]].map(x=>`<article><span>${esc(x[0])}</span><b>${esc(x[1])}</b><small>${esc(x[2])}</small></article>`).join('');
+ if(table){table.innerHTML=`<thead><tr><th>Métrica</th><th>Anterior (n=${previous.length})</th><th>Reciente (n=${latest.length})</th><th>Δ reciente − anterior</th></tr></thead><tbody>${metRow('Acciones registradas',a,b,'actions','','')}${metRow('G-P',a,b,'gp','','')}${metRow('Puntos positivos',a,b,'won','','')}${metRow('Puntos negativos',a,b,'lost','','')}${!state.player?metRow('Side-out K1',a,b,'sideout','k1')+metRow('Break Point K2',a,b,'breakPct','k2'):''}${metRow('Recepción positiva +/#',a,b,'recPct','rec')}${metRow('Recepción excelente #',a,b,'recExcPct','rec')}${metRow('Ataque punto %',a,b,'attPtsPct','att')}${metRow('Ataque eficiencia',a,b,'attEff','att')}${metRow('Saque eficiencia',a,b,'serveEff','serve')}${metRow('Aces',a,b,'aces','','')}${metRow('Errores saque',a,b,'serveErr','','')}${metRow('Bloqueos punto',a,b,'blocks','','')}</tbody>`;
+ // Reordenar celdas en el encabezado: a es anterior, b es reciente.
+ }
+ if(history){history.innerHTML=`<thead><tr><th>Fecha</th><th>Rival</th><th>Sets</th><th>Acciones</th><th>G-P</th><th>REC +/#</th><th>ATQ Eff</th><th>SAQ Eff</th><th>K1</th><th>K2</th><th>Estado</th><th></th></tr></thead><tbody>${rows.length?rows.slice().reverse().map(x=>`<tr><td>${esc(x.date||'—')}</td><td>${esc(x.opponent)}</td><td>${esc(x.score)}</td><td>${x.actions}</td><td>${signed(x.gp)}</td><td>${pct(x.recPct)} <span class="v156-sample">${x.recPos}/${x.rec}</span></td><td>${pct(x.attEff)} <span class="v156-sample">${x.attPts}-${x.attErr}-${x.attBlk}/${x.att}</span></td><td>${pct(x.serveEff)} <span class="v156-sample">${x.aces}-${x.serveErr}/${x.serve}</span></td><td>${state.player?'—':pct(x.sideout)}</td><td>${state.player?'—':pct(x.breakPct)}</td><td>${x.finished?'Finalizado':'En curso'}</td><td><button class="v156-table-link" data-v156-open="${esc(x.id)}">Abrir</button></td></tr>`).join(''):'<tr><td colspan="12">No hay partidos guardados con este filtro.</td></tr>'}</tbody>`}
+ if(rot){const list=!state.player?rotationBlocks(previous,latest):[];rot.innerHTML=state.player?'<div class="v156-empty">El análisis por rotaciones se calcula a nivel de equipo. Selecciona «Equipo completo» para verlo.</div>':`<div class="v156-scroll"><table><thead><tr><th>Rot.</th><th>K1 anterior</th><th>K1 reciente</th><th>Δ</th><th>G-P anterior</th><th>G-P reciente</th></tr></thead><tbody>${list.map(r=>`<tr><td><b>R${r.no}</b></td><td>${pct(r.a.so)} <span class="v156-sample">${r.a.k1w}/${r.a.k1}</span></td><td>${pct(r.b.so)} <span class="v156-sample">${r.b.k1w}/${r.b.k1}</span></td>${diffCell(r.a.so,r.b.so,true,r.a.k1,r.b.k1)}<td>${signed(r.a.gp)}</td><td>${signed(r.b.gp)}</td></tr>`).join('')}</tbody></table></div>`}
+ if(players){const all=matches().filter(m=>(!state.rival||String(m.opponent||'Rival')===state.rival)&&(!state.finishedOnly||isFinished(m))).sort(compareMatches);
+ const prevM=all.slice(-2*state.n,-state.n),latestM=all.slice(-state.n),ps=arr(window.VC_V151_SEASON?.players?.());
+ const sorted=ps.map(p=>({p,a:aggregate(prevM.map(m=>stats(m,p.key))),b:aggregate(latestM.map(m=>stats(m,p.key)))})).filter(x=>x.a.actions||x.b.actions).sort((x,y)=>y.b.gp-x.b.gp||y.b.actions-x.b.actions).slice(0,25);
+ players.innerHTML=`<thead><tr><th>Jugador</th><th>Acc. anterior</th><th>Acc. reciente</th><th>G-P anterior</th><th>G-P reciente</th><th>Recepción reciente</th><th>Ataque EFF reciente</th><th></th></tr></thead><tbody>${sorted.length?sorted.map(x=>`<tr><td>${esc(x.p.label||'Jugador')}</td><td>${x.a.actions}</td><td>${x.b.actions}</td><td>${signed(x.a.gp)}</td><td>${signed(x.b.gp)}</td><td>${pct(x.b.recPct)} <span class="v156-sample">n=${x.b.rec}</span></td><td>${pct(x.b.attEff)} <span class="v156-sample">n=${x.b.att}</span></td><td><button class="v156-table-link" data-v156-player="${esc(x.p.key)}">Ver evolución</button></td></tr>`).join(''):'<tr><td colspan="8">Sin estadísticas individuales para este periodo.</td></tr>'}</tbody>`}
+}
+function rotationBlocks(previous,latest){const b=B();function agg(ms,no){const x={k1:0,k1w:0,gp:0};ms.forEach(m=>{let rs=[];try{rs=arr(b?.rallies?.(m,'ours',false))}catch(_){}rs.filter(r=>n(r.rotation)===no).forEach(r=>{x.gp+=r.win===true?1:-1;if(r.phase==='K1'){x.k1++;x.k1w+=r.win===true?1:0}})});return {...x,so:percentage(x.k1w,x.k1)}}const prevIds=new Set(previous.map(x=>x.id)),nowIds=new Set(latest.map(x=>x.id));const all=filtered();return Array.from({length:6},(_,i)=>{const no=i+1;return {no,a:agg(all.filter(m=>prevIds.has(String(m.id))),no),b:agg(all.filter(m=>nowIds.has(String(m.id))),no)}})}
+function csv(){const rows=state.lastRows;if(!rows.length)return;const columns=[['fecha','date'],['rival','opponent'],['finalizado','finished'],['sets','score'],['acciones','actions'],['G-P','gp'],['ganadas','won'],['perdidas','lost'],['k1_ganados','k1w'],['k1_total','k1'],['k2_ganados','k2w'],['k2_total','k2'],['rec_positivas','recPos'],['rec_total','rec'],['ataques_punto','attPts'],['ataques_error','attErr'],['ataques_bloqueados','attBlk'],['ataques_total','att'],['aces','aces'],['errores_saque','serveErr'],['saques_total','serve'],['bloqueos_punto','blocks']];const quote=v=>`"${String(v??'').replace(/"/g,'""')}"`;const body='\uFEFF'+[columns.map(x=>quote(x[0])).join(';'),...rows.map(r=>columns.map(([_,k])=>quote(r[k])).join(';'))].join('\r\n');const url=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`volley_coach_historico_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function ensure(){const root=$('v151-season-root');if(!root)return;const nav=root.querySelector('.v151-tabs');if(nav&&!nav.querySelector('[data-tab="historical"]')){const button=document.createElement('button');button.type='button';button.dataset.tab='historical';button.innerHTML='<span>▥</span> Histórico Pro';button.addEventListener('click',()=>{window.v151Tab?.('historical');render()});nav.appendChild(button)}
+ if($('v156-history'))return;
+ const sec=document.createElement('section');sec.className='v151-panel';sec.dataset.tab='historical';sec.id='v156-history';sec.innerHTML=`<div class="v156-intro"><span class="v156-label">ANÁLISIS HISTÓRICO · V15.6</span><h3>Últimos partidos frente al bloque anterior</h3><p>Comparativa ponderada, evolución individual, rotaciones y registro partido a partido. Los datos se leen de los scoutings existentes. No modifica partidos ni sincronización.</p></div><div class="v156-tools"><label>Bloques a comparar<select id="v156-n"><option value="3">3 vs 3 partidos</option><option value="5">5 vs 5 partidos</option><option value="10">10 vs 10 partidos</option></select></label><label>Rival<select id="v156-rival"><option value="">Todos los rivales</option></select></label><label>Ámbito<select id="v156-player"><option value="">Equipo completo</option></select></label><label>Estado<select id="v156-finished"><option value="yes">Solo partidos finalizados</option><option value="all">Incluir partidos en curso</option></select></label></div><div class="v156-actions"><button id="v156-refresh">Actualizar histórico</button><button id="v156-export" class="v156-muted">Exportar CSV</button><button id="v156-to-report" class="v156-muted">Informe individual</button></div><p class="v156-note" id="v156-data-info">Sin datos cargados.</p><div id="v156-warning" class="v156-warning" hidden></div><div class="v156-summary" id="v156-summary"></div><h4>Comparación de bloques</h4><p class="v156-note">Los porcentajes se calculan con el total de intentos, nunca promediando porcentajes de partidos. Δ indica cambio en puntos porcentuales. * indica muestra inferior a 5 en alguno de los bloques; no se debe interpretar como una tendencia estable.</p><div class="v156-scroll"><table id="v156-comparison"></table></div><h4>Histórico partido a partido</h4><div class="v156-scroll"><table id="v156-matches"></table></div><h4>Rotaciones R1–R6</h4><div id="v156-rotations"></div><h4>Evolución de jugadoras</h4><div class="v156-scroll"><table id="v156-players"></table></div><p class="v156-note">K1 = side-out al recibir el saque rival. K2 = break point con saque propio. Si faltan rallies cerrados o evaluaciones, se muestra «—». CSV exporta conteos observados y permite auditar las fórmulas.</p>`;root.appendChild(sec);
+ $('v156-n').value=String(state.n);$('v156-rival').value=state.rival;$('v156-finished').value=state.finishedOnly?'yes':'all';
+ $('v156-n').addEventListener('change',e=>{state.n=n(e.target.value)||3;render()});$('v156-rival').addEventListener('change',e=>{state.rival=e.target.value;render()});$('v156-player').addEventListener('change',e=>{state.player=e.target.value;render()});$('v156-finished').addEventListener('change',e=>{state.finishedOnly=e.target.value==='yes';render()});
+ $('v156-refresh').addEventListener('click',render);$('v156-export').addEventListener('click',csv);$('v156-to-report').addEventListener('click',()=>{const x=$('v151-player');if(x&&state.player){x.value=state.player;window.v151PlayerChanged?.()}window.v151Tab?.('report')});
+ sec.addEventListener('click',e=>{const b=e.target.closest('[data-v156-open]');if(b){const id=b.getAttribute('data-v156-open');if(/^\d+$/.test(id))window.v151OpenMatch?.(Number(id));return}const p=e.target.closest('[data-v156-player]');if(p){state.player=p.getAttribute('data-v156-player')||'';const sel=$('v156-player');if(sel)sel.value=state.player;render()}});
+}
+function renderWithPlayers(){ensure();const sel=$('v156-player');if(sel){const ps=arr(window.VC_V151_SEASON?.players?.());sel.replaceChildren(new Option('Equipo completo',''),...ps.map(p=>new Option(p.label||'Jugador',String(p.key))));if(state.player&&ps.some(x=>String(x.key)===state.player))sel.value=state.player;else{state.player='';sel.value=''}}render()}
+const originalRender=render;
+function renderWrapper(){ensure();const sel=$('v156-player');if(sel){const ps=arr(window.VC_V151_SEASON?.players?.());const keys=ps.map(p=>String(p.key)).join('|');if(sel.dataset.keys!==keys){const old=state.player;sel.replaceChildren(new Option('Equipo completo',''),...ps.map(p=>new Option(p.label||'Jugador',String(p.key))));sel.dataset.keys=keys;if(old&&ps.some(p=>String(p.key)===old))sel.value=old;else{state.player='';sel.value=''}}}originalRender()}
+function init(){ensure();renderWrapper();let savedTab='';try{savedTab=localStorage.getItem('vc_v151_tab')}catch(_){}if(savedTab==='historical')window.v151Tab?.('historical');document.addEventListener('change',e=>{if(['v151-period','v151-from','v151-to','v151-player'].includes(e.target?.id))setTimeout(()=>{if($('v156-history')?.classList.contains('active'))renderWrapper()},0)});
+ document.addEventListener('vc:matchstatechange',()=>{if($('v156-history')?.classList.contains('active'))setTimeout(renderWrapper,150)});
+ const base=window.v151OpenSeason;if(typeof base==='function'&&!base.__vc156){const wrap=function(){const v=base.apply(this,arguments);ensure();if($('v156-history')?.classList.contains('active'))renderWrapper();return v};wrap.__vc156=true;window.v151OpenSeason=wrap;window.v790Open=wrap;window.v790RenderSeason=wrap;}
+}
+window.VC_V156_HISTORY={version:VERSION,render:renderWrapper,compute,aggregate,stats,diagnostics:()=>({version:VERSION,hasPanel:!!$('v156-history'),periodMatches:matches().length,visible:!!$('v156-history')?.classList.contains('active'),rows:state.lastRows.length,readOnly:true})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+
 </body></html>

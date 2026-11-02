@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v15.3.2-scroll-cloud-diagnostic';
+const CACHE_NAME = 'volley-coach-v15.6-analisis-historico';
 
 const APP_SHELL = [
   './',
