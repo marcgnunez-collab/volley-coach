@@ -5501,7 +5501,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=16.0.2.6" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=16.0.2.7" data-vc-module="true"></script>
 
 
 
@@ -6877,7 +6877,7 @@ body.v781-tv-lock{overflow:hidden!important}
 </style>
 
 
-<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.5" data-vc-module="true"></script>
+<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.7" data-vc-module="true"></script>
 
 
 
@@ -12025,6 +12025,31 @@ body.v11-shell #scouting{display:none!important}
         <label><span>Líbero automático</span><select id="v119-lineup-libero"><option value="">Sin líbero automático</option></select></label>
       </div>
       <label style="display:flex;gap:7px;align-items:center;margin-top:10px;font-size:8px;color:#597283"><input id="v119-lineup-libero-auto" type="checkbox" checked> Aplicar automáticamente el líbero cuando corresponda</label>
+      <style id="vc16027-dual-libero-style">
+.v16027-panel{border:1px solid #cbdbe8;background:#f4f8fc;border-radius:10px;padding:12px;margin:12px 0;display:grid;gap:8px}
+.v16027-panel label{display:flex;flex-direction:column;gap:5px;color:#24425e;font-size:11px;font-weight:650}
+.v16027-panel select{width:100%;min-height:37px;border:1px solid #c8d6e1;border-radius:6px;background:white;padding:7px;color:#243c53;font-size:12px}
+#v16027-dual-fields,#v16027-central-fields{display:grid;gap:8px}
+#v16027-dual-fields[hidden],#v16027-central-fields[hidden],#v16027-phase-help[hidden]{display:none!important}
+.v16027-panel p{margin:0;line-height:1.45;font-size:10.5px;color:#5a6e7e}
+.v16027-panel .v16027-warning{color:#855b21}
+</style>
+      <div id="v16027-dual-setup" class="v16027-panel">
+        <label><span>Modalidad de líberos</span><select id="v16027-libero-mode" onchange="v16027RefreshLiberoMode()">
+          <option value="single">Un líbero (como hasta ahora)</option>
+          <option value="central">Dos líberos · cada uno por un central</option>
+          <option value="phase">Dos líberos · uno en K1 y otro en K2</option>
+        </select></label>
+        <div id="v16027-dual-fields" hidden>
+          <label><span>Segundo líbero</span><select id="v16027-second-libero"></select></label>
+          <div id="v16027-central-fields" hidden>
+            <label><span>Líbero 1 sustituye al central</span><select id="v16027-central-1"></select></label>
+            <label><span>Líbero 2 sustituye al central</span><select id="v16027-central-2"></select></label>
+          </div>
+          <p id="v16027-phase-help" hidden><b>K1 (recepción):</b> primer líbero. <b>K2 (saque/defensa):</b> segundo líbero. El central se determina por la rotación.</p>
+        </div>
+        <p class="v16027-warning">Solo un líbero en pista. Al perder el saque, el central de P1 podrá ser sustituido. Si debe salir antes otro líbero, su entrada por un central diferente esperará un rally completado.</p>
+      </div>
       <div id="v119-libero-centrals" style="margin-top:8px;padding:9px;border:1px solid #d7e3eb;border-radius:9px;background:#f7fafc"><b style="font-size:10px">Centrales que sustituirá el líbero</b><div id="v119-centrals-options" style="display:flex;flex-wrap:wrap;gap:9px;margin:7px 0"></div><small style="font-size:9px;color:#526e80">Marca uno o dos centrales de los seis rotacionales. El líbero entrará únicamente en sus posiciones zagueras (salvo P1 si estamos sacando).</small></div>
     </div>
     <div class="v119-modal-foot"><button class="ghost" onclick="v119CloseLineup()">Cancelar</button><button class="primary" onclick="v119SaveLineup()">Guardar alineación</button></div>
@@ -12102,6 +12127,54 @@ window.v119RefreshCentrals=function(preserve=true){
   const detected=rows.filter(x=>/central/i.test([x.p?.position,x.p?.role,...(Array.isArray(x.p?.positions)?x.p.positions:[])].join(' '))).map(x=>x.id);
   const chosen=known.size?known:new Set(detected);
   box.innerHTML=rows.length?rows.map(x=>`<label style="display:flex;align-items:center;gap:4px;font-size:10px"><input type="checkbox" value="${x.id}" ${chosen.has(x.id)?'checked':''}> ${esc(playerLabel(x.p))} · ${x.pos.toUpperCase()}</label>`).join(''):'<span>Asigna los seis jugadores primero.</span>';
+  window.v16027FillCentralOptions?.(rows);
+};
+/* V16.0.2.7: modalidades separadas de dos líberos. Solo UI de alineación. */
+window.v16027RefreshLiberoMode=function(){
+  const mode=document.getElementById('v16027-libero-mode')?.value||'single';
+  for(const [id,show] of [['v16027-dual-fields',mode!=='single'],['v16027-central-fields',mode==='central'],['v16027-phase-help',mode==='phase'],['v119-libero-centrals',mode!=='central']]){
+    const x=document.getElementById(id);if(x)x.hidden=!show;
+  }
+};
+window.v16027FillCentralOptions=function(rows){
+  for(const [key,id] of [['v16027-central-1','first'],['v16027-central-2','second']]){
+    const el=document.getElementById(key);if(!el)return;
+    const selected=el.value;
+    const m=window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.();
+    const defaultId=Number(m?.libero?.centralAssignments?.[id])||0;
+    const marked=new Set([...document.querySelectorAll('#v119-centrals-options input:checked')].map(x=>Number(x.value)));
+    const centers=rows.slice().sort((a,b)=>Number(/central/i.test([b.p?.position,b.p?.role,...(Array.isArray(b.p?.positions)?b.p.positions:[])].join(' ')))-Number(/central/i.test([a.p?.position,a.p?.role,...(Array.isArray(a.p?.positions)?a.p.positions:[])].join(' '))));
+
+    el.innerHTML='<option value="">— Seleccionar central —</option>'+centers.map(x=>`<option value="${x.id}">${esc(playerLabel(x.p))} · ${x.pos.toUpperCase()}</option>`).join('');
+    if(centers.some(x=>String(x.id)===selected))el.value=selected;
+    else if(centers.some(x=>Number(x.id)===defaultId))el.value=String(defaultId);
+  }
+};
+window.v16027FillLiberoOptions=function(m,pl){
+  const mode=document.getElementById('v16027-libero-mode'),other=document.getElementById('v16027-second-libero');if(!mode||!other)return;
+  mode.value=['central','phase'].includes(m?.libero?.mode)?m.libero.mode:'single';
+  const six=new Set(['p1','p2','p3','p4','p5','p6'].map(p=>Number(m.baseLineup?.ours?.[p])||0));
+  const primary=Number(m.libero?.playerId)||0,secondary=Number(m.libero?.secondPlayerId)||0;
+  const profile=new Set((window.VC_TEAM_PROFILE?.get?.()?.liberoIds||[]).map(Number));
+  const possible=pl.filter(p=>!six.has(Number(p.id))&&(profile.has(Number(p.id))||[primary,secondary].includes(Number(p.id))||/l[ií]bero|\blib\b/i.test([p.role,p.position,...(Array.isArray(p.positions)?p.positions:[])].join(' '))));
+  const fallback=pl.filter(p=>!six.has(Number(p.id))).sort((a,b)=>Number(possible.some(p=>Number(p.id)===Number(b.id)))-Number(possible.some(p=>Number(p.id)===Number(a.id))));
+  const old=document.getElementById('v119-lineup-libero');
+  if(old){old.innerHTML='<option value="">Sin líbero</option>'+fallback.map(p=>`<option value="${Number(p.id)}">${esc(playerLabel(p))}</option>`).join('');old.value=String(primary||'');}
+  other.innerHTML='<option value="">— Seleccionar segundo líbero —</option>'+fallback.map(p=>`<option value="${Number(p.id)}">${esc(playerLabel(p))}</option>`).join('');other.value=String(secondary||'');
+};
+window.v16027Validate=function(ids,primaryId){
+  const mode=document.getElementById('v16027-libero-mode')?.value||'single';
+  const second=Number(document.getElementById('v16027-second-libero')?.value)||null;
+  const a=Number(document.getElementById('v16027-central-1')?.value)||null,b=Number(document.getElementById('v16027-central-2')?.value)||null;
+  if(mode!=='single'){
+    if(!primaryId||!second||primaryId===second||ids.includes(second)){
+      alert('Para usar dos líberos, selecciona dos jugadores distintos que no estén en P1–P6.');return null;
+    }
+    if(mode==='central'&&(!a||!b||a===b||!ids.includes(a)||!ids.includes(b))){
+      alert('En modo por central debes elegir dos centrales diferentes de los seis rotacionales.');return null;
+    }
+  }
+  return {mode,secondLiberoId:second,firstCentralId:a,secondCentralId:b};
 };
 window.v119OpenLineup=function(){
   const m=active();if(!m)return alert('Crea primero un scouting.');
@@ -12121,7 +12194,9 @@ window.v119OpenLineup=function(){
     lib.innerHTML='<option value="">Sin líbero automático</option>'+selectable.map(p=>`<option value="${Number(p.id)}" ${savedLib===Number(p.id)?'selected':''}>${esc(playerLabel(p))}${candidates.length?'':' · marcar como líbero'}</option>`).join('');
     if(!savedLib&&selectable.length===1)lib.value=String(selectable[0].id);}
   $('v119-lineup-libero-auto').checked=m.libero?.auto!==false;
+  window.v16027FillLiberoOptions?.(m,pl);
   window.v119RefreshCentrals?.(false);
+  window.v16027RefreshLiberoMode?.(true);
   const s=(m.sets||[]).find(x=>Number(x.number)===Number(m.currentSet));$('v119-lineup-info').innerHTML=`<span class="ok">Set ${Number(m.currentSet)||1}</span><span>${Number(s?.scoreUs)||0}–${Number(s?.scoreOpponent)||0}</span><span>R${Number(m.rotationNo)||1} vs R${Number(m.opponentRotationNo)||1}</span><span>${m.servingTeam==='ours'?'Saque nuestro':'Saque rival'}</span>`;
   $('v119-lineup-modal')?.classList.add('open');
 };
@@ -12134,6 +12209,7 @@ window.v119SaveLineup=function(){
   if(new Set(ids).size!==6)return alert('Un mismo jugador no puede ocupar dos posiciones.');
   const libId=Number($('v119-lineup-libero')?.value)||null;
   if(libId&&ids.includes(libId))return alert('El líbero no puede estar también entre los seis jugadores rotacionales.');
+  const dual=window.v16027Validate?.(ids,libId);if(!dual)return;
   const ours={},opponent={},opponentRoles={};
   POS.forEach((pos,i)=>{
     ours[pos]=ids[i];
@@ -12145,6 +12221,7 @@ window.v119SaveLineup=function(){
     if(typeof engine?.saveProLineup!=='function')throw new Error('El motor de alineaciones no está disponible.');
     engine.saveProLineup({ours,opponent,opponentRoles,
       liberoId:libId,liberoAuto:$('v119-lineup-libero-auto')?.checked!==false,
+      liberoMode:dual.mode,secondLiberoId:dual.secondLiberoId,firstCentralId:dual.firstCentralId,secondCentralId:dual.secondCentralId,
       centralIds:[...document.querySelectorAll('#v119-centrals-options input:checked')].map(el=>Number(el.value)),
       rotationNo:Number($('v119-lineup-rotation')?.value)||1,
       opponentRotationNo:Number($('v119-lineup-rival-rotation')?.value)||1
@@ -12263,7 +12340,7 @@ window.VC_V119={version:VERSION,refresh:renderPicker,active,save:window.v119Save
   </div>
 </div>
 
-<script id="v120-native-management-script" src="./070-v120-native-management-script.js?v=16.0.2.5" data-vc-module="true"></script>
+<script id="v120-native-management-script" src="./070-v120-native-management-script.js?v=16.0.2.7" data-vc-module="true"></script>
 
 
 

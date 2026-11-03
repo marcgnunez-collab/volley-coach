@@ -102,18 +102,21 @@ function rotationStats(m,no){
   return {total:rs.length,won,winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
 }
 function lineupHealth(m){
-  const ids=POS.map(p=>Number(m?.lineup?.ours?.[p])||0);
+  const ids=POS.map(p=>Number(m?.lineup?.ours?.[p]||m?.baseLineup?.ours?.[p])||0);
   const filled=ids.filter(Boolean),unique=new Set(filled);
   if(filled.length<6)return {ok:false,text:`Alineación ${filled.length}/6`};
   if(unique.size!==filled.length)return {ok:false,text:'Jugador duplicado'};
   return {ok:true,text:'Alineación OK'};
 }
-function renderCourt(container,lineup,ours=true){
+function renderCourt(container,lineup,ours=true,matchState=null){
   if(!container)return;
+  const available=ours?matchState?.baseLineup?.ours:matchState?.baseLineup?.opponent;
+  const chosen=POS.some(pos=>lineup?.[pos])?lineup:available;
   container.innerHTML=POS.map(pos=>{
-    const raw=lineup?.[pos];
+    const raw=chosen?.[pos]??available?.[pos];
+    const isLib=ours&&Number(raw)>0&&Number(raw)===Number(matchState?.libero?.activePlayerId||matchState?.libero?.playerId)&&Number(available?.[pos])!==Number(raw);
     const label=ours?player(raw):String(raw||'Sin asignar');
-    return `<div class="v800-pos ${pos}"><b>${label}</b><small>${pos.toUpperCase()}</small></div>`;
+    return `<div class="v800-pos ${pos}${isLib?' v800-libero-active':''}"><b>${label}</b><small>${pos.toUpperCase()}${isLib?' · LÍBERO':''}</small></div>`;
   }).join('');
 }
 function quickEvents(m){
@@ -603,7 +606,11 @@ function render(){
   $('v800-service-copy').textContent=m.servingTeam==='opponent'?'Saque rival':'Saque nuestro';
   $('v800-service-dot').style.background=m.servingTeam==='opponent'?'#b76458':'#68aa7f';
   $('v800-rotation-title').textContent=`R${m.rotationNo||1} · vs R${m.opponentRotationNo||1}`;
-  $('v800-lineup-health').textContent=lh.text;$('v800-lineup-health').style.background=lh.ok?'#e7f4ec':'#faece8';$('v800-lineup-health').style.color=lh.ok?'#2b6543':'#8f453e';
+  const pendingLib=String(m.libero?.pendingReason||'');
+  $('v800-lineup-health').textContent=lh.text+(pendingLib?' · Líbero: cambio pendiente':'');
+  $('v800-lineup-health').title=pendingLib;
+  $('v800-lineup-health').style.background=pendingLib?'#fff0cc':lh.ok?'#e7f4ec':'#faece8';
+  $('v800-lineup-health').style.color=pendingLib?'#855b21':lh.ok?'#2b6543':'#8f453e';
   $('v800-rally-chip').textContent=`Rally ${(s?.rallies?.length||0)+1} · ${arr(m?.liveRally?.actions).length} acc.`;
 
   const needDirect=v910ViewNeeds('directo');
@@ -611,8 +618,8 @@ function render(){
   const needRead=v910ViewNeeds('lectura')||v910ViewNeeds('lectura-lite');
 
   if(needDirect){
-    renderCourt($('v800-court-own'),m.lineup?.ours,true);
-    renderCourt($('v800-court-rival'),m.lineup?.opponent,false);
+    renderCourt($('v800-court-own'),m.lineup?.ours,true,m);
+    renderCourt($('v800-court-rival'),m.lineup?.opponent,false,m);
     const ev=quickEvents(m);
     $('v800-events').innerHTML=ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>';
   }

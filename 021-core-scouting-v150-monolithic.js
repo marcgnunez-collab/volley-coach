@@ -11,7 +11,20 @@ function scoutEmptyLineup(){return {ours:{p1:null,p2:null,p3:null,p4:null,p5:nul
 function scoutEmptySet(n){return {number:n,scoreUs:0,scoreOpponent:0,finished:false,winner:null,rallies:[],startedAt:scoutNow(),endedAt:null}}
 function scoutNormalizeLineup(raw){const base=scoutEmptyLineup();SCOUT_POS.forEach(p=>{base.ours[p]=raw?.ours?.[p]!=null&&raw?.ours?.[p]!==''?Number(raw.ours[p]):null;base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
 function scoutNormalizeRoles(raw){const base={ours:{},opponent:{}};SCOUT_POS.forEach(p=>{base.ours[p]=String(raw?.ours?.[p]||'');base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
-function scoutNormalizeLibero(raw){return {enabled:!!raw?.enabled,auto:raw?.auto!==false,playerId:raw?.playerId!=null&&raw?.playerId!==''?Number(raw.playerId):null,centralIds:scoutArr(raw?.centralIds).map(Number).filter(Boolean),activeForId:raw?.activeForId!=null&&raw?.activeForId!==''?Number(raw.activeForId):null,activePosition:String(raw?.activePosition||'')}}
+function scoutNormalizeLibero(raw){
+  const id=x=>x!=null&&x!==''&&Number.isFinite(Number(x))&&Number(x)>0?Number(x):null;
+  const mode=['central','phase'].includes(raw?.mode)?raw.mode:'single';
+  return {enabled:!!raw?.enabled,auto:raw?.auto!==false,
+    playerId:id(raw?.playerId),secondPlayerId:id(raw?.secondPlayerId),mode,
+    centralAssignments:{first:id(raw?.centralAssignments?.first),second:id(raw?.centralAssignments?.second)},
+    phaseAssignments:{K1:id(raw?.phaseAssignments?.K1),K2:id(raw?.phaseAssignments?.K2)},
+    centralIds:[...new Set(scoutArr(raw?.centralIds).map(id).filter(Boolean))],
+    activeForId:id(raw?.activeForId),activePosition:String(raw?.activePosition||''),
+    activePlayerId:id(raw?.activePlayerId)||((raw?.activeForId&&raw?.activePosition)?id(raw?.playerId):null),
+    lastReplacementAt:Number.isFinite(Number(raw?.lastReplacementAt))?Number(raw.lastReplacementAt):-1,
+    pendingReason:String(raw?.pendingReason||'')
+  };
+}
 function scoutNormalizeAction(a){return {id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0),videoTime:a?.videoTime==null?null:Number(a.videoTime),videoSource:String(a?.videoSource||'')}}
 function scoutNormalizeRally(r){return {id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)}}
 function scoutNormalizeSet(s,i=0){return {number:Number(s?.number)||i+1,scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,finished:!!s?.finished,winner:s?.winner==='opponent'?'opponent':s?.winner==='ours'?'ours':null,rallies:scoutArr(s?.rallies).map(scoutNormalizeRally),startedAt:String(s?.startedAt||scoutNow()),endedAt:s?.endedAt?String(s.endedAt):null}}
@@ -330,13 +343,29 @@ window.VC_SCOUT_VIDEO_BRIDGE={
     m.rotationNo=Math.min(6,Math.max(1,Number(patch.rotationNo)||1));
     m.opponentRotationNo=Math.min(6,Math.max(1,Number(patch.opponentRotationNo)||1));
     m.libero=scoutNormalizeLibero(m.libero);
+    const mode=['central','phase'].includes(patch.liberoMode)?patch.liberoMode:'single';
+    const otherId=Number(patch.secondLiberoId)||null;
+    if(mode!=='single'&&(!libId||!otherId||libId===otherId||ids.includes(otherId))){
+      throw new Error('Elige dos líberos distintos, fuera de los seis rotacionales.');
+    }
+    const centerA=Number(patch.firstCentralId)||null,centerB=Number(patch.secondCentralId)||null;
+    if(mode==='central'&&(!centerA||!centerB||centerA===centerB||!ids.includes(centerA)||!ids.includes(centerB))){
+      throw new Error('Selecciona dos centrales distintos de la alineación.');
+    }
     m.libero.playerId=libId;
+    m.libero.secondPlayerId=mode!=='single'?otherId:null;
+    m.libero.mode=mode;
+    m.libero.centralAssignments={first:mode==='central'?centerA:null,second:mode==='central'?centerB:null};
+    m.libero.phaseAssignments={K1:mode==='phase'?libId:null,K2:mode==='phase'?otherId:null};
     m.libero.enabled=!!libId;
     m.libero.auto=patch.liberoAuto!==false;
     const requestedCentrals=scoutArr(patch.centralIds).map(Number).filter(id=>ids.includes(id));
-    m.libero.centralIds=Array.isArray(patch.centralIds)?[...new Set(requestedCentrals)]:ids.filter(id=>vcHasRole(scoutPlayer(id),'Central'));
+    m.libero.centralIds=mode==='central'?[centerA,centerB]:(Array.isArray(patch.centralIds)?[...new Set(requestedCentrals)]:ids.filter(id=>vcHasRole(scoutPlayer(id),'Central')));
     m.libero.activeForId=null;
     m.libero.activePosition='';
+    m.libero.activePlayerId=null;
+    m.libero.pendingReason='';
+    m.libero.lastReplacementAt=-1;
     m.lineup=scoutClone(m.baseLineup);
     vcApplyAutoLibero(m,false);
     scoutV6107SyncOpponentLineup(m);
@@ -834,43 +863,103 @@ function vcPlayerRole(id){return vcRoleForPlayer(scoutPlayer(id))}
 function vcShortRole(role){return VC_ROLE_SHORT[role]||String(role||'—').slice(0,3).toUpperCase()}
 function vcEnsureProMatch(m){if(!m)return null;m.baseLineup=scoutNormalizeLineup(m.baseLineup||m.lineup);m.lineupRoles=scoutNormalizeRoles(m.lineupRoles);m.libero=scoutNormalizeLibero(m.libero);SCOUT_POS.forEach(pos=>{if(!m.lineupRoles.ours[pos]&&m.baseLineup.ours[pos])m.lineupRoles.ours[pos]=vcPlayerRole(m.baseLineup.ours[pos])});if(!m.libero.centralIds.length){m.libero.centralIds=SCOUT_POS.map(pos=>Number(m.baseLineup.ours[pos])).filter(id=>id&&vcHasRole(scoutPlayer(id),'Central'))}return m}
 function vcBaseOwn(m){vcEnsureProMatch(m);return m.baseLineup.ours}
-function vcAutoLiberoTarget(m){vcEnsureProMatch(m);if(!m.libero.enabled||!m.libero.auto||!m.libero.playerId)return null;const centralSet=new Set(m.libero.centralIds.map(Number));for(const pos of VC_BACK_POS){const id=Number(m.baseLineup.ours[pos]);if(!id||!centralSet.has(id))continue;if(pos==='p1'&&m.servingTeam==='ours')continue;return {pos,centralId:id}}return null}
-function vcRecordLiberoTransition(m,prev,next){if(!m||m.status==='finished')return;const set=scoutSet(m);if(!set)return;if(prev?.centralId&&next?.centralId&&Number(prev.centralId)===Number(next.centralId))return;if(prev?.pos===next?.pos&&Number(prev?.centralId)===Number(next?.centralId))return;const libId=Number(m.libero.playerId)||null;if(prev?.centralId&&!next){m.events=scoutArr(m.events);m.events.push({id:Date.now()+1,type:'libero_auto',team:'ours',setNumber:set.number,scoreUs:set.scoreUs,scoreOpponent:set.scoreOpponent,position:prev.pos,outPlayerId:libId,inPlayerId:prev.centralId,outLabel:scoutPlayerName(libId),inLabel:scoutPlayerName(prev.centralId),createdAt:scoutNow(),scoutMs:scoutElapsed(m)})}else if(next?.centralId){m.events=scoutArr(m.events);m.events.push({id:Date.now()+2,type:'libero_auto',team:'ours',setNumber:set.number,scoreUs:set.scoreUs,scoreOpponent:set.scoreOpponent,position:next.pos,outPlayerId:next.centralId,inPlayerId:libId,outLabel:scoutPlayerName(next.centralId),inLabel:scoutPlayerName(libId),createdAt:scoutNow(),scoutMs:scoutElapsed(m)})}}
-function vcApplyAutoLibero(m,record=false){
-  vcEnsureProMatch(m);
-  const prev=m.libero.activePosition&&m.libero.activeForId?{pos:m.libero.activePosition,centralId:Number(m.libero.activeForId)}:null;
-  const opponent=scoutNormalizeLineup(m.lineup).opponent;
-  m.lineup=scoutNormalizeLineup(m.baseLineup);
-  m.lineup.opponent=opponent;
-  // Manual mode: keep a manually entered libero visible after a refresh or rally.
-  // Never manufacture automatic substitutions when auto is disabled.
-  if(!m.libero.auto){
-    const pos=String(m.libero.activePosition||'');
-    const id=Number(m.libero.playerId)||null;
-    if(m.libero.enabled&&id&&VC_BACK_POS.includes(pos)&&Number(m.libero.activeForId)){
-      m.lineup.ours[pos]=id;
-      return {pos,centralId:Number(m.libero.activeForId),manual:true};
-    }
-    m.libero.activeForId=null;m.libero.activePosition='';
-    return null;
-  }
-  const target=vcAutoLiberoTarget(m);
-  if(target){m.lineup.ours[target.pos]=Number(m.libero.playerId);m.libero.activeForId=target.centralId;m.libero.activePosition=target.pos}
-  else{m.libero.activeForId=null;m.libero.activePosition=''}
-  if(record)vcRecordLiberoTransition(m,prev,target);
-  return target;
-}
+ function vcLiberoRalliesCompleted(m){return scoutArr(m?.sets).reduce((n,s)=>n+scoutArr(s.rallies).length,0)}
+ function vcAutoLiberoTarget(m){
+   // Ya normalizado por vcApplyAutoLibero: no reemplazar m.libero mientras se actualiza.
+   const lib=m.libero;
+   if(!lib.enabled||!lib.auto||!lib.playerId)return null;
+   const centerSet=new Set(lib.centralIds.map(Number));
+   const eligible=VC_BACK_POS.map(pos=>({pos,centralId:Number(m.baseLineup.ours[pos])||null}))
+     .filter(x=>x.centralId&&centerSet.has(x.centralId)&&!(x.pos==='p1'&&m.servingTeam==='ours'));
+   if(!eligible.length)return null;
+   if(lib.mode==='central'){
+     const map=new Map([[Number(lib.centralAssignments.first),Number(lib.playerId)],
+       [Number(lib.centralAssignments.second),Number(lib.secondPlayerId)]]);
+     const mapped=eligible.filter(x=>map.get(x.centralId));
+     if(!mapped.length)return null;
+     // Tras perder el saque, el central de P1 puede salir: priorizarlo si pertenece a la pareja asignada.
+     // Antes de perder el saque, el central de P1 DEBE sacar y está excluido de eligible.
+     const justServed=m.servingTeam==='opponent'?mapped.find(x=>x.pos==='p1'):null;
+     const preferred=justServed||mapped.find(x=>x.centralId===Number(lib.activeForId))||mapped[0];
+     return {...preferred,liberoId:map.get(preferred.centralId)};
+   }
+   if(lib.mode==='phase'){
+     // K1: recibimos; K2: sacamos. Se elige solo el líbero; el central disponible se determina por rotación.
+     const phase=m.servingTeam==='opponent'?'K1':'K2';
+     const id=Number(lib.phaseAssignments?.[phase])||(phase==='K1'?Number(lib.playerId):Number(lib.secondPlayerId));
+     const preferred=eligible.find(x=>x.centralId===Number(lib.activeForId))||eligible[0];
+     return id?{...preferred,liberoId:id,phase}:null;
+   }
+   return {...eligible[0],liberoId:Number(lib.playerId)};
+ }
+ function vcRecordLiberoTransition(m,prev,next){
+   if(!m||m.status==='finished')return;
+   const set=scoutSet(m);if(!set)return;
+   if(prev?.pos===next?.pos&&Number(prev?.centralId)===Number(next?.centralId)&&Number(prev?.liberoId)===Number(next?.liberoId))return;
+   const common={type:'libero_auto',team:'ours',setNumber:set.number,scoreUs:set.scoreUs,scoreOpponent:set.scoreOpponent,createdAt:scoutNow(),scoutMs:scoutElapsed(m)};
+   m.events=scoutArr(m.events);
+   if(prev&&next&&prev.centralId===next.centralId&&prev.pos===next.pos){
+     // Sustitución directa de un líbero por el segundo, sin registrar dos líberos en pista.
+     m.events.push({...common,id:Date.now(),position:prev.pos,action:'swap',outPlayerId:prev.liberoId,inPlayerId:next.liberoId,outLabel:scoutPlayerName(prev.liberoId),inLabel:scoutPlayerName(next.liberoId)});
+   }else{
+     if(prev)m.events.push({...common,id:Date.now(),position:prev.pos,action:'exit',outPlayerId:prev.liberoId,inPlayerId:prev.centralId,outLabel:scoutPlayerName(prev.liberoId),inLabel:scoutPlayerName(prev.centralId)});
+     if(next)m.events.push({...common,id:Date.now()+1,position:next.pos,action:'enter',outPlayerId:next.centralId,inPlayerId:next.liberoId,outLabel:scoutPlayerName(next.centralId),inLabel:scoutPlayerName(next.liberoId)});
+   }
+ }
+ function vcApplyAutoLibero(m,record=false){
+   vcEnsureProMatch(m);
+   const l=m.libero;
+   const prev=l.activePosition&&l.activeForId?{pos:l.activePosition,centralId:Number(l.activeForId),liberoId:Number(l.activePlayerId||l.playerId)}:null;
+   const opponent=scoutNormalizeLineup(m.lineup).opponent;
+   m.lineup=scoutNormalizeLineup(m.baseLineup);m.lineup.opponent=opponent;
+   if(!l.auto){
+     const pos=String(l.activePosition||'');const id=Number(l.activePlayerId||l.playerId)||null;
+     if(l.enabled&&id&&VC_BACK_POS.includes(pos)&&Number(l.activeForId)){
+       m.lineup.ours[pos]=id;
+       return {pos,centralId:Number(l.activeForId),liberoId:id,manual:true};
+     }
+     l.activeForId=null;l.activePosition='';l.activePlayerId=null;return null;
+   }
+   let target=vcAutoLiberoTarget(m);
+   if(l.mode!=='single'&&prev){
+     const differs=!target||prev.pos!==target.pos||prev.centralId!==target.centralId||prev.liberoId!==target.liberoId;
+     if(differs){
+       const nowCount=vcLiberoRalliesCompleted(m);
+       const existingPosition=VC_BACK_POS.some(p=>p===prev.pos&&Number(m.baseLineup.ours[p])===prev.centralId&&!(p==='p1'&&m.servingTeam==='ours'));
+       if(nowCount<=l.lastReplacementAt&&existingPosition){
+         target=prev; // No cambio nuevo sin una jugada completada.
+         l.pendingReason='Cambio pendiente: debe completarse un rally entre reemplazos de líbero.';
+       }else if(target&&prev.centralId!==target.centralId){
+         // Salir de un central y entrar por otro son dos reemplazos distintos.
+         target=null;l.pendingReason='Cambio de central pendiente: el segundo líbero podrá entrar tras otro rally.';
+       }else l.pendingReason='';
+     }else l.pendingReason='';
+   }else if(!prev){
+     // Si acabamos de sacar un líbero, no permitir que vuelva a entrar antes del siguiente rally.
+     if(l.mode!=='single'&&target&&vcLiberoRalliesCompleted(m)<=l.lastReplacementAt){
+       target=null;l.pendingReason='Esperando un rally completado antes de otra entrada de líbero.';
+     }else l.pendingReason='';
+   }
+   if(target){m.lineup.ours[target.pos]=target.liberoId;m.libero.activeForId=target.centralId;
+     m.libero.activePosition=target.pos;m.libero.activePlayerId=target.liberoId;}
+   else{m.libero.activeForId=null;m.libero.activePosition='';m.libero.activePlayerId=null}
+   if(record){
+     const changed=(prev?.pos||'')!==(target?.pos||'')||Number(prev?.centralId||0)!==Number(target?.centralId||0)||Number(prev?.liberoId||0)!==Number(target?.liberoId||0);
+     if(changed){vcRecordLiberoTransition(m,prev,target);if(l.mode!=='single')l.lastReplacementAt=vcLiberoRalliesCompleted(m)}
+   }
+   return target;
+ }
 function vcRotateBase(m,dir=1){vcEnsureProMatch(m);const vals=SCOUT_POS.map(p=>m.baseLineup.ours[p]);const rot=dir>=0?vals.slice(1).concat(vals[0]):[vals[5]].concat(vals.slice(0,5));SCOUT_POS.forEach((p,i)=>m.baseLineup.ours[p]=rot[i]);SCOUT_POS.forEach(p=>m.lineupRoles.ours[p]=m.baseLineup.ours[p]?vcPlayerRole(m.baseLineup.ours[p]):'')}
 function vcPosDisplay(pos){const x=VC_POS_META[pos];return `${pos.toUpperCase()} · ${x.zone}`}
 function vcLineupOption(p,selected){const role=vcRoleForPlayer(p),num=p.number!==''&&p.number!=null?'#'+p.number+' · ':'';return `<option value="${p.id}" ${Number(selected)===Number(p.id)?'selected':''}>${esc(num+(p.name||'Jugador')+' · '+role)}</option>`}
 function vcRenderCentralDetection(){const m=scoutActive(),box=$('scout-lineup-centrals'),lab=$('scout-libero-state-label');if(!m||!box)return;const ids=SCOUT_POS.map(p=>Number($(`scout-own-${p}`)?.value)||0).filter(Boolean),centrals=ids.map(scoutPlayer).filter(p=>p&&vcHasRole(p,'Central'));box.innerHTML=centrals.length?centrals.map(p=>`<span class="scout-central-chip"><b>${esc(p.number!==''&&p.number!=null?'#'+p.number:'CEN')}</b>${esc(p.name||'Central')}</span>`).join(''):'<span class="scout-central-chip">No se detectan centrales en los seis rotacionales</span>';const libId=Number($('scout-lineup-libero')?.value)||0,lp=scoutPlayer(libId);if(lab)lab.textContent=lp?`${lp.number!==''&&lp.number!=null?'#'+lp.number+' · ':''}${lp.name}`:'Sin líbero'}
 window.scoutRenderLineupPreview=function(){const box=$('scout-lineup-preview');if(!box)return;const positions=SCOUT_POS.map(pos=>{const id=Number($(`scout-own-${pos}`)?.value)||0,p=scoutPlayer(id),meta=VC_POS_META[pos],role=p?vcRoleForPlayer(p):'—';return `<div class="slot ${meta.line==='Zaguero'?'back':'front'}"><span class="pos">${vcPosDisplay(pos)} · ${meta.line}</span><strong>${p?esc((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador')):'Sin asignar'}</strong><small>${esc(role)}</small></div>`}).join('');box.innerHTML=positions;vcRenderCentralDetection()}
 window.scoutOpenLineup=function(){const m=scoutActive();if(!m){alert('Crea primero un scouting.');return}vcEnsureProMatch(m);const own=$('scout-lineup-own'),rival=$('scout-lineup-rival');if(own)own.innerHTML=SCOUT_POS.map(pos=>{const meta=VC_POS_META[pos];return `<label class="scout-lineup-field"><span class="scout-pos-meta"><b>${pos.toUpperCase()}</b><small>${meta.zone} · ${meta.line}</small></span><select id="scout-own-${pos}" onchange="scoutRenderLineupPreview()"><option value="">— Sin asignar —</option>${(jugadoresEquipo||[]).filter(p=>!vcHasRole(p,'Líbero')||Number(p.id)===Number(m.baseLineup.ours[pos])).map(p=>vcLineupOption(p,m.baseLineup.ours[pos])).join('')}</select></label>`}).join('');if(rival)rival.innerHTML=SCOUT_POS.map(pos=>{const meta=VC_POS_META[pos],role=m.lineupRoles.opponent[pos]||'';return `<div><label class="scout-lineup-field"><span class="scout-pos-meta"><b>${pos.toUpperCase()}</b><small>${meta.zone} · ${meta.line}</small></span><input id="scout-rival-${pos}" value="${esc(m.lineup.opponent[pos]||'')}" placeholder="Ej. #7 García"></label><select id="scout-rival-role-${pos}" class="scout-lineup-role-select"><option value="">— Rol rival —</option>${['Colocador','Receptor','Central','Opuesto','Líbero','Universal'].map(x=>`<option ${x===role?'selected':''}>${x}</option>`).join('')}</select></div>`}).join('');$('scout-lineup-rotation').value=String(m.rotationNo||1);$('scout-lineup-rival-rotation').value=String(m.opponentRotationNo||1);const lib=$('scout-lineup-libero');if(lib){const libs=(jugadoresEquipo||[]).filter(p=>vcHasRole(p,'Líbero'));lib.innerHTML='<option value="">Sin líbero automático</option>'+libs.map(p=>vcLineupOption(p,m.libero.playerId)).join('');if(!m.libero.playerId&&libs.length===1)lib.value=String(libs[0].id)}if($('scout-lineup-libero-auto'))$('scout-lineup-libero-auto').checked=m.libero.auto!==false;$('scout-lineup-modal')?.classList.add('open');scoutRenderLineupPreview()};
-window.scoutSaveLineup=function(){const m=scoutActive();if(!m)return;vcEnsureProMatch(m);const ids=SCOUT_POS.map(pos=>Number($(`scout-own-${pos}`)?.value)||null).filter(Boolean);if(ids.length!==6){alert('Debes asignar exactamente seis jugadores rotacionales a P1–P6. El líbero se configura aparte.');return}if(new Set(ids).size!==ids.length){alert('Un mismo jugador no puede ocupar dos posiciones a la vez.');return}const bad=ids.map(scoutPlayer).find(p=>p&&vcHasRole(p,'Líbero')&&vcRoleForPlayer(p)==='Líbero');if(bad){alert(`${bad.name||'El líbero'} no debe formar parte de los seis rotacionales. Selecciónalo en “Líbero automático”.`);return}SCOUT_POS.forEach(pos=>{m.baseLineup.ours[pos]=Number($(`scout-own-${pos}`)?.value)||null;m.lineup.opponent[pos]=String($(`scout-rival-${pos}`)?.value||'').trim();m.baseLineup.opponent[pos]=m.lineup.opponent[pos];m.lineupRoles.ours[pos]=vcPlayerRole(m.baseLineup.ours[pos]);m.lineupRoles.opponent[pos]=String($(`scout-rival-role-${pos}`)?.value||'')});m.rotationNo=Number($('scout-lineup-rotation')?.value)||1;m.opponentRotationNo=Number($('scout-lineup-rival-rotation')?.value)||1;const libId=Number($('scout-lineup-libero')?.value)||null;if(libId&&ids.includes(libId)){alert('El líbero no puede estar también entre los seis jugadores rotacionales.');return}m.libero.playerId=libId;m.libero.enabled=!!libId;m.libero.auto=$('scout-lineup-libero-auto')?.checked!==false;m.libero.centralIds=ids.filter(id=>vcHasRole(scoutPlayer(id),'Central'));m.libero.activeForId=null;m.libero.activePosition='';vcApplyAutoLibero(m,false);scoutCloseLineup();scoutRefreshActionPlayers();scoutSave()};
+window.scoutSaveLineup=function(){const m=scoutActive();if(!m)return;vcEnsureProMatch(m);const ids=SCOUT_POS.map(pos=>Number($(`scout-own-${pos}`)?.value)||null).filter(Boolean);if(ids.length!==6){alert('Debes asignar exactamente seis jugadores rotacionales a P1–P6. El líbero se configura aparte.');return}if(new Set(ids).size!==ids.length){alert('Un mismo jugador no puede ocupar dos posiciones a la vez.');return}const bad=ids.map(scoutPlayer).find(p=>p&&vcHasRole(p,'Líbero')&&vcRoleForPlayer(p)==='Líbero');if(bad){alert(`${bad.name||'El líbero'} no debe formar parte de los seis rotacionales. Selecciónalo en “Líbero automático”.`);return}SCOUT_POS.forEach(pos=>{m.baseLineup.ours[pos]=Number($(`scout-own-${pos}`)?.value)||null;m.lineup.opponent[pos]=String($(`scout-rival-${pos}`)?.value||'').trim();m.baseLineup.opponent[pos]=m.lineup.opponent[pos];m.lineupRoles.ours[pos]=vcPlayerRole(m.baseLineup.ours[pos]);m.lineupRoles.opponent[pos]=String($(`scout-rival-role-${pos}`)?.value||'')});m.rotationNo=Number($('scout-lineup-rotation')?.value)||1;m.opponentRotationNo=Number($('scout-lineup-rival-rotation')?.value)||1;const libId=Number($('scout-lineup-libero')?.value)||null;if(libId&&ids.includes(libId)){alert('El líbero no puede estar también entre los seis jugadores rotacionales.');return}m.libero.playerId=libId;m.libero.secondPlayerId=null;m.libero.mode='single';m.libero.centralAssignments={first:null,second:null};m.libero.phaseAssignments={K1:null,K2:null};m.libero.enabled=!!libId;m.libero.auto=$('scout-lineup-libero-auto')?.checked!==false;m.libero.centralIds=ids.filter(id=>vcHasRole(scoutPlayer(id),'Central'));m.libero.activeForId=null;m.libero.activePosition='';vcApplyAutoLibero(m,false);scoutCloseLineup();scoutRefreshActionPlayers();scoutSave()};
 window.scoutRotate=function(dir=1){const m=scoutActive();if(!m||m.status==='finished')return;vcEnsureProMatch(m);vcRotateBase(m,dir);m.rotationNo=((m.rotationNo-1+(dir>=0?-1:1)+6)%6)+1;vcApplyAutoLibero(m,true);scoutSave()};
-function vcCourtSlot(m,pos,team){const meta=VC_POS_META[pos];if(team==='ours'){const visibleId=Number(m.lineup.ours[pos])||null,baseId=Number(m.baseLineup.ours[pos])||visibleId,p=scoutPlayer(visibleId),base=scoutPlayer(baseId),isLib=visibleId&&visibleId===Number(m.libero.playerId)&&baseId!==visibleId;const name=p?((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador')):'Sin asignar',role=isLib?'Líbero':(m.lineupRoles.ours[pos]||vcRoleForPlayer(p));return `<div class="scout-court-slot ${pos} ${isLib?'libero-active':''}"><div class="slot-top"><span class="slot-pos">${pos.toUpperCase()} · ${meta.zone}</span><span class="slot-role">${esc(vcShortRole(role))}</span></div><strong>${esc(name)}</strong><small>${esc(meta.line)}</small>${isLib&&base?`<span class="libero-for">por ${esc((base.number!==''&&base.number!=null?'#'+base.number+' · ':'')+(base.name||'Central'))}</span>`:''}</div>`}const name=scoutOpponentLabel(m.lineup.opponent[pos],pos),role=m.lineupRoles.opponent[pos]||'';return `<div class="scout-court-slot ${pos}"><div class="slot-top"><span class="slot-pos">${pos.toUpperCase()} · ${meta.zone}</span>${role?`<span class="slot-role">${esc(vcShortRole(role))}</span>`:''}</div><strong>${esc(name)}</strong><small>${esc(meta.line)}</small></div>`}
-function vcRenderRotationStrip(m){const box=$('scout-rotation-strip');if(!box)return;vcEnsureProMatch(m);box.innerHTML=`<div class="rotation-tag">R${m.rotationNo}</div>`+SCOUT_POS.map(pos=>{const baseId=Number(m.baseLineup.ours[pos]),visId=Number(m.lineup.ours[pos]),base=scoutPlayer(baseId),isLib=visId===Number(m.libero.playerId)&&visId!==baseId,shown=scoutPlayer(visId);return `<div class="rotation-player ${pos==='p1'?'active':''} ${isLib?'libero':''}"><b>${pos.toUpperCase()} · ${VC_POS_META[pos].zone} · ${shown?esc((shown.number!==''&&shown.number!=null?'#'+shown.number+' ':'')+(shown.name||'')):'—'}</b><small>${isLib?'LIB por '+esc(base?.name||'central'):esc(m.lineupRoles.ours[pos]||vcPlayerRole(base))}</small></div>`}).join('')}
-window.scoutRenderCourt=function(m){if(!m)return;vcEnsureProMatch(m);vcApplyAutoLibero(m,false);const own=$('scout-own-court'),rival=$('scout-rival-court');if(own)own.innerHTML=SCOUT_POS.map(p=>vcCourtSlot(m,p,'ours')).join('');if(rival)rival.innerHTML=SCOUT_POS.map(p=>vcCourtSlot(m,p,'opponent')).join('');if($('scout-own-label'))$('scout-own-label').textContent=EQUIPOS[equipoActivo].nombre;if($('scout-rival-label'))$('scout-rival-label').textContent=m.opponent;if($('scout-own-rotation-label'))$('scout-own-rotation-label').textContent=`R${m.rotationNo} · ${m.servingTeam==='ours'?'SAQUE':'RECEPCIÓN'}${m.libero.activePosition?' · Líbero '+m.libero.activePosition.toUpperCase():''}`;if($('scout-rival-rotation-label'))$('scout-rival-rotation-label').textContent=`R${m.opponentRotationNo||1} · ${m.servingTeam==='opponent'?'SAQUE':'RECEPCIÓN'}`;vcRenderRotationStrip(m)};
+function vcCourtSlot(m,pos,team){const meta=VC_POS_META[pos];if(team==='ours'){const visibleId=Number(m.lineup.ours[pos])||null,baseId=Number(m.baseLineup.ours[pos])||visibleId,p=scoutPlayer(visibleId),base=scoutPlayer(baseId),isLib=visibleId&&visibleId===Number(m.libero.activePlayerId||m.libero.playerId)&&baseId!==visibleId;const name=p?((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador')):'Sin asignar',role=isLib?'Líbero':(m.lineupRoles.ours[pos]||vcRoleForPlayer(p));return `<div class="scout-court-slot ${pos} ${isLib?'libero-active':''}"><div class="slot-top"><span class="slot-pos">${pos.toUpperCase()} · ${meta.zone}</span><span class="slot-role">${esc(vcShortRole(role))}</span></div><strong>${esc(name)}</strong><small>${esc(meta.line)}</small>${isLib&&base?`<span class="libero-for">por ${esc((base.number!==''&&base.number!=null?'#'+base.number+' · ':'')+(base.name||'Central'))}</span>`:''}</div>`}const name=scoutOpponentLabel(m.lineup.opponent[pos],pos),role=m.lineupRoles.opponent[pos]||'';return `<div class="scout-court-slot ${pos}"><div class="slot-top"><span class="slot-pos">${pos.toUpperCase()} · ${meta.zone}</span>${role?`<span class="slot-role">${esc(vcShortRole(role))}</span>`:''}</div><strong>${esc(name)}</strong><small>${esc(meta.line)}</small></div>`}
+function vcRenderRotationStrip(m){const box=$('scout-rotation-strip');if(!box)return;vcEnsureProMatch(m);box.innerHTML=`<div class="rotation-tag">R${m.rotationNo}</div>`+SCOUT_POS.map(pos=>{const baseId=Number(m.baseLineup.ours[pos]),visId=Number(m.lineup.ours[pos]),base=scoutPlayer(baseId),isLib=visId===Number(m.libero.activePlayerId||m.libero.playerId)&&visId!==baseId,shown=scoutPlayer(visId);return `<div class="rotation-player ${pos==='p1'?'active':''} ${isLib?'libero':''}"><b>${pos.toUpperCase()} · ${VC_POS_META[pos].zone} · ${shown?esc((shown.number!==''&&shown.number!=null?'#'+shown.number+' ':'')+(shown.name||'')):'—'}</b><small>${isLib?'LIB por '+esc(base?.name||'central'):esc(m.lineupRoles.ours[pos]||vcPlayerRole(base))}</small></div>`}).join('')}
+window.scoutRenderCourt=function(m){if(!m)return;vcEnsureProMatch(m);vcApplyAutoLibero(m,false);const own=$('scout-own-court'),rival=$('scout-rival-court');if(own)own.innerHTML=SCOUT_POS.map(p=>vcCourtSlot(m,p,'ours')).join('');if(rival)rival.innerHTML=SCOUT_POS.map(p=>vcCourtSlot(m,p,'opponent')).join('');if($('scout-own-label'))$('scout-own-label').textContent=EQUIPOS[equipoActivo].nombre;if($('scout-rival-label'))$('scout-rival-label').textContent=m.opponent;if($('scout-own-rotation-label'))$('scout-own-rotation-label').textContent=`R${m.rotationNo} · ${m.servingTeam==='ours'?'SAQUE':'RECEPCIÓN'}${m.libero.activePosition?' · Líbero '+m.libero.activePosition.toUpperCase():''}${m.libero?.pendingReason?' · CAMBIO PENDIENTE':''}${m.libero?.pendingReason?' · CAMBIO PENDIENTE':''}`;if($('scout-rival-rotation-label'))$('scout-rival-rotation-label').textContent=`R${m.opponentRotationNo||1} · ${m.servingTeam==='opponent'?'SAQUE':'RECEPCIÓN'}`;vcRenderRotationStrip(m)};
 window.scoutRefreshActionPlayers=function(){const team=$('scout-action-team')?.value||'ours',sel=$('scout-action-player');if(!sel)return;const m=scoutActive();if(team==='ours'&&m){vcEnsureProMatch(m);vcApplyAutoLibero(m,false);const ids=[...new Set(SCOUT_POS.map(p=>Number(m.lineup.ours[p])).filter(Boolean))];sel.innerHTML=ids.map(id=>{const p=scoutPlayer(id);return `<option value="${id}">${esc((p?.number!==''&&p?.number!=null?'#'+p.number+' · ':'')+(p?.name||'Jugador')+' · '+vcRoleForPlayer(p))}</option>`}).join('')||'<option value="">Sin alineación</option>'}else if(m){const vals=SCOUT_POS.map(pos=>({pos,label:scoutOpponentLabel(m.lineup.opponent[pos],pos)}));sel.innerHTML=vals.map(x=>`<option value="${esc(x.label)}">${esc(x.label)}</option>`).join('')}};
 window.scoutAwardPoint=function(winner){const m=scoutActive(),s=scoutSet(m);if(!m||!s||m.status==='finished'||s.finished)return;vcEnsureProMatch(m);vcApplyAutoLibero(m,false);scoutEnsureRallyStart(m);const before=m.liveRally.startSnapshot||scoutCurrentRallySnapshot(m),baseBefore=scoutClone(m.baseLineup),liberoBefore=scoutClone(m.libero),rolesBefore=scoutClone(m.lineupRoles);if(winner==='ours')s.scoreUs++;else s.scoreOpponent++;const rally={id:m.liveRally.id,setNumber:s.number,servingBefore:before.servingBefore,rotationBefore:before.rotationBefore,opponentRotationBefore:before.opponentRotationBefore,lineupBefore:scoutClone(before.lineupBefore),baseLineupBefore:baseBefore,liberoBefore,lineupRolesBefore:rolesBefore,scoreBefore:scoutClone(before.scoreBefore),scoreAfter:{us:s.scoreUs,opponent:s.scoreOpponent},winner:winner==='opponent'?'opponent':'ours',actions:scoutClone(m.liveRally.actions),startedAt:m.liveRally.startedAt,endedAt:scoutNow(),scoutStartMs:Number(m.liveRally.scoutStartMs)||0,scoutEndMs:scoutElapsed(m)};s.rallies.push(rally);if(winner==='ours'){if(before.servingBefore==='opponent'){vcRotateBase(m,1);m.rotationNo=((m.rotationNo+4)%6)+1}m.servingTeam='ours'}else{if(before.servingBefore==='ours'){m.lineup=scoutRotateTeamLineup(m.lineup,'opponent',1);m.baseLineup.opponent=scoutClone(m.lineup.opponent);m.opponentRotationNo=((m.opponentRotationNo+4)%6)+1}m.servingTeam='opponent'}vcApplyAutoLibero(m,true);scoutResetLiveRally(m);if(scoutSetHasWinner(s)){s.finished=true;s.winner=s.scoreUs>s.scoreOpponent?'ours':'opponent';s.endedAt=scoutNow();const sets=scoutSetsScore(m);if(sets.us>=3||sets.opponent>=3){m.status='finished';m.endedAt=scoutNow();scoutSyncCompetition(m)}}scoutSave()};
 window.scoutUndoRally=function(){const m=scoutActive(),s=scoutSet(m);if(!m||!s||!s.rallies.length)return;if(s.finished){s.finished=false;s.winner=null;s.endedAt=null;if(m.status==='finished'){m.status='live';m.endedAt=null}}const r=s.rallies.pop();s.scoreUs=Number(r.scoreBefore.us)||0;s.scoreOpponent=Number(r.scoreBefore.opponent)||0;m.servingTeam=r.servingBefore;m.rotationNo=r.rotationBefore;m.opponentRotationNo=r.opponentRotationBefore||1;m.lineup=scoutNormalizeLineup(r.lineupBefore);m.baseLineup=r.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):scoutNormalizeLineup(r.lineupBefore);m.libero=r.liberoBefore?scoutNormalizeLibero(r.liberoBefore):scoutNormalizeLibero(m.libero);m.lineupRoles=r.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):scoutNormalizeRoles(m.lineupRoles);m.liveRally={id:r.id,actions:scoutClone(r.actions),startedAt:r.startedAt,scoutStartMs:Number(r.scoutStartMs)||0,startSnapshot:{servingBefore:r.servingBefore,rotationBefore:r.rotationBefore,opponentRotationBefore:r.opponentRotationBefore||1,lineupBefore:scoutClone(r.lineupBefore),scoreBefore:scoutClone(r.scoreBefore)}};scoutSave()};
