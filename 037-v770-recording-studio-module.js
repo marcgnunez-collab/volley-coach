@@ -39,7 +39,8 @@ const state={
   healthTimer:null,
   healthRecovering:false,
   sourceFailureSince:0,
-  wakeLock:null
+  wakeLock:null,
+  durableBytes:0, durableChunks:0, pendingWrites:0, lastDurableAt:0, checkPointAt:0
 };
 
 function nowIso(){return new Date().toISOString()}
@@ -103,10 +104,10 @@ function chooseMime(preferMp4=false){
     'video/mp4'
   ];
   const webm=[
-    'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
-    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8',
+    'video/webm;codecs=vp9',
     'video/webm'
   ];
   const candidates=preferMp4?[...mp4,...webm]:[...webm,...mp4];
@@ -287,9 +288,22 @@ function downloadJSON(obj,name){
 async function writeChunk(blob){
   state.bytes+=blob.size;
   const idx=state.chunkIndex++;
+  state.pendingWrites=(state.pendingWrites||0)+1;
   const task=async()=>{
-    if(state.mode==='disk'&&state.writer)await state.writer.write(blob);
-    else await dbPutChunk(state.sessionId,idx,blob);
+    try{
+      if(state.mode==='disk'&&state.writer)await state.writer.write(blob);
+      else await dbPutChunk(state.sessionId,idx,blob);
+      state.durableBytes=(state.durableBytes||0)+blob.size;
+      state.durableChunks=(state.durableChunks||0)+1;
+      state.lastDurableAt=Date.now();
+      // A lightweight, durable recovery checkpoint every ten chunks.
+      // On unexpected shutdown, already committed IDB fragments still survive.
+      if(state.durableChunks%10===0){
+        await dbPutSession({id:state.sessionId,bytes:state.durableBytes,
+          chunkCount:state.durableChunks,durationMs:recordingElapsed(),
+          checkpointAt:nowIso(),completed:false});
+      }
+    }finally{state.pendingWrites=Math.max(0,(state.pendingWrites||0)-1)}
   };
   /* Always continue from the previous task, even if it failed, so one failed
      write does not permanently poison every later chunk in the promise chain. */
@@ -462,10 +476,15 @@ function startRecordingHealth(){
         }
       }catch(_){}
     }
-    if(state.writeError&&state.active&&!state.stopping){
+    if((state.writeError||state.recorderError)&&state.active&&!state.stopping){
       const note=$('vc-recording-status-note');
-      if(note)note.textContent='Error al guardar un fragmento. Cerrando la grabación para conservar lo ya escrito.';
-      setTimeout(()=>window.vcRecordingStop(false),0);
+      if(note)note.textContent=state.writeError
+        ?'Error al guardar un fragmento. Cerrando REC para conservar lo ya escrito.'
+        :'La captura terminó inesperadamente. Cerrando REC para conservar los fragmentos disponibles.';
+      // Finalization marks the session incomplete on recorder or storage error.
+      // Preserve all already committed IDB chunks for recovery.
+      state.stopping=true;
+      setTimeout(()=>{state.stopping=false;window.vcRecordingStop(false)},0);
     }
   },2000);
 }
@@ -476,8 +495,9 @@ async function storagePreflight(mode){
     const info=await navigator.storage.estimate();
     const free=Number(info.quota)-Number(info.usage||0);
     if(!Number.isFinite(free)||free<=0)return true;
-    // Vídeo 3,5 Mbps + margen de metadatos; estimación, no garantía.
-    const minutes=Math.floor(free/(3500000/8*1.15)/60);
+    // Bitrate REC elegido + margen de metadatos; estimación, no garantía.
+    const recBitrate=Number($('vc-rec34-bitrate')?.value)||3500000;
+    const minutes=Math.floor(free/(recBitrate/8*1.15)/60);
     if(free<150*1024*1024){
       alert('Espacio estimado inferior a 150 MB: no es seguro iniciar la grabación recuperable. Selecciona archivo directo o libera espacio.');
       return false;
@@ -537,12 +557,13 @@ window.vcRecordingStart=async function(){
       sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'
         ?`LIVE móvil directo · ${window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()?.outputOrientation==='portrait'?'vertical 9:16':'horizontal 16:9'} · independiente del Delay`
         :'LIVE cámara local · independiente del Delay',
-      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0,stopping:false,storageLastCheckAt:0
+      writeError:null,recorderError:null,healthRecovering:false,sourceFailureSince:0,stopping:false,storageLastCheckAt:0,
+      durableBytes:0,durableChunks:0,pendingWrites:0,lastDurableAt:0,checkPointAt:0
     });
 
     const initialSession={
       id:sessionId,filename,startedAt:nowIso(),endedAt:null,durationMs:0,bytes:0,mime,mode,
-      source:sourceLabel(),completed:false,markers:[],
+      source:sourceLabel(),completed:false,markers:[],requestedBitrate:Number($('vc-rec34-bitrate')?.value)||3500000,
       match:m?{id:m.id,date:m.date,opponent:m.opponent}:null
     };
     if(handle){
@@ -555,7 +576,9 @@ window.vcRecordingStart=async function(){
       await dbPutSession(initialSession);
     }
 
-    const opts={mimeType:mime,videoBitsPerSecond:3500000};
+    const recBitrate=Math.max(1200000,Math.min(4000000,Number($('vc-rec34-bitrate')?.value)||3500000));
+    state.recBitrate=recBitrate;
+    const opts={mimeType:mime,videoBitsPerSecond:recBitrate};
     const recorder=new MediaRecorder(recStream,opts);
     state.recorder=recorder;
 
@@ -785,9 +808,11 @@ document.addEventListener('visibilitychange',()=>{
 
 window.vcRecordingDiagnostics=function(){
   return {
-    version:VERSION,
-    active:state.active,paused:state.paused,mode:state.mode,mime:state.mime,
-    bytes:state.bytes,elapsedMs:recordingElapsed(),markers:state.markers,
+    version:VERSION,sessionId:state.sessionId,
+    active:state.active,paused:state.paused,mode:state.mode,mime:state.mime,recordingBitrate:state.recBitrate||3500000,
+    bytes:state.bytes,durableBytes:state.durableBytes||0,durableChunks:state.durableChunks||0,
+    pendingWrites:state.pendingWrites||0,lastDurableAt:state.lastDurableAt||null,
+    elapsedMs:recordingElapsed(),markers:state.markers,
     diskDirectSupported:typeof window.showSaveFilePicker==='function',
     indexedDB:typeof indexedDB!=='undefined',
     sourceKind:state.sourceKind,
@@ -816,7 +841,7 @@ window.vcRecordingDiagnostics=function(){
   updateUI();
   try{
     const sessions=await dbSessions();
-    const interrupted=sessions.filter(s=>s.mode==='browser'&&!s.completed);
+    const interrupted=sessions.filter(s=>(s.mode==='browser'||s.mode==='gallery')&&!s.completed);
     if(interrupted.length&&$('vc-recording-last'))$('vc-recording-last').textContent=`${interrupted.length} grabación(es) recuperable(s)`;
   }catch(_){}
 })();

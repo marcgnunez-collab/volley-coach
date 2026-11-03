@@ -704,7 +704,8 @@ async function recChunks(id){
 }
 async function openRecording(rec){
   if(!rec)return;
-  if(rec.mode==='browser'){
+  if(rec.mode==='browser'||rec.mode==='gallery'){
+    if(Number(rec.bytes||0)>280*1024*1024)throw new Error('Esta grabación es demasiado grande para abrirse directamente desde IndexedDB. Expórtala desde Recording Pro y ábrela como archivo en Video Review.');
     const chunks=await recChunks(rec.id);if(!chunks.length)throw new Error('Esta grabación no contiene fragmentos.');
     const blob=new Blob(chunks.map(x=>x.blob),{type:rec.mime||'video/webm'});loadBlob(blob,`${rec.filename}.${String(rec.mime||'').startsWith('video/mp4')?'mp4':'webm'}`,rec);return;
   }
@@ -718,6 +719,16 @@ async function openRecording(rec){
   alert('Esta grabación se guardó directamente al disco. Selecciona ahora el archivo WebM/MP4 correspondiente.');
   document.getElementById('v780-file')?.click();
 }
+window.v780OpenRecordingById=async function(id){
+  const s=(await recSessions()).find(x=>String(x.id)===String(id));
+  if(!s)throw new Error('Grabación no encontrada en este navegador.');
+  const m=currentMatch();
+  if(!m)throw new Error('Selecciona un partido en Video Review antes de abrir la grabación.');
+  if(s.match?.id&&Number(s.match.id)!==Number(m.id))throw new Error('Esta grabación corresponde a otro partido. Selecciona ese partido en Video Review.');
+  await openRecording(s);
+  try{window.v117ReviewSetSource?.('local')}catch(_){}
+  return true;
+};
 window.v780OpenRecordingPicker=async function(){
   try{
     const all=await recSessions(),mid=Number(currentMatch()?.id)||0;

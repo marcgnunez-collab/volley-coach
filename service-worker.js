@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.3.3-scouting-clips';
+const CACHE_NAME = 'volley-coach-v16.0.3.4-recording-pro';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",
@@ -41,7 +41,8 @@ const MODULE_ASSETS = [
   "./102-vc1601-analysis-performance.js",
   "./104-vc16023-analysis-render-guard.js",
   "./105-vc16032-video-review-pro.js",
-  "./106-vc16033-scouting-clips.js"
+  "./106-vc16033-scouting-clips.js",
+  "./107-vc16034-recording-pro.js"
 ];
 
 const APP_SHELL = [
