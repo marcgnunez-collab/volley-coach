@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.2.6 · Scouting estable</title>
+<title>Volley Coach | V16.0.3.3 · Clips y Video Review</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1550,7 +1550,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">VIDEO REVIEW · V16.0.3.2</span>
+        <span class="pro-kicker">VIDEO REVIEW · V16.0.3.3</span>
         <h2>Revisión profesional vinculada al scouting</h2>
         <p>Cada acción usa su timestamp real para navegar, filtrar, reproducir y crear clips automáticos −8 s / +5 s.</p>
       </div>
@@ -1764,6 +1764,30 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
         </div>
       </div>
       <div id="v780-timeline" class="v780-timeline"></div>
+    </section>
+
+    <section id="vc-clip33" class="vc-clip33" aria-label="Clips vinculados al scouting">
+      <header class="vc-clip33-head">
+        <div><span class="vc-clip33-kicker">VIDEO REVIEW PRO · CLIP STUDIO</span><h3>Clips vinculados al scouting</h3><p>Guarda y revisa cada rally o acción usando sus tiempos de vídeo. Los clips pertenecen al partido seleccionado.</p></div>
+        <span id="vc-clip33-count" class="vc-clip33-count">0 clips en este partido</span>
+      </header>
+      <div class="vc-clip33-toolbar">
+        <button id="vc-clip33-selected" type="button" class="vc-clip33-btn primary">＋ Clip de la selección</button>
+        <button id="vc-clip33-filtered" type="button" class="vc-clip33-btn">＋ Clips del filtro actual</button>
+        <button id="vc-clip33-csv" type="button" class="vc-clip33-btn">↓ Catálogo CSV</button>
+      </div>
+      <div class="vc-clip33-markbar">
+        <div class="vc-clip33-mark"><span>INICIO</span><strong id="vc-clip33-in">—</strong><button id="vc-clip33-in-button" type="button" class="vc-clip33-btn">Marcar IN</button></div>
+        <div class="vc-clip33-mark"><span>FINAL</span><strong id="vc-clip33-out">—</strong><button id="vc-clip33-out-button" type="button" class="vc-clip33-btn">Marcar OUT</button></div>
+        <button id="vc-clip33-manual" type="button" class="vc-clip33-btn primary">Guardar tramo IN–OUT</button>
+      </div>
+      <div class="vc-clip33-filters">
+        <label>Mostrar<select id="vc-clip33-filter"><option value="all">Todos los clips</option><option value="rally">Solo rallies</option><option value="action">Solo acciones</option><option value="manual">Clips manuales</option></select></label>
+        <label>Buscar<input id="vc-clip33-search" type="search" placeholder="Jugador, fundamento, rally…"></label>
+      </div>
+      <p id="vc-clip33-status" class="vc-clip33-status" role="status" aria-live="polite">Para crear clips automáticos se necesitan tiempos de vídeo vinculados al scouting.</p>
+      <div id="vc-clip33-list" class="vc-clip33-list"></div>
+      <p class="vc-clip33-footnote">Un clip guardado es un intervalo vinculado al partido. Puedes reproducirlo desde su archivo o YouTube; la exportación WebM solo funciona con archivos locales compatibles. LIVE/DELAY temporal no se descarga como clip.</p>
     </section>
   </div>
 </section>
@@ -14776,6 +14800,20 @@ if(new URLSearchParams(location.search).get('vc_perf')==='1'){
 <!-- V16.0.2.3 · Protección contra renders redundantes en Análisis.
      ?vc_analysis_legacy=1 desactiva únicamente esta optimización. -->
 <script id="vc16023-analysis-render-guard" src="./104-vc16023-analysis-render-guard.js?v=16.0.2.3" data-vc-module="true"></script>
+<style id="vc16033-clips-style">
+#vc-clip33{margin-top:18px;border:1px solid #dce6ed;border-radius:16px;background:linear-gradient(180deg,#ffffff,#f8fbfd);padding:19px;color:#19364c;box-shadow:0 8px 28px rgba(11,33,49,.05)}
+#vc-clip33 *{box-sizing:border-box;min-width:0}
+.vc-clip33-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.vc-clip33-head h3{font-size:18px;margin:4px 0 6px;color:#17384e}.vc-clip33-head p{font-size:11px;color:#627b8b;margin:0;line-height:1.6;max-width:650px}.vc-clip33-kicker{font-size:10px;font-weight:800;letter-spacing:.11em;color:#24718e}.vc-clip33-count{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid #c8dce8;border-radius:999px;background:#ecf6fb;color:#185671;font-size:10px;font-weight:800;white-space:nowrap}
+.vc-clip33-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 12px}.vc-clip33-btn{border:1px solid #cddde7!important;border-radius:9px!important;background:#fff!important;color:#21516a!important;padding:9px 12px!important;font-size:11px!important;font-weight:750!important;cursor:pointer;line-height:1.25}.vc-clip33-btn.primary{background:#176487!important;color:#fff!important;border-color:#176487!important}.vc-clip33-btn.danger{color:#aa3f40!important;border-color:#efcccc!important}.vc-clip33-btn:hover:not(:disabled){filter:brightness(.95)}.vc-clip33-btn:disabled{opacity:.45;cursor:not-allowed}
+.vc-clip33-markbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;background:#eef4f8;border:1px solid #dce8ef;border-radius:12px;padding:10px}.vc-clip33-mark{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:210px}.vc-clip33-mark span{font-size:9px;letter-spacing:.09em;font-weight:850;color:#637c8c}.vc-clip33-mark strong{font:800 13px ui-monospace,SFMono-Regular,Consolas,monospace;color:#214b65}.vc-clip33-mark button{margin-left:auto}
+.vc-clip33-filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:14px 0 7px}.vc-clip33-filters label{font-size:9px;font-weight:800;color:#5b7384;display:grid;gap:5px;flex:1;max-width:300px}.vc-clip33-filters select,.vc-clip33-filters input{border:1px solid #cddde6;border-radius:8px;background:#fff;color:#183f56;padding:9px 10px;font-size:11px;width:100%}
+.vc-clip33-status{font-size:10px;color:#4d7487;line-height:1.45;min-height:18px;margin:6px 0 10px}.vc-clip33-status[data-bad="1"]{color:#a34444}.vc-clip33-list{display:grid;gap:8px;max-height:460px;overflow:auto}.vc-clip33-card{border:1px solid #e0e8ee;border-radius:11px;background:#fff;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:14px}.vc-clip33-info{display:grid;gap:4px;overflow:hidden}.vc-clip33-info strong{font-size:12px;color:#17384e;white-space:normal;overflow-wrap:anywhere}.vc-clip33-info span{font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace;color:#44738c}.vc-clip33-info small{font-size:10px;line-height:1.4;color:#718390;overflow-wrap:anywhere}.vc-clip33-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.vc-clip33-empty{text-align:center;padding:20px;border:1px dashed #d4e3ed;border-radius:10px;font-size:11px;color:#758797}.vc-clip33-footnote{font-size:10px;line-height:1.6;color:#748695;margin:14px 0 0}
+@media(max-width:780px){#vc-clip33{padding:13px}.vc-clip33-head{flex-direction:column}.vc-clip33-head h3{font-size:16px}.vc-clip33-card{flex-direction:column;align-items:stretch}.vc-clip33-actions{justify-content:flex-start}.vc-clip33-mark{min-width:180px}.vc-clip33-toolbar .vc-clip33-btn{flex:1}}
+@media(max-width:420px){.vc-clip33-markbar{display:grid}.vc-clip33-filters label{min-width:100%}.vc-clip33-toolbar{display:grid;grid-template-columns:1fr}.vc-clip33-mark{min-width:0}}
+</style>
+
 <!-- V16.0.3.2 · Solo lectura y reproducción de vídeo; no modifica scoutings. -->
 <script id="vc16032-review-pro" src="./105-vc16032-video-review-pro.js?v=16.0.3.2" data-vc-module="true"></script>
+<!-- V16.0.3.3 · Clips guardados por partido en el modelo existente m.video.clips. -->
+<script id="vc16033-scouting-clips" src="./106-vc16033-scouting-clips.js?v=16.0.3.3" data-vc-module="true"></script>
 </body></html>
