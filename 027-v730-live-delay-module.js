@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.3.0';
+const VERSION='16.0.3.2';
 const $=id=>document.getElementById(id);
 const state={
   context:'training',
@@ -66,8 +66,26 @@ const state={
   droppedFrames:0,
   totalFrames:0,
   health:'ESPERANDO',
-  proTickCount:0
+  proTickCount:0,
+  qualityProfile:'balanced',
+  autoRecovery:true,
+  captureRestarts:0,
+  captureRecoveryFailures:0,
+  recoveryInProgress:false,
+  captureRecoveryWindowStart:0,
+  lastCaptureRecoveryAt:0,
+  recoveryWindowCount:0,
+  lastRecoveryReason:'',
+  sourceMode:'local',
+  reviewSpeed:1
 };
+const QUALITY_PROFILES=Object.freeze({
+  fluid:Object.freeze({label:'Fluido · 360p / 24 FPS',width:640,height:360,fps:24,bitrate:850000}),
+  balanced:Object.freeze({label:'Equilibrado · 540p / 25 FPS',width:960,height:540,fps:25,bitrate:1500000}),
+  high:Object.freeze({label:'Alta calidad · 720p / 30 FPS',width:1280,height:720,fps:30,bitrate:2500000})
+});
+function quality(){return QUALITY_PROFILES[state.qualityProfile]||QUALITY_PROFILES.balanced}
+
 
 function setStatus(text,kind=''){
   const el=$('live-delay-support');if(!el)return;
@@ -98,7 +116,7 @@ function bufferedRange(){
 function savePrefs(){
   try{
     localStorage.setItem('volley_live_delay_v730',JSON.stringify({
-      delay:state.delay,maxBuffer:state.maxBuffer,cameraId:state.lastCameraId,engine:state.engine
+      delay:state.delay,maxBuffer:state.maxBuffer,cameraId:state.lastCameraId,engine:state.engine,qualityProfile:state.qualityProfile,autoRecovery:state.autoRecovery
     }));
   }catch(_){}
 }
@@ -111,9 +129,21 @@ function loadPrefs(){
     else if(state.delay>=120&&state.maxBuffer<180)state.maxBuffer=180;
     state.lastCameraId=String(x.cameraId||'');
     state.engine=x.engine==='classic'?'classic':'pro';
+    state.qualityProfile=Object.hasOwn(QUALITY_PROFILES,x.qualityProfile)?x.qualityProfile:'balanced';
+    state.autoRecovery=x.autoRecovery!==false;
   }catch(_){}
 }
 function updateUi(){
+  if($('live-delay-quality')){
+    $('live-delay-quality').value=state.qualityProfile;
+    $('live-delay-quality').disabled=state.running||state.starting;
+  }
+  if($('live-delay-auto-recovery'))$('live-delay-auto-recovery').checked=state.autoRecovery;
+  if($('live-delay-quality-note')){
+    $('live-delay-quality-note').textContent=state.sourceMode==='remote'
+      ?'En móvil WebRTC ajusta el codificador del delay, no la cámara remota.'
+      :`${quality().width}×${quality().height} · ${quality().fps} FPS · ${Math.round(quality().bitrate/1000)} kbps`;
+  }
   if($('live-delay-engine')){
     $('live-delay-engine').value=state.engine;
     $('live-delay-engine').disabled=state.running||state.starting;
@@ -208,6 +238,10 @@ function updateProMetrics(){
   if(interval)interval.textContent=mean?`${mean} ms`:'—';
   const recoveries=$('live-delay-pro-recovery');
   if(recoveries)recoveries.textContent=String(state.playbackRecoveries);
+  const restarts=$('live-delay-pro-restarts');
+  if(restarts)restarts.textContent=String(state.captureRestarts);
+  const activeProfile=$('live-delay-pro-quality');
+  if(activeProfile)activeProfile.textContent=quality().label.split(' · ')[0];
 }
 function chooseMime(){
   const mr=window.MediaRecorder,ms=window.MediaSource;
@@ -452,6 +486,43 @@ function updateMetrics(){
   }
   updateProMetrics();
 }
+// Restart only the delay capture. The independent REC studio is NEVER stopped here.
+// A rebuilt MediaSource buffer loses its prior delay history: tell the user,
+// and impose a finite retry budget instead of looping forever.
+async function attemptCaptureRecovery(reason){
+  if(!state.running||!state.autoRecovery||state.recoveryInProgress)return false;
+  // Do not destroy the last buffered material until a new remote source exists.
+  // The WebRTC receiver manages its own mobile reconnection separately.
+  if(state.sourceMode==='remote'&&!window.VC_REMOTE_CAMERA?.getStream?.()?.getVideoTracks?.().some(t=>t.readyState==='live')){
+    setState('live-delay-review-state','ESPERANDO MÓVIL',false);
+    setStatus('<b>Señal móvil interrumpida.</b> Esperando a que WebRTC reconecte antes de reconstruir el búfer.','warn');
+    return false;
+  }
+  const now=Date.now();
+  if(!state.captureRecoveryWindowStart||now-state.captureRecoveryWindowStart>120000){
+    state.captureRecoveryWindowStart=now;state.recoveryWindowCount=0;
+  }
+  if(state.recoveryWindowCount>=2||now-state.lastCaptureRecoveryAt<12000)return false;
+  state.recoveryInProgress=true;
+  state.recoveryWindowCount++;
+  state.lastCaptureRecoveryAt=now;
+  state.lastRecoveryReason=String(reason||'Señal interrumpida');
+  setStatus('<b>Recuperación automática de cámara…</b> '+state.lastRecoveryReason+'. El historial temporal del delay se reinicia; REC independiente continúa.','warn');
+  try{
+    window.stopLiveDelay(true);
+    await window.startLiveDelay();
+    const ok=state.running;
+    if(ok){
+      state.captureRestarts++;
+      setStatus('<b>Señal restablecida.</b> Reconstruyendo el búfer desde cero. La grabación REC independiente no se ha detenido.','good');
+    }else state.captureRecoveryFailures++;
+    return ok;
+  }catch(err){
+    state.captureRecoveryFailures++;
+    state.lastError=String(err?.message||err);
+    return false;
+  }finally{state.recoveryInProgress=false;updateUi();updateMetrics()}
+}
 function startTicker(){
   stopTicker();
   state.timer=setInterval(()=>{
@@ -459,7 +530,16 @@ function startTicker(){
     // Reintentar tras una eliminación por límite de memoria; nunca omitir fragmentos.
     appendNext();maintainDelay();updateMetrics();
     const age=Date.now()-(state.lastChunkAt||state.streamStartedAt);
-    if(age>20000)failDelay('Sin nuevos fotogramas de cámara desde hace más de 20 segundos. Comprueba móvil, Wi-Fi y permisos.');
+    if(age>20000){
+      if(document.visibilityState==='hidden')return; // prevent background tab throttling from forcing a rebuild
+      if(state.autoRecovery){
+        attemptCaptureRecovery('No llegan nuevos fragmentos').then(ok=>{
+          if(!ok&&!state.recoveryInProgress&&state.running&&Date.now()-(state.lastChunkAt||state.streamStartedAt)>(state.sourceMode==='remote'?45000:25000)){
+            failDelay('No hay vídeo nuevo; la recuperación automática no ha sido posible. Comprueba móvil, Wi-Fi o permisos.');
+          }
+        });
+      }else failDelay('Sin nuevos fotogramas de cámara desde hace más de 20 segundos. Comprueba móvil, Wi-Fi y permisos.');
+    }
     else if(age>7000){
       setState('live-delay-review-state','SEÑAL INESTABLE',false);
       setStatus('<b>La cámara no entrega fragmentos nuevos.</b> Revisando conexión; no se descartan fotogramas sin avisar.','warn');
@@ -477,14 +557,25 @@ async function requestStream(){
     return new MediaStream(tracks.map(t=>t.clone()));
   }
   const sel=$('live-delay-camera'),deviceId=sel?.value||state.lastCameraId||'';
+  const q=quality();
   const videoConstraints=deviceId?{
     deviceId:{exact:deviceId},
-    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}
+    width:{ideal:q.width},height:{ideal:q.height},frameRate:{ideal:q.fps,max:q.fps}
   }:{
     facingMode:{ideal:'environment'},
-    width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}
+    width:{ideal:q.width},height:{ideal:q.height},frameRate:{ideal:q.fps,max:q.fps}
   };
-  return navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false});
+  try{
+    return await navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false});
+  }catch(err){
+    // An unplugged/repaired USB camera can have a new deviceId. Retry using
+    // the default camera, but never retry a permission denial.
+    if(!deviceId||!['NotFoundError','OverconstrainedError','DevicesNotFoundError'].includes(err?.name))throw err;
+    state.lastCameraId='';
+    if(sel)sel.value='';
+    const fallback={facingMode:{ideal:'environment'},width:{ideal:q.width},height:{ideal:q.height},frameRate:{ideal:q.fps,max:q.fps}};
+    return navigator.mediaDevices.getUserMedia({video:fallback,audio:false});
+  }
 }
 async function startRecorder(){
   let recorderStream=state.stream;
@@ -513,7 +604,8 @@ async function startRecorder(){
 
   // Encoding a normalized mobile camera and decoding the delayed stream are
   // simultaneous; use a moderate bitrate to protect CPU and append latency.
-  const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:2000000}:{videoBitsPerSecond:2000000};
+  const bitrate=quality().bitrate;
+  const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:bitrate}:{videoBitsPerSecond:bitrate};
   let rec;
   try{rec=new MediaRecorder(recorderStream,{...options,videoKeyFrameIntervalDuration:1000})}
   catch(_){rec=new MediaRecorder(recorderStream,options)}
@@ -547,10 +639,18 @@ async function startRecorder(){
   });
   rec.addEventListener('error',e=>{
     console.error('Live Delay recorder',e);
-    failDelay('MediaRecorder ha informado de un error de captura.');
+    if(!state.autoRecovery)failDelay('MediaRecorder ha informado de un error de captura.');
+    else attemptCaptureRecovery('MediaRecorder ha informado de un error').then(ok=>{
+      if(!ok&&state.running&&state.sourceMode!=='remote')failDelay('MediaRecorder dejó de grabar y no se pudo restablecer el delay.');
+    });
   });
   rec.addEventListener('stop',()=>{
-    if(state.running)failDelay('La grabación temporal del Delay terminó de forma inesperada.');
+    if(state.running&&!state.recoveryInProgress){
+      if(state.autoRecovery)attemptCaptureRecovery('MediaRecorder terminó inesperadamente').then(ok=>{
+        if(!ok&&state.running&&state.sourceMode!=='remote')failDelay('El grabador de delay se detuvo y no se pudo recuperar.');
+      });
+      else failDelay('La grabación temporal del Delay terminó de forma inesperada.');
+    }
   });
   rec.start(500);
 }
@@ -559,6 +659,7 @@ window.startLiveDelay=async function(){
   state.starting=true;
   updateUi();
   const sourceMode=$('live-delay-source')?.value||'local';
+  state.sourceMode=sourceMode;
   if(sourceMode!=='remote'&&!navigator.mediaDevices?.getUserMedia){
     setStatus('<b>Este navegador no permite acceder a la cámara local.</b> Abre Volley Coach mediante HTTPS en un navegador moderno.','bad');state.starting=false;updateUi();return;
   }
@@ -571,6 +672,15 @@ window.startLiveDelay=async function(){
     const captured=await requestStream();
     if(!state.starting){captured?.getTracks?.().forEach(t=>t.stop());return;}
     state.stream=captured;
+    const liveTrack=captured.getVideoTracks?.()[0];
+    if(liveTrack)liveTrack.addEventListener('ended',()=>{
+      if(!state.running||state.recoveryInProgress)return;
+      if(state.autoRecovery){
+        attemptCaptureRecovery('Se perdió la pista de cámara').then(ok=>{
+          if(!ok&&state.running&&state.sourceMode!=='remote')failDelay('La cámara se desconectó y no se pudo restablecer.');
+        });
+      }else failDelay('La cámara ha dejado de enviar vídeo.');
+    },{once:true});
     const lv=live();lv.srcObject=state.stream;lv.muted=true;await lv.play().catch(()=>{});
     if(!state.starting)return;
     const track=state.stream.getVideoTracks()[0];
@@ -614,6 +724,20 @@ window.stopLiveDelay=function(silent=false){
   destroyMse();updateUi();updateMetrics();
   $('live-delay-review-empty')?.classList.remove('hidden');
   if(!silent)setStatus('<b>Live Delay detenido.</b> El búfer temporal se ha eliminado.','');
+};
+window.liveDelaySetQuality=function(value){
+  const selected=Object.hasOwn(QUALITY_PROFILES,value)?value:'balanced';
+  if(state.running||state.starting){
+    setStatus('<b>Detén el delay antes de cambiar la calidad.</b> Así se evita interrumpir el vídeo o el búfer actual.','warn');
+    updateUi();return false;
+  }
+  state.qualityProfile=selected;savePrefs();updateUi();
+  setStatus(`<b>Perfil ${quality().label}.</b> ${state.sourceMode==='remote'?'En remoto modifica el codificador del delay; la calidad que envía el móvil se ajusta en el propio móvil.':'Se aplicará a la próxima captura local.'}`,'good');
+  return true;
+};
+window.liveDelaySetAutoRecovery=function(enabled){
+  state.autoRecovery=enabled!==false;savePrefs();updateUi();
+  setStatus(state.autoRecovery?'<b>Recuperación automática activada.</b> Se intentará restablecer una señal caída; si es necesario, se reconstruirá el búfer.':'<b>Recuperación automática desactivada.</b> Los fallos de señal requerirán intervención manual.','');
 };
 window.liveDelaySetEngine=function(mode){
   const engine=mode==='classic'?'classic':'pro';
@@ -672,7 +796,7 @@ window.liveDelaySetBuffer=function(v){
 };
 window.liveDelayReturn=function(){
   if(!state.running)return;
-  state.mode='delay';updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${delayLabel(state.delay)} del directo.`,'good')
+  state.mode='delay';state.reviewSpeed=1;if(delayed())delayed().playbackRate=1;updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${delayLabel(state.delay)} del directo.`,'good')
 };
 window.liveDelayJump=function(delta){
   if(!state.running)return;
@@ -692,11 +816,47 @@ window.liveDelayReplay=function(seconds){
   updateUi();updateMetrics();
   setStatus(`<b>Repetición.</b> Revisando ${Math.round(seconds)} s anteriores; la cámara sigue capturando.`,'warn')
 };
+window.liveDelayGetReviewTimeline=function(){
+  const r=bufferedRange(),v=delayed();
+  if(!state.running||!r||!v)return {available:false,start:0,end:0,current:0,mode:state.mode};
+  return {available:true,start:r.start,end:r.end,current:Math.max(r.start,Math.min(r.end,Number(v.currentTime)||r.start)),mode:state.mode,playing:!v.paused,speed:Number(v.playbackRate)||1};
+};
+window.liveDelaySeekFraction=function(fraction){
+  if(!state.running)return false;
+  const r=bufferedRange(),v=delayed();if(!r||!v)return false;
+  const f=Math.max(0,Math.min(1,Number(fraction)||0));
+  if(f>=0.998){window.liveDelayReturn();return true}
+  const t=Math.max(r.start,Math.min(r.end-0.25,r.start+f*r.span));
+  if(!Number.isFinite(t))return false;
+  state.mode='review';try{v.currentTime=t;v.playbackRate=state.reviewSpeed||1}catch(_){return false}
+  updateUi();updateMetrics();return true;
+};
+window.liveDelaySetReviewSpeed=function(rate){
+  if(!state.running)return false;
+  const value=Number(rate);
+  if(![.25,.5,.75,1,1.25,1.5,2].includes(value))return false;
+  state.reviewSpeed=value;
+  const v=delayed();if(!v)return false;
+  if(state.mode==='delay')state.mode='review';
+  try{v.playbackRate=value}catch(_){return false}
+  updateUi();updateMetrics();return true;
+};
+window.liveDelayFrameStep=function(dir){
+  if(!state.running)return false;
+  const v=delayed(),r=bufferedRange();if(!v||!r)return false;
+  const fps=Number(state.stream?.getVideoTracks?.()[0]?.getSettings?.().frameRate)||quality().fps||30;
+  // Browser seeks to an approximate decoded frame; exact frame accuracy is
+  // not guaranteed on MediaSource GOP/keyframe boundaries.
+  const step=(dir<0?-1:1)/Math.min(60,Math.max(1,fps));
+  const next=Math.max(r.start,Math.min(r.end-.2,(Number(v.currentTime)||r.start)+step));
+  try{v.pause();v.currentTime=next;v.playbackRate=1}catch(_){return false}
+  state.mode='paused';updateUi();updateMetrics();return true;
+};
 window.liveDelayTogglePause=function(){
   if(!state.running)return;
   const v=delayed();if(!v)return;
   if(state.mode==='paused'||v.paused){
-    state.mode='review';v.playbackRate=1;v.play().catch(()=>{});
+    state.mode='review';v.playbackRate=state.reviewSpeed||1;v.play().catch(()=>{});
   }else{
     state.mode='paused';v.playbackRate=1;v.pause();
   }
@@ -729,9 +889,22 @@ window.liveDelayDiagnostics=function(){
     context:state.context,
     running:state.running,
     mime:state.mime||chooseMime(),
+    qualityProfile:state.qualityProfile,
+    requestedLocalWidth:quality().width,
+    requestedLocalHeight:quality().height,
+    requestedLocalFps:quality().fps,
+    requestedEncoderBitrate:quality().bitrate,
+    sourceMode:state.sourceMode,
+    actualCameraSettings:(()=>{const settings=state.stream?.getVideoTracks?.()[0]?.getSettings?.()||{};return {width:settings.width||null,height:settings.height||null,frameRate:settings.frameRate||null}})(),
+    autoRecovery:state.autoRecovery,
+    captureRestarts:state.captureRestarts,
+    captureRecoveryFailures:state.captureRecoveryFailures,
+    recoveryInProgress:state.recoveryInProgress,
+    lastRecoveryReason:state.lastRecoveryReason||null,
     delaySeconds:state.delay,
     maxBufferSeconds:state.maxBuffer,
     mode:state.mode,
+    reviewSpeed:state.reviewSpeed,
     buffered:r?.span||0,
     actualDelay:r&&v?Math.max(0,r.end-(Number(v.currentTime)||0)):null,
     cameraApi:!!navigator.mediaDevices?.getUserMedia,

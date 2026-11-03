@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.3.0-video-engine-pro';
+const CACHE_NAME = 'volley-coach-v16.0.3.2-review-controls';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",
@@ -39,7 +39,8 @@ const MODULE_ASSETS = [
   "./100-vc159-stats-video-runtime.js",
   "./101-vc160-video-health-module.js",
   "./102-vc1601-analysis-performance.js",
-  "./104-vc16023-analysis-render-guard.js"
+  "./104-vc16023-analysis-render-guard.js",
+  "./105-vc16032-video-review-pro.js"
 ];
 
 const APP_SHELL = [
