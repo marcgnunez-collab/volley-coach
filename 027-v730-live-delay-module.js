@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.0';
+const VERSION='16.0.3.0';
 const $=id=>document.getElementById(id);
 const state={
   context:'training',
@@ -35,7 +35,38 @@ const state={
   quotaFailures:0,
   lastError:'',
   lastBufferEnd:null,
-  stalledSince:0
+  stalledSince:0,
+  playbackStarted:false,
+  lastSeekAt:0,
+  lastPlayAttemptAt:0,
+  seekCorrections:0,
+  playbackWaits:0,
+  playbackRecoveries:0,
+  waitingAt:0,
+  playbackEventsBound:false,
+  // Video Engine Pro is a distinct playback controller sharing the battle-tested
+  // capture/MSE pipeline. Classic stays available as a fallback.
+  engine:'pro',
+  starting:false,
+  engineRecoveryAt:0,
+  lastProgressAt:0,
+  lastProgressPosition:-1,
+  firstFrameAt:0,
+  playbackStallMs:0,
+  waitingStartedAt:0,
+  recoveryAttempts:0,
+  maxAbsDrift:0,
+  sumAbsDrift:0,
+  driftSamples:0,
+  chunkIntervals:[],
+  chunkMaxInterval:0,
+  lastChunkTimestamp:0,
+  droppedBase:0,
+  totalFramesBase:0,
+  droppedFrames:0,
+  totalFrames:0,
+  health:'ESPERANDO',
+  proTickCount:0
 };
 
 function setStatus(text,kind=''){
@@ -67,7 +98,7 @@ function bufferedRange(){
 function savePrefs(){
   try{
     localStorage.setItem('volley_live_delay_v730',JSON.stringify({
-      delay:state.delay,maxBuffer:state.maxBuffer,cameraId:state.lastCameraId
+      delay:state.delay,maxBuffer:state.maxBuffer,cameraId:state.lastCameraId,engine:state.engine
     }));
   }catch(_){}
 }
@@ -79,9 +110,15 @@ function loadPrefs(){
     if(state.delay>=180&&state.maxBuffer<300)state.maxBuffer=300;
     else if(state.delay>=120&&state.maxBuffer<180)state.maxBuffer=180;
     state.lastCameraId=String(x.cameraId||'');
+    state.engine=x.engine==='classic'?'classic':'pro';
   }catch(_){}
 }
 function updateUi(){
+  if($('live-delay-engine')){
+    $('live-delay-engine').value=state.engine;
+    $('live-delay-engine').disabled=state.running||state.starting;
+  }
+  if($('live-delay-engine-label'))$('live-delay-engine-label').textContent=state.engine==='pro'?'ENGINE PRO':'CLÁSICO';
   if($('live-delay-seconds'))$('live-delay-seconds').value=String(state.delay);
   if($('live-delay-buffer'))$('live-delay-buffer').value=String(state.maxBuffer);
   if($('live-delay-review-title'))$('live-delay-review-title').textContent=`Retraso · ${delayLabel(state.delay)}`;
@@ -112,12 +149,74 @@ async function populateCameras(){
     if(state.lastCameraId&&devices.some(d=>d.deviceId===state.lastCameraId))sel.value=state.lastCameraId;
   }catch(_){}
 }
+// A bounded telemetry ring: no video frames or personal data leave the browser.
+function resetProTelemetry(){
+  state.engineRecoveryAt=0;state.lastProgressAt=Date.now();state.lastProgressPosition=-1;
+  state.firstFrameAt=0;state.playbackStallMs=0;state.waitingStartedAt=0;
+  state.recoveryAttempts=0;state.maxAbsDrift=0;state.sumAbsDrift=0;state.driftSamples=0;
+  state.chunkIntervals=[];state.chunkMaxInterval=0;state.lastChunkTimestamp=0;
+  state.droppedBase=0;state.totalFramesBase=0;state.droppedFrames=0;state.totalFrames=0;
+  state.health='ESPERANDO';state.proTickCount=0;
+}
+function recordChunkArrival(){
+  const now=Date.now();
+  if(state.lastChunkTimestamp){
+    const delta=now-state.lastChunkTimestamp;
+    state.chunkIntervals.push(delta);
+    if(state.chunkIntervals.length>90)state.chunkIntervals.shift();
+    state.chunkMaxInterval=Math.max(state.chunkMaxInterval,delta);
+  }
+  state.lastChunkTimestamp=now;
+}
+function playbackQuality(){
+  const v=delayed();
+  try{
+    const q=v?.getVideoPlaybackQuality?.();
+    if(q){
+      const total=Number(q.totalVideoFrames)||0,dropped=Number(q.droppedVideoFrames)||0;
+      if(total<state.totalFramesBase||dropped<state.droppedBase){
+        state.totalFramesBase=0;state.droppedBase=0;
+      }
+      state.totalFrames=Math.max(0,total-state.totalFramesBase);
+      state.droppedFrames=Math.max(0,dropped-state.droppedBase);
+    }
+  }catch(_){}
+}
+function delayHealth(){
+  const r=bufferedRange(),v=delayed(),now=Date.now();
+  if(!state.running)return 'DETENIDO';
+  if(state.mode==='paused')return 'REVISIÓN EN PAUSA';
+  if(state.mode==='review')return 'REVISIÓN MANUAL';
+  if(!r||r.span<Math.max(1.6,state.delay+0.65))return 'CARGANDO BÚFER';
+  if(state.lastChunkAt&&now-state.lastChunkAt>5000)return 'SEÑAL INESTABLE';
+  if(state.waitingAt&&now-state.waitingAt>1000)return 'RECUPERANDO';
+  if(v?.paused||v?.readyState<2)return 'PREPARANDO REPRODUCCIÓN';
+  return 'ESTABLE';
+}
+function updateProMetrics(){
+  playbackQuality();
+  state.health=delayHealth();
+  const mean=state.chunkIntervals.length
+    ?Math.round(state.chunkIntervals.reduce((a,b)=>a+b,0)/state.chunkIntervals.length):0;
+  const stutter=$('live-delay-pro-stutters');
+  if(stutter)stutter.textContent=String(state.playbackWaits);
+  const dropped=$('live-delay-pro-frames');
+  if(dropped)dropped.textContent=state.totalFrames?`${state.droppedFrames}/${state.totalFrames}`:'—';
+  const health=$('live-delay-pro-health');
+  if(health)health.textContent=state.health;
+  const interval=$('live-delay-pro-chunks');
+  if(interval)interval.textContent=mean?`${mean} ms`:'—';
+  const recoveries=$('live-delay-pro-recovery');
+  if(recoveries)recoveries.textContent=String(state.playbackRecoveries);
+}
 function chooseMime(){
   const mr=window.MediaRecorder,ms=window.MediaSource;
   if(!mr||!ms)return '';
+  // VP8 is usually less CPU-intensive for simultaneous WebRTC decode,
+  // MediaRecorder encode and MediaSource playback on ordinary laptops.
   const candidates=[
-    'video/webm;codecs=vp9',
     'video/webm;codecs=vp8',
+    'video/webm;codecs=vp9',
     'video/webm',
     'video/mp4;codecs=avc1.42E01E',
     'video/mp4'
@@ -131,6 +230,7 @@ function destroyMse(){
   const v=delayed();
   try{if(state.sourceBuffer&&state.mediaSource?.readyState==='open')state.mediaSource.endOfStream()}catch(_){}
   state.sourceBuffer=null;state.mediaSource=null;state.appendQueue=[];state.queueBytes=0;state.appendBusy=false;state.prunePending=false;
+  state.playbackStarted=false;state.lastSeekAt=0;state.lastPlayAttemptAt=0;state.waitingAt=0;
   if(v){try{v.pause()}catch(_){};v.removeAttribute('src');try{v.load()}catch(_){}}
   if(state.mediaUrl){try{URL.revokeObjectURL(state.mediaUrl)}catch(_){}state.mediaUrl=null}
 }
@@ -139,7 +239,24 @@ function createMse(){
     const v=delayed();if(!v)return reject(new Error('No existe el reproductor de retraso.'));
     destroyMse();
     const ms=new MediaSource();state.mediaSource=ms;
+    state.droppedBase=0;state.totalFramesBase=0;
     state.mediaUrl=URL.createObjectURL(ms);v.src=state.mediaUrl;v.muted=true;
+    // Attach listeners just once: the media element survives pipeline restarts.
+    if(!state.playbackEventsBound){
+      state.playbackEventsBound=true;
+      for(const name of ['waiting','stalled'])v.addEventListener(name,()=>{
+        if(!state.running||state.mode!=='delay'||!state.playbackStarted)return;
+        // 'waiting' and 'stalled' often fire for the same outage: count once.
+        if(!state.waitingAt){state.playbackWaits++;state.waitingAt=Date.now();}
+      });
+      v.addEventListener('playing',()=>{
+        if(state.waitingAt){
+          state.playbackStallMs+=Date.now()-state.waitingAt;
+          state.waitingAt=0;
+        }
+        if(state.running&&!state.firstFrameAt)state.firstFrameAt=Date.now();
+      });
+    }
     const opened=()=>{
       try{
         const sb=ms.addSourceBuffer(state.mime);
@@ -193,8 +310,13 @@ function pruneBuffer(force=false){
     if(force||end-start>keep+10){
       const cutoff=Math.max(start,end-keep);
       const play=delayed();
-      const safe=Math.min(cutoff,Math.max(start,(play?.currentTime||cutoff)-2));
-      if(safe>start+.5){state.prunePending=true;sb.remove(start,safe)}
+      // Retain at least five seconds behind playback so ongoing decode is not
+      // disturbed while MediaSource is removing old ranges.
+      const playback=Number(play?.currentTime);
+      const safe=Number.isFinite(playback)&&state.playbackStarted
+        ?Math.min(cutoff,Math.max(start,playback-5))
+        :cutoff;
+      if(safe>start+1){state.prunePending=true;sb.remove(start,safe)}
     }
   }catch(_){}
 }
@@ -202,18 +324,120 @@ function targetTime(){
   const r=bufferedRange();if(!r)return null;
   return Math.max(r.start,r.end-state.delay);
 }
-function maintainDelay(force=false){
+function maintainDelayLegacy(force=false){
   if(!state.running||state.mode!=='delay')return;
-  const v=delayed(),r=bufferedRange(),target=targetTime();if(!v||!r||target==null)return;
-  const enough=r.span>=Math.max(1.2,state.delay-.4);
+  const v=delayed(),r=bufferedRange(),rawTarget=targetTime();
+  if(!v||!r||rawTarget==null)return;
+  // Require a little extra material before starting; playing at the very end
+  // of an MSE buffer causes repeated waiting/playing cycles on some browsers.
+  const enough=r.span>=Math.max(1.6,state.delay+0.65);
   $('live-delay-review-empty')?.classList.toggle('hidden',enough);
   if(!enough){setState('live-delay-review-state','CREANDO BÚFER',false);return}
-  setState('live-delay-review-state','RETRASADO',true);
-  const diff=target-(Number(v.currentTime)||0);
-  if(force||v.readyState<2||Math.abs(diff)>1.5){
-    try{v.currentTime=target}catch(_){}
+  const target=Math.max(r.start+0.12,Math.min(r.end-0.45,rawTarget));
+  if(!Number.isFinite(target))return;
+  const now=Date.now(),current=Number(v.currentTime)||0;
+  const diff=target-current;
+  const outOfRange=current<r.start-0.12||current>r.end-0.10;
+  const badlyBehind=Math.abs(diff)>Math.max(5,state.delay*0.35);
+  const stalled=state.waitingAt>0&&now-state.waitingAt>2300&&r.end-current>1.5;
+  const shouldSeek=force||!state.playbackStarted||outOfRange||badlyBehind||stalled;
+  // Do not seek while a previous seek is still decoding, or repeatedly on
+  // every 500ms recorder chunk. The old implementation could seek several
+  // times a second whenever readyState was below HAVE_CURRENT_DATA.
+  if(shouldSeek&&!v.seeking&&(force||!state.playbackStarted||now-state.lastSeekAt>=4000)){
+    try{
+      v.currentTime=target;
+      v.playbackRate=1;
+      state.playbackStarted=true;
+      state.lastSeekAt=now;
+      state.seekCorrections++;
+      if(stalled)state.playbackRecoveries++;
+      state.waitingAt=0;
+    }catch(err){console.warn('Live Delay seek',err)}
+  }else if(state.playbackStarted&&!v.seeking){
+    // Minor drift is corrected by slightly varying playback speed instead of
+    // jumping the playhead and interrupting decoding/keyframe acquisition.
+    const rate=Math.abs(diff)<0.35?1:Math.abs(diff)<1.1
+      ?(diff>0?1.035:0.965):(diff>0?1.065:0.94);
+    if(Math.abs((Number(v.playbackRate)||1)-rate)>0.005)v.playbackRate=rate;
   }
-  if(v.paused)v.play().catch(()=>{});
+  if(v.paused&&!v.seeking&&now-state.lastPlayAttemptAt>=800){
+    state.lastPlayAttemptAt=now;
+    v.play().catch(()=>{});
+  }
+  setState('live-delay-review-state',state.waitingAt&&now-state.waitingAt>1000?'RECUPERANDO':'RETRASADO',true);
+}
+
+// Pro controller: choose one stable target; gently correct drift. A seek is
+// reserved for initial acquisition, a true out-of-range position, or a long
+// verified stall. No second pipeline is created and REC is never touched.
+function maintainDelayPro(force=false){
+  if(!state.running||state.mode!=='delay')return;
+  const v=delayed(),r=bufferedRange();
+  if(!v||!r)return;
+  const margin=state.delay<=5?0.38:0.52;
+  const enough=r.span>=Math.max(1.8,state.delay+0.85);
+  $('live-delay-review-empty')?.classList.toggle('hidden',enough);
+  if(!enough){
+    setState('live-delay-review-state','CREANDO BÚFER',false);
+    state.health='CARGANDO BÚFER';return;
+  }
+  const now=Date.now();
+  const target=Math.max(r.start+0.15,Math.min(r.end-margin,r.end-state.delay));
+  const current=Number(v.currentTime)||0;
+  if(!Number.isFinite(target))return;
+  const diff=target-current;
+  const abs=Math.abs(diff);
+  state.driftSamples++;
+  state.sumAbsDrift+=abs;state.maxAbsDrift=Math.max(state.maxAbsDrift,abs);
+  if(!v.seeking&&current>state.lastProgressPosition+0.05){
+    state.lastProgressPosition=current;
+    state.lastProgressAt=now;
+  }
+  const outOfRange=current<r.start-0.1||current>r.end-0.18;
+  // Detect lack of progress only when enough buffered material is *ahead*.
+  const noProgress=state.playbackStarted&&!v.seeking&&!v.paused
+    &&now-state.lastProgressAt>3500&&r.end-current>1.7;
+  const bufferedStall=state.waitingAt>0&&now-state.waitingAt>2800&&r.end-current>1.7;
+  const seriousDrift=abs>Math.max(5,state.delay*.55);
+  const initial=!state.playbackStarted;
+  const seekNeeded=initial||outOfRange||seriousDrift||bufferedStall||noProgress;
+  const cooldown=initial?0:5000;
+  if(seekNeeded&&!v.seeking&&(initial||now-state.lastSeekAt>=cooldown)){
+    try{
+      // Don't attempt to seek into future, and keep a media decoding margin.
+      v.currentTime=target;
+      v.playbackRate=1;
+      state.playbackStarted=true;
+      state.lastSeekAt=now;
+      state.lastProgressAt=now;
+      state.lastProgressPosition=target;
+      state.seekCorrections++;
+      if(!initial&&(bufferedStall||noProgress)){
+        state.playbackRecoveries++;state.recoveryAttempts++;
+        state.engineRecoveryAt=now;
+      }
+      if(state.waitingAt){
+        state.playbackStallMs+=now-state.waitingAt;
+        state.waitingAt=0;
+      }
+    }catch(err){console.warn('Video Engine Pro seek',err)}
+  }else if(state.playbackStarted&&!v.seeking){
+    // Hysteresis avoids oscillating between faster/slower playback.
+    // Maximum ±8% correction is intentionally imperceptible for review.
+    let wanted=1;
+    if(abs>0.38)wanted=Math.max(.93,Math.min(1.08,1+diff*.035));
+    if(Math.abs((Number(v.playbackRate)||1)-wanted)>.009)v.playbackRate=wanted;
+  }
+  if(v.paused&&!v.seeking&&now-state.lastPlayAttemptAt>=1200){
+    state.lastPlayAttemptAt=now;
+    v.play().catch(()=>{});
+  }
+  setState('live-delay-review-state',state.waitingAt&&now-state.waitingAt>1000?'RECUPERANDO':'RETRASADO',true);
+}
+function maintainDelay(force=false){
+  if(state.engine==='pro')maintainDelayPro(force);
+  else maintainDelayLegacy(force);
 }
 function updateMetrics(){
   const r=bufferedRange(),v=delayed();
@@ -223,9 +447,10 @@ function updateMetrics(){
     $('live-delay-actual').textContent=actual==null?'—':fmtSec(actual);
   }
   if(state.running&&r){
-    const enough=r.span>=Math.max(1.2,state.delay-.4);
+    const enough=r.span>=Math.max(1.6,state.delay+.65);
     $('live-delay-review-empty')?.classList.toggle('hidden',enough);
   }
+  updateProMetrics();
 }
 function startTicker(){
   stopTicker();
@@ -239,7 +464,7 @@ function startTicker(){
       setState('live-delay-review-state','SEÑAL INESTABLE',false);
       setStatus('<b>La cámara no entrega fragmentos nuevos.</b> Revisando conexión; no se descartan fotogramas sin avisar.','warn');
     }
-  },1000);
+  },state.engine==='pro'?500:1000);
 }
 function stopTicker(){if(state.timer){clearInterval(state.timer);state.timer=null}}
 async function requestStream(){
@@ -286,8 +511,13 @@ async function startRecorder(){
     delayed()?.removeAttribute('data-vc-normalized-delay');
   }
 
-  const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:2500000}:{videoBitsPerSecond:2500000};
-  const rec=new MediaRecorder(recorderStream,options);state.recorder=rec;
+  // Encoding a normalized mobile camera and decoding the delayed stream are
+  // simultaneous; use a moderate bitrate to protect CPU and append latency.
+  const options=state.mime?{mimeType:state.mime,videoBitsPerSecond:2000000}:{videoBitsPerSecond:2000000};
+  let rec;
+  try{rec=new MediaRecorder(recorderStream,{...options,videoKeyFrameIntervalDuration:1000})}
+  catch(_){rec=new MediaRecorder(recorderStream,options)}
+  state.recorder=rec;
   rec.addEventListener('dataavailable',e=>{
     if(!state.running||!e.data||!e.data.size)return;
     const generation=state.generation;
@@ -310,9 +540,10 @@ async function startRecorder(){
       state.appendQueue.push(ab);
       state.queueBytes+=ab.byteLength;
       state.chunkCount++;
+      recordChunkArrival();
       state.lastChunkAt=Date.now();
       appendNext();
-    }).catch(err=>{console.error('Live Delay chunk',err);if(generation===state.generation)failDelay('No se ha podido leer un fragmento de la cámara.')});
+    }).catch(err=>{console.error('Live Delay chunk',err);if(generation===state.generation){state.pendingBlobBytes=0;failDelay('No se ha podido leer un fragmento de la cámara.')}});
   });
   rec.addEventListener('error',e=>{
     console.error('Live Delay recorder',e);
@@ -324,33 +555,42 @@ async function startRecorder(){
   rec.start(500);
 }
 window.startLiveDelay=async function(){
-  if(state.running)return;
+  if(state.running||state.starting)return;
+  state.starting=true;
+  updateUi();
   const sourceMode=$('live-delay-source')?.value||'local';
   if(sourceMode!=='remote'&&!navigator.mediaDevices?.getUserMedia){
-    setStatus('<b>Este navegador no permite acceder a la cámara local.</b> Abre Volley Coach mediante HTTPS en un navegador moderno.','bad');return;
+    setStatus('<b>Este navegador no permite acceder a la cámara local.</b> Abre Volley Coach mediante HTTPS en un navegador moderno.','bad');state.starting=false;updateUi();return;
   }
   state.mime=chooseMime();
   if(!state.mime){
-    setStatus('<b>Live Delay no está disponible en este navegador.</b> Se necesita MediaRecorder + MediaSource compatibles. En Windows, usa Chrome o Edge actualizados.','bad');return;
+    setStatus('<b>Live Delay no está disponible en este navegador.</b> Se necesita MediaRecorder + MediaSource compatibles. En Windows, usa Chrome o Edge actualizados.','bad');state.starting=false;updateUi();return;
   }
   try{
     setStatus(sourceMode==='remote'?'<b>Conectando con el móvil…</b> Usando la señal WebRTC recibida.':'<b>Solicitando cámara…</b> Acepta el permiso del navegador.','warn');
-    state.stream=await requestStream();
+    const captured=await requestStream();
+    if(!state.starting){captured?.getTracks?.().forEach(t=>t.stop());return;}
+    state.stream=captured;
     const lv=live();lv.srcObject=state.stream;lv.muted=true;await lv.play().catch(()=>{});
+    if(!state.starting)return;
     const track=state.stream.getVideoTracks()[0];
     if(sourceMode!=='remote'){
       state.lastCameraId=track?.getSettings?.().deviceId||$('live-delay-camera')?.value||'';
       await populateCameras();
+      if(!state.starting)return;
       if(state.lastCameraId&&$('live-delay-camera'))$('live-delay-camera').value=state.lastCameraId;
     }
     savePrefs();
     state.generation++;
     state.chunkSerial=Promise.resolve();
     state.queueBytes=0;state.pendingBlobBytes=0;state.chunkCount=0;state.quotaFailures=0;state.lastChunkAt=0;state.lastError='';
+    state.seekCorrections=0;state.playbackWaits=0;state.playbackRecoveries=0;
+    resetProTelemetry();
     await createMse();
+    if(!state.starting){destroyMse();return;}
     state.running=true;state.mode='delay';state.streamStartedAt=Date.now();
-    await startRecorder();startTicker();updateUi();updateMetrics();
-    setStatus(`<b>Live Delay activo.</b> Fuente: ${sourceMode==='remote'?'LIVE móvil WebRTC':'cámara local'} · ${delayLabel(state.delay)} de retraso · búfer ${delayLabel(state.maxBuffer)}. El Delay es solo monitor/replay; la grabación REC sigue tomando LIVE directo.`, 'good');
+    await startRecorder();state.starting=false;startTicker();updateUi();updateMetrics();
+    setStatus(`<b>Live Delay activo · ${state.engine==='pro'?'Engine Pro':'motor clásico'}.</b> Fuente: ${sourceMode==='remote'?'LIVE móvil WebRTC':'cámara local'} · ${delayLabel(state.delay)} de retraso · búfer ${delayLabel(state.maxBuffer)}. La grabación REC sigue tomando LIVE directo.`, 'good');
   }catch(err){
     console.error('Live Delay start',err);
     stopLiveDelay(true);
@@ -359,7 +599,7 @@ window.startLiveDelay=async function(){
   }
 };
 window.stopLiveDelay=function(silent=false){
-  stopTicker();state.running=false;state.generation++;state.pendingBlobBytes=0;state.mode='delay';
+  stopTicker();state.starting=false;state.running=false;state.generation++;state.pendingBlobBytes=0;state.mode='delay';
   try{state.recorder?.stop()}catch(_){}
   state.recorder=null;
   try{window.VC_REMOTE_CAMERA?.stopDelayNormalizedStream?.()}catch(_){}
@@ -374,6 +614,41 @@ window.stopLiveDelay=function(silent=false){
   destroyMse();updateUi();updateMetrics();
   $('live-delay-review-empty')?.classList.remove('hidden');
   if(!silent)setStatus('<b>Live Delay detenido.</b> El búfer temporal se ha eliminado.','');
+};
+window.liveDelaySetEngine=function(mode){
+  const engine=mode==='classic'?'classic':'pro';
+  if(state.running||state.starting){
+    setStatus('<b>Detén Live Delay para cambiar de motor.</b> REC puede continuar grabando de forma independiente.','warn');
+    updateUi();return;
+  }
+  state.engine=engine;savePrefs();updateUi();updateProMetrics();
+  setStatus(engine==='pro'
+    ?'<b>Engine Pro seleccionado.</b> Control suave del retraso, monitorización de cortes y recuperación supervisada.'
+    :'<b>Motor clásico seleccionado.</b> Conserva el comportamiento de reproducción de la V16.0.2.9.','good');
+};
+window.liveDelayCopyDiagnostics=async function(){
+  // Deliberately exclude pairing URLs, session identifiers and camera device IDs.
+  const report={capturedAt:new Date().toISOString(),source:$('live-delay-source')?.value||'local',delay:window.liveDelayDiagnostics?.()};
+  const contents=JSON.stringify(report,null,2);
+  try{
+    if(!navigator.clipboard?.writeText)throw new Error('clipboard');
+    await navigator.clipboard.writeText(contents);
+    setStatus('<b>Diagnóstico copiado.</b> Puedes pegarlo aquí para analizar los tirones.','good');
+  }catch(_){
+    try{
+      const box=document.createElement('textarea');box.value=contents;box.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+      document.body.appendChild(box);box.select();
+      const ok=document.execCommand?.('copy');box.remove();
+      if(!ok)throw new Error('copy');
+      setStatus('<b>Diagnóstico copiado.</b> Pégalo en el chat.','good');
+    }catch(_){setStatus('<b>No se pudo copiar automáticamente.</b> Consulta los datos en la consola con liveDelayDiagnostics().','warn')}
+  }
+  return contents;
+};
+window.liveDelayRecoverPlayback=function(){
+  if(!state.running)return;
+  state.mode='delay';updateUi();maintainDelay(true);
+  setStatus('<b>Recuperación solicitada.</b> Se ha intentado volver a la posición de retraso sin detener la captura.','warn');
 };
 window.liveDelaySetDelay=function(v){
   const n=Math.max(1,Math.min(180,Number(v)||10));
@@ -404,7 +679,7 @@ window.liveDelayJump=function(delta){
   const v=delayed(),r=bufferedRange();if(!v||!r)return;
   state.mode='review';
   const next=Math.max(r.start,Math.min(r.end-.05,(Number(v.currentTime)||r.end-state.delay)+Number(delta||0)));
-  try{v.currentTime=next;v.play().catch(()=>{})}catch(_){}
+  try{v.playbackRate=1;v.currentTime=next;v.play().catch(()=>{})}catch(_){}
   updateUi();updateMetrics()
 };
 window.liveDelayReplay=function(seconds){
@@ -413,7 +688,7 @@ window.liveDelayReplay=function(seconds){
   state.mode='review';
   const base=Math.max(r.start,r.end-state.delay);
   const start=Math.max(r.start,base-Math.max(1,Number(seconds)||5));
-  try{v.currentTime=start;v.play().catch(()=>{})}catch(_){}
+  try{v.playbackRate=1;v.currentTime=start;v.play().catch(()=>{})}catch(_){}
   updateUi();updateMetrics();
   setStatus(`<b>Repetición.</b> Revisando ${Math.round(seconds)} s anteriores; la cámara sigue capturando.`,'warn')
 };
@@ -421,9 +696,9 @@ window.liveDelayTogglePause=function(){
   if(!state.running)return;
   const v=delayed();if(!v)return;
   if(state.mode==='paused'||v.paused){
-    state.mode='review';v.play().catch(()=>{});
+    state.mode='review';v.playbackRate=1;v.play().catch(()=>{});
   }else{
-    state.mode='paused';v.pause();
+    state.mode='paused';v.playbackRate=1;v.pause();
   }
   updateUi();updateMetrics()
 };
@@ -439,8 +714,8 @@ window.openLiveDelay=async function(context='training'){
 };
 window.closeLiveDelay=function(){
   $('live-delay-modal')?.classList.remove('open');
-  if(state.running){
-    // Se detiene al cerrar para no dejar la cámara activa accidentalmente.
+  if(state.running||state.starting){
+    // Closing during the permission prompt must cancel a pending capture too.
     stopLiveDelay(true);
   }
 };
@@ -448,6 +723,9 @@ window.liveDelayDiagnostics=function(){
   const r=bufferedRange(),v=delayed();
   return {
     version:VERSION,
+    engine:state.engine,
+    engineLabel:state.engine==='pro'?'Video Engine Pro':'Motor clásico',
+    starting:state.starting,
     context:state.context,
     running:state.running,
     mime:state.mime||chooseMime(),
@@ -465,6 +743,22 @@ window.liveDelayDiagnostics=function(){
     chunksReceived:state.chunkCount,
     lastChunkAgeMs:state.lastChunkAt?Date.now()-state.lastChunkAt:null,
     interruptions:state.overloads,
+    seekCorrections:state.seekCorrections,
+    playbackWaits:state.playbackWaits,
+    playbackRecoveries:state.playbackRecoveries,
+    recoveryAttempts:state.recoveryAttempts,
+    stallDurationMs:state.playbackStallMs+(state.waitingAt?Date.now()-state.waitingAt:0),
+    droppedFrames:state.totalFrames?state.droppedFrames:null,
+    decodedFrames:state.totalFrames||null,
+    chunkMeanIntervalMs:state.chunkIntervals.length
+      ?Math.round(state.chunkIntervals.reduce((a,b)=>a+b,0)/state.chunkIntervals.length):null,
+    chunkMaxIntervalMs:state.chunkIntervals.length?Math.max(...state.chunkIntervals):null,
+    meanAbsoluteDriftSeconds:state.driftSamples?Number((state.sumAbsDrift/state.driftSamples).toFixed(2)):null,
+    maxAbsoluteDriftSeconds:state.driftSamples?Number(state.maxAbsDrift.toFixed(2)):null,
+    health:state.health,
+    playbackRate:Number(v?.playbackRate)||1,
+    playbackReadyState:v?.readyState??null,
+    seeking:!!v?.seeking,
     error:state.lastError||null
   };
 };

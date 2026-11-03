@@ -2117,7 +2117,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <div class="v800-chips"><span id="v800-lineup-health">Alineación —</span><span id="v800-rally-chip">Rally —</span></div>
             </div>
             <div class="v800-courts v112-courts">
-              <div><span class="v800-court-label">NUESTRO EQUIPO</span><div id="v800-court-own" class="v800-court"></div></div>
+              <div><span class="v800-court-label">NUESTRO EQUIPO</span><div id="v800-court-own" class="v800-court"></div><div id="v800-libero-assignments" aria-live="polite"></div></div>
               <div><span class="v800-court-label">RIVAL</span><div id="v800-court-rival" class="v800-court rival"></div></div>
             </div>
             <div id="v850-lineup-guard" class="v850-lineup-guard">
@@ -2931,7 +2931,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div class="pro-modal-card live-delay-card">
     <div class="pro-modal-head">
       <div>
-        <span class="pro-kicker">V7.9 · SEASON ANALYTICS + BACKUP</span>
+        <span class="pro-kicker">V16.0.3.0 · VIDEO ENGINE PRO</span>
         <h2>Vídeo en directo con retraso</h2>
         <p id="live-delay-subtitle">Captura la cámara y revisa la acción unos segundos después sin detener la grabación.</p>
       </div>
@@ -2975,6 +2975,13 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <option value="180">3 min</option>
           <option value="300">5 min</option>
           <option value="600">10 min</option>
+        </select>
+      </label>
+      <label class="live-delay-field live-delay-engine-choice">
+        <span>Motor de reproducción</span>
+        <select id="live-delay-engine" onchange="liveDelaySetEngine(this.value)">
+          <option value="pro">Engine Pro</option>
+          <option value="classic">Motor clásico</option>
         </select>
       </label>
       <div class="live-delay-main-actions">
@@ -3092,6 +3099,23 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <div><span>Modo</span><b id="live-delay-mode">Delay</b><small id="live-delay-mode-note">seguimiento automático</small></div>
       <div><span>Contexto</span><b id="live-delay-context">Entrenamiento</b><small id="live-delay-context-note">corrección técnica</small></div>
     </div>
+
+    <section class="vc-video-pro-health" aria-label="Diagnóstico de Video Engine Pro">
+      <div class="vc-video-pro-head"><strong>VIDEO ENGINE <span id="live-delay-engine-label">ENGINE PRO</span></strong>
+        <div class="vc-video-pro-actions">
+          <button class="ghost" type="button" onclick="liveDelayRecoverPlayback()">Recuperar delay</button>
+          <button class="ghost" type="button" onclick="liveDelayCopyDiagnostics()">Copiar diagnóstico Pro</button>
+        </div>
+      </div>
+      <div class="vc-video-pro-grid">
+        <div><small>Estado</small><b id="live-delay-pro-health">ESPERANDO</b></div>
+        <div><small>Interrupciones</small><b id="live-delay-pro-stutters">0</b></div>
+        <div><small>Fotogramas perdidos</small><b id="live-delay-pro-frames">—</b></div>
+        <div><small>Intervalo de fragmentos</small><b id="live-delay-pro-chunks">—</b></div>
+        <div><small>Recuperaciones</small><b id="live-delay-pro-recovery">0</b></div>
+      </div>
+      <small class="vc-video-pro-hint">El vídeo se procesa en este navegador. Engine Pro puede reducir los tirones, pero el resultado depende de la señal del móvil y la potencia del equipo. Si falla, detén el Delay y elige Motor clásico.</small>
+    </section>
 
     <section id="vc-recording-studio" class="vc-recording-studio">
       <div class="vc-recording-head">
@@ -5501,7 +5525,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=16.0.2.7" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=16.0.2.8" data-vc-module="true"></script>
 
 
 
@@ -5710,10 +5734,27 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 .vc160-health-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px;font-size:10px;line-height:1.5}
 .vc160-health small{display:block;margin-top:7px;color:#566f84;font-size:9px}
 @media(max-width:600px){.vc160-health-grid{grid-template-columns:1fr}}
+/* V16.0.3.0: toolbar with explicit classic fallback, conservative on mobile. */
+.live-delay-toolbar{grid-template-columns:minmax(170px,1.4fr) minmax(100px,1fr) minmax(90px,0.6fr) minmax(100px,0.7fr) minmax(140px,1fr) auto}
+.live-delay-engine-choice select{font-weight:700;background:#edf5fb!important;border-color:#c7d9eb!important}
+.vc-video-pro-health{margin:10px 0 13px;border:1px solid #cddfeb;border-radius:11px;padding:11px 12px;background:#f5f9fc;color:#183650}
+.vc-video-pro-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.vc-video-pro-head strong{font-size:11px;letter-spacing:.03em}
+.vc-video-pro-head strong span{color:#2c6799}
+.vc-video-pro-actions{display:flex;gap:6px;flex-wrap:wrap}
+.vc-video-pro-actions button{font-size:9px!important;padding:6px 8px!important}
+.vc-video-pro-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.vc-video-pro-grid>div{background:white;border:1px solid #dae5ed;border-radius:8px;padding:8px;min-width:0}
+.vc-video-pro-grid small{display:block;color:#62798c;font-size:9px;margin-bottom:4px}
+.vc-video-pro-grid b{display:block;color:#17324d;font-size:12px;overflow-wrap:anywhere}
+.vc-video-pro-hint{display:block;margin-top:8px;font-size:9px;color:#607789;line-height:1.5}
+@media(max-width:1100px){.live-delay-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}.live-delay-main-actions{justify-content:flex-end}}
+@media(max-width:650px){.live-delay-toolbar{grid-template-columns:1fr 1fr}.live-delay-field.source{grid-column:1/-1}.live-delay-main-actions{grid-column:1/-1}.vc-video-pro-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.live-delay-toolbar{grid-template-columns:1fr}.live-delay-field.source,.live-delay-main-actions{grid-column:auto}}
 </style>
 
 
-<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.3.0" data-vc-module="true"></script>
 
 
 
@@ -6877,7 +6918,7 @@ body.v781-tv-lock{overflow:hidden!important}
 </style>
 
 
-<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.7" data-vc-module="true"></script>
+<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.8" data-vc-module="true"></script>
 
 
 
@@ -12010,14 +12051,36 @@ body.v11-shell #scouting{display:none!important}
   </div>
 </div>
 
+<style id="vc16028-lineup-court-style">
+/* V16.0.2.8: order lineup selectors by actual volleyball court zones. */
+#v119-lineup-modal .v119-lineup-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"p4 p3 p2" "p5 p6 p1";gap:7px;padding:12px;background:linear-gradient(to bottom,#eef5f3 0 50%,#e5f0ec 50% 100%)}
+#v119-lineup-modal .v119-lineup-cell{min-width:0;padding:7px 5px}
+#v119-lineup-modal .v119-lineup-cell select,#v119-lineup-modal .v119-lineup-cell input{width:100%;min-width:0;text-overflow:ellipsis}
+#v119-lineup-modal .v119-lineup-cell[data-pos="p1"]{grid-area:p1}
+#v119-lineup-modal .v119-lineup-cell[data-pos="p2"]{grid-area:p2}
+#v119-lineup-modal .v119-lineup-cell[data-pos="p3"]{grid-area:p3}
+#v119-lineup-modal .v119-lineup-cell[data-pos="p4"]{grid-area:p4}
+#v119-lineup-modal .v119-lineup-cell[data-pos="p5"]{grid-area:p5}
+#v119-lineup-modal .v119-lineup-cell[data-pos="p6"]{grid-area:p6}
+#v119-lineup-modal .v119-lineup-cell>strong{font-size:10px}
+#scout-match-mode .v800-court .v800-pos.v800-libero-active{background:#126c66;outline:2px solid #bce8d5;outline-offset:-2px}
+#scout-match-mode .v800-court .v800-pos{min-width:0;overflow:hidden}
+#scout-match-mode .v800-court .v800-pos b{overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:clamp(7px,.85vw,11px)}
+#scout-match-mode .v800-court .v800-pos small{font-size:clamp(6px,.7vw,9px)}
+#v800-libero-assignments{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;font-size:9px;color:#3b5566}
+#v800-libero-assignments .v16028-assignment{display:inline-flex;gap:5px;align-items:center;background:#edf4f7;padding:5px 7px;border:1px solid #d4e3e9;border-radius:7px}
+#v800-libero-assignments .v16028-assignment.active{background:#e4f5ed;border-color:#aad9bf;color:#246549;font-weight:700}
+#v800-libero-assignments .v16028-assignment.pending{background:#fff4dc;border-color:#e6c989;color:#805921}
+@media(max-width:600px){#v119-lineup-modal .v119-lineup-cells{gap:4px;padding:5px}#v119-lineup-modal .v119-lineup-cell{padding:6px 3px}#v119-lineup-modal .v119-lineup-cell select,#v119-lineup-modal .v119-lineup-cell input{font-size:9px;padding:5px 2px}#scout-match-mode .v800-court .v800-pos b{font-size:8px}}
+</style>
 <div id="v119-lineup-modal" class="v119-modal" onclick="if(event.target===this)v119CloseLineup()">
   <div class="v119-modal-card">
     <div class="v119-modal-head"><div><span class="pro-kicker">ALINEACIÓN · SCOUTING PRO</span><h2>Seis en pista y rotaciones</h2><p>La alineación se guarda directamente en el partido activo.</p></div><button class="ghost" onclick="v119CloseLineup()">Cerrar ×</button></div>
     <div class="v119-modal-body">
       <div id="v119-lineup-info" class="v119-info-strip"></div>
       <div class="v119-lineup-grid">
-        <section class="v119-lineup-team"><header><b id="v119-lineup-own-name">Nuestro equipo</b><small>P1–P6 · jugadores rotacionales</small></header><div id="v119-lineup-own" class="v119-lineup-cells"></div></section>
-        <section class="v119-lineup-team"><header><b id="v119-lineup-rival-name">Rival</b><small>Etiqueta y rol del rival</small></header><div id="v119-lineup-rival" class="v119-lineup-cells"></div></section>
+        <section class="v119-lineup-team"><header><b id="v119-lineup-own-name">Nuestro equipo</b><small>P4 · P3 · P2 (delantera) / P5 · P6 · P1 (zaguera)</small></header><div id="v119-lineup-own" class="v119-lineup-cells"></div></section>
+        <section class="v119-lineup-team"><header><b id="v119-lineup-rival-name">Rival</b><small>Pista: P4–P3–P2 / P5–P6–P1 · etiqueta y rol</small></header><div id="v119-lineup-rival" class="v119-lineup-cells"></div></section>
       </div>
       <div class="v119-lineup-bottom">
         <label><span>Rotación nuestra</span><select id="v119-lineup-rotation"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
@@ -12181,9 +12244,9 @@ window.v119OpenLineup=function(){
   try{window.VC_SCOUT_VIDEO_BRIDGE?.prepareProMatch?.(m)}catch(_){}
   const own=$('v119-lineup-own'),rival=$('v119-lineup-rival'),pl=players(),base=m.baseLineup||m.lineup||{};
   $('v119-lineup-own-name').textContent=teamName();$('v119-lineup-rival-name').textContent=m.opponent||'Rival';
-  if(own)own.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador</span><select id="v119-own-${pos}" onchange="v119RefreshCentrals()"><option value="">— Sin asignar —</option>${pl.map(p=>`<option value="${Number(p.id)}" ${Number(base?.ours?.[pos])===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}</select></label><small style="font-size:6.5px;color:#84939c">${esc(roleFor(base?.ours?.[pos])||'')}</small></div>`).join('');
+  if(own)own.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell" data-pos="${pos}"><strong>${pos.toUpperCase()}</strong><label><span>Jugador</span><select id="v119-own-${pos}" onchange="v119RefreshCentrals()"><option value="">— Sin asignar —</option>${pl.map(p=>`<option value="${Number(p.id)}" ${Number(base?.ours?.[pos])===Number(p.id)?'selected':''}>${esc(playerLabel(p))}</option>`).join('')}</select></label><small style="font-size:6.5px;color:#84939c">${esc(roleFor(base?.ours?.[pos])||'')}</small></div>`).join('');
   const roles=['','Colocador','Receptor','Central','Opuesto','Líbero','Universal'];
-  if(rival)rival.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell"><strong>${pos.toUpperCase()}</strong><label><span>Jugador rival</span><input id="v119-rival-${pos}" value="${esc(base?.opponent?.[pos]||m.lineup?.opponent?.[pos]||'')}" placeholder="#7 · Nombre"></label><label><span>Rol</span><select id="v119-rival-role-${pos}">${roles.map(r=>`<option value="${esc(r)}" ${String(m.lineupRoles?.opponent?.[pos]||'')===r?'selected':''}>${esc(r||'— Rol —')}</option>`).join('')}</select></label></div>`).join('');
+  if(rival)rival.innerHTML=POS.map(pos=>`<div class="v119-lineup-cell" data-pos="${pos}"><strong>${pos.toUpperCase()}</strong><label><span>Jugador rival</span><input id="v119-rival-${pos}" value="${esc(base?.opponent?.[pos]||m.lineup?.opponent?.[pos]||'')}" placeholder="#7 · Nombre"></label><label><span>Rol</span><select id="v119-rival-role-${pos}">${roles.map(r=>`<option value="${esc(r)}" ${String(m.lineupRoles?.opponent?.[pos]||'')===r?'selected':''}>${esc(r||'— Rol —')}</option>`).join('')}</select></label></div>`).join('');
   $('v119-lineup-rotation').value=String(m.rotationNo||1);$('v119-lineup-rival-rotation').value=String(m.opponentRotationNo||1);
   const lib=$('v119-lineup-libero');if(lib){const pLibs=window.VC_TEAM_PROFILE?.get?.()?.liberoIds||[];
     const configured=new Set(pLibs.map(Number));
@@ -12340,7 +12403,7 @@ window.VC_V119={version:VERSION,refresh:renderPicker,active,save:window.v119Save
   </div>
 </div>
 
-<script id="v120-native-management-script" src="./070-v120-native-management-script.js?v=16.0.2.7" data-vc-module="true"></script>
+<script id="v120-native-management-script" src="./070-v120-native-management-script.js?v=16.0.2.8" data-vc-module="true"></script>
 
 
 
