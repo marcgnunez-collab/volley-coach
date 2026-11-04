@@ -16552,4 +16552,272 @@ body.v11-shell .v11-brand small::after{content:" · V16.0.5.4.1"!important}
 })();
 
 </script>
+<style id="vc16055-unified-design">
+/* Volley Coach V16.0.5.5 · Professional Design across every app area.
+   Visual-only rules. No data, score, video playback or sync logic is changed. */
+body.v11-shell{
+  --vc55-navy:#102744;--vc55-deep:#0b1e35;--vc55-blue:#2060b4;--vc55-blue-dark:#174d96;
+  --vc55-text:#152d4b;--vc55-muted:#667e98;--vc55-line:#dce6f1;
+  --vc55-canvas:#f3f6fa;--vc55-surface:#fff;--vc55-soft:#f8fafd;
+  --vc55-radius:14px;--vc55-shadow:0 5px 22px rgba(19,45,77,.055);
+  color:var(--vc55-text)!important;background:var(--vc55-canvas)!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+}
+/* Single navigation identity regardless of which module is open. */
+body.v11-shell #v11-sidebar{
+  background:linear-gradient(165deg,#102845 0%,#0b1d35 100%)!important;
+  color:#eaf2ff!important;border-right:1px solid #294462!important;
+  box-shadow:3px 0 24px rgba(11,25,42,.10)!important;
+}
+body.v11-shell #v11-sidebar .v11-logo{
+  background:linear-gradient(135deg,#2270d0,#0e3d78)!important;color:#fff!important;border:1px solid #3a71b2!important;
+}
+body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
+body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.5"!important}
+body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
+body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
+body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}
+body.v11-shell #v11-sidebar button:not(.active):not(.selected) b{color:#e6f0ff!important}
+body.v11-shell #v11-sidebar button:not(.active):not(.selected) small{color:#a7bdd8!important}
+body.v11-shell #v11-sidebar button.active,body.v11-shell #v11-sidebar button.selected{background:#2359a9!important;border-color:#3d72bf!important;color:#fff!important;box-shadow:inset 3px 0 #73c2ff!important}
+body.v11-shell #v11-sidebar button.active b,body.v11-shell #v11-sidebar button.active small,
+body.v11-shell #v11-sidebar button.selected b,body.v11-shell #v11-sidebar button.selected small{color:#fff!important}
+body.v11-shell #v11-sidebar button:hover:not(.active):not(.selected){background:#193a5b!important;color:#fff!important}
+body.v11-shell #v11-sidebar .v11-sidebar-footer{border-color:#344d6a!important}
+body.v11-shell #v11-sidebar .v11-team-box{background:#172f4d!important;border:1px solid #3a536f!important;color:#eef5ff!important;border-radius:11px!important}
+body.v11-shell #v11-sidebar .v11-team-box span,body.v11-shell #v11-sidebar .v11-team-box b{color:#e9f3ff!important}
+body.v11-shell #v11-sidebar .v11-cloud-status{background:#152c49!important;color:#edf6ff!important;border:1px solid #3b5573!important;border-radius:12px!important}
+/* Top chrome: this is deliberately global, not tied to the match route. */
+body.v11-shell #v11-topbar{background:rgba(255,255,255,.98)!important;border-bottom:1px solid var(--vc55-line)!important;box-shadow:0 2px 12px rgba(16,35,66,.035)!important}
+body.v11-shell #v11-topbar .v11-topbar-left h1{color:var(--vc55-text)!important;font-weight:850!important;letter-spacing:-.03em!important}
+body.v11-shell #v11-topbar #v11-breadcrumb{color:#63809d!important;font-weight:800!important;letter-spacing:.085em!important}
+body.v11-shell #v11-topbar .v11-icon-button,body.v11-shell #v11-topbar .v11-avatar{border-color:#d6e2ef!important;background:#f6f9fd!important;color:#164a7b!important}
+body.v11-shell #v11-main{background:var(--vc55-canvas)!important}
+body.v11-shell #v11-main > section.view:not(#scouting){min-width:0!important}
+body.v11-shell #v11-main > section.view.active{max-width:1900px!important;margin-inline:auto!important}
+body.v11-shell #v11-main > section.view:not(#scout-match-mode) :where(h2,h3){letter-spacing:-.023em}
+/* Clear module headers and deliberate, consistent vertical rhythm. */
+body.v11-shell #v11-main :is(.v11-page-head,.v118-scout-head,.scout-analysis-header,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row){
+  background:linear-gradient(128deg,#fff 0%,#fff 76%,#f0f6ff 100%)!important;
+  border:1px solid var(--vc55-line)!important;border-radius:var(--vc55-radius)!important;
+  box-shadow:var(--vc55-shadow)!important;padding:clamp(15px,1.5vw,24px)!important;
+  margin-bottom:16px!important;color:var(--vc55-text)!important;
+}
+body.v11-shell #v11-main :is(.v11-page-head,.v118-scout-head,.scout-analysis-header,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row) h2{
+  color:var(--vc55-text)!important;font-size:clamp(20px,1.9vw,27px)!important;line-height:1.15!important;font-weight:850!important;margin:4px 0 6px!important;
+}
+body.v11-shell #v11-main :is(.v11-page-head,.v118-scout-head,.scout-analysis-header,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row) p{color:var(--vc55-muted)!important;line-height:1.45!important}
+body.v11-shell #v11-main :is(.pro-kicker,.session-eyebrow,.v11-page-head>div>span){color:#2161a9!important;font-weight:850!important;letter-spacing:.09em!important}
+/* Home: same product identity as scouting, no new navigation bars. */
+body.v11-shell #dashboard .v11-home-hero{background:linear-gradient(125deg,#102a4c,#1a4d84)!important;border:1px solid #2b5484!important;border-radius:17px!important;padding:clamp(20px,2.2vw,34px)!important;box-shadow:0 12px 28px rgba(13,43,78,.11)!important}
+body.v11-shell #dashboard .v11-home-hero :is(h2,p,span){color:#f1f7ff!important}
+body.v11-shell #dashboard .v11-home-hero h2{font-size:clamp(24px,2.3vw,32px)!important;font-weight:850!important;letter-spacing:-.04em!important}
+body.v11-shell #dashboard .v11-home-hero p{color:#c3d9ef!important;max-width:750px!important}
+body.v11-shell #dashboard .v11-module-card{background:#fff!important;border:1px solid var(--vc55-line)!important;border-radius:14px!important;box-shadow:var(--vc55-shadow)!important;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease!important}
+body.v11-shell #dashboard .v11-module-card:hover{transform:translateY(-2px)!important;border-color:#a5c6ee!important;box-shadow:0 12px 30px rgba(21,54,90,.10)!important}
+body.v11-shell #dashboard .v11-module-card h3{color:#17365b!important;font-weight:850!important}
+body.v11-shell #dashboard .v11-module-card p{color:#70849b!important}
+/* Shared panels, cards and controls across actual modules. Do not restyle the operational match grid. */
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(
+ .panel,.dashboard-panel,.dashboard-kpi,.dashboard-command-card,
+ .v11-report-card,.v118-panel,.v118-module,.players-pro-table-wrap,
+ .competition-panel,.competition-kpi,.scout-analysis-panel,.scout-analysis-kpi,
+ .scout-v830-panel,.scout-v840-panel,.v790-panel,.v790-chip,.v790-trend,
+ .v780-panel,.v780-section,.v893-safe-card,.vc155-panel,
+ .planning-toolbar,.planning-quick-create,.library-smart-panel,.library-filter-panel,
+ .session-meta-grid,.session-objective,.smart-session-summary,
+ .v961-data-integrity,.scout-analysis-kpis,.library-create-panel
+ ){
+  border:1px solid var(--vc55-line)!important;border-radius:var(--vc55-radius)!important;
+  box-shadow:var(--vc55-shadow)!important;background-color:#fff!important;
+}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(.v11-management-grid>button,.v11-report-card,.v118-module){
+  background:#fff!important;color:var(--vc55-text)!important;border:1px solid var(--vc55-line)!important;
+  border-radius:var(--vc55-radius)!important;box-shadow:var(--vc55-shadow)!important;
+  transition:border-color .16s ease,box-shadow .16s ease!important;
+}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(.v11-management-grid>button,.v11-report-card,.v118-module):hover{border-color:#91b9e7!important;box-shadow:0 11px 23px rgba(26,65,104,.10)!important}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(.dashboard-panel-head,.v790-panel-head,.v118-panel-head,.scout-panel-head,.competition-panel-head,.v780-section-head) h3{color:#193a62!important;font-weight:850!important}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(.dashboard-label,.scout-analysis-kpi span,.dashboard-kpi span){color:#607b97!important;font-weight:700!important}
+/* Unified interaction vocabulary. Only basic button variants, not event/point controls. */
+body.v11-shell #v11-main > .view:not(#scout-match-mode) button.primary{
+  background:#1c5cba!important;color:#fff!important;border:1px solid #1b58aa!important;
+  border-radius:9px!important;font-weight:750!important;box-shadow:none!important;
+}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) button.primary:hover{background:#144c9e!important}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) button.ghost{
+  background:#fff!important;color:#235385!important;border:1px solid #cfdeed!important;
+  border-radius:9px!important;font-weight:700!important;box-shadow:none!important;
+}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) button.ghost:hover{background:#eaf2fd!important}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  background-color:#fff!important;color:#193a59!important;border:1px solid #cbd9e8!important;
+  border-radius:9px!important;min-height:36px;max-width:100%;box-sizing:border-box;
+}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(input,select,textarea):focus-visible{
+  outline:2px solid rgba(35,101,196,.35)!important;outline-offset:1px!important;border-color:#5d99df!important;
+}
+/* Tables and dashboards: consistent readability, not new metrics. */
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(table,.v11-data-table){border-collapse:separate!important;border-spacing:0!important;color:#243e5c!important}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(table,.v11-data-table) th{
+  background:#eff4fa!important;color:#466481!important;font-size:11px!important;font-weight:800!important;
+  letter-spacing:.035em!important;border-bottom:1px solid #dbe5f0!important;
+}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(table,.v11-data-table) td{border-bottom:1px solid #edf1f7!important}
+body.v11-shell #v11-main > .view:not(#scout-match-mode) table tbody tr:hover{background-color:#f5f9fe!important}
+/* Personalization of reports, analysis and training; keep their existing data flow. */
+body.v11-shell #entrenamiento .session-panel{background:#fff!important;padding:clamp(14px,1.8vw,26px)!important}
+body.v11-shell #entrenamiento .session-title-row{box-shadow:none!important;margin-bottom:12px!important}
+body.v11-shell #scout-analysis .scout-analysis-shell,
+body.v11-shell #scout-video-hub .v780-hub,
+body.v11-shell #scout-season .v790-season,
+body.v11-shell #ejercicios,
+body.v11-shell #v11-reports,
+body.v11-shell #v11-management{color:var(--vc55-text)!important}
+body.v11-shell #scout-analysis .scout-analysis-header{align-items:center!important;gap:15px!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar{gap:8px!important;flex-wrap:wrap!important}
+body.v11-shell #v11-management .v11-management-grid button b{color:#183a5f!important}
+body.v11-shell #v11-management .v11-management-grid button small{color:#71869a!important}
+body.v11-shell #v11-reports .v11-report-card h3{color:#17365c!important}
+body.v11-shell #v11-reports .v11-report-card p{color:#71859b!important}
+/* Restore the existing Theater control, moved to the visible video header by a tiny adapter. */
+body.v11-shell #scout-match-mode .vc55-video-controls{display:flex!important;gap:7px!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;margin-left:auto!important}
+body.v11-shell #scout-match-mode .vc55-video-controls button{
+  appearance:none!important;background:#e9f2fe!important;color:#155391!important;border:1px solid #aac8e8!important;
+  border-radius:8px!important;padding:9px 12px!important;font:800 12px/1.1 Inter,system-ui,sans-serif!important;
+  cursor:pointer!important;min-height:36px!important;white-space:nowrap!important;
+}
+body.v11-shell #scout-match-mode .vc55-video-controls #vc1644-theater-btn{background:#185eb7!important;border-color:#185eb7!important;color:#fff!important}
+body.v11-shell #scout-match-mode .vc55-video-controls button:hover{filter:brightness(.95)!important}
+body.v11-shell #scout-match-mode .vc55-video-controls button:focus-visible{outline:3px solid #75b7ff!important;outline-offset:2px!important}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater{
+  position:fixed!important;inset:8px!important;z-index:87000!important;max-height:calc(100dvh - 16px)!important;
+  overflow:auto!important;padding:14px!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(290px,350px)!important;
+  grid-template-rows:auto minmax(0,1fr)!important;align-items:start!important;gap:12px!important;
+  background:#0b1c31!important;border:1px solid #294766!important;border-radius:15px!important;
+  box-shadow:0 30px 100px rgba(4,16,36,.8)!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-drawer-head{
+  display:flex!important;grid-column:1/-1!important;grid-row:1!important;
+  align-items:center!important;justify-content:space-between!important;gap:8px!important;
+  margin:0!important;padding:0 0 10px!important;color:#e9f4ff!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card{
+  display:flex!important;grid-column:1!important;grid-row:2!important;position:relative!important;
+  min-width:0!important;max-width:none!important;padding:12px!important;
+  background:#152d47!important;border:1px solid #37536c!important;border-radius:12px!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card .v800-card-head :is(h3,span){color:#e9f3ff!important}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
+  display:block!important;aspect-ratio:16/9!important;width:100%!important;
+  min-height:min(60vh,650px)!important;max-height:calc(100dvh - 215px)!important;
+  border-radius:10px!important;overflow:hidden!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame video{object-fit:contain!important}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
+  display:block!important;grid-column:2!important;grid-row:2!important;min-width:0!important;
+  max-width:none!important;position:relative!important;top:0!important;
+  background:#fff!important;border-radius:12px!important;padding:12px!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.vc54-court-slot{display:none!important}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater .vc55-video-controls #vc1644-theater-btn{background:#fff!important;color:#174b85!important}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-card-head{display:flex!important;flex-wrap:wrap!important;gap:10px!important;align-items:center!important}
+body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater .vc54-video-settings{background:#fff!important;color:#183e64!important}
+body.v11-shell.vc1644-theater-lock #scout-match-mode{contain:none!important}
+@media(max-width:1100px){
+ body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater{grid-template-columns:minmax(0,1fr) minmax(240px,300px)!important}
+ body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{min-height:0!important}
+}
+@media(max-width:790px){
+ body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater{inset:0!important;border-radius:0!important;max-height:100dvh!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;padding:8px!important}
+ body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card{grid-column:1!important;grid-row:2!important}
+ body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>#v113-video-code-panel{grid-column:1!important;grid-row:3!important;position:static!important}
+ body.v11-shell #scout-match-mode .vc55-video-controls{flex-wrap:nowrap!important}
+ body.v11-shell #scout-match-mode .vc55-video-controls button{font-size:10px!important;padding:7px 8px!important;min-height:32px!important}
+ body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{aspect-ratio:16/9!important;height:auto!important;min-height:0!important;max-height:none!important}
+ body.v11-shell #v11-main :is(.v11-page-head,.scout-analysis-header,.v118-scout-head,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row){padding:14px!important}
+ body.v11-shell #v11-main :is(.v11-page-head,.scout-analysis-header,.v118-scout-head,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row) h2{font-size:20px!important}
+}
+@media(prefers-reduced-motion:reduce){body.v11-shell #dashboard .v11-module-card,body.v11-shell #v11-main .view button{transition:none!important}}
+/* Theater overrides of older V16.0.5.3/5.4 grid tracks. Match their specificity explicitly.
+   The ordinary cockpit keeps the court; expanded mode is VIDEO + CODE only. */
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(280px,350px)!important;
+  grid-template-rows:auto minmax(0,1fr)!important;align-items:start!important;gap:12px!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-drawer-head{
+  display:flex!important;grid-column:1/-1!important;grid-row:1!important;order:0!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.vc54-court-slot{
+  display:none!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card{
+  display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+  grid-column:1!important;grid-row:2!important;order:0!important;
+  width:100%!important;max-width:none!important;min-width:0!important;
+  height:auto!important;align-self:start!important;overflow:visible!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>*{
+  flex:0 0 auto!important;min-width:0!important;max-width:100%!important;
+  width:100%!important;box-sizing:border-box!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
+  order:1!important;display:block!important;position:relative!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:auto!important;min-height:200px!important;max-height:min(68dvh,750px)!important;
+  aspect-ratio:16/9!important;overflow:hidden!important;box-sizing:border-box!important;
+  background:#091a2d!important;border:1px solid #35526d!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame>video{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-card-head{order:0!important;flex:0 0 auto!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-playback{order:2!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings{order:4!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
+  grid-column:2!important;grid-row:2!important;order:0!important;min-width:0!important;
+  position:relative!important;top:0!important;max-width:none!important;background:#fff!important;
+}
+@media(max-width:790px){
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card{grid-column:1!important;grid-row:2!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>#v113-video-code-panel{grid-column:1!important;grid-row:3!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:16/9!important}
+}
+
+</style>
+<script id="vc16055-restore-theater">
+/* V16.0.5.5: restore original 16.0.4.4 theater button in the V16.0.5.4 cockpit.
+   Reparents only existing button nodes: video element and coding state never move. */
+(()=>{
+ 'use strict';
+ if(window.VC_16055_DESIGN)return;
+ const $=id=>document.getElementById(id);
+ let mounted=false;
+ function restoreControls(){
+   const card=$('v112-video-drawer')?.querySelector('.v112-video-card');
+   const head=card?.querySelector('.v800-card-head');
+   const theater=$('vc1644-theater-btn');
+   if(!head||!theater)return false;
+   let holder=$('vc55-video-controls');
+   if(!holder){holder=document.createElement('div');holder.id='vc55-video-controls';holder.className='vc55-video-controls';head.appendChild(holder)}
+   const focus=$('vc1644-focus-code');
+   if(focus&&focus.parentElement!==holder)holder.appendChild(focus);
+   if(theater.parentElement!==holder)holder.appendChild(theater);
+   theater.title='Ampliar el vídeo sin salir del modo codificación (Esc para cerrar)';
+   mounted=true;return true;
+ }
+ function boot(){
+   if(restoreControls())return;
+   let attempts=0;
+   const retry=()=>{if(restoreControls())return;if(++attempts<10)requestAnimationFrame(retry)};
+   requestAnimationFrame(retry);
+ }
+ window.VC_16055_DESIGN={version:'16.0.5.5',restoreControls,diagnostics:()=>({mounted,videoButtonVisible:!!$('vc55-video-controls')?.contains($('vc1644-theater-btn')),theater:!!$('v112-video-drawer')?.classList.contains('vc1644-theater')})};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+</script>
 </body></html>
