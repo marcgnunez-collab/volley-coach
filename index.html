@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.0 · Diseño Profesional Unificado</title>
+<title>Volley Coach | V16.0.5.1 · Scouting Pro Match Workspace</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2119,6 +2119,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
     </div>
 
+    <details class="vc51-advanced-tools" id="vc51-advanced-tools"><summary>Herramientas del partido <span>Alineación · cambios · copia de seguridad · exportación</span></summary>
     <section id="v117-pro-command-center" class="v117-pro-command-center" aria-label="Centro de control profesional">
       <div class="v117-command-group match"><span>PARTIDO</span>
         <button onclick="scoutOpenLineup()">⌘ Alineación</button>
@@ -2144,6 +2145,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button class="success" onclick="v117FinalizeAndSave()">Finalizar y guardar</button>
       </div>
     </section>
+    </details>
 
     <div id="v800-empty" class="v800-empty">
       <strong>No hay un partido activo.</strong>
@@ -2170,6 +2172,15 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <button data-v112-tab="stats" onclick="v112MatchTab('stats')"><span>▥</span><b>Lectura LIVE</b><small>K1 · K2 · G-P</small></button>
         <button data-v112-tab="set" onclick="v112MatchTab('set')"><span>✓</span><b>Set</b><small>Nuevo / finalizar</small></button>
       </nav>
+
+      <div class="vc51-workspace-toolbar" role="group" aria-label="Vista de trabajo de partido">
+        <div class="vc51-workspace-intro"><strong>WORKSPACE PRO</strong><span>Scouting y vídeo en una sola estación</span></div>
+        <div class="vc51-workspace-actions">
+          <button type="button" id="vc51-video-mode" onclick="v112MatchTab('video')">▶ Vídeo + codificación</button>
+          <button type="button" id="vc51-live-mode" onclick="v112MatchTab('live')">⌨ Scouting directo</button>
+          <button type="button" id="vc51-focus-mode" aria-pressed="false" onclick="vc51ToggleFocus()">Concentración</button>
+        </div>
+      </div>
 
       <section id="v850-context-strip" class="v850-context-strip v112-context-strip">
         <div><span>CONTEXTO</span><b id="v850-context-stage">Inicio</b><small id="v850-context-copy">0-0</small></div>
@@ -11740,18 +11751,26 @@ const VERSION='11.3.0';
 const $=id=>document.getElementById(id);
 function matchVisible(){return !!$('scout-match-mode')?.classList.contains('active')}
 function syncFocus(){document.body.classList.toggle('v113-match-focus',matchVisible())}
-function copyText(from,to){const a=$(from),b=$(to);if(a&&b)b.textContent=a.textContent}
+const vc51VideoStats={requested:0,batched:0,copied:0};
+let vc51VideoPending=false;
+function copyText(from,to){const a=$(from),b=$(to);if(a&&b&&b.textContent!==a.textContent){b.textContent=a.textContent;vc51VideoStats.copied++}}
+function vc51QueueVideoPanel(){
+  vc51VideoStats.requested++;
+  if(vc51VideoPending||!$('v800-shell')?.classList.contains('v112-video-open'))return;
+  vc51VideoPending=true;
+  requestAnimationFrame(()=>{vc51VideoPending=false;vc51VideoStats.batched++;syncVideoPanel()});
+}
 function syncVideoPanel(){
   copyText('v800-team-name','v113-video-team');copyText('v800-opponent','v113-video-opponent');
   copyText('v800-score-us','v113-video-score-us');copyText('v800-score-op','v113-video-score-op');
   copyText('v800-set-label','v113-video-set');copyText('v800-service-copy','v113-video-service');
   copyText('v855-live-rally-title','v113-video-rally-title');
-  const source=$('v855-live-actions'),target=$('v113-video-rally-actions');if(source&&target)target.innerHTML=source.innerHTML;
+  const source=$('v855-live-actions'),target=$('v113-video-rally-actions');if(source&&target&&target.innerHTML!==source.innerHTML){target.innerHTML=source.innerHTML;vc51VideoStats.copied++}
   const status=$('v852-code-status'),out=$('v113-video-code-status');if(status&&out){out.textContent=status.textContent;out.className='v113-video-code-status '+(status.classList.contains('bad')?'bad':status.classList.contains('warn')?'warn':status.classList.contains('ok')?'ok':'')}
 }
 function observe(){
   ['v800-team-name','v800-opponent','v800-score-us','v800-score-op','v800-set-label','v800-service-copy','v855-live-rally-title','v855-live-actions','v852-code-status'].forEach(id=>{
-    const el=$(id);if(el)new MutationObserver(syncVideoPanel).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
+    const el=$(id);if(el)new MutationObserver(vc51QueueVideoPanel).observe(el,{subtree:true,childList:true,characterData:true});
   });
 }
 window.v113VideoAddCode=function(){
@@ -11783,7 +11802,7 @@ if(typeof previousShow==='function'&&!previousShow.__v113){
   wrapped.__v113=true;window.showView=wrapped;
 }
 observe();syncFocus();syncVideoPanel();
-window.VC_V113_MATCH_VIDEO={version:VERSION,diagnostics:()=>({version:VERSION,matchFocus:document.body.classList.contains('v113-match-focus'),videoOpen:$('v800-shell')?.classList.contains('v112-video-open')||false,sharedScoreEngine:true,sharedCodeEngine:true})};
+window.VC_V113_MATCH_VIDEO={version:VERSION,diagnostics:()=>({version:VERSION,matchFocus:document.body.classList.contains('v113-match-focus'),videoOpen:$('v800-shell')?.classList.contains('v112-video-open')||false,sharedScoreEngine:true,sharedCodeEngine:true,vc51VideoBatch:{...vc51VideoStats}})};
 })();
 </script>
 
@@ -15383,7 +15402,7 @@ body.v11-shell .v11-logo {
 }
 body.v11-shell .v11-brand strong { font-size: 16px !important; letter-spacing: -.02em; color: var(--vc50-navy) !important; }
 body.v11-shell .v11-brand small { color: var(--vc50-muted) !important; font-size: 9px !important; letter-spacing: .01em !important; }
-body.v11-shell .v11-brand small::after { content: " · V16.0.5.0"; color: #7293a8; }
+body.v11-shell .v11-brand small::after { content: " · V16.0.5.1"; color: #7293a8; }
 body.v11-shell .v11-home-button,
 body.v11-shell .v11-nav-group button {
   min-height: 45px !important; grid-template-columns: 30px minmax(0, 1fr) !important;
@@ -15604,4 +15623,114 @@ body.v11-shell :where(.v11-module-card, .v11-home-panel, .v900-card) :where(h2, 
 
 </style>
 <!-- VC16050_END -->
+
+<!-- V16.0.5.1 Match Workspace Pro: UI-only, no state/save engine changes -->
+<style id="vc16051-match-workspace-css">
+/* Volley Coach V16.0.5.1 · Scouting Pro Match Workspace.
+   Only affects Match Mode and Scouting Pro. Preserves all existing IDs, forms and video elements. */
+body.v11-shell #scout-match-mode{--vc51-dark:#12354d;--vc51-blue:#1c638d;--vc51-line:#d8e5ed;--vc51-muted:#687f90;--vc51-panel:#fff;--vc51-bg:#eff5f9;background:#f2f7fa!important;color:#16394d!important}
+body.v11-shell #scout-match-mode #v800-shell{width:100%!important;max-width:1780px!important;min-width:0!important;margin:auto!important}
+body.v11-shell #scout-match-mode .v800-top{background:#fff!important;border:1px solid #d9e5ec!important;padding:15px 18px!important;border-radius:16px!important;box-shadow:0 5px 20px #193d5010!important}
+body.v11-shell #scout-match-mode .v800-top h2{font-size:clamp(20px,2vw,27px)!important;letter-spacing:-.03em!important}
+body.v11-shell #scout-match-mode .v800-top p{font-size:12px!important}
+/* Native details: all historical commands are still available, but no longer dominate screen height. */
+#scout-match-mode .vc51-advanced-tools{background:#fff;border:1px solid #dce7ee;border-radius:12px;margin:10px 0;overflow:hidden}
+#scout-match-mode .vc51-advanced-tools>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:11px 15px;font-size:12px;color:#255877;font-weight:800;min-height:42px}
+#scout-match-mode .vc51-advanced-tools>summary::-webkit-details-marker{display:none}
+#scout-match-mode .vc51-advanced-tools>summary:before{content:'⚙';font-size:16px}
+#scout-match-mode .vc51-advanced-tools>summary:after{content:'▾';margin-left:auto}
+#scout-match-mode .vc51-advanced-tools[open]>summary:after{content:'▴'}
+#scout-match-mode .vc51-advanced-tools>summary span{font-size:10px;color:#8094a0;font-weight:500}
+#scout-match-mode .vc51-advanced-tools:not([open])>.v117-pro-command-center{display:none!important}
+#scout-match-mode .vc51-advanced-tools[open]>.v117-pro-command-center{padding:8px 12px 12px;margin:0!important;border:0!important;box-shadow:none!important}
+/* A real new piece of navigation, not an additional color layer. */
+#scout-match-mode .vc51-workspace-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#123b55!important;color:white!important;border-radius:13px;padding:10px 14px;margin:10px 0 11px;box-shadow:0 8px 22px #173d5824}
+#scout-match-mode .vc51-workspace-intro{display:flex;flex-direction:column;gap:1px;min-width:140px}
+#scout-match-mode .vc51-workspace-intro strong{font-size:12px;letter-spacing:.10em;color:#fff}
+#scout-match-mode .vc51-workspace-intro span{font-size:11px;color:#b6cfdf}
+#scout-match-mode .vc51-workspace-actions{display:flex;gap:6px;flex-wrap:wrap}
+#scout-match-mode .vc51-workspace-actions button{background:#ffffff14!important;border:1px solid #ffffff45!important;color:#fff!important;border-radius:9px!important;padding:9px 14px!important;min-height:41px!important;font-size:12px!important;font-weight:750!important;cursor:pointer}
+#scout-match-mode .vc51-workspace-actions button.vc51-selected{background:#fff!important;color:#173c55!important;border-color:#fff!important}
+#scout-match-mode .vc51-workspace-actions button:focus-visible{outline:3px solid #eab461!important;outline-offset:2px}
+/* Video-first workspace: a larger 16:9 picture and a fixed-width code station. */
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){display:grid!important;grid-template-columns:minmax(0,1fr) minmax(300px,360px)!important;gap:12px!important;align-items:start!important;background:#fff!important;padding:14px!important;border-radius:14px!important;border-color:#d8e5ed!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-drawer-head{grid-column:1/-1!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{grid-column:1!important;min-width:0!important;grid-template-columns:minmax(0,1fr) auto!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{grid-column:2!important;grid-row:2!important;position:sticky!important;top:12px!important;min-width:0!important;max-width:none!important;background:#f8fbfd!important;border-radius:12px!important;border:1px solid #d5e4ee!important;box-shadow:none!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater) #v800-video-frame{grid-column:1/-1!important;grid-row:2!important;min-height:0!important;aspect-ratio:16/9!important;width:100%!important;max-width:none!important;background:#051321!important;border-radius:12px!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater) #v800-video-frame video{width:100%!important;height:100%!important;object-fit:contain!important}
+body.v11-shell #scout-match-mode #v113-video-code{min-height:52px!important;font:750 19px/1.3 ui-monospace,Consolas,monospace!important;letter-spacing:.04em!important}
+body.v11-shell #scout-match-mode #v800-code{min-height:52px!important;font:750 19px/1.3 ui-monospace,Consolas,monospace!important}
+body.v11-shell #scout-match-mode .v113-video-points button{min-height:71px!important}
+body.v11-shell #scout-match-mode .v113-video-score b{font-size:28px!important}
+/* Direct: one code-centric column, accessible court and concise reading at the side. */
+@media(min-width:1300px){body.v11-shell #scout-match-mode #v800-shell:not(.v112-video-open) .v112-live-grid{grid-template-columns:minmax(0,1fr) minmax(290px,340px)!important}body.v11-shell #scout-match-mode #v800-shell:not(.v112-video-open) .v112-main{grid-template-columns:minmax(320px,0.85fr) minmax(380px,1.15fr)!important}}
+body.v11-shell #scout-match-mode .v112-control-card,body.v11-shell #scout-match-mode .v112-court-card{border:1px solid #dae6ec!important;border-radius:14px!important;box-shadow:0 6px 18px #1b40510c!important}
+body.v11-shell #scout-match-mode .v800-point button,body.v11-shell #scout-match-mode .v112-point-row button{font-size:13px!important}
+/* Hide repeated legacy navigation only in concentration mode; real commands remain in the six-tab bar. */
+#scout-match-mode #v800-shell.vc51-focus #v910-match-view-nav,#scout-match-mode #v800-shell.vc51-focus .v112-context-strip,#scout-match-mode #v800-shell.vc51-focus #v1000-intelligence{display:none!important}
+#scout-match-mode #v800-shell.vc51-focus .v112-match-commandbar{margin-top:6px!important}
+#scout-match-mode #v800-shell.vc51-focus .v800-top{padding-top:9px!important;padding-bottom:9px!important}
+#scout-match-mode #v800-shell.vc51-focus .v800-top p{display:none!important}
+@media(max-width:1100px){
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important}
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card,body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{grid-column:1!important;grid-row:auto!important}
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{position:static!important}
+}
+@media(max-width:650px){
+ #scout-match-mode .vc51-workspace-toolbar{padding:11px;border-radius:11px}
+ #scout-match-mode .vc51-workspace-intro{width:100%}
+ #scout-match-mode .vc51-workspace-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+ #scout-match-mode .vc51-workspace-actions button{font-size:11px!important;padding:9px 6px!important;min-width:0!important}
+ #scout-match-mode .vc51-workspace-actions #vc51-focus-mode{grid-column:1/-1}
+ #scout-match-mode .vc51-advanced-tools>summary span{display:none}
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){padding:8px!important;max-width:100%!important}
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{grid-template-columns:minmax(0,1fr)!important}
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card>*{grid-column:1!important;grid-row:auto!important}
+ body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater) #v800-video-frame{grid-row:auto!important}
+ /* Keep the actual picture above camera setup on a phone. No video element is moved or cloned. */
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>.v800-card-head{order:-3!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v800-video-frame{order:-2!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v802-playback{order:-1!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>.v800-video-actions{order:0!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>.v116-source-selector{order:1!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>.v802-source-tabs{order:1!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v116-delay-tools,
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v803-mobile-tools,
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v802-local-tools,
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v802-youtube-tools{order:2!important}
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v802-video-help,
+ #scout-match-mode #v112-video-drawer:not(.vc1644-theater) .v112-video-card>#v800-rec-copy{order:3!important}
+}
+
+</style>
+<script id="vc16051-match-workspace-ui">
+(()=>{
+'use strict';
+if(window.VC_16051_WORKSPACE)return;
+const $=id=>document.getElementById(id);
+function matchVisible(){return !!$('scout-match-mode')?.classList.contains('active')}
+function syncButtons(){
+ const shell=$('v800-shell');if(!shell)return;
+ const video=shell.classList.contains('v112-video-open');
+ const a=$('vc51-video-mode'),b=$('vc51-live-mode'),focus=$('vc51-focus-mode');
+ if(a){a.classList.toggle('vc51-selected',video);a.setAttribute('aria-pressed',String(video))}
+ if(b){b.classList.toggle('vc51-selected',!video);b.setAttribute('aria-pressed',String(!video))}
+ if(focus){const active=shell.classList.contains('vc51-focus');focus.classList.toggle('vc51-selected',active);focus.setAttribute('aria-pressed',String(active));focus.textContent=active?'Salir de concentración':'Concentración'}
+}
+window.vc51ToggleFocus=function(){const shell=$('v800-shell');if(!shell)return false;const on=shell.classList.toggle('vc51-focus');syncButtons();return on};
+const shell=$('v800-shell');if(shell)new MutationObserver(syncButtons).observe(shell,{attributes:true,attributeFilter:['class']});
+const view=$('scout-match-mode');if(view)new MutationObserver(syncButtons).observe(view,{attributes:true,attributeFilter:['class']});
+// Explicit user shortcut only; no duplicate record, point or scoring handlers.
+document.addEventListener('keydown',e=>{
+ if(!matchVisible()||e.repeat||e.isComposing||e.ctrlKey||e.metaKey||!e.altKey)return;
+ if(e.code==='KeyV'){e.preventDefault();window.v112MatchTab?.('video')}
+ if(e.code==='KeyD'){e.preventDefault();window.v112MatchTab?.('live')}
+ if(e.code==='KeyF'){e.preventDefault();window.vc51ToggleFocus?.()}
+},true);
+syncButtons();
+window.VC_16051_WORKSPACE={version:'16.0.5.1',diagnostics:()=>({video:!!$('v800-shell')?.classList.contains('v112-video-open'),focus:!!$('v800-shell')?.classList.contains('vc51-focus'),render:window.VC_16051_RENDER_DIAGNOSTICS?.()||null,videoBatch:window.VC_V113_MATCH_VIDEO?.diagnostics()?.vc51VideoBatch||null})};
+})();
+
+</script>
 </body></html>

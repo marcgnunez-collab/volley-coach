@@ -33,9 +33,9 @@ function openMatches(){
 function populateMatchPicker(){
   const sel=$('v800-match-select');if(!sel)return;
   const active=Number(br()?.getActiveId?.())||0,previous=Number(sel.value)||0,list=openMatches();
-  sel.innerHTML=list.length
+  vc51SetMarkup(sel,list.length
     ? list.map(m=>`<option value="${m.id}">${m.date||''} · ${m.opponent||'Rival'}${m.manualSavedAt?' · Guardado':' · En curso'}</option>`).join('')
-    : '<option value="">Sin scoutings en curso</option>';
+    : '<option value="">Sin scoutings en curso</option>');
   if(active&&list.some(m=>Number(m.id)===active))sel.value=String(active);
   else if(previous&&list.some(m=>Number(m.id)===previous))sel.value=String(previous);
   else if(list[0])sel.value=String(list[0].id);
@@ -108,16 +108,23 @@ function lineupHealth(m){
   if(unique.size!==filled.length)return {ok:false,text:'Jugador duplicado'};
   return {ok:true,text:'Alineación OK'};
 }
+/* V16.0.5.1: do not destroy and recreate stable DOM fragments on every rally. */
+const vc51RenderStats={unchanged:0,updated:0};
+function vc51SetMarkup(node,markup){
+  if(!node)return;
+  if(node.innerHTML===markup){vc51RenderStats.unchanged++;return;}
+  node.innerHTML=markup;vc51RenderStats.updated++;
+}
 function renderCourt(container,lineup,ours=true,matchState=null){
   if(!container)return;
   const available=ours?matchState?.baseLineup?.ours:matchState?.baseLineup?.opponent;
   const chosen=POS.some(pos=>lineup?.[pos])?lineup:available;
-  container.innerHTML=POS.map(pos=>{
+  vc51SetMarkup(container,POS.map(pos=>{
     const raw=chosen?.[pos]??available?.[pos];
     const isLib=ours&&Number(raw)>0&&Number(raw)===Number(matchState?.libero?.activePlayerId||matchState?.libero?.playerId)&&Number(available?.[pos])!==Number(raw);
     const label=ours?player(raw):String(raw||'Sin asignar');
     return `<div class="v800-pos ${pos}${isLib?' v800-libero-active':''}"><b>${label}</b><small>${pos.toUpperCase()}${isLib?' · LÍBERO':''}</small></div>`;
-  }).join('');
+  }).join(''));
 }
 function quickEvents(m){
   return [...arr(m?.workflow?.events),...arr(m?.events)]
@@ -621,7 +628,7 @@ function render(){
     renderCourt($('v800-court-own'),m.lineup?.ours,true,m);
     renderCourt($('v800-court-rival'),m.lineup?.opponent,false,m);
     const ev=quickEvents(m);
-    $('v800-events').innerHTML=ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>';
+    vc51SetMarkup($('v800-events'),ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>');
   }
 
   if(needRead){
@@ -632,13 +639,13 @@ function render(){
 
     if(v910ViewMode==='lectura'||v910ViewMode==='todo'){
       const decisions=v910DecisionRows(m);
-      $('v800-decisions').innerHTML=decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${x.title}</b><span>${x.copy}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>';
+      vc51SetMarkup($('v800-decisions'),decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${x.title}</b><span>${x.copy}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>');
     }
 
     const last=arr(s?.rallies).slice(-1)[0];
     if(last){
       $('v800-last-title').textContent=`${last.scoreAfter?.us??0}-${last.scoreAfter?.opponent??0} · ${last.winner==='ours'?'Punto nuestro':'Punto rival'}`;
-      $('v800-last-rally').innerHTML=`R${last.rotationBefore||1} · ${last.servingBefore==='ours'?'K2 / saque':'K1 / recepción'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||''))}</span>`).join('')}</div>`;
+      vc51SetMarkup($('v800-last-rally'),`R${last.rotationBefore||1} · ${last.servingBefore==='ours'?'K2 / saque':'K1 / recepción'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||''))}</span>`).join('')}</div>`);
     }else{
       $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
     }
@@ -653,6 +660,7 @@ function render(){
     syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
   }
 }
+window.VC_16051_RENDER_DIAGNOSTICS=()=>({...vc51RenderStats});
 window.v800Render=render;
 window.v800Open=function(){
   populateMatchPicker();
