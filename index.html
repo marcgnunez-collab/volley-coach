@@ -11055,13 +11055,14 @@ const VIEW_META={
 };
 
 function setNavActive(key){
-  document.querySelectorAll('[data-v11-nav]').forEach(b=>b.classList.toggle('active',b.dataset.v11Nav===key));
+  document.querySelectorAll('[data-v11-nav]').forEach(b=>{const selected=b.dataset.v11Nav===key;if(b.classList.contains('active')!==selected)b.classList.toggle('active',selected)});
 }
 function updatePage(id){
   const meta=VIEW_META[id]||['home','VOLLEY COACH','Volley Coach'];
   setNavActive(meta[0]);
-  if($('v11-breadcrumb'))$('v11-breadcrumb').textContent=meta[1];
-  if($('v11-page-title'))$('v11-page-title').textContent=meta[2];
+  const crumb=$('v11-breadcrumb'),title=$('v11-page-title');
+  if(crumb&&crumb.textContent!==meta[1])crumb.textContent=meta[1];
+  if(title&&title.textContent!==meta[2])title.textContent=meta[2];
   if(window.innerWidth<=860)v11ToggleSidebar(false);
   moveProfessionalNav(id);
 }
@@ -11130,31 +11131,31 @@ function cleanMirror(node){
 function copyMirror(sourceId,targetId,fallback){
   const target=$(targetId);if(!target)return;
   const text=cleanMirror($(sourceId));
-  target.textContent=text||fallback;
+  const next=text||fallback;if(target.textContent!==next)target.textContent=next;
 }
+function v16036SetText(id,value){const el=$(id);if(el){const next=String(value);if(el.textContent!==next)el.textContent=next}}
 window.v11RefreshHome=function(){
   copyMirror('dash-next-plan','v11-home-next-training','Sin planificación inmediata.');
   copyMirror('dash-next-match','v11-home-next-match','Sin partido próximo.');
   copyMirror('dash-last-session','v11-home-last-training','Sin actividad reciente.');
-  if($('v11-home-session-count'))$('v11-home-session-count').textContent=$('dash-current-count')?.textContent||'0';
-  if($('v11-home-session-time'))$('v11-home-session-time').textContent=$('dash-current-time')?.textContent||'0 min preparados';
-  if($('v11-home-team'))$('v11-home-team').textContent=$('team-active-name')?.textContent||'—';
+  v16036SetText('v11-home-session-count',$('dash-current-count')?.textContent||'0');
+  v16036SetText('v11-home-session-time',$('dash-current-time')?.textContent||'0 min preparados');
+  v16036SetText('v11-home-team',$('team-active-name')?.textContent||'—');
   const matches=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[];
   const active=window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.();
-  if($('v11-home-scout-status'))$('v11-home-scout-status').textContent=active?`vs ${active.opponent||'Rival'}`:'Sin partido';
-  if($('v11-home-scout-detail'))$('v11-home-scout-detail').textContent=`${matches.length} scouting${matches.length===1?'':'s'} guardado${matches.length===1?'':'s'}`;
+  v16036SetText('v11-home-scout-status',active?`vs ${active.opponent||'Rival'}`:'Sin partido');
+  v16036SetText('v11-home-scout-detail',`${matches.length} scouting${matches.length===1?'':'s'} guardado${matches.length===1?'':'s'}`);
   const cloudText=$('cloud-label')?.textContent||'Nube';
-  if($('v11-home-cloud'))$('v11-home-cloud').textContent=cloudText;
+  v16036SetText('v11-home-cloud',cloudText);
 };
 window.v11RefreshShell=function(){
   const name=$('team-active-name')?.textContent||'Equipo';
-  if($('v11-team-name'))$('v11-team-name').textContent=name;
-  if($('v11-team-infantil'))$('v11-team-infantil').classList.toggle('active',$('team-btn-infantil')?.classList.contains('active'));
-  if($('v11-team-cadete'))$('v11-team-cadete').classList.toggle('active',$('team-btn-cadete')?.classList.contains('active'));
+  v16036SetText('v11-team-name',name);
+  for(const [target,source] of [['v11-team-infantil','team-btn-infantil'],['v11-team-cadete','team-btn-cadete']]){const el=$(target);if(el){const selected=!!$(source)?.classList.contains('active');if(el.classList.contains('active')!==selected)el.classList.toggle('active',selected)}}
   const cloud=$('cloud-label')?.textContent||'Nube';
-  if($('v11-cloud-label'))$('v11-cloud-label').textContent=cloud;
+  v16036SetText('v11-cloud-label',cloud);
   const online=$('cloud-dot')?.classList.contains('online')||String(cloud).toLowerCase().includes('conect');
-  $('v11-cloud-dot')?.classList.toggle('online',!!online);
+  const dot=$('v11-cloud-dot');if(dot&&dot.classList.contains('online')!==!!online)dot.classList.toggle('online',!!online);
   v11RefreshHome();
 };
 
@@ -11455,11 +11456,12 @@ window.v111ScoutNav=function(name){
 function syncContext(){
   const rot=$('v900-rotation')?.textContent||'R1';
   const rival=($('v900-rival-rotation')?.textContent||'Rival R1').replace(/^Rival\s*/i,'');
-  if($('v111-own-rotation-label'))$('v111-own-rotation-label').textContent=rot;
-  if($('v111-rival-rotation-label'))$('v111-rival-rotation-label').textContent=rival;
+  const put=(id,value)=>{const el=$(id);if(el&&el.textContent!==value)el.textContent=value};
+  put('v111-own-rotation-label',rot);
+  put('v111-rival-rotation-label',rival);
   const score=$('v900-score')?.textContent||'0–0';
   const set=$('v900-set')?.textContent||'1';
-  if($('v111-rally-score-copy'))$('v111-rally-score-copy').textContent=`Set ${set} · ${score}`;
+  put('v111-rally-score-copy',`Set ${set} · ${score}`);
 }
 ['v900-rotation','v900-rival-rotation','v900-score','v900-set'].forEach(id=>{
   const el=$(id);if(!el)return;
@@ -13381,7 +13383,13 @@ function ensureUI(){
   if(!$('v137-save-toast')){const t=document.createElement('div');t.id='v137-save-toast';t.className='v137-save-toast';document.body.appendChild(t)}
   return true;
 }
-function cell(id,state,main,sub){const c=$(id+'-cell'),b=$(id+'-main'),s=$(id+'-sub');if(c)c.dataset.state=state||'';if(b)b.textContent=main;if(s)s.textContent=sub||''}
+function cell(id,state,main,sub){
+ const c=$(id+'-cell'),b=$(id+'-main'),s=$(id+'-sub');
+ const nextState=state||'',nextMain=String(main),nextSub=String(sub||'');
+ if(c&&c.dataset.state!==nextState)c.dataset.state=nextState;
+ if(b&&b.textContent!==nextMain)b.textContent=nextMain;
+ if(s&&s.textContent!==nextSub)s.textContent=nextSub;
+}
 function toast(title,copy='',error=false){ensureUI();const el=$('v137-save-toast');if(!el)return;el.className='v137-save-toast'+(error?' error':'');el.innerHTML=`<b>${String(title||'')}</b><span>${String(copy||'')}</span>`;requestAnimationFrame(()=>el.classList.add('show'));clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
 function render(){
   if(!ensureUI())return;const m=active(),ld=localDiag(),cd=cloudDiag();
@@ -13400,9 +13408,9 @@ function render(){
   cell('v137-cloud',cloudState,cloudMain,cloudSub);
   const syncAt=Number(cd.lastWriteAt)||Number(localStorage.getItem('v962_last_write_at'))||Date.parse(localStorage.getItem('volleyCloudLastSync')||'')||0;
   cell('v137-sync',syncAt?'ok':'',syncAt?time(syncAt):'—',syncAt?age(syncAt):(cd.connected?'Esperando primera sincronización':'Sin sesión de nube'));
-  const header=$('save-indicator');if(header){if(lastError)header.textContent='⚠ Guardado local: revisar';else if(pending)header.textContent='◌ Protegido · guardando…';else if(cd.connected&&cd.dirty)header.textContent='✓ Local · nube pendiente';else if(cd.connected)header.textContent='✓ Local + nube';else header.textContent='✓ Guardado local'}
-  const pro=$('v119-save-state');if(pro)pro.textContent=lastError?'Revisar guardado':pending?'Consolidando…':cd.connected&&cd.dirty?'Local ✓ · nube pendiente':cd.connected?'Local + nube ✓':'Local ✓';
-  const cockpit=$('v132-save-copy');if(cockpit)cockpit.textContent=lastError?'Guardado ⚠':pending?'Guardando…':cd.connected&&cd.dirty?'Local ✓':cd.connected?'Local + nube ✓':'Local ✓';
+  const header=$('save-indicator');if(header){const value=lastError?'⚠ Guardado local: revisar':pending?'◌ Protegido · guardando…':cd.connected&&cd.dirty?'✓ Local · nube pendiente':cd.connected?'✓ Local + nube':'✓ Guardado local';if(header.textContent!==value)header.textContent=value;}
+  const pro=$('v119-save-state');if(pro){const value=lastError?'Revisar guardado':pending?'Consolidando…':cd.connected&&cd.dirty?'Local ✓ · nube pendiente':cd.connected?'Local + nube ✓':'Local ✓';if(pro.textContent!==value)pro.textContent=value;}
+  const cockpit=$('v132-save-copy');if(cockpit){const value=lastError?'Guardado ⚠':pending?'Guardando…':cd.connected&&cd.dirty?'Local ✓':cd.connected?'Local + nube ✓':'Local ✓';if(cockpit.textContent!==value)cockpit.textContent=value;}
 }
 function noteMutation(){lastMutationAt=now();lastError='';saveCount++;render()}
 async function periodicSnapshot(force=false,reason='v137-periodic'){
@@ -13670,20 +13678,34 @@ function cleanLegacySurface(){
 }
 
 function fixMatchCommandbar(){
-  const bar=document.querySelector('#scout-match-mode .v112-match-commandbar');if(bar){bar.style.setProperty('position','relative','important');bar.style.setProperty('top','auto','important')}
+  const bar=document.querySelector('#scout-match-mode .v112-match-commandbar');if(!bar)return;
+  if(bar.style.getPropertyValue('position')!=='relative'||bar.style.getPropertyPriority('position')!=='important')bar.style.setProperty('position','relative','important');
+  if(bar.style.getPropertyValue('top')!=='auto'||bar.style.getPropertyPriority('top')!=='important')bar.style.setProperty('top','auto','important');
 }
 
 function afterNavigation(){ensurePlanningAccess();ensureMoreToolsButton();fixMatchCommandbar()}
 const baseNavigate=window.v11Navigate;if(typeof baseNavigate==='function'&&!baseNavigate.__v140){const w=function(target){if(target==='planning')return openPlanning();const out=baseNavigate.apply(this,arguments);setTimeout(afterNavigation,0);return out};w.__v140=true;window.v11Navigate=w}
 const baseShow=window.showView;if(typeof baseShow==='function'&&!baseShow.__v140){const w=function(id,btn){const out=baseShow.apply(this,arguments);if(id==='planificacion'){setTimeout(()=>{try{window.renderPlanificacion?.()}catch(_){};const v=$('planificacion');if(v){v.classList.add('active');v.removeAttribute('hidden')}},0)}setTimeout(afterNavigation,0);return out};w.__v140=true;window.showView=w}
 
+const v16036Observe={callbacks:0,ignored:0,updates:0};
 function boot(){ensurePlanningAccess();ensureToolsSheet();ensureMoreToolsButton();fixMatchCommandbar();cleanLegacySurface();
-  let queued=false;const obs=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;ensurePlanningAccess();ensureMoreToolsButton();fixMatchCommandbar()})});
+  let queued=false;
+  const relevant='[data-v11-nav="planning"],#v11-topbar,.v11-topbar-actions,#v140-planning-quick,#scout-analysis,.scout-analysis-toolbar,#v140-more-tools-btn,#scout-match-mode,.v112-match-commandbar';
+  const isRelevantNode=node=>node?.nodeType===1&&(node.matches?.(relevant)||!!node.querySelector?.(relevant));
+  const obs=new MutationObserver(records=>{
+    v16036Observe.callbacks++;
+    // Only dynamic replacements of the three UI areas require another binding.
+    // Other modules may redraw tables, video frames, exercises or status labels.
+    if(!records.some(r=>r.target?.matches?.('.v11-topbar-actions,.scout-analysis-toolbar,.v112-match-commandbar')||
+       [...r.addedNodes].some(isRelevantNode)||[...r.removedNodes].some(isRelevantNode))){v16036Observe.ignored++;return;}
+    if(queued)return;queued=true;
+    requestAnimationFrame(()=>{queued=false;v16036Observe.updates++;ensurePlanningAccess();ensureMoreToolsButton();fixMatchCommandbar()});
+  });
   obs.observe(document.body,{childList:true,subtree:true});
   setTimeout(afterNavigation,250);setTimeout(afterNavigation,1200)
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-window.VC_V140={version:VERSION,openPlanning,openTools,diagnostics:()=>({version:VERSION,planningVisible:!!document.querySelector('[data-v11-nav="planning"]')?.offsetParent,planningViewExists:!!$('planificacion'),toolsButton:!!$('v140-more-tools-btn'),toolsSheet:!!$('v140-tools-sheet'),matchCommandbarSticky:getComputedStyle(document.querySelector('#scout-match-mode .v112-match-commandbar')||document.body).position==='sticky',legacyNavigationNodes:['scouting-nav','v930-unified-nav','v940-professional-nav'].filter(id=>!!$(id))})};
+window.VC_V140={version:VERSION,openPlanning,openTools,diagnostics:()=>({version:VERSION,planningVisible:!!document.querySelector('[data-v11-nav="planning"]')?.offsetParent,planningViewExists:!!$('planificacion'),toolsButton:!!$('v140-more-tools-btn'),toolsSheet:!!$('v140-tools-sheet'),performance:{...v16036Observe},matchCommandbarSticky:getComputedStyle(document.querySelector('#scout-match-mode .v112-match-commandbar')||document.body).position==='sticky',legacyNavigationNodes:['scouting-nav','v930-unified-nav','v940-professional-nav'].filter(id=>!!$(id))})};
 })();
 </script>
 
@@ -14921,4 +14943,5 @@ if(new URLSearchParams(location.search).get('vc_perf')==='1'){
   };
 })();
 </script>
+<script id="vc16036-performance-version">window.VC_PERFORMANCE_PRO={version:'16.0.3.6',scope:'UI solamente',diagnostics:()=>({navigation:window.VC_V140?.diagnostics?.().performance||{},analysis:window.VC_ANALYSIS_RENDER_OPT?.diagnostics?.()||null,review:window.VC_VIDEO_REVIEW_PRO?.diagnostics?.().performance||null,recording:window.VC_RECORDING_PRO?.diagnostics?.().performance||null})};</script>
 </body></html>
