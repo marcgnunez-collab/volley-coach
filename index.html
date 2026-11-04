@@ -5901,7 +5901,7 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.3.5" data-vc-module="true"></script>
+<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.3.2" data-vc-module="true"></script>
 
 
 
@@ -6844,7 +6844,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v770-recording-studio-module" src="./037-v770-recording-studio-module.js?v=16.0.3.5" data-vc-module="true"></script>
+<script id="v770-recording-studio-module" src="./037-v770-recording-studio-module.js?v=16.0.3.4" data-vc-module="true"></script>
 
 
 
@@ -14835,7 +14835,7 @@ if(new URLSearchParams(location.search).get('vc_perf')==='1'){
 </style>
 
 <!-- V16.0.3.2 · Solo lectura y reproducción de vídeo; no modifica scoutings. -->
-<script id="vc16032-review-pro" src="./105-vc16032-video-review-pro.js?v=16.0.3.5" data-vc-module="true"></script>
+<script id="vc16032-review-pro" src="./105-vc16032-video-review-pro.js?v=16.0.3.2" data-vc-module="true"></script>
 <!-- V16.0.3.3 · Clips guardados por partido en el modelo existente m.video.clips. -->
 <script id="vc16033-scouting-clips" src="./106-vc16033-scouting-clips.js?v=16.0.3.4" data-vc-module="true"></script>
 <style id="vc16034-recording-pro-style">
@@ -14868,5 +14868,57 @@ if(new URLSearchParams(location.search).get('vc_perf')==='1'){
 @media(max-width:540px){#scout-video-hub .vc-rec34-strip{padding:11px;gap:10px}#scout-video-hub .vc-rec34-strip-actions{width:100%}#scout-video-hub .vc-rec34-strip-actions button{flex:1 1 40%;min-height:39px}}
 @media(max-width:530px){#vc-rec34{padding:12px}.vc-rec34-banner{flex-direction:column}.vc-rec34-banner h3{font-size:17px!important}.vc-rec34-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.vc-rec34-metrics>div{padding:9px}.vc-rec34-metrics strong{font-size:14px}.vc-rec34-actions button{flex:1}.vc-rec34-item-actions button{flex:1}}
 </style>
-<script id="vc16034-recording-pro" src="./107-vc16034-recording-pro.js?v=16.0.3.5" data-vc-module="true"></script>
+<script id="vc16034-recording-pro" src="./107-vc16034-recording-pro.js?v=16.0.3.4" data-vc-module="true"></script>
+<script id="vc160351-library-ficha-stability">
+/* Volley Coach V16.0.3.5.1 · Mantener la ficha de biblioteca abierta durante los
+   redibujados de filtros, nube y equipo. Solo UI; no cambia datos ni sincronización. */
+(()=>{
+  'use strict';
+  if(window.VC_LIBRARY_FICHA_STABILITY)return;
+  const VERSION='16.0.3.5.1';
+  const root=document.getElementById('contenedor-principal');
+  if(!root)return;
+  const expanded=new Set();
+  const isPanel=id=>/^(?:detalles-|stats-ex-)\d+$/.test(String(id||''));
+  function remember(id){
+    const key=String(id);
+    for(const prefix of ['detalles-','stats-ex-']){
+      const panel=document.getElementById(prefix+key);
+      if(!panel)continue;
+      if(panel.classList.contains('open'))expanded.add(panel.id);
+      else expanded.delete(panel.id);
+    }
+  }
+  function restore(){
+    // Cuando se vacía el listado por un filtro, no reabrir fichas antiguas.
+    if(!root.querySelector('.library-pro-row')){
+      expanded.clear();
+      return;
+    }
+    for(const id of [...expanded]){
+      if(!isPanel(id)){expanded.delete(id);continue}
+      const panel=document.getElementById(id);
+      if(panel&&root.contains(panel))panel.classList.add('open');
+    }
+  }
+  // Capturar el estado justo después del botón, antes de cualquier refresco asíncrono.
+  for(const name of ['toggleInfo','toggleExerciseStats']){
+    const original=window[name];
+    if(typeof original!=='function')continue;
+    window[name]=function(id,...args){
+      const result=original.call(this,id,...args);
+      remember(id);
+      return result;
+    };
+  }
+  // Cubre también redibujados originados por sincronización que no pasan por renderizar().
+  const observer=new MutationObserver(restore);
+  observer.observe(root,{childList:true});
+  window.addEventListener('vc:teamchange',()=>expanded.clear());
+  window.VC_LIBRARY_FICHA_STABILITY={
+    version:VERSION,
+    diagnostics:()=>({version:VERSION,openPanels:[...expanded],listCount:root.querySelectorAll('.library-pro-row').length})
+  };
+})();
+</script>
 </body></html>
