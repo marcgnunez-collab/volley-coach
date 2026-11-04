@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.8 · Video Workspace</title>
+<title>Volley Coach | V16.0.5.9 · Inicio Optimizado</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,6 +39,31 @@ window.addEventListener('error',function(event){
   document.documentElement.classList.add('v118-booting','v139-booting');
   try{document.documentElement.dataset.v118Workspace=localStorage.getItem('volley_workspace_v610')||'training'}catch(_){ }
   setTimeout(()=>document.documentElement.classList.remove('v118-booting'),10000);
+})();
+</script>
+<style id="vc59-startup-style">
+html.vc59-booting #vc59-startup{display:flex!important;visibility:visible!important}
+#vc59-startup{position:fixed;inset:0;z-index:2147482000;display:none;visibility:visible!important;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:25px;background:#f3f6fb;color:#173a61;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;text-align:center}
+#vc59-startup .vc59-brand{font-weight:800;font-size:26px;letter-spacing:-.65px}
+#vc59-startup .vc59-subtitle{font-size:13px;color:#677e96;line-height:1.5;max-width:300px}
+#vc59-startup .vc59-progress{width:min(220px,60vw);height:4px;background:#d8e4f1;border-radius:6px;overflow:hidden}
+#vc59-startup .vc59-progress:after{content:'';display:block;width:36%;height:100%;background:#2267bb;border-radius:6px;animation:vc59Loading 1.5s ease-in-out infinite alternate}
+@keyframes vc59Loading{from{transform:translateX(0)}to{transform:translateX(175%)}}
+@media(prefers-reduced-motion:reduce){#vc59-startup .vc59-progress:after{animation:none;width:100%}}
+html:not(.vc59-booting) #vc59-startup{display:none!important}
+</style>
+<script id="vc59-startup-runtime">
+(()=>{
+ document.documentElement.classList.add('vc59-booting');
+ let finished=false;
+ function ready(){if(finished)return;finished=true;
+   const release=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('vc59-booting')));
+   setTimeout(release,110); // Let the existing routing and first-paint guards settle.
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
+ // A missing external script can block DOMContentLoaded; keep the diagnostic visible.
+ window.addEventListener('load',ready,{once:true});
+ window.VC_STARTUP_59={version:'16.0.5.9',diagnostics:()=>({loaded:finished,booting:document.documentElement.classList.contains('vc59-booting'),missingModules:window.VC_MODULE_LOAD_ERRORS||[]})};
 })();
 </script>
 <style id="v118-first-paint-style">
@@ -895,6 +920,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 </style>
 </head>
 <body class="v11-shell">
+<div id="vc59-startup" role="status" aria-live="polite"><div class="vc59-brand">Volley Coach</div><div class="vc59-subtitle">Preparando el espacio de trabajo…</div><div class="vc59-progress" aria-hidden="true"></div></div>
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V7.0.1 · VIDEO SCOUTING</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
 <div id="cloud-modal" class="cloud-modal" onclick="if(event.target===this)cerrarCloud()">
   <div class="cloud-card">
@@ -3880,63 +3906,35 @@ matchCard=function(m){
 renderCompetition();renderPlanificacion();
 </script>
 
-<script>
-/* Actualización automática de Volley Coach PWA */
-if ('serviceWorker' in navigator) {
-  let refreshing = false;
-
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
-
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('./service-worker.js?v=16.0.4.2', {
-        updateViaCache: 'none'
-      });
-
-      // Comprueba si el service worker publicado ha cambiado.
-      await registration.update();
-      setInterval(() => { if(document.visibilityState==='visible') registration.update().catch(() => {}); }, 5 * 60 * 1000);
-
-      // También comprueba si index.html de GitHub Pages ha cambiado.
-      // GitHub Pages normalmente envía ETag/Last-Modified; si cambia, recarga la app.
-      const checkPublishedVersion = async () => {
-        if (!navigator.onLine || document.visibilityState === 'hidden') return;
-        try {
-          const response = await fetch('./index.html?update-check=' + Date.now(), {
-            method: 'HEAD',
-            cache: 'no-store'
-          });
-          if (!response.ok) return;
-
-          const tag = response.headers.get('etag') || response.headers.get('last-modified');
-          if (!tag) return;
-
-          const key = 'volleyCoachPublishedVersion';
-          const previous = localStorage.getItem(key);
-          localStorage.setItem(key, tag);
-
-          if (previous && previous !== tag) {
-            window.location.reload();
-          }
-        } catch (_) {
-          // Sin conexión o comprobación no disponible: la app sigue funcionando offline.
-        }
-      };
-
-      await checkPublishedVersion();
-      setInterval(checkPublishedVersion, 5 * 60 * 1000);
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') checkPublishedVersion();
-      });
-    } catch (error) {
-      console.error('Error registrando la PWA:', error);
-    }
-  });
-}
+<script id="vc59-pwa-update-guard">
+/* V16.0.5.9 · Updates are offered, not forced during active scouting/recording. */
+(()=>{
+  'use strict';
+  if(!('serviceWorker' in navigator))return;
+  let notified=false;
+  function announce(){
+    if(notified)return;notified=true;
+    const notice=document.createElement('div');
+    notice.id='vc59-new-version-notice';
+    notice.setAttribute('role','status');
+    notice.style.cssText='position:fixed;bottom:16px;left:16px;right:16px;max-width:390px;z-index:2147483000;background:#102c4b;color:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 10px 32px #08213b55;display:flex;gap:10px;align-items:center;justify-content:space-between;font:600 13px/1.35 system-ui,sans-serif';
+    const msg=document.createElement('span');msg.textContent='Hay una actualización disponible. Aplícala cuando termines de guardar o grabar.';
+    const btn=document.createElement('button');btn.textContent='Actualizar';btn.style.cssText='background:#fff;color:#123c63;border:0;border-radius:7px;padding:9px 12px;font-weight:750;cursor:pointer';
+    btn.addEventListener('click',()=>{try{window.scoutSave?.(false)}catch(_){}location.reload()});
+    notice.append(msg,btn);document.body?.appendChild(notice);
+  }
+  const hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
+  window.addEventListener('load',async()=>{
+    try{
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.5.9',{updateViaCache:'none'});
+      // The browser checks SW versions on register; do not also HEAD-fetch index.html.
+      if(document.visibilityState==='visible')r.update().catch(()=>{});
+      const POLL=6*60*60*1000;
+      setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')r.update().catch(()=>{})},POLL);
+    }catch(err){console.warn('Actualización PWA no disponible',err)}
+  },{once:true});
+})();
 </script>
 \n<script id="planning-match-v5112-script">
 /* ===== V5.11.2 · PARTIDOS DENTRO DE PLANIFICACIÓN ===== */
@@ -16591,7 +16589,7 @@ body.v11-shell #v11-sidebar .v11-logo{
 }
 body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
 body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
-body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.8"!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.9"!important}
 body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
 body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
 body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}

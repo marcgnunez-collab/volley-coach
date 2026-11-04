@@ -1,6 +1,7 @@
-const CACHE_NAME = 'volley-coach-v16.0.5.8-video-workspace';
-
-const MODULE_ASSETS = [
+/* Volley Coach V16.0.5.9 · fast cached static assets, safe cloud requests */
+'use strict';
+const CACHE_NAME='volley-coach-v16.0.5.9-startup';
+const MODULE_ASSETS=[
   "./002-core-training-v150-monolithic.js",
   "./003-players-pro-v2-script.js",
   "./005-season-player-load-script.js",
@@ -52,32 +53,64 @@ const MODULE_ASSETS = [
   "./116-vc16058-video-workspace.js",
   "./107-vc16034-recording-pro.js"
 ];
-
-const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './apple-touch-icon.png',
-  './icon-192.png',
-  './icon-512.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
-];
-async function cacheShellSafely(){const cache=await caches.open(CACHE_NAME);await Promise.allSettled([...APP_SHELL,...MODULE_ASSETS].map(async path=>{try{const response=await fetch(path,{cache:'no-store'});if(response&&(response.ok||response.type==='opaque'))await cache.put(path,response.clone())}catch(_){}}))}
+const SHELL=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
+const requiredPaths=new Set(MODULE_ASSETS.map(p=>new URL(p,self.registration.scope).pathname));
+const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
+async function cacheFresh(cache,url){
+  const res=await fetch(url,{cache:'no-store'});
+  if(!res||!res.ok)throw new Error('Recurso obligatorio no disponible: '+url);
+  await cache.put(url,res.clone());return res;
+}
 self.addEventListener('install',event=>event.waitUntil((async()=>{
-  await cacheShellSafely();
   const cache=await caches.open(CACHE_NAME);
-  for(const path of MODULE_ASSETS){
-    let response=await cache.match(path);
-    if(!response||!response.ok){
-      response=await fetch(path,{cache:'no-store'});
-      if(!response.ok)throw new Error('Módulo obligatorio no disponible: '+path);
-      await cache.put(path,response.clone());
-    }
-  }
+  // Mandatory script files: complete installation before becoming the active SW.
+  // Parallel network fetching takes place once on update, not on every launch.
+  const results=await Promise.allSettled([...MODULE_ASSETS,'./index.html'].map(p=>cacheFresh(cache,p)));
+  const errors=results.filter(r=>r.status==='rejected');
+  if(errors.length)throw new Error('No se puede activar una versión incompleta: '+errors.length+' recursos');
+  // Optional images and manifest must not delay installation.
   await self.skipWaiting();
 })()));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME&&k.startsWith('volley-coach-')).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+  const keys=await caches.keys();
+  await Promise.all(keys.filter(k=>k!==CACHE_NAME&&k.startsWith('volley-coach-')).map(k=>caches.delete(k)));
+  await self.clients.claim();
+})()));
 self.addEventListener('message',event=>{if(event.data==='SKIP_WAITING')self.skipWaiting()});
-self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET')return;const url=new URL(request.url);if(request.mode==='navigate'){event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{if(response&&response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE_NAME).then(c=>c.put('./index.html',copy)).catch(()=>{}))}return response}).catch(async()=>await caches.match('./index.html',{ignoreSearch:true})||await caches.match('./',{ignoreSearch:true})));return}if(url.origin===self.location.origin&&/(?:manifest\.webmanifest|icon-\d+\.png|apple-touch-icon\.png)/.test(url.pathname)){event.respondWith((async()=>{const cached=await caches.match(request,{ignoreSearch:true});const refresh=fetch(request,{cache:'no-store'}).then(async response=>{if(response&&response.ok){const c=await caches.open(CACHE_NAME);await c.put(request,response.clone())}return response}).catch(()=>null);if(cached){event.waitUntil(refresh);return cached}return await refresh||Response.error()})());return}if(url.origin===self.location.origin){event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{if(response&&response.ok){const copy=response.clone();event.waitUntil(caches.open(CACHE_NAME).then(c=>c.put(request,copy)).catch(()=>{}))}return response}).catch(()=>caches.match(request,{ignoreSearch:true})));return}event.respondWith((async()=>{const cached=await caches.match(request);const refresh=fetch(request).then(async response=>{if(response&&(response.ok||response.type==='opaque')){const c=await caches.open(CACHE_NAME);await c.put(request,response.clone())}return response}).catch(()=>null);if(cached){event.waitUntil(refresh);return cached}return await refresh||Response.error()})())});
+self.addEventListener('fetch',event=>{
+ const req=event.request;if(req.method!=='GET')return;
+ const url=new URL(req.url);
+ if(isCloudOrApi(url))return; // never cache Supabase auth, Realtime or database data.
+ if(req.mode==='navigate'){
+  event.respondWith((async()=>{
+   const cache=await caches.open(CACHE_NAME);
+   const cached=await cache.match('./index.html',{ignoreSearch:true});
+   const controller=new AbortController();
+   const timer=setTimeout(()=>controller.abort(),1500);
+   try{
+     const res=await fetch(req,{cache:'no-store',signal:controller.signal});
+     if(res&&res.ok){event.waitUntil(cache.put('./index.html',res.clone()).catch(()=>{}));return res}
+     return cached||res;
+   }catch(_){return cached||Response.error()}finally{clearTimeout(timer)}
+  })());return;
+ }
+ if(url.origin===self.location.origin){
+  if(requiredPaths.has(url.pathname)||/\.(?:js|css|webmanifest|png|svg|ico|woff2?)$/i.test(url.pathname)){
+   event.respondWith((async()=>{
+     const cache=await caches.open(CACHE_NAME);
+     const cached=await cache.match(req,{ignoreSearch:true});
+     if(cached)return cached; // zero network waits for already installed scripts
+     try{const res=await fetch(req);if(res&&res.ok)event.waitUntil(cache.put(req,res.clone()).catch(()=>{}));return res}catch(_){return Response.error()}
+   })());return;
+  }
+  return; // dynamic same-origin endpoints use browser/network, never stale cache.
+ }
+ // External libraries (PDF, Supabase JS) may be cached; API calls must not be.
+ if(/(?:cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com)$/.test(url.hostname)){
+   event.respondWith((async()=>{
+     const cache=await caches.open(CACHE_NAME);const hit=await cache.match(req);
+     if(hit)return hit;
+     try{const res=await fetch(req);if(res&&(res.ok||res.type==='opaque'))event.waitUntil(cache.put(req,res.clone()).catch(()=>{}));return res}catch(_){return Response.error()}
+   })());
+ }
+});
