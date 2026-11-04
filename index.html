@@ -959,9 +959,9 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
   <div class="v11-nav-group">
     <label>SCOUTING</label>
     <button data-v11-nav="scout-home" onclick="v11Navigate('scout-home')"><span>⌂</span><div><b>Centro de scouting</b><small>Partido · análisis · gestión</small></div></button>
-    <button data-v11-nav="match" onclick="v11Navigate('match')"><span>◆</span><div><b>Modo Partido</b><small>Directo · vídeo · marcador</small></div></button>
+
     <button data-v11-nav="bench" onclick="v11Navigate('bench')"><span>▣</span><div><b>Banquillo Pro</b><small>Decisiones en directo</small></div></button>
-    <button data-v11-nav="scouting" onclick="v11Navigate('scouting')"><span>⌁</span><div><b>Scouting Pro</b><small>Codificación profesional</small></div></button>
+    <button data-v11-nav="scouting" onclick="v11Navigate('scouting')"><span>⌁</span><div><b>Scouting Pro</b><small>Partido · vídeo · código</small></div></button>
     <button data-v11-nav="analysis" onclick="v11Navigate('analysis')"><span>▥</span><div><b>Análisis</b><small>Estadísticas completas</small></div></button>
     <button data-v11-nav="reports" onclick="v11Navigate('reports')"><span>▤</span><div><b>Informes</b><small>PDF · CSV · JSON</small></div></button>
   </div>
@@ -1378,9 +1378,9 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
     </header>
 
     <nav class="v118-scout-modules" aria-label="Flujo profesional de scouting">
-      <button class="v118-module match" onclick="v11Navigate('match')"><span>01</span><div><small>PARTIDO</small><b>Modo Partido</b><p>Marcador, rotaciones, vídeo + código y control del set.</p></div><strong>→</strong></button>
+
       <button class="v118-module match" onclick="v11Navigate('bench')"><span>◎</span><div><small>BANQUILLO</small><b>Banquillo Pro</b><p>Marcador, fases de juego y alertas tácticas en directo.</p></div><strong>→</strong></button>
-      <button class="v118-module coding" onclick="v11Navigate('scouting')"><span>02</span><div><small>REGISTRO</small><b>Scouting Pro</b><p>Codificación visual y DataVolley sin volver al clásico.</p></div><strong>→</strong></button>
+      <button class="v118-module coding" onclick="v11Navigate('scouting')"><span>01</span><div><small>PARTIDO Y SCOUTING</small><b>Scouting Pro Unificado</b><p>Codificación, marcador, pista, vídeo, rallies y estadísticas en una pantalla.</p></div><strong>→</strong></button>
       <button class="v118-module video" onclick="v11Navigate('video')"><span>03</span><div><small>VÍDEO</small><b>Video Review</b><p>Live, Delay, YouTube, archivo, clips y sincronización.</p></div><strong>→</strong></button>
       <button class="v118-module analysis" onclick="v11Navigate('analysis')"><span>04</span><div><small>LECTURA</small><b>Análisis</b><p>G-P, K1/K2, rotaciones, jugadores y patrones tácticos.</p></div><strong>→</strong></button>
       <button class="v118-module reports" onclick="v11Navigate('reports')"><span>05</span><div><small>SALIDA</small><b>Informes</b><p>Hoja oficial, Análisis Pro, CSV y copia JSON.</p></div><strong>→</strong></button>
@@ -2079,7 +2079,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div id="v800-shell" class="v800-shell">
     <div class="v800-top">
       <div class="v800-match-title">
-        <span class="pro-kicker">PARTIDO · CONTROL EN DIRECTO</span>
+        <span class="pro-kicker">SCOUTING PRO · PARTIDO UNIFICADO</span>
         <h2 id="v800-title">Sin partido activo</h2>
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
@@ -2124,14 +2124,21 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v800-team rival"><small id="v800-opponent">Rival</small><strong id="v800-score-op">0</strong><span id="v800-sets-op">0 sets</span></div>
       </section>
 
-      <div class="vc51-workspace-toolbar" role="group" aria-label="Vista de trabajo de partido">
-        <div class="vc51-workspace-intro"><strong>WORKSPACE PRO</strong><span>Scouting y vídeo en una sola estación</span></div>
-        <div class="vc51-workspace-actions">
-          <button type="button" id="vc51-video-mode" onclick="v112MatchTab('video')">▶ Vídeo + codificación</button>
-          <button type="button" id="vc51-live-mode" onclick="v112MatchTab('live')">⌨ Scouting directo</button>
-          <button type="button" id="vc51-focus-mode" aria-pressed="false" onclick="vc51ToggleFocus()">Concentración</button>
-        </div>
+      <nav id="vc52-modes" aria-label="Modos del Scouting Pro unificado">
+        <button type="button" data-vc52-mode="visual" class="selected" aria-pressed="true" onclick="vc52SetMode('visual')">Codificación visual</button>
+        <button type="button" data-vc52-mode="directo" aria-pressed="false" onclick="vc52SetMode('directo')">Directo y pista</button>
+        <button type="button" data-vc52-mode="video" aria-pressed="false" onclick="vc52SetMode('video')">Vídeo + código</button>
+        <button type="button" data-vc52-mode="revisar" aria-pressed="false" onclick="vc52SetMode('revisar')">Revisar rallies</button>
+        <button type="button" data-vc52-mode="analizar" aria-pressed="false" onclick="vc52SetMode('analizar')">Análisis rápido</button>
+      </nav>
+      <p id="vc52-mode-description">Selecciona jugador, acción, zona y valoración. Un único registro de datos.</p>
+      <div id="vc52-presence-bar" aria-label="Dispositivos y sincronización">
+        <div class="vc52-presence-pill">Otros dispositivos conectados: <b id="vc52-peer-count">—</b></div>
+        <div class="vc52-scout-actions"><button type="button" onclick="v122OpenMatchSwitcher()">Abrir / reabrir</button><button type="button" onclick="scoutOpenNewMatch()">Nuevo scouting</button></div>
+        <details id="vc52-devices"><summary>Estado de sincronización</summary><div id="vc52-devices-body"></div></details>
       </div>
+      <div id="vc52-pro-host" aria-label="Herramientas integradas de Scouting Pro"></div>
+      <div hidden aria-hidden="true" id="vc52-legacy-button-hooks"><button id="vc51-video-mode" type="button"></button><button id="vc51-live-mode" type="button"></button><button id="vc51-focus-mode" type="button"></button></div>
 
       <section id="v850-context-strip" class="v850-context-strip v112-context-strip">
         <div><span>CONTEXTO</span><b id="v850-context-stage">Inicio</b><small id="v850-context-copy">0-0</small></div>
@@ -15580,15 +15587,6 @@ body.v11-shell #entrenamiento .session-action-primary{flex:1;justify-content:fle
 body.v11-shell #scout-dashboard .v118-active-match{min-height:0!important}
 body.v11-shell #scout-analysis .scout-analysis-toolbar{justify-content:flex-end!important;gap:8px!important}
 body.v11-shell #scout-analysis .scout-analysis-toolbar select{max-width:240px;min-width:130px}
-/* Hide duplicate global create shortcuts when primary action is already visible. */
-body.v11-shell:has(#dashboard.active) .v11-topbar-actions .v11-quick,
-body.v11-shell:has(#entrenamiento.active) .v11-topbar-actions .v11-quick,
-body.v11-shell:has(#scout-dashboard.active) .v11-topbar-actions .v11-quick{display:none!important}
-body.v11-shell:has(#dashboard.active) #global-quick-actions,
-body.v11-shell:has(#entrenamiento.active) #global-quick-actions,
-body.v11-shell:has(#scout-dashboard.active) #global-quick-actions{display:none!important}
-body.v11-shell .v11-brand small::after{content:" · V16.0.5.1.2"!important}
-
 @media(max-width:720px){
  body.v11-shell #dashboard .v11-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  body.v11-shell #scout-analysis .scout-analysis-toolbar select{max-width:100%;width:100%}
@@ -15762,4 +15760,78 @@ window.VC_16051_WORKSPACE={version:'16.0.5.1',diagnostics:()=>({video:!!$('v800-
 })();
 
 </script>
+<style id="vc16052-unified-style">
+/* V16.0.5.2 · Una sola superficie de trabajo con 5 modos complementarios */
+#scout-match-mode #vc52-modes{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:12px 0 3px;padding:8px;background:#fff;border:1px solid #dbe6ed;border-radius:14px;scroll-margin-top:75px}
+#scout-match-mode #vc52-modes button{flex:1 1 155px;min-height:44px;padding:10px 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#34536a;font-size:12px;font-weight:800;cursor:pointer}
+#scout-match-mode #vc52-modes button:hover{background:#f2f7fb}
+#scout-match-mode #vc52-modes button.selected{background:#145e8c;color:#fff;box-shadow:0 2px 8px #16476124}
+#scout-match-mode #vc52-modes button:focus-visible{outline:3px solid #e7ad4f;outline-offset:2px}
+#scout-match-mode #vc52-mode-description{margin:4px 0 9px;color:#657f8e;font-size:11px}
+#scout-match-mode #vc52-presence-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin:8px 0}
+#scout-match-mode #vc52-presence-bar .vc52-presence-pill{display:flex;gap:8px;align-items:center;font-size:11px;color:#32536c;background:#eef6fb;border:1px solid #d5e6f1;border-radius:20px;padding:6px 12px}
+#scout-match-mode #vc52-presence-bar .vc52-presence-pill>b{font-size:12px;color:#095e88}
+#scout-match-mode #vc52-devices{flex:0 1 auto;font-size:11px;color:#47758d}
+#scout-match-mode #vc52-devices summary{cursor:pointer;font-weight:700}
+#scout-match-mode #vc52-devices[open]{flex:1 0 100%;background:#fff;border:1px solid #d9e5ed;border-radius:12px;padding:8px 10px}
+#scout-match-mode #vc52-devices-body>.v138-device-strip{margin:8px 0 0!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#scout-match-mode #vc52-pro-host{min-width:0;max-width:100%;overflow:visible}
+#scout-match-mode #vc52-pro-host>.vc52-integrated{display:block!important;position:static!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;padding:0!important;background:transparent!important}
+#scout-match-mode #vc52-pro-host .v900-shell{width:100%!important;max-width:none!important;padding:0!important;margin:0!important;background:transparent!important}
+/* Keep all compatibility nodes and their IDs, but do not display the second header/scoreboard/switcher. */
+#scout-match-mode #vc52-pro-host .v900-topbar,
+#scout-match-mode #vc52-pro-host #v123-scout-switchbar,
+#scout-match-mode #vc52-pro-host #v137-save-strip,
+#scout-match-mode #vc52-pro-host .v900-statusbar,
+#scout-match-mode #vc52-pro-host .v900-phase-nav,
+#scout-match-mode #vc52-pro-host #v900-no-match,
+#scout-match-mode #vc52-pro-host #v132-cockpit,
+#scout-match-mode #vc52-pro-host #v121-live-control,
+#scout-match-mode #vc52-pro-host .v111-scout-nav,
+#scout-match-mode #vc52-pro-host .v111-workflow{display:none!important}
+#scout-match-mode #vc52-pro-host #v900-live{display:block!important;margin:0!important}
+/* Keep exactly one working area active; no parallel visible score or duplicate coding panel. */
+#scout-match-mode #v800-shell[data-vc52-mode="visual"] #v800-live>.v800-live-grid,
+#scout-match-mode #v800-shell[data-vc52-mode="revisar"] #v800-live>.v800-live-grid,
+#scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v800-live>.v800-live-grid,
+#scout-match-mode #v800-shell[data-vc52-mode="video"] #v800-live>.v800-live-grid{display:none!important}
+#scout-match-mode #v800-shell[data-vc52-mode="directo"] #vc52-pro-host,
+#scout-match-mode #v800-shell[data-vc52-mode="video"] #vc52-pro-host{display:none!important}
+#scout-match-mode #v800-shell[data-vc52-mode="visual"] #v900-phase-prepare,
+#scout-match-mode #v800-shell[data-vc52-mode="visual"] #v900-phase-review,
+#scout-match-mode #v800-shell[data-vc52-mode="visual"] #v900-phase-analyze,
+#scout-match-mode #v800-shell[data-vc52-mode="revisar"] #v900-phase-prepare,
+#scout-match-mode #v800-shell[data-vc52-mode="revisar"] #v900-phase-scout,
+#scout-match-mode #v800-shell[data-vc52-mode="revisar"] #v900-phase-analyze,
+#scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v900-phase-prepare,
+#scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v900-phase-scout,
+#scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v900-phase-review{display:none!important}
+#scout-match-mode #v800-shell[data-vc52-mode="visual"] #v900-phase-scout,
+#scout-match-mode #v800-shell[data-vc52-mode="revisar"] #v900-phase-review,
+#scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v900-phase-analyze{display:block!important}
+#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(315px,1fr) minmax(440px,1.1fr) minmax(280px,.72fr)!important;gap:12px!important}
+#scout-match-mode #vc52-pro-host .v900-card{border-radius:13px!important;box-shadow:0 3px 12px #24516a0b!important}
+#scout-match-mode #vc52-pro-host .v132-recent-card{margin-top:8px}
+#scout-match-mode #vc52-pro-host .v900-phase-panel{padding-top:6px}
+#scout-match-mode #vc52-pro-host #v900-phase-scout .v111-detail-switch{display:flex}
+#scout-match-mode #vc52-pro-host #v900-phase-scout .v900-register{min-height:52px!important}
+#scout-match-mode #v800-shell[data-vc52-mode="visual"] #v112-video-drawer,
+#scout-match-mode #v800-shell[data-vc52-mode="directo"] #v112-video-drawer,
+#scout-match-mode #v800-shell[data-vc52-mode="revisar"] #v112-video-drawer,
+#scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v112-video-drawer{display:none!important}
+/* Old toolbar is removed from HTML; no duplicate navigation beside unified modes. */
+#scout-dashboard .v118-scout-modules>.v118-module.match[onclick*="'match'"]{display:none!important}
+@media(max-width:1320px){#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}#scout-match-mode #vc52-pro-host .v900-intel-column{grid-column:1/-1!important}}
+@media(max-width:880px){#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr)!important}#scout-match-mode #vc52-pro-host .v900-intel-column{grid-column:auto!important}#scout-match-mode #vc52-devices-body>.v138-device-strip{grid-template-columns:1fr 1fr!important}}
+@media(max-width:620px){#scout-match-mode #vc52-modes{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;padding:6px}#scout-match-mode #vc52-modes button{flex:0 0 auto;min-width:130px;scroll-snap-align:start;font-size:11px}#scout-match-mode #vc52-presence-bar{align-items:flex-start}#scout-match-mode #vc52-devices{margin-left:auto}#scout-match-mode #vc52-devices-body>.v138-device-strip{grid-template-columns:minmax(0,1fr)!important}#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+#scout-match-mode #vc52-presence-bar .vc52-scout-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#scout-match-mode #vc52-presence-bar .vc52-scout-actions>button{font-size:11px;font-weight:700;min-height:34px;padding:7px 11px;border:1px solid #cee0eb;border-radius:9px;background:#fff;color:#20516f;cursor:pointer}
+#scout-match-mode #vc52-presence-bar .vc52-scout-actions>button:last-child{background:#17658f;color:#fff;border-color:#17658f}
+#scout-match-mode #vc52-match-tools{border:1px solid #d9e5ed;border-radius:11px;background:white;margin:7px 0}
+#scout-match-mode #vc52-match-tools>summary{padding:10px 12px;cursor:pointer;color:#345c76;font-size:12px;font-weight:750}
+#scout-match-mode #vc52-match-tools:not([open])>.v119-probar{display:none!important}
+#scout-match-mode #vc52-match-tools[open]>.v119-probar{padding:8px!important;margin:0!important;display:block!important}
+</style>
+<script src="./114-vc16052-scouting-unificado.js"></script>
 </body></html>
