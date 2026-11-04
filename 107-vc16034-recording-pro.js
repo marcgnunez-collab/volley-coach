@@ -4,7 +4,10 @@
 // No writes to match/scouting state except explicit clip creation via VC_SCOUT_CLIPS_PRO.
 const VERSION='16.0.3.4',DB='VolleyCoachRecordingsV770',$=id=>document.getElementById(id);
 const root=$('vc-rec34');if(!root)return;
-const state={busy:false,sessions:[],lastScan:0,storageAt:0,refreshing:false};
+const state={busy:false,sessions:[],lastScan:0,storageAt:0,refreshing:false,libraryKey:null,stats:{libraryRenders:0,librarySkipped:0,libraryScans:0,idleTicks:0,uiTicks:0}};
+const modalOpen=()=>!!$('live-delay-modal')?.classList.contains('open');
+const reviewOpen=()=>!!$('scout-video-hub')?.classList.contains('active');
+const put=(el,value)=>{if(el&&el.textContent!==String(value))el.textContent=String(value)};
 const formatSize=b=>{b=Math.max(0,Number(b)||0);return b<1024*1024?`${Math.round(b/1024)} KB`:b<1024**3?`${(b/1024**2).toFixed(1)} MB`:`${(b/1024**3).toFixed(2)} GB`};
 const formatTime=ms=>{let s=Math.max(0,Math.floor((Number(ms)||0)/1000));return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`};
 const safeName=s=>String(s||'Volley_Coach').replace(/[\\/:*?"<>|\x00-\x1f]+/g,'_').trim().slice(0,100)||'Volley_Coach';
@@ -110,19 +113,30 @@ function installReviewStrip(){
 }
 function updateReviewStrip(d){const strip=$('vc-rec34-strip');if(!strip)return;
  const active=!!d.active,status=$('vc-rec34-strip-status'),start=$('vc-rec34-strip-start'),pause=$('vc-rec34-strip-pause'),stop=$('vc-rec34-strip-stop');
- strip.dataset.active=active?'1':'0';if(status)status.textContent=active?`${d.paused?'REC en pausa':'REC activa'} · ${formatTime(d.elapsedMs)} · ${formatSize(d.durableBytes)} escritos`:'Inicia LIVE antes de grabar. REC es independiente de DELAY.';
- if(start)start.disabled=active||state.busy;if(pause){pause.disabled=!active||state.busy;pause.textContent=d.paused?'Reanudar':'Pausar'}if(stop)stop.disabled=!active||state.busy;
+ const statusValue=active?`${d.paused?'REC en pausa':'REC activa'} · ${formatTime(d.elapsedMs)} · ${formatSize(d.durableBytes)} escritos`:'Inicia LIVE antes de grabar. REC es independiente de DELAY.';
+ if(strip.dataset.active!==(active?'1':'0'))strip.dataset.active=active?'1':'0';put(status,statusValue);
+ if(start&&start.disabled!==(active||state.busy))start.disabled=active||state.busy;
+ if(pause){if(pause.disabled!==(!active||state.busy))pause.disabled=!active||state.busy;put(pause,d.paused?'Reanudar':'Pausar')}
+ if(stop&&stop.disabled!==(!active||state.busy))stop.disabled=!active||state.busy;
 }
 installReviewStrip();
-function render(){const d=window.vcRecordingDiagnostics?.()||{},list=$('vc-rec34-library');updateReviewStrip(d);
- const saved=$('vc-rec34-saved'),pending=$('vc-rec34-pending'),health=$('vc-rec34-health'),mode=$('vc-rec34-mode');
- if(saved)saved.textContent=formatSize(d.durableBytes||0);
- if(pending)pending.textContent=d.active?`${d.durableChunks||0} fragmentos confirmados · ${d.pendingWrites||0} pendientes`:'Sin grabación activa';
- if(health){const error=!!(d.writeError||d.recorderError);health.dataset.level=error?'error':d.active?'rec':'';health.textContent=error?'Comprobar REC':d.active?(d.paused?'REC PAUSADA':'● REC ACTIVA'):'Preparado'}
- if(mode)mode.textContent=($('vc-recording-storage')?.value||'disk')==='disk'?'Archivo directo':'Recuperable';
- if(!list)return;
+function updateStatus(d=window.vcRecordingDiagnostics?.()||{}){
+ if(reviewOpen())updateReviewStrip(d);
+ if(!modalOpen())return;
+ put($('vc-rec34-saved'),formatSize(d.durableBytes||0));
+ put($('vc-rec34-pending'),d.active?`${d.durableChunks||0} fragmentos confirmados · ${d.pendingWrites||0} pendientes`:'Sin grabación activa');
+ const health=$('vc-rec34-health');if(health){const error=!!(d.writeError||d.recorderError),level=error?'error':d.active?'rec':'';
+  if(health.dataset.level!==level)health.dataset.level=level;put(health,error?'Comprobar REC':d.active?(d.paused?'REC PAUSADA':'● REC ACTIVA'):'Preparado')}
+ put($('vc-rec34-mode'),($('vc-recording-storage')?.value||'disk')==='disk'?'Archivo directo':'Recuperable');
+}
+function render(){updateStatus();const list=$('vc-rec34-library');if(!list)return;
  const available=state.sessions.filter(s=>['browser','gallery'].includes(s.mode));
- const count=$('vc-rec34-count');if(count)count.textContent=String(available.length);
+ put($('vc-rec34-count'),available.length);
+ // Only rebuild on real catalogue/state changes. Changing REC elapsed time
+ // must NEVER replace every session card (or reset its focused buttons).
+ const key=JSON.stringify([state.busy,state.sessions.length,state.sessions.slice(0,30).map(s=>[s.id,s.filename,s.mode,s.startedAt,s.completed,s.durationMs,s.bytes,s.match?.opponent,(s.markers||[]).length])]);
+ if(key===state.libraryKey){state.stats.librarySkipped++;return}
+ state.libraryKey=key;state.stats.libraryRenders++;
  list.replaceChildren();
  if(!state.sessions.length){const empty=document.createElement('p');empty.className='vc-rec34-empty';empty.textContent='Todavía no hay sesiones guardadas en este navegador.';list.appendChild(empty);return}
  for(const s of state.sessions.slice(0,30)){
@@ -142,14 +156,32 @@ function render(){const d=window.vcRecordingDiagnostics?.()||{},list=$('vc-rec34
  }
  if(state.sessions.length>30){const more=document.createElement('p');more.className='vc-rec34-empty';more.textContent=`Se muestran las 30 sesiones más recientes de ${state.sessions.length}.`;list.appendChild(more)}
 }
-async function refresh(){if(state.refreshing)return;state.refreshing=true;
+async function refresh(){if(state.refreshing)return;state.refreshing=true;state.stats.libraryScans++;
  try{state.sessions=await getSessions();state.lastScan=Date.now();render();await storageInfo()}
  catch(e){tell('No se puede leer la biblioteca: '+errMsg(e),true)}finally{state.refreshing=false}}
 try{const v=localStorage.getItem('vc-rec34-quality');if(['1600000','2500000','3500000'].includes(v)&&$('vc-rec34-bitrate'))$('vc-rec34-bitrate').value=v}catch(_){}
 $('vc-rec34-bitrate')?.addEventListener('change',e=>{try{localStorage.setItem('vc-rec34-quality',e.target.value)}catch(_){}tell('El perfil se aplicará al iniciar la próxima grabación.')});
 $('vc-rec34-refresh')?.addEventListener('click',refresh);$('vc-rec34-persist')?.addEventListener('click',persistStorage);
-$('vc-recording-storage')?.addEventListener('change',render);
-window.VC_RECORDING_PRO={version:VERSION,list:()=>getSessions().then(a=>a.map(metadata)),export:doExport,openReview,metadata:downloadMetadata,refresh,diagnostics:()=>({version:VERSION,sessions:state.sessions.length,busy:state.busy,recording:window.vcRecordingDiagnostics?.()||{}})};
-setInterval(()=>{if(document.visibilityState==='hidden')return;render();if(Date.now()-state.lastScan>12000){void refresh()}},2400);
-void refresh();
+$('vc-recording-storage')?.addEventListener('change',()=>updateStatus());
+window.VC_RECORDING_PRO={version:VERSION,list:()=>getSessions().then(a=>a.map(metadata)),export:doExport,openReview,metadata:downloadMetadata,refresh,diagnostics:()=>({version:'16.0.3.5',sessions:state.sessions.length,busy:state.busy,performance:{...state.stats},recording:window.vcRecordingDiagnostics?.()||{}})};
+// No background IndexedDB reads or DOM rebuilding in Scouting/Analysis.
+// A lightweight live status remains visible when the REC strip is on screen.
+let wasModalOpen=false,previousActive=false;
+setInterval(()=>{
+ if(document.visibilityState==='hidden'){state.stats.idleTicks++;return}
+ const modal=modalOpen(),review=reviewOpen();
+ if(!modal&&!review){wasModalOpen=false;state.stats.idleTicks++;return}
+ state.stats.uiTicks++;
+ const d=window.vcRecordingDiagnostics?.()||{};
+ updateStatus(d);
+ if(modal){
+  const changed=modal!==wasModalOpen;
+  if((changed||Date.now()-state.lastScan>30000)&&!state.refreshing)void refresh();
+  else if(previousActive&&!d.active)void refresh();
+ }
+ previousActive=!!d.active;wasModalOpen=modal;
+},1500);
+// IndexDB can hold gigabytes: do not scan on every application launch.
+// Load on opening Recording Studio, or explicitly via the public refresh button.
+if(modalOpen())void refresh();else render();
 })();

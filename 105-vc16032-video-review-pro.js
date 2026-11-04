@@ -6,7 +6,10 @@ const $=id=>document.getElementById(id);
 const root=$('scout-video-hub');
 if(!root||!$('vc-review-pro-bar'))return;
 root.classList.add('vc-review-pro-enabled');
-const state={marks:[],markKey:'',dragging:false,lastSource:'',lastAvailable:false};
+const state={marks:[],markKey:'',dragging:false,lastSource:'',lastAvailable:false,updates:0,skipped:0};
+const put=(el,value)=>{if(el&&el.textContent!==String(value))el.textContent=String(value)};
+const disable=(el,value)=>{if(el&&el.disabled!==!!value)el.disabled=!!value};
+const seekControls=[...root.querySelectorAll('[data-vc-review-seek]')];
 const diag=()=>{try{return window.liveDelayDiagnostics?.()||{}}catch(_){return{}}};
 const activeSource=()=>['live','delay','youtube','local'].find(k=>$('v117-review-source-'+k)?.classList.contains('active'))||'local';
 const video=()=>$('v780-player-video');
@@ -108,24 +111,24 @@ window.vcReviewProMark=function(){
 };
 window.vcReviewProClearMarks=function(){state.marks=[];rebuildMarks()};
 function refresh(){
-  if(!root.classList.contains('active'))return;
+  if(!root.classList.contains('active')||document.visibilityState==='hidden'){state.skipped++;return;}
+  state.updates++;
   const d=currentData(),key=markContext(d.source);
   if(key!==state.markKey){state.markKey=key;state.marks=[];rebuildMarks()}
-  const source=$('vc-review-pro-source');if(source)source.textContent=d.source.toUpperCase();
-  const health=$('vc-review-pro-health');if(health)health.textContent=d.health;
+  put($('vc-review-pro-source'),d.source.toUpperCase());
+  put($('vc-review-pro-health'),d.health);
   const progress=$('vc-review-pro-timeline');
   if(progress){
-    progress.disabled=!d.available;
-    if(!state.dragging)progress.value=d.available?String(Math.round(1000*clamp((d.current-d.start)/Math.max(.001,d.end-d.start),0,1))):'0';
+    disable(progress,!d.available);
+    if(!state.dragging){const value=d.available?String(Math.round(1000*clamp((d.current-d.start)/Math.max(.001,d.end-d.start),0,1))):'0';if(progress.value!==value)progress.value=value}
   }
-  const time=$('vc-review-pro-time');if(time&&!state.dragging)time.textContent=d.available?`${format(d.current-d.start)} / ${format(d.end-d.start)}`:'—:— / —:—';
-  const rate=$('vc-review-pro-rate');if(rate&&d.available){const newRate=String(d.speed);if([...rate.options].some(o=>o.value===newRate))rate.value=newRate}
-  const play=$('vc-review-pro-play');if(play)play.textContent=d.playing?'❚❚ Pausa':'▶ Reproducir';
-  root.querySelectorAll('[data-vc-review-seek]').forEach(el=>{el.disabled=!d.available});
-  if(rate)rate.disabled=!d.available;
-  const mark=$('vc-review-pro-mark');if(mark)mark.disabled=!d.available;
-  const msg=$('vc-review-pro-hint');if(msg)msg.textContent=d.details;
-  const delayBadge=$('vc-review-pro-delay');if(delayBadge)delayBadge.textContent=d.source==='delay'&&d.liveDelay!=null?`${number(d.liveDelay).toFixed(1)} s del directo`:' ';
+  const time=$('vc-review-pro-time');if(!state.dragging)put(time,d.available?`${format(d.current-d.start)} / ${format(d.end-d.start)}`:'—:— / —:—');
+  const rate=$('vc-review-pro-rate');if(rate&&d.available){const newRate=String(d.speed);if(rate.value!==newRate&&[...rate.options].some(o=>o.value===newRate))rate.value=newRate}
+  put($('vc-review-pro-play'),d.playing?'❚❚ Pausa':'▶ Reproducir');
+  seekControls.forEach(el=>disable(el,!d.available));
+  disable(rate,!d.available);disable($('vc-review-pro-mark'),!d.available);
+  put($('vc-review-pro-hint'),d.details);
+  put($('vc-review-pro-delay'),d.source==='delay'&&d.liveDelay!=null?`${number(d.liveDelay).toFixed(1)} s del directo`:' ');
   if(state.dragging&&progress&&!progress.matches(':active'))state.dragging=false;
 }
 document.addEventListener('keydown',event=>{
@@ -144,5 +147,5 @@ $('vc-review-pro-timeline')?.addEventListener('pointercancel',()=>{state.draggin
 $('vc-review-pro-timeline')?.addEventListener('blur',()=>{state.dragging=false});
 setInterval(refresh,450);
 rebuildMarks();refresh();
-window.VC_VIDEO_REVIEW_PRO={version:VERSION,diagnostics:()=>({source:activeSource(),marks:state.marks.length,available:currentData().available}),refresh};
+window.VC_VIDEO_REVIEW_PRO={version:'16.0.3.5',diagnostics:()=>({source:activeSource(),marks:state.marks.length,available:currentData().available,performance:{updates:state.updates,skipped:state.skipped}}),refresh};
 })();

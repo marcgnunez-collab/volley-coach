@@ -474,6 +474,8 @@ function maintainDelay(force=false){
   else maintainDelayLegacy(force);
 }
 function updateMetrics(){
+  // Telemetry is presentation-only. Never stop MediaRecorder/MSE or delay ticks.
+  if(document.visibilityState==='hidden'||(!($('live-delay-modal')?.classList.contains('open'))&&!($('scout-video-hub')?.classList.contains('active'))))return;
   const r=bufferedRange(),v=delayed();
   if($('live-delay-buffered'))$('live-delay-buffered').textContent=r?fmtSec(r.span):'0 s';
   if($('live-delay-actual')){
@@ -866,6 +868,7 @@ window.openLiveDelay=async function(context='training'){
   state.context=context==='scouting'?'scouting':'training';
   loadPrefs();updateUi();
   $('live-delay-modal')?.classList.add('open');
+  updateMetrics();
   await populateCameras();
   const remoteSelected=($('live-delay-source')?.value==='remote');
   const supported=!!chooseMime()&&(remoteSelected?!!window.VC_REMOTE_CAMERA?.getStream:!!navigator.mediaDevices?.getUserMedia);

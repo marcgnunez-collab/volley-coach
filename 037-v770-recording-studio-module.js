@@ -152,7 +152,9 @@ function updateUI(){
 function startTimer(){
   clearInterval(state.timer);
   state.timer=setInterval(()=>{
-    updateUI();
+    // Recording and set markers continue even when the modal is closed.
+    // Rebuilding the marker DOM twice a second outside Recording Studio is wasted work.
+    if(document.visibilityState==='visible'&&$('live-delay-modal')?.classList.contains('open'))updateUI();
     if(state.active&&$('vc-recording-auto-set')?.checked){
       const setNo=currentSetNo();
       if(setNo&&setNo!==state.lastSet){
