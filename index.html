@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.3.3 · Clips y Video Review</title>
+<title>Volley Coach | V16.0.3.7 · Entrenamiento estable y arranque</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -44,7 +44,8 @@ window.addEventListener('error',function(event){
 <style id="v118-first-paint-style">
 html.v118-booting body,html.v139-booting body{visibility:hidden!important}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- V16.0.3.7: Supabase is loaded asynchronously by v141EnsureCloudLibrary after first paint.
+     That existing loader calls initCloud() when it becomes available. -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
@@ -1244,13 +1245,13 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
     </div>
     <div id="plan-hoy-aviso" class="today-plan-wrap"></div>
     <div class="session-meta-grid">
-      <label class="session-field"><span>Fecha</span><input id="sesion-fecha" type="date" oninput="guardarSesionMeta()"></label>
+      <label class="session-field"><span>Fecha</span><input id="sesion-fecha" type="date" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></label>
       <label class="session-field"><span>Equipo</span><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"></label>
-      <label class="session-field"><span>Asistentes</span><input id="sesion-jugadores" type="number" min="1" placeholder="Nº" oninput="guardarSesionMeta()"></label>
-      <label class="session-field"><span>Objetivo de tiempo</span><input id="sesion-duracion-objetivo" type="number" min="0" step="5" placeholder="Ej. 90 min" oninput="guardarSesionMeta()"></label>
-      <label class="session-field"><span>Intensidad</span><select id="sesion-intensidad" oninput="guardarSesionMeta()"><option value="Baja">Baja</option><option value="Media" selected>Media</option><option value="Alta">Alta</option></select></label>
+      <label class="session-field"><span>Asistentes</span><input id="sesion-jugadores" type="number" min="1" placeholder="Nº" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></label>
+      <label class="session-field"><span>Objetivo de tiempo</span><input id="sesion-duracion-objetivo" type="number" min="0" step="5" placeholder="Ej. 90 min" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></label>
+      <label class="session-field"><span>Intensidad</span><select id="sesion-intensidad" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"><option value="Baja">Baja</option><option value="Media" selected>Media</option><option value="Alta">Alta</option></select></label>
     </div>
-    <label class="session-field session-objective"><span>Objetivo principal</span><textarea id="sesion-objetivo" placeholder="¿Qué quieres conseguir en esta sesión?" oninput="guardarSesionMeta()"></textarea></label>
+    <label class="session-field session-objective"><span>Objetivo principal</span><textarea id="sesion-objetivo" placeholder="¿Qué quieres conseguir en esta sesión?" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></textarea></label>
     <div class="smart-session-summary">
       <div class="smart-session-primary">
         <span class="smart-session-kicker">RESUMEN DE SESIÓN</span>
@@ -1275,7 +1276,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
   <div class="session-workspace">
     <div id="stage-rail" class="stage-rail"></div>
     <div id="lista-sesion" class="training-blocks"></div>
-    <details class="session-general-notes"><summary>Notas generales del entrenador</summary><textarea id="sesion-notas" placeholder="Observaciones generales, consignas o recordatorios..." oninput="guardarSesionMeta()"></textarea></details>
+    <details class="session-general-notes"><summary>Notas generales del entrenador</summary><textarea id="sesion-notas" placeholder="Observaciones generales, consignas o recordatorios..." oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></textarea></details>
     <div class="session-action-bar">
       <div class="session-action-context"><b id="action-session-summary">0 ejercicios · 0 min</b><span>La sesión se guarda automáticamente</span></div>
       <div class="session-action-primary"><button class="primary" onclick="exportarPDF()">Exportar PDF</button><button class="ghost" onclick="guardarSesionEnPlanificacion(false)">Guardar en planificación</button><button class="success" onclick="finalizarEntrenamiento()">Finalizar entrenamiento</button></div>
@@ -3511,7 +3512,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 </div>
 
 
-<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.0.3.7" data-vc-module="true"></script>
 
 
 <script id="players-pro-v2-script" src="./003-players-pro-v2-script.js?v=16.0.2.1" data-vc-module="true"></script>
@@ -14943,5 +14944,95 @@ if(new URLSearchParams(location.search).get('vc_perf')==='1'){
   };
 })();
 </script>
-<script id="vc16036-performance-version">window.VC_PERFORMANCE_PRO={version:'16.0.3.6',scope:'UI solamente',diagnostics:()=>({navigation:window.VC_V140?.diagnostics?.().performance||{},analysis:window.VC_ANALYSIS_RENDER_OPT?.diagnostics?.()||null,review:window.VC_VIDEO_REVIEW_PRO?.diagnostics?.().performance||null,recording:window.VC_RECORDING_PRO?.diagnostics?.().performance||null})};</script>
+
+<script id="vc16037-session-read-position">
+/* V16.0.3.7 · preserve reading position and expanded content across session redraws.
+   This is presentation-only and does not change exercise order or training data. */
+(()=>{
+  'use strict';
+  if(window.VC_TRAINING_STABILITY_16037)return;
+  const active=()=>document.querySelector('#entrenamiento.view.active');
+  const rail=()=>document.getElementById('lista-sesion');
+  let restores=0,skipped=0;
+  function snapshot(){
+    const root=rail();if(!root||!active())return null;
+    const stages=[...root.querySelectorAll('.training-stage .stage-notes[open]')].map(x=>x.closest('.training-stage')?.id).filter(Boolean);
+    const exercises=[...root.querySelectorAll('.session-exercise-card[data-exercise-id] .session-exercise-details[open]')].map(x=>x.closest('.session-exercise-card')?.dataset.exerciseId).filter(Boolean);
+    const focused=document.activeElement;
+    const focusedStage=focused?.matches?.('.stage-notes textarea')?focused.closest('.training-stage')?.id:null;
+    const focusStart=focusedStage?focused.selectionStart:null,focusEnd=focusedStage?focused.selectionEnd:null;
+    // Preserve the visible exercise rather than an absolute page position (cards may change height).
+    const candidates=[...root.querySelectorAll('.session-exercise-card[data-exercise-id]')];
+    const anchor=focused?.closest?.('.session-exercise-card[data-exercise-id]')||candidates.find(x=>x.getBoundingClientRect().bottom>100&&x.getBoundingClientRect().top<innerHeight*0.85)||candidates[0];
+    return {stages,exercises,focusedStage,focusStart,focusEnd,teamId:String(typeof equipoActivo==='undefined'?'':equipoActivo),anchorId:anchor?.dataset.exerciseId||'',anchorTop:anchor?.getBoundingClientRect().top??null,scrollY:window.scrollY};
+  }
+  function restore(s){
+    if(!s||!active()||s.teamId!==String(typeof equipoActivo==='undefined'?'':equipoActivo))return;
+    const root=rail();if(!root)return;
+    for(const id of s.stages){const node=document.getElementById(id);if(node&&root.contains(node)){const d=node.querySelector('.stage-notes');if(d)d.open=true}}
+    for(const id of s.exercises){const card=[...root.querySelectorAll('.session-exercise-card[data-exercise-id]')].find(x=>x.dataset.exerciseId===id);const d=card?.querySelector('.session-exercise-details');if(d)d.open=true}
+    if(s.focusedStage){
+      const textarea=document.getElementById(s.focusedStage)?.querySelector('.stage-notes textarea');
+      if(textarea){try{textarea.focus({preventScroll:true});textarea.setSelectionRange(s.focusStart,s.focusEnd)}catch(_){}}
+    }
+    if(s.anchorId&&s.anchorTop!==null){
+      const anchor=[...root.querySelectorAll('.session-exercise-card[data-exercise-id]')].find(x=>x.dataset.exerciseId===s.anchorId);
+      if(anchor){
+        const diff=anchor.getBoundingClientRect().top-s.anchorTop;
+        if(Math.abs(diff)>2&&Math.abs(window.scrollY-s.scrollY)<Math.max(1200,innerHeight))window.scrollBy({top:diff,behavior:'instant'});
+      }
+    }
+    restores++;
+  }
+  const original=window.renderizarSesion;
+  if(typeof original!=='function'){return}
+  const wrapped=function(...args){
+    const s=snapshot();const out=original.apply(this,args);
+    if(!s){skipped++;return out}
+    // Existing V15.2.5 restoration uses requestAnimationFrame; restore after it.
+    requestAnimationFrame(()=>requestAnimationFrame(()=>restore(s)));
+    return out;
+  };
+  wrapped.__vc16037=true;wrapped.__base=original;window.renderizarSesion=wrapped;
+  window.VC_TRAINING_STABILITY_16037={version:'16.0.3.7',diagnostics:()=>({restores,skipped})};
+})();
+</script>
+
+<script id="vc16037-library-scroll-stability">
+/* Preserve the visible library exercise during the list rebuild used by cloud/filter refreshes.
+   The existing V16.0.3.5.1 patch still owns which fichas remain expanded. */
+(()=>{
+  'use strict';
+  if(window.VC_LIBRARY_SCROLL_16037)return;
+  const list=()=>document.getElementById('contenedor-principal');
+  const isVisible=()=>!!document.querySelector('#ejercicios.view.active');
+  let restored=0;
+  const previous=window.renderizar;
+  if(typeof previous!=='function')return;
+  function capture(){
+    if(!isVisible())return null;
+    const cards=[...list()?.querySelectorAll('.library-pro-row[data-exercise-id]')||[]];
+    const anchor=cards.find(c=>c.getBoundingClientRect().bottom>100&&c.getBoundingClientRect().top<innerHeight*0.80);
+    if(!anchor)return null;
+    return {id:anchor.dataset.exerciseId,top:anchor.getBoundingClientRect().top,scroll:window.scrollY,count:cards.length,first:cards[0]?.dataset.exerciseId,last:cards[cards.length-1]?.dataset.exerciseId};
+  }
+  function restore(s){
+    if(!s||!isVisible())return;
+    const cards=[...list()?.querySelectorAll('.library-pro-row[data-exercise-id]')||[]];
+    if(cards.length!==s.count||cards[0]?.dataset.exerciseId!==s.first||cards[cards.length-1]?.dataset.exerciseId!==s.last)return;
+    const card=cards.find(x=>x.dataset.exerciseId===s.id);
+    if(!card)return;
+    const delta=card.getBoundingClientRect().top-s.top;
+    if(Math.abs(delta)>2&&Math.abs(scrollY-s.scroll)<Math.max(1200,innerHeight))scrollBy({top:delta,behavior:'instant'});
+    restored++;
+  }
+  window.renderizar=function(...args){
+    const anchor=capture(),result=previous.apply(this,args);
+    if(anchor)requestAnimationFrame(()=>requestAnimationFrame(()=>restore(anchor)));
+    return result;
+  };
+  window.VC_LIBRARY_SCROLL_16037={version:'16.0.3.7',diagnostics:()=>({restored})};
+})();
+</script>
+<script id="vc16036-performance-version">window.VC_PERFORMANCE_PRO={version:'16.0.3.7',scope:'Interfaz y carga',diagnostics:()=>({navigation:window.VC_V140?.diagnostics?.().performance||{},analysis:window.VC_ANALYSIS_RENDER_OPT?.diagnostics?.()||null,review:window.VC_VIDEO_REVIEW_PRO?.diagnostics?.().performance||null,recording:window.VC_RECORDING_PRO?.diagnostics?.().performance||null,training:window.VC_TRAINING_STABILITY_16037?.diagnostics?.()||null,library:window.VC_LIBRARY_SCROLL_16037?.diagnostics?.()||null})};</script>
 </body></html>

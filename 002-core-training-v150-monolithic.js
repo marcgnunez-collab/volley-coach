@@ -535,6 +535,7 @@ function actualizarSelectorEquipo(){
 }
 function cambiarEquipo(id){
   if(!EQUIPOS[id]||id===equipoActivo)return;
+  vcTrainingFlushDraft();
   seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;
   guardarEquipoEnMemoria();guardarEstadoLocalSinCloud();
   equipoActivo=id;localStorage.setItem(ACTIVE_TEAM_KEY,id);
@@ -585,6 +586,8 @@ function sincronizarSesionConPlanVinculado(){
   return true;
 }
 function save(){
+  if(typeof vcTrainingAutosaveTimer!=='undefined'&&vcTrainingAutosaveTimer!==null){clearTimeout(vcTrainingAutosaveTimer);vcTrainingAutosaveTimer=null}
+  if(typeof vcTrainingAutosaveDirty!=='undefined')vcTrainingAutosaveDirty=false;
   const now=new Date().toISOString();
   meta.equipo=EQUIPOS[equipoActivo].nombre;
   meta.updatedAt=now;
@@ -625,7 +628,29 @@ function normalizarNotasEntreno(notas,calentamiento=''){
 }
 function mapaSeccionesSesion(){if(!meta.seccionesEjercicios||typeof meta.seccionesEjercicios!=='object')meta.seccionesEjercicios={};meta.seccionesEjercicios=normalizarMapaSecciones(meta.seccionesEjercicios);return meta.seccionesEjercicios}
 function mapaNotasBloques(){meta.notasBloques=normalizarNotasEntreno(meta.notasBloques,meta.calentamiento||'');return meta.notasBloques}
-function guardarNotaBloque(slug,valor){slug=normalizarSeccionEntreno(slug);if(!SECCIONES_ENTRENO[slug])return;mapaNotasBloques()[slug]=valor;if(slug==='activacion')meta.calentamiento=valor;save()}
+/* V16.0.3.7 · Drafts are kept in meta immediately and persisted after a brief
+   quiet period. Blur, team changes, pagehide and hidden tabs flush synchronously.
+   All persistence still goes through the existing save()/Supabase path. */
+let vcTrainingAutosaveTimer=null,vcTrainingAutosaveDirty=false;
+function vcTrainingFlushDraft(){
+  if(vcTrainingAutosaveTimer!==null){clearTimeout(vcTrainingAutosaveTimer);vcTrainingAutosaveTimer=null}
+  if(!vcTrainingAutosaveDirty)return;
+  vcTrainingAutosaveDirty=false;
+  save();
+}
+function vcTrainingSaveDraftSoon(){
+  vcTrainingAutosaveDirty=true;
+  if(vcTrainingAutosaveTimer!==null)clearTimeout(vcTrainingAutosaveTimer);
+  vcTrainingAutosaveTimer=setTimeout(vcTrainingFlushDraft,650);
+}
+window.vcTrainingFlushDraft=vcTrainingFlushDraft;
+window.addEventListener('pagehide',vcTrainingFlushDraft,{capture:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')vcTrainingFlushDraft()});
+function guardarNotaBloque(slug,valor){
+  slug=normalizarSeccionEntreno(slug);if(!SECCIONES_ENTRENO[slug])return;
+  mapaNotasBloques()[slug]=valor;if(slug==='activacion')meta.calentamiento=valor;
+  vcTrainingSaveDraftSoon();
+}
 function seccionEjercicioSesion(id,e){return normalizarSeccionEntreno(mapaSeccionesSesion()[String(id)],e)}
 function coincideFiltroSeccionDestino(e){
   if(!seccionDestinoSesion)return true;const slug=normalizarSeccionEntreno(seccionDestinoSesion,e),t=(e&&e.tipo)||'',fs=normalizarFundamentos(e),fase=String((e&&e.fase)||'');
@@ -646,7 +671,21 @@ function abrirCrearEjercicioParaSeccion(slug){slug=normalizarSeccionEntreno(slug
 function cancelarDestinoSesion(){const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();renderDestinoBiblioteca();limpiarFiltrosBiblioteca();filtrarEjercicios()}
 function volverAlEntrenamiento(){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;renderDestinoBiblioteca();showView('entrenamiento',botonVista('entrenamiento'));renderizarSesion();window.scrollTo({top:0,behavior:'smooth'})}
 function cargarMeta(){['fecha','equipo','jugadores','duracionObjetivo','intensidad','objetivo','notas'].forEach(k=>{let id=k==='duracionObjetivo'?'sesion-duracion-objetivo':'sesion-'+k,el=$(id);if(el)el.value=meta[k]||''});mapaNotasBloques();if(typeof renderSessionRoster==='function')renderSessionRoster();}
-function guardarSesionMeta(){const roster=(typeof rosterSeleccionados==='function'&&$('session-roster-grid'))?rosterSeleccionados():(meta.playerIds||[]);meta={...meta,fecha:$('sesion-fecha')?.value||meta.fecha,equipo:EQUIPOS[equipoActivo].nombre,jugadores:$('sesion-jugadores')?.value||'',duracionObjetivo:$('sesion-duracion-objetivo')?.value||'',intensidad:$('sesion-intensidad')?.value||'Media',objetivo:$('sesion-objetivo')?.value||'',notas:$('sesion-notas')?.value||'',playerIds:roster};mapaNotasBloques();save();renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster();}
+function guardarSesionMeta(modo='normal'){
+  const roster=(typeof rosterSeleccionados==='function'&&$('session-roster-grid'))?rosterSeleccionados():(meta.playerIds||[]);
+  meta={...meta,fecha:$('sesion-fecha')?.value||meta.fecha,equipo:EQUIPOS[equipoActivo].nombre,
+    jugadores:$('sesion-jugadores')?.value||'',duracionObjetivo:$('sesion-duracion-objetivo')?.value||'',
+    intensidad:$('sesion-intensidad')?.value||'Media',objetivo:$('sesion-objetivo')?.value||'',
+    notas:$('sesion-notas')?.value||'',playerIds:roster};
+  mapaNotasBloques();
+  if(modo==='typing'){
+    // Never replace the textarea, its parent details, or exercise cards while typing.
+    const i=$('intensidad-resumen');if(i)i.textContent=meta.intensidad||'Media';
+    const d=$('duracion-objetivo-resumen');if(d)d.textContent=Number(meta.duracionObjetivo)>0?meta.duracionObjetivo+' min':'—';
+    vcTrainingSaveDraftSoon();return;
+  }
+  save();renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster();
+}
 function añadirASesion(id){const e=baseDeDatos.find(x=>x.id===id);if(!e)return;const mapa=mapaSeccionesSesion(),key=String(id),destino=seccionDestinoSesion||seccionNaturalEjercicio(e);if(sesionActual.includes(id)){const actual=seccionEjercicioSesion(id,e);if(seccionDestinoSesion&&actual!==destino){mapa[key]=destino;$('save-indicator').textContent='✓ Movido a '+SECCIONES_ENTRENO[destino].titulo;}else{sesionActual=sesionActual.filter(x=>x!==id);delete mapa[key];$('save-indicator').textContent='✓ Quitado de '+EQUIPOS[equipoActivo].corto;}}else{sesionActual.push(id);mapa[key]=destino;$('save-indicator').textContent='✓ Añadido a '+SECCIONES_ENTRENO[destino].titulo;}meta.seccionesEjercicios=mapa;save();renderizarSesion();filtrarEjercicios();}
 function quitarDeSesion(i){const id=sesionActual[i];sesionActual.splice(i,1);if(id!=null)delete mapaSeccionesSesion()[String(id)];save();renderizarSesion();filtrarEjercicios()}
 function quitarDeSesionId(id){const i=sesionActual.indexOf(id);if(i>=0)quitarDeSesion(i)}
@@ -709,7 +748,7 @@ function renderizarSesion(){
   const notas=mapaNotasBloques();let numeroGlobal=0;
   const rail=ORDEN_SECCIONES_ENTRENO.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug]||[],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0);return `<a class="stage-rail-item" href="#stage-${slug}"><span class="stage-rail-num">${cfg.numero}</span><span class="stage-rail-text"><b>${cfg.icono} ${esc(cfg.titulo)}</b><small>${items.length} ej. · ${mins} min</small></span></a>`}).join('');
   if($('stage-rail'))$('stage-rail').innerHTML=rail;
-  $('lista-sesion').innerHTML=ORDEN_SECCIONES_ENTRENO.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug]||[],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0),nota=String(notas[slug]||'');const body=items.map(e=>tarjetaSesionCompactaHTML(e,++numeroGlobal,slug)).join('')||`<div class="stage-empty">${slug==='especifico'?'Añade aquí el trabajo principal específico del objetivo del día.':'Aún no hay ejercicios en esta fase.'}</div>`;return `<section class="training-stage" id="stage-${slug}"><div class="training-stage-head"><div class="training-stage-title"><span class="training-stage-index">${cfg.numero}</span><div class="training-stage-name"><strong>${cfg.icono} ${esc(cfg.titulo)}</strong><div class="small">${esc(cfg.nota)}</div><div class="training-stage-stats"><span class="stage-stat">${items.length} ejercicio${items.length===1?'':'s'}</span><span class="stage-stat">${mins} min</span></div></div></div><div class="training-stage-actions"><button class="ghost" onclick="abrirBibliotecaParaSeccion('${slug}')">＋ Biblioteca</button><button class="primary" onclick="abrirCrearEjercicioParaSeccion('${slug}')">＋ Crear</button></div></div><div class="training-stage-body">${body}<details class="stage-notes${nota.trim()?' has-content':''}"><summary>📝 Notas / contenido de la fase</summary><textarea placeholder="Indicaciones, progresiones, consignas o contenido libre..." oninput="guardarNotaBloque('${slug}',this.value)">${esc(nota)}</textarea></details></div></section>`}).join('');
+  $('lista-sesion').innerHTML=ORDEN_SECCIONES_ENTRENO.map(slug=>{const cfg=SECCIONES_ENTRENO[slug],items=grupos[slug]||[],mins=items.reduce((a,e)=>a+(Number(e.tiempo)||0),0),nota=String(notas[slug]||'');const body=items.map(e=>tarjetaSesionCompactaHTML(e,++numeroGlobal,slug)).join('')||`<div class="stage-empty">${slug==='especifico'?'Añade aquí el trabajo principal específico del objetivo del día.':'Aún no hay ejercicios en esta fase.'}</div>`;return `<section class="training-stage" id="stage-${slug}"><div class="training-stage-head"><div class="training-stage-title"><span class="training-stage-index">${cfg.numero}</span><div class="training-stage-name"><strong>${cfg.icono} ${esc(cfg.titulo)}</strong><div class="small">${esc(cfg.nota)}</div><div class="training-stage-stats"><span class="stage-stat">${items.length} ejercicio${items.length===1?'':'s'}</span><span class="stage-stat">${mins} min</span></div></div></div><div class="training-stage-actions"><button class="ghost" onclick="abrirBibliotecaParaSeccion('${slug}')">＋ Biblioteca</button><button class="primary" onclick="abrirCrearEjercicioParaSeccion('${slug}')">＋ Crear</button></div></div><div class="training-stage-body">${body}<details class="stage-notes${nota.trim()?' has-content':''}"><summary>📝 Notas / contenido de la fase</summary><textarea placeholder="Indicaciones, progresiones, consignas o contenido libre..." oninput="guardarNotaBloque('${slug}',this.value)" onblur="vcTrainingFlushDraft()">${esc(nota)}</textarea></details></div></section>`}).join('');
   const objetivo=Number(meta.duracionObjetivo)||0,porcentaje=objetivo?Math.min(100,Math.round(total/objetivo*100)):0;
   $('tiempo-total').textContent=total+' min';$('num-ejercicios').textContent=sesionActual.length;$('intensidad-resumen').textContent=meta.intensidad||'Media';if($('duracion-objetivo-resumen'))$('duracion-objetivo-resumen').textContent=objetivo?objetivo+' min':'—';if($('session-progress-bar'))$('session-progress-bar').style.width=porcentaje+'%';if($('session-progress-label'))$('session-progress-label').textContent=objetivo?`${total} / ${objetivo} min · ${porcentaje}%`:'Define una duración objetivo';renderFocoSesion(grupos,total);if($('action-session-summary'))$('action-session-summary').textContent=`${sesionActual.length} ejercicio${sesionActual.length===1?'':'s'} · ${total} min`;renderAvisoPlanHoy();if($('dashboard')&&$('dashboard').classList.contains('active'))renderDashboard();
 }
@@ -1377,6 +1416,7 @@ async function guardarConfigCloud(){
   crearCloudClient();await initCloud();alert('Conexión guardada.');
 }
 async function initCloud(){
+  if(!window.supabase?.createClient){setCloudUI('', 'Nube iniciando…');return false}
   if(!crearCloudClient()){setCloudUI('', 'Nube sin configurar');return false}
   try{
     const {data,error}=await cloudClient.auth.getSession();
@@ -1533,14 +1573,30 @@ function renderConteoBiblioteca(){
   if($('stat-ejercicios'))$('stat-ejercicios').textContent=total;
   const box=$('conteo-biblioteca');if(box)box.innerHTML=datos.map(([f,g,n])=>`<button class="library-count-chip" onclick="filtrarPorChipBiblioteca('${f}')">${g}<b>${n}</b></button>`).join('');
 }
+function vcConstruirIndiceUsoBiblioteca(){
+  // Index lives for one render only: no stale cached statistics after saving or cloud merges.
+  const idx=new Map();
+  Object.keys(EQUIPOS).forEach(team=>{
+    const hs=team===equipoActivo?historial:(equiposData?.[team]?.historial||[]);
+    hs.forEach(h=>(h.ejercicios||[]).forEach(e=>{
+      if(e.id==null)return;
+      let item=idx.get(e.id);
+      if(!item){item={infantil:[],cadete:[],totalUsos:0,totalMinutos:0};idx.set(e.id,item)}
+      const mins=Number(e.tiempo)||0;
+      item[team].push({fecha:h.fecha||'Sin fecha',objetivo:h.objetivo||'',tiempo:mins});
+      item.totalUsos++;item.totalMinutos+=mins;
+    }));
+  });
+  return idx;
+}
 function renderizar(datos){
-  const detallada=vistaBiblioteca==='detallada';
+  const detallada=vistaBiblioteca==='detallada',usageIndex=vcConstruirIndiceUsoBiblioteca();
   $('contenedor-principal').innerHTML=datos.map(e=>{
-    const uso=usoEjercicioGlobal(e.id,e.nombre),enSesion=sesionActual.includes(e.id),actual=enSesion?seccionEjercicioSesion(e.id,e):null,moverA=seccionDestinoSesion&&enSesion&&actual!==seccionDestinoSesion;
+    const uso=e.id==null?usoEjercicioGlobal(e.id,e.nombre):(usageIndex.get(e.id)||{infantil:[],cadete:[],totalUsos:0,totalMinutos:0}),enSesion=sesionActual.includes(e.id),actual=enSesion?seccionEjercicioSesion(e.id,e):null,moverA=seccionDestinoSesion&&enSesion&&actual!==seccionDestinoSesion;
     const fs=normalizarFundamentos(e),chips=[...fs,e.tipo||'',`${Number(e.tiempo)||0} min`,e.escuela||''].filter(Boolean).map(x=>`<span class="library-pro-chip">${esc(x)}</span>`).join('');
     const addText=moverA?`Mover a ${SECCIONES_ENTRENO[seccionDestinoSesion].titulo}`:(enSesion?'En sesión ✓':(seccionDestinoSesion?`Añadir a ${SECCIONES_ENTRENO[seccionDestinoSesion].titulo}`:'Añadir al entrenamiento'));
     const useChips=(team)=>uso[team].slice().sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))).map(u=>`<span class="usage-chip">${esc(u.fecha)}${u.objetivo?' · '+esc(u.objetivo):''}</span>`).join('')||'<span class="small">Sin usos</span>';
-    return `<div class="library-pro-row"><div class="library-pro-main"><div><div class="library-pro-name">${e.favorito?'★ ':''}${esc(e.nombre)}</div><div class="library-pro-sub">${chips}</div></div><div class="library-pro-actions"><button class="library-add-btn ${enSesion&&!moverA?'in-session':''}" onclick="añadirASesion(${e.id})">${esc(addText)}</button><button class="ghost" onclick="toggleInfo(${e.id})">Ficha</button><button class="ghost" onclick="toggleExerciseStats(${e.id})">Uso</button></div></div>${detallada?`<div class="library-detail-copy"><div><b>Función</b>${esc(e.objetivo||'Sin función definida')}</div><div><b>Desarrollo</b>${esc(e.descripcion||'Sin descripción')}</div></div>`:''}<div id="stats-ex-${e.id}" class="exercise-inline-panel"><div class="exercise-stat-grid"><div class="exercise-stat-mini"><span class="small">Usos totales</span><b>${uso.totalUsos}</b></div><div class="exercise-stat-mini"><span class="small">Minutos</span><b>${uso.totalMinutos}</b></div><div class="exercise-stat-mini"><span class="small">Infantil</span><b>${uso.infantil.length}</b></div><div class="exercise-stat-mini"><span class="small">Cadete</span><b>${uso.cadete.length}</b></div></div><p><b>Infantil Masculino</b></p><div class="exercise-use-list">${useChips('infantil')}</div><p style="margin-top:10px"><b>Cadete Masculino</b></p><div class="exercise-use-list">${useChips('cadete')}</div></div><div id="detalles-${e.id}" class="exercise-inline-panel"><div class="library-detail-copy"><div><b>Función</b>${esc(e.objetivo||'-')}</div><div><b>Desarrollo</b>${esc(e.descripcion||'-')}</div><div><b>Organización</b>${esc([e.formato,e.jugadores,e.material].filter(Boolean).join(' · ')||'-')}</div><div><b>Variantes</b>${esc(e.variantes||'-')}</div></div><div class="library-inline-actions"><button class="ghost" onclick="toggleFav(${e.id})">${e.favorito?'Quitar favorito':'Favorito'}</button><button class="ghost" onclick='fillForm(${JSON.stringify(e).replace(/'/g,"&#39;")})'>Editar</button><button class="ghost" onclick="duplicarEjercicio(${e.id})">Duplicar</button><button class="danger" onclick="eliminarEjercicio(${e.id})">Borrar</button></div></div></div>`
+    return `<div class="library-pro-row" data-exercise-id="${e.id}"><div class="library-pro-main"><div><div class="library-pro-name">${e.favorito?'★ ':''}${esc(e.nombre)}</div><div class="library-pro-sub">${chips}</div></div><div class="library-pro-actions"><button class="library-add-btn ${enSesion&&!moverA?'in-session':''}" onclick="añadirASesion(${e.id})">${esc(addText)}</button><button class="ghost" onclick="toggleInfo(${e.id})">Ficha</button><button class="ghost" onclick="toggleExerciseStats(${e.id})">Uso</button></div></div>${detallada?`<div class="library-detail-copy"><div><b>Función</b>${esc(e.objetivo||'Sin función definida')}</div><div><b>Desarrollo</b>${esc(e.descripcion||'Sin descripción')}</div></div>`:''}<div id="stats-ex-${e.id}" class="exercise-inline-panel"><div class="exercise-stat-grid"><div class="exercise-stat-mini"><span class="small">Usos totales</span><b>${uso.totalUsos}</b></div><div class="exercise-stat-mini"><span class="small">Minutos</span><b>${uso.totalMinutos}</b></div><div class="exercise-stat-mini"><span class="small">Infantil</span><b>${uso.infantil.length}</b></div><div class="exercise-stat-mini"><span class="small">Cadete</span><b>${uso.cadete.length}</b></div></div><p><b>Infantil Masculino</b></p><div class="exercise-use-list">${useChips('infantil')}</div><p style="margin-top:10px"><b>Cadete Masculino</b></p><div class="exercise-use-list">${useChips('cadete')}</div></div><div id="detalles-${e.id}" class="exercise-inline-panel"><div class="library-detail-copy"><div><b>Función</b>${esc(e.objetivo||'-')}</div><div><b>Desarrollo</b>${esc(e.descripcion||'-')}</div><div><b>Organización</b>${esc([e.formato,e.jugadores,e.material].filter(Boolean).join(' · ')||'-')}</div><div><b>Variantes</b>${esc(e.variantes||'-')}</div></div><div class="library-inline-actions"><button class="ghost" onclick="toggleFav(${e.id})">${e.favorito?'Quitar favorito':'Favorito'}</button><button class="ghost" onclick='fillForm(${JSON.stringify(e).replace(/'/g,"&#39;")})'>Editar</button><button class="ghost" onclick="duplicarEjercicio(${e.id})">Duplicar</button><button class="danger" onclick="eliminarEjercicio(${e.id})">Borrar</button></div></div></div>`
   }).join('')||'<div class="empty">No hay ejercicios con estos filtros.</div>';
 }
 
@@ -1680,7 +1736,12 @@ document.addEventListener('pointerdown',event=>{
 
 if(!localStorage.getItem(CLOUD_URL_KEY))localStorage.setItem(CLOUD_URL_KEY,DEFAULT_CLOUD_URL);
 if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEFAULT_CLOUD_KEY);
-actualizarSelectorEquipo();cargarMeta();renderizarSesion();filtrarEjercicios();renderPlanificacion();renderDashboard();programarArchivadoAlCambiarDia();actualizarEstadoBibliotecaUI();initCloud();
+actualizarSelectorEquipo();cargarMeta();
+// V16.0.3.7: hidden screens are rendered on first visit by showView(), not on boot.
+if($('entrenamiento')?.classList.contains('active'))renderizarSesion();
+filtrarEjercicios();
+if($('planificacion')?.classList.contains('active'))renderPlanificacion();else renderAvisoPlanHoy();
+renderDashboard();programarArchivadoAlCambiarDia();actualizarEstadoBibliotecaUI();initCloud();
 renderConteoBiblioteca(); // V5.8.9 conteo real de la biblioteca persistente
 
 

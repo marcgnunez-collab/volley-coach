@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.3.6-performance-pro';
+const CACHE_NAME = 'volley-coach-v16.0.3.7-training-and-startup';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",
