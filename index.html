@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.1.2 · Limpieza global sin duplicados</title>
+<title>Volley Coach | V16.0.5.3 · Professional Workspace</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2079,7 +2079,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
   <div id="v800-shell" class="v800-shell">
     <div class="v800-top">
       <div class="v800-match-title">
-        <span class="pro-kicker">SCOUTING PRO · PARTIDO UNIFICADO</span>
+        <span class="pro-kicker">SCOUTING PRO / WORKSPACE</span>
         <h2 id="v800-title">Sin partido activo</h2>
         <p id="v800-meta">Abre o crea un scouting para empezar.</p>
       </div>
@@ -2110,7 +2110,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
     <div id="v800-empty" class="v800-empty">
       <strong>No hay un partido activo.</strong>
       <span>Crea un scouting nuevo o abre uno en curso.</span>
-      <div><button id="v800-resume-btn" class="primary hidden" onclick="v800ResumeSelected()">▶ Continuar scouting guardado</button><button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button><button class="ghost" onclick="showView('scout-dashboard',botonVista('scout-dashboard'))">Ir a Scouting</button></div>
+      <div><button id="v800-resume-btn" class="primary hidden" onclick="v800ResumeSelected()">▶ Continuar scouting guardado</button><button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button><button class="ghost" onclick="v122OpenMatchSwitcher()">Abrir existente</button></div>
     </div>
 
     <div id="v800-live" class="hidden v112-match-live">
@@ -2125,11 +2125,11 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </section>
 
       <nav id="vc52-modes" aria-label="Modos del Scouting Pro unificado">
-        <button type="button" data-vc52-mode="visual" class="selected" aria-pressed="true" onclick="vc52SetMode('visual')">Codificación visual</button>
-        <button type="button" data-vc52-mode="directo" aria-pressed="false" onclick="vc52SetMode('directo')">Directo y pista</button>
-        <button type="button" data-vc52-mode="video" aria-pressed="false" onclick="vc52SetMode('video')">Vídeo + código</button>
-        <button type="button" data-vc52-mode="revisar" aria-pressed="false" onclick="vc52SetMode('revisar')">Revisar rallies</button>
-        <button type="button" data-vc52-mode="analizar" aria-pressed="false" onclick="vc52SetMode('analizar')">Análisis rápido</button>
+        <button type="button" data-vc52-mode="visual" class="selected" aria-pressed="true" onclick="vc52SetMode('visual')"><span class="vc53-mode-glyph" aria-hidden="true">⌁</span><span>Codificación</span></button>
+        <button type="button" data-vc52-mode="directo" aria-pressed="false" onclick="vc52SetMode('directo')"><span class="vc53-mode-glyph" aria-hidden="true">◇</span><span>Directo y pista</span></button>
+        <button type="button" data-vc52-mode="video" aria-pressed="false" onclick="vc52SetMode('video')"><span class="vc53-mode-glyph" aria-hidden="true">▶</span><span>Vídeo + código</span></button>
+        <button type="button" data-vc52-mode="revisar" aria-pressed="false" onclick="vc52SetMode('revisar')"><span class="vc53-mode-glyph" aria-hidden="true">≡</span><span>Rallies</span></button>
+        <button type="button" data-vc52-mode="analizar" aria-pressed="false" onclick="vc52SetMode('analizar')"><span class="vc53-mode-glyph" aria-hidden="true">▥</span><span>Análisis</span></button>
       </nav>
       <p id="vc52-mode-description">Selecciona jugador, acción, zona y valoración. Un único registro de datos.</p>
       <div id="vc52-presence-bar" aria-label="Dispositivos y sincronización">
@@ -15834,4 +15834,339 @@ window.VC_16051_WORKSPACE={version:'16.0.5.1',diagnostics:()=>({video:!!$('v800-
 #scout-match-mode #vc52-match-tools[open]>.v119-probar{padding:8px!important;margin:0!important;display:block!important}
 </style>
 <script src="./114-vc16052-scouting-unificado.js"></script>
+<style id="vc16053-professional-workspace">
+/* Volley Coach V16.0.5.3 · Professional Workspace
+   Scoped exclusively to the unified scouting surface. All legacy IDs / handlers remain intact. */
+body.v11-shell #scout-match-mode{
+  --vc53-ink:#0d263e;--vc53-muted:#6a7e90;--vc53-accent:#087ca4;
+  --vc53-accent-soft:#e9f4f8;--vc53-surface:#ffffff;--vc53-border:#d9e4ed;
+  --vc53-shadow:0 9px 30px rgba(12,36,58,.045);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif!important;
+  color:var(--vc53-ink)!important;
+}
+body.v11-shell #scout-match-mode #v800-shell{
+  max-width:1750px!important;margin:0 auto!important;
+  gap:12px!important;min-width:0!important;
+  font-family:inherit!important;
+}
+/* Compact operational header, real controls and selector unchanged. */
+body.v11-shell #scout-match-mode .v800-top{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  flex-wrap:wrap!important;gap:12px!important;
+  background:var(--vc53-surface)!important;border:1px solid var(--vc53-border)!important;
+  border-radius:14px!important;box-shadow:var(--vc53-shadow)!important;
+  padding:14px 19px!important;margin:0!important;
+}
+body.v11-shell #scout-match-mode .v800-match-title{min-width:230px!important;flex:1 1 285px!important}
+body.v11-shell #scout-match-mode .v800-top .pro-kicker{
+  font:750 10px/1.3 Inter,system-ui,sans-serif!important;
+  letter-spacing:1.5px!important;color:#087fa8!important;
+}
+body.v11-shell #scout-match-mode .v800-top h2{
+  font:750 clamp(19px,1.9vw,24px)/1.14 Inter,system-ui,sans-serif!important;
+  color:#102c43!important;letter-spacing:-.6px!important;margin:5px 0 2px!important;
+}
+body.v11-shell #scout-match-mode .v800-top p{
+  margin:2px 0 0!important;font:450 12px/1.4 Inter,system-ui,sans-serif!important;
+  color:#7c90a1!important;
+}
+body.v11-shell #scout-match-mode .v800-top-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;flex-wrap:wrap!important}
+body.v11-shell #scout-match-mode .v800-match-picker{background:#f4f8fb!important;padding:6px 9px!important;border:1px solid var(--vc53-border)!important;border-radius:9px!important;min-width:180px!important}
+body.v11-shell #scout-match-mode .v800-match-picker span{color:#7b8e9e!important;font:750 9px/1 Inter,system-ui,sans-serif!important;letter-spacing:.9px!important}
+body.v11-shell #scout-match-mode #v800-match-select{font:650 12px Inter,system-ui,sans-serif!important;color:#133f5b!important;background:transparent!important;min-height:22px!important}
+body.v11-shell #scout-match-mode #v117-pro-save-state{border:0!important;color:#357b68!important;background:#eef8f3!important;box-shadow:none!important;font-size:9px!important;letter-spacing:.2px!important;padding:7px 9px!important;border-radius:999px!important}
+body.v11-shell #scout-match-mode .v800-top button{font-size:11px!important;min-height:36px!important;border-radius:9px!important;box-shadow:none!important;padding:8px 12px!important}
+body.v11-shell #scout-match-mode .v800-top button.primary{background:#103f61!important;color:white!important}
+body.v11-shell #scout-match-mode .v800-top button.ghost{border:1px solid #d8e4ec!important;background:white!important;color:#35566f!important}
+/* Less interface before the workspace; advanced tools remain available on demand. */
+body.v11-shell #scout-match-mode #vc51-advanced-tools{
+  margin:0!important;border:1px solid #dfe8ef!important;
+  border-radius:10px!important;background:#fff!important;
+  box-shadow:none!important;overflow:hidden!important;
+}
+body.v11-shell #scout-match-mode #vc51-advanced-tools>summary{
+  font-size:11px!important;color:#426176!important;padding:8px 14px!important;
+  min-height:33px!important;display:flex!important;align-items:center!important;gap:10px!important;
+}
+body.v11-shell #scout-match-mode #vc51-advanced-tools>summary span{font-size:10px!important;font-weight:450!important;color:#8b9daa!important}
+body.v11-shell #scout-match-mode #v800-live{background:transparent!important;margin:0!important;gap:0!important}
+/* A single visual hierarchy for the one real score. In video, retain compact timer to avoid score duplication beside coding panel. */
+body.v11-shell #scout-match-mode #v800-live>.v800-scoreboard,
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(125px,.52fr) minmax(0,1fr)!important;
+  align-items:center!important;min-height:115px!important;gap:0!important;
+  background:linear-gradient(112deg,#102d44 0%,#0d2238 51%,#173a51 100%)!important;
+  color:white!important;border:1px solid #2b5168!important;border-radius:14px!important;
+  box-shadow:0 8px 22px rgba(8,32,51,.13)!important;padding:11px 22px!important;
+  margin:0 0 10px!important;overflow:hidden!important;
+}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  gap:14px!important;color:#fff!important;background:transparent!important;
+  border:0!important;padding:0!important;min-height:0!important;
+}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team.ours{justify-content:flex-start!important;text-align:left!important}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team.rival{justify-content:flex-end!important;text-align:right!important;flex-direction:row-reverse!important}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team small{font:750 clamp(11px,1.2vw,14px)/1.4 Inter,system-ui,sans-serif!important;color:#e1ebf3!important;max-width:180px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team strong{font:780 clamp(32px,3.4vw,50px)/1 Inter,system-ui,sans-serif!important;letter-spacing:-2px!important;color:#fff!important;font-variant-numeric:tabular-nums!important}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team span{font-size:10px!important;color:#9dbbce!important;white-space:nowrap!important;align-self:flex-end!important;padding-bottom:7px!important}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-center-score{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:4px!important;min-height:82px!important;
+  padding:0 12px!important;border-left:1px solid #416178!important;border-right:1px solid #416178!important;
+  background:transparent!important;color:#fff!important;position:relative!important;
+}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-center-score:before{display:none!important}
+body.v11-shell #scout-match-mode #v800-set-label{display:block!important;color:#79d9ea!important;font:760 10px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:1.1px!important}
+body.v11-shell #scout-match-mode #v800-clock{display:block!important;color:#fff!important;font:700 18px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.3px!important}
+body.v11-shell #scout-match-mode #v800-service-copy{font:600 10px/1.4 Inter,system-ui,sans-serif!important;color:#d6e7f2!important}
+body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-center-score .v800-service{display:flex!important;gap:5px!important;align-items:center!important;justify-content:center!important;color:#c9e5f5!important}
+body.v11-shell #scout-match-mode #v800-service-dot{width:6px!important;height:6px!important;background:#6ce9b0!important}
+/* The actual mode router: compact segmented navigation, not a second dashboard. */
+body.v11-shell #scout-match-mode #vc52-modes{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:4px!important;padding:5px!important;margin:0 0 9px!important;
+  border:1px solid #dae6ed!important;background:#eaf0f5!important;
+  border-radius:11px!important;box-shadow:none!important;overflow:visible!important;
+}
+body.v11-shell #scout-match-mode #vc52-modes button{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
+  min-width:0!important;min-height:40px!important;padding:7px 8px!important;margin:0!important;
+  font:720 11px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.1px!important;
+  background:transparent!important;color:#567085!important;border:1px solid transparent!important;
+  border-radius:8px!important;box-shadow:none!important;text-transform:none!important;
+}
+body.v11-shell #scout-match-mode #vc52-modes button .vc53-mode-glyph{font-size:14px!important;line-height:1!important;font-weight:500!important;color:#6e95ac!important}
+body.v11-shell #scout-match-mode #vc52-modes button:hover{background:#f4f9fb!important;color:#17577a!important}
+body.v11-shell #scout-match-mode #vc52-modes button.selected{
+  background:#fff!important;color:#0b567c!important;border-color:#cddfe9!important;
+  box-shadow:0 2px 5px rgba(9,51,78,.075)!important;
+}
+body.v11-shell #scout-match-mode #vc52-modes button.selected .vc53-mode-glyph{color:#047a9c!important}
+body.v11-shell #scout-match-mode #vc52-mode-description{
+  position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+  border:0!important;clip-path:inset(50%)!important;overflow:hidden!important;
+}
+/* One row for session actions; presence count preserved. */
+body.v11-shell #scout-match-mode #vc52-presence-bar{
+  min-height:38px!important;margin:0 0 9px!important;padding:0 2px!important;gap:8px!important;
+  display:flex!important;justify-content:space-between!important;align-items:center!important;
+}
+body.v11-shell #scout-match-mode #vc52-presence-bar .vc52-presence-pill{
+  padding:5px 9px!important;min-height:27px!important;background:#edf8f7!important;
+  color:#3d746e!important;border:1px solid #d6ebe8!important;
+  border-radius:7px!important;font:650 10px/1.3 Inter,system-ui,sans-serif!important;
+}
+body.v11-shell #scout-match-mode #vc52-presence-bar .vc52-presence-pill b{color:#167e69!important}
+body.v11-shell #scout-match-mode #vc52-presence-bar .vc52-scout-actions{gap:6px!important;margin-left:auto!important}
+body.v11-shell #scout-match-mode #vc52-presence-bar .vc52-scout-actions>button{
+  min-height:31px!important;font:690 11px Inter,system-ui,sans-serif!important;
+  padding:6px 11px!important;border-radius:8px!important;
+}
+body.v11-shell #scout-match-mode #vc52-presence-bar .vc52-scout-actions>button:last-child{background:#0f6690!important;border-color:#0f6690!important}
+body.v11-shell #scout-match-mode #vc52-devices{margin:0!important}
+body.v11-shell #scout-match-mode #vc52-devices>summary{font:640 10px Inter,system-ui,sans-serif!important;color:#5d8196!important}
+/* Context strip: genuine metrics remain available, visually secondary. */
+body.v11-shell #scout-match-mode #v850-context-strip{
+  display:flex!important;align-items:stretch!important;gap:0!important;
+  border:1px solid #e2eaf0!important;border-radius:10px!important;
+  background:#fff!important;padding:3px 7px!important;min-height:47px!important;
+  margin:2px 0 10px!important;box-shadow:none!important;
+}
+body.v11-shell #scout-match-mode #v850-context-strip>div{padding:5px 12px!important;min-height:39px!important;border-right:1px solid #e8eef3!important;flex:1 1 auto!important}
+body.v11-shell #scout-match-mode #v850-context-strip>div:last-child{border-right:0!important}
+body.v11-shell #scout-match-mode #v850-context-strip>div>span{font:720 9px/1 Inter,system-ui,sans-serif!important;letter-spacing:.65px!important;color:#8196a6!important}
+body.v11-shell #scout-match-mode #v850-context-strip>div>b{font:750 12px/1.25 Inter,system-ui,sans-serif!important;color:#1f455f!important;margin:2px 0 0!important}
+body.v11-shell #scout-match-mode #v850-context-strip>div>small{font-size:9px!important;color:#8297a8!important}
+/* Editorial card architecture, applies only inside Scouting unified. */
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-card,
+body.v11-shell #scout-match-mode #v800-live .v800-control-card,
+body.v11-shell #scout-match-mode #v800-live .v112-video-card,
+body.v11-shell #scout-match-mode #v800-live .v113-video-code-panel{
+  background:#fff!important;border:1px solid var(--vc53-border)!important;
+  border-radius:12px!important;box-shadow:var(--vc53-shadow)!important;
+}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-live-grid{
+  grid-template-columns:minmax(285px,1fr) minmax(385px,1.15fr) minmax(240px,.74fr)!important;
+  gap:11px!important;align-items:start!important;
+}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-card{padding:13px!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-card h3{font:750 16px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:-.3px!important;color:#13374f!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-card-head{padding-bottom:10px!important;margin-bottom:10px!important;border-bottom:1px solid #edf1f5!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .pro-kicker{font:760 9px Inter,system-ui,sans-serif!important;letter-spacing:1.15px!important;color:#0c83ab!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .v111-builder-section{border-color:#e8eff3!important;border-radius:9px!important;margin-top:8px!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-skill-grid button,
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-eval-row button{
+  border-radius:8px!important;box-shadow:none!important;
+  transition:background-color .15s ease,border-color .15s ease!important;
+}
+body.v11-shell #scout-match-mode #vc52-pro-host button:focus-visible,
+body.v11-shell #scout-match-mode #vc52-modes button:focus-visible{outline:3px solid #56c7dd!important;outline-offset:2px!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-register{background:#0c648b!important;color:#fff!important;border-radius:9px!important;font:760 13px Inter,system-ui,sans-serif!important;min-height:48px!important}
+body.v11-shell #scout-match-mode #vc52-match-tools{background:#fff!important;border:1px solid #dbe7ef!important;border-radius:9px!important;margin:0 0 8px!important;box-shadow:none!important}
+body.v11-shell #scout-match-mode #vc52-match-tools>summary{padding:8px 12px!important;font-size:11px!important;color:#526b7c!important}
+body.v11-shell #scout-match-mode #v120-match-management{box-shadow:none!important}
+/* Video-coding cockpit: video is the primary canvas and code panel is the dock. */
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){
+  display:grid!important;grid-template-columns:minmax(0,1.85fr) minmax(285px,.9fr)!important;
+  gap:10px!important;background:transparent!important;border:0!important;padding:0!important;
+  border-radius:0!important;box-shadow:none!important;align-items:start!important;margin-top:1px!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-drawer-head{
+  grid-column:1/-1!important;display:flex!important;justify-content:space-between!important;
+  align-items:center!important;min-height:44px!important;padding:7px 11px!important;
+  border:1px solid #dce7ef!important;border-radius:9px!important;background:#fff!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-drawer-head h3{font:750 14px Inter,system-ui,sans-serif!important;letter-spacing:-.3px!important;margin:1px 0!important;color:#102f49!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-drawer-head span{font:750 9px Inter,system-ui,sans-serif!important;color:#1685a7!important;letter-spacing:1px!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-drawer-head button{min-height:29px!important;padding:6px 11px!important;font-size:10px!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{
+  min-width:0!important;grid-column:1!important;grid-row:2!important;
+  display:flex!important;flex-direction:column!important;gap:9px!important;
+  border-radius:12px!important;padding:11px!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card>*{
+  grid-column:auto!important;grid-row:auto!important;max-width:100%!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>.v800-card-head{order:0!important;margin:0!important;min-height:34px!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v800-video-frame{
+  order:1!important;display:block!important;position:relative!important;
+  width:100%!important;aspect-ratio:16/9!important;min-height:0!important;
+  margin:0!important;background:#071d30!important;border-radius:10px!important;
+  border:1px solid #1b3d53!important;overflow:hidden!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v800-video-frame video{width:100%!important;height:100%!important;object-fit:contain!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v802-playback{order:2!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>.v800-video-actions{order:3!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>.v116-source-selector{order:4!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v116-delay-tools,
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v803-mobile-tools,
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v802-local-tools,
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v802-youtube-tools{order:5!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v802-video-help,
+body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card>#v800-rec-copy{order:6!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{
+  min-width:0!important;grid-column:2!important;grid-row:2!important;
+  position:sticky!important;top:12px!important;max-width:none!important;
+  border-radius:12px!important;padding:12px!important;background:#f9fbfd!important;
+}
+body.v11-shell #scout-match-mode #v112-video-drawer #v113-video-code-panel h3{font:780 17px/1.2 Inter,system-ui,sans-serif!important;color:#102e47!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v113-video-points button{border-radius:9px!important}
+body.v11-shell #scout-match-mode #v112-video-drawer .v113-video-builder button{border-radius:8px!important}
+/* In video, the score lives in the adjacent coding dock. Keep only time in slim strip. */
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard{
+  min-height:35px!important;max-height:35px!important;
+  display:flex!important;justify-content:center!important;background:#fff!important;
+  color:#294b63!important;border:1px solid #dce6ee!important;
+  border-radius:9px!important;box-shadow:none!important;padding:4px 12px!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-team{display:none!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-center-score{
+  display:flex!important;flex-direction:row!important;gap:7px!important;min-height:0!important;
+  border:0!important;padding:0!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-set-label,
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-service-copy{display:none!important}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-clock{color:#0c3b59!important;font-size:15px!important}
+/* Compact, focused empty state. */
+body.v11-shell #scout-match-mode #v800-empty{
+  min-height:260px!important;border-radius:14px!important;border:1px dashed #c8dce9!important;
+  background:linear-gradient(145deg,#fff 0%,#f3f9fc 100%)!important;
+  text-align:center!important;padding:45px 18px!important;box-shadow:none!important;
+}
+body.v11-shell #scout-match-mode #v800-empty strong{font:770 22px Inter,system-ui,sans-serif!important;color:#143f5e!important}
+body.v11-shell #scout-match-mode #v800-empty span{color:#6c8598!important}
+body.v11-shell #scout-match-mode #v800-empty button{min-height:38px!important;border-radius:9px!important}
+/* At smaller widths, no hidden actions or horizontal page overflow. */
+@media(max-width:1250px){
+  body.v11-shell #scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  body.v11-shell #scout-match-mode #vc52-pro-host .v900-intel-column{grid-column:1/-1!important}
+  body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1.3fr) minmax(270px,1fr)!important}
+}
+@media(max-width:900px){
+  body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important}
+  body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v112-video-card,
+  body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{grid-column:1!important;grid-row:auto!important;position:static!important}
+  body.v11-shell #scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr)!important}
+  body.v11-shell #scout-match-mode #vc52-pro-host .v900-intel-column{grid-column:auto!important}
+}
+@media(max-width:700px){
+  body.v11-shell #scout-match-mode .v800-top{padding:12px!important}
+  body.v11-shell #scout-match-mode .v800-match-title{flex:1 1 100%!important;min-width:0!important}
+  body.v11-shell #scout-match-mode .v800-top-actions{width:100%!important;justify-content:flex-start!important}
+  body.v11-shell #scout-match-mode .v800-match-picker{flex:1 1 180px!important;min-width:130px!important}
+  body.v11-shell #scout-match-mode .v800-top-actions button{flex:0 0 auto!important}
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard{
+    grid-template-columns:minmax(0,1fr) minmax(78px,.7fr) minmax(0,1fr)!important;
+    min-height:98px!important;padding:10px 12px!important;
+  }
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team,
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team.rival{
+    flex-direction:column!important;justify-content:center!important;align-items:center!important;
+    gap:3px!important;text-align:center!important;
+  }
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team small{max-width:110px!important;font-size:10px!important}
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team strong{font-size:36px!important}
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-team span{font-size:9px!important;align-self:center!important;padding:0!important}
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-center-score{padding:0 4px!important}
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-center-score #v800-clock{font-size:14px!important}
+  body.v11-shell #scout-match-mode #vc52-modes{grid-template-columns:repeat(5,minmax(112px,1fr))!important;overflow-x:auto!important;scroll-snap-type:x proximity!important;scrollbar-width:thin!important}
+  body.v11-shell #scout-match-mode #vc52-modes button{scroll-snap-align:start!important;white-space:nowrap!important;font-size:10px!important}
+  body.v11-shell #scout-match-mode #vc52-presence-bar{flex-wrap:wrap!important}
+  body.v11-shell #scout-match-mode #vc52-presence-bar .vc52-scout-actions{order:3!important;flex:1 1 100%!important;justify-content:space-between!important}
+  body.v11-shell #scout-match-mode #v850-context-strip{display:flex!important;overflow-x:auto!important}
+  body.v11-shell #scout-match-mode #v850-context-strip>div{flex:0 0 118px!important;padding:5px 8px!important}
+  body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){gap:8px!important}
+  body.v11-shell #scout-match-mode #v112-video-drawer .v112-video-card{padding:8px!important}
+}
+@media(prefers-reduced-motion:reduce){body.v11-shell #scout-match-mode *{scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}}
+/* Keep scoreboard context visible on mode changes, rather than placing tabs flush against viewport top. */
+body.v11-shell #scout-match-mode #vc52-modes{scroll-margin-top:235px!important}
+/* While coding on video, these metrics are already available in the direct/statistics tabs. */
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"] #v850-context-strip{display:none!important}
+@media(max-width:700px){
+  body.v11-shell #scout-match-mode .v800-top-actions{
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:0!important;position:static!important;flex:1 1 100%!important;
+    justify-content:stretch!important;align-items:center!important;gap:7px!important;
+  }
+  body.v11-shell #scout-match-mode .v800-top-actions .v800-match-picker{
+    grid-column:1/-1!important;box-sizing:border-box!important;width:100%!important;
+    min-width:0!important;max-width:100%!important;margin:0!important;
+    padding:5px 9px!important;
+  }
+  body.v11-shell #scout-match-mode .v800-top-actions #v117-pro-save-state{
+    grid-column:1!important;width:max-content!important;max-width:100%!important;
+    min-width:0!important;white-space:normal!important;font-size:9px!important;
+    padding:5px 8px!important;margin:0!important;
+  }
+  body.v11-shell #scout-match-mode .v800-top-actions button.ghost{
+    grid-column:2!important;margin:0!important;padding:5px 9px!important;
+    max-width:100%!important;font-size:9px!important;
+  }
+  body.v11-shell #scout-match-mode #v800-live>.v112-scoreboard>.v800-center-score .v800-service{
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    border:0!important;border-radius:0!important;background:transparent!important;
+    box-shadow:none!important;padding:0!important;min-width:0!important;width:100%!important;
+  }
+  body.v11-shell #scout-match-mode #v800-service-copy{font-size:9px!important;white-space:nowrap!important;max-width:78px!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#c9e6f1!important}
+  body.v11-shell #scout-match-mode #v800-service-dot{flex:0 0 5px!important}
+}
+@media(max-width:700px){
+  body.v11-shell #scout-match-mode .v800-top{
+    display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+    justify-content:flex-start!important;align-items:stretch!important;
+    min-height:0!important;height:auto!important;
+  }
+  body.v11-shell #scout-match-mode .v800-match-title{
+    flex:0 0 auto!important;min-width:0!important;width:100%!important;height:auto!important;
+  }
+  body.v11-shell #scout-match-mode .v800-top-actions{
+    flex:0 0 auto!important;min-height:0!important;height:auto!important;
+  }
+}
+/* Version marker in the existing application shell. */
+body.v11-shell .v11-brand small::after{content:" · V16.0.5.3"!important}
+</style>
 </body></html>
