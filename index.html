@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.1.1 · Interfaz sin duplicados</title>
+<title>Volley Coach | V16.0.5.1.2 · Limpieza global sin duplicados</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1062,35 +1062,19 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
         </div>
         <div class="v11-status-grid">
           <div><span>Equipo</span><b id="v11-home-team">—</b><small>equipo activo</small></div>
-          <div><span>Sesión actual</span><b id="v11-home-session-count">0</b><small id="v11-home-session-time">0 min preparados</small></div>
+<div class="vc512-data-hook" hidden><b id="v11-home-session-count">0</b><small id="v11-home-session-time">0 min preparados</small></div>
           <div><span>Scouting</span><b id="v11-home-scout-status">Sin partido</b><small id="v11-home-scout-detail">0 scoutings</small></div>
           <div><span>Nube</span><b id="v11-home-cloud">—</b><small>estado de sincronización</small></div>
         </div>
       </section>
 
-      <section class="v11-home-panel">
-        <div class="v11-panel-head"><div><span>ENTRENAMIENTO</span><h3>Próxima sesión</h3></div><button class="text-btn" onclick="v11Navigate('planning')">Planificación →</button></div>
-        <div id="v11-home-next-training" class="v11-mirror-content">Sin planificación inmediata.</div>
-      </section>
+      <div class="vc512-data-hook" id="v11-home-next-training" hidden></div>
 
-      <section class="v11-home-panel">
-        <div class="v11-panel-head"><div><span>PARTIDO</span><h3>Próximo rival</h3></div><button class="text-btn" onclick="v11Navigate('match')">Modo Partido →</button></div>
-        <div id="v11-home-next-match" class="v11-mirror-content">Sin partido próximo.</div>
-      </section>
+      <div class="vc512-data-hook" id="v11-home-next-match" hidden></div>
 
-      <section class="v11-home-panel">
-        <div class="v11-panel-head"><div><span>ACCESOS RÁPIDOS</span><h3>Herramientas profesionales</h3></div></div>
-        <div class="v11-tool-list">
-          <button onclick="v11Navigate('reports')"><span>▤</span><div><b>Informes</b><small>PDF · CSV · JSON</small></div></button>
-          <button onclick="v11Navigate('players')"><span>◎</span><div><b>Jugadores</b><small>Plantilla y desarrollo</small></div></button>
-          <button onclick="v11Navigate('management')"><span>⚙</span><div><b>Gestión</b><small>Club, nube y seguridad</small></div></button>
-        </div>
-      </section>
 
-      <section class="v11-home-panel">
-        <div class="v11-panel-head"><div><span>ÚLTIMA ACTIVIDAD</span><h3>Entrenamiento</h3></div><button class="text-btn" onclick="showView('historial',botonVista('historial'))">Historial →</button></div>
-        <div id="v11-home-last-training" class="v11-mirror-content">Sin actividad reciente.</div>
-      </section>
+
+      <div class="vc512-data-hook" id="v11-home-last-training" hidden></div>
     </div>
   </div>
 
@@ -1102,7 +1086,6 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
     </div>
     <div class="dashboard-primary-actions">
       <button class="primary dashboard-main-btn" onclick="abrirSesionDesdeDashboard()">＋ Crear / continuar sesión</button>
-      <button class="ghost" onclick="showView('planificacion',botonVista('planificacion'))">Ver planificación</button>
     </div>
   </div>
   <div class="dashboard-grid dashboard-kpis">
@@ -1113,7 +1096,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
   </div>
   <div class="dashboard-main-grid">
     <section class="dashboard-panel dashboard-next"><div class="dashboard-panel-head"><div><span class="dashboard-label">PRÓXIMO ENTRENAMIENTO</span><h3>Plan inmediato</h3></div><button class="text-btn" onclick="showView('planificacion',botonVista('planificacion'))">Abrir planificación →</button></div><div id="dash-next-plan"></div></section>
-    <section class="dashboard-panel dashboard-current"><div class="dashboard-panel-head"><div><span class="dashboard-label">SESIÓN ACTUAL</span><h3>Preparación en curso</h3></div><button class="text-btn" onclick="abrirSesionDesdeDashboard()">Abrir sesión →</button></div><div id="dash-current-session"></div></section>
+    <section class="dashboard-panel dashboard-current"><div class="dashboard-panel-head"><div><span class="dashboard-label">SESIÓN ACTUAL</span><h3>Preparación en curso</h3></div></div><div id="dash-current-session"></div></section>
   </div>
   <div class="dashboard-main-grid dashboard-secondary-grid">
     <section class="dashboard-panel"><div class="dashboard-panel-head"><div><span class="dashboard-label">ÚLTIMO ENTRENAMIENTO</span><h3>Trabajo realizado</h3></div><button class="text-btn" onclick="showView('historial',botonVista('historial'))">Ver historial →</button></div><div id="dash-last-session"></div></section>
@@ -1135,7 +1118,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
       <div id="dash-pro-week-pills" class="dashboard-week-status"></div>
     </section>
     <section class="dashboard-command-card">
-      <div class="dashboard-command-head"><div><span class="dashboard-label">LECTURA DEL STAFF</span><h3>Alertas de planificación</h3></div><button class="text-btn" onclick="showView('planificacion',botonVista('planificacion'))">Planificación →</button></div>
+      <div class="dashboard-command-head"><div><span class="dashboard-label">LECTURA DEL STAFF</span><h3>Alertas de planificación</h3></div></div>
       <div id="dash-pro-alerts" class="dashboard-alert-list"></div>
     </section>
   </div>
@@ -1192,7 +1175,6 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 <section id="v11-management" class="view">
   <div class="v11-page-head">
     <div><span>CLUB / GESTIÓN</span><h2>Gestión del entorno</h2><p>Equipos, plantilla, temporada, partidos, recuperación y sincronización.</p></div>
-    <button class="ghost" onclick="abrirCloud()">☁ Configurar nube</button>
   </div>
 
   <div class="v11-management-grid">
@@ -1246,7 +1228,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
     <div id="plan-hoy-aviso" class="today-plan-wrap"></div>
     <div class="session-meta-grid">
       <label class="session-field"><span>Fecha</span><input id="sesion-fecha" type="date" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></label>
-      <label class="session-field"><span>Equipo</span><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"></label>
+      <label class="session-field vc512-data-hook" hidden><span>Equipo</span><input id="sesion-equipo" placeholder="Equipo / categoría" readonly title="Se gestiona desde el selector de equipo"></label>
       <label class="session-field"><span>Asistentes</span><input id="sesion-jugadores" type="number" min="1" placeholder="Nº" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></label>
       <label class="session-field"><span>Objetivo de tiempo</span><input id="sesion-duracion-objetivo" type="number" min="0" step="5" placeholder="Ej. 90 min" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></label>
       <label class="session-field"><span>Intensidad</span><select id="sesion-intensidad" oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"><option value="Baja">Baja</option><option value="Media" selected>Media</option><option value="Alta">Alta</option></select></label>
@@ -1257,10 +1239,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
         <span class="smart-session-kicker">RESUMEN DE SESIÓN</span>
         <strong><span id="tiempo-total">0 min</span> · <span id="num-ejercicios">0</span> ejercicios · <span id="num-fundamentos">0</span> fundamentos</strong>
       </div>
-      <div class="smart-session-meta">
-        <span>Objetivo <b id="duracion-objetivo-resumen">—</b></span>
-        <span>Intensidad <b id="intensidad-resumen">Media</b></span>
-      </div>
+      <div class="vc512-data-hook" hidden><b id="duracion-objetivo-resumen">—</b><b id="intensidad-resumen">Media</b></div>
     </div>
     <div class="session-progress-wrap"><div class="session-progress"><span id="session-progress-bar"></span></div><div id="session-progress-label" class="session-progress-label">Define una duración objetivo</div></div>
     <div class="session-focus-card"><div class="session-focus-head"><span>Reparto del trabajo</span><small id="session-focus-copy">Añade ejercicios para ver el reparto</small></div><div id="session-focus-bar" class="session-focus-bar"></div><div id="session-focus-legend" class="session-focus-legend"></div></div>
@@ -1278,7 +1257,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
     <div id="lista-sesion" class="training-blocks"></div>
     <details class="session-general-notes"><summary>Notas generales del entrenador</summary><textarea id="sesion-notas" placeholder="Observaciones generales, consignas o recordatorios..." oninput="guardarSesionMeta('typing')" onblur="vcTrainingFlushDraft()"></textarea></details>
     <div class="session-action-bar">
-      <div class="session-action-context"><b id="action-session-summary">0 ejercicios · 0 min</b><span>La sesión se guarda automáticamente</span></div>
+      <div class="vc512-data-hook" hidden><b id="action-session-summary">0 ejercicios · 0 min</b></div>
       <div class="session-action-primary"><button class="primary" onclick="exportarPDF()">Exportar PDF</button><button class="ghost" onclick="guardarSesionEnPlanificacion(false)">Guardar en planificación</button><button class="success" onclick="finalizarEntrenamiento()">Finalizar entrenamiento</button></div>
     </div>
   </div>
@@ -1416,19 +1395,13 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 
     <div class="v118-scout-grid">
       <section class="v118-panel v118-active-match">
-        <div class="v118-panel-head"><div><span>SCOUTING SELECCIONADO</span><h3>Continuar o revisar</h3><p>Abre el último partido o continúa el scouting que esté en curso.</p></div><button class="text-btn" onclick="v11Navigate('match')">Abrir modo partido →</button></div>
+        <div class="v118-panel-head"><div><span>SCOUTING SELECCIONADO</span><h3>Continuar o revisar</h3><p>Abre el último partido o continúa el scouting que esté en curso.</p></div></div>
         <div id="scout-home-active"></div>
-        <div id="v118-active-actions" class="v118-active-actions">
-          <button onclick="v11Navigate('match')">◆ Partido</button>
-          <button onclick="v11Navigate('scouting')">⌁ Codificar</button>
-          <button onclick="v11Navigate('video')">▶ Vídeo</button>
-          <button onclick="v11Navigate('analysis')">▥ Analizar</button>
-          <button class="primary" onclick="v117ProSave()">Guardar todo</button>
-        </div>
+        <div id="v118-active-actions" class="v118-active-actions vc512-data-hook" hidden></div>
       </section>
 
       <section class="v118-panel">
-        <div class="v118-panel-head"><div><span>PREPARACIÓN</span><h3>Próximo partido</h3><p>Agenda, plan y lectura previa del rival.</p></div><button class="text-btn" onclick="showView('competicion',botonVista('competicion'))">Ver partidos →</button></div>
+        <div class="v118-panel-head"><div><span>PREPARACIÓN</span><h3>Próximo partido</h3><p>Agenda, plan y lectura previa del rival.</p></div></div>
         <div id="scout-home-next"></div>
         <div class="v118-quick-grid">
           <button onclick="showView('competicion',botonVista('competicion'))"><span>◆</span><b>Partidos</b><small>Calendario y archivo</small></button>
@@ -1438,12 +1411,12 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
       </section>
 
       <section class="v118-panel wide">
-        <div class="v118-panel-head"><div><span>LECTURA RÁPIDA</span><h3>Último análisis</h3><p>Indicadores principales del partido seleccionado.</p></div><button class="text-btn" onclick="v11Navigate('analysis')">Análisis completo →</button></div>
+        <div class="v118-panel-head"><div><span>LECTURA RÁPIDA</span><h3>Último análisis</h3><p>Indicadores principales del partido seleccionado.</p></div></div>
         <div id="scout-home-reading"></div>
       </section>
 
       <section class="v118-panel wide v118-management-strip">
-        <div class="v118-panel-head"><div><span>GESTIÓN Y SEGURIDAD</span><h3>Datos del scouting</h3><p>Sincronización, recuperación y archivo sin abandonar la interfaz profesional.</p></div><button class="text-btn" onclick="v11Navigate('management')">Abrir gestión →</button></div>
+        <div class="v118-panel-head"><div><span>GESTIÓN Y SEGURIDAD</span><h3>Datos del scouting</h3><p>Sincronización, recuperación y archivo sin abandonar la interfaz profesional.</p></div></div>
         <div class="v118-management-actions">
           <button onclick="v957SyncScoutingsNow()"><span>↕</span><b>Sincronizar</b><small>Móvil · PC · nube</small></button>
           <button onclick="scoutV892OpenRecoveryCenter()"><span>↶</span><b>Recuperación</b><small>Copias disponibles</small></button>
@@ -1466,7 +1439,6 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
         <p>Rendimiento acumulado del equipo y de cada jugador a partir de todos los scoutings guardados.</p>
       </div>
       <div class="v790-hero-actions">
-        <button class="ghost" type="button" onclick="v790ExportBackup()">↓ Copia de seguridad</button>
         <button class="ghost" type="button" onclick="document.getElementById('v790-restore-file').click()">↑ Restaurar copia</button>
         <input id="v790-restore-file" class="hidden" type="file" accept=".json,application/json" onchange="v790RestoreBackup(event)">
       </div>
@@ -1587,7 +1559,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
       </div>
       <div id="v117-review-delay-tools" class="v117-review-delay-tools hidden">
         <div><span>RETRASO</span><strong id="v117-review-delay-label">30 s</strong><small>El búfer continúa capturando mientras revisas.</small></div>
-        <div class="v117-review-delay-buttons"><button onclick="v117ReviewDelay(30)">30 s</button><button onclick="v117ReviewDelay(60)">60 s</button><button onclick="v117ReviewDelay(90)">90 s</button><button onclick="v117ReviewDelay(120)">120 s</button><button class="primary" onclick="v117ReviewConfigureDelay()">Configurar / iniciar</button><button onclick="v117ReviewReturnLive()">Volver a Live</button></div>
+        <div class="v117-review-delay-buttons"><button onclick="v117ReviewDelay(30)">30 s</button><button onclick="v117ReviewDelay(60)">60 s</button><button onclick="v117ReviewDelay(90)">90 s</button><button onclick="v117ReviewDelay(120)">120 s</button><button class="primary" onclick="v117ReviewConfigureDelay()">Configurar / iniciar</button></div>
       </div>
     </section>
 
@@ -1748,7 +1720,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
           <div id="v780-selected-copy" class="v780-selected-copy">Selecciona un rally o una acción de la lista.</div>
           <div class="v780-selection-actions">
             <button class="primary" onclick="v780PlaySelected()">▶ Reproducir</button>
-            <button class="ghost" onclick="v780SyncSelected()">Sincronizar aquí</button>
+            
             <button class="ghost" onclick="v780CreateClipSelected()">Crear clip</button>
           </div>
         </section>
@@ -1853,7 +1825,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 
 <section id="scout-analysis" class="view">
   <div class="scout-analysis-shell">
-    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="v957SyncScoutingsNow()">↕ Sincronizar scoutings</button><button class="ghost" onclick="scoutOpenCodeReference()">Códigos</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="scoutExportStatsCSV()">CSV estadístico</button><button class="ghost" onclick="scoutExportCSV()">CSV acciones</button><button class="ghost" onclick="scoutExportJSON()">Copia JSON</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button><button class="primary" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><span id="scout-v753-pdf-ready" title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
+    <div class="scout-analysis-header"><div><span class="pro-kicker">SCOUTING PERFORMANCE CENTER · V7.5.2</span><h2>Data Sheet + análisis profesional</h2><p>Hoja estadística tipo Data Volley y análisis técnico avanzado del partido. Cada métrica se calcula únicamente con las acciones realmente registradas.</p></div><div class="scout-analysis-toolbar"><select id="scout-analysis-match" onchange="scoutRenderAnalysis()"></select><button class="ghost" onclick="v957SyncScoutingsNow()">↕ Sincronizar scoutings</button><button class="ghost" onclick="scoutV700OpenVideo('analysis')">🎥 Vídeo</button><button class="ghost" onclick="v11Navigate('reports')">Informes y exportaciones</button><span id="scout-v753-pdf-ready" class="vc512-data-hook" hidden title="Módulo de PDF cargado">PDF 7.5.7 ✓</span></div></div>
     <div id="v961-data-integrity" class="v961-data-integrity">
       <div><span>INTEGRIDAD DE DATOS</span><b id="v961-integrity-status">Comprobando…</b></div>
       <div><span>Rallies cerrados</span><b id="v961-integrity-rallies">0</b></div>
@@ -1904,7 +1876,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
   <div class="v893-safe-shell">
     <div class="v893-safe-hero">
       <div><span class="pro-kicker">SCOUTING SAFE · V8.9.3</span><h2>Caja fuerte de scoutings</h2><p>Historial independiente de versiones, recuperación selectiva y lectura de la nube sin sobrescribir datos.</p></div>
-      <div class="v893-safe-actions"><button class="ghost" onclick="scoutV893OpenRecoveryCenter()">Recuperación avanzada</button><button class="ghost" onclick="scoutV893CloudReadOnly()">☁ Comprobar nube · solo lectura</button><button class="ghost" onclick="scoutV893ExportVault()">Exportar caja fuerte</button><button class="primary" onclick="scoutV893CheckpointAll(true)">Proteger estado ahora</button></div>
+      <div class="v893-safe-actions"><button class="ghost" onclick="scoutV893OpenRecoveryCenter()">Recuperación avanzada</button><button class="ghost" onclick="scoutV893ExportVault()">Exportar caja fuerte</button><button class="primary" onclick="scoutV893CheckpointAll(true)">Proteger estado ahora</button></div>
     </div>
     <div class="v893-safe-kpis">
       <div><span>Versiones</span><b id="v893-kpi-versions">0</b><small>copias independientes</small></div>
@@ -2453,7 +2425,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
 
       <div class="v119-probar" aria-label="Control profesional del scouting">
-        <div class="v119-match-picker v122-match-picker"><span>SCOUTING ACTIVO</span><div class="v122-match-picker-row"><select id="v119-match-picker" aria-label="Scouting activo" onchange="v119SwitchMatch(this.value)"></select><button type="button" class="v122-picker-open" onclick="v122OpenMatchSwitcher()">Cambiar ▾</button></div><small id="v122-active-match-detail">Selecciona un scouting para trabajar</small></div>
+        <div class="v119-match-picker v122-match-picker"><span>SCOUTING ACTIVO</span><div class="v122-match-picker-row"><select id="v119-match-picker" aria-label="Scouting activo" onchange="v119SwitchMatch(this.value)"></select></div><small id="v122-active-match-detail">Selecciona un scouting para trabajar</small></div>
         <div class="v119-probar-actions">
           <button class="v119-action primary" onclick="v119SaveAll(true)"><span>✓</span><b>Guardar todo</b><small id="v119-save-state">Auto · protegido</small></button>
           <button class="v119-action" onclick="v119OpenLineup()"><span>⌘</span><b>Alineación</b><small>6 + líbero · rotaciones</small></button>
@@ -15594,7 +15566,34 @@ body.v11-shell :where(.v11-module-card, .v11-home-panel, .v900-card) :where(h2, 
 </style>
 <!-- VC16050_END -->
 
-<!-- V16.0.5.1.1 · Clean Workspace, visual deduplication only -->
+<!-- V16.0.5.1.2 · Global UI Dedup, no sync or scoring logic changes -->
+<style id="vc160512-global-dedup-css">
+/* Volley Coach V16.0.5.1.2 · Limpieza visual de duplicados en todos los módulos.
+   No oculta herramientas de scoring contextuales, ni modifica almacenamiento. */
+body.v11-shell .vc512-data-hook, body.v11-shell .vc512-data-hook[hidden],
+body.v11-shell #v118-active-actions.vc512-data-hook {display:none!important;}
+body.v11-shell #dashboard .v11-home-grid{grid-template-columns:minmax(0,1fr)!important}
+body.v11-shell #dashboard .v11-home-panel-wide{grid-column:1/-1!important}
+body.v11-shell #dashboard .v11-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+body.v11-shell #entrenamiento .session-action-bar{justify-content:flex-end!important}
+body.v11-shell #entrenamiento .session-action-primary{flex:1;justify-content:flex-end!important}
+body.v11-shell #scout-dashboard .v118-active-match{min-height:0!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar{justify-content:flex-end!important;gap:8px!important}
+body.v11-shell #scout-analysis .scout-analysis-toolbar select{max-width:240px;min-width:130px}
+/* Hide duplicate global create shortcuts when primary action is already visible. */
+body.v11-shell:has(#dashboard.active) .v11-topbar-actions .v11-quick,
+body.v11-shell:has(#entrenamiento.active) .v11-topbar-actions .v11-quick,
+body.v11-shell:has(#scout-dashboard.active) .v11-topbar-actions .v11-quick{display:none!important}
+body.v11-shell:has(#dashboard.active) #global-quick-actions,
+body.v11-shell:has(#entrenamiento.active) #global-quick-actions,
+body.v11-shell:has(#scout-dashboard.active) #global-quick-actions{display:none!important}
+body.v11-shell .v11-brand small::after{content:" · V16.0.5.1.2"!important}
+
+@media(max-width:720px){
+ body.v11-shell #dashboard .v11-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.v11-shell #scout-analysis .scout-analysis-toolbar select{max-width:100%;width:100%}
+}
+</style>
 <style id="vc160511-deduplicated-ui-css">
 /* V16.0.5.1.1 · Simplificación de controles visibles.
    Mantiene el mismo motor, IDs de datos, scoreboard, presencia y almacenamiento. */
