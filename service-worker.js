@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.5.5-design-all-sections';
+const CACHE_NAME = 'volley-coach-v16.0.5.6-video-reliability';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",

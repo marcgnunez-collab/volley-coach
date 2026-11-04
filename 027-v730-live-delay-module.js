@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.3.2';
+const VERSION='16.0.5.6';
 const $=id=>document.getElementById(id);
 const state={
   context:'training',
@@ -273,6 +273,12 @@ function createMse(){
     const v=delayed();if(!v)return reject(new Error('No existe el reproductor de retraso.'));
     destroyMse();
     const ms=new MediaSource();state.mediaSource=ms;
+    let finished=false,timeout=null;
+    const settle=(error)=>{
+      if(finished)return;
+      finished=true;clearTimeout(timeout);
+      if(error)reject(error);else resolve();
+    };
     state.droppedBase=0;state.totalFramesBase=0;
     state.mediaUrl=URL.createObjectURL(ms);v.src=state.mediaUrl;v.muted=true;
     // Attach listeners just once: the media element survives pipeline restarts.
@@ -292,11 +298,14 @@ function createMse(){
       });
     }
     const opened=()=>{
+      // A former MediaSource may open after a stop/restart; it must not alter the new pipeline.
+      if(finished||state.mediaSource!==ms)return;
       try{
         const sb=ms.addSourceBuffer(state.mime);
         state.sourceBuffer=sb;
         sb.mode='segments';
         sb.addEventListener('updateend',()=>{
+          if(state.mediaSource!==ms)return;
           if(state.appendBusy)state.quotaFailures=0;
           state.appendBusy=false;
           pruneBuffer();
@@ -304,12 +313,12 @@ function createMse(){
           maintainDelay();
           updateMetrics();
         });
-        sb.addEventListener('error',()=>failDelay('Error de decodificación o almacenamiento del búfer.'));
-        resolve();
-      }catch(err){reject(err)}
+        sb.addEventListener('error',()=>{if(state.mediaSource===ms)failDelay('Error de decodificación o almacenamiento del búfer.')});
+        settle();
+      }catch(err){settle(err)}
     };
     ms.addEventListener('sourceopen',opened,{once:true});
-    setTimeout(()=>{if(!state.sourceBuffer)reject(new Error('MediaSource no se abrió.'))},5000);
+    timeout=setTimeout(()=>settle(new Error('MediaSource no se abrió en 10 segundos.')),10000);
   });
 }
 function failDelay(reason){
@@ -534,6 +543,12 @@ function startTicker(){
     const age=Date.now()-(state.lastChunkAt||state.streamStartedAt);
     if(age>20000){
       if(document.visibilityState==='hidden')return; // prevent background tab throttling from forcing a rebuild
+      if(state.sourceMode==='remote'&&!window.VC_REMOTE_CAMERA?.isConnected?.()){
+        setState('live-delay-review-state','ESPERANDO MÓVIL',false);
+        setStatus('<b>Señal remota interrumpida.</b> El receptor intenta reconectar; no se borra el búfer ni se detiene REC.','warn');
+        if(age>90000)failDelay('El móvil no ha enviado vídeo durante 90 segundos. Comprueba la conexión y vuelve a iniciar el Delay.');
+        return;
+      }
       if(state.autoRecovery){
         attemptCaptureRecovery('No llegan nuevos fragmentos').then(ok=>{
           if(!ok&&!state.recoveryInProgress&&state.running&&Date.now()-(state.lastChunkAt||state.streamStartedAt)>(state.sourceMode==='remote'?45000:25000)){

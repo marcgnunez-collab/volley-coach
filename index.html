@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.4 · Professional Match Cockpit</title>
+<title>Volley Coach | V16.0.5.6 · Video Reliability Pro</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5862,7 +5862,7 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.3.2" data-vc-module="true"></script>
+<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.5.6" data-vc-module="true"></script>
 
 
 
@@ -6775,7 +6775,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v760-remote-camera-module" src="./036-v760-remote-camera-module.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v760-remote-camera-module" src="./036-v760-remote-camera-module.js?v=16.0.5.6" data-vc-module="true"></script>
 
 
 
@@ -6805,7 +6805,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v770-recording-studio-module" src="./037-v770-recording-studio-module.js?v=16.0.3.4" data-vc-module="true"></script>
+<script id="v770-recording-studio-module" src="./037-v770-recording-studio-module.js?v=16.0.5.6" data-vc-module="true"></script>
 
 
 
@@ -16574,7 +16574,7 @@ body.v11-shell #v11-sidebar .v11-logo{
 }
 body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
 body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
-body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.5"!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.6"!important}
 body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
 body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
 body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}
@@ -16741,51 +16741,6 @@ body.v11-shell.vc1644-theater-lock #scout-match-mode{contain:none!important}
  body.v11-shell #v11-main :is(.v11-page-head,.scout-analysis-header,.v118-scout-head,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row) h2{font-size:20px!important}
 }
 @media(prefers-reduced-motion:reduce){body.v11-shell #dashboard .v11-module-card,body.v11-shell #v11-main .view button{transition:none!important}}
-/* Theater overrides of older V16.0.5.3/5.4 grid tracks. Match their specificity explicitly.
-   The ordinary cockpit keeps the court; expanded mode is VIDEO + CODE only. */
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater{
-  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(280px,350px)!important;
-  grid-template-rows:auto minmax(0,1fr)!important;align-items:start!important;gap:12px!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-drawer-head{
-  display:flex!important;grid-column:1/-1!important;grid-row:1!important;order:0!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.vc54-court-slot{
-  display:none!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card{
-  display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
-  grid-column:1!important;grid-row:2!important;order:0!important;
-  width:100%!important;max-width:none!important;min-width:0!important;
-  height:auto!important;align-self:start!important;overflow:visible!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>*{
-  flex:0 0 auto!important;min-width:0!important;max-width:100%!important;
-  width:100%!important;box-sizing:border-box!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
-  order:1!important;display:block!important;position:relative!important;
-  width:100%!important;min-width:0!important;max-width:100%!important;
-  height:auto!important;min-height:200px!important;max-height:min(68dvh,750px)!important;
-  aspect-ratio:16/9!important;overflow:hidden!important;box-sizing:border-box!important;
-  background:#091a2d!important;border:1px solid #35526d!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame>video{
-  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;
-}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-card-head{order:0!important;flex:0 0 auto!important}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-playback{order:2!important}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings{order:4!important}
-body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
-  grid-column:2!important;grid-row:2!important;order:0!important;min-width:0!important;
-  position:relative!important;top:0!important;max-width:none!important;background:#fff!important;
-}
-@media(max-width:790px){
- body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
- body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card{grid-column:1!important;grid-row:2!important}
- body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>#v113-video-code-panel{grid-column:1!important;grid-row:3!important}
- body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:16/9!important}
-}
 
 </style>
 <script id="vc16055-restore-theater">

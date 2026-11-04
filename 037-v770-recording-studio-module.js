@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='7.7.0';
+const VERSION='16.0.5.6';
 const DB_NAME='VolleyCoachRecordingsV770';
 const DB_VERSION=1;
 const $=id=>document.getElementById(id);
@@ -84,13 +84,12 @@ function getSourceStream(){
   /* IMPORTANT: this function never reads live-delay-delayed.
      Recording always originates from the raw LIVE receiver/camera. */
   if(selected==='remote'){
+    // Do not silently switch REC to the laptop camera when the remote camera drops.
     if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
-    if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
-  }else{
-    if(direct?.getVideoTracks?.().some(t=>t.readyState==='live'))return direct;
-    if(remote?.getVideoTracks?.().some(t=>t.readyState==='live'))return remote;
+    return null;
   }
-  return null;
+  // Do not silently switch REC to the remote camera when local mode is selected.
+  return direct?.getVideoTracks?.().some(t=>t.readyState==='live')?direct:null;
 }
 function cloneSource(stream){
   const tracks=stream?.getTracks?.().filter(t=>t.readyState==='live')||[];
@@ -583,6 +582,14 @@ window.vcRecordingStart=async function(){
     const opts={mimeType:mime,videoBitsPerSecond:recBitrate};
     const recorder=new MediaRecorder(recStream,opts);
     state.recorder=recorder;
+    // A local REC uses cloned tracks and can outlive a Delay restart. If the
+    // recording track itself ends, finalize the durable chunks explicitly.
+    for(const track of videoTracks)track.addEventListener?.('ended',()=>{
+      if(!state.active||state.stopping||state.recorder!==recorder)return;
+      state.recorderError=state.recorderError||new Error('La pista de vídeo de REC terminó inesperadamente.');
+      setState('SEÑAL REC PERDIDA','bad');
+      void window.vcRecordingStop(false);
+    },{once:true});
 
     recorder.addEventListener('dataavailable',e=>{
       if(e.data?.size)writeChunk(e.data).catch(err=>{
@@ -789,16 +796,10 @@ window.vcRecordingDeleteRecovered=async function(id){
 };
 
 /* ---------- Integration / safeguards ---------- */
-const baseStopLive=window.stopLiveDelay;
-window.stopLiveDelay=function(...args){
-  /* V9.5.8: REC is independent from the Delay buffer.
-     In remote mode, stopping/changing Delay must never stop the LIVE recording. */
-  const remoteIndependent=state.active&&state.sourceKind==='remote';
-  if(state.active&&!remoteIndependent){
-    window.vcRecordingStop(true).catch(()=>{});
-  }
-  return baseStopLive?.apply(this,args);
-};
+/* REC clones the LIVE track (or uses its own normalised mobile stream) and is
+   independent of Live Delay for both local and remote modes. Never wrap
+   stopLiveDelay to terminate a valid recording. Stop REC only explicitly or
+   when its own recording track/durable storage has failed. */
 
 window.addEventListener('beforeunload',e=>{
   if(!state.active)return;
@@ -820,7 +821,7 @@ window.vcRecordingDiagnostics=function(){
     sourceKind:state.sourceKind,
     sourceLabel:sourceLabel(),
     recordsFromLive:true,
-    independentFromDelay:state.sourceKind==='remote',
+    independentFromDelay:true,
     mediaRecorder:typeof MediaRecorder!=='undefined',
     sourceAvailable:!!getSourceStream(),
     autoSave:autosaveEnabled(),

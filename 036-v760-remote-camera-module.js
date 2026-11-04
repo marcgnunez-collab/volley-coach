@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='7.6.3';
+const VERSION='16.0.5.6';
 const $=id=>document.getElementById(id);
 const state={
   room:'',
@@ -14,6 +14,9 @@ const state={
   preparing:false,
   viewerPromise:null,
   viewerWanted:false,
+  viewerGeneration:0,
+  viewerWatchdog:null,
+  publisherPreviewBound:false,
   reconnectTimer:null,
   reconnectAttempts:0,
   reconnecting:false,
@@ -130,6 +133,16 @@ async function renderQR(){
 function cancelReconnect(){
   if(state.reconnectTimer){clearTimeout(state.reconnectTimer);state.reconnectTimer=null;}
 }
+function cancelViewerWatchdog(){
+  if(state.viewerWatchdog){clearTimeout(state.viewerWatchdog);state.viewerWatchdog=null;}
+}
+async function bounded(operation,timeoutMs,description){
+  let timeout;
+  try{return await Promise.race([
+    Promise.resolve(operation),
+    new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error(description+' agotó el tiempo de espera.')),timeoutMs)})
+  ])}finally{clearTimeout(timeout)}
+}
 function scheduleReconnect(reason){
   if(!state.viewerWanted||!state.room||!state.key||state.connected||state.reconnecting||state.reconnectTimer)return;
   if(state.reconnectAttempts>=4){
@@ -155,6 +168,8 @@ function scheduleReconnect(reason){
   },seconds*1000);
 }
 async function disconnectViewer(keepSession=true){
+  cancelViewerWatchdog();
+  state.viewerGeneration++;
   state.connected=false;
   const preview=$('vc-remote-preview');
   if(preview){try{preview.pause()}catch(_){};preview.srcObject=null}
@@ -169,7 +184,9 @@ async function disconnectViewer(keepSession=true){
 async function connectViewer(){
   if(!state.room||!state.streamId||!state.key)throw new Error('Primero genera una sesión de cámara.');
   await ensureVDOSDK();
+  if(!state.viewerWanted)return;
   await disconnectViewer(true);
+  const generation=state.viewerGeneration;
   setRemoteStatus('ESPERANDO MÓVIL','wait');
   setPreviewEmpty('Esperando al móvil…',false);
 
@@ -182,7 +199,7 @@ async function connectViewer(){
     if(sdk!==state.sdk||!track||track.kind!=='video')return;
     if(!incoming.getVideoTracks().some(t=>t.id===track.id))incoming.addTrack(track);
     state.stream=incoming;
-    state.connected=true;state.reconnectAttempts=0;cancelReconnect();
+    state.connected=true;state.reconnectAttempts=0;cancelReconnect();cancelViewerWatchdog();
     const pv=$('vc-remote-preview');
     if(pv){
       pv.srcObject=incoming;pv.muted=true;
@@ -210,13 +227,34 @@ async function connectViewer(){
     }
   });
 
-  await sdk.connect();
-  await sdk.joinRoom({room:state.room,password:state.key});
-  state.viewerPromise=sdk.view(state.streamId,{audio:false,video:true});
+  try{
+    await bounded(sdk.connect(),15000,'Conexión WebRTC');
+    if(generation!==state.viewerGeneration||!state.viewerWanted)return;
+    await bounded(sdk.joinRoom({room:state.room,password:state.key}),15000,'Sala de cámara');
+    if(generation!==state.viewerGeneration||!state.viewerWanted)return;
+    state.viewerPromise=sdk.view(state.streamId,{audio:false,video:true});
+    // Some SDK connections succeed without ever delivering a video track.
+    state.viewerWatchdog=setTimeout(async()=>{
+      state.viewerWatchdog=null;
+      if(sdk!==state.sdk||!state.viewerWanted||state.connected)return;
+      setRemoteStatus('SIN VÍDEO · RECONECTANDO','bad');
+      await disconnectViewer(true);
+      scheduleReconnect('No llegaron fotogramas');
+    },20000);
+  }catch(err){
+    if(sdk===state.sdk){
+      await disconnectViewer(true);
+      if(state.viewerWanted)scheduleReconnect('Fallo al conectar');
+    }
+    throw err;
+  }
   Promise.resolve(state.viewerPromise).catch(err=>{
     if(sdk!==state.sdk)return;
     console.warn('V7.6 remote view',err);
-    if(!state.connected){setRemoteStatus('REINTENTAR','bad');scheduleReconnect('fallo de visualización');}
+    if(!state.connected){
+      setRemoteStatus('REINTENTAR','bad');
+      void disconnectViewer(true).then(()=>scheduleReconnect('fallo de visualización'));
+    }
   });
 }
 window.vcRemotePrepare=async function(reset=false){
@@ -268,7 +306,7 @@ window.VC_REMOTE_CAMERA={
   isConnected:()=>state.connected&&!!state.stream?.getVideoTracks?.().some(t=>t.readyState==='live'),
   prepare:window.vcRemotePrepare,
   disconnect:window.vcRemoteDisconnect,
-  diagnostics:()=>({version:VERSION,source:state.source,connected:state.connected,viewerWanted:state.viewerWanted,reconnectAttempts:state.reconnectAttempts,reconnecting:state.reconnecting,tracks:state.stream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]})
+  diagnostics:()=>({version:VERSION,source:state.source,connected:state.connected,viewerWanted:state.viewerWanted,reconnectAttempts:state.reconnectAttempts,reconnecting:state.reconnecting,waitingForVideo:!!state.viewerWatchdog,tracks:state.stream?.getVideoTracks?.().map(t=>({state:t.readyState}))||[]})
 };
 
 
@@ -814,7 +852,10 @@ window.vcPublisherStart=async function(){
     const preview=$('vc-publisher-video');
     if(preview){
       preview.srcObject=state.publisherStream;preview.muted=true;await preview.play().catch(()=>{});
-      ['loadedmetadata','resize','playing'].forEach(ev=>preview.addEventListener(ev,vcPublisherApplyPreviewOrientation));
+      if(!state.publisherPreviewBound){
+        ['loadedmetadata','resize','playing'].forEach(ev=>preview.addEventListener(ev,vcPublisherApplyPreviewOrientation));
+        state.publisherPreviewBound=true;
+      }
       setTimeout(vcPublisherApplyPreviewOrientation,80);
     }
     $('vc-publisher-empty')?.classList.add('hidden');
