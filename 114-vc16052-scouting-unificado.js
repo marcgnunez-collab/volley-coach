@@ -143,7 +143,7 @@ if(typeof previousNavigate==='function'){
   if(target==='scouting'||target==='match'){
    navigations++;
    const out=previousNavigate.call(this,'match');
-   setMode(target==='scouting'?'visual':'directo',{keepPosition:true});
+   setMode(target==='scouting'?'video':'directo',{keepPosition:true});
    syncActive();return out;
   }
   return previousNavigate.apply(this,arguments);
@@ -153,7 +153,7 @@ window.vc52SetMode=function(next){
  if(!visible())window.showView?.(MATCH,window.botonVista?.(MATCH));
  return setMode(next);
 };
-window.vc52OpenScouting=function(){window.showView?.(MATCH,window.botonVista?.(MATCH));return setMode('visual',{keepPosition:true})};
+window.vc52OpenScouting=function(){window.showView?.(MATCH,window.botonVista?.(MATCH));return setMode('video',{keepPosition:true})};
 window.VC_16052_UNIFIED={
  version:'16.0.5.2',open:window.vc52OpenScouting,mode:window.vc52SetMode,
  diagnostics:()=>({mounted:$(OLD)?.parentElement?.id==='vc52-pro-host',currentMode:mode,viewActive:visible(),
