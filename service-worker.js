@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.4.2-scouting-reliability';
+const CACHE_NAME = 'volley-coach-v16.0.4.3-analysis-pro';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",
@@ -31,6 +31,7 @@ const MODULE_ASSETS = [
   "./083-v138-realtime-mobile-runtime.js",
   "./108-vc16040-sync-pro.js",
   "./109-vc16041-team-switch-pro.js",
+  "./110-vc16043-analysis-pro.js",
   "./088-v151-season-performance-module.js",
   "./089-v152-smart-rally-reports-exchange.js",
   "./095-vc154-collaboration-runtime.js",
