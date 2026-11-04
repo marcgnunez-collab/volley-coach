@@ -15145,4 +15145,77 @@ body.v11-shell .v11-team-box{border:1px solid #385b72;border-radius:12px;padding
 @media(max-width:650px){#vc1643-pro .vc1643-head{padding:16px;align-items:flex-start;flex-direction:column}#vc1643-pro .vc1643-head h3{font-size:19px!important}#vc1643-pro .vc1643-head-actions{justify-content:flex-start}#vc1643-pro .vc1643-filters{padding:11px 12px;gap:8px}#vc1643-pro .vc1643-filters label{flex:1 1 130px}#vc1643-pro .vc1643-filters select{min-width:0;width:100%}#vc1643-pro .vc1643-context{width:100%;margin:0;padding:0}#vc1643-pro .vc1643-kpis{grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;gap:7px}#vc1643-pro .vc1643-kpi{padding:10px}#vc1643-pro .vc1643-kpi>strong{font-size:19px}#vc1643-pro .vc1643-workspace{margin:0 12px 12px}#vc1643-pro .vc1643-content{padding:7px}#vc1643-pro .vc1643-tabs button{flex-basis:42%}}
 </style>
 <script id="vc1643-analysis-pro-module" src="./110-vc16043-analysis-pro.js?v=16.0.4.3" data-vc-module="true"></script>
+
+<style id="vc1644-match-scout-ux-style">
+/* V16.0.4.4 - vídeo protagonista y escritura rápida. Scoped to Match Mode. */
+#scout-match-mode #v112-video-drawer .vc1644-video-tools{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+#scout-match-mode #v112-video-drawer .vc1644-video-tools button{font-size:11px!important;min-height:36px!important;padding:8px 11px!important;border-radius:9px!important;background:#eaf3f9!important;color:#164767!important;border:1px solid #bfd8e8!important;cursor:pointer}
+#scout-match-mode #v112-video-drawer .vc1644-video-tools button[aria-pressed="true"]{background:#174c6d!important;color:#fff!important;border-color:#174c6d!important}
+#scout-match-mode #v112-video-drawer .vc1644-focus-hint{font-size:10px;color:#607f93;font-weight:750}
+#scout-match-mode #v112-video-drawer .vc1644-video-tools button:focus-visible{outline:3px solid #71c4f1;outline-offset:2px}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer{grid-template-columns:minmax(0,1fr) 320px!important;column-gap:12px!important}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer>.v112-video-card{grid-column:1!important;min-width:0!important;max-width:100%!important}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer>.v113-video-code-panel{grid-column:2!important;min-width:0!important;width:100%!important;top:80px!important;box-sizing:border-box!important}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v800-video-frame{width:100%!important;max-width:none!important;min-height:0!important;aspect-ratio:16/9!important;grid-column:1/-1!important;grid-row:2!important;box-shadow:0 12px 30px rgba(8,29,45,.12)!important}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v800-video-frame video{object-fit:contain!important}
+/* Put playback first; connection settings are secondary to watching the rally. */
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v116-delay-tools,
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v803-mobile-tools,
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v802-local-tools,
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v802-youtube-tools{grid-column:1/-1!important;grid-row:3!important}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v802-playback{grid-row:4!important}
+
+#scout-match-mode #v112-video-drawer .v112-video-drawer-head{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:9px!important}
+#scout-match-mode #v112-video-drawer .v112-video-drawer-head>div:first-child{margin-right:auto}
+#scout-match-mode #v112-video-drawer .v113-video-code-row input,
+#scout-match-mode #v800-code{font-variant-ligatures:none;letter-spacing:.015em}
+#scout-match-mode #v112-video-drawer #v113-video-code:focus-visible,
+#scout-match-mode #v800-code:focus-visible{outline:2px solid #3294ca!important;outline-offset:2px!important;border-color:#3294ca!important}
+#scout-match-mode #v112-video-drawer .vc1644-code-tip{margin:5px 0 1px;font-size:10px;line-height:1.35;color:#62839a}
+/* A fullscreen-like workspace with the SAME <video> and decoder: never clone or move media. */
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{
+  position:fixed!important;inset:10px!important;z-index:87000!important;overflow:auto!important;
+  width:auto!important;max-width:none!important;max-height:calc(100dvh - 20px)!important;margin:0!important;
+  box-sizing:border-box!important;border:1px solid #34566d!important;border-radius:14px!important;
+  background:#10283b!important;box-shadow:0 30px 90px #061b2b80!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) 332px!important;gap:12px!important;align-items:start!important;padding:14px!important
+}
+#scout-match-mode #v112-video-drawer.vc1644-theater .v112-video-drawer-head{color:#e9f2f8!important;border-bottom:1px solid #365268!important}
+#scout-match-mode #v112-video-drawer.vc1644-theater .v112-video-drawer-head h3{color:#f2f8fe!important}
+#scout-match-mode #v112-video-drawer.vc1644-theater .vc1644-focus-hint{color:#a7c0cf!important}
+#scout-match-mode #v112-video-drawer.vc1644-theater .v112-video-card{background:#10283b!important}
+#scout-match-mode #v112-video-drawer.vc1644-theater .v113-video-code-panel{position:sticky!important;top:2px!important}
+#scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater .v112-video-card>#v800-video-frame{
+  max-height:calc(100dvh - 205px)!important;min-height:0!important;aspect-ratio:16/9!important
+}
+body.vc1644-theater-lock{overflow:hidden!important}
+/* The app normally uses contain:content on .view; it would trap a fixed overlay. */
+body.vc1644-theater-lock #scout-match-mode{contain:none!important}
+@media (max-width:1050px){
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card{width:100%!important;min-width:0!important;max-width:100%!important;grid-template-columns:minmax(0,1fr)!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>*{grid-column:1!important;grid-row:auto!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v800-video-frame,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v116-delay-tools,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v803-mobile-tools,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v802-local-tools,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v802-youtube-tools,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v112-video-card>#v802-playback{grid-row:auto!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{grid-template-columns:minmax(0,1fr)!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer>.v112-video-card,
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer>.v113-video-code-panel{grid-column:1!important;grid-row:auto!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer .v113-video-code-panel{position:static!important;top:auto!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater .v112-video-card>#v800-video-frame{max-height:none!important}
+}
+@media (max-width:650px){
+ #scout-match-mode #v800-shell.v112-video-open{grid-template-columns:minmax(0,1fr)!important;min-width:0!important}
+ #scout-match-mode #v800-shell.v112-video-open #v800-live{min-width:0!important;max-width:100%!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer:not(.vc1644-theater){width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+ #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{inset:0!important;max-height:100dvh!important;border-radius:0!important;padding:8px!important}
+ #scout-match-mode #v112-video-drawer .vc1644-video-tools{justify-content:flex-start!important;width:100%}
+ #scout-match-mode #v112-video-drawer .vc1644-focus-hint{display:none}
+}
+</style>
+
+<script id="vc1644-scouting-video-ux" src="./111-vc16044-scouting-video-ux.js?v=16.0.4.4" data-vc-module="true"></script>
 </body></html>
