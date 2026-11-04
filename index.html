@@ -16167,8 +16167,389 @@ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"] #v850-conte
   }
 }
 /* Version marker in the existing application shell. */
-body.v11-shell .v11-brand small::after{content:" · V16.0.5.4"!important}
+body.v11-shell .v11-brand small::after{content:" · V16.0.5.4.1"!important}
 </style>
-<link rel="stylesheet" href="./vc16054-cockpit.css">
-<script src="./115-vc16054-professional-cockpit.js"></script>
+<style id="vc160541-professional-styles">
+/* V16.0.5.4 - Professional Match Cockpit / implementation using REAL UI components */
+body.v11-shell.vc54-match-active{background:#f2f5fa!important;--vc54-navy:#0c2038;--vc54-blue:#1559ba;--vc54-line:#e0e7f0;--vc54-ink:#162638}
+body.v11-shell.vc54-match-active #v11-main{padding:72px 15px 35px!important}
+body.v11-shell.vc54-match-active #v11-main>.view{max-width:1900px!important}
+/* On the live match page the existing sidebar becomes the dark professional navigation. */
+body.v11-shell.vc54-match-active #v11-sidebar{background:linear-gradient(165deg,#0e2340 0%,#0b1d35 100%)!important;border-color:#253c5c!important;box-shadow:3px 0 28px rgba(11,25,42,.12)!important;color:#edf4ff!important}
+body.v11-shell.vc54-match-active .v11-brand strong{color:#fff!important}
+body.v11-shell.vc54-match-active .v11-brand small{color:#b4c8df!important}
+body.v11-shell.vc54-match-active #v11-sidebar .v11-logo{background:linear-gradient(135deg,#1e6aca,#0e3c76)!important;color:#fff!important;border-color:#3a70ac!important}
+body.v11-shell.vc54-match-active #v11-sidebar .v11-nav-group label{color:#8ba8cd!important;border-color:transparent!important}
+body.v11-shell.vc54-match-active #v11-sidebar button:not(.active):not(.selected){color:#dae7fa!important;background:transparent!important;border-color:transparent!important}
+body.v11-shell.vc54-match-active #v11-sidebar button:not(.active):not(.selected) b{color:#dae7fa!important}
+body.v11-shell.vc54-match-active #v11-sidebar button small{color:#97adc7!important}
+body.v11-shell.vc54-match-active #v11-sidebar button.active{background:#2356a3!important;color:#fff!important;border-color:#426bb4!important}
+body.v11-shell.vc54-match-active #v11-sidebar button.active b,body.v11-shell.vc54-match-active #v11-sidebar button.active small{color:white!important}
+body.v11-shell.vc54-match-active #v11-sidebar button:hover{background:#1d3a61!important;color:white!important}
+body.v11-shell.vc54-match-active #v11-sidebar .v11-sidebar-footer{border-color:#324a67!important}
+body.v11-shell.vc54-match-active #v11-sidebar .v11-team-box{background:#17304f!important;border-color:#3a526e!important;color:#edf5ff!important}
+body.v11-shell.vc54-match-active #v11-sidebar .v11-team-box span,body.v11-shell.vc54-match-active #v11-sidebar .v11-team-box b{color:#dceafa!important}
+body.v11-shell.vc54-match-active #v11-sidebar .v11-cloud-status{background:#162d4b!important;border:1px solid #3a546f!important;border-radius:11px!important;color:#eaf5ff!important}
+/* Restrict matches to tight application topbar and a real centered scoreboard. */
+body.v11-shell.vc54-match-active #scout-match-mode .v800-top{padding:11px 15px!important;border-radius:11px!important;box-shadow:none!important;border:1px solid var(--vc54-line)!important}
+body.v11-shell.vc54-match-active #scout-match-mode .v800-match-title .pro-kicker{color:#1e64b4!important;letter-spacing:1.2px!important}
+body.v11-shell.vc54-match-active #scout-match-mode .v800-top h2{font-size:20px!important;color:#13263d!important;margin:1px 0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-live>.v112-scoreboard{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;background:#fff!important;border:1px solid var(--vc54-line)!important;box-shadow:none!important;min-height:90px!important;max-height:none!important;padding:8px 22px!important;gap:14px!important;border-radius:11px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-live>.v112-scoreboard>.v800-team{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:15px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-live>.v112-scoreboard>.v800-team.rival{justify-content:flex-end!important;flex-direction:row-reverse!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-team small{color:#263b55!important;font-size:clamp(12px,1.2vw,17px)!important;font-weight:850!important;max-width:190px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-team strong{font-size:clamp(33px,3.2vw,49px)!important;color:#fff!important;background:#0e2342!important;border-radius:10px!important;padding:6px 17px!important;line-height:1.15!important;letter-spacing:-1.6px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-team span{font-size:11px!important;color:#6f8192!important;align-self:center!important;padding:0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-center-score{border:0!important;background:transparent!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:4px!important;min-width:125px!important;padding:0 8px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-set-label{display:block!important;font-size:11px!important;color:#416889!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-clock{display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-service-copy{display:block!important;color:#607a90!important;font-size:10px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-service-dot{background:#20ba78!important}
+/* Operational strip uses existing match state text; no duplicate action engine. */
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-operation-bar{display:flex!important;align-items:center!important;gap:0!important;margin:0 0 9px!important;border-radius:11px!important;background:#fff!important;border:1px solid var(--vc54-line)!important;overflow:hidden!important;min-height:49px!important}
+#scout-match-mode #vc54-operation-bar{display:none}
+#scout-match-mode .vc54-live-indicator{display:flex;gap:7px;align-items:center;padding:8px 17px;background:#e6f7ed;color:#168455;font-size:10px;font-weight:900;letter-spacing:.6px;align-self:stretch}
+#scout-match-mode .vc54-live-indicator i{width:7px;height:7px;border-radius:50%;background:#1cbd70}
+#scout-match-mode .vc54-operation{padding:5px clamp(9px,1.2vw,18px);border-left:1px solid #e8edf3;min-width:0;display:flex;flex-direction:column;gap:3px}
+#scout-match-mode .vc54-operation small{font-size:9px;font-weight:850;letter-spacing:.6px;color:#8191a3}
+#scout-match-mode .vc54-operation strong{font-size:12px;color:#233b56;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+#scout-match-mode .vc54-operation.vc54-clock{margin-left:auto}
+body.v11-shell.vc54-match-active #scout-match-mode #vc52-modes{background:#fff!important;border-color:var(--vc54-line)!important;border-radius:11px!important;padding:5px!important;box-shadow:none!important;margin-bottom:9px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc52-modes button.selected{background:#165aba!important;color:#fff!important;border-color:#165aba!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc52-modes button.selected .vc53-mode-glyph{color:#fff!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc52-presence-bar{padding:0 3px!important;min-height:33px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc51-advanced-tools{order:9!important}
+/* In cockpit, the live video drawer itself is the 3-column workspace, using original nodes */
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){display:grid!important;grid-template-columns:minmax(0,1.8fr) minmax(185px,.68fr) minmax(280px,1.03fr)!important;grid-auto-rows:auto!important;gap:10px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;align-items:start!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.v112-video-drawer-head{display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.v112-video-card{grid-column:1!important;grid-row:1!important;display:flex!important;min-width:0!important;max-width:none!important;border-radius:12px!important;padding:10px!important;gap:8px!important;background:#fff!important;border:1px solid var(--vc54-line)!important;box-shadow:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer #v800-video-frame{aspect-ratio:16/9!important;height:auto!important;min-height:250px!important;max-height:none!important;background:#0c2037!important;border-radius:9px!important;overflow:hidden!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer #v800-video-frame video{object-fit:contain!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.vc54-court-slot{grid-column:2!important;grid-row:1!important;min-width:0!important;display:block!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .vc54-court-slot .v800-court-card{display:flex!important;flex-direction:column!important;gap:8px!important;padding:10px!important;background:#fff!important;border:1px solid var(--vc54-line)!important;box-shadow:none!important;border-radius:12px!important;min-width:0!important;position:static!important}
+body.v11-shell.vc54-match-active #scout-match-mode .vc54-court-slot .v800-card-head{display:flex!important;flex-wrap:wrap!important;gap:4px!important;align-items:center!important;justify-content:space-between!important}
+body.v11-shell.vc54-match-active #scout-match-mode .vc54-court-slot .v800-card-head h3{font-size:12px!important;color:#1a3652!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v800-courts{display:block!important;grid-template-columns:1fr!important;padding:0!important;min-width:0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v800-courts>div:nth-child(2){display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot.vc54-show-rival .v800-courts>div:nth-child(1){display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot.vc54-show-rival .v800-courts>div:nth-child(2){display:block!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v800-court{width:100%!important;max-width:100%!important;min-width:0!important;aspect-ratio:3/4!important;min-height:210px!important;box-sizing:border-box!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v850-lineup-guard{display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v112-lineup-actions{display:grid!important;grid-template-columns:1fr!important;gap:4px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v112-lineup-actions button{font-size:10px!important;min-height:30px!important;padding:5px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot #v800-lineup-health,body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot #v800-rally-chip{font-size:9px!important}
+body.v11-shell.vc54-match-active #scout-match-mode .vc54-court-toggle{border:1px solid #cdddf1!important;border-radius:7px!important;background:#edf4fc!important;color:#1a59a1!important;font:700 10px system-ui!important;padding:5px 7px!important;cursor:pointer}
+/* Real coding panel: one input, one points row, one set of presets. Hide duplicate score already in top header. */
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>#v113-video-code-panel{grid-column:3!important;grid-row:1!important;position:static!important;min-width:0!important;max-width:none!important;padding:13px!important;margin:0!important;background:#fff!important;border:1px solid var(--vc54-line)!important;box-shadow:none!important;border-radius:12px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-score{display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-code-head{margin-bottom:12px!important;padding-bottom:9px!important;border-bottom:1px solid #e6edf4!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-code-head h3{font-size:15px!important;line-height:1.2!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-points{margin-bottom:12px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-code-row input{font-size:14px!important;min-width:0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-code-row button{background:#1659b7!important;color:#fff!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-presets{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-presets button{border-radius:7px!important;min-height:34px!important;padding:5px!important;font-size:10px!important;box-shadow:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-quick-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;margin-top:10px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-quick-actions button{font-size:10px!important;padding:6px!important;min-height:30px!important}
+/* Real rally and set statistics moved out of hidden direct-mode container */
+#scout-match-mode #vc54-bottom{display:none}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #vc54-bottom{display:block!important;margin-top:11px!important}
+#scout-match-mode #vc54-bottom .vc54-bottom-head{display:flex;gap:12px;align-items:baseline;padding:5px 2px 10px}
+#scout-match-mode #vc54-bottom .vc54-bottom-head strong{color:#1b3551;font-size:14px}
+#scout-match-mode #vc54-bottom .vc54-bottom-head span{color:#8293a4;font-size:11px}
+#scout-match-mode #vc54-bottom-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr) minmax(0,.8fr);gap:10px;align-items:start}
+#scout-match-mode #vc54-bottom-grid>.vc54-bottom-col{min-width:0}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom :where(.v113-video-rally,.v112-kpi-card,.v800-kpi-card,.v112-set-card){display:block!important;width:100%!important;min-width:0!important;margin:0!important;position:static!important;background:#fff!important;border:1px solid var(--vc54-line)!important;box-shadow:none!important;border-radius:11px!important;padding:12px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom .v113-video-rally{min-height:148px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom .v800-kpis{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom .v112-set-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom .v112-set-actions button{font-size:10px!important;min-height:36px!important;padding:5px!important}
+/* Avoid stacked panels above the video in the cockpit. All original tools stay in their real container. */
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v850-context-strip{display:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #vc51-advanced-tools{margin-top:7px!important}
+/* Tablet and mobile: show video, coding, then court with no sideways overflow. */
+@media(max-width:1390px){
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1.25fr) minmax(300px,.82fr)!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.v112-video-card{grid-column:1!important;grid-row:1!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>#v113-video-code-panel{grid-column:2!important;grid-row:1!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.vc54-court-slot{grid-column:1/-1!important;grid-row:2!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v800-court{max-width:310px!important;aspect-ratio:3/2!important;min-height:200px!important;margin:0 auto!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-court-slot .v112-lineup-actions{display:flex!important;flex-wrap:wrap!important;justify-content:center!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom-grid{grid-template-columns:1.1fr 1fr!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-set-slot{grid-column:1/-1!important}
+}
+@media(max-width:850px){
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.v112-video-card{grid-column:1!important;grid-row:1!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>#v113-video-code-panel{grid-column:1!important;grid-row:2!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v112-video-drawer>.vc54-court-slot{grid-column:1!important;grid-row:3!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-bottom-grid{grid-template-columns:1fr!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-set-slot{grid-column:auto!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-operation-bar{overflow-x:auto!important;scrollbar-width:thin!important}
+ body.v11-shell.vc54-match-active #scout-match-mode .vc54-operation{flex:0 0 auto!important}
+}
+@media(max-width:700px){
+ body.v11-shell.vc54-match-active #v11-main{padding:74px 9px 30px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-live>.v112-scoreboard{padding:8px 6px!important;gap:3px!important;grid-template-columns:minmax(0,1fr) minmax(65px,.55fr) minmax(0,1fr)!important;min-height:86px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-live>.v112-scoreboard>.v800-team,body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-live>.v112-scoreboard>.v800-team.rival{flex-direction:column!important;gap:4px!important;align-items:center!important;justify-content:center!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-team strong{font-size:26px!important;padding:3px 13px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-team small{font-size:10px!important;white-space:nowrap!important;max-width:100px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active .v112-scoreboard .v800-team span{font-size:9px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.vc54-cockpit-active #v800-set-label{font-size:10px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode .vc54-live-indicator{padding:7px 10px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #vc54-operation-bar{min-height:42px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode .vc54-operation{padding:4px 9px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer #v800-video-frame{min-height:200px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v113-video-code-panel .v113-video-presets{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+/* Beat V16.0.5.3's :not(.vc1644-theater) row placement; video must be FIRST. */
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.v112-video-open.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{grid-column:1!important;grid-row:1!important;order:0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.v112-video-open.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{grid-row:1!important;order:0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.v112-video-open.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater)>.vc54-court-slot{grid-row:1!important;order:0!important}
+@media(min-width:851px) and (max-width:1390px){body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.v112-video-open.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater)>.vc54-court-slot{grid-row:2!important}}
+@media(max-width:850px){
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.v112-video-open.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater)>.v113-video-code-panel{grid-column:1!important;grid-row:2!important}
+ body.v11-shell.vc54-match-active #scout-match-mode #v800-shell.v112-video-open.vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater)>.vc54-court-slot{grid-column:1!important;grid-row:3!important}
+}
+/* Fold source and camera configuration without removing original controls. */
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings{order:4!important;display:block!important;border:1px solid #dde8f4!important;border-radius:9px!important;padding:0!important;background:#f8fbff!important;box-shadow:none!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings>summary{display:flex!important;align-items:center!important;gap:8px!important;padding:10px 12px!important;cursor:pointer!important;color:#1c578a!important;font-size:11px!important;font-weight:800!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings>summary>span{margin-left:auto!important;color:#7c94aa!important;font-weight:500!important;font-size:9px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings[open]>:not(summary){margin:7px!important;max-width:calc(100% - 14px)!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings[open] #v803-mobile-tools{display:block!important}
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings #v803-mobile-tools.hidden,
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings #v116-delay-tools.hidden,
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings #v802-local-tools.hidden,
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-video-settings #v802-youtube-tools.hidden{display:none!important}
+/* Real-code keypad mirrors the reference. Buttons draft a code, never write a rally until Add is used. */
+#scout-match-mode #vc54-code-keypad{display:flex;flex-direction:column;gap:6px;margin:10px 0 13px!important;padding:0!important}
+#scout-match-mode .vc54-pad-head{display:flex;justify-content:space-between;align-items:baseline;font:800 10px/1.3 system-ui;color:#243d5a;margin-top:5px;letter-spacing:.2px}
+#scout-match-mode .vc54-pad-head span{font-size:9px;font-weight:500;color:#8799ae;letter-spacing:0}
+#scout-match-mode .vc54-key-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+#scout-match-mode #vc54-number-keys{grid-template-columns:repeat(6,minmax(0,1fr))}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-code-keypad .vc54-key-grid button{min-width:0!important;min-height:31px!important;padding:4px 2px!important;background:#fff!important;border:1px solid #d2dfec!important;border-radius:6px!important;color:#243854!important;font-size:11px!important;font-weight:780!important;cursor:pointer}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-code-keypad .vc54-key-grid button:hover{background:#e9f1fe!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-code-keypad .vc54-key-grid button.active{background:#165cbd!important;color:#fff!important;border-color:#165cbd!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-presets-more{border:1px solid #e2e9f3!important;border-radius:7px!important;background:#f8fbff!important;margin:6px 0!important;padding:0!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-presets-more>summary{padding:8px 10px!important;cursor:pointer!important;font-weight:700!important;color:#52708e!important;font-size:10px!important}
+body.v11-shell.vc54-match-active #scout-match-mode #vc54-presets-more .v113-video-presets{padding:8px!important;margin:0!important}
+/* Keep the full match context near the video after legacy automatic scroll. */
+body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer{scroll-margin-top:330px!important}
+/* The current page is Scouting Pro: highlight one menu item without altering route logic. */
+body.v11-shell.vc54-match-active #v11-sidebar button[data-v11-nav="home"].active{background:transparent!important;border-color:transparent!important;color:#dce7f7!important}
+body.v11-shell.vc54-match-active #v11-sidebar button[data-v11-nav="scouting"]{background:#2356a3!important;color:#fff!important;border:1px solid #426bb4!important}
+body.v11-shell.vc54-match-active #v11-sidebar button[data-v11-nav="scouting"] b,body.v11-shell.vc54-match-active #v11-sidebar button[data-v11-nav="scouting"] small{color:#fff!important}
+/* No duplicated global creation actions above the match; they remain on other routes. */
+body.v11-shell.vc54-match-active #v11-topbar .v11-quick{display:none!important}
+
+
+/* V16.0.5.4.1: status redesigned and self-contained. */
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar{
+  display:grid!important;
+  grid-template-columns:minmax(135px,1.16fr) repeat(5,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  gap:0!important;
+  min-height:78px!important;
+  margin:8px 0 13px!important;
+  overflow:hidden!important;
+  border:1px solid #dbe5f1!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  box-shadow:0 5px 22px rgba(21,48,84,.045)!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-live-indicator{
+  display:flex!important;flex-flow:row wrap!important;gap:7px!important;align-items:center!important;
+  align-content:center!important;justify-content:center!important;
+  background:linear-gradient(145deg,#102a4a,#183b63)!important;
+  color:#f5f9ff!important;border:0!important;
+  padding:13px 15px!important;
+  font-size:11px!important;font-weight:800!important;letter-spacing:.055em!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-live-indicator i{
+  display:block!important;flex:0 0 8px!important;width:8px!important;height:8px!important;
+  border-radius:100%!important;background:#35dd90!important;box-shadow:0 0 0 4px rgba(53,221,144,.14)!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  min-width:0!important;gap:5px!important;margin:0!important;
+  padding:10px clamp(10px,1.3vw,23px)!important;
+  background:#fff!important;border:0!important;border-left:1px solid #e7edf5!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation small{
+  display:block!important;color:#7589a1!important;font:800 10px/1.15 Inter,system-ui,sans-serif!important;
+  letter-spacing:.075em!important;white-space:nowrap!important;text-transform:uppercase!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation strong{
+  display:block!important;min-width:0!important;max-width:100%!important;
+  color:#153555!important;font:800 clamp(13px,1vw,17px)/1.22 Inter,system-ui,sans-serif!important;
+  letter-spacing:-.015em!important;text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation.vc54-clock{
+  margin-left:0!important;background:#f4f8fd!important;
+}
+body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation.vc54-clock strong{
+  font-variant-numeric:tabular-nums!important;letter-spacing:.04em!important;
+}
+/* Preserve an unmistakable marker that the updated layout is running. */
+body.v11-shell .v11-brand small::after{content:" · V16.0.5.4.1"!important}
+@media (max-width:1110px){
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar{
+  grid-template-columns:minmax(125px,1.1fr) repeat(3,minmax(0,1fr))!important;
+ }
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation:nth-last-child(-n+2){
+  border-top:1px solid #e7edf5!important;
+ }
+}
+@media (max-width:720px){
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  min-height:0!important;margin:8px 0 11px!important;border-radius:12px!important;
+ }
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-live-indicator{
+  grid-column:1/-1!important;padding:9px 12px!important;justify-content:flex-start!important;
+ }
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation{
+  padding:10px 12px!important;min-height:59px!important;border-top:1px solid #e7edf5!important;
+ }
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation:nth-child(2n){border-left:0!important}
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation strong{font-size:14px!important}
+ body.v11-shell.vc54-match-active #scout-match-mode.active #vc54-operation-bar .vc54-operation small{font-size:9px!important}
+}
+
+</style>
+<script id="vc160541-professional-runtime">
+/* Volley Coach V16.0.5.4 · Professional Match Cockpit
+   Presentation only: rearranges the real court, video, coding and stats nodes.
+   Never changes actions, scores, MatchState, cloud sync or stored rally data.
+*/
+(()=>{
+ 'use strict';
+ if(window.VC_16054_COCKPIT)return;
+ const $=id=>document.getElementById(id);
+ const movement=new Map();
+ let mounted=false, courtSide='ours', syncScheduled=false, moves=0, restores=0;
+ const route=()=>!!$('scout-match-mode')?.classList.contains('active');
+ const inVideo=()=>route()&&$('v800-shell')?.dataset.vc52Mode==='video';
+ function remember(node){if(!node||movement.has(node))return;const marker=document.createComment('vc54-origin:'+ (node.id||node.className)); node.parentNode?.insertBefore(marker,node);movement.set(node,marker)}
+ function to(node,container){if(!node||!container)return;remember(node);if(node.parentElement!==container){container.appendChild(node);moves++}}
+ function restoreAll(){movement.forEach((marker,node)=>{if(marker.parentNode && node.parentElement!==marker.parentNode){marker.parentNode.insertBefore(node,marker.nextSibling);restores++}})}
+ function mount(){
+  const live=$('v800-live'),drawer=$('v112-video-drawer');if(!live||!drawer)return false;
+  let op=$('vc54-operation-bar');
+  if(!op){
+   op=document.createElement('section');op.id='vc54-operation-bar';op.className='vc54-operation-bar';op.setAttribute('aria-label','Estado del partido en directo');
+   op.innerHTML=`<div class="vc54-live-indicator"><i aria-hidden="true"></i><span>EN DIRECTO</span></div>
+     <div class="vc54-operation"><small>SET</small><strong id="vc54-set-copy">—</strong></div>
+     <div class="vc54-operation"><small>ROTACIÓN</small><strong id="vc54-rotation-copy">—</strong></div>
+     <div class="vc54-operation"><small>SAQUE</small><strong id="vc54-service-copy">—</strong></div>
+     <div class="vc54-operation"><small>RALLY</small><strong id="vc54-rally-copy">—</strong></div>
+     <div class="vc54-operation vc54-clock"><small>TIEMPO</small><strong id="vc54-clock-copy">00:00</strong></div>`;
+   const tab=$('vc52-modes');tab?.parentNode?.insertBefore(op,tab);
+  }
+  let bottom=$('vc54-bottom');
+  if(!bottom){
+   bottom=document.createElement('section');bottom.id='vc54-bottom';bottom.setAttribute('aria-label','Acciones, estadísticas y controles del partido');
+   bottom.innerHTML=`<div class="vc54-bottom-head"><strong>Seguimiento del partido</strong><span>Datos del scouting activo</span></div>
+      <div id="vc54-bottom-grid"><div id="vc54-rally-slot" class="vc54-bottom-col"></div><div id="vc54-kpi-slot" class="vc54-bottom-col"></div><div id="vc54-set-slot" class="vc54-bottom-col"></div></div>`;
+   drawer.insertAdjacentElement('afterend',bottom);
+  }
+  let courtSlot=$('vc54-court-slot');
+  if(!courtSlot){
+   courtSlot=document.createElement('div');courtSlot.id='vc54-court-slot';courtSlot.className='vc54-court-slot';
+   const code=$('v113-video-code-panel');if(code)drawer.insertBefore(courtSlot,code);else drawer.appendChild(courtSlot);
+  }
+  const videoCard=drawer.querySelector('.v800-video-card');
+  if(videoCard&&!$('vc54-video-settings')){
+   const details=document.createElement('details');details.id='vc54-video-settings';details.className='vc54-video-settings';
+   details.innerHTML='<summary>Conectar cámara / cambiar fuente <span>Live · Delay · Archivo · YouTube</span></summary>';
+   const frame=$('v800-video-frame');if(frame)frame.insertAdjacentElement('afterend',details);else videoCard.appendChild(details);
+  }
+  const codePanel=$('v113-video-code-panel');
+  if(codePanel&&!$('vc54-code-keypad')){
+   const pad=document.createElement('section');pad.id='vc54-code-keypad';pad.className='vc54-code-keypad';
+   pad.innerHTML='<div class="vc54-pad-head">JUGADOR <span>Pulsa dorsal + fundamento + valoración</span></div><div id="vc54-number-keys" class="vc54-key-grid"></div><div class="vc54-pad-head">FUNDAMENTO</div><div id="vc54-skill-keys" class="vc54-key-grid"></div><div class="vc54-pad-head">VALORACIÓN</div><div id="vc54-eval-keys" class="vc54-key-grid"></div>';
+   const entry=codePanel.querySelector('.v113-video-code-entry');entry?.insertAdjacentElement('beforebegin',pad);
+   const make=(area,items,kind)=>{
+    const host=$(area);for(const item of items){
+     const button=document.createElement('button');button.type='button';button.textContent=item;
+     button.dataset.vc54Key=kind;button.dataset.vc54Value=String(item);
+     button.addEventListener('click',()=>pickCode(kind,String(item)));
+     host?.appendChild(button);
+    }
+   };
+   make('vc54-number-keys',Array.from({length:12},(_,i)=>String(i+1)),'number');
+   make('vc54-skill-keys',['S','R','A','B','D','E'],'skill');
+   make('vc54-eval-keys',['#','+','=','-','/'],'eval');
+   const old=codePanel.querySelector('.v113-video-presets');
+   if(old){
+    const more=document.createElement('details');more.id='vc54-presets-more';more.className='vc54-presets-more';more.innerHTML='<summary>Atajos de registro inmediato</summary>';
+    old.parentNode?.insertBefore(more,old);more.appendChild(old);
+   }
+  }
+  const court=document.querySelector('#scout-match-mode .v800-court-card');
+  if(court&&!$('vc54-court-toggle')){
+   const head=court.querySelector('.v800-card-head');
+   const b=document.createElement('button');b.type='button';b.id='vc54-court-toggle';b.className='vc54-court-toggle';b.textContent='Ver pista rival';
+   b.addEventListener('click',()=>{courtSide=courtSide==='ours'?'rival':'ours';updateCourtSide()});head?.appendChild(b);
+  }
+  mounted=true;return true;
+ }
+ const draft={number:'',skill:'',eval:''};
+ function pickCode(kind,value){
+  draft[kind]=value;
+  if(kind==='number'){const n=$('v113-video-number');if(n){n.value=value;n.dispatchEvent(new Event('input',{bubbles:true}))}}
+  const select=$('v113-video-team-select');
+  const number=draft.number||String($('v113-video-number')?.value||'').trim();
+  const prefix=select?.value==='opponent'?'R':'';
+  const input=$('v113-video-code');
+  if(input){input.value=prefix+number+draft.skill+draft.eval;input.dispatchEvent(new Event('input',{bubbles:true}))}
+  document.querySelectorAll('#vc54-code-keypad [data-vc54-key]').forEach(el=>{
+   el.classList.toggle('active',draft[el.dataset.vc54Key]===el.dataset.vc54Value);
+   el.setAttribute('aria-pressed',String(draft[el.dataset.vc54Key]===el.dataset.vc54Value));
+  });
+ }
+ function updateCourtSide(){const court=$('vc54-court-slot');court?.classList.toggle('vc54-show-rival',courtSide==='rival');const b=$('vc54-court-toggle');if(b)b.textContent=courtSide==='rival'?'Ver nuestra pista':'Ver pista rival'}
+ function syncReadouts(){
+  if(!mounted)return;
+  const read=(id)=>($(id)?.textContent||'—').trim();
+  const values={
+   'vc54-set-copy':read('v800-set-label'),
+   'vc54-rotation-copy':read('v800-rotation-title').split('·')[0].trim(),
+   'vc54-service-copy':read('v800-service-copy'),
+   'vc54-rally-copy':read('v800-rally-chip'),
+   'vc54-clock-copy':read('v800-clock')
+  };
+  for(const [id,value] of Object.entries(values)){const el=$(id);if(el&&el.textContent!==value)el.textContent=value}
+ }
+ function scheduleReadouts(){if(syncScheduled)return;syncScheduled=true;requestAnimationFrame(()=>{syncScheduled=false;syncReadouts()})}
+ function apply(){
+  if(!mount())return;
+  document.body.classList.toggle('vc54-match-active',route());
+  const on=inVideo();const shell=$('v800-shell');shell?.classList.toggle('vc54-cockpit-active',on);
+  if(on){
+   to(document.querySelector('#scout-match-mode .v800-court-card'),$('vc54-court-slot'));
+   for(const id of ['v116-source-selector','v116-delay-tools','v803-mobile-tools','v802-local-tools','v802-youtube-tools','v802-video-help','v800-rec-copy'])to($(id),$('vc54-video-settings'));
+   to($('v113-video-rally'),$('vc54-rally-slot'));
+   to(document.querySelector('#scout-match-mode .v800-kpi-card'),$('vc54-kpi-slot'));
+   to(document.querySelector('#scout-match-mode .v112-set-card'),$('vc54-set-slot'));
+   updateCourtSide();
+  }else restoreAll();
+  scheduleReadouts();
+ }
+ function boot(){
+  if(!mount())return;
+  const view=$('scout-match-mode'),shell=$('v800-shell');
+  if(view)new MutationObserver(apply).observe(view,{attributes:true,attributeFilter:['class']});
+  if(shell)new MutationObserver(apply).observe(shell,{attributes:true,attributeFilter:['class','data-vc52-mode']});
+  ['v800-set-label','v800-rotation-title','v800-service-copy','v800-rally-chip','v800-clock'].forEach(id=>{
+   const node=$(id);if(node)new MutationObserver(scheduleReadouts).observe(node,{childList:true,characterData:true,subtree:true});
+  });
+  apply();
+ }
+ window.VC_16054_COCKPIT={version:'16.0.5.4.1',apply,diagnostics:()=>({mounted,active:inVideo(),courtMoved:$('vc54-court-slot')?.contains(document.querySelector('.v800-court-card'))||false,presenceCounter:!!$('vc52-peer-count'),moves,restores,route:route()})};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+</script>
 </body></html>

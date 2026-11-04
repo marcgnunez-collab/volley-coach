@@ -1,4 +1,4 @@
-const CACHE_NAME = 'volley-coach-v16.0.5.4-professional-cockpit';
+const CACHE_NAME = 'volley-coach-v16.0.5.4.1-visual-repair';
 
 const MODULE_ASSETS = [
   "./002-core-training-v150-monolithic.js",
@@ -36,8 +36,6 @@ const MODULE_ASSETS = [
   "./112-vc16045-scouting-keyboard-pro.js",
   "./113-vc16045-analysis-unified.js",
   "./114-vc16052-scouting-unificado.js",
-  "./115-vc16054-professional-cockpit.js",
-  "./vc16054-cockpit.css",
   "./088-v151-season-performance-module.js",
   "./089-v152-smart-rally-reports-exchange.js",
   "./095-vc154-collaboration-runtime.js",
