@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.6 · Video Reliability Pro</title>
+<title>Volley Coach | V16.0.5.8 · Video Workspace</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -886,6 +886,13 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 #scout-video-hub #vc-review-pro-marks,#scout-video-hub #vc-review-pro-hint{color:#acbfd0}
 #scout-video-hub .vc-review-pro-markers .vc-review-marker{background:#244866;border-color:#426786;color:#e9f9ff}
 </style>
+<style id="vc16057-smart-clips-styles">
+#vc-clip33 .vc-clip57-auto{border-color:#c7dff0;background:#f5faff}
+#vc-clip33 .vc-clip57-auto .vc-clip33-info span{color:#17639b}
+#scout-match-mode #v113-video-rally-actions .action{cursor:pointer;border:1px solid #42678a;transition:background .15s ease}
+#scout-match-mode #v113-video-rally-actions .action:hover{background:#215b8a}
+#scout-match-mode #v113-video-rally-actions .action::after{content:' ▶';font-size:8px;color:#8de0fa}
+</style>
 </head>
 <body class="v11-shell">
 <header><div class="header-wrap"><div><h1><span class="brand-ball">◯</span> VOLLEY COACH <small>V7.0.1 · VIDEO SCOUTING</small></h1><div class="brand-subtitle">PLATAFORMA DE PLANIFICACIÓN</div><div class="save-indicator" id="save-indicator">✓ Guardado automáticamente</div></div><div class="actions"><button class="ghost cloud-btn" onclick="abrirCloud()"><span id="cloud-dot" class="cloud-dot"></span><span id="cloud-label">Nube</span></button><input type="file" id="import-file" accept=".json" class="hidden"><button class="ghost" onclick="document.getElementById('import-file').click()">Cargar copia</button><button class="ghost" onclick="exportarDatos()">Guardar copia</button></div></div></header>
@@ -1519,13 +1526,13 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 </section>
 
 
-<section id="scout-video-hub" class="view">
+<section id="scout-video-hub" class="view" data-vc58-tab="player">
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">VIDEO REVIEW · V16.0.3.4</span>
-        <h2>Revisión profesional vinculada al scouting</h2>
-        <p>Cada acción usa su timestamp real para navegar, filtrar, reproducir y crear clips automáticos −8 s / +5 s.</p>
+        <span class="pro-kicker">VÍDEO · WORKSPACE V16.0.5.8</span>
+        <h2>Vídeo Studio</h2>
+        <p>Reproduce y graba en una pestaña. Analiza jugadas y clips en la otra, sin reiniciar el vídeo.</p>
       </div>
       <div class="v780-hero-actions">
         <button class="ghost" type="button" onclick="v780OpenRecordingPicker()">Grabaciones V7.7</button>
@@ -1537,6 +1544,15 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
       </div>
     </div>
 
+    <nav class="vc58-tabbar" role="tablist" aria-label="Espacios de vídeo">
+      <button type="button" id="vc58-tab-player" role="tab" aria-selected="true" tabindex="0" onclick="vc58SetVideoTab('player')"><span class="vc58-tab-icon" aria-hidden="true">▶</span><span><strong>Reproductor</strong><small>Live · Delay · Grabación</small></span></button>
+      <button type="button" id="vc58-tab-analysis" role="tab" aria-selected="false" tabindex="-1" onclick="vc58SetVideoTab('analysis')"><span class="vc58-tab-icon" aria-hidden="true">▥</span><span><strong>Análisis de vídeo</strong><small>Rallies · Clips · Playlists</small></span></button>
+    </nav>
+    <div class="vc58-context-bar">
+      <div id="vc58-match-slot" class="vc58-match-slot"></div>
+      <p id="vc58-context-copy" aria-live="polite">Una sola fuente de vídeo para capturar y revisar.</p>
+      <button type="button" id="vc58-open-source" class="vc58-link" onclick="vc58SetVideoTab('player')">⚙ Fuentes y grabación</button>
+    </div>
     <section class="v117-review-sourcebar">
       <div class="v117-review-source-head">
         <div><span>FUENTE DE VÍDEO</span><b id="v117-review-source-label">ARCHIVO</b><small id="v117-review-source-copy">Vídeo guardado para revisar, sincronizar y crear clips.</small></div>
@@ -1563,6 +1579,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
       </div>
     </section>
 
+    <div class="vc58-analysis-heading"><div><span>REVISIÓN TÁCTICA</span><h3>Análisis de vídeo</h3><p>Filtra las acciones, selecciona una jugada y abre su momento de vídeo.</p></div><button type="button" id="vc58-map-toggle" aria-expanded="false" onclick="vc58ToggleMap()">▤ Mapa de sets</button></div>
     <div class="v780-toolbar">
       <label><span>Partido</span><select id="v780-match" onchange="v780MatchChanged()"></select></label>
       <label><span>Set</span><select id="v780-set" onchange="v780Render()"><option value="">Todos</option></select></label>
@@ -1741,8 +1758,8 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 
     <section id="vc-clip33" class="vc-clip33" aria-label="Clips vinculados al scouting">
       <header class="vc-clip33-head">
-        <div><span class="vc-clip33-kicker">VIDEO REVIEW PRO · CLIP STUDIO</span><h3>Clips vinculados al scouting</h3><p>Guarda y revisa cada rally o acción usando sus tiempos de vídeo. Los clips pertenecen al partido seleccionado.</p></div>
-        <span id="vc-clip33-count" class="vc-clip33-count">0 clips en este partido</span>
+        <div><span class="vc-clip33-kicker">VIDEO REVIEW PRO · CLIP STUDIO</span><h3>Clips vinculados al scouting</h3><p>Las acciones con tiempo de vídeo generan automáticamente una referencia −8/+5 s. Reprodúcelas, guárdalas si quieres o exporta el catálogo.</p></div>
+        <span id="vc-clip33-count" class="vc-clip33-count">0 automáticas · 0 guardadas</span>
       </header>
       <div class="vc-clip33-toolbar">
         <button id="vc-clip33-selected" type="button" class="vc-clip33-btn primary">＋ Clip de la selección</button>
@@ -1755,12 +1772,12 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
         <button id="vc-clip33-manual" type="button" class="vc-clip33-btn primary">Guardar tramo IN–OUT</button>
       </div>
       <div class="vc-clip33-filters">
-        <label>Mostrar<select id="vc-clip33-filter"><option value="all">Todos los clips</option><option value="rally">Solo rallies</option><option value="action">Solo acciones</option><option value="manual">Clips manuales</option></select></label>
+        <label>Mostrar<select id="vc-clip33-filter"><option value="all">Todas las jugadas</option><option value="auto">Referencias automáticas</option><option value="rally">Solo rallies</option><option value="action">Solo acciones</option><option value="manual">Clips manuales</option></select></label>
         <label>Buscar<input id="vc-clip33-search" type="search" placeholder="Jugador, fundamento, rally…"></label>
       </div>
-      <p id="vc-clip33-status" class="vc-clip33-status" role="status" aria-live="polite">Para crear clips automáticos se necesitan tiempos de vídeo vinculados al scouting.</p>
+      <p id="vc-clip33-status" class="vc-clip33-status" role="status" aria-live="polite">Las referencias aparecen cuando una acción tiene marca temporal. El vídeo debe cargarse en este dispositivo para reproducirlas.</p>
       <div id="vc-clip33-list" class="vc-clip33-list"></div>
-      <p class="vc-clip33-footnote">Un clip guardado es un intervalo vinculado al partido. Puedes reproducirlo desde su archivo o YouTube; la exportación WebM solo funciona con archivos locales compatibles. LIVE/DELAY temporal no se descarga como clip.</p>
+      <p class="vc-clip33-footnote">Referencias automáticas = tramos calculados desde acciones; no son archivos ni ocupan vídeo en la nube. El archivo debe estar disponible en este dispositivo. WebM solo con archivos locales compatibles; YouTube y LIVE/DELAY no se exportan.</p>
     </section>
   </div>
 </section>
@@ -14828,7 +14845,7 @@ if(new URLSearchParams(location.search).get('vc_perf')==='1'){
 <!-- V16.0.3.2 · Solo lectura y reproducción de vídeo; no modifica scoutings. -->
 <script id="vc16032-review-pro" src="./105-vc16032-video-review-pro.js?v=16.0.3.2" data-vc-module="true"></script>
 <!-- V16.0.3.3 · Clips guardados por partido en el modelo existente m.video.clips. -->
-<script id="vc16033-scouting-clips" src="./106-vc16033-scouting-clips.js?v=16.0.3.4" data-vc-module="true"></script>
+<script id="vc16033-scouting-clips" src="./106-vc16033-scouting-clips.js?v=16.0.5.7" data-vc-module="true"></script>
 <style id="vc16034-recording-pro-style">
 /* V16.0.3.4: Recording Studio/Video Review professional design, independent of scouting and cloud. */
 #vc-recording-studio{border:1px solid #d2e0e9!important;background:linear-gradient(180deg,#fff,#f7fafc)!important;border-radius:17px!important;padding:17px!important;box-shadow:0 12px 32px rgba(20,59,87,.07)!important}
@@ -16574,7 +16591,7 @@ body.v11-shell #v11-sidebar .v11-logo{
 }
 body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
 body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
-body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.6"!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.8"!important}
 body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
 body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
 body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}
@@ -16775,4 +16792,113 @@ body.v11-shell.vc1644-theater-lock #scout-match-mode{contain:none!important}
 })();
 
 </script>
+<style id="vc16058-video-workspace-style">
+/* V16.0.5.8: two distinct workspaces sharing one DOM video element, one WebRTC stream and one match state. */
+#scout-video-hub[data-vc58-tab] .v780-hub{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:13px!important;align-items:start}
+#scout-video-hub .v780-hub > *{min-width:0}
+#scout-video-hub .v780-hub > .v780-hero{order:0;margin-bottom:0!important}
+#scout-video-hub .v780-hub > .vc58-tabbar{order:1}
+#scout-video-hub .v780-hub > .vc58-context-bar{order:2}
+#scout-video-hub .v780-hub > .vc58-analysis-heading{order:3}
+#scout-video-hub .v780-hub > .v780-toolbar{order:4}
+#scout-video-hub .v780-hub > .v780-status-grid{order:5}
+#scout-video-hub .v780-hub > .v117-review-sourcebar{order:6}
+#scout-video-hub .v780-hub > .v780-main{order:7}
+#scout-video-hub .v780-hub > #vc-rec34-strip{order:8}
+#scout-video-hub .v780-hub > .v780-timeline-panel{order:9}
+#scout-video-hub .v780-hub > #vc-clip33{order:10}
+#scout-video-hub .v780-hub > .v781-set-map-panel{order:11}
+#scout-video-hub .vc58-tabbar{display:flex;gap:5px;padding:5px;background:#e8f0f9;border:1px solid #cad9eb;border-radius:14px}
+#scout-video-hub .vc58-tabbar button{flex:1 1 0;display:flex;gap:12px;align-items:center;justify-content:center;min-height:55px!important;padding:9px 13px!important;border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;color:#315a82!important;text-align:left;cursor:pointer}
+#scout-video-hub .vc58-tabbar button[aria-selected="true"]{background:#fff!important;color:#123d6f!important;border-color:#bdd1e8!important;box-shadow:0 3px 12px rgba(12,52,99,.09)!important}
+#scout-video-hub .vc58-tab-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#d8e6f6;font-size:16px;color:#326392;flex:none}
+#scout-video-hub .vc58-tabbar button[aria-selected="true"] .vc58-tab-icon{background:#1659aa;color:#fff}
+#scout-video-hub .vc58-tabbar strong{display:block;font:800 14px/1.1 system-ui,sans-serif;color:inherit}
+#scout-video-hub .vc58-tabbar small{display:block;font:500 11px/1.3 system-ui,sans-serif;opacity:.77;margin-top:4px}
+#scout-video-hub .vc58-context-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid #d7e3f1;border-radius:12px;padding:10px 13px;box-shadow:0 2px 10px rgba(15,55,95,.03)}
+#scout-video-hub .vc58-match-slot{display:flex;flex:0 1 290px;min-width:170px}
+#scout-video-hub .vc58-match-slot>label{display:flex;flex:1;align-items:center;gap:8px;font:700 11px/1.2 system-ui,sans-serif;color:#35577a;min-width:0}
+#scout-video-hub .vc58-match-slot select{min-width:0;flex:1;max-width:220px}
+#scout-video-hub #vc58-context-copy{flex:1;min-width:200px;margin:0;font:500 12px/1.4 system-ui,sans-serif;color:#64809b}
+#scout-video-hub .vc58-link,#scout-video-hub #vc58-map-toggle{border:1px solid #c6d8ec!important;background:#f3f8ff!important;border-radius:9px!important;color:#18538c!important;font:750 11px/1.1 system-ui,sans-serif!important;padding:9px 12px!important;cursor:pointer;min-height:36px}
+#scout-video-hub .vc58-link:hover,#scout-video-hub #vc58-map-toggle:hover{background:#e8f2ff!important}
+#scout-video-hub .vc58-analysis-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:5px 3px 0}
+#scout-video-hub .vc58-analysis-heading span{font-size:9px;font-weight:850;letter-spacing:.10em;color:#4280b4}
+#scout-video-hub .vc58-analysis-heading h3{margin:2px 0!important;padding:0!important;border:0!important;font:850 18px/1.25 system-ui,sans-serif!important;color:#153b67!important}
+#scout-video-hub .vc58-analysis-heading p{margin:1px 0 0;font-size:11px;color:#72869b}
+#scout-video-hub .v780-main{min-width:0}
+#scout-video-hub .v780-video-panel{min-width:0;padding:12px!important;border-radius:14px!important;border:1px solid #d4e2f0!important;box-shadow:0 4px 22px rgba(16,47,90,.04)}
+#scout-video-hub .v780-video-frame{width:100%;max-width:none;aspect-ratio:16/9;border-radius:12px;overflow:hidden}
+#scout-video-hub .v780-video-frame video{max-width:100%}
+#scout-video-hub .vc-review-pro-bar{margin-top:12px!important;border-radius:12px!important}
+/* Old transport bar is redundant with Review Pro transport; leave its DOM for legacy handlers. */
+#scout-video-hub[data-vc58-tab] .v780-play-controls{display:none!important}
+#scout-video-hub .v780-toolbar label span,#scout-video-hub .vc-clip33-filters label{font-size:11px!important;font-weight:700!important}
+#scout-video-hub .v780-status-grid{gap:8px}
+#scout-video-hub .v780-status-grid > div{padding:10px 12px;border-radius:11px}
+#scout-video-hub .v780-status-grid b{font-size:14px!important}
+#scout-video-hub .v780-side{min-width:0;display:flex;flex-direction:column;gap:12px}
+#scout-video-hub .v780-side>section{min-width:0;border-radius:13px!important}
+#scout-video-hub .v780-timeline-panel{border-radius:14px;padding:14px!important}
+#scout-video-hub .v780-row{min-height:45px;gap:9px;padding:10px 12px}
+#scout-video-hub .v780-row-copy strong{font-size:11px}
+#scout-video-hub .v780-row-copy small{font-size:10px}
+#scout-video-hub .v780-time{font-size:11px}
+#scout-video-hub #vc-clip33{border-radius:14px}
+/* Reproductor: source controls, camera/REC, and one wide continuous player. */
+#scout-video-hub[data-vc58-tab="player"] .v780-toolbar,
+#scout-video-hub[data-vc58-tab="player"] .v780-status-grid,
+#scout-video-hub[data-vc58-tab="player"] .vc58-analysis-heading,
+#scout-video-hub[data-vc58-tab="player"] .v781-set-map-panel,
+#scout-video-hub[data-vc58-tab="player"] .v780-timeline-panel,
+#scout-video-hub[data-vc58-tab="player"] #vc-clip33,
+#scout-video-hub[data-vc58-tab="player"] .v780-side,
+#scout-video-hub[data-vc58-tab="player"] .v780-sync-panel,
+#scout-video-hub[data-vc58-tab="player"] .v780-ruler-wrap{display:none!important}
+#scout-video-hub[data-vc58-tab="player"] .v780-main{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+#scout-video-hub[data-vc58-tab="player"] .v780-video-panel{width:100%!important;max-width:none!important}
+#scout-video-hub[data-vc58-tab="player"] #vc58-open-source{display:none!important}
+#scout-video-hub[data-vc58-tab="player"] .v117-review-sourcebar{display:grid!important;gap:9px!important;padding:12px 15px!important;border-radius:13px!important}
+#scout-video-hub[data-vc58-tab="player"] .v117-review-source-tabs button{min-height:46px!important}
+/* Análisis: keep the same media DOM mounted. Only extra tools change visibility. */
+#scout-video-hub[data-vc58-tab="analysis"] .v117-review-sourcebar,
+#scout-video-hub[data-vc58-tab="analysis"] #vc-rec34-strip,
+#scout-video-hub[data-vc58-tab="analysis"] .v780-hero-actions{display:none!important}
+#scout-video-hub[data-vc58-tab="analysis"] .v780-toolbar{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#scout-video-hub[data-vc58-tab="analysis"] .v780-main{display:grid!important;grid-template-columns:minmax(0,1.45fr) minmax(270px,.8fr)!important;gap:12px!important;align-items:start}
+#scout-video-hub[data-vc58-tab="analysis"] .v780-side>section{padding:12px!important}
+#scout-video-hub[data-vc58-tab="analysis"] .v781-set-map-panel:not(.vc58-map-open){display:none!important}
+#scout-video-hub[data-vc58-tab="analysis"] .v780-side .v780-selection{order:-2}
+#scout-video-hub[data-vc58-tab="analysis"] .v780-side .v780-playlists{order:-1}
+#scout-video-hub[data-vc58-tab="analysis"] #v780-timeline{max-height:440px;overflow-y:auto}
+#scout-video-hub[data-vc58-tab="analysis"] .v780-status-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+/* Maintain legacy fullscreen / TV as designed; tabs do not destructively move the player. */
+#scout-video-hub.v781-tv .vc58-tabbar,#scout-video-hub.v781-tv .vc58-context-bar,#scout-video-hub.v781-tv .vc58-analysis-heading{display:none!important}
+#scout-video-hub.v781-tv[data-vc58-tab] .v780-hub{height:100%!important;display:flex!important;flex-direction:column!important;gap:7px!important}
+#scout-video-hub.v781-tv[data-vc58-tab] .v780-main{display:grid!important;flex:1!important;min-height:0!important;grid-template-columns:minmax(0,1fr)!important}
+#scout-video-hub.v781-tv[data-vc58-tab] .v780-video-panel{flex:1!important;min-height:0!important;display:flex!important;flex-direction:column!important}
+#scout-video-hub.v781-tv[data-vc58-tab] .v780-video-frame{flex:1!important;min-height:0!important;height:auto!important;aspect-ratio:auto!important}
+@media(max-width:1100px){
+ #scout-video-hub[data-vc58-tab="analysis"] .v780-main{grid-template-columns:minmax(0,1fr)!important}
+ #scout-video-hub[data-vc58-tab="analysis"] .v780-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:640px){
+ #scout-video-hub .vc58-tabbar{padding:4px;gap:3px}
+ #scout-video-hub .vc58-tabbar button{padding:8px 6px!important;min-height:58px!important;gap:7px;justify-content:flex-start}
+ #scout-video-hub .vc58-tab-icon{width:29px;height:29px;font-size:13px}
+ #scout-video-hub .vc58-tabbar strong{font-size:12px}
+ #scout-video-hub .vc58-tabbar small{font-size:9px}
+ #scout-video-hub .vc58-context-bar{padding:9px;gap:7px}
+ #scout-video-hub .vc58-match-slot{flex:1 1 100%;min-width:0}
+ #scout-video-hub #vc58-context-copy{min-width:0;font-size:10px}
+ #scout-video-hub .v780-hero{padding:12px!important}
+ #scout-video-hub .v780-hero h2{font-size:20px!important}
+ #scout-video-hub .v780-video-panel{padding:7px!important}
+ #scout-video-hub[data-vc58-tab="analysis"] .v780-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #scout-video-hub[data-vc58-tab="analysis"] .v780-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #scout-video-hub .vc-review-pro-transport button{min-height:40px}
+}
+</style>
+
+<script id="vc16058-video-workspace" src="./116-vc16058-video-workspace.js?v=16.0.5.8" defer data-vc-module="true"></script>
 </body></html>

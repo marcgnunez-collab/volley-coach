@@ -1,7 +1,9 @@
 (()=>{
 'use strict';
-// V16.0.3.3 · Match-scoped clip catalogue. Does not modify scouting scores or sync engine.
-const VERSION='16.0.3.3', $=id=>document.getElementById(id), A=x=>Array.isArray(x)?x:[];
+// V16.0.5.7 · Automatic match-scoped, derived video references.
+// Video intervals are derived from scouting actions; no automatic cloud writes,
+// no second action store, no score/rotation/sync engine modifications.
+const VERSION='16.0.5.7', $=id=>document.getElementById(id), A=x=>Array.isArray(x)?x:[];
 const root=$('scout-video-hub'),panel=$('vc-clip33');if(!root||!panel)return;
 const state={in:null,out:null,exporting:false,playingId:null,lastMatch:'',refreshKey:'',error:''};
 const finite=x=>(x===null||x===undefined||x==='')?null:(Number.isFinite(Number(x))?Number(x):null);
@@ -16,6 +18,39 @@ const rows=()=>{try{return A(api().timeline?.())}catch(_){return []}};
 const media=()=>{try{return window.v780Diagnostics?.()||{}}catch(_){return {}}};
 const video=()=>$('v780-player-video');
 function clips(m=match()){if(!m)return[];return A(m.video?.clips)}
+// A generated reference is not a second copy of the video or a saved clip.
+// The catalogue is recreated from the canonical timeline, so undo/edit removes it
+// automatically. Saved references take precedence by the immutable action sourceKey.
+function derivedClips(m=match(),timelineRows=rows(),savedKeys=null){
+ if(!m)return [];
+ const saved=savedKeys||new Set(clips(m).map(c=>String(c.sourceKey||'')).filter(Boolean));
+ return timelineRows.filter(r=>r.type==='action'&&r.a&&r.key&&!saved.has(String(r.key)))
+  .map(r=>{
+    const time=timeRange(r,m);if(!time||time.end-time.start<.15)return null;
+    return {id:'derived:'+String(r.key),name:`${String(r.player||'Jugador').slice(0,60)} · ${String(r.label||'Acción').slice(0,70)}`,
+      tag:r.team==='opponent'?'opponent':'technical',note:'Referencia automática desde scouting · −8 / +5 s. No ocupa espacio de vídeo.',
+      start:time.start,end:time.end,duration:time.end-time.start,sourceKey:String(r.key),type:'action',set:r.set??null,team:r.team||'',
+      skill:r.skill||'',evaluation:r.evaluation||'',player:r.player||'',source:String(m.video?.source||''),
+      videoTimestamp:time.center,auto:true,scoutingLinked:true,virtual:true};
+  }).filter(Boolean);
+}
+function resolvedClip(c,m=match(),index=null){
+ if(!c||!m||!c.auto||!c.sourceKey||c.type!=='action')return c;
+ const r=index?index.get(String(c.sourceKey)):rows().find(x=>x.type==='action'&&String(x.key)===String(c.sourceKey));
+ if(!r)return c;
+ const time=timeRange(r,m);if(!time)return c;
+ return {...c,start:time.start,end:time.end,duration:time.end-time.start,videoTimestamp:time.center};
+}
+function catalogue(m=match()){
+ if(!m)return [];
+ const source=rows(),index=new Map(source.filter(r=>r.type==='action').map(r=>[String(r.key),r]));
+ const saved=clips(m),keys=new Set(saved.map(c=>String(c.sourceKey||'')).filter(Boolean));
+ return [...saved.map(c=>resolvedClip(c,m,index)),...derivedClips(m,source,keys)];
+}
+function saveReference(c,m){
+ const {virtual,...saved}=c;saved.id=`vc57_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+ saved.createdAt=new Date().toISOString();return addClip(saved,m);
+}
 function notify(message,bad=false){const node=$('vc-clip33-status');if(node){node.textContent=message;node.dataset.bad=bad?'1':'0'}state.error=bad?message:''}
 function persist(m){if(!m)return false;try{const save=bridge().save;if(typeof save!=='function')throw new Error('Motor de guardado no disponible');m.updatedAt=new Date().toISOString();save();return true}catch(e){console.error('VC clip save failed',e);notify('Error al guardar el clip: '+String(e?.message||e),true);return false}}
 function ensureClips(m){if(!m)return null;if(!m.video||typeof m.video!=='object')m.video={};if(!Array.isArray(m.video.clips))m.video.clips=[];return m.video.clips}
@@ -59,11 +94,18 @@ function createFromRecordingMarker(marker,session){
  recordingId:String(session.id),createdAt:new Date().toISOString(),source:String(session.filename||''),auto:false,
  scoutingLinked:true},m)
 }
-function play(c){if(!sourceReady()){notify('Carga el archivo o YouTube vinculado al partido y selecciona su pestaña antes de reproducir.',true);return false}if(!Number.isFinite(Number(c.start))||!Number.isFinite(Number(c.end))||Number(c.end)<=Number(c.start)){notify('Intervalo de clip no válido.',true);return false}const t=Number(c.start),span=Number(c.end)-t;state.playingId=c.id;try{const ok=window.v780OpenAt?.(t,String(c.sourceKey||''),{pre:0,post:span});if(ok===false){state.playingId=null;return false}notify(`Reproduciendo ${String(c.name||'clip')} · ${fmt(t)}–${fmt(t+span)}`);return true}catch(e){state.playingId=null;notify('No se pudo reproducir este clip.',true);return false}}
+function play(c){c=resolvedClip(c);if(!sourceReady()){notify('Carga el archivo o YouTube vinculado al partido y selecciona su pestaña antes de reproducir.',true);return false}if(!Number.isFinite(Number(c.start))||!Number.isFinite(Number(c.end))||Number(c.end)<=Number(c.start)){notify('Intervalo de clip no válido.',true);return false}const t=Number(c.start),span=Number(c.end)-t;state.playingId=c.id;try{const ok=window.v780OpenAt?.(t,String(c.sourceKey||''),{pre:0,post:span});if(ok===false){state.playingId=null;return false}notify(`Reproduciendo ${String(c.name||'clip')} · ${fmt(t)}–${fmt(t+span)}`);return true}catch(e){state.playingId=null;notify('No se pudo reproducir este clip.',true);return false}}
 function remove(c){const m=match();if(!m||!window.confirm(`¿Eliminar “${c.name||'clip'}” de este partido?`))return false;const list=ensureClips(m),index=list.findIndex(x=>String(x.id)===String(c.id));if(index<0)return false;const old=list.splice(index,1)[0];if(!persist(m)){list.splice(index,0,old);return false}notify('Clip eliminado.');render(true);return true}
 function csvValue(value){let s=String(value??'');if(/^[\s]*[=+@\-]/.test(s))s="'"+s;return /[,"\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
 function download(blob,filename){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
-function downloadCSV(){const m=match();if(!m||!clips(m).length){notify('No hay clips para exportar.',true);return}const keys=['id','name','type','set','team','skill','evaluation','player','start','end','duration','sourceKey','source','note'];const data=[keys.map(csvValue).join(',')].concat(clips(m).map(c=>keys.map(k=>csvValue(c[k])).join(','))).join('\r\n');download(new Blob(['\uFEFF',data],{type:'text/csv;charset=utf-8'}),`volley_clips_${m.id}.csv`);notify('Catálogo de clips CSV exportado; no incluye el vídeo.')}
+function downloadCSV(){
+ const m=match(),items=catalogue(m);
+ if(!m||!items.length){notify('No hay referencias de vídeo para exportar.',true);return}
+ const keys=['id','name','type','set','team','skill','evaluation','player','start','end','duration','sourceKey','source','note','estado'];
+ const data=[keys.map(csvValue).join(',')].concat(items.map(c=>keys.map(k=>csvValue(k==='estado'?(c.virtual?'automatico':'guardado'):c[k])).join(','))).join('\r\n');
+ download(new Blob(['\uFEFF',data],{type:'text/csv;charset=utf-8'}),`volley_clips_${m.id}.csv`);
+ notify(`${items.length} referencias exportadas a CSV; no incluyen archivos de vídeo.`)
+}
 function waitEvent(el,event,timeout=10000){return new Promise((resolve,reject)=>{let tid;const clean=()=>{clearTimeout(tid);el.removeEventListener(event,good);el.removeEventListener('error',bad)};const good=()=>{clean();resolve()};const bad=()=>{clean();reject(new Error('Error cargando el vídeo'))};el.addEventListener(event,good,{once:true});el.addEventListener('error',bad,{once:true});tid=setTimeout(()=>{clean();reject(new Error('Tiempo de espera agotado'))},timeout)})}
 async function exportWebM(c){
  if(state.exporting)return;
@@ -92,17 +134,68 @@ async function exportWebM(c){
  finally{clearInterval(ticker);try{if(rec?.state==='recording')rec.stop()}catch(_){}try{stream?.getTracks?.().forEach(t=>t.stop())}catch(_){}if(shadow){try{shadow.pause();shadow.removeAttribute('src');shadow.load()}catch(_){}shadow.remove()}state.exporting=false;render(true)}
 }
 function button(text,kind,onClick,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=text;b.className=`vc-clip33-btn ${kind||''}`;b.disabled=disabled;b.addEventListener('click',onClick);return b}
-function render(force=false){if(!root.classList.contains('active')&&!force)return;
- const m=match(),id=String(m?.id||''),items=clips(m),filter=$('vc-clip33-filter')?.value||'all',q=String($('vc-clip33-search')?.value||'').trim().toLowerCase();
+function render(force=false){
+ if(!root.classList.contains('active')&&!force)return;
+ const m=match(),id=String(m?.id||''),saved=clips(m),items=catalogue(m),generated=items.length-saved.length;
+ const filter=$('vc-clip33-filter')?.value||'all',q=String($('vc-clip33-search')?.value||'').trim().toLowerCase();
  if(state.lastMatch!==id){state.lastMatch=id;state.in=null;state.out=null;updateMarks();state.playingId=null}
- const count=$('vc-clip33-count');if(count)count.textContent=`${items.length} clips en este partido`;
+ const count=$('vc-clip33-count');if(count)count.textContent=`${generated} automáticas · ${saved.length} guardadas`;
  const list=$('vc-clip33-list');if(!list)return;list.replaceChildren();
- const visible=items.filter(c=>(filter==='all'||(filter==='rally'&&c.type==='rally')||(filter==='action'&&c.type==='action')||(filter==='manual'&&c.type==='manual'))&&(!q||`${c.name||''} ${c.player||''} ${c.skill||''} ${c.note||''}`.toLowerCase().includes(q))).slice().sort((a,b)=>Number(a.start)-Number(b.start));
- if(!m||!visible.length){const empty=document.createElement('p');empty.className='vc-clip33-empty';empty.textContent=!m?'Selecciona un partido.':items.length?'No hay clips para este filtro.':'No hay clips todavía. Selecciona una acción del scouting o usa IN / OUT.';list.appendChild(empty);return}
- for(const c of visible){const card=document.createElement('article');card.className='vc-clip33-card';const desc=document.createElement('div');desc.className='vc-clip33-info';const title=document.createElement('strong');title.textContent=String(c.name||'Clip');const sub=document.createElement('span');sub.textContent=`${fmt(Number(c.start))} → ${fmt(Number(c.end))} · ${fmt(Number(c.duration)||Number(c.end)-Number(c.start))} · ${c.type==='rally'?'Rally':c.type==='action'?'Acción':'Manual'}${c.player?' · '+c.player:''}`;const note=document.createElement('small');note.textContent=String(c.note||'');desc.append(title,sub,note);const actions=document.createElement('div');actions.className='vc-clip33-actions';actions.append(button('▶ Ver','primary',()=>play(c)),button('WebM','',()=>exportWebM(c),state.exporting),button('Eliminar','danger',()=>remove(c),state.exporting));card.append(desc,actions);list.appendChild(card)}
+ const visible=items.filter(c=>(filter==='all'||(filter==='auto'&&c.virtual)||(filter==='rally'&&c.type==='rally')||(filter==='action'&&c.type==='action')||(filter==='manual'&&c.type==='manual'))&&(!q||`${c.name||''} ${c.player||''} ${c.skill||''} ${c.note||''}`.toLowerCase().includes(q)))
+ .slice().sort((a,b)=>(Number(b.start)||0)-(Number(a.start)||0));
+ if(!m||!visible.length){const empty=document.createElement('p');empty.className='vc-clip33-empty';empty.textContent=!m?'Selecciona un partido.':items.length?'No hay jugadas para este filtro.':'No hay acciones con tiempo de vídeo. Graba el partido o vincula el vídeo en Video Review para generar las referencias automáticamente.';list.appendChild(empty);return}
+ // Virtual references are cheap, but limit DOM work on long matches.
+ for(const c of visible.slice(0,180)){
+  const card=document.createElement('article');card.className='vc-clip33-card'+(c.virtual?' vc-clip57-auto':'');
+  const desc=document.createElement('div');desc.className='vc-clip33-info';
+  const title=document.createElement('strong');title.textContent=String(c.name||'Clip');
+  const sub=document.createElement('span');sub.textContent=`${fmt(Number(c.start))} → ${fmt(Number(c.end))} · ${fmt(Number(c.duration)||Number(c.end)-Number(c.start))} · ${c.virtual?'AUTO':c.type==='rally'?'Rally':c.type==='action'?'Acción':'Manual'}${c.player?' · '+c.player:''}`;
+  const note=document.createElement('small');note.textContent=String(c.note||'');desc.append(title,sub,note);
+  const actions=document.createElement('div');actions.className='vc-clip33-actions';
+  actions.append(button('▶ Ver jugada','primary',()=>play(c)),button('WebM','',()=>exportWebM(resolvedClip(c)),state.exporting));
+  if(c.virtual)actions.append(button('Guardar referencia','',()=>saveReference(c,m)));
+  else actions.append(button('Eliminar','danger',()=>remove(c),state.exporting));
+  card.append(desc,actions);list.appendChild(card);
+ }
+ if(visible.length>180){const extra=document.createElement('p');extra.className='vc-clip33-empty';extra.textContent=`Mostrando 180 de ${visible.length} jugadas. Usa los filtros para localizar una acción.`;list.appendChild(extra)}
 }
+// From the live cockpit, clicking a coded action opens that exact action in Video Review.
+// Video files are not transferred between devices and are never fabricated.
+function openAction(key,matchId){
+ const all=allMatches(),m=all.find(x=>String(x.id)===String(matchId||bridge().getActiveId?.()));
+ if(!m||!key){notify('No se ha encontrado el partido o la acción.',true);return false}
+ try{window.v11Navigate?.('video')}catch(_){try{window.showView?.('scout-video-hub')}catch(__){}}
+ window.vc58SetVideoTab?.('analysis');
+ const select=$('v780-match');
+ if(select&&String(select.value)!==String(m.id)){select.value=String(m.id);window.v780MatchChanged?.()}
+ else window.v780Open?.();
+ window.v780Select?.(String(key));
+ const row=rows().find(r=>String(r.key)===String(key));
+ const range=timeRange(row,m);
+ if(!range){notify('La acción aún no tiene una marca de vídeo. Vincula un archivo o una grabación al partido.',true);return false}
+ const diag=media();
+ if(!diag.videoLoaded||String(diag.match)!==String(m.id)){
+  notify('Jugada localizada en la línea temporal. Carga el archivo, la grabación o YouTube de este partido para reproducirla.',true);
+  return false;
+ }
+ const ok=window.v780OpenAt?.(range.start,String(key),{pre:0,post:range.end-range.start});
+ if(ok===false){notify('No se pudo abrir el vídeo vinculado.',true);return false}
+ notify(`Jugada abierta · ${fmt(range.start)}–${fmt(range.end)}`);return true;
+}
+function attachCockpitActions(){
+ const el=$('v113-video-rally-actions');if(!el||el.dataset.vc57Bound)return;
+ el.dataset.vc57Bound='1';
+ el.setAttribute('title','Pulsa una acción para abrir su jugada en Video Review');
+ el.addEventListener('click',event=>{
+  const item=event.target?.closest?.('.action');if(!item)return;
+  const all=[...el.querySelectorAll('.action')],index=all.indexOf(item),m=bridge().getActive?.(),a=m?.liveRally?.actions?.[index];
+  if(!m||!a||index<0)return;
+  openAction(`a:${m.currentSet}:${m.liveRally.id}:${a.id}`,m.id);
+ });
+}
+
 // All public actions are scoped to Video Review's selected match, not the separate V7.2 modal.
-window.VC_SCOUT_CLIPS_PRO={version:VERSION,createFromKey:createFromRow,createSelected:()=>{const r=selectedRow();return r?createFromRow(r.key):(notify('Selecciona un rally o una acción de la línea temporal.',true),false)},createVisible,createFromRecordingMarker,markIn:()=>captureMark('in'),markOut:()=>captureMark('out'),createManual,exportCSV:downloadCSV,play:id=>{const c=clips().find(x=>String(x.id)===String(id));return c?play(c):false},list:()=>clips().map(c=>({...c})),refresh:()=>render(true),diagnostics:()=>({version:VERSION,matchId:match()?.id||null,clips:clips().length,source:activeSource(),videoReady:sourceReady(),exporting:state.exporting})};
+window.VC_SCOUT_CLIPS_PRO={version:VERSION,createFromKey:createFromRow,createSelected:()=>{const r=selectedRow();return r?createFromRow(r.key):(notify('Selecciona un rally o una acción de la línea temporal.',true),false)},createVisible,createFromRecordingMarker,markIn:()=>captureMark('in'),markOut:()=>captureMark('out'),createManual,exportCSV:downloadCSV,play:id=>{const c=catalogue().find(x=>String(x.id)===String(id));return c?play(c):false},list:()=>clips().map(c=>({...c})),available:()=>catalogue().map(c=>({...c})),openAction,refresh:()=>render(true),diagnostics:()=>({version:VERSION,matchId:match()?.id||null,clips:clips().length,automatic:derivedClips().length,source:activeSource(),videoReady:sourceReady(),exporting:state.exporting})};
 $('vc-clip33-selected')?.addEventListener('click',()=>window.VC_SCOUT_CLIPS_PRO.createSelected());
 $('vc-clip33-filtered')?.addEventListener('click',createVisible);
 $('vc-clip33-in-button')?.addEventListener('click',()=>captureMark('in'));
@@ -115,6 +208,12 @@ $('v780-match')?.addEventListener('change',()=>setTimeout(()=>render(true),0));
 if(typeof window.v780CreateClip==='function')window.v780CreateClip=key=>createFromRow(String(key||''));
 const oldRender=window.v780Render;if(typeof oldRender==='function')window.v780Render=function(...args){const result=oldRender.apply(this,args);render();return result};
 // Modest polling only while video view is visible. External tabs may update the match in place.
-setInterval(()=>{if(!root.classList.contains('active'))return;const m=match(),cl=clips(m),signature=[m?.id||'',cl.length,cl.map(x=>x.id+':'+x.start+':'+x.end).join('|')].join('/');if(signature!==state.refreshKey){state.refreshKey=signature;render()}},2200);
+setInterval(()=>{if(!root.classList.contains('active'))return;
+ const m=match(),saved=clips(m),rowList=rows();
+ const signature=[m?.id||'',saved.length,saved.map(x=>x.id+':'+x.start+':'+x.end).join('|'),rowList.length,
+  rowList.length?String(rowList[rowList.length-1].key):'',m?.video?.syncOffset??''].join('/');
+ if(signature!==state.refreshKey){state.refreshKey=signature;render()}
+},2200);
+attachCockpitActions();
 render(true);
 })();
