@@ -25,7 +25,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.1 · Scouting Pro Match Workspace</title>
+<title>Volley Coach | V16.0.5.1.1 · Interfaz sin duplicados</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2119,30 +2119,18 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
     </div>
 
-    <details class="vc51-advanced-tools" id="vc51-advanced-tools"><summary>Herramientas del partido <span>Alineación · cambios · copia de seguridad · exportación</span></summary>
+    <details class="vc51-advanced-tools" id="vc51-advanced-tools"><summary>Herramientas del partido <span>Códigos · revisión de vídeo · copias y recuperación</span></summary>
     <section id="v117-pro-command-center" class="v117-pro-command-center" aria-label="Centro de control profesional">
-      <div class="v117-command-group match"><span>PARTIDO</span>
-        <button onclick="scoutOpenLineup()">⌘ Alineación</button>
-        <button onclick="v120OpenChanges()">⇄ Cambios / Líbero</button>
-        <button onclick="v120OpenEvent()">＋ Evento</button>
-        <button onclick="v121OpenNewSet()">＋ Nuevo set</button>
-        <button onclick="v120OpenFinishSet()">✓ Finalizar set</button>
-        <button onclick="v120OpenFinalResult()">🏁 Resultado</button>
-      </div>
       <div class="v117-command-group tools"><span>HERRAMIENTAS</span>
         <button onclick="v901OpenCodes()">⌨ Códigos Pro</button>
         <button onclick="scoutV690OpenWorkflow()">⚙ Workflow</button>
-        <button onclick="v112MatchTab('video')">🎥 Vídeo + código</button>
         <button onclick="v1000OpenIntelligence()">◈ Inteligencia</button>
         <button onclick="v117OpenVideoReview()">▶ Video Review</button>
-        <button onclick="showView('scout-analysis',botonVista('scout-analysis'))">▥ Análisis</button>
         <button onclick="return scoutV752ExportOfficialPDF()">PDF oficial</button>
       </div>
       <div class="v117-command-group safety"><span>GUARDADO</span>
-        <button class="primary" onclick="v117ProSave()">Guardar todo</button>
         <button onclick="scoutV680DownloadBackup()">Copia JSON</button>
         <button onclick="scoutV892OpenRecoveryCenter()">Recuperación</button>
-        <button class="success" onclick="v117FinalizeAndSave()">Finalizar y guardar</button>
       </div>
     </section>
     </details>
@@ -2164,15 +2152,6 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div class="v800-team rival"><small id="v800-opponent">Rival</small><strong id="v800-score-op">0</strong><span id="v800-sets-op">0 sets</span></div>
       </section>
 
-      <nav class="v112-match-commandbar" aria-label="Comandos de partido">
-        <button class="active" data-v112-tab="live" onclick="v112MatchTab('live')"><span>◆</span><b>Directo</b><small>Puntos + código</small></button>
-        <button data-v112-tab="lineup" onclick="v112MatchTab('lineup')"><span>⌘</span><b>Alineación</b><small>Rotación y cambios</small></button>
-        <button data-v112-tab="video" onclick="v112MatchTab('video')"><span>▶</span><b>Vídeo + código</b><small>Ver partido y scoutar</small></button>
-        <button data-v112-tab="rally" onclick="v112MatchTab('rally')"><span>≡</span><b>Rally</b><small>Acciones y editor</small></button>
-        <button data-v112-tab="stats" onclick="v112MatchTab('stats')"><span>▥</span><b>Lectura LIVE</b><small>K1 · K2 · G-P</small></button>
-        <button data-v112-tab="set" onclick="v112MatchTab('set')"><span>✓</span><b>Set</b><small>Nuevo / finalizar</small></button>
-      </nav>
-
       <div class="vc51-workspace-toolbar" role="group" aria-label="Vista de trabajo de partido">
         <div class="vc51-workspace-intro"><strong>WORKSPACE PRO</strong><span>Scouting y vídeo en una sola estación</span></div>
         <div class="vc51-workspace-actions">
@@ -2190,10 +2169,6 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         <div id="v850-pressure-box"><span>PRESIÓN</span><b id="v850-context-pressure">NORMAL</b><small id="v850-context-pressure-copy">Sin punto de set</small></div>
       </section>
 
-      <div id="v910-match-view-nav" class="v910-match-view-nav v112-legacy-view-nav">
-        <div><span>VISTA DE TRABAJO</span><button data-v910-view="directo" class="active" onclick="v910SetMatchView('directo')">Directo</button><button data-v910-view="video" onclick="v910SetMatchView('video')">Vídeo</button><button data-v910-view="lectura" onclick="v910SetMatchView('lectura')">Lectura</button><button data-v910-view="todo" onclick="v910SetMatchView('todo')">Todo</button></div><small id="v910-match-view-copy">Directo prioriza marcador, pista, puntos y códigos.</small>
-      </div>
-
       <div class="v800-live-grid v112-live-grid">
         <main class="v800-main v112-main">
           <section class="v800-control-card v112-control-card">
@@ -2209,7 +2184,6 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <div class="v800-code-row v841-code-row">
                 <input id="v800-code" autocomplete="off" autocapitalize="characters" placeholder="Ej. 3E+.2B>4C::K1~T · 12A#.4B>5D::X5~T" onkeydown="if(event.key==='Enter'){event.preventDefault();v857AddCode()}">
                 <button id="v857-add-code-btn" class="primary" onclick="v857AddCode()">Añadir</button>
-                <button class="ghost" onclick="v841OpenCheatSheet()" title="Abrir chuleta de códigos">?</button>
               </div>
               <div id="v852-code-status" class="v852-code-status">Motor compartido Scouting/Modo Partido · V8.5.7</div>
 
@@ -2230,7 +2204,6 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <div class="v855-live-rally-head"><b id="v855-live-rally-title">Rally actual · 0 acciones</b><span id="v855-live-rally-save">Sin cambios pendientes</span></div>
               <div id="v855-live-actions" class="v855-live-actions"><span class="empty">Añade acciones antes de cerrar el punto.</span></div>
               <div class="v853-code-tools">
-                <button class="ghost" onclick="v117FocusProCode()">⌨ Código Pro</button>
                 <button class="ghost" onclick="v857OpenRallyEditor()">✎ Editor de rallies</button>
               </div>
             </div>
@@ -2257,12 +2230,10 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           </section>
 
           <section class="v800-events-card v112-events-card">
-            <div class="v800-card-head v112-section-head"><div><span>GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div><button class="text-btn" onclick="v120OpenEvent()">＋ Otro evento</button></div>
+            <div class="v800-card-head v112-section-head"><div><span>GESTIÓN DE PARTIDO</span><h3>Eventos rápidos</h3></div></div>
             <div class="v800-event-buttons">
               <button onclick="v800QuickEvent('timeout_ours')">⏱ Tiempo nuestro</button>
               <button onclick="v800QuickEvent('timeout_opponent')">⏱ Tiempo rival</button>
-              <button onclick="v120OpenChanges()">⇄ Sustitución</button>
-              <button onclick="scoutOpenLineup()">⌘ Alineación</button>
               <button onclick="v851OpenVideoNote()">📝 Nota vídeo</button>
               <button onclick="v120OpenEvent()">＋ Evento</button>
             </div>
@@ -2437,8 +2408,6 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       </div>
       <div class="v900-top-actions">
         <button class="ghost" onclick="v957SyncScoutingsNow()">↕ Sincronizar scoutings</button>
-        <button class="ghost" onclick="v122OpenMatchSwitcher()">⇄ Cambiar scouting</button>
-        <button class="primary" onclick="scoutOpenNewMatch()">＋ Nuevo scouting</button>
         <span id="v956-scout-sync-status" class="v956-scout-sync-status">— scoutings</span>
       </div>
     </div>
@@ -2497,6 +2466,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
         </div>
       </div>
 
+      <details class="vc511-status-details"><summary>Contadores y gestión del partido</summary></details>
       <div id="v120-match-management" class="v120-match-management" aria-label="Estado de gestión del partido">
         <div><span>GESTIÓN</span><b id="v120-management-state">Partido preparado</b></div>
         <button onclick="v120OpenChanges()"><span>Cambios</span><b id="v120-change-count">0</b></button>
@@ -15402,7 +15372,7 @@ body.v11-shell .v11-logo {
 }
 body.v11-shell .v11-brand strong { font-size: 16px !important; letter-spacing: -.02em; color: var(--vc50-navy) !important; }
 body.v11-shell .v11-brand small { color: var(--vc50-muted) !important; font-size: 9px !important; letter-spacing: .01em !important; }
-body.v11-shell .v11-brand small::after { content: " · V16.0.5.1"; color: #7293a8; }
+body.v11-shell .v11-brand small::after { content: " · V16.0.5.1.1"; color: #7293a8; }
 body.v11-shell .v11-home-button,
 body.v11-shell .v11-nav-group button {
   min-height: 45px !important; grid-template-columns: 30px minmax(0, 1fr) !important;
@@ -15624,7 +15594,67 @@ body.v11-shell :where(.v11-module-card, .v11-home-panel, .v900-card) :where(h2, 
 </style>
 <!-- VC16050_END -->
 
-<!-- V16.0.5.1 Match Workspace Pro: UI-only, no state/save engine changes -->
+<!-- V16.0.5.1.1 · Clean Workspace, visual deduplication only -->
+<style id="vc160511-deduplicated-ui-css">
+/* V16.0.5.1.1 · Simplificación de controles visibles.
+   Mantiene el mismo motor, IDs de datos, scoreboard, presencia y almacenamiento. */
+body.v11-shell #scout-match-mode #v117-pro-command-center{
+ grid-template-columns:minmax(0,1.6fr) minmax(220px,1fr)!important;
+}
+body.v11-shell #scout-match-mode .v800-event-buttons{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+#scout-workspace-v900 .vc511-status-details{
+ border:1px solid #dce7ed;background:#fff;border-radius:12px;
+ margin:0 0 8px;overflow:hidden;
+}
+#scout-workspace-v900 .vc511-status-details>summary{
+ display:flex;align-items:center;cursor:pointer;gap:8px;
+ padding:9px 13px;color:#345c76;font-size:12px;font-weight:750;
+ list-style:none;min-height:38px;
+}
+#scout-workspace-v900 .vc511-status-details>summary::-webkit-details-marker{display:none}
+#scout-workspace-v900 .vc511-status-details>summary::after{content:'▾';margin-left:auto;color:#6c899c}
+#scout-workspace-v900 .vc511-status-details[open]>summary::after{content:'▴'}
+/* El ancla v120 se mantiene como hermano, no dentro del details: los módulos
+   V12.1 y V13.2 insertan controles después de este elemento en tiempo real. */
+#scout-workspace-v900 .vc511-status-details + #v120-match-management{display:none!important;}
+#scout-workspace-v900 .vc511-status-details[open] + #v120-match-management{
+ display:grid!important;margin:0 9px 9px!important;border:0!important;background:transparent!important;
+}
+@media(max-width:800px){
+ body.v11-shell #scout-match-mode #v117-pro-command-center{grid-template-columns:minmax(0,1fr)!important}
+ #scout-workspace-v900 .vc511-status-details>summary{font-size:11px}
+}
+
+/* Ocultar el botón global (+) al scoutar: las acciones están en el workspace.
+   Se conserva completamente en el resto de la aplicación. */
+body:has(#scout-match-mode.active) .global-quick-actions,
+body:has(#scout-workspace-v900.active) .global-quick-actions{
+ display:none!important;
+}
+/* En la vista Vídeo existe un marcador propio junto al código. El superior conserva
+   solo el cronómetro, evitando puntajes duplicados sin perder el tiempo activo. */
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard{
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ min-height:42px!important;max-height:48px!important;padding:2px!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-team{
+ display:none!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-center-score{
+ border:0!important;background:transparent!important;display:flex!important;
+ flex-direction:row!important;gap:10px!important;padding:3px 8px!important;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-center-score::before{
+ content:'TIEMPO DE PARTIDO';font-size:10px;color:#607c8d;font-weight:800;letter-spacing:.08em;
+}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-center-score>span,
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-center-score>.v800-service{display:none!important;}
+body.v11-shell #scout-match-mode #v800-shell.v112-video-open #v800-live>.v112-scoreboard>.v800-center-score>b{
+ font-size:16px!important;color:#244860!important;
+}
+</style>
 <style id="vc16051-match-workspace-css">
 /* Volley Coach V16.0.5.1 · Scouting Pro Match Workspace.
    Only affects Match Mode and Scouting Pro. Preserves all existing IDs, forms and video elements. */
