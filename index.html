@@ -1,6 +1,122 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script id="vc16060-performance-core">
+/* Performance Core V16.0.6.1: passive, local-only observability. No application state mutation. */
+(()=>{
+ 'use strict';
+ if(window.VC_PERFORMANCE_CORE)return;
+ const t0=performance.now();
+ const log={longTasks:0,longTaskTotalMs:0,longTaskMaxMs:0,longTaskRecent:[],navClicks:[],bootShownMs:null,bootReleasedMs:null,dclMs:null,loadMs:null};
+ const round=v=>Number.isFinite(Number(v))?Math.round(Number(v)*10)/10:null;
+ const current=()=>performance.now();
+ let observer=null;
+ try{
+  if(typeof PerformanceObserver==='function'&&PerformanceObserver.supportedEntryTypes?.includes('longtask')){
+   observer=new PerformanceObserver(list=>{
+    for(const entry of list.getEntries()){
+     log.longTasks++;log.longTaskTotalMs+=entry.duration;
+     log.longTaskMaxMs=Math.max(log.longTaskMaxMs,entry.duration);
+     log.longTaskRecent.push({atMs:round(entry.startTime),durationMs:round(entry.duration)});
+     if(log.longTaskRecent.length>20)log.longTaskRecent.shift();
+    }
+   });
+   observer.observe({type:'longtask',buffered:true});
+  }
+ }catch(_){observer=null;}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{log.dclMs=current()},{once:true});
+ else log.dclMs=current();
+ window.addEventListener('load',()=>{log.loadMs=current()},{once:true});
+ const bootObserver=new MutationObserver(()=>{
+  if(!document.documentElement.classList.contains('vc59-booting')){
+   log.bootReleasedMs=current();bootObserver.disconnect();
+  }
+ });
+ try{bootObserver.observe(document.documentElement,{attributes:true,attributeFilter:['class']})}catch(_){}
+ // These are observation-only navigation timings, not app lifecycle or state changes.
+ document.addEventListener('click',e=>{
+  const button=e.target?.closest?.('[data-v11-nav]');
+  if(!button||!window.requestAnimationFrame)return;
+  const start=current();const label=String(button.getAttribute('data-v11-nav')||'view').slice(0,32);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   log.navClicks.push({view:label,toSecondFrameMs:round(current()-start)});
+   if(log.navClicks.length>20)log.navClicks.shift();
+  }));
+ },true);
+ const basename=s=>{try{return new URL(s,location.href).pathname.split('/').pop().slice(0,100)}catch(_){return 'recurso'}};
+ function diagnostics(){
+  const nav=performance.getEntriesByType('navigation')[0];
+  const resources=performance.getEntriesByType('resource');
+  const scripts=resources.filter(r=>/\.js(?:$|[?#])/i.test(r.name));
+  const topScripts=scripts.slice().sort((a,b)=>b.duration-a.duration).slice(0,12)
+    .map(e=>({file:basename(e.name),durationMs:round(e.duration),transferKB:round(e.transferSize/1024)}));
+  const paints=performance.getEntriesByType('paint');
+  const fcp=paints.find(p=>p.name==='first-contentful-paint');
+  const memory=performance.memory?{
+   usedMB:round(performance.memory.usedJSHeapSize/1048576),
+   limitMB:round(performance.memory.jsHeapSizeLimit/1048576)
+  }:null;
+  const dom=document.getElementsByTagName('*').length;
+  return {
+   version:'16.0.6.1',capturedAt:new Date().toISOString(),
+   navigation:{type:nav?.type||'unknown',responseEndMs:round(nav?.responseEnd),
+     domContentLoadedMs:round(nav?.domContentLoadedEventEnd??log.dclMs),loadMs:round(nav?.loadEventEnd??log.loadMs),
+     fcpMs:round(fcp?.startTime),workspaceVisibleMs:round(log.bootReleasedMs)},
+   longTasks:{count:log.longTasks,totalMs:round(log.longTaskTotalMs),maxMs:round(log.longTaskMaxMs),recent:log.longTaskRecent.slice()},
+   resources:{scriptsObserved:scripts.length,scriptTransfersKB:round(scripts.reduce((n,e)=>n+e.transferSize,0)/1024),slowestScripts:topScripts},
+   ui:{domNodes:dom,navClicks:log.navClicks.slice()},
+   environment:{online:navigator.onLine,swControlled:!!navigator.serviceWorker?.controller,
+    deviceMemoryGB:navigator.deviceMemory??null,hardwareConcurrency:navigator.hardwareConcurrency??null,heap:memory},
+   modulesMissing:(window.VC_MODULE_LOAD_ERRORS||[]).length,
+   libraryDeferred:!!document.getElementById('ejercicios')&&!document.getElementById('ejercicios').classList.contains('active'),
+   note:'Mediciones locales; transferSize 0 puede indicar caché/SW. Segundo fotograma no significa carga completa.'
+  };
+ }
+ function fmt(v,s='ms'){return v==null?'—':v.toLocaleString('es-ES')+' '+s}
+ function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
+ function render(){
+  const panel=document.getElementById('vc60-diagnostics');if(!panel)return;
+  const d=diagnostics();const stats=panel.querySelector('#vc60-stat-grid');
+  stats.replaceChildren();
+  const metrics=[
+   ['HTML disponible',fmt(d.navigation.responseEndMs)],
+   ['DOM preparado',fmt(d.navigation.domContentLoadedMs)],
+   ['Interfaz visible',fmt(d.navigation.workspaceVisibleMs)],
+   ['Carga completa',fmt(d.navigation.loadMs)],
+   ['Bloqueos > 50 ms',String(d.longTasks.count)],
+   ['Tiempo bloqueado',fmt(d.longTasks.totalMs)],
+   ['Módulos observados',String(d.resources.scriptsObserved)],
+   ['Nodos DOM',d.ui.domNodes.toLocaleString('es-ES')]
+  ];
+  for(const [name,value] of metrics){const box=el('div','vc60-kpi');box.append(el('small',null,name),el('strong',null,value));stats.append(box)}
+  const list=panel.querySelector('#vc60-slow-scripts');list.replaceChildren();
+  for(const s of d.resources.slowestScripts.slice(0,8)){
+   const r=el('div','vc60-resource');r.append(el('span',null,s.file),el('b',null,fmt(s.durationMs)));list.append(r);
+  }
+  if(!list.childNodes.length)list.append(el('div',null,'Todavía no hay recursos registrados.'));
+  const advice=panel.querySelector('#vc60-advice');
+  const recommendations=[];
+  if((d.navigation.workspaceVisibleMs||0)>2500)recommendations.push('Arranque lento: revisar scripts y tareas iniciales.');
+  if(d.longTasks.count>8)recommendations.push('Se detectan bloqueos del hilo principal; optimizar renders y cálculos.');
+  if(d.modulesMissing)recommendations.push('Faltan archivos JavaScript: comprobar publicación de GitHub.');
+  if(!d.environment.swControlled)recommendations.push('La página no está controlada por el service worker; vuelve a medir tras recargar.');
+  if(!recommendations.length)recommendations.push('Sin alertas claras en esta muestra; compara los resultados en PC y móvil.');
+  advice.textContent=recommendations.join(' ');
+ }
+ async function exportReport(){
+  const d=diagnostics();try{
+   const estimate=await navigator.storage?.estimate?.();
+   if(estimate)d.environment.storage={usedMB:round(estimate.usage/1048576),quotaMB:round(estimate.quota/1048576)};
+  }catch(_){}
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='volley_coach_rendimiento_v16_0_6_0.json';
+  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ }
+ function open(){const panel=document.getElementById('vc60-diagnostics');if(!panel)return;panel.hidden=false;render();panel.scrollIntoView({block:'nearest',behavior:'smooth'});}
+ function close(){const p=document.getElementById('vc60-diagnostics');if(p)p.hidden=true;}
+ window.VC_PERFORMANCE_CORE={version:'16.0.6.1',diagnostics,open,close,refresh:render,exportReport};
+})();
+</script>
 <script id="vc1602-modules-diagnostic">
 window.VC_MODULE_LOAD_ERRORS=[];
 window.addEventListener('error',function(event){
@@ -25,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.5.9 · Inicio Optimizado</title>
+<title>Volley Coach | V16.0.6.1 · Performance Core</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -918,6 +1034,23 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
 #scout-match-mode #v113-video-rally-actions .action:hover{background:#215b8a}
 #scout-match-mode #v113-video-rally-actions .action::after{content:' ▶';font-size:8px;color:#8de0fa}
 </style>
+<style id="vc16060-performance-style">
+#v11-management #vc60-diagnostics[hidden]{display:none!important}
+#v11-management #vc60-diagnostics{margin:20px 0 30px;padding:20px;border:1px solid #d5e2ef;border-radius:16px;background:#fff;box-shadow:0 8px 26px rgba(10,38,68,.05);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17334c}
+#vc60-diagnostics .vc60-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+#vc60-diagnostics .vc60-header h3{margin:0;font-size:18px;color:#112f4d}
+#vc60-diagnostics .vc60-actions{display:flex;gap:8px;flex-wrap:wrap}
+#vc60-diagnostics button{padding:9px 12px;border:1px solid #c5d6e7;border-radius:9px;background:#f2f7fc;color:#1d4e80;font:700 12px system-ui,sans-serif}
+#vc60-diagnostics button:first-child{background:#1e5da4;color:white;border-color:#1e5da4}
+#vc60-diagnostics .vc60-stat-grid{margin:16px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+#vc60-diagnostics .vc60-kpi{border:1px solid #dce8f5;border-radius:11px;padding:12px;background:#f8fbff;min-width:0}
+#vc60-diagnostics .vc60-kpi small{display:block;color:#67809a;font-size:11px;min-height:20px}
+#vc60-diagnostics .vc60-kpi strong{display:block;margin-top:4px;color:#173a60;font-size:17px;white-space:nowrap}
+#vc60-diagnostics .vc60-resource{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #ebf0f6;padding:7px 0;font-size:12px}
+#vc60-diagnostics .vc60-resource span{overflow-wrap:anywhere}
+#vc60-diagnostics .vc60-advice{color:#4a6481;background:#f3f7fc;border-radius:10px;padding:12px;font-size:12px;line-height:1.6}
+#vc60-diagnostics .vc60-note{color:#66809a;font-size:11px;line-height:1.55;margin:12px 0 0}
+</style>
 </head>
 <body class="v11-shell">
 <div id="vc59-startup" role="status" aria-live="polite"><div class="vc59-brand">Volley Coach</div><div class="vc59-subtitle">Preparando el espacio de trabajo…</div><div class="vc59-progress" aria-hidden="true"></div></div>
@@ -1218,7 +1351,23 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
     <button onclick="scoutV892OpenRecoveryCenter()"><span>⌑</span><div><b>Recuperación</b><small>Copias y seguridad</small></div><strong>→</strong></button>
     <button onclick="abrirCloud()"><span>☁</span><div><b>Nube</b><small>Sincronización móvil / ordenador</small></div><strong>→</strong></button>
     <button onclick="vc1532ShowCloudDiagnostic()"><span>⊙</span><div><b>Diagnóstico nube</b><small>Conexión, errores y cambios pendientes</small></div><strong>→</strong></button>
+    <button onclick="VC_PERFORMANCE_CORE.open()"><span>▤</span><div><b>Rendimiento</b><small>Arranque, bloqueos y módulos lentos</small></div><strong>→</strong></button>
   </div>
+  <section id="vc60-diagnostics" hidden aria-label="Diagnóstico de rendimiento">
+    <div class="vc60-header">
+      <h3>Performance Core · V16.0.6.1</h3>
+      <div class="vc60-actions">
+        <button type="button" onclick="VC_PERFORMANCE_CORE.refresh()">Actualizar mediciones</button>
+        <button type="button" onclick="VC_PERFORMANCE_CORE.exportReport()">Descargar informe JSON</button>
+        <button type="button" onclick="VC_PERFORMANCE_CORE.close()">Cerrar</button>
+      </div>
+    </div>
+    <div id="vc60-stat-grid" class="vc60-stat-grid"></div>
+    <h4>Scripts con mayor tiempo de carga observado</h4>
+    <div id="vc60-slow-scripts"></div>
+    <p id="vc60-advice" class="vc60-advice"></p>
+    <p class="vc60-note">Las métricas se calculan en este dispositivo; no se envían a ningún servidor. Un script con carga lenta no implica necesariamente ejecución lenta. Para comparar, abre la web dos veces, anota el segundo arranque y repite en el móvil.</p>
+  </section>
 </section>
 
 <section id="jugadores" class="view">
@@ -3515,7 +3664,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 </div>
 
 
-<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.0.3.7" data-vc-module="true"></script>
+<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.0.6.1" data-vc-module="true"></script>
 
 
 <script id="players-pro-v2-script" src="./003-players-pro-v2-script.js?v=16.0.2.1" data-vc-module="true"></script>
@@ -3927,9 +4076,9 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.5.9',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.1',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
-      if(document.visibilityState==='visible')r.update().catch(()=>{});
+      // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
       setInterval(()=>{if(navigator.onLine&&document.visibilityState==='visible')r.update().catch(()=>{})},POLL);
     }catch(err){console.warn('Actualización PWA no disponible',err)}
@@ -16589,7 +16738,7 @@ body.v11-shell #v11-sidebar .v11-logo{
 }
 body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
 body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
-body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.5.9"!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.1"!important}
 body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
 body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
 body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}

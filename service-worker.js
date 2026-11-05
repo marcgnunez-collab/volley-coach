@@ -1,6 +1,6 @@
-/* Volley Coach V16.0.5.9 · fast cached static assets, safe cloud requests */
+/* Volley Coach V16.0.6.1 · atomic versioned app shell, cached navigation */
 'use strict';
-const CACHE_NAME='volley-coach-v16.0.5.9-startup';
+const CACHE_NAME='volley-coach-v16.0.6.1-performance';
 const MODULE_ASSETS=[
   "./002-core-training-v150-monolithic.js",
   "./003-players-pro-v2-script.js",
@@ -84,14 +84,12 @@ self.addEventListener('fetch',event=>{
  if(req.mode==='navigate'){
   event.respondWith((async()=>{
    const cache=await caches.open(CACHE_NAME);
+   // Version-atomic: HTML is cached with its mandatory JS files during install.
+   // Do not update HTML alone on navigation (that could load mismatched scripts).
    const cached=await cache.match('./index.html',{ignoreSearch:true});
-   const controller=new AbortController();
-   const timer=setTimeout(()=>controller.abort(),1500);
-   try{
-     const res=await fetch(req,{cache:'no-store',signal:controller.signal});
-     if(res&&res.ok){event.waitUntil(cache.put('./index.html',res.clone()).catch(()=>{}));return res}
-     return cached||res;
-   }catch(_){return cached||Response.error()}finally{clearTimeout(timer)}
+   if(cached)return cached;
+   try{const res=await fetch(req,{cache:'no-store'});return res&&res.ok?res:Response.error()}
+   catch(_){return Response.error()}
   })());return;
  }
  if(url.origin===self.location.origin){

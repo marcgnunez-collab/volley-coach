@@ -598,9 +598,9 @@ function save(){
   $('save-indicator').textContent=vinculado?'✓ Guardado automáticamente en Planificación':'✓ Guardado · '+EQUIPOS[equipoActivo].corto+' · biblioteca compartida';
   programarSubidaCloud();
 }
-function showView(id,btn){const vc1532PreviousView=document.querySelector('.view.active')?.id;if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));if($(id))$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='dashboard'){renderDashboard();if(typeof renderDashboardPlayers==='function')renderDashboardPlayers()}if(id==='entrenamiento'){renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster()}if(id==='ejercicios')renderDestinoBiblioteca();if(id==='planificacion')renderPlanificacion();if(id==='jugadores'&&typeof renderPlayers==='function')renderPlayers();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();if(vc1532PreviousView!==id)window.scrollTo({top:0,behavior:'smooth'});}
+function showView(id,btn){const vc1532PreviousView=document.querySelector('.view.active')?.id;if(id!=='ejercicios'){seccionDestinoSesion=null;crearEjercicioDestinoSesion=null}document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));if($(id))$(id).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='dashboard'){renderDashboard();if(typeof renderDashboardPlayers==='function')renderDashboardPlayers()}if(id==='entrenamiento'){renderizarSesion();if(typeof renderSessionRoster==='function')renderSessionRoster()}if(id==='ejercicios'){renderDestinoBiblioteca();filtrarEjercicios();}if(id==='planificacion')renderPlanificacion();if(id==='jugadores'&&typeof renderPlayers==='function')renderPlayers();if(id==='historial')renderHistorial();if(id==='estadisticas')renderStats();if(vc1532PreviousView!==id)window.scrollTo({top:0,behavior:'smooth'});}
 function botonVista(id){const mapa={dashboard:0,entrenamiento:1,planificacion:2,ejercicios:3,jugadores:4,historial:5,estadisticas:6};return document.querySelectorAll('.tab-btn')[mapa[id]]||null}
-function abrirBibliotecaNormal(btn){renderConteoBiblioteca();const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();showView('ejercicios',btn);renderDestinoBiblioteca()}
+function abrirBibliotecaNormal(btn){const estabaCreando=!!crearEjercicioDestinoSesion;seccionDestinoSesion=null;crearEjercicioDestinoSesion=null;if(estabaCreando)cancelarEdicion();showView('ejercicios',btn);renderDestinoBiblioteca()}
 function normalizarSeccionEntreno(slug,e){
   const limpio=MAPA_SECCIONES_LEGACY[String(slug||'')]||'';
   if(limpio&&SECCIONES_ENTRENO[limpio])return limpio;
@@ -1564,14 +1564,26 @@ function filtrarPorChipBiblioteca(f){
   if(f){const c=[...document.querySelectorAll('input[name="filtro-fundamento"]')].find(x=>x.value===f);if(c)c.checked=true}
   filtrarEjercicios();
 }
+/* V16.0.6.1: single-pass library counters; avoids nine scans and redundant DOM writes. */
 function renderConteoBiblioteca(){
   const grupos=['Recepción','Ataque','Colocación','Bloqueo','Defensa','Reconstrucción','Juegos','Saque','Control'];
-  const total=Array.isArray(baseDeDatos)?baseDeDatos.length:0;
-  const datos=[['','Total',total],...grupos.map(g=>[g,g,baseDeDatos.filter(e=>normalizarFundamentos(e).includes(g)).length])];
-  if($('biblioteca-total-big'))$('biblioteca-total-big').textContent=total;
-  if($('dash-library'))$('dash-library').textContent=total;
-  if($('stat-ejercicios'))$('stat-ejercicios').textContent=total;
-  const box=$('conteo-biblioteca');if(box)box.innerHTML=datos.map(([f,g,n])=>`<button class="library-count-chip" onclick="filtrarPorChipBiblioteca('${f}')">${g}<b>${n}</b></button>`).join('');
+  const ejercicios=Array.isArray(baseDeDatos)?baseDeDatos:[];
+  const total=ejercicios.length,counts=new Map(grupos.map(g=>[g,0]));
+  for(const ejercicio of ejercicios){
+    const fundamentos=normalizarFundamentos(ejercicio);
+    // Same semantics as .includes(): count each exercise at most once per group.
+    for(const grupo of new Set(fundamentos)){
+      if(counts.has(grupo))counts.set(grupo,counts.get(grupo)+1);
+    }
+  }
+  for(const id of ['biblioteca-total-big','dash-library','stat-ejercicios']){
+    const el=$(id);if(el&&el.textContent!==String(total))el.textContent=total;
+  }
+  const box=$('conteo-biblioteca');
+  if(!box)return;
+  const datos=[['','Total',total],...grupos.map(g=>[g,g,counts.get(g)])];
+  const markup=datos.map(([f,g,n])=>`<button class="library-count-chip" onclick="filtrarPorChipBiblioteca('${f}')">${g}<b>${n}</b></button>`).join('');
+  if(box.innerHTML!==markup)box.innerHTML=markup;
 }
 function vcConstruirIndiceUsoBiblioteca(){
   // Index lives for one render only: no stale cached statistics after saving or cloud merges.
@@ -1739,9 +1751,16 @@ if(!localStorage.getItem(CLOUD_ANON_KEY))localStorage.setItem(CLOUD_ANON_KEY,DEF
 actualizarSelectorEquipo();cargarMeta();
 // V16.0.3.7: hidden screens are rendered on first visit by showView(), not on boot.
 if($('entrenamiento')?.classList.contains('active'))renderizarSesion();
-filtrarEjercicios();
+// V16.0.6.1: do not build the hidden library until its first visit.
+// showView('ejercicios') now renders and refreshes its filters on demand.
+if($('ejercicios')?.classList.contains('active'))filtrarEjercicios();
 if($('planificacion')?.classList.contains('active'))renderPlanificacion();else renderAvisoPlanHoy();
 renderDashboard();programarArchivadoAlCambiarDia();actualizarEstadoBibliotecaUI();initCloud();
-renderConteoBiblioteca(); // V5.8.9 conteo real de la biblioteca persistente
+// Library counters are noncritical for the first paint. Leave cloud/auth initialization immediate.
+if(!$('ejercicios')?.classList.contains('active')){
+  const task=()=>{try{renderConteoBiblioteca()}catch(e){console.warn('Contadores biblioteca',e)}};
+  if(typeof requestIdleCallback==='function')requestIdleCallback(task,{timeout:1500});
+  else setTimeout(task,150);
+}
 
 
