@@ -3,7 +3,7 @@
 // V16.0.5.7 · Automatic match-scoped, derived video references.
 // Video intervals are derived from scouting actions; no automatic cloud writes,
 // no second action store, no score/rotation/sync engine modifications.
-const VERSION='16.0.5.7', $=id=>document.getElementById(id), A=x=>Array.isArray(x)?x:[];
+const VERSION='16.0.6.5', $=id=>document.getElementById(id), A=x=>Array.isArray(x)?x:[];
 const root=$('scout-video-hub'),panel=$('vc-clip33');if(!root||!panel)return;
 const state={in:null,out:null,exporting:false,playingId:null,lastMatch:'',refreshKey:'',error:''};
 const finite=x=>(x===null||x===undefined||x==='')?null:(Number.isFinite(Number(x))?Number(x):null);
@@ -52,7 +52,7 @@ function saveReference(c,m){
  saved.createdAt=new Date().toISOString();return addClip(saved,m);
 }
 function notify(message,bad=false){const node=$('vc-clip33-status');if(node){node.textContent=message;node.dataset.bad=bad?'1':'0'}state.error=bad?message:''}
-function persist(m){if(!m)return false;try{const save=bridge().save;if(typeof save!=='function')throw new Error('Motor de guardado no disponible');m.updatedAt=new Date().toISOString();save();return true}catch(e){console.error('VC clip save failed',e);notify('Error al guardar el clip: '+String(e?.message||e),true);return false}}
+function persist(m){if(!m)return false;const hadStamp=Object.prototype.hasOwnProperty.call(m,'updatedAt'),prevStamp=m.updatedAt;try{const save=bridge().save;if(typeof save!=='function')throw new Error('Motor de guardado no disponible');m.updatedAt=new Date().toISOString();save();return true}catch(e){if(hadStamp)m.updatedAt=prevStamp;else delete m.updatedAt;console.error('VC clip save failed',e);notify('Error al guardar el clip: '+String(e?.message||e),true);return false}}
 function ensureClips(m){if(!m)return null;if(!m.video||typeof m.video!=='object')m.video={};if(!Array.isArray(m.video.clips))m.video.clips=[];return m.video.clips}
 function mapped(m,ms){const v=finite(m?.video?.syncOffset),t=finite(ms);return v===null||t===null?null:Math.max(0,t/1000+v)}
 function actionTime(a,m){for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){const t=finite(a?.[k]);if(t!==null&&t>=0)return t}return mapped(m,a?.scoutMs)}
@@ -73,7 +73,7 @@ function clipForRow(r,m){const range=timeRange(r,m);if(!range||!Number.isFinite(
 function addClip(c,m){const list=ensureClips(m);if(!list)return false;if(c.sourceKey&&list.some(x=>String(x.sourceKey)===c.sourceKey)){notify('Este rally o acción ya tiene un clip guardado.');return false}list.push(c);if(!persist(m)){list.pop();return false}notify(`Clip guardado · ${fmt(c.start)}–${fmt(c.end)}`);render(true);return true}
 function createFromRow(key){const m=match(),r=rows().find(x=>x.key===key);if(!m||!r){notify('Selecciona un rally o una acción del partido.',true);return false}const c=clipForRow(r,m);if(!c){notify('Falta tiempo de vídeo. Sincroniza el partido o registra timestamps antes de crear el clip.',true);return false}return addClip(c,m)}
 function visibleRows(){const keys=new Set([...($('v780-timeline')?.querySelectorAll('.v780-row[data-key]')||[])].map(el=>el.dataset.key));return rows().filter(r=>keys.has(r.key))}
-function createVisible(){const m=match();if(!m){notify('Selecciona un partido.',true);return 0}const list=ensureClips(m),seen=new Set(list.map(c=>String(c.sourceKey||'')).filter(Boolean));let added=0,missing=0;for(const r of visibleRows()){if(seen.has(r.key))continue;const c=clipForRow(r,m);if(!c){missing++;continue}list.push(c);seen.add(r.key);added++}if(added&&!persist(m))list.splice(-added,added);else render(true);notify(`${added} clips creados${missing?` · ${missing} sin timestamp`:''}`);return added}
+function createVisible(){const m=match();if(!m){notify('Selecciona un partido.',true);return 0}const list=ensureClips(m),seen=new Set(list.map(c=>String(c.sourceKey||'')).filter(Boolean));let added=0,missing=0;for(const r of visibleRows()){if(seen.has(r.key))continue;const c=clipForRow(r,m);if(!c){missing++;continue}list.push(c);seen.add(r.key);added++}if(added&&!persist(m)){list.splice(-added,added);return 0}render(true);notify(`${added} clips creados${missing?` · ${missing} sin timestamp`:''}`);return added}
 function sourceReady(){const d=media(),source=activeSource();return !!d.videoLoaded&&(source==='local'||source==='youtube')&&((d.mediaType==='youtube')===(source==='youtube'))}
 function captureMark(which){if(!sourceReady()){notify('Abre el archivo o YouTube del partido. LIVE y DELAY temporal no sirven para marcar un clip exportable.',true);return}const t=finite(api().currentTime?.());if(t===null){notify('No se puede leer la posición del vídeo.',true);return}state[which]=t;updateMarks();notify(`Marca ${which.toUpperCase()} en ${fmt(t)}`)}
 function updateMarks(){const i=$('vc-clip33-in'),o=$('vc-clip33-out');if(i)i.textContent=fmt(state.in);if(o)o.textContent=fmt(state.out)}
