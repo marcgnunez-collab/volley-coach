@@ -1,3 +1,4 @@
+/* V16.0.6.2 · Avoid rescanning every video-tagged action on each status tick. */
 
 (()=>{
 'use strict';
@@ -291,6 +292,41 @@ function setSourceUi(){
         :'Haz scouting sobre YouTube. Cada acción registrada desde esta pantalla guarda el instante exacto del vídeo.';
   refreshMediaStatus();
 }
+/* Match video timestamps change relatively rarely, while the time badge is
+   refreshed once per second. Cache the existence check, not the timestamps.
+   A short TTL also detects edits from older modules that do not bump updatedAt. */
+const vc162VideoCache=new WeakMap();
+const vc162VideoPerf={checks:0,cacheHits:0,scans:0,actionsVisited:0};
+window.VC_V162_VIDEO_DIAGNOSTICS=()=>({...vc162VideoPerf});
+function hasVideoTaggedAction(m){
+  if(!m)return false;
+  vc162VideoPerf.checks++;
+  const sets=arr(m.sets);
+  const signature=[m.id,m.updatedAt,m.currentSet,
+    arr(m.liveRally?.actions).length,
+    ...sets.map(s=>[s.number,arr(s.rallies).length,arr(s.rallies).slice(-1)[0]?.editedAt||''].join(':'))
+  ].join('|');
+  const prior=vc162VideoCache.get(m),now=performance.now();
+  if(prior&&prior.signature===signature&&now-prior.time<4000){
+    vc162VideoPerf.cacheHits++;return prior.result;
+  }
+  vc162VideoPerf.scans++;
+  let found=false;
+  for(const a of arr(m.liveRally?.actions)){
+    vc162VideoPerf.actionsVisited++;
+    if(a?.videoTime!=null){found=true;break;}
+  }
+  if(!found)outer:for(const set of sets){
+    for(const rally of arr(set.rallies)){
+      for(const a of arr(rally.actions)){
+        vc162VideoPerf.actionsVisited++;
+        if(a?.videoTime!=null){found=true;break outer;}
+      }
+    }
+  }
+  vc162VideoCache.set(m,{signature,time:now,result:found});
+  return found;
+}
 function refreshMediaStatus(){
   const empty=$('v800-video-empty'),status=$('v800-video-status'),overlay=$('v802-video-overlay'),sync=$('v802-sync-badge');
   const loaded=mediaLoaded();
@@ -305,7 +341,7 @@ function refreshMediaStatus(){
     if(empty){empty.textContent=media.youtubeId?'Cargando YouTube…':'Pega un enlace de YouTube.';empty.classList.toggle('hidden',loaded)}
     if(status){status.textContent=loaded?'YOUTUBE':'SIN VÍDEO';status.className=`v800-status ${loaded?'on':''}`}
   }
-  const m=match(),hasExact=mediaIsReview()&&allActions(m||{}).some(x=>x.a?.videoTime!=null);
+  const m=match(),hasExact=mediaIsReview()&&hasVideoTaggedAction(m);
   if(sync){
     sync.textContent=hasExact?'TIEMPO EXACTO':m?.video?.syncOffset!=null?'VINCULADO':'SIN VINCULAR';
     sync.className=`v800-status ${hasExact?'exact':m?.video?.syncOffset!=null?'synced':''}`;
@@ -326,6 +362,7 @@ function stampLatestAction(){
   if(!m||!a)return;
   a.videoTime=mediaCurrent();
   a.videoSource=media.source;
+  vc162VideoCache.delete(m);
   m.video=m.video||{};
   if(media.source==='youtube'){
     m.video.youtubeId=media.youtubeId;m.video.youtubeUrl=media.youtubeUrl;m.video.source=`YouTube · ${media.youtubeId}`;

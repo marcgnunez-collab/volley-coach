@@ -1,10 +1,13 @@
+/* V16.0.6.2 · Scouting rendering optimizations (no state or save changes). */
 
 (()=>{
 'use strict';
 const VERSION='13.2.0', $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
 const POS=['p4','p3','p2','p5','p6','p1'];
-let editRef=null, courtMode='origin', renderQueued=false;
+let editRef=null, courtMode='origin', renderQueued=false, courtRenderKey='';
+const vc162Perf={renderCount:0,renderMs:0,lastRenderMs:0,recentVisited:0,recentBuilt:0,historyDomWrites:0,historyDomSkipped:0,playerDomWrites:0,playerDomSkipped:0,courtDomSkipped:0,courtDomWrites:0};
+window.VC_V162_SCOUT_DIAGNOSTICS=()=>({...vc162Perf});
 function State(){return window.MatchState||window.VC_MATCH_STATE}
 function match(){return State()?.getActive?.()||window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}
 function setOf(m=match()){return State()?.getSet?.(m)||window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}
@@ -38,34 +41,69 @@ function buildCourt(){
   if(!modes.includes(courtMode))courtMode=modes[0];
   const currentZone=courtMode==='origin'?String(st.origin||''):String(st.destination||''),currentSub=courtMode==='origin'?String(st.originSub||''):String(st.destinationSub||'');
   const order=[4,3,2,7,8,9,5,6,1];
+  const signature=[skill,courtMode,currentZone,currentSub].join('|');
+  if(signature===courtRenderKey&&box.querySelector('.v132-court-9x4')){vc162Perf.courtDomSkipped++;return;}
+  courtRenderKey=signature;vc162Perf.courtDomWrites++;
   box.innerHTML=`<div class="v132-court-title"><div><b>Pista DataVolley 9×4</b><small>${skill==='R'||skill==='D'?'Marca contacto':skill==='B'?'Marca zona de bloqueo':'Marca origen y destino'}</small></div><div class="v132-court-mode">${modes.map(x=>`<button type="button" class="ghost ${courtMode===x?'active':''}" onclick="v132CourtMode('${x}')">${x==='origin'?'Origen':'Destino'}</button>`).join('')}</div></div><div class="v132-court-9x4">${order.map(z=>`<div class="v132-zone" data-zone="${z}">${['A','B','C','D'].map(sub=>`<button type="button" class="${currentZone===String(z)&&currentSub===sub?'active':''}" title="Z${z}${sub}" onclick="v132SelectCourt('${courtMode}','${z}','${sub}')">${sub}</button>`).join('')}</div>`).join('')}</div><div class="v132-court-legend"><span><b>${courtMode==='origin'?'ORIGEN':'DESTINO'}:</b> ${currentZone?`Z${currentZone}${currentSub}`:'sin marcar'}</span><span>A–D = subzonas</span></div>`;
 }
 function setPlayers(){
   const st=window.VC_V900_STATE||{},m=match(),team=$('v132-team'),sel=$('v132-player');if(!team||!sel||!m)return;
-  team.value=st.team==='opponent'?'opponent':'ours';let rows=[];
+  const teamValue=st.team==='opponent'?'opponent':'ours';
+  if(team.value!==teamValue)team.value=teamValue;
+  let rows=[];
   if(team.value==='ours')rows=players().map(p=>({v:String(p.id),l:`${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`}));
   else rows=POS.map(pos=>String(m.lineup?.opponent?.[pos]||'').trim()).filter(Boolean).map(v=>({v,l:v}));
   const seen=new Set();rows=rows.filter(x=>x.v&&!seen.has(x.v)&&seen.add(x.v));
-  sel.innerHTML=rows.length?rows.map(x=>`<option value="${esc(x.v)}">${esc(x.l)}</option>`).join(''):'<option value="">Sin jugador</option>';
+  const markup=rows.length?rows.map(x=>`<option value="${esc(x.v)}">${esc(x.l)}</option>`).join(''):'<option value="">Sin jugador</option>';
+  if(sel.innerHTML!==markup){sel.innerHTML=markup;vc162Perf.playerDomWrites++;}else vc162Perf.playerDomSkipped++;
   if(rows.some(x=>String(x.v)===String(st.player)))sel.value=String(st.player);else if(rows[0])sel.value=rows[0].v;
   const active=rows.find(x=>String(x.v)===String(sel.value));$('v132-active-copy').textContent=active?.l||'Selecciona jugador';
 }
+/* Read only the latest 18 actions. Previous code rebuilt the entire match history
+   on every UI update, even when only one new action had been recorded. */
 function allRecent(){
-  const m=match();if(!m)return[];const out=[],s=setOf(m);
-  (m.liveRally?.actions||[]).forEach((a,i)=>out.push({a,live:true,setNo:Number(m.currentSet)||1,rallyId:Number(m.liveRally?.id)||0,index:i,score:`${s?.scoreUs||0}–${s?.scoreOpponent||0}`,rotation:Number(m.rotationNo)||1}));
-  const closed=[];(m.sets||[]).forEach(set=>(set.rallies||[]).forEach(r=>(r.actions||[]).forEach((a,i)=>closed.push({a,live:false,setNo:Number(set.number)||1,rallyId:Number(r.id)||0,index:i,score:`${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`,rotation:Number(r.rotationBefore)||1}))));
-  return out.concat(closed.slice(-18)).slice(-18).reverse();
+  const m=match();if(!m)return[];
+  const out=[],limit=18,s=setOf(m);
+  const live=m.liveRally?.actions||[];
+  for(let i=live.length-1;i>=0&&out.length<limit;i--){
+    const a=live[i];vc162Perf.recentVisited++;
+    out.push({a,live:true,setNo:Number(m.currentSet)||1,rallyId:Number(m.liveRally?.id)||0,index:i,score:`${s?.scoreUs||0}–${s?.scoreOpponent||0}`,rotation:Number(m.rotationNo)||1});
+  }
+  const sets=m.sets||[];
+  for(let si=sets.length-1;si>=0&&out.length<limit;si--){
+    const set=sets[si],rallies=set.rallies||[];
+    for(let ri=rallies.length-1;ri>=0&&out.length<limit;ri--){
+      const r=rallies[ri],actions=r.actions||[];
+      for(let ai=actions.length-1;ai>=0&&out.length<limit;ai--){
+        vc162Perf.recentVisited++;
+        out.push({a:actions[ai],live:false,setNo:Number(set.number)||1,rallyId:Number(r.id)||0,index:ai,score:`${r.scoreAfter?.us??0}–${r.scoreAfter?.opponent??0}`,rotation:Number(r.rotationBefore)||1});
+      }
+    }
+  }
+  vc162Perf.recentBuilt++;
+  return out;
 }
-function renderRecent(){
-  const box=$('v132-recent-list');if(!box)return;const rows=allRecent();
-  box.innerHTML=rows.length?rows.map((x,idx)=>{const t=actionTime(x.a),key=x.live?'':`a:${x.setNo}:${x.rallyId}:${x.a.id}`;return `<div class="v132-action-row"><div class="v132-action-context"><span>S${x.setNo} · R${x.rotation}</span><b>${esc(x.score)}</b></div><div class="v132-action-main"><code>${esc(x.a.code||'—')}</code><span>${esc(playerLabel(x.a))} · ${esc(SKILLS[x.a.skill]||x.a.skill||'Acción')}${t!=null?` · <i class="v132-video-time">▶ ${fmtVideo(t)}</i>`:''}</span></div><div class="v132-action-tools">${key?`<button type="button" class="ghost" onclick="v132PlayAction('${key}')" title="Abrir vídeo">▶</button>`:''}<button type="button" class="ghost" onclick="v132OpenActionEditor(${idx})">Editar</button></div></div>`}).join(''):'<div class="v132-no-actions">Todavía no hay acciones. El historial aparecerá aquí mientras scouteas.</div>';
+function renderRecent(rows=allRecent()){
+  const box=$('v132-recent-list');if(!box)return;
+  const markup=rows.length?rows.map((x,idx)=>{const t=actionTime(x.a),key=x.live?'':`a:${x.setNo}:${x.rallyId}:${x.a.id}`;return `<div class="v132-action-row"><div class="v132-action-context"><span>S${x.setNo} · R${x.rotation}</span><b>${esc(x.score)}</b></div><div class="v132-action-main"><code>${esc(x.a.code||'—')}</code><span>${esc(playerLabel(x.a))} · ${esc(SKILLS[x.a.skill]||x.a.skill||'Acción')}${t!=null?` · <i class="v132-video-time">▶ ${fmtVideo(t)}</i>`:''}</span></div><div class="v132-action-tools">${key?`<button type="button" class="ghost" onclick="v132PlayAction('${key}')" title="Abrir vídeo">▶</button>`:''}<button type="button" class="ghost" onclick="v132OpenActionEditor(${idx})">Editar</button></div></div>`}).join(''):'<div class="v132-no-actions">Todavía no hay acciones. El historial aparecerá aquí mientras scouteas.</div>';
+  if(box.innerHTML!==markup){box.innerHTML=markup;vc162Perf.historyDomWrites++;}else vc162Perf.historyDomSkipped++;
   window.__v132Recent=rows;
 }
 function renderCockpit(){
-  buildCockpit();buildRecent();setPlayers();buildCourt();renderRecent();const st=window.VC_V900_STATE||{},m=match(),s=setOf(m);if(!m)return;
-  $('v132-rotation').textContent=`R${m.rotationNo||1} · Rival R${m.opponentRotationNo||1}`;$('v132-phase').textContent=m.servingTeam==='opponent'?'K1 · Side-out':'K2 · Break';$('v132-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
-  document.querySelectorAll('[data-v132-skill]').forEach(b=>b.classList.toggle('active',b.dataset.v132Skill===st.skill));const recent=allRecent(),t=recent.map(x=>actionTime(x.a)).find(x=>x!=null);$('v132-last-video').textContent=t!=null?fmtVideo(t):'Sin vínculo';
-  $('v132-save-copy').textContent=readonly()?'Solo lectura':'MatchState ✓';
+  const started=performance.now();
+  buildCockpit();buildRecent();setPlayers();buildCourt();
+  const recent=allRecent();renderRecent(recent);
+  const st=window.VC_V900_STATE||{},m=match(),s=setOf(m);
+  if(m){
+    $('v132-rotation').textContent=`R${m.rotationNo||1} · Rival R${m.opponentRotationNo||1}`;
+    $('v132-phase').textContent=m.servingTeam==='opponent'?'K1 · Side-out':'K2 · Break';
+    $('v132-score').textContent=`${s?.scoreUs||0}–${s?.scoreOpponent||0}`;
+    document.querySelectorAll('[data-v132-skill]').forEach(b=>b.classList.toggle('active',b.dataset.v132Skill===st.skill));
+    const withVideo=recent.find(x=>actionTime(x.a)!=null),t=withVideo?actionTime(withVideo.a):null;
+    $('v132-last-video').textContent=t!=null?fmtVideo(t):'Sin vínculo';
+    $('v132-save-copy').textContent=readonly()?'Solo lectura':'MatchState ✓';
+  }
+  vc162Perf.renderCount++;vc162Perf.lastRenderMs=performance.now()-started;vc162Perf.renderMs+=vc162Perf.lastRenderMs;
 }
 function queueRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;try{renderCockpit()}catch(e){console.error('V13.2 render',e)}})}
 window.v132SetTeam=function(t){window.v900SetTeam?.(t);setTimeout(queueRender,0)};

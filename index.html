@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <script id="vc16060-performance-core">
-/* Performance Core V16.0.6.1: passive, local-only observability. No application state mutation. */
+/* Performance Core V16.0.6.2: passive, local-only observability. No application state mutation. */
 (()=>{
  'use strict';
  if(window.VC_PERFORMANCE_CORE)return;
@@ -58,7 +58,7 @@
   }:null;
   const dom=document.getElementsByTagName('*').length;
   return {
-   version:'16.0.6.1',capturedAt:new Date().toISOString(),
+   version:'16.0.6.2',capturedAt:new Date().toISOString(),
    navigation:{type:nav?.type||'unknown',responseEndMs:round(nav?.responseEnd),
      domContentLoadedMs:round(nav?.domContentLoadedEventEnd??log.dclMs),loadMs:round(nav?.loadEventEnd??log.loadMs),
      fcpMs:round(fcp?.startTime),workspaceVisibleMs:round(log.bootReleasedMs)},
@@ -114,7 +114,7 @@
  }
  function open(){const panel=document.getElementById('vc60-diagnostics');if(!panel)return;panel.hidden=false;render();panel.scrollIntoView({block:'nearest',behavior:'smooth'});}
  function close(){const p=document.getElementById('vc60-diagnostics');if(p)p.hidden=true;}
- window.VC_PERFORMANCE_CORE={version:'16.0.6.1',diagnostics,open,close,refresh:render,exportReport};
+ window.VC_PERFORMANCE_CORE={version:'16.0.6.2',diagnostics,open,close,refresh:render,exportReport};
 })();
 </script>
 <script id="vc1602-modules-diagnostic">
@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.6.1 · Performance Core</title>
+<title>Volley Coach | V16.0.6.2 · Performance Core</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1355,7 +1355,7 @@ body.v117-review-stream-mode #scout-video-hub.vc-review-pro-enabled #v117-review
   </div>
   <section id="vc60-diagnostics" hidden aria-label="Diagnóstico de rendimiento">
     <div class="vc60-header">
-      <h3>Performance Core · V16.0.6.1</h3>
+      <h3>Performance Core · V16.0.6.2</h3>
       <div class="vc60-actions">
         <button type="button" onclick="VC_PERFORMANCE_CORE.refresh()">Actualizar mediciones</button>
         <button type="button" onclick="VC_PERFORMANCE_CORE.exportReport()">Descargar informe JSON</button>
@@ -3664,7 +3664,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 </div>
 
 
-<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.0.6.1" data-vc-module="true"></script>
+<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.0.6.2" data-vc-module="true"></script>
 
 
 <script id="players-pro-v2-script" src="./003-players-pro-v2-script.js?v=16.0.2.1" data-vc-module="true"></script>
@@ -4076,7 +4076,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.1',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.2',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -7190,7 +7190,7 @@ body.v781-tv-lock{overflow:hidden!important}
 </style>
 
 
-<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.2.8" data-vc-module="true"></script>
+<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=16.0.6.2" data-vc-module="true"></script>
 
 
 
@@ -13253,7 +13253,7 @@ body.v132-scouting-pro #v900-location-area>.v900-location-block{display:none!imp
   </div>
 </div>
 
-<script id="v132-scouting-pro-workspace" src="./077-v132-scouting-pro-workspace.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v132-scouting-pro-workspace" src="./077-v132-scouting-pro-workspace.js?v=16.0.6.2" data-vc-module="true"></script>
 
 
 <style id="v133-video-linked-scouting-style">
@@ -16738,7 +16738,7 @@ body.v11-shell #v11-sidebar .v11-logo{
 }
 body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
 body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
-body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.1"!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.2"!important}
 body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
 body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
 body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}

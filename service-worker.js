@@ -1,6 +1,6 @@
-/* Volley Coach V16.0.6.1 · atomic versioned app shell, cached navigation */
+/* Volley Coach V16.0.6.2 · atomic versioned app shell, cached navigation */
 'use strict';
-const CACHE_NAME='volley-coach-v16.0.6.1-performance';
+const CACHE_NAME='volley-coach-v16.0.6.2-performance';
 const MODULE_ASSETS=[
   "./002-core-training-v150-monolithic.js",
   "./003-players-pro-v2-script.js",
