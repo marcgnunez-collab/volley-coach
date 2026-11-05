@@ -661,9 +661,13 @@ function render(){
   const needVideo=v910ViewNeeds('video');
   const needRead=v910ViewNeeds('lectura')||v910ViewNeeds('lectura-lite');
 
-  if(needDirect){
+  // V16.0.6.5.1: keep the existing lineup renderer active while the
+  // video-theater layout is showing the real court. This changes NO match data.
+  if(needDirect || document.body.classList.contains('vc1644-theater-lock')){
     renderCourt($('v800-court-own'),m.lineup?.ours,true,m);
     renderCourt($('v800-court-rival'),m.lineup?.opponent,false,m);
+  }
+  if(needDirect){
     const ev=quickEvents(m);
     vc51SetMarkup($('v800-events'),ev.length?ev.map(e=>`<span class="v800-event-pill"><b>${EVENT_LABELS[e.type]||e.type}</b> · S${e.setNumber||m.currentSet} ${e.scoreUs??0}-${e.scoreOpponent??0}${e.subject?' · '+String(e.subject):''}</span>`).join(''):'<span class="v800-event-pill">Sin eventos registrados</span>');
   }
@@ -697,6 +701,19 @@ function render(){
     syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
   }
 }
+// Refresh the *existing* court elements when theater is first opened.
+// Render only six slots per team and do not write to local storage or cloud.
+window.v800RefreshTheaterCourt=function(){
+  const m=match();
+  if(!m || !$('v800-court-own') || !$('v800-court-rival'))return false;
+  renderCourt($('v800-court-own'),m.lineup?.ours,true,m);
+  renderCourt($('v800-court-rival'),m.lineup?.opponent,false,m);
+  const title=$('v800-rotation-title');
+  if(title)title.textContent=`R${m.rotationNo||1} · vs R${m.opponentRotationNo||1}`;
+  const health=$('v800-lineup-health');
+  if(health)health.textContent=lineupHealth(m).text;
+  return true;
+};
 window.VC_16051_RENDER_DIAGNOSTICS=()=>({...vc51RenderStats});
 window.v800Render=render;
 window.v800Open=function(){
