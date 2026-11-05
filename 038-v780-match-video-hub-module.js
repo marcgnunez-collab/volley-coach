@@ -675,6 +675,23 @@ window.v780SyncSelected=function(){
   const current=mediaCurrentTime(),x=meta(m);x.syncOffset=current-(Number(row.ms)||0)/1000;x.syncedAt=new Date().toISOString();x.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:current};
   applyMap(m);save();renderAll();
 };
+/* V16.1.1 · Explicit anchor API for guided synchronization; uses the existing
+   match syncOffset, same mapping and same save path as v780SyncSelected. */
+window.v780SyncFromAnchor=function({key,videoTime}={}){
+  const m=currentMatch(),row=m?findRow(String(key||'')):null;
+  if(!m||!row)return {ok:false,error:'Selecciona una acción del partido actual.'};
+  if(!mediaLoaded())return {ok:false,error:'Carga el vídeo correspondiente a este partido.'};
+  const t=Number(videoTime),ms=Number(row.ms);
+  if(videoTime==null||!Number.isFinite(t)||t<0||!Number.isFinite(ms)||ms<0)return {ok:false,error:'Marca un instante y una acción con tiempos válidos.'};
+  const duration=mediaDuration();
+  if(duration>0&&t>duration+.5)return {ok:false,error:'El instante marcado supera la duración del vídeo.'};
+  const x=meta(m);
+  x.syncOffset=t-ms/1000;
+  x.syncedAt=new Date().toISOString();
+  x.anchor={key:row.key,type:row.type,scoutMs:ms,videoTime:t};
+  applyMap(m);save();renderAll();
+  return {ok:true,offset:x.syncOffset,matchId:m.id};
+};
 window.v780Nudge=function(delta){const m=currentMatch(),x=meta(m);if(!m||x?.syncOffset==null){alert('Sincroniza primero el vídeo.');return}x.syncOffset+=Number(delta||0);applyMap(m);save();renderAll()};
 window.v780LoadFile=function(ev){
   const f=ev?.target?.files?.[0];if(!f)return;
