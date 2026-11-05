@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.6.5.2 · Fullscreen Match Fix</title>
+<title>Volley Coach | V16.1.0 · Smart Video Core</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3322,7 +3322,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.5.2',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -11921,4 +11921,43 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
 })();
 
 </script>
+<style id="vc1610-smart-video-style">
+/* V16.1.0 — Smart Video Core: one canonical timeline, no second player. */
+#scout-video-hub[data-vc58-tab="player"] #vc1610-smart-panel{display:none!important}
+#scout-video-hub #vc1610-smart-panel{background:#fff;border:1px solid #d7e3ef;border-radius:14px;padding:14px 16px;display:grid;gap:12px;min-width:0;margin:12px 0;box-shadow:0 4px 14px rgba(11,42,75,.045);color:#183c60}
+#scout-video-hub #vc1610-smart-panel *{box-sizing:border-box}
+#scout-video-hub .vc1610-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#scout-video-hub .vc1610-kicker{font-size:10px;letter-spacing:.10em;color:#4278a5;font-weight:850}
+#scout-video-hub .vc1610-head h3{font-size:16px;line-height:1.25;margin:2px 0!important;color:#183c60!important}
+#scout-video-hub .vc1610-head p{font-size:12px;margin:0;color:#6b8399}
+#scout-video-hub .vc1610-count{font-weight:750;font-size:11px;color:#2b6287;background:#eaf4fb;border-radius:999px;padding:7px 10px}
+#scout-video-hub .vc1610-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+#scout-video-hub #vc1610-smart-panel button{font:750 12px/1.25 system-ui,-apple-system,sans-serif!important;min-height:38px!important;padding:9px!important;border-radius:8px!important;background:#edf4fb!important;color:#1b4c79!important;border:1px solid #cbdff0!important;cursor:pointer!important;box-shadow:none!important;white-space:normal!important}
+#scout-video-hub #vc1610-smart-panel button:hover:not(:disabled){background:#e0eef9!important}
+#scout-video-hub #vc1610-smart-panel button:disabled{opacity:.5;cursor:not-allowed!important}
+#scout-video-hub #vc1610-save{background:#15559c!important;color:#fff!important;border-color:#15559c!important;min-width:158px}
+#scout-video-hub #vc1610-save:hover:not(:disabled){background:#114785!important}
+#scout-video-hub .vc1610-options{display:flex;align-items:end;gap:10px;flex-wrap:wrap;border-top:1px solid #e3ecf4;padding-top:12px}
+#scout-video-hub .vc1610-window{display:grid;gap:4px;min-width:125px;flex:1 1 125px}
+#scout-video-hub .vc1610-window label{font:750 11px/1.2 system-ui,sans-serif;color:#58758e}
+#scout-video-hub .vc1610-window select{height:39px;min-height:39px;border:1px solid #cad8e8;border-radius:8px;padding:6px 10px;background:#fff;color:#173b60;font-size:12px}
+#scout-video-hub .vc1610-status{padding:8px 10px;margin:0;border-radius:8px;background:#f2f7fc;font:550 12px/1.4 system-ui,sans-serif;color:#315f80}
+#scout-video-hub .vc1610-status[data-error="1"]{background:#fff3ee;color:#9e443c}
+#scout-video-hub .vc1610-legend{display:flex;gap:9px 15px;align-items:center;flex-wrap:wrap;padding-top:7px;border-top:1px solid #e5edf5}
+#scout-video-hub .vc1610-legend span{display:inline-flex;align-items:center;gap:5px;font:600 10px/1.3 system-ui,sans-serif;color:#62809c}
+#scout-video-hub .vc1610-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#7b8d9e}
+#scout-video-hub .vc1610-legend .serve,#scout-video-hub .v780-ruler-marker.skill-S{background:#15a56c!important}
+#scout-video-hub .vc1610-legend .receive,#scout-video-hub .v780-ruler-marker.skill-R{background:#2877cb!important}
+#scout-video-hub .vc1610-legend .attack,#scout-video-hub .v780-ruler-marker.skill-A{background:#eb8538!important}
+#scout-video-hub .vc1610-legend .block,#scout-video-hub .v780-ruler-marker.skill-B{background:#9b59c4!important}
+#scout-video-hub .vc1610-legend .defend,#scout-video-hub .v780-ruler-marker.skill-D{background:#10a6a9!important}
+#scout-video-hub .vc1610-legend .rally{background:#d85a68!important}
+#scout-video-hub .v780-ruler-marker{cursor:pointer;min-width:3px}
+#scout-video-hub #v780-timeline .v780-row{cursor:pointer}
+#vc1610-open-analysis{min-height:33px!important;background:#eaf3ff!important;color:#194b81!important;border:1px solid #bad0ec!important;border-radius:8px!important;font-weight:800!important}
+@media(max-width:960px){#scout-video-hub .vc1610-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#scout-video-hub #vc1610-smart-panel{padding:10px;gap:9px}#scout-video-hub .vc1610-shortcuts{gap:5px}#scout-video-hub .vc1610-options{gap:6px}#scout-video-hub #vc1610-save{width:100%}}
+
+</style>
+<script id="vc1610-smart-video-core" src="./117-vc1610-smart-video-core.js?v=16.1.0" data-vc-module="true"></script>
 </body></html>
