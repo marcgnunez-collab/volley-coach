@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.6.5.1 · Fullscreen Match Fix</title>
+<title>Volley Coach | V16.0.6.5.2 · Fullscreen Match Fix</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3322,7 +3322,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.5.1',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.5.2',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -11587,7 +11587,7 @@ body.v11-shell.vc54-match-active #scout-match-mode #v112-video-drawer .vc54-vide
 })();
 
 </script>
-<style id="vc16055-unified-design">body.v11-shell{--vc55-navy:#102744;--vc55-deep:#0b1e35;--vc55-blue:#2060b4;--vc55-blue-dark:#174d96;--vc55-text:#152d4b;--vc55-muted:#667e98;--vc55-line:#dce6f1;--vc55-canvas:#f3f6fa;--vc55-surface:#fff;--vc55-soft:#f8fafd;--vc55-radius:14px;--vc55-shadow:0 5px 22px rgba(19,45,77,.055);color:var(--vc55-text)!important;background:var(--vc55-canvas)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;}body.v11-shell #v11-sidebar{background:linear-gradient(165deg,#102845 0%,#0b1d35 100%)!important;color:#eaf2ff!important;border-right:1px solid #294462!important;box-shadow:3px 0 24px rgba(11,25,42,.10)!important;}body.v11-shell #v11-sidebar .v11-logo{background:linear-gradient(135deg,#2270d0,#0e3d78)!important;color:#fff!important;border:1px solid #3a71b2!important;}body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.5"!important}body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}body.v11-shell #v11-sidebar button:not(.active):not(.selected) b{color:#e6f0ff!important}body.v11-shell #v11-sidebar button:not(.active):not(.selected) small{color:#a7bdd8!important}body.v11-shell #v11-sidebar button.active,body.v11-shell #v11-sidebar button.selected{background:#2359a9!important;border-color:#3d72bf!important;color:#fff!important;box-shadow:inset 3px 0 #73c2ff!important}body.v11-shell #v11-sidebar button.active b,body.v11-shell #v11-sidebar button.active small,
+<style id="vc16055-unified-design">body.v11-shell{--vc55-navy:#102744;--vc55-deep:#0b1e35;--vc55-blue:#2060b4;--vc55-blue-dark:#174d96;--vc55-text:#152d4b;--vc55-muted:#667e98;--vc55-line:#dce6f1;--vc55-canvas:#f3f6fa;--vc55-surface:#fff;--vc55-soft:#f8fafd;--vc55-radius:14px;--vc55-shadow:0 5px 22px rgba(19,45,77,.055);color:var(--vc55-text)!important;background:var(--vc55-canvas)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;}body.v11-shell #v11-sidebar{background:linear-gradient(165deg,#102845 0%,#0b1d35 100%)!important;color:#eaf2ff!important;border-right:1px solid #294462!important;box-shadow:3px 0 24px rgba(11,25,42,.10)!important;}body.v11-shell #v11-sidebar .v11-logo{background:linear-gradient(135deg,#2270d0,#0e3d78)!important;color:#fff!important;border:1px solid #3a71b2!important;}body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.5.2"!important}body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}body.v11-shell #v11-sidebar button:not(.active):not(.selected) b{color:#e6f0ff!important}body.v11-shell #v11-sidebar button:not(.active):not(.selected) small{color:#a7bdd8!important}body.v11-shell #v11-sidebar button.active,body.v11-shell #v11-sidebar button.selected{background:#2359a9!important;border-color:#3d72bf!important;color:#fff!important;box-shadow:inset 3px 0 #73c2ff!important}body.v11-shell #v11-sidebar button.active b,body.v11-shell #v11-sidebar button.active small,
 body.v11-shell #v11-sidebar button.selected b,body.v11-shell #v11-sidebar button.selected small{color:#fff!important}body.v11-shell #v11-sidebar button:hover:not(.active):not(.selected){background:#193a5b!important;color:#fff!important}body.v11-shell #v11-sidebar .v11-sidebar-footer{border-color:#344d6a!important}body.v11-shell #v11-sidebar .v11-team-box{background:#172f4d!important;border:1px solid #3a536f!important;color:#eef5ff!important;border-radius:11px!important}body.v11-shell #v11-sidebar .v11-team-box span,body.v11-shell #v11-sidebar .v11-team-box b{color:#e9f3ff!important}body.v11-shell #v11-sidebar .v11-cloud-status{background:#152c49!important;color:#edf6ff!important;border:1px solid #3b5573!important;border-radius:12px!important}body.v11-shell #v11-topbar{background:rgba(255,255,255,.98)!important;border-bottom:1px solid var(--vc55-line)!important;box-shadow:0 2px 12px rgba(16,35,66,.035)!important}body.v11-shell #v11-topbar .v11-topbar-left h1{color:var(--vc55-text)!important;font-weight:850!important;letter-spacing:-.03em!important}body.v11-shell #v11-topbar #v11-breadcrumb{color:#63809d!important;font-weight:800!important;letter-spacing:.085em!important}body.v11-shell #v11-topbar .v11-icon-button,body.v11-shell #v11-topbar .v11-avatar{border-color:#d6e2ef!important;background:#f6f9fd!important;color:#164a7b!important}body.v11-shell #v11-main{background:var(--vc55-canvas)!important}body.v11-shell #v11-main > section.view:not(#scouting){min-width:0!important}body.v11-shell #v11-main > section.view.active{max-width:1900px!important;margin-inline:auto!important}body.v11-shell #v11-main > section.view:not(#scout-match-mode) :where(h2,h3){letter-spacing:-.023em}body.v11-shell #v11-main :is(.v11-page-head,.v118-scout-head,.scout-analysis-header,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row){background:linear-gradient(128deg,#fff 0%,#fff 76%,#f0f6ff 100%)!important;border:1px solid var(--vc55-line)!important;border-radius:var(--vc55-radius)!important;box-shadow:var(--vc55-shadow)!important;padding:clamp(15px,1.5vw,24px)!important;margin-bottom:16px!important;color:var(--vc55-text)!important;}body.v11-shell #v11-main :is(.v11-page-head,.v118-scout-head,.scout-analysis-header,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row) h2{color:var(--vc55-text)!important;font-size:clamp(20px,1.9vw,27px)!important;line-height:1.15!important;font-weight:850!important;margin:4px 0 6px!important;}body.v11-shell #v11-main :is(.v11-page-head,.v118-scout-head,.scout-analysis-header,.library-pro-header,.planning-header,.competition-header,.players-pro-hero,.v790-hero,.v780-hero,.session-title-row) p{color:var(--vc55-muted)!important;line-height:1.45!important}body.v11-shell #v11-main :is(.pro-kicker,.session-eyebrow,.v11-page-head>div>span){color:#2161a9!important;font-weight:850!important;letter-spacing:.09em!important}body.v11-shell #dashboard .v11-home-hero{background:linear-gradient(125deg,#102a4c,#1a4d84)!important;border:1px solid #2b5484!important;border-radius:17px!important;padding:clamp(20px,2.2vw,34px)!important;box-shadow:0 12px 28px rgba(13,43,78,.11)!important}body.v11-shell #dashboard .v11-home-hero :is(h2,p,span){color:#f1f7ff!important}body.v11-shell #dashboard .v11-home-hero h2{font-size:clamp(24px,2.3vw,32px)!important;font-weight:850!important;letter-spacing:-.04em!important}body.v11-shell #dashboard .v11-home-hero p{color:#c3d9ef!important;max-width:750px!important}body.v11-shell #dashboard .v11-module-card{background:#fff!important;border:1px solid var(--vc55-line)!important;border-radius:14px!important;box-shadow:var(--vc55-shadow)!important;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease!important}body.v11-shell #dashboard .v11-module-card:hover{transform:translateY(-2px)!important;border-color:#a5c6ee!important;box-shadow:0 12px 30px rgba(21,54,90,.10)!important}body.v11-shell #dashboard .v11-module-card h3{color:#17365b!important;font-weight:850!important}body.v11-shell #dashboard .v11-module-card p{color:#70849b!important}body.v11-shell #v11-main > .view:not(#scout-match-mode) :is(
  .panel,.dashboard-panel,.dashboard-kpi,.dashboard-command-card,
  .v11-report-card,.v118-panel,.v118-module,.players-pro-table-wrap,
@@ -11672,146 +11672,151 @@ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-vid
  #vc154-presence-count{min-width:0!important;overflow-wrap:anywhere!important}
 }
 </style>
-<style id="vc160651-theater-layout-and-court">
-/* V16.0.6.5.1 · Fullscreen Match Fix. This style only applies while theater is open. */
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{
+<style id="vc160652-theater-pro-layout">
+/* V16.0.6.5.2 — Theater Pro. One fullscreen row, video-dominant, existing court as overlay. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater {
+  display:grid!important;grid-template-columns:minmax(0,1fr) clamp(295px,27vw,370px)!important;
+  grid-template-rows:minmax(0,1fr)!important;align-items:stretch!important;gap:10px!important;
   position:fixed!important;inset:8px!important;width:auto!important;height:calc(100dvh - 16px)!important;
-  min-width:0!important;max-height:none!important;padding:10px!important;margin:0!important;
-  box-sizing:border-box!important;z-index:87000!important;overflow:hidden!important;
-  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(290px,335px)!important;
-  grid-template-rows:minmax(0,1fr) minmax(166px,190px)!important;
-  align-items:stretch!important;gap:10px!important;background:#0c2235!important;
-  border:1px solid #34566d!important;border-radius:13px!important;
+  max-height:none!important;min-height:0!important;max-width:none!important;min-width:0!important;
+  overflow:hidden!important;box-sizing:border-box!important;padding:10px!important;margin:0!important;
+  background:#071c30!important;border:1px solid #284760!important;border-radius:14px!important;
+  box-shadow:0 28px 80px #02101baf!important;z-index:87000!important;
 }
-/* Top left: video and its own short controls. No unused giant blank canvas. */
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card{
-  grid-column:1!important;grid-row:1!important;display:flex!important;flex-direction:column!important;
-  align-items:stretch!important;justify-content:flex-start!important;gap:7px!important;
-  height:100%!important;max-height:none!important;min-height:0!important;min-width:0!important;
-  overflow-y:auto!important;overflow-x:hidden!important;margin:0!important;padding:10px!important;
-  border:1px solid #315268!important;border-radius:11px!important;box-sizing:border-box!important;
+/* Single main video panel. The video node itself is never duplicated or restarted. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card {
+  position:relative!important;grid-column:1!important;grid-row:1!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:7px!important;
+  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-height:none!important;
+  overflow:hidden!important;padding:10px!important;margin:0!important;box-sizing:border-box!important;
+  background:#102c43!important;border:1px solid #32516a!important;border-radius:12px!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-card-head{
-  display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important;
-  align-items:center!important;gap:7px!important;margin:0!important;min-height:35px!important;flex:0 0 auto!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-card-head {
+  display:flex!important;flex:0 0 auto!important;justify-content:space-between!important;align-items:center!important;
+  gap:8px!important;min-height:36px!important;margin:0!important;padding:0!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
-  display:block!important;position:relative!important;order:1!important;
-  flex:1 1 0%!important;width:100%!important;height:auto!important;max-height:none!important;
-  min-width:0!important;min-height:145px!important;aspect-ratio:auto!important;
-  margin:0!important;overflow:hidden!important;border:1px solid #2d5069!important;
-  background:#061725!important;border-radius:10px!important;box-sizing:border-box!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame {
+  order:1!important;display:block!important;position:relative!important;flex:1 1 0%!important;
+  width:100%!important;height:auto!important;min-width:0!important;min-height:0!important;max-height:none!important;
+  aspect-ratio:auto!important;overflow:hidden!important;box-sizing:border-box!important;margin:0!important;
+  background:#031422!important;border:1px solid #234057!important;border-radius:9px!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater #v800-video-frame video,
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater #v802-youtube-wrap{
-  display:block;width:100%!important;height:100%!important;object-fit:contain!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater #v800-video-frame video,
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater #v802-youtube-wrap {
+  width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-playback,
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-video-actions{
-  order:2!important;flex:0 0 auto!important;min-width:0!important;margin:0!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-playback,
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-video-actions {
+  order:3!important;display:flex!important;flex:0 0 auto!important;gap:5px!important;flex-wrap:wrap!important;
+  min-width:0!important;margin:0!important;padding:0!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
-  grid-column:2!important;grid-row:1 / 3!important;display:block!important;position:relative!important;
-  top:auto!important;left:auto!important;width:100%!important;height:100%!important;max-height:none!important;
-  min-width:0!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
-  box-sizing:border-box!important;margin:0!important;padding:12px!important;scrollbar-width:thin;
+/* Preserve settings as a collapsible panel; do not show camera source controls over the picture. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings {
+  order:4!important;flex:0 0 auto!important;margin:0!important;max-width:100%!important;
 }
-/* Bottom left: the SINGLE existing court moved by the V16.0.5.4 cockpit. */
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#vc54-court-slot{
-  grid-column:1!important;grid-row:2!important;display:block!important;position:relative!important;
-  height:100%!important;width:100%!important;min-height:0!important;min-width:0!important;
-  overflow:hidden!important;margin:0!important;padding:0!important;box-sizing:border-box!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings:not([open]){max-height:40px!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings[open]{max-height:35%!important;overflow:auto!important}
+/* Source/connection controls must not take the video height in fullscreen. They remain accessible in the existing settings details. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card> :is(.v116-source-selector,#v116-delay-tools,#v803-mobile-tools,#v802-local-tools,#v802-youtube-tools,#v802-video-help,#v800-rec-copy) {
+  display:none!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#vc54-court-slot>.v800-court-card{
-  display:grid!important;grid-template-columns:minmax(135px,190px) minmax(0,1fr) minmax(145px,185px)!important;
-  grid-template-rows:minmax(0,1fr)!important;align-items:center!important;gap:8px!important;
-  height:100%!important;max-height:none!important;min-height:0!important;min-width:0!important;
-  overflow:hidden!important;padding:8px 10px!important;margin:0!important;
-  background:#fff!important;border:1px solid #dce5f0!important;border-radius:10px!important;
-}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot>.v800-court-card>.v800-card-head{
-  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;
-  grid-column:1!important;grid-row:1!important;margin:0!important;padding:0!important;gap:5px!important;
-  border:0!important;min-width:0!important;
-}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-card-head h3{
-  font-size:14px!important;line-height:1.2!important;color:#163a5c!important;
-}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-chips{display:flex!important;flex-wrap:wrap!important;gap:4px!important}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-chips span{font-size:9px!important;max-width:100%!important}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-courts{
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings:not([open]) > :not(summary){display:none!important}
+/* Coding stays in a single fixed-height right column with independent scrolling. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#v113-video-code-panel {
   grid-column:2!important;grid-row:1!important;display:block!important;
-  width:100%!important;min-width:0!important;max-width:none!important;min-height:0!important;margin:0!important;
+  position:relative!important;top:auto!important;left:auto!important;min-width:0!important;min-height:0!important;
+  width:100%!important;height:100%!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;
+  padding:12px!important;margin:0!important;box-sizing:border-box!important;scrollbar-width:thin;
+  border-radius:12px!important;background:#fff!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-courts>div{
-  width:100%!important;min-width:0!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-drawer-head {display:none!important}
+/* One real court, floating and COLLAPSIBLE. No second large panel below. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#vc54-court-slot {
+  position:absolute!important;display:block!important;z-index:25!important;
+  left:20px!important;bottom:145px!important;top:auto!important;right:auto!important;
+  width:min(235px,37%)!important;height:auto!important;max-height:235px!important;min-width:0!important;
+  overflow:hidden!important;margin:0!important;padding:0!important;box-sizing:border-box!important;
+  filter:drop-shadow(0 8px 16px #02101c88);
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court{
-  width:100%!important;max-width:370px!important;min-height:0!important;height:132px!important;
-  aspect-ratio:auto!important;margin:0 auto!important;position:relative!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#vc54-court-slot>.v800-court-card {
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:4px!important;
+  height:auto!important;max-height:none!important;min-height:0!important;width:100%!important;min-width:0!important;
+  margin:0!important;padding:8px!important;box-sizing:border-box!important;overflow:hidden!important;
+  border:1px solid #456a88!important;border-radius:10px!important;background:rgba(8,29,47,.95)!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court .v800-pos{
-  display:grid!important;place-items:center!important;position:absolute!important;
-  width:31%!important;height:39%!important;z-index:2!important;opacity:1!important;
-  color:#fff!important;background:#112f49!important;border:1px solid #416d99!important;
-  border-radius:7px!important;min-width:0!important;box-sizing:border-box!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-card-head {
+  display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important;
+  flex-wrap:nowrap!important;gap:2px!important;margin:0!important;padding:0!important;border:0!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court .v800-pos b{
-  display:block!important;font-size:10px!important;line-height:1.15!important;color:#fff!important;
-  white-space:nowrap!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-card-head h3 {
+  font-size:11px!important;line-height:1.2!important;margin:0!important;color:#f3f8fd!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court .v800-pos small{font-size:8px!important;color:#bdcfdf!important}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v112-lineup-actions{
-  grid-column:3!important;grid-row:1!important;display:flex!important;flex-flow:column nowrap!important;
-  justify-content:center!important;gap:5px!important;align-self:center!important;min-width:0!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-card-head .v800-chips {display:none!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-courts {
+  display:block!important;flex:0 0 auto!important;min-width:0!important;width:100%!important;max-width:none!important;margin:0!important;
 }
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v112-lineup-actions button{
-  width:100%!important;min-height:29px!important;font-size:10px!important;padding:5px!important;white-space:normal!important;
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-courts>div {
+  width:100%!important;min-width:0!important;max-width:none!important;
 }
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court {
+  position:relative!important;width:100%!important;max-width:none!important;min-width:0!important;
+  height:128px!important;min-height:0!important;aspect-ratio:auto!important;margin:0!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court .v800-pos {
+  position:absolute!important;display:grid!important;place-items:center!important;z-index:2!important;
+  width:31%!important;height:40%!important;min-width:0!important;box-sizing:border-box!important;
+  opacity:1!important;color:#fff!important;background:#102e49!important;border:1px solid #5485ab!important;border-radius:7px!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court .v800-pos b {
+  display:block!important;color:#fff!important;font-size:10px!important;line-height:1.15!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;max-width:100%!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court .v800-pos small{color:#bdd2e5!important;font-size:8px!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v112-lineup-actions,
 body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v850-lineup-guard,
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot #v800-libero-assignments{display:none!important}
-body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-drawer-head{display:none!important}
-html:has(body.vc1644-theater-lock){overflow:hidden!important;overscroll-behavior:none!important}
-body.vc1644-theater-lock{overflow:hidden!important}
-@media(max-width:980px){
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{
-   grid-template-columns:minmax(0,1fr) minmax(260px,305px)!important;
-   grid-template-rows:minmax(0,1fr) 185px!important;
- }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#vc54-court-slot>.v800-court-card{
-   grid-template-columns:minmax(104px,145px) minmax(0,1fr)!important;
- }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v112-lineup-actions{display:none!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot #v800-libero-assignments {display:none!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater.vc1652-court-hidden #vc54-court-slot {display:none!important}
+/* Court show/hide next to the original fullscreen button. */
+body.v11-shell #scout-match-mode #vc1652-mini-court-button {
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 auto!important;min-height:32px!important;padding:6px 10px!important;
+  border-radius:8px!important;border:1px solid #6284a0!important;background:#163b56!important;
+  color:#f5faff!important;font:700 11px/1.2 system-ui,sans-serif!important;cursor:pointer!important;
 }
+body.v11-shell #scout-match-mode #vc1652-mini-court-button:focus-visible{outline:3px solid #9ac6ff!important;outline-offset:2px!important}
+html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!important;overscroll-behavior:none!important}
+/* Tablets: keep the video wide; allow a slightly narrower coding column. */
+@media(max-width:1050px) and (min-width:701px){
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater {
+   grid-template-columns:minmax(0,1fr) minmax(260px,31vw)!important;
+ }
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#vc54-court-slot {width:min(200px,45%)!important;bottom:140px!important}
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court{height:110px!important}
+}
+/* Portrait mobile: full-width video first, coding below; mini court hidden by default via JS. */
 @media(max-width:700px){
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{
-   display:flex!important;flex-direction:column!important;inset:0!important;width:100vw!important;
-   height:100dvh!important;max-height:none!important;border-radius:0!important;
-   overflow-y:auto!important;overflow-x:hidden!important;padding:7px!important;gap:8px!important;
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater {
+   display:flex!important;flex-direction:column!important;inset:0!important;width:100vw!important;height:100dvh!important;
+   padding:6px!important;gap:7px!important;border-radius:0!important;overflow-y:auto!important;overflow-x:hidden!important;
  }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card{
-   order:1!important;flex:0 0 auto!important;width:100%!important;height:auto!important;min-height:0!important;
-   padding:9px!important;overflow:visible!important;
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card {
+   flex:0 0 auto!important;order:1!important;width:100%!important;height:auto!important;min-height:0!important;
+   overflow:visible!important;padding:8px!important;
  }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
-   flex:0 0 auto!important;min-height:0!important;height:auto!important;aspect-ratio:16/9!important;
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame {
+   flex:0 0 auto!important;aspect-ratio:16/9!important;width:100%!important;height:auto!important;min-height:0!important;
  }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#vc54-court-slot{
-   order:3!important;flex:0 0 auto!important;height:auto!important;max-height:none!important;overflow:visible!important;
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#v113-video-code-panel {
+   order:2!important;flex:0 0 auto!important;width:100%!important;height:auto!important;max-height:none!important;
+   min-height:0!important;overflow:visible!important;position:static!important;padding:10px!important;
  }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
-   order:2!important;flex:0 0 auto!important;position:static!important;
-   width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#vc54-court-slot {
+   left:15px!important;bottom:95px!important;width:min(188px,50%)!important;max-height:none!important;
  }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#vc54-court-slot>.v800-court-card{
-   display:flex!important;flex-direction:column!important;align-items:stretch!important;min-height:210px!important;gap:8px!important;
- }
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-card-head{width:100%!important;flex-flow:row wrap!important;justify-content:space-between!important;align-items:center!important}
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-courts{width:100%!important}
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court{height:180px!important;max-width:340px!important}
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v112-lineup-actions{display:flex!important;flex-flow:row wrap!important;justify-content:center!important;width:100%!important}
- body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v112-lineup-actions button{width:auto!important;min-width:100px!important}
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #vc54-court-slot .v800-court{height:100px!important}
+ body.v11-shell #scout-match-mode #vc1652-mini-court-button{font-size:10px!important;min-height:30px!important;padding:5px 7px!important}
 }
+
 </style>
 <script id="vc160651-theater-court-runtime">
 /* Only refreshes the already-present court when the existing theater is activated. */
@@ -11853,7 +11858,67 @@ body.vc1644-theater-lock{overflow:hidden!important}
  new MutationObserver(refresh).observe(drawer,{attributes:true,attributeFilter:['class']});
  window.addEventListener('resize',()=>{if(drawer.classList.contains('vc1644-theater'))refresh()},{passive:true});
  if(drawer.classList.contains('vc1644-theater'))refresh();
- window.VC_160651_THEATER_FIX={version:'16.0.6.5.1',refresh,diagnostics:()=>({active:drawer.classList.contains('vc1644-theater'),repaints:opened,courtPlayers:document.querySelectorAll('#v800-court-own .v800-pos').length,courtInTheater:!!drawer.querySelector('#vc54-court-slot .v800-court-card')})};
+ window.VC_160651_THEATER_FIX={version:'16.0.6.5.2',refresh,diagnostics:()=>({active:drawer.classList.contains('vc1644-theater'),repaints:opened,courtPlayers:document.querySelectorAll('#v800-court-own .v800-pos').length,courtInTheater:!!drawer.querySelector('#vc54-court-slot .v800-court-card')})};
 })();
+</script>
+<script id="vc160652-theater-pro-runtime">
+/* V16.0.6.5.2: move the EXISTING court container inside the video card only while theater is active.
+   No cloned pitch, video source, rally, listeners, or match state. */
+(()=>{
+ 'use strict';
+ if(window.VC_160652_THEATER_PRO)return;
+ const $=id=>document.getElementById(id);
+ let anchor=null,inserted=false,scheduled=false,wasTheater=false,courtVisible=true,changes=0;
+ const drawer=$('v112-video-drawer');if(!drawer)return;
+ const isTheater=()=>drawer.classList.contains('vc1644-theater');
+ function button(){
+   let b=$('vc1652-mini-court-button');if(b)return b;
+   const head=drawer.querySelector('.v112-video-card .v800-card-head');if(!head)return null;
+   const controls=$('vc55-video-controls')||head;
+   b=document.createElement('button');b.id='vc1652-mini-court-button';b.type='button';
+   b.setAttribute('aria-label','Mostrar u ocultar mini pista');
+   b.addEventListener('click',()=>{
+     courtVisible=!courtVisible;
+     drawer.classList.toggle('vc1652-court-hidden',!courtVisible);
+     b.setAttribute('aria-pressed',String(courtVisible));
+     b.textContent=courtVisible?'Ocultar pista':'Mostrar pista';
+     if(courtVisible){try{window.v800RefreshTheaterCourt?.()}catch(_){}}
+   });
+   controls.insertBefore(b,controls.firstChild);
+   return b;
+ }
+ function sync(){
+   scheduled=false;
+   const card=drawer.querySelector('.v112-video-card'),slot=$('vc54-court-slot');
+   const active=isTheater()&&!!card&&!!slot;
+   if(active){
+     if(!inserted){
+       anchor=document.createComment('vc1652:original-court-slot');
+       slot.parentNode?.insertBefore(anchor,slot);
+       inserted=true;
+     }
+     if(slot.parentElement!==card){card.appendChild(slot);changes++}
+     if(!wasTheater){
+       courtVisible=window.matchMedia?.('(min-width: 701px)').matches??true;
+       drawer.classList.toggle('vc1652-court-hidden',!courtVisible);
+       wasTheater=true;
+     }
+     const b=button();if(b){b.textContent=courtVisible?'Ocultar pista':'Mostrar pista';b.setAttribute('aria-pressed',String(courtVisible));}
+     try{window.v800RefreshTheaterCourt?.()}catch(_){ }
+   }else{
+     if(inserted&&anchor?.parentNode&&slot&&slot.parentElement!==anchor.parentNode){
+       anchor.parentNode.insertBefore(slot,anchor.nextSibling);changes++;
+     }
+     if(!isTheater()){wasTheater=false;drawer.classList.remove('vc1652-court-hidden')}
+   }
+ }
+ function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(sync)}
+ new MutationObserver(schedule).observe(drawer,{attributes:true,attributeFilter:['class']});
+ const view=$('scout-match-mode');if(view)new MutationObserver(schedule).observe(view,{attributes:true,attributeFilter:['class']});
+ window.addEventListener('resize',()=>{if(isTheater())schedule()},{passive:true});
+ schedule();
+ window.VC_160652_THEATER_PRO={version:'16.0.6.5.2',refresh:schedule,diagnostics:()=>({active:isTheater(),courtParent:$('vc54-court-slot')?.parentElement?.className||null,visible:!drawer.classList.contains('vc1652-court-hidden'),changes})};
+})();
+
 </script>
 </body></html>
