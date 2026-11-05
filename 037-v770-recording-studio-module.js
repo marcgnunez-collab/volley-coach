@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.5.6';
+const VERSION='16.0.6.3';
 const DB_NAME='VolleyCoachRecordingsV770';
 const DB_VERSION=1;
 const $=id=>document.getElementById(id);
@@ -27,6 +27,8 @@ const state={
   writeQueue:Promise.resolve(),
   timer:null,
   markers:[],
+  lastMarkerSignature:null,
+  lastMarkerContainer:null,
   lastSet:null,
   lastDownloadUrl:null,
   lastGalleryFile:null,
@@ -145,7 +147,12 @@ function updateUI(){
 
   const box=$('vc-recording-markers');
   if(box){
-    box.innerHTML=state.markers.map(m=>`<span class="vc-recording-marker"><b>${m.label}</b> ${fmtTime(m.ms)}</span>`).join('');
+    const signature=state.markers.map(m=>`${m.label}\u001f${m.ms}`).join('\u001e');
+    if(box!==state.lastMarkerContainer||signature!==state.lastMarkerSignature){
+      box.innerHTML=state.markers.map(m=>`<span class="vc-recording-marker"><b>${m.label}</b> ${fmtTime(m.ms)}</span>`).join('');
+      state.lastMarkerContainer=box;
+      state.lastMarkerSignature=signature;
+    }
   }
 }
 function startTimer(){

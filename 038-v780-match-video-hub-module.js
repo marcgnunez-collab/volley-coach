@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='7.8.2';
+const VERSION='16.0.6.3';
 const REC_DB='VolleyCoachRecordingsV770';
 const REC_DB_VERSION=1;
 const $=id=>document.getElementById(id);
@@ -13,7 +13,8 @@ const state={
   stopAt:null,playlist:[],playlistIndex:-1,playlistName:'',
   lastRows:[],loadedRecording:null,rotation:0,tv:false,
   mediaType:'local',youtubePlayer:null,youtubeId:null,youtubeUrl:'',
-  youtubeReady:false,youtubeApiPromise:null,youtubeTicker:null
+  youtubeReady:false,youtubeApiPromise:null,youtubeTicker:null,
+  playheadCache:null,playingRowKey:null,playingRowNode:null
 };
 
 function bridge(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
@@ -181,8 +182,15 @@ function mediaTick(){
     mediaPause();state.stopAt=null;
     if(state.playlist.length)setTimeout(nextPlaylist,250);
   }
-  const playing=state.selectedKey;
-  document.querySelectorAll('#v780-timeline .v780-row').forEach(el=>el.classList.toggle('playing',!!playing&&el.dataset.key===playing&&!mediaIsPaused()));
+  const playing=!mediaIsPaused()?String(state.selectedKey||''):'';
+  const valid=state.playingRowNode?.isConnected;
+  if(playing===state.playingRowKey&&(!playing||valid))return;
+  if(valid)state.playingRowNode.classList.remove('playing');
+  state.playingRowKey=playing;state.playingRowNode=null;
+  if(playing){
+    const nodes=document.querySelectorAll('#v780-timeline .v780-row');
+    for(const el of nodes){if(el.dataset.key===playing){el.classList.add('playing');state.playingRowNode=el;break;}}
+  }
 }
 async function loadYouTubeById(id,url=''){
   const m=currentMatch();if(!m)throw new Error('Selecciona primero un partido.');
@@ -416,17 +424,35 @@ function playRow(row){
   mediaSeek(Math.max(0,range.start));state.stopAt=end;state.selectedKey=row.key;
   mediaPlay();renderTimeline();renderSelection();
 }
+function nearestPlayheadRow(m,scoutMs){
+  // Timeline creation sorts every rally/action. Cache briefly for video ticks,
+  // refresh on any explicit UI render, and refresh periodically for edits elsewhere.
+  const now=Date.now(),id=String(m?.id??''),stamp=String(m?.updatedAt??'');
+  let c=state.playheadCache;
+  if(!c||c.id!==id||c.stamp!==stamp||now-c.at>1500){
+    c={id,stamp,at:now,rows:timeline(m)};
+    state.playheadCache=c;
+  }
+  const rows=c.rows;
+  if(!rows.length)return null;
+  let lo=0,hi=rows.length;
+  while(lo<hi){const mid=(lo+hi)>>1;if(rows[mid].ms<scoutMs)lo=mid+1;else hi=mid;}
+  if(lo<=0)return rows[0];
+  if(lo>=rows.length)return rows[rows.length-1];
+  return Math.abs(rows[lo].ms-scoutMs)<Math.abs(rows[lo-1].ms-scoutMs)?rows[lo]:rows[lo-1];
+}
 function updatePlayhead(){
   const head=$('v780-ruler-playhead'),duration=mediaDuration(),current=mediaCurrentTime();
   if(head&&duration>0)head.style.left=`${Math.max(0,Math.min(100,current/duration*100))}%`;
   const m=currentMatch();
   if(m&&meta(m)?.syncOffset!=null&&mediaLoaded()){
     const scoutMs=(current-Number(meta(m).syncOffset))*1000;
-    const rows=timeline(m);
-    const closest=rows.reduce((best,r)=>Math.abs(r.ms-scoutMs)<Math.abs((best?.ms??1e15)-scoutMs)?r:best,null);
+    const closest=nearestPlayheadRow(m,scoutMs);
     const ov=$('v780-now-overlay');
     if(ov&&closest&&Math.abs(closest.ms-scoutMs)<5000){
-      ov.classList.remove('hidden');ov.innerHTML=`<b>${esc(closest.type==='rally'?'RALLY':closest.label)}</b> · ${esc(closest.copy)}`;
+      const html=`<b>${esc(closest.type==='rally'?'RALLY':closest.label)}</b> · ${esc(closest.copy)}`;
+      ov.classList.remove('hidden');
+      if(ov.innerHTML!==html)ov.innerHTML=html;
     }else ov?.classList.add('hidden');
   }
 }
@@ -627,7 +653,7 @@ window.v781ToggleTV=function(force){
 };
 window.v781ExitTV=function(){window.v781ToggleTV(false)};
 
-function renderAll(){populateFilters();renderStatus();renderTimeline();renderSelection();renderRuler();renderSetMap();renderTactical();renderPlayerFocus();updatePlayhead()}
+function renderAll(){state.playheadCache=null;state.playingRowNode=null;populateFilters();renderStatus();renderTimeline();renderSelection();renderRuler();renderSetMap();renderTactical();renderPlayerFocus();updatePlayhead()}
 window.v780Render=renderAll;
 window.v780Open=function(){
   populateMatches();populateFilters();renderAll();

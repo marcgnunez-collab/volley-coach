@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.5.6';
+const VERSION='16.0.6.3';
 const $=id=>document.getElementById(id);
 const state={
   room:'',
@@ -39,6 +39,10 @@ const state={
   delaySourceOwned:false,
   delayFrameHandle:null,
   delayFrameMode:'',
+  delayFrameLastDrawAt:0,
+  delayFrameGeneration:0,
+  delayDrawnFrames:0,
+  delaySkippedFrames:0,
   recordingCanvas:null,
   recordingCtx:null,
   recordingStream:null,
@@ -46,6 +50,9 @@ const state={
   recordingSourceStream:null,
   recordingFrameHandle:null,
   recordingFrameMode:'',
+  recordingFrameLastDrawAt:0,
+  recordingFrameGeneration:0,
+  recordingSkippedFrames:0,
   recordingLastFrameAt:0,
   recordingFrameCount:0,
   recordingDrawErrors:0,
@@ -497,15 +504,26 @@ function vcScheduleDelayFrame(video){
   if(!state.delayCanvas||!state.delayCtx||!state.delaySourceVideo)return;
   if(typeof video?.requestVideoFrameCallback==='function'){
     state.delayFrameMode='rvfc';
-    state.delayFrameHandle=video.requestVideoFrameCallback(()=>vcDrawDelayNormalizedFrame());
+    const token=state.delayFrameGeneration;
+    state.delayFrameHandle=video.requestVideoFrameCallback(()=>{if(token===state.delayFrameGeneration)vcDrawDelayNormalizedFrame(undefined,video)});
   }else{
     state.delayFrameMode='raf';
-    state.delayFrameHandle=requestAnimationFrame(()=>vcDrawDelayNormalizedFrame());
+    const token=state.delayFrameGeneration;
+    state.delayFrameHandle=requestAnimationFrame(ts=>{if(token===state.delayFrameGeneration)vcDrawDelayNormalizedFrame(ts,video)});
   }
 }
-function vcDrawDelayNormalizedFrame(){
+function vcDrawDelayNormalizedFrame(timestamp,expectedVideo){
   const canvas=state.delayCanvas,ctx=state.delayCtx,video=state.delaySourceVideo;
-  if(!canvas||!ctx||!video)return;
+  // An old callback may run after a camera reconnect; it must not start a second loop.
+  if(!canvas||!ctx||!video||(expectedVideo&&expectedVideo!==video))return;
+  // Only the RAF fallback needs pacing. requestVideoFrameCallback already follows
+  // actual decoded frames. canvas.captureStream(30) cannot use 60/120 redraws.
+  if(state.delayFrameMode==='raf'&&Number.isFinite(timestamp)){
+    if(state.delayFrameLastDrawAt&&timestamp-state.delayFrameLastDrawAt<1000/30){
+      state.delaySkippedFrames++;vcScheduleDelayFrame(video);return;
+    }
+    state.delayFrameLastDrawAt=timestamp;
+  }
   try{
     const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
     if(sw&&sh&&video.readyState>=2){
@@ -523,6 +541,7 @@ function vcDrawDelayNormalizedFrame(){
         ctx.translate(cw/2,ch/2);
         ctx.rotate(spec.rotation*Math.PI/180);
         ctx.drawImage(video,-sw*scale/2,-sh*scale/2,sw*scale,sh*scale);
+        state.delayDrawnFrames++;
       }finally{
         try{ctx.restore()}catch(_){}
       }
@@ -554,7 +573,7 @@ window.vcStopDelayNormalizer=function(){
       cancelAnimationFrame(state.delayFrameHandle);
     }
   }catch(_){}
-  state.delayFrameHandle=null;state.delayFrameMode='';
+  state.delayFrameGeneration++;state.delayFrameHandle=null;state.delayFrameMode='';state.delayFrameLastDrawAt=0;
   try{state.delayStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
   try{state.delaySourceStream?.getTracks?.().forEach(t=>t.stop())}catch(_){}
   try{if(state.delaySourceOwned&&video){video.pause();video.srcObject=null;video.remove()}}catch(_){}
@@ -607,7 +626,7 @@ function vcCancelRecordingFrame(){
       cancelAnimationFrame(state.recordingFrameHandle);
     }
   }catch(_){}
-  state.recordingFrameHandle=null;state.recordingFrameMode='';
+  state.recordingFrameGeneration++;state.recordingFrameHandle=null;state.recordingFrameMode='';state.recordingFrameLastDrawAt=0;
 }
 function vcStopLiveRecordingNormalizer(){
   const video=state.recordingSourceVideo;
@@ -624,15 +643,23 @@ function vcScheduleLiveRecordingFrame(video){
   if(!state.recordingCanvas||!state.recordingCtx||!state.recordingSourceVideo)return;
   if(typeof video?.requestVideoFrameCallback==='function'){
     state.recordingFrameMode='rvfc';
-    state.recordingFrameHandle=video.requestVideoFrameCallback(()=>vcDrawLiveRecordingFrame());
+    const token=state.recordingFrameGeneration;
+    state.recordingFrameHandle=video.requestVideoFrameCallback(()=>{if(token===state.recordingFrameGeneration)vcDrawLiveRecordingFrame(undefined,video)});
   }else{
     state.recordingFrameMode='raf';
-    state.recordingFrameHandle=requestAnimationFrame(()=>vcDrawLiveRecordingFrame());
+    const token=state.recordingFrameGeneration;
+    state.recordingFrameHandle=requestAnimationFrame(ts=>{if(token===state.recordingFrameGeneration)vcDrawLiveRecordingFrame(ts,video)});
   }
 }
-function vcDrawLiveRecordingFrame(){
+function vcDrawLiveRecordingFrame(timestamp,expectedVideo){
   const canvas=state.recordingCanvas,ctx=state.recordingCtx,video=state.recordingSourceVideo;
-  if(!canvas||!ctx||!video)return;
+  if(!canvas||!ctx||!video||(expectedVideo&&expectedVideo!==video))return;
+  if(state.recordingFrameMode==='raf'&&Number.isFinite(timestamp)){
+    if(state.recordingFrameLastDrawAt&&timestamp-state.recordingFrameLastDrawAt<1000/30){
+      state.recordingSkippedFrames++;vcScheduleLiveRecordingFrame(video);return;
+    }
+    state.recordingFrameLastDrawAt=timestamp;
+  }
   try{
     const sw=Number(video.videoWidth)||0,sh=Number(video.videoHeight)||0;
     if(sw&&sh&&video.readyState>=2){
@@ -743,6 +770,7 @@ window.VC_REMOTE_CAMERA.getLiveRecordingDiagnostics=()=>({
   lastFrameAgeMs:state.recordingLastFrameAt?Math.max(0,Date.now()-state.recordingLastFrameAt):null,
   frameCount:state.recordingFrameCount||0,
   drawErrors:state.recordingDrawErrors||0,
+  fallbackSkippedFrames:state.recordingSkippedFrames||0,
   sourceTracks:state.recordingSourceStream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[],
   outputTracks:state.recordingStream?.getVideoTracks?.().map(t=>({id:t.id,state:t.readyState}))||[]
 });
@@ -1115,6 +1143,9 @@ window.vcRemoteCameraDiagnostics=function(){
     pcViewOrientation:state.viewOrientation,
     delayOrientationFix:state.delayOrientationFix,
     delayNormalizerActive:!!state.delayStream,
+    delayFrameDrawn:state.delayDrawnFrames,
+    delayFallbackFramesSkipped:state.delaySkippedFrames,
+    recordingFallbackFramesSkipped:state.recordingSkippedFrames,
     remoteConnected:state.connected,
     room:state.room||null,
     streamId:state.streamId||null,

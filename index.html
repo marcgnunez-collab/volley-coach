@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <script id="vc16060-performance-core">
-/* Performance Core V16.0.6.2: passive, local-only observability. No application state mutation. */
+/* Performance Core V16.0.6.3: passive, local-only observability. No application state mutation. */
 (()=>{
  'use strict';
  if(window.VC_PERFORMANCE_CORE)return;
@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.0.6.2 · Performance Core</title>
+<title>Volley Coach | V16.0.6.3 · Video Performance</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4076,7 +4076,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.2',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.0.6.3',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -6026,7 +6026,7 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.5.6" data-vc-module="true"></script>
+<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=16.0.6.3" data-vc-module="true"></script>
 
 
 
@@ -6939,7 +6939,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v760-remote-camera-module" src="./036-v760-remote-camera-module.js?v=16.0.5.6" data-vc-module="true"></script>
+<script id="v760-remote-camera-module" src="./036-v760-remote-camera-module.js?v=16.0.6.3" data-vc-module="true"></script>
 
 
 
@@ -6969,7 +6969,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v770-recording-studio-module" src="./037-v770-recording-studio-module.js?v=16.0.5.6" data-vc-module="true"></script>
+<script id="v770-recording-studio-module" src="./037-v770-recording-studio-module.js?v=16.0.6.3" data-vc-module="true"></script>
 
 
 
@@ -7043,7 +7043,7 @@ body.v781-tv-lock{overflow:hidden!important}
 </style>
 
 
-<script id="v780-match-video-hub-module" src="./038-v780-match-video-hub-module.js?v=16.0.3.4" data-vc-module="true"></script>
+<script id="v780-match-video-hub-module" src="./038-v780-match-video-hub-module.js?v=16.0.6.3" data-vc-module="true"></script>
 
 
 
@@ -16738,7 +16738,7 @@ body.v11-shell #v11-sidebar .v11-logo{
 }
 body.v11-shell #v11-sidebar .v11-brand strong{color:#fff!important}
 body.v11-shell #v11-sidebar .v11-brand small{color:#a8c1dd!important}
-body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.2"!important}
+body.v11-shell #v11-sidebar .v11-brand small::after{content:" · V16.0.6.3"!important}
 body.v11-shell #v11-sidebar .v11-nav-group{border-color:#24405f!important}
 body.v11-shell #v11-sidebar .v11-nav-group label{color:#97afcf!important;border-color:transparent!important;font-weight:800!important;letter-spacing:.09em!important}
 body.v11-shell #v11-sidebar button:not(.active):not(.selected){background:transparent!important;border-color:transparent!important;color:#dbe7f7!important}
@@ -17048,4 +17048,99 @@ body.v11-shell.vc1644-theater-lock #scout-match-mode{contain:none!important}
 </style>
 
 <script id="vc16058-video-workspace" src="./116-vc16058-video-workspace.js?v=16.0.5.8" defer data-vc-module="true"></script>
+<style id="vc160621-theater-layout-fix">
+/* V16.0.6.2.1: theater correction retained. Fix conflicting legacy grid/flex rules.
+   Existing video elements and recording/delay/scouting handlers stay untouched. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{
+  position:fixed!important;inset:8px!important;width:auto!important;max-width:none!important;
+  height:calc(100dvh - 16px)!important;max-height:none!important;margin:0!important;
+  padding:10px!important;overflow:hidden!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(290px,335px)!important;
+  grid-template-rows:minmax(0,1fr)!important;align-items:stretch!important;
+  gap:12px!important;z-index:87000!important;background:#10283b!important;
+  border:1px solid #34566d!important;border-radius:14px!important;
+}
+/* Main video's card is a vertical flex stack. Old desktop grid rows must not apply. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card{
+  grid-column:1!important;grid-row:1!important;display:flex!important;
+  flex-flow:column nowrap!important;align-items:stretch!important;justify-content:flex-start!important;
+  gap:9px!important;min-width:0!important;min-height:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  padding:12px!important;margin:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+  box-sizing:border-box!important;background:#142d43!important;border:1px solid #34566d!important;
+  scrollbar-width:thin;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>*{
+  grid-column:auto!important;grid-row:auto!important;position:relative!important;
+  min-width:0!important;max-width:100%!important;box-sizing:border-box!important;
+  flex-shrink:0!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-card-head{
+  order:0!important;display:flex!important;width:100%!important;min-height:40px!important;
+  align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;
+  margin:0!important;gap:10px!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
+  order:1!important;display:block!important;position:relative!important;
+  align-self:stretch!important;flex:0 0 auto!important;
+  grid-column:auto!important;grid-row:auto!important;
+  width:100%!important;height:auto!important;aspect-ratio:16/9!important;
+  min-height:0!important;max-height:calc(100dvh - 155px)!important;
+  margin:0!important;background:#051726!important;border:1px solid #2b455e!important;
+  border-radius:11px!important;overflow:hidden!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater #v800-video-frame video,
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater #v802-youtube-wrap{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-playback{order:2!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-video-actions{order:3!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v116-source-selector{order:4!important;display:grid!important;width:100%!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings{order:5!important;width:100%!important}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-video-help,
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-rec-copy{order:7!important}
+/* Preserve the existing coding engine and its input, but use its own scroll area. */
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
+  grid-column:2!important;grid-row:1!important;display:block!important;position:relative!important;
+  top:auto!important;left:auto!important;width:100%!important;max-width:none!important;
+  min-width:0!important;min-height:0!important;height:100%!important;max-height:none!important;
+  margin:0!important;padding:12px!important;overflow-x:hidden!important;overflow-y:auto!important;
+  box-sizing:border-box!important;scrollbar-width:thin;background:#fff!important;
+}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.vc54-court-slot,
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-drawer-head{display:none!important}
+html:has(body.vc1644-theater-lock){overflow:hidden!important;overscroll-behavior:none!important}
+body.vc1644-theater-lock{overflow:hidden!important}
+body.vc1644-theater-lock #scout-match-mode{contain:none!important}
+@media(max-width:820px){
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater{
+  inset:0!important;width:100vw!important;height:100dvh!important;border-radius:0!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  grid-template-columns:none!important;grid-template-rows:none!important;
+  overflow-y:auto!important;overflow-x:hidden!important;padding:7px!important;gap:8px!important;
+ }
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card{
+  grid-column:auto!important;grid-row:auto!important;flex:0 0 auto!important;
+  width:100%!important;height:auto!important;min-height:0!important;
+  overflow:visible!important;padding:9px!important;
+ }
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-video-frame{
+  width:100%!important;max-height:none!important;aspect-ratio:16/9!important;min-height:0!important;
+ }
+ /* On narrow screens theater is for watching and coding. Source setup stays in the normal video view. */
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.v116-source-selector,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>.vc54-video-settings,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v116-delay-tools,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v803-mobile-tools,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-local-tools,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-youtube-tools,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-video-help,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v112-video-drawer.vc1644-theater>.v112-video-card>#v800-rec-copy{display:none!important}
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>#v113-video-code-panel{
+  grid-column:auto!important;grid-row:auto!important;flex:0 0 auto!important;
+  width:100%!important;height:auto!important;max-height:none!important;min-height:0!important;
+  overflow:visible!important;position:static!important;margin:0!important;
+ }
+}
+</style>
 </body></html>

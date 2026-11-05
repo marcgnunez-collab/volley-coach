@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.5.6';
+const VERSION='16.0.6.3';
 const $=id=>document.getElementById(id);
 const state={
   context:'training',
@@ -223,25 +223,22 @@ function delayHealth(){
   if(v?.paused||v?.readyState<2)return 'PREPARANDO REPRODUCCIÓN';
   return 'ESTABLE';
 }
+function metricText(id,value){
+  const el=$(id);
+  if(el&&el.textContent!==String(value))el.textContent=String(value);
+}
 function updateProMetrics(){
   playbackQuality();
   state.health=delayHealth();
   const mean=state.chunkIntervals.length
     ?Math.round(state.chunkIntervals.reduce((a,b)=>a+b,0)/state.chunkIntervals.length):0;
-  const stutter=$('live-delay-pro-stutters');
-  if(stutter)stutter.textContent=String(state.playbackWaits);
-  const dropped=$('live-delay-pro-frames');
-  if(dropped)dropped.textContent=state.totalFrames?`${state.droppedFrames}/${state.totalFrames}`:'—';
-  const health=$('live-delay-pro-health');
-  if(health)health.textContent=state.health;
-  const interval=$('live-delay-pro-chunks');
-  if(interval)interval.textContent=mean?`${mean} ms`:'—';
-  const recoveries=$('live-delay-pro-recovery');
-  if(recoveries)recoveries.textContent=String(state.playbackRecoveries);
-  const restarts=$('live-delay-pro-restarts');
-  if(restarts)restarts.textContent=String(state.captureRestarts);
-  const activeProfile=$('live-delay-pro-quality');
-  if(activeProfile)activeProfile.textContent=quality().label.split(' · ')[0];
+  metricText('live-delay-pro-stutters',String(state.playbackWaits));
+  metricText('live-delay-pro-frames',state.totalFrames?`${state.droppedFrames}/${state.totalFrames}`:'—');
+  metricText('live-delay-pro-health',state.health);
+  metricText('live-delay-pro-chunks',mean?`${mean} ms`:'—');
+  metricText('live-delay-pro-recovery',String(state.playbackRecoveries));
+  metricText('live-delay-pro-restarts',String(state.captureRestarts));
+  metricText('live-delay-pro-quality',quality().label.split(' · ')[0]);
 }
 function chooseMime(){
   const mr=window.MediaRecorder,ms=window.MediaSource;
@@ -486,10 +483,10 @@ function updateMetrics(){
   // Telemetry is presentation-only. Never stop MediaRecorder/MSE or delay ticks.
   if(document.visibilityState==='hidden'||(!($('live-delay-modal')?.classList.contains('open'))&&!($('scout-video-hub')?.classList.contains('active'))))return;
   const r=bufferedRange(),v=delayed();
-  if($('live-delay-buffered'))$('live-delay-buffered').textContent=r?fmtSec(r.span):'0 s';
+  metricText('live-delay-buffered',r?fmtSec(r.span):'0 s');
   if($('live-delay-actual')){
     const actual=r&&v&&Number.isFinite(v.currentTime)?Math.max(0,r.end-v.currentTime):null;
-    $('live-delay-actual').textContent=actual==null?'—':fmtSec(actual);
+    metricText('live-delay-actual',actual==null?'—':fmtSec(actual));
   }
   if(state.running&&r){
     const enough=r.span>=Math.max(1.6,state.delay+.65);
