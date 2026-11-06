@@ -128,6 +128,25 @@ function openSelection(){
  $('vc1612-video-selection')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});
  return true;
 }
+/* V16.1.4 · Open an exact read-only subset from tactical metrics.
+   Keeps the shared player and only changes the temporary selection. */
+function openKeys(matchId,keys){
+ const m=arr(report()?.getMatches?.()).find(x=>String(x.id)===String(matchId));
+ if(!m){message('No se encuentra el partido para la selección táctica.',true);return false}
+ const wanted=new Set(arr(keys).map(String));
+ const found=allActions(m).filter(a=>wanted.has(String(a.key)));
+ if(!found.length){message('Las acciones no se encuentran en este partido.',true);return false}
+ state.selected=found;state.matchId=String(m.id);state.filters={team:'',set:'',skill:'',rotation:'',player:'',rating:''};state.openCount++;
+ try{window.v11Navigate?.('video')}catch(err){console.warn('Navigation to video',err)}
+ if(!selectVideoMatch(m.id)){message('Abre este partido en Video Review para cargar las acciones.',true);return false}
+ window.VC_VIDEO_WORKSPACE?.openAnalysis?.();window.v780SetKind?.('action');
+ for(const id of ['v780-set','v780-team','v780-skill','v780-player','v781-rotation']){
+  const el=$(id);if(el)el.value='';
+ }
+ window.v780FiltersChanged?.();drawTray();
+ $('vc1612-video-selection')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+ return true;
+}
 function validSelection(){const id=clean($('v780-match')?.value);if(id!==state.matchId){message('Selecciona el partido correspondiente en Video Review.',true);return false}return true}
 function playOne(key){
  if(!validSelection())return false;
@@ -207,5 +226,5 @@ function mount(){if(!canUse())return false;const view=$('scout-analysis');if($('
  return true;
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-window.VC_VIDEO_ANALYTICS_1612={version:'16.1.2',collect:(m,f)=>selectActions(allActions(m),f),preview,openSelection,playOne,playlist,saveClips,selection:()=>({matchId:state.matchId,keys:state.selected.map(a=>String(a.key))}),diagnostics:()=>({matchId:state.matchId,selected:state.selected.length,plays:state.plays,openCount:state.openCount,previewCount:state.previewCount})};
+window.VC_VIDEO_ANALYTICS_1612={version:'16.1.4-bridge',openKeys,collect:(m,f)=>selectActions(allActions(m),f),preview,openSelection,playOne,playlist,saveClips,selection:()=>({matchId:state.matchId,keys:state.selected.map(a=>String(a.key))}),diagnostics:()=>({matchId:state.matchId,selected:state.selected.length,plays:state.plays,openCount:state.openCount,previewCount:state.previewCount})};
 })();
