@@ -1,6 +1,6 @@
-/* Volley Coach V16.1.5 · atomic versioned app shell, cached navigation */
+/* Volley Coach V16.1.5.1 · atomic versioned app shell, cached navigation */
 'use strict';
-const CACHE_NAME='volley-coach-v16.1.5-analysis-workspace';
+const CACHE_NAME='volley-coach-v16.1.5.1-startup-hotfix';
 const MODULE_ASSETS=[
   "./002-core-training-v150-monolithic.js",
   "./003-players-pro-v2-script.js",
@@ -57,9 +57,10 @@ const MODULE_ASSETS=[
   "./119-vc1612-video-analytics.js",
   "./120-vc1613-zone-board.js",
   "./121-vc16131-clip-studio-pro.js",
-  "./122-vc1614-analysis-intelligence.js",
-  "./123-vc1615-analysis-workspace.js"
+  "./122-vc1614-analysis-intelligence.js"
 ];
+// 123 is loaded on demand in Análisis Pro and cached on first successful request.
+// It is not required to activate the core app shell.
 const SHELL=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 const requiredPaths=new Set(MODULE_ASSETS.map(p=>new URL(p,self.registration.scope).pathname));
 const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
