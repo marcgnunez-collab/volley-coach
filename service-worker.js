@@ -1,6 +1,6 @@
-/* Volley Coach V16.1.5.1 · atomic versioned app shell, cached navigation */
+/* Volley Coach V16.1.5.2 · atomic versioned app shell, cached navigation */
 'use strict';
-const CACHE_NAME='volley-coach-v16.1.5.1-startup-hotfix';
+const CACHE_NAME='volley-coach-v16.1.5.2-early-updater';
 const MODULE_ASSETS=[
   "./002-core-training-v150-monolithic.js",
   "./003-players-pro-v2-script.js",
@@ -91,6 +91,12 @@ self.addEventListener('fetch',event=>{
  if(isCloudOrApi(url))return; // never cache Supabase auth, Realtime or database data.
  if(req.mode==='navigate'){
   event.respondWith((async()=>{
+   // Explicit recovery from the splash screen: fetch the published HTML directly.
+   // Never alter localStorage, IndexedDB or user's video recordings.
+   if(url.searchParams.has('vc_recovery')){
+     try{const res=await fetch(req,{cache:'no-store'});if(res&&res.ok)return res;}
+     catch(_){/* Offline fallback to the verified cached app shell. */}
+   }
    const cache=await caches.open(CACHE_NAME);
    // Version-atomic: HTML is cached with its mandatory JS files during install.
    // Do not update HTML alone on navigation (that could load mismatched scripts).
