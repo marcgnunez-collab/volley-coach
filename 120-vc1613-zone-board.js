@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 if(window.VC_1613_ZONE_BOARD)return;
-const VERSION='16.1.3';
+const VERSION='16.1.5.4';
 const $=id=>document.getElementById(id);
 const INPUT_IDS=new Set(['v113-video-code','v800-code','scout-code-input']);
 const state={open:false,zone:'',sub:'',lastApplied:''};
@@ -49,7 +49,7 @@ function applyLocationToCode(raw,dest){
 }
 function syncInputPreview(){
   const out=$('vc1613-current-token');
-  if(out)out.textContent=tokenLabel();
+  if(out && out.textContent!==tokenLabel())out.textContent=tokenLabel();
   const btn=$('vc1613-apply-btn');
   const input=activeInput();
   if(btn)btn.disabled=!state.zone || !String(input?.value||'').trim();
@@ -214,10 +214,30 @@ function ensureUI(){
   return true;
 }
 
-const mo=new MutationObserver(()=>ensureUI());
+/* V16.1.5.4: the previous global observer called ensureUI after its own
+   textContent mutations, producing an endless microtask loop at startup.
+   Watch only for newly added *mount points*; our own board updates are ignored. */
+let scheduled=false,observerCalls=0,uiRefreshes=0;
+const mountSelectors='#v800-video-frame, #v113-video-code-panel, .v113-video-code-entry';
+function hasMountPoint(node){
+  return node?.nodeType===1 &&
+    (node.matches?.(mountSelectors) || !!node.querySelector?.(mountSelectors));
+}
+const mo=new MutationObserver(records=>{
+  observerCalls++;
+  if(!records.some(record=>Array.from(record.addedNodes).some(hasMountPoint)))return;
+  if(scheduled)return;
+  scheduled=true;
+  requestAnimationFrame(()=>{
+    scheduled=false;
+    uiRefreshes++;
+    ensureUI();
+  });
+});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureUI,{once:true});
 else ensureUI();
-mo.observe(document.documentElement,{childList:true,subtree:true});
+const mountHost=document.getElementById('scout-match-mode');
+if(mountHost)mo.observe(mountHost,{childList:true,subtree:true});
 window.addEventListener('resize',syncInputPreview,{passive:true});
-window.VC_1613_ZONE_BOARD={version:VERSION,ensureUI,toggle,applySelection,clearSelection,diagnostics:()=>({open:state.open,token:token(),activeInput:activeInput()?.id||null})};
+window.VC_1613_ZONE_BOARD={version:'16.1.5.4',ensureUI,toggle,applySelection,clearSelection,diagnostics:()=>({open:state.open,token:token(),activeInput:activeInput()?.id||null,observerCalls,uiRefreshes})};
 })();
