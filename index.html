@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.1.1 · Sincronización guiada</title>
+<title>Volley Coach | V16.1.2 · Video Analytics Pro</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -298,6 +298,41 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
 <style id="vc16057-smart-clips-styles">#vc-clip33 .vc-clip57-auto{border-color:#c7dff0;background:#f5faff}#vc-clip33 .vc-clip57-auto .vc-clip33-info span{color:#17639b}#scout-match-mode #v113-video-rally-actions .action{cursor:pointer;border:1px solid #42678a;transition:background .15s ease}#scout-match-mode #v113-video-rally-actions .action:hover{background:#215b8a}#scout-match-mode #v113-video-rally-actions .action::after{content:' ▶';font-size:8px;color:#8de0fa}
 </style>
 <style id="vc16060-performance-style">#v11-management #vc60-diagnostics[hidden]{display:none!important}#v11-management #vc60-diagnostics{margin:20px 0 30px;padding:20px;border:1px solid #d5e2ef;border-radius:16px;background:#fff;box-shadow:0 8px 26px rgba(10,38,68,.05);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17334c}#vc60-diagnostics .vc60-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}#vc60-diagnostics .vc60-header h3{margin:0;font-size:18px;color:#112f4d}#vc60-diagnostics .vc60-actions{display:flex;gap:8px;flex-wrap:wrap}#vc60-diagnostics button{padding:9px 12px;border:1px solid #c5d6e7;border-radius:9px;background:#f2f7fc;color:#1d4e80;font:700 12px system-ui,sans-serif}#vc60-diagnostics button:first-child{background:#1e5da4;color:white;border-color:#1e5da4}#vc60-diagnostics .vc60-stat-grid{margin:16px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}#vc60-diagnostics .vc60-kpi{border:1px solid #dce8f5;border-radius:11px;padding:12px;background:#f8fbff;min-width:0}#vc60-diagnostics .vc60-kpi small{display:block;color:#67809a;font-size:11px;min-height:20px}#vc60-diagnostics .vc60-kpi strong{display:block;margin-top:4px;color:#173a60;font-size:17px;white-space:nowrap}#vc60-diagnostics .vc60-resource{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #ebf0f6;padding:7px 0;font-size:12px}#vc60-diagnostics .vc60-resource span{overflow-wrap:anywhere}#vc60-diagnostics .vc60-advice{color:#4a6481;background:#f3f7fc;border-radius:10px;padding:12px;font-size:12px;line-height:1.6}#vc60-diagnostics .vc60-note{color:#66809a;font-size:11px;line-height:1.55;margin:12px 0 0}
+</style>
+<style id="vc1612-video-analytics-style">
+/* V16.1.2 · Video Analytics Pro */
+#vc1612-analytics,#vc1612-video-selection{box-sizing:border-box;min-width:0;border:1px solid #d6e3f1;background:#fff;border-radius:15px;box-shadow:0 8px 26px rgba(18,51,88,.055);padding:16px;margin:14px 0;color:#17395d;font:500 12px/1.45 system-ui,sans-serif}
+#vc1612-analytics *,#vc1612-video-selection *{box-sizing:border-box}
+#vc1612-video-selection[hidden]{display:none!important}
+.vc1612-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;border-bottom:1px solid #e5edf5;padding-bottom:12px;margin-bottom:14px}
+.vc1612-head span:first-child{display:block;color:#3776ad;font:850 10px/1.4 system-ui,sans-serif;letter-spacing:.08em}
+.vc1612-head h3{font:850 19px/1.3 system-ui,sans-serif!important;color:#173b62!important;margin:3px 0!important;padding:0!important}
+.vc1612-head p{font:500 12px/1.5 system-ui,sans-serif;color:#687e95;margin:0}
+.vc1612-total{background:#e8f2ff;color:#19559a;border:1px solid #cadef4;border-radius:30px;padding:6px 12px;font-weight:800;white-space:nowrap}
+.vc1612-presets,.vc1612-video-actions{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 13px}
+#vc1612-analytics button,#vc1612-video-selection button{cursor:pointer;min-height:35px;padding:8px 11px;border:1px solid #c9daee;border-radius:9px;background:#f4f8fe;color:#235487;font:750 12px/1.25 system-ui,sans-serif;box-shadow:none}
+#vc1612-analytics button:hover,#vc1612-video-selection button:hover{background:#e6f1ff;border-color:#9ebfe5}
+#vc1612-analytics button:disabled,#vc1612-video-selection button:disabled{opacity:.42;cursor:not-allowed}
+#vc1612-analytics .vc1612-primary,#vc1612-video-selection .vc1612-primary{background:#1760b5!important;color:#fff!important;border-color:#1760b5!important}
+.vc1612-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:13px}
+.vc1612-filters label{display:grid;gap:5px;min-width:0;color:#416381;font-weight:750;font-size:11px}
+.vc1612-filters select{display:block!important;width:100%!important;min-height:39px!important;padding:6px 8px!important;border:1px solid #cbdced!important;border-radius:8px!important;background:#fff!important;color:#1a3e63!important;font:600 12px system-ui,sans-serif!important;min-width:0!important;box-shadow:none!important}
+.vc1612-result{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid #d7e7f9;background:#f1f7ff;border-radius:11px;padding:12px;margin-bottom:9px}
+.vc1612-result strong{color:#174777;font-size:12px}
+.vc1612-result p,#vc1612-video-status{margin:3px 0 0;color:#617d99;font-size:11px}
+#vc1612-status[data-error='1'],#vc1612-video-status[data-error='1']{color:#a44836}
+.vc1612-preview{display:grid;gap:5px;max-height:208px;overflow:auto;scrollbar-width:thin}
+.vc1612-action,.vc1612-clip-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e7eff6;border-radius:8px;background:#fbfdff;padding:8px 10px;min-width:0}
+.vc1612-action span,.vc1612-clip-row span{overflow-wrap:anywhere;min-width:0}
+.vc1612-action small{white-space:nowrap;font-weight:750;color:#167647}
+.vc1612-action small.missing{color:#986c35}
+.vc1612-more{font-size:11px;color:#627e99;margin:4px}
+#vc1612-video-selection{max-width:none!important}
+#vc1612-video-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:350px;overflow:auto}
+.vc1612-row-link{border:1px solid #cee0f2!important;background:#eff6ff!important;color:#235b97!important;border-radius:6px!important;font-size:10px!important;padding:4px 7px!important;margin:5px 0 0 7px!important;min-height:26px!important;white-space:nowrap}
+@media(max-width:850px){.vc1612-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#vc1612-video-list{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){#vc1612-analytics,#vc1612-video-selection{padding:11px}.vc1612-filters{grid-template-columns:minmax(0,1fr)}.vc1612-result .vc1612-primary{width:100%}.vc1612-head h3{font-size:17px!important}}
+
 </style>
 </head>
 <body class="v11-shell">
@@ -3322,7 +3357,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.1',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.2',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -11997,4 +12032,5 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
 
 </style>
 <script id="vc1611-video-sync-assistant" src="./118-vc1611-video-sync-assistant.js?v=16.1.1" data-vc-module="true"></script>
+<script id="vc1612-video-analytics" src="./119-vc1612-video-analytics.js?v=16.1.2" data-vc-module="true"></script>
 </body></html>
