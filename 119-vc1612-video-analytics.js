@@ -207,5 +207,5 @@ function mount(){if(!canUse())return false;const view=$('scout-analysis');if($('
  return true;
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-window.VC_VIDEO_ANALYTICS_1612={version:'16.1.2',collect:(m,f)=>selectActions(allActions(m),f),preview,openSelection,playOne,playlist,saveClips,diagnostics:()=>({matchId:state.matchId,selected:state.selected.length,plays:state.plays,openCount:state.openCount,previewCount:state.previewCount})};
+window.VC_VIDEO_ANALYTICS_1612={version:'16.1.2',collect:(m,f)=>selectActions(allActions(m),f),preview,openSelection,playOne,playlist,saveClips,selection:()=>({matchId:state.matchId,keys:state.selected.map(a=>String(a.key))}),diagnostics:()=>({matchId:state.matchId,selected:state.selected.length,plays:state.plays,openCount:state.openCount,previewCount:state.previewCount})};
 })();

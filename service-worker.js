@@ -1,6 +1,6 @@
-/* Volley Coach V16.1.3 · atomic versioned app shell, cached navigation */
+/* Volley Coach V16.1.3.1 · atomic versioned app shell, cached navigation */
 'use strict';
-const CACHE_NAME='volley-coach-v16.1.3-zone-board';
+const CACHE_NAME='volley-coach-v16.1.3.1-clip-studio';
 const MODULE_ASSETS=[
   "./002-core-training-v150-monolithic.js",
   "./003-players-pro-v2-script.js",
@@ -55,7 +55,8 @@ const MODULE_ASSETS=[
   "./117-vc1610-smart-video-core.js",
   "./118-vc1611-video-sync-assistant.js",
   "./119-vc1612-video-analytics.js",
-  "./120-vc1613-zone-board.js"
+  "./120-vc1613-zone-board.js",
+  "./121-vc16131-clip-studio-pro.js"
 ];
 const SHELL=['./','./index.html','./manifest.webmanifest','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 const requiredPaths=new Set(MODULE_ASSETS.map(p=>new URL(p,self.registration.scope).pathname));
