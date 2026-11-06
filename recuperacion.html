@@ -1,0 +1,17 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Recuperación Volley Coach</title><style>
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:#f3f6fb;color:#173a61;font:14px/1.55 system-ui,Segoe UI,Arial,sans-serif;display:grid;place-items:center;padding:16px}
+main{width:min(560px,100%);background:#fff;border:1px solid #d6e2ed;box-shadow:0 10px 30px #18365215;border-radius:16px;padding:26px}h1{margin:0 0 8px;font-size:25px}p{color:#56738d}button,a.action{border:1px solid #b7cfe5;border-radius:8px;background:#f4f9ff;color:#1a568c;font:750 13px system-ui;text-decoration:none;padding:11px 13px;cursor:pointer;display:inline-block}button.primary{background:#1b5b9e;color:white;border-color:#1b5b9e}.actions{display:flex;gap:8px;flex-wrap:wrap}#status{background:#edf5fd;color:#285b88;padding:12px;border-radius:10px;margin-top:14px;white-space:pre-wrap;overflow-wrap:anywhere}.warning{font-size:12px;background:#fff8eb;border:1px solid #f0dcae;color:#855c20;padding:10px;border-radius:8px}
+</style></head><body><main><h1>Recuperación · Volley Coach</h1><p>Este acceso funciona sin cargar Scouting, Vídeo ni Análisis.</p><div class="warning">No se borrará localStorage, IndexedDB ni las grabaciones locales. No pulses «Borrar datos del sitio» en el navegador.</div><div class="actions"><button class="primary" id="repair">Desactivar caché de arranque</button><button id="update">Buscar actualización</button><a class="action" href="./index.html?vc_recovery=1">Volver a Volley Coach</a></div><div id="status" role="status">Comprobando el estado…</div></main><script>
+(()=>{'use strict';
+ const status=document.getElementById('status');
+ const say=s=>status.textContent=s;
+ async function info(){if(!('serviceWorker' in navigator)){say('El navegador no tiene service worker. Vuelve a la aplicación.');return}
+ const reg=await navigator.serviceWorker.getRegistration();say('Service worker: '+(reg?'Registrado':'No registrado')+'\nConexión: '+(navigator.onLine?'Internet disponible':'Sin conexión')+'\nSi el inicio sigue bloqueado, pulsa «Desactivar caché de arranque».');}
+ document.getElementById('repair').onclick=async()=>{say('Desregistrando únicamente el service worker…');try{
+ if('serviceWorker' in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.unregister();}
+ say('El service worker se ha desregistrado. El almacenamiento de tus datos no se ha tocado. Abriendo la versión publicada…');
+ const u=new URL('./index.html',location.href);u.searchParams.set('vc_recovery',Date.now());location.replace(u.href);
+ }catch(err){say('Error de recuperación: '+String(err?.message||err));}};
+ document.getElementById('update').onclick=async()=>{say('Comprobando…');try{const reg=await navigator.serviceWorker.getRegistration();if(!reg){say('No hay service worker registrado. Abre la aplicación desde el botón «Volver».');return}await reg.update();say('Comprobación completada. Puedes volver a Volley Coach.');}catch(err){say('Error: '+String(err?.message||err));}};
+ info().catch(err=>say('Estado no disponible: '+String(err)));
+})();</script></body></html>
