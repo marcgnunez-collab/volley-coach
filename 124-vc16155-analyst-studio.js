@@ -1,4 +1,4 @@
-/* Volley Coach V16.1.5.5 · Analyst Studio Pro
+/* Volley Coach V16.1.5.6 · Analyst Studio Pro
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -13,8 +13,47 @@ const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación
 const pages={overview:['Panorama','KPIs y lectura del partido'],players:['Hoja estadística','Rendimiento por jugador'],rotations:['Rotaciones','K1 / K2 y comparación'],distribution:['Distribución','Recepción y colocador'],zones:['Zonas','Origen, destino y bloqueo'],explorer:['Explorador','Acciones y evidencia en vídeo']};
 const state={page:'players',team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
-function matches(){try{return arr(window.VC_SCOUT_REPORT_BRIDGE?.getMatches?.())}catch(_){return []}}
-function currentMatch(){const list=matches(),s=state.match||String($('scout-analysis-match')?.value||'');return list.find(x=>String(x.id)===s)||window.VC_SCOUT_REPORT_BRIDGE?.getMatchForAnalysis?.()||null}
+/* Collect all accessible matches (including finished scouting), without changing
+   the active match. A different team or a remote sync may update this list. */
+function matches(){
+ const result=new Map();
+ for(const bridge of [window.VC_SCOUT_REPORT_BRIDGE,window.VC_SCOUT_VIDEO_BRIDGE]){
+  try{for(const m of arr(bridge?.getMatches?.()))if(m&&m.id!=null)result.set(String(m.id),m)}catch(err){console.warn('Analyst Studio: matches',err)}
+ }
+ if(!result.size){
+  for(const bridge of [window.VC_SCOUT_REPORT_BRIDGE,window.VC_SCOUT_VIDEO_BRIDGE]){
+   try{const m=bridge?.getMatchForAnalysis?.()||bridge?.getActive?.();if(m&&m.id!=null)result.set(String(m.id),m)}catch(_){}
+  }
+ }
+ return [...result.values()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.id||0)-Number(a.id||0));
+}
+function currentMatch(){
+ const list=matches(),selected=String(state.match||'');
+ if(selected){
+  const hit=list.find(m=>String(m.id)===selected);
+  if(hit)return hit;
+  // Do not silently switch to the active match when a chosen scouting vanishes.
+  return null;
+ }
+ const nativeId=String($('scout-analysis-match')?.value||'');
+ return list.find(m=>String(m.id)===nativeId)||list[0]||null;
+}
+function setNativeSelection(id){
+ if(!native||!id)return;
+ const key=String(id);
+ // The legacy selector is hidden but is still the match reference for PDF tools.
+ if([...native.options].some(o=>o.value===key))native.value=key;
+}
+function syncSelection(){
+ const list=matches();
+ if(!list.length){state.match='';return null;}
+ const id=String(state.match||'');
+ if(id&&list.some(m=>String(m.id)===id))return list.find(m=>String(m.id)===id);
+ const saved=String(native?.value||'');
+ const chosen=list.find(m=>String(m.id)===saved)||list[0];
+ state.match=String(chosen.id);
+ return chosen;
+}
 function scoutedTeam(){return window.VC_SCOUT_VIDEO_BRIDGE||null}
 function filteredMatch(m){
  if(!state.phase||!m)return m;
@@ -26,14 +65,30 @@ function dataset(){const api=window.VC_ANALYSIS_INTELLIGENCE_1614,m=currentMatch
 }
 function selOpts(values,value,all){return `<option value="">${html(all)}</option>${values.map(([k,v])=>`<option value="${html(k)}" ${String(value)===String(k)?'selected':''}>${html(v)}</option>`).join('')}`}
 function buildHeader(){
- const ms=matches(),m=currentMatch(),sets=arr(m?.sets).map(s=>[String(s.number),`Set ${s.number}`]);
- const matchOpts=ms.map(x=>`<option value="${html(x.id)}" ${String(m?.id)===String(x.id)?'selected':''}>${html((x.date||'')+' · '+(x.opponent||'Rival'))}</option>`).join('');
- const h=$('vc155-match');if(h)h.innerHTML=matchOpts||'<option value="">Ningún partido disponible</option>';
- const setsBox=$('vc155-set');if(setsBox)setsBox.innerHTML=selOpts(sets,state.set,'Todos');
+ const ms=matches(),m=syncSelection(),sets=arr(m?.sets).map(s=>[String(s.number),`Set ${s.number}`]);
+ const h=$('vc155-match');
+ if(h){
+  const entries=ms.map(x=>({id:String(x.id),label:`${x.date||'Sin fecha'} · ${x.opponent||'Rival'}${x.status==='finished'?' · Finalizado':''}`}));
+  const previous=[...h.options].map(o=>[o.value,o.textContent]);
+  if(previous.length!==entries.length||entries.some((e,i)=>previous[i]?.[0]!==e.id||previous[i]?.[1]!==e.label)){
+   const f=document.createDocumentFragment();
+   if(!entries.length){f.appendChild(new Option('No hay scoutings disponibles',''))}
+   else for(const e of entries)f.appendChild(new Option(e.label,e.id));
+   h.replaceChildren(f);
+  }
+  if(m&&h.value!==String(m.id))h.value=String(m.id);
+  h.disabled=!entries.length;
+  h.title=entries.length?`${entries.length} scouting(s) disponibles`:'Comprueba el equipo seleccionado y los scoutings guardados';
+ }
+ const setsBox=$('vc155-set');if(setsBox){
+  const opts=selOpts(sets,state.set,'Todos');
+  if(setsBox.innerHTML!==opts)setsBox.innerHTML=opts;
+ }
  const te=$('vc155-team');if(te)te.value=state.team;
  const rot=$('vc155-rotation');if(rot)rot.value=state.rotation;
  const phase=$('vc155-phase');if(phase)phase.value=state.phase;
- const mat=$('vc155-match-label');if(mat)mat.textContent=m?`${m.opponent||'Rival'} · ${m.date||'Sin fecha'} · ${arr(m.sets).length} sets`:'Selecciona un partido';
+ const mat=$('vc155-match-label');if(mat)mat.textContent=m?`${m.opponent||'Rival'} · ${m.date||'Sin fecha'} · ${arr(m.sets).length} sets`:'Selecciona un scouting para comenzar';
+ const count=$('vc155-match-count');if(count)count.textContent=`${ms.length} disponibles`;
 }
 function table(headers,rows,klass=''){return `<div class="vc155-tablewrap"><table class="vc155-table ${klass}"><thead><tr>${headers.map(s=>`<th>${html(s)}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${headers.length}" class="vc155-muted">Sin datos registrados para los filtros actuales.</td></tr>`}</tbody></table></div>`}
 function pickButton(label,keys,title,klass=''){const enc=encodeURIComponent(JSON.stringify(keys));return `<button type="button" class="vc155-pick ${klass}" data-pick="${enc}" data-pick-title="${html(title)}">${html(label)}</button>`}
@@ -155,11 +210,14 @@ function switchMode(technical){
  const base=$('vc1614-view-switch');
  base?.querySelector(`[data-mode="${technical?'technical':'intelligence'}"]`)?.click();
  const btn=$('vc155-back');if(btn)btn.hidden=!technical;
- if(!technical){refresh();}
+ if(technical){
+  setNativeSelection(state.match);
+  // Only the technical view runs the legacy (expensive) render pipeline.
+  try{window.scoutRenderAnalysis?.()}catch(err){console.warn('Analyst Studio technical analysis',err)}
+ }else refresh();
 }
 function refresh(){
  if(!view?.classList.contains('active')||!state.loaded||state.technical)return;
- const m=currentMatch();if(m)state.match=String(m.id);
  buildHeader();renderPage();
 }
 function mount(){
@@ -167,7 +225,7 @@ function mount(){
  if($('vc155-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc155-style';style.textContent=CSS;document.head.appendChild(style);
  host=document.createElement('div');host.id='vc155-studio';host.className='vc155-studio';host.innerHTML=`<div class="vc155-top"><div><span class="vc155-eyebrow">VOLLEY COACH · ANALYST STUDIO</span><h2>Análisis profesional de partido</h2><p id="vc155-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc155-actions"><button id="vc155-official" class="vc155-pdf">PDF hoja oficial</button><button id="vc155-propdf">PDF análisis Pro</button><button id="vc155-technical">Análisis técnico</button></div></div>
- <div class="vc155-filterbar"><label>Partido<select id="vc155-match"></select></label><label>Equipo<select id="vc155-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc155-set"></select></label><label>Rotación<select id="vc155-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc155-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div>
+ <div class="vc155-filterbar"><label class="vc155-match-field">Scouting <span id="vc155-match-count" class="vc155-match-count"></span><select id="vc155-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc155-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc155-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc155-set"></select></label><label>Rotación<select id="vc155-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc155-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div>
  <div class="vc155-work"><nav id="vc155-tabs" class="vc155-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc155-stagehead"><div><span class="vc155-eyebrow">ANALYST WORKSPACE</span><h3 id="vc155-section-title">Hoja estadística</h3><p id="vc155-sample"></p></div><div class="vc155-export"><button id="vc155-csv">CSV</button><button id="vc155-json">JSON</button></div></div>
  <div class="vc155-columns"><main id="vc155-content" class="vc155-content"></main><aside class="vc155-inspector"><div class="vc155-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc155-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc155-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc155-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc155-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
@@ -179,9 +237,13 @@ function mount(){
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
   if(id==='vc155-match'){
-   state.match=t.value;state.set='';state.rotation='';state.phase='';
-   native.value=t.value;native.dispatchEvent(new Event('change',{bubbles:true}));
-   state.selected=[];renderInspector();
+   const chosen=matches().find(m=>String(m.id)===String(t.value));
+   if(!chosen){buildHeader();return;}
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';
+   // Never dispatch the old select's change from Studio: the legacy renderer
+   // can rebuild its options and switch back to the active match mid-selection.
+   setNativeSelection(state.match);
+   state.selected=[];state.selectedTitle='Selecciona una cifra de la tabla';renderInspector();
   } else if(id==='vc155-team'||id==='vc155-set'||id==='vc155-rotation'||id==='vc155-phase'){
    state[id.slice(6)]=t.value;state.selected=[];renderInspector();
   } else if(id==='vc155-player'||id==='vc155-skill'||id==='vc155-rating')state[id.slice(6)]=t.value;
@@ -191,6 +253,7 @@ function mount(){
   const t=e.target.closest('button');if(!t)return;
   if(t.dataset.pick){let keys=[];try{keys=JSON.parse(decodeURIComponent(t.dataset.pick))}catch(_){ }selectKeys(keys,t.dataset.pickTitle);return}
   switch(t.id){
+   case 'vc155-refresh-matches':refresh();break;
    case 'vc155-official':window.scoutV114ExportOfficialPDF?.(currentMatch()?.id);break;
    case 'vc155-propdf':window.scoutV114ExportAnalysisPDF?.(currentMatch()?.id);break;
    case 'vc155-technical':switchMode(true);break;
@@ -199,8 +262,10 @@ function mount(){
    case 'vc155-json':exportFile('json');break;
   }
  });
- native.addEventListener('change',()=>{if(!state.technical){state.match=native.value;state.set='';state.rotation='';refresh()}});
- state.loaded=true;state.match=native.value;
+ native.addEventListener('change',()=>{
+  if(!state.technical && !state.match){state.match=native.value;state.set='';state.rotation='';refresh()}
+ });
+ state.loaded=true;state.match='';syncSelection();
  switchMode(false);
  return true;
 }
@@ -283,6 +348,37 @@ body.v11-shell #scout-analysis #vc155-studio select{width:100%!important;max-wid
 @media(max-width:1200px){#vc155-studio .vc155-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}#vc155-studio .vc155-filterbar{grid-template-columns:repeat(3,minmax(0,1fr))}#vc155-studio .vc155-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){#vc155-studio .vc155-columns{grid-template-columns:1fr}#vc155-studio .vc155-inspector{position:static;max-height:none}#vc155-studio .vc155-grid2{grid-template-columns:1fr}}
 @media(max-width:600px){#vc155-studio .vc155-top{padding:14px}#vc155-studio .vc155-top h2{font-size:20px!important}#vc155-studio .vc155-filterbar{grid-template-columns:1fr 1fr}#vc155-studio .vc155-filterbar label:first-child{grid-column:1/-1}#vc155-studio .vc155-work{padding:7px}#vc155-studio .vc155-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#vc155-studio .vc155-tabs button{min-height:49px!important}#vc155-studio .vc155-tabs span{font-size:8px}#vc155-studio .vc155-panel{padding:10px}#vc155-studio .vc155-explorer-filters{grid-template-columns:1fr 1fr}}
+
+/* V16.1.5.6 · Analyst Workbench: dense statistical sheet, persistent filters,
+   vertical technical navigation and contextual video inspector. */
+#vc155-studio .vc155-top{padding:13px 18px!important;border-radius:10px 10px 0 0!important}
+#vc155-studio .vc155-top h2{font-size:21px!important;margin:2px 0!important}
+#vc155-studio .vc155-top p{font-size:11px!important}
+#vc155-studio .vc155-filterbar{grid-template-columns:minmax(195px,2fr) auto repeat(4,minmax(80px,1fr))!important;align-items:end!important;background:#f7fafc!important;padding:10px 13px!important;gap:8px!important}
+#vc155-studio .vc155-match-field{position:relative}
+#vc155-studio .vc155-match-count{font:700 9px/1 system-ui,sans-serif;color:#5f819d;position:absolute;right:0;top:0}
+#vc155-studio #vc155-refresh-matches{min-height:36px!important;padding:7px 10px!important;color:#265985!important;background:#fff!important;border:1px solid #cad9e8!important;border-radius:7px!important;font:750 11px system-ui,sans-serif!important}
+#vc155-studio .vc155-work{display:grid!important;grid-template-columns:160px minmax(0,1fr)!important;grid-template-areas:"nav head" "nav contents"!important;gap:8px 13px!important;padding:10px!important;align-items:start}
+#vc155-studio .vc155-tabs{grid-area:nav!important;display:flex!important;flex-direction:column!important;position:sticky;top:76px;padding:7px!important;gap:4px!important;margin:0!important;align-self:start;min-height:270px;background:#eaf0f6!important}
+#vc155-studio .vc155-tabs button{text-align:left!important;min-height:46px!important;padding:9px 10px!important;justify-content:start!important;align-content:center!important}
+#vc155-studio .vc155-tabs b{font-size:11px!important}
+#vc155-studio .vc155-tabs span{font-size:9px!important}
+#vc155-studio .vc155-stagehead{grid-area:head!important;padding:2px 4px 8px!important}
+#vc155-studio .vc155-stagehead h3{font-size:18px!important}
+#vc155-studio .vc155-columns{grid-area:contents!important;grid-template-columns:minmax(0,1fr) minmax(225px,250px)!important;gap:9px!important}
+#vc155-studio .vc155-panel,#vc155-studio .vc155-inspector{padding:12px!important;box-shadow:none!important}
+#vc155-studio .vc155-inspector{top:76px!important}
+#vc155-studio .vc155-table{font-size:10.5px!important}
+#vc155-studio .vc155-table td{padding:7px 7px!important}
+#vc155-studio .vc155-table th{padding:8px 7px!important;position:sticky;top:0;z-index:1}
+#vc155-studio .vc155-table td:first-child,#vc155-studio .vc155-table th:first-child{position:sticky;left:0;background:#fff;z-index:2;box-shadow:1px 0 #dce6ef}
+#vc155-studio .vc155-table th:first-child{background:#edf4f9;z-index:3}
+#vc155-studio .vc155-table tbody tr:hover td:first-child{background:#f7fbff}
+#vc155-studio .vc155-content{gap:9px!important}
+@media(max-width:1220px){#vc155-studio .vc155-filterbar{grid-template-columns:minmax(180px,2fr) auto repeat(2,minmax(85px,1fr))!important}#vc155-studio .vc155-columns{grid-template-columns:minmax(0,1fr)!important}#vc155-studio .vc155-inspector{position:static!important;max-height:none!important}}
+@media(max-width:850px){#vc155-studio .vc155-work{grid-template-columns:1fr!important;grid-template-areas:"nav" "head" "contents"!important}#vc155-studio .vc155-tabs{position:static!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:0!important}#vc155-studio .vc155-tabs button{text-align:center!important}#vc155-studio .vc155-filterbar{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important}}
+@media(max-width:550px){#vc155-studio .vc155-filterbar{grid-template-columns:minmax(0,1fr) auto!important}#vc155-studio .vc155-filterbar .vc155-match-field{grid-column:1!important}#vc155-studio .vc155-filterbar>label:not(.vc155-match-field){grid-column:span 1}#vc155-studio .vc155-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.1.5.5',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.1.5.6',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
