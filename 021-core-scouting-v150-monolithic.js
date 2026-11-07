@@ -2505,7 +2505,7 @@ const scoutV61010MetricLabelBase=scoutV630MetricLabel;scoutV630MetricLabel=funct
 const scoutV61010ActionRowsBase=scoutV630ActionMetricRows;scoutV630ActionMetricRows=function(m,team,key,metric){if(metric==='P_GP'){const rows=scoutV630FilteredActions(m,team),p=scoutV61010PointImpact(rows,team,key);return p.impactRows}return scoutV61010ActionRowsBase(m,team,key,metric)};
 
 function scoutV61010CSVRow(m,team,st,isTeam=false,rows=null){const s=scoutV61010Skill(st,'S'),r=scoutV61010Reception(st),a=scoutV61010Attack(st),b=scoutV61010Skill(st,'B'),d=scoutV61010Skill(st,'D'),e=scoutV61010Skill(st,'E'),p=scoutV61010PointMetrics(m,team,st.key,rows),k1=scoutV6109Phase(m,team,st.key,'K1'),k2=scoutV6109Phase(m,team,st.key,'K2'),form=isTeam?['','','','','']:[1,2,3,4,5].map(n=>scoutV6109InitialPos(m,team,st,n));return [isTeam?'TOTAL EQUIPO':st.label,...form,p.won,p.fp,p.gp,s.total,s.error,s.perfect,r.total,r.error,r.posPct??'',r.excPct??'',a.total,a.error,a.blocked,a.perfect,a.ptsPct??'',b.perfect,st.total,s.perfect-s.error,a.gp,d.total,d.positive,d.failed,d.positive-d.failed,e.total,e.positive,e.failed,e.positive-e.failed,k1.won,k1.lost,k1.gp,k2.won,k2.lost,k2.gp]}
-window.scoutExportStatsCSV=function(){const m=scoutMatchForAnalysis();if(!m){alert('No hay scouting seleccionado.');return}const scope=$('scout-player-team-scope')?.value||'ours',f=scoutV630Filters(),headers=['equipo','jugador','formacion_set1','formacion_set2','formacion_set3','formacion_set4','formacion_set5','puntos_tot','puntos_fp','puntos_g_p','saque_tot','saque_err','saque_pts','recepcion_tot','recepcion_err','recepcion_pos_pct','recepcion_exc_pct','ataque_tot','ataque_err','ataque_blq','ataque_pts','ataque_pts_pct','bloqueo_pts','acciones','saque_g_p','ataque_g_p','defensa_tot','defensa_positivas','defensa_perdidas','defensa_g_p','colocacion_tot','colocacion_positivas','colocacion_perdidas','colocacion_g_p','k1_ganados','k1_perdidos','k1_g_p','k2_ganados','k2_perdidos','k2_g_p'],teams=scope==='both'?['ours','opponent']:[scope],blocks=[];teams.forEach(team=>{const data=scoutV630Stats(m,team),label=team==='ours'?EQUIPOS[equipoActivo].nombre:(m.opponent||'Rival');blocks.push(headers);data.players.forEach(st=>blocks.push([label,...scoutV61010CSVRow(m,team,st,false,data.rows)]));blocks.push([label,...scoutV61010CSVRow(m,team,data.teamStat,true,data.rows)]);blocks.push([])});const meta=[['partido',`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent}`],['fecha',m.date],['equipo_analizado',scope==='both'?'ambos':(scope==='ours'?EQUIPOS[equipoActivo].nombre:m.opponent)],['set',f.set||'todos'],['rotacion',f.rotation?`R${f.rotation}`:'todas'],['fase',f.phase||'K1+K2'],['formula_recepcion_pos_pct','(# + +) / total'],['formula_recepcion_exc_pct','# / total'],['formula_ataque_pts_pct','ataques # / total'],['formula_g_p','puntos directos menos errores terminales atribuidos'],[]],csv='\uFEFF'+[...meta,...blocks].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_estadistica_pro.csv`)};
+window.scoutExportStatsCSV=function(){const m=scoutMatchForAnalysis();if(!m){alert('No hay scouting seleccionado.');return}const scope=$('scout-player-team-scope')?.value||'ours',f=scoutV630Filters(),headers=['equipo','jugador','formacion_set1','formacion_set2','formacion_set3','formacion_set4','formacion_set5','puntos_tot','puntos_fp','puntos_g_p','saque_tot','saque_err','saque_pts','recepcion_tot','recepcion_err','recepcion_pos_pct','recepcion_exc_pct','ataque_tot','ataque_err','ataque_blq','ataque_pts','ataque_pts_pct','bloqueo_pts','acciones','saque_g_p','ataque_g_p','defensa_tot','defensa_positivas','defensa_perdidas','defensa_g_p','colocacion_tot','colocacion_positivas','colocacion_perdidas','colocacion_g_p','k1_ganados','k1_perdidos','k1_g_p','k2_ganados','k2_perdidos','k2_g_p'],teams=scope==='both'?['ours','opponent']:[scope],blocks=[];teams.forEach(team=>{const data=(!f.set&&!f.rotation&&!f.phase)?scoutV61010FullStats(m,team,false):scoutV630Stats(m,team),label=team==='ours'?EQUIPOS[equipoActivo].nombre:(m.opponent||'Rival');blocks.push(headers);data.players.forEach(st=>blocks.push([label,...scoutV61010CSVRow(m,team,st,false,data.rows)]));blocks.push([label,...scoutV61010CSVRow(m,team,data.teamStat,true,data.rows)]);blocks.push([])});const meta=[['partido',`${EQUIPOS[equipoActivo].nombre} vs ${m.opponent}`],['fecha',m.date],['equipo_analizado',scope==='both'?'ambos':(scope==='ours'?EQUIPOS[equipoActivo].nombre:m.opponent)],['set',f.set||'todos'],['rotacion',f.rotation?`R${f.rotation}`:'todas'],['fase',f.phase||'K1+K2'],['formula_recepcion_pos_pct','(# + +) / total'],['formula_recepcion_exc_pct','# / total'],['formula_ataque_pts_pct','ataques # / total'],['formula_g_p','puntos directos menos errores terminales atribuidos'],[]],csv='\uFEFF'+[...meta,...blocks].map(r=>r.map(scoutCSVCell).join(';')).join('\r\n');scoutDownloadBlob(csv,'text/csv;charset=utf-8',`${scoutSafeFilename(m.date+'_'+m.opponent)}_estadistica_pro.csv`)};
 
 function scoutV61010LinkedMatch(m){return scoutArr(partidosEquipo).find(x=>Number(x.id)===Number(m?.linkedMatchId))||null}
 function scoutV61010SetDuration(s){const a=Date.parse(s?.startedAt||''),b=Date.parse(s?.endedAt||'');if(!Number.isFinite(a)||!Number.isFinite(b)||b<a)return '—';const min=Math.max(0,Math.round((b-a)/60000));return `${min} min`}
@@ -5918,6 +5918,55 @@ window.scoutUndoRally=function(...args){
   }
   return out;
 };
+
+
+/* V16.1.6 · Shared, read-only official-sheet metric definitions.
+   The official PDF generator remains byte-for-byte untouched. */
+const VC_STAT_1616_DEFINITIONS=Object.freeze({
+  pts:'At most one terminal S/A/B # attributed per won rally',
+  gp:'Attributed terminal points minus attributed terminal losses',
+  receptionPositive:'(# + +) / all coded R',
+  receptionPerfect:'# / all coded R',
+  attackKill:'A # / all coded A',
+  attackEff:'(A # - A = - A /) / all coded A',
+  percent:'Official PDF uses nearest whole percent',
+  k1:'Won receiving rallies / receiving opportunities',
+  k2:'Won serving rallies / serving opportunities'
+});
+function vcStat1616Scope(m,team,o={}){
+  const set=String(o.set||''),rotation=Number(o.rotation)||0,phase=String(o.phase||'');
+  if(!set&&!rotation&&!phase)return m;
+  const serve=phase==='K1'?(team==='ours'?'opponent':'ours'):phase==='K2'?team:null;
+  return {...m,sets:scoutArr(m.sets).filter(s=>!set||String(s.number)===set).map(s=>({...s,rallies:scoutArr(s.rallies).filter(r=>(!rotation||Number(team==='ours'?r.rotationBefore:r.opponentRotationBefore)===rotation)&&(!serve||r.servingBefore===serve))}))};
+}
+function vcStat1616Row(m,team,st,rows){
+ const s=scoutV61010Skill(st,'S'),r=scoutV61010Reception(st),a=scoutV61010Attack(st),b=scoutV61010Skill(st,'B'),p=scoutV61010PointMetrics(m,team,st.key,rows);
+ return {key:st.key,label:st.label,actions:st.total,
+  points:{won:p.won,fp:p.fp,lost:p.lost,gp:p.gp,
+   wonActions:p.wonRows.map(x=>({id:x.id,set:Number(x.set),rallyIndex:Number(x.rallyIndex)})),
+   lostActions:p.lostRows.map(x=>({id:x.id,set:Number(x.set),rallyIndex:Number(x.rallyIndex)}))},
+  serve:{total:s.total,aces:s.perfect,errors:s.error,gp:s.perfect-s.error},
+  receive:{total:r.total,positive:r.positive,perfect:r.perfect,errors:r.error,positivePct:r.posPct,perfectPct:r.excPct},
+  attack:{total:a.total,points:a.perfect,errors:a.error,blocked:a.blocked,pointsPct:a.ptsPct,efficiencyPct:a.total?Math.round(1000*(a.perfect-a.error-a.blocked)/a.total)/10:null},
+  block:{total:b.total,points:b.perfect}};
+}
+window.VC_STATISTICS_1616=Object.freeze({
+ version:'16.1.6',definitions:VC_STAT_1616_DEFINITIONS,
+ forMatch(m,side='ours',o={}){
+  if(!m)return null;
+  const team=side==='opponent'?'opponent':'ours',scoped=vcStat1616Scope(m,team,o),d=scoutV61010FullStats(scoped,team,false);
+  return {matchId:m.id,team,players:d.players.map(x=>vcStat1616Row(scoped,team,x,d.rows)),totals:vcStat1616Row(scoped,team,d.teamStat,d.rows),_scoped:scoped,_stats:d};
+ },
+ csvForMatch(m,side='ours',o={}){
+  const x=this.forMatch(m,side,o);if(!x)return '';
+  const team=x.team,d=x._stats,match=x._scoped,name=team==='ours'?EQUIPOS[equipoActivo].nombre:(m.opponent||'Rival');
+  const hdr=['equipo','jugador','formacion_set1','formacion_set2','formacion_set3','formacion_set4','formacion_set5','puntos_tot','puntos_fp','puntos_g_p','saque_tot','saque_err','saque_pts','recepcion_tot','recepcion_err','recepcion_pos_pct','recepcion_exc_pct','ataque_tot','ataque_err','ataque_blq','ataque_pts','ataque_pts_pct','bloqueo_pts','acciones','saque_g_p','ataque_g_p','defensa_tot','defensa_positivas','defensa_perdidas','defensa_g_p','colocacion_tot','colocacion_positivas','colocacion_perdidas','colocacion_g_p','k1_ganados','k1_perdidos','k1_g_p','k2_ganados','k2_perdidos','k2_g_p'];
+  const rows=[['motor','V16.1.6: definiciones compartidas Hoja Oficial'],['partido',m.opponent||'Rival'],['set',o.set||'todos'],['rotacion',o.rotation||'todas'],['fase',o.phase||'K1+K2'],['porcentajes','enteros, igual que Hoja Oficial'],[],hdr];
+  d.players.forEach(st=>rows.push([name,...scoutV61010CSVRow(match,team,st,false,d.rows)]));
+  rows.push([name,...scoutV61010CSVRow(match,team,d.teamStat,true,d.rows)]);
+  return '\uFEFF'+rows.map(r=>r.map(scoutCSVCell).join(';')).join('\r\n')+'\r\n';
+ }
+});
 
 })();
 

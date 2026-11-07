@@ -107,6 +107,7 @@ function injectStyle(){
  if($('vc1613-zone-board-style'))return;
  const s=document.createElement('style');s.id='vc1613-zone-board-style';s.textContent=`
 /* Scoped to the existing right-side coding panel. The video grid is untouched. */
+#scout-match-mode #vc54-code-keypad{display:none!important}
 #scout-match-mode #vc1613-board{display:block!important;position:relative!important;inset:auto!important;z-index:auto!important;width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;background:#f6faff!important;border:1px solid #ccdae9!important;border-radius:11px!important;padding:9px!important;margin:10px 0!important;box-sizing:border-box!important;color:#233e5d!important;flex:none!important;order:0!important}
 #scout-match-mode #vc1613-board *{box-sizing:border-box!important}
 #scout-match-mode .vc1613-header{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:7px}
@@ -138,10 +139,10 @@ function mount(){
  if(!board){
    const d=document.createElement('div');d.innerHTML=boardMarkup();board=d.firstElementChild;
  }
- if(keypad&&keypad.parentElement===panel){
+ if(entry){
+  if(board.previousElementSibling!==entry)entry.insertAdjacentElement('afterend',board);
+ }else if(keypad&&keypad.parentElement===panel){
   if(board.previousElementSibling!==keypad)keypad.insertAdjacentElement('afterend',board);
- }else if(entry&&board.parentElement!==panel){
-  entry.insertAdjacentElement('beforebegin',board);
  }
  if(board.dataset.bound!=='1'){
   board.dataset.bound='1';
@@ -174,5 +175,5 @@ function attach(){
  observer.observe(panel,{childList:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
-window.VC_1613_ZONE_BOARD={version:'16.1.5.7',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
+window.VC_1613_ZONE_BOARD={version:'16.1.6',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
 })();

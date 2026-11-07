@@ -96,22 +96,37 @@ function rowsBy(data,cb){return data.actions.filter(cb)}
 function periodLabel(data){return `${data.points.rallies} rallies cerrados · ${data.actions.length} acciones · ${data.videoCount} con referencia temporal`}
 function sheetRows(data){
  const grouped=data.playerGroups.slice().sort((a,b)=>a.name.localeCompare(b.name,'es'));
+ const official=window.VC_STATISTICS_1616?.forMatch?.(currentMatch(),state.team,{set:state.set,rotation:state.rotation,phase:state.phase});
+ const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+ function findOfficial(name){
+  const exact=official?.players.find(p=>normalize(p.label)===normalize(name));if(exact)return exact;
+  const n=String(name).match(/#(\d+)\b/)?.[1]||String(data.actions.find(a=>a.player===name)?.a?.playerNumberSnapshot||'');
+  const found=(official?.players||[]).filter(p=>String(p.label).match(/#(\d+)\b/)?.[1]===n);
+  return n&&found.length===1?found[0]:null;
+ }
  return grouped.map(p=>{
   const s=p.skills,serve=s.S||{},rec=s.R||{},attack=s.A||{},block=s.B||{};
   const sp=(serve.kills||0)-(serve.errors||0),ap=(attack.kills||0),ae=attack.errors||0,ab=attack.blocked||0;
-  const pts=(serve.kills||0)+ap+(block.kills||0),gp=pts-(serve.errors||0)-ae-ab-(block.errors||0);
+  const canonical=findOfficial(p.name);
+  const pts=canonical?.points.won??((serve.kills||0)+ap+(block.kills||0)),gp=canonical?.points.gp??(pts-(serve.errors||0)-ae-ab-(block.errors||0));
+  const serveGP=canonical?.serve.gp??sp,recPct=canonical?.receive.positivePct??rec.positivePct,atkEff=canonical?.attack.efficiencyPct??attack.eff;
+
   const playerActions=rowsBy(data,r=>r.player===p.name);
   const keys=playerActions.map(r=>r.key);
   const by=(predicate)=>playerActions.filter(predicate).map(r=>r.key);
+  const officialKeys=names=>{
+   const refs=names.flatMap(name=>canonical?.points?.[name]||[]);
+   return playerActions.filter(a=>refs.some(p=>Number(a.set)===p.set&&Number(a.r.index)===p.rallyIndex&&String(a.a.id)===String(p.id))).map(a=>a.key);
+  };
   const direct=r=>['S','A','B'].includes(r.skill)&&r.ev==='#';
   const gpRelevant=r=>direct(r)||(r.skill==='S'&&r.ev==='=')||(r.skill==='A'&&['=','/'].includes(r.ev))||(r.skill==='B'&&r.ev==='=');
   const cell=(n,label,chosen)=>`<td>${pickButton(n,chosen,`${label} · ${p.name}`)}</td>`;
-  return `<tr><td class="vc157-player">${pickButton(p.name,keys,`Todas las acciones · ${p.name}`,'vc157-namelink')}</td><td>${p.n}</td>${cell(''+pts,'Puntos directos',by(direct))}${cell(''+signed(gp),'G-P técnico',by(gpRelevant))}${cell(''+signed(sp),'Saque G-P',by(r=>r.skill==='S'&&['#','='].includes(r.ev)))}<td>${pickButton(fmt(rec.positivePct),by(r=>r.skill==='R'&&['#','+'].includes(r.ev)),`Recepciones positivas · ${p.name}`)}<small>${rec.positive||0}/${rec.n||0}</small></td><td>${pickButton(`${rec.perfect||0}/${rec.n||0}`,by(r=>r.skill==='R'&&r.ev==='#'),`Recepciones perfectas · ${p.name}`)}</td><td>${pickButton(`${ap}/${attack.n||0}`,by(r=>r.skill==='A'&&r.ev==='#'),`Ataques punto · ${p.name}`)}</td><td>${pickButton(`${ae}+${ab}`,by(r=>r.skill==='A'&&['=','/'].includes(r.ev)),`Errores y ataques bloqueados · ${p.name}`)}</td><td>${pickButton(fmt(attack.eff),by(r=>r.skill==='A'),`Todos los ataques · ${p.name}`)}</td><td>${pickButton(''+(block.kills||0),by(r=>r.skill==='B'&&r.ev==='#'),`Bloqueos punto · ${p.name}`)}</td></tr>`;
+  return `<tr><td class="vc157-player">${pickButton(p.name,keys,`Todas las acciones · ${p.name}`,'vc157-namelink')}</td><td>${p.n}</td>${cell(''+pts,'Puntos directos',canonical?officialKeys(['wonActions']):by(direct))}${cell(''+signed(gp),'G-P oficial',canonical?officialKeys(['wonActions','lostActions']):by(gpRelevant))}${cell(''+signed(serveGP),'Saque G-P',by(r=>r.skill==='S'&&['#','='].includes(r.ev)))}<td>${pickButton(fmt(recPct),by(r=>r.skill==='R'&&['#','+'].includes(r.ev)),`Recepciones positivas · ${p.name}`)}<small>${rec.positive||0}/${rec.n||0}</small></td><td>${pickButton(`${rec.perfect||0}/${rec.n||0}`,by(r=>r.skill==='R'&&r.ev==='#'),`Recepciones perfectas · ${p.name}`)}</td><td>${pickButton(`${ap}/${attack.n||0}`,by(r=>r.skill==='A'&&r.ev==='#'),`Ataques punto · ${p.name}`)}</td><td>${pickButton(`${ae}+${ab}`,by(r=>r.skill==='A'&&['=','/'].includes(r.ev)),`Errores y ataques bloqueados · ${p.name}`)}</td><td>${pickButton(fmt(atkEff),by(r=>r.skill==='A'),`Todos los ataques · ${p.name}`)}</td><td>${pickButton(''+(block.kills||0),by(r=>r.skill==='B'&&r.ev==='#'),`Bloqueos punto · ${p.name}`)}</td></tr>`;
  }).join('');
 }
 function pagePlayers(data){return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Hoja individual · G-P y eficiencia</h3><p>Una fila por jugador y todas las acciones del filtro. Pulsa un jugador o una cifra para inspeccionar sus jugadas.</p></div><span class="vc157-tag">${data.playerGroups.length} jugadores</span></div>
  ${table(['Jugador','Acc.','PTS','G-P','Saq. G-P','Rec. +/#','Rec. #','Ataque #','Err+BLO','Atq. EFF','Bloq. #'],sheetRows(data),'vc157-sheet')}
- <p class="vc157-note">PTS = ace + ataque # + bloqueo #. G-P técnico = puntos directos − errores directos y ataques bloqueados. Recepción +/# = (# + +)/total; eficiencia de ataque = (# − = − /)/ataques. Revisa los denominadores antes de comparar.</p></div>
+ <p class="vc157-note">PTS y G-P = atribución terminal de la Hoja Oficial; máximo una acción terminal por rally. Recepción +/# = (# + +)/total; eficiencia de ataque = (# − = − /)/ataques. Revisa los denominadores antes de comparar.</p></div>
  <div class="vc157-grid2"><div class="vc157-panel"><h3>Acciones registradas por fundamento</h3>${table(['Fundamento','Total','Positivas','Errores','Vídeo'],Object.entries(categories).map(([s,n])=>{const g=data.skills[s],rows=rowsBy(data,r=>r.skill===s);if(!g?.n)return'';return `<tr><td>${n}</td><td>${g.n}</td><td>${g.positive||0}</td><td>${g.errors||0}</td><td>${pickButton('Ver',rows.map(x=>x.key),n)}</td></tr>`}).join(''))}</div><div class="vc157-panel"><h3>Interpretación de estadísticas</h3><p>El número de intentos determina la fiabilidad de la lectura. Las celdas no convierten valoraciones técnicas en puntos de marcador.</p><p class="vc157-note">La Hoja Oficial PDF mantiene su generador y su estructura. Esta tabla es una vista interactiva adicional.</p></div></div>`}
 function pageOverview(data){
  const p=data.points,rec=data.skills.R||{},atk=data.skills.A||{};
@@ -183,6 +198,13 @@ function openVideo(){
  try{const ok=api.openKeys(m.id,keys);if(!ok){const note=$('vc157-inspector-note');if(note)note.textContent='No se ha podido abrir la selección de vídeo.';}}catch(e){console.warn('Analyst Studio video',e)}
 }
 function exportFile(ext){
+ if(ext==='csv-official'){
+  const core=window.VC_STATISTICS_1616,match=currentMatch();if(!core?.csvForMatch||!match)return;
+  const csv=core.csvForMatch(match,state.team,{set:state.set,rotation:state.rotation,phase:state.phase});
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const link=document.createElement('a');link.href=url;link.download=`volley-coach-hoja-${match.id}-${state.team}.csv`;
+  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);return;
+ }
  const api=window.VC_ANALYSIS_INTELLIGENCE_1614;
  const data=dataset(),match=currentMatch();if(!api||!data||!match)return;
  const filename=`volley-coach-analyst-${match.id||'partido'}-${state.team}-${state.phase||'todos'}`;
@@ -227,7 +249,7 @@ function mount(){
  host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH · ANALYST STUDIO</span><h2>Análisis profesional de partido</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf">PDF hoja oficial</button><button id="vc157-propdf">PDF análisis Pro</button><button id="vc157-technical">Análisis técnico</button></div></div>
  <div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
- <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ANALYST WORKSPACE</span><h3 id="vc157-section-title">Hoja estadística</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv">CSV</button><button id="vc157-json">JSON</button></div></div>
+ <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ANALYST WORKSPACE</span><h3 id="vc157-section-title">Hoja estadística</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
  <p class="vc157-footer">Vista técnica de solo lectura. Las métricas provienen del motor V16.1.4 y solo incluyen rallies cerrados. La Hoja Oficial PDF conserva su generador V11.4.</p>`;
  view.appendChild(host);
@@ -259,6 +281,7 @@ function mount(){
    case 'vc157-technical':switchMode(true);break;
    case 'vc157-video':openVideo();break;
    case 'vc157-csv':exportFile('csv');break;
+   case 'vc157-csv-official':exportFile('csv-official');break;
    case 'vc157-json':exportFile('json');break;
   }
  });
@@ -380,5 +403,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:550px){#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto!important}#vc157-studio .vc157-filterbar .vc157-match-field{grid-column:1!important}#vc157-studio .vc157-filterbar>label:not(.vc157-match-field){grid-column:span 1}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.1.5.7',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.1.6',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
