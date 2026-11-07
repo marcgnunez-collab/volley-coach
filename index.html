@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.1.5.6 · Analyst Workbench Pro</title>
+<title>Volley Coach | V16.1.5.7 · Inline Scouting Board</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3402,7 +3402,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.5.4',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.5.7',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12078,11 +12078,11 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
 </style>
 <script id="vc1611-video-sync-assistant" src="./118-vc1611-video-sync-assistant.js?v=16.1.1" data-vc-module="true"></script>
 <script id="vc1612-video-analytics" src="./119-vc1612-video-analytics.js?v=16.1.4" data-vc-module="true"></script>
-<script id="vc1613-zone-board" src="./120-vc1613-zone-board.js?v=16.1.5.4" data-vc-module="true"></script>
+<script id="vc1613-zone-board" src="./120-vc1613-zone-board.js?v=16.1.5.7" data-vc-module="true"></script>
 <script id="vc16131-clip-studio-pro" src="./121-vc16131-clip-studio-pro.js?v=16.1.3.1" data-vc-module="true"></script>
 <script id="vc1614-analysis-intelligence" src="./122-vc1614-analysis-intelligence.js?v=16.1.4" data-vc-module="true"></script>
 <script id="vc16155-lazy-analyst-studio">
-/* V16.1.5.6 — safety-first lazy loader: never block the homepage if Studio is unavailable. */
+/* V16.1.5.7 — safety-first lazy loader: never block the homepage if Studio is unavailable. */
 (()=>{
  'use strict';
  const start=()=>{
@@ -12096,7 +12096,7 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
    loading=true;
    const script=document.createElement('script');
    script.id='vc16155-analyst-studio-script';
-   script.src='./124-vc16155-analyst-studio.js?v=16.1.5.6';
+   script.src='./124-vc16155-analyst-studio.js?v=16.1.5.7';
    script.async=true;
    script.onload=()=>{loading=false;try{if(view.classList.contains('active'))window.VC_ANALYST_STUDIO_16155?.open?.()}catch(e){console.error('Analyst Studio initialization',e)}};
    script.onerror=()=>{loading=false;failed=true;console.warn('Analyst Studio unavailable; legacy analysis remains active.')};

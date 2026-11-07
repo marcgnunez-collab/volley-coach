@@ -1,243 +1,178 @@
+/* Volley Coach V16.1.5.7 — Inline DataVolley zone keypad.
+   One board in the existing coding panel. Changes the draft code only;
+   neither adds actions nor writes match data. No global subtree observers. */
 (()=>{
 'use strict';
 if(window.VC_1613_ZONE_BOARD)return;
-const VERSION='16.1.5.4';
 const $=id=>document.getElementById(id);
-const INPUT_IDS=new Set(['v113-video-code','v800-code','scout-code-input']);
-const state={open:false,zone:'',sub:'',lastApplied:''};
-const ORDER=[4,3,2,7,8,9,5,6,1];
+const ZONES=[4,3,2,7,8,9,5,6,1];
+const state={zone:'',sub:'',mode:'destination',manualMode:false,lastSkill:'',lastInput:null,updates:0};
 
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function token(zone=state.zone,sub=state.sub){return zone?`${zone}${sub||''}`:''}
-function tokenLabel(){return state.zone?`Z${state.zone}${state.sub||''}`:'Sin marcar'}
-function openVideoPanelVisible(){
-  const panel=$('v113-video-code-panel');
-  if(!panel)return false;
-  const cs=getComputedStyle(panel);
-  return cs.display!=='none' && cs.visibility!=='hidden';
+function codeInput(){
+ const panel=$('v113-video-code-panel'),input=$('v113-video-code');
+ if(input&&panel&&panel.getClientRects().length)return input;
+ if(state.lastInput?.isConnected&&state.lastInput.getClientRects().length)return state.lastInput;
+ return $('v800-code')||input||$('scout-code-input')||null;
 }
-function activeInput(){
-  const a=document.activeElement;
-  if(a&&INPUT_IDS.has(a.id))return a;
-  if(openVideoPanelVisible() && $('v113-video-code'))return $('v113-video-code');
-  return $('v800-code')||$('scout-code-input')||$('v113-video-code')||null;
+function skillOf(code){return String(code||'').trim().toUpperCase().match(/^(?:R)?\d+([SRAEBDFC])/)?.[1]||''}
+function labelForMode(){
+ const skill=skillOf(codeInput()?.value);
+ return state.mode==='origin'?'Origen':(['R','D'].includes(skill)?'Contacto':'Destino');
 }
-function status(text,level='info'){
-  const box=$('vc1613-board-status');
-  if(box){box.textContent=text;box.dataset.level=level;}
-  const hint=$('vc1613-zone-hint');
-  if(hint){hint.textContent=text;hint.dataset.level=level;}
+function token(){return state.zone?`${state.zone}${state.sub}`:''}
+function label(){return state.zone?`Z${token()}`:'Sin zona'}
+function setStatus(msg,kind=''){const el=$('vc1613-board-status');if(el){if(el.textContent!==msg)el.textContent=msg;el.dataset.kind=kind;}}
+
+/* Do not edit any trailing Data Volley modifiers, such as tempo, serve type,
+   set/attack code, phase, blockers or custom code. Location syntax is .O>D,
+   or .D for a single destination/contact point. */
+function replaceLocation(code,zone,mode='destination',previousMode=''){
+ const raw=String(code||'').trim().toUpperCase().replace(/\s+/g,'');
+ if(!raw||!zone)return raw;
+ const idx=raw.search(/[~:%|*^@&?$]/);
+ const head=idx<0?raw:raw.slice(0,idx),tail=idx<0?'':raw.slice(idx);
+ const p=head.indexOf('.'),base=p<0?head:head.slice(0,p);
+ const loc=p<0?'':head.slice(p+1);
+ if(!base)return raw;
+ let updated='';
+ if(mode==='origin'){
+   if(loc.includes('>'))updated=`${zone}>${loc.split('>').slice(1).join('>')}`;
+   else if(loc&&previousMode==='destination')updated=`${zone}>${loc}`;
+   else updated=zone;
+ }else{
+   if(loc.includes('>'))updated=`${loc.split('>')[0]}>${zone}`;
+   else if(loc&&previousMode==='origin')updated=`${loc}>${zone}`;
+   else updated=zone;
+ }
+ return `${base}.${updated}${tail}`;
 }
-function applyLocationToCode(raw,dest){
-  let code=String(raw||'').trim().toUpperCase();
-  if(!code)return '';
-  const delimChars=['~',':','%','|','*','^','@','&','?','$'];
-  let split=code.length;
-  for(const ch of delimChars){const i=code.indexOf(ch);if(i!==-1&&i<split)split=i;}
-  let prefix=code.slice(0,split);
-  const suffix=code.slice(split);
-  const dot=prefix.indexOf('.');
-  if(dot===-1)return `${prefix}.${dest}${suffix}`;
-  const base=prefix.slice(0,dot);
-  const loc=prefix.slice(dot+1);
-  if(!loc)return `${base}.${dest}${suffix}`;
-  if(loc.includes('>')){
-    const parts=loc.split('>');
-    return `${base}.${parts[0]||''}>${dest}${suffix}`;
+function detectContext(){
+ const input=codeInput();if(!input)return;
+ const skill=skillOf(input.value);
+ if(skill!==state.lastSkill){
+  state.lastSkill=skill;state.manualMode=false;
+  state.mode=skill==='B'?'origin':'destination';
+ }
+ const heading=$('vc1613-mode-desc');
+ if(heading)heading.textContent=`${labelForMode()} del balón · clic para completar el código`;
+ const selected=$('vc1613-current-token');if(selected)selected.textContent=label();
+ const modeLabels=$('vc1613-modes');
+ if(modeLabels){
+  for(const button of modeLabels.querySelectorAll('[data-location-mode]')){
+    const selectedMode=button.dataset.locationMode===state.mode;
+    button.classList.toggle('selected',selectedMode);button.setAttribute('aria-pressed',String(selectedMode));
+    if(button.dataset.locationMode==='destination')button.textContent=['R','D'].includes(skill)?'Contacto':'Destino';
   }
-  return `${base}.${dest}${suffix}`;
+ }
 }
-function syncInputPreview(){
-  const out=$('vc1613-current-token');
-  if(out && out.textContent!==tokenLabel())out.textContent=tokenLabel();
-  const btn=$('vc1613-apply-btn');
-  const input=activeInput();
-  if(btn)btn.disabled=!state.zone || !String(input?.value||'').trim();
-}
-function selectZone(zone,sub=''){
-  state.zone=String(zone||'');
-  state.sub=String(sub||'');
-  document.querySelectorAll('#vc1613-board [data-zone][data-sub]').forEach(el=>{
-    el.classList.toggle('active',el.dataset.zone===state.zone && (el.dataset.sub||'')===state.sub);
-  });
-  document.querySelectorAll('#vc1613-board [data-zone-main]').forEach(el=>{
-    el.classList.toggle('active',el.dataset.zoneMain===state.zone && !state.sub);
-  });
-  syncInputPreview();
-  status(`Destino seleccionado: ${tokenLabel()}.`, 'ok');
-}
-function clearSelection(){
-  state.zone='';state.sub='';state.lastApplied='';
-  document.querySelectorAll('#vc1613-board .active').forEach(el=>el.classList.remove('active'));
-  syncInputPreview();
-  status('Selecciona una zona o subzona y aplícala al código actual.', 'info');
-}
-function applySelection(){
-  if(!state.zone){status('Primero selecciona una zona o subzona.', 'warn');return false;}
-  const input=activeInput();
-  if(!input){status('No encuentro el campo de código activo.', 'bad');return false;}
-  const raw=String(input.value||'').trim();
-  if(!raw){
-    input.focus({preventScroll:true});
-    status('Escribe primero el código base (por ejemplo 7A#) y luego aplica el destino.', 'warn');
-    return false;
-  }
-  const next=applyLocationToCode(raw,token());
-  input.value=next;
-  state.lastApplied=token();
-  syncInputPreview();
+function applyZone(zone,sub=''){
+ const input=codeInput(),previousMode=state.lastMode;
+ state.zone=String(zone);state.sub=String(sub);
+ document.querySelectorAll('#vc1613-board [data-zone]').forEach(btn=>{
+  const on=btn.dataset.zone===state.zone&&(btn.dataset.sub||'')===state.sub;
+  btn.classList.toggle('selected',on);btn.setAttribute('aria-pressed',String(on));
+ });
+ detectContext();
+ if(!input || !input.value.trim()){
+  setStatus(`${label()} elegida. Escribe primero el dorsal, fundamento y valoración.`, 'hint');
+  return false;
+ }
+ const before=input.value,after=replaceLocation(before,token(),state.mode,previousMode);
+ if(before!==after){
+  input.value=after;
   input.dispatchEvent(new Event('input',{bubbles:true}));
-  input.focus({preventScroll:true});
-  status(`Destino ${tokenLabel()} aplicado al código.`, 'ok');
-  return true;
+  state.updates++;
+ }
+ state.lastMode=state.mode;
+ state.lastInput=input;
+ detectContext();
+ setStatus(`${label()} aplicada · ${after} · pulsa Enter o Añadir cuando esté listo.`, 'ok');
+ try{input.focus({preventScroll:true});input.setSelectionRange(input.value.length,input.value.length)}catch(_){}
+ return true;
 }
-function boardHtml(){
-  const cards=ORDER.map(z=>`<div class="vc1613-zone-card"><button type="button" class="vc1613-zone-main" data-zone-main="${z}">Z${z}</button><div class="vc1613-zone-quads"><button type="button" data-zone="${z}" data-sub="A">A</button><button type="button" data-zone="${z}" data-sub="B">B</button><button type="button" data-zone="${z}" data-sub="C">C</button><button type="button" data-zone="${z}" data-sub="D">D</button></div></div>`).join('');
-  return `<div id="vc1613-board" class="vc1613-board" hidden>
-    <div class="vc1613-board-head">
-      <div><span>PIZARRA INTERACTIVA</span><h4>Marca el destino del balón</h4></div>
-      <button type="button" class="vc1613-close" aria-label="Cerrar pizarra">✕</button>
-    </div>
-    <p class="vc1613-copy">Selecciona la zona o una subzona A–D. La pizarra flota sobre el vídeo y no reduce el tamaño del reproductor.</p>
-    <div class="vc1613-current"><span>Destino actual</span><strong id="vc1613-current-token">Sin marcar</strong><button type="button" id="vc1613-apply-btn">Aplicar al código</button></div>
-    <div class="vc1613-grid-wrap">
-      <div class="vc1613-grid-head"><b>Pista DataVolley 9×4</b><small>9 zonas · 4 subzonas</small></div>
-      <div class="vc1613-grid">${cards}</div>
-      <div class="vc1613-grid-foot"><span>Si pulsas Z4, Z3… marcas solo la zona.</span><span>A–D = subzonas</span></div>
-    </div>
-    <div id="vc1613-board-status" class="vc1613-board-status" data-level="info">Selecciona una zona o subzona y aplícala al código actual.</div>
-    <div class="vc1613-actions"><button type="button" class="ghost" id="vc1613-clear-btn">Limpiar</button><button type="button" class="ghost" id="vc1613-focus-code-btn">Ir al código</button><button type="button" class="primary" id="vc1613-apply-close-btn">Aplicar y cerrar</button></div>
-  </div>`;
+function reset(){
+ state.zone='';state.sub='';state.lastMode='';
+ document.querySelectorAll('#vc1613-board [data-zone].selected').forEach(x=>{x.classList.remove('selected');x.setAttribute('aria-pressed','false')});
+ detectContext();setStatus('Sin zona seleccionada. El código existente no se ha borrado.');
 }
-function injectStyles(){
-  if($('vc1613-zone-board-style'))return;
-  const style=document.createElement('style');
-  style.id='vc1613-zone-board-style';
-  style.textContent=`
-#scout-match-mode .vc1613-zone-fab{position:absolute;top:10px;right:10px;z-index:7;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(153,198,244,.95)!important;background:rgba(16,51,86,.88)!important;color:#f3f8ff!important;padding:8px 11px!important;border-radius:999px!important;font:800 11px/1 system-ui,sans-serif!important;backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(3,18,35,.28)!important}
-#scout-match-mode .vc1613-zone-fab:hover{background:rgba(22,70,116,.94)!important}
-#scout-match-mode .vc1613-zone-hint{margin-top:6px;padding:7px 9px;border-radius:8px;background:#f6faff;border:1px solid #d9e8f4;color:#557086;font:700 10px/1.35 system-ui,sans-serif}
-#scout-match-mode .vc1613-zone-hint[data-level="ok"]{background:#edf8f1;color:#266846;border-color:#cae8d7}
-#scout-match-mode .vc1613-zone-hint[data-level="warn"]{background:#fff7e8;color:#8d641d;border-color:#edd7ad}
-#scout-match-mode .vc1613-zone-hint[data-level="bad"]{background:#fff0ef;color:#9a423b;border-color:#edc1bc}
-#scout-match-mode .vc1613-board{position:absolute;top:54px;right:10px;z-index:8;width:min(420px,calc(100% - 20px));max-height:calc(100% - 64px);overflow:auto;background:rgba(255,255,255,.985);border:1px solid #d6e3ee;border-radius:16px;padding:14px;box-shadow:0 24px 60px rgba(7,27,48,.34)}
-#scout-match-mode .vc1613-board-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-#scout-match-mode .vc1613-board-head span{display:block;color:#3b7cb2;font-size:10px;font-weight:900;letter-spacing:.09em}
-#scout-match-mode .vc1613-board-head h4{margin:3px 0 0!important;color:#153652!important;font-size:18px!important;line-height:1.2}
-#scout-match-mode .vc1613-close{min-height:32px!important;min-width:32px!important;padding:0!important;border-radius:999px!important;background:#eff5fb!important;color:#456983!important;border:1px solid #d7e5f0!important;font-weight:900!important}
-#scout-match-mode .vc1613-copy{margin:8px 0 10px;color:#6a8093;font-size:11px;line-height:1.45}
-#scout-match-mode .vc1613-current{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:10px;border:1px solid #dce8f2;background:#f7fbff;border-radius:10px;margin-bottom:10px}
-#scout-match-mode .vc1613-current span{font-size:10px;font-weight:800;color:#6f8799;text-transform:uppercase;letter-spacing:.06em}
-#scout-match-mode .vc1613-current strong{font-size:16px;color:#173b5f}
-#scout-match-mode .vc1613-current button,#scout-match-mode .vc1613-actions button{min-height:36px!important;border-radius:9px!important;padding:8px 12px!important;font:800 11px/1.1 system-ui,sans-serif!important;border:1px solid #c7d9ea!important;cursor:pointer}
-#scout-match-mode .vc1613-current button:disabled{opacity:.45;cursor:not-allowed}
-#scout-match-mode .vc1613-current button,#scout-match-mode .vc1613-actions .primary{background:#195faa!important;color:#fff!important;border-color:#195faa!important}
-#scout-match-mode .vc1613-actions .ghost{background:#f5f8fb!important;color:#446581!important;border-color:#d7e3ee!important}
-#scout-match-mode .vc1613-grid-wrap{border:1px solid #dbe7f1;border-radius:12px;padding:10px;background:#fbfdff}
-#scout-match-mode .vc1613-grid-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:#4d6b84}
-#scout-match-mode .vc1613-grid-head b{font-size:12px;color:#193a5f}
-#scout-match-mode .vc1613-grid-head small{font-size:10px}
-#scout-match-mode .vc1613-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-#scout-match-mode .vc1613-zone-card{border:1px solid #cfdce7;border-radius:10px;padding:5px;background:#fff;display:grid;gap:5px}
-#scout-match-mode .vc1613-zone-main{min-height:30px!important;border-radius:8px!important;background:#eef5fb!important;color:#295271!important;border:1px solid #d5e4ef!important;font:900 13px/1 system-ui,sans-serif!important}
-#scout-match-mode .vc1613-zone-main.active{background:#195faa!important;border-color:#195faa!important;color:#fff!important}
-#scout-match-mode .vc1613-zone-quads{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-#scout-match-mode .vc1613-zone-quads button{min-height:31px!important;border-radius:8px!important;background:#fff!important;color:#567089!important;border:1px solid #d7e3ee!important;font:850 11px/1 system-ui,sans-serif!important}
-#scout-match-mode .vc1613-zone-quads button.active{background:#2e86d7!important;border-color:#2e86d7!important;color:#fff!important;box-shadow:inset 0 -2px rgba(0,0,0,.12)}
-#scout-match-mode .vc1613-grid-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;color:#708597;font-size:10px}
-#scout-match-mode .vc1613-board-status{margin-top:10px;padding:9px 10px;border-radius:10px;background:#f4f8fc;color:#42627c;font:700 11px/1.45 system-ui,sans-serif}
-#scout-match-mode .vc1613-board-status[data-level="ok"]{background:#ebf7ef;color:#256845}
-#scout-match-mode .vc1613-board-status[data-level="warn"]{background:#fff7e8;color:#8b621c}
-#scout-match-mode .vc1613-board-status[data-level="bad"]{background:#fff0ef;color:#9b433c}
-#scout-match-mode .vc1613-actions{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:6px;margin-top:10px}
-body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater .vc1613-board{width:min(450px,calc(100% - 20px));top:58px;right:12px;max-height:calc(100% - 72px);z-index:20}
-body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater .vc1613-zone-fab{z-index:21}
-@media(max-width:900px){#scout-match-mode .vc1613-board{left:10px;right:10px;width:auto}#scout-match-mode .vc1613-current{grid-template-columns:1fr;align-items:start}#scout-match-mode .vc1613-actions{grid-template-columns:1fr 1fr}#scout-match-mode .vc1613-actions .primary{grid-column:1/-1}}
-@media(max-width:620px){#scout-match-mode .vc1613-zone-fab{padding:7px 9px!important;font-size:10px!important}#scout-match-mode .vc1613-board{position:fixed;left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:70dvh}body.v11-shell #scout-match-mode #v112-video-drawer.vc1644-theater .vc1613-board{left:8px;right:8px;top:auto;bottom:8px;max-height:70dvh}#scout-match-mode .vc1613-grid{gap:5px}#scout-match-mode .vc1613-zone-card{padding:4px}}
+function boardMarkup(){
+ return `<section id="vc1613-board" class="vc1613-inline-board" aria-label="Teclado de zonas DataVolley">
+ <header class="vc1613-header"><div><strong>PISTA INTERACTIVA · 9×4</strong><small id="vc1613-mode-desc">Destino del balón · clic para completar el código</small></div><span id="vc1613-current-token">Sin zona</span></header>
+ <div id="vc1613-modes" class="vc1613-modes" role="group" aria-label="Tipo de localización"><button type="button" data-location-mode="destination" aria-pressed="true">Destino</button><button type="button" data-location-mode="origin" aria-pressed="false">Origen</button><button type="button" id="vc1613-clear-selection">Limpiar selección</button></div>
+ <div class="vc1613-court-grid" aria-label="Zonas y subzonas de la pista">${ZONES.map(z=>`<div class="vc1613-cell"><button type="button" class="vc1613-zone" data-zone="${z}" data-sub="" aria-pressed="false" aria-label="Zona ${z}">Z${z}</button><div class="vc1613-quads">${['A','B','C','D'].map(sub=>`<button type="button" data-zone="${z}" data-sub="${sub}" aria-pressed="false" aria-label="Zona ${z}, subzona ${sub}">${sub}</button>`).join('')}</div></div>`).join('')}</div>
+ <p class="vc1613-status" id="vc1613-board-status" role="status">Escribe el código y pulsa una zona. No guarda hasta pulsar Añadir.</p>
+ </section>`;
+}
+function injectStyle(){
+ if($('vc1613-zone-board-style'))return;
+ const s=document.createElement('style');s.id='vc1613-zone-board-style';s.textContent=`
+/* Scoped to the existing right-side coding panel. The video grid is untouched. */
+#scout-match-mode #vc1613-board{display:block!important;position:relative!important;inset:auto!important;z-index:auto!important;width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;background:#f6faff!important;border:1px solid #ccdae9!important;border-radius:11px!important;padding:9px!important;margin:10px 0!important;box-sizing:border-box!important;color:#233e5d!important;flex:none!important;order:0!important}
+#scout-match-mode #vc1613-board *{box-sizing:border-box!important}
+#scout-match-mode .vc1613-header{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:7px}
+#scout-match-mode .vc1613-header strong{display:block;color:#174776;font:850 10px/1.2 system-ui,sans-serif!important;letter-spacing:.06em}
+#scout-match-mode .vc1613-header small{display:block;color:#6a8199;font:600 9px/1.25 system-ui,sans-serif!important;margin-top:3px}
+#scout-match-mode #vc1613-current-token{font:850 11px system-ui,sans-serif!important;white-space:nowrap;background:#dbeaf8!important;color:#154877!important;border-radius:99px;padding:5px 8px}
+#scout-match-mode .vc1613-modes{display:grid;grid-template-columns:1fr 1fr auto;gap:4px;margin-bottom:7px}
+body.v11-shell #scout-match-mode #vc1613-board .vc1613-modes button{background:#fff!important;color:#45677f!important;border:1px solid #cbdbea!important;font:750 10px/1.1 system-ui,sans-serif!important;border-radius:6px!important;min-height:29px!important;min-width:0!important;padding:5px 7px!important}
+body.v11-shell #scout-match-mode #vc1613-board .vc1613-modes button.selected{background:#185b9b!important;color:white!important;border-color:#185b9b!important}
+#scout-match-mode .vc1613-court-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:0!important}
+#scout-match-mode .vc1613-cell{background:#fff!important;display:grid!important;gap:3px!important;padding:3px!important;border:1px solid #ccdae8!important;border-radius:7px!important;min-width:0!important}
+body.v11-shell #scout-match-mode #vc1613-board .vc1613-zone{min-height:22px!important;padding:2px!important;font:850 11px/1 system-ui,sans-serif!important;border:0!important;background:#eaf2fb!important;color:#2a577f!important;border-radius:4px!important}
+#scout-match-mode .vc1613-quads{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2px!important}
+body.v11-shell #scout-match-mode #vc1613-board .vc1613-quads button{min-width:0!important;min-height:25px!important;padding:3px 1px!important;border:1px solid #dfebf5!important;background:#fff!important;color:#547089!important;border-radius:4px!important;font:800 10px/1.1 system-ui,sans-serif!important}
+body.v11-shell #scout-match-mode #vc1613-board button.selected:not([data-location-mode]){background:#226bb0!important;color:white!important;border-color:#226bb0!important}
+body.v11-shell #scout-match-mode #vc1613-board button:focus-visible{outline:3px solid #92bfe9!important;outline-offset:1px!important}
+#scout-match-mode #vc1613-board .vc1613-status{min-height:16px;margin:6px 0 0!important;color:#647e97;font:650 9px/1.4 system-ui,sans-serif!important;overflow-wrap:anywhere}
+#scout-match-mode #vc1613-board .vc1613-status[data-kind="ok"]{color:#257144!important}
+#scout-match-mode #vc1613-board .vc1613-status[data-kind="hint"]{color:#966c28!important}
+@media(max-width:680px){#scout-match-mode #vc1613-board{padding:7px!important}body.v11-shell #scout-match-mode #vc1613-board .vc1613-quads button{min-height:30px!important}}
 `;
-  document.head.appendChild(style);
+ document.head.appendChild(s);
 }
-function toggle(force){
-  const board=$('vc1613-board');
-  const btn=$('vc1613-zone-toggle');
-  if(!board||!btn)return false;
-  state.open=typeof force==='boolean'?force:!state.open;
-  board.hidden=!state.open;
-  btn.setAttribute('aria-expanded',String(state.open));
-  btn.textContent=state.open?'Ocultar zonas':'🎯 Zonas';
-  if(state.open){syncInputPreview();status(state.zone?`Destino seleccionado: ${tokenLabel()}.`:'Selecciona una zona o subzona y aplícala al código actual.','info');}
-  return state.open;
-}
-function focusCode(){const input=activeInput();if(input)input.focus({preventScroll:true});}
-function bindBoard(){
-  const board=$('vc1613-board');if(!board||board.dataset.bound==='1')return;
+function mount(){
+ const panel=$('v113-video-code-panel');if(!panel)return false;
+ injectStyle();
+ const keypad=$('vc54-code-keypad'),entry=panel.querySelector('.v113-video-code-entry');
+ let board=$('vc1613-board');
+ if(!board){
+   const d=document.createElement('div');d.innerHTML=boardMarkup();board=d.firstElementChild;
+ }
+ if(keypad&&keypad.parentElement===panel){
+  if(board.previousElementSibling!==keypad)keypad.insertAdjacentElement('afterend',board);
+ }else if(entry&&board.parentElement!==panel){
+  entry.insertAdjacentElement('beforebegin',board);
+ }
+ if(board.dataset.bound!=='1'){
   board.dataset.bound='1';
-  board.addEventListener('click',ev=>{
-    const zoneBtn=ev.target.closest('[data-zone-main]');
-    if(zoneBtn){selectZone(zoneBtn.dataset.zoneMain,'');return;}
-    const subBtn=ev.target.closest('[data-zone][data-sub]');
-    if(subBtn){selectZone(subBtn.dataset.zone,subBtn.dataset.sub);return;}
-    if(ev.target.closest('.vc1613-close')){toggle(false);return;}
+  board.addEventListener('click',e=>{
+   const z=e.target.closest('[data-zone]');
+   if(z){applyZone(z.dataset.zone,z.dataset.sub||'');return;}
+   const mode=e.target.closest('[data-location-mode]');
+   if(mode){state.mode=mode.dataset.locationMode;state.manualMode=true;detectContext();return;}
+   if(e.target.closest('#vc1613-clear-selection'))reset();
   });
-  $('vc1613-apply-btn')?.addEventListener('click',applySelection);
-  $('vc1613-apply-close-btn')?.addEventListener('click',()=>{if(applySelection())toggle(false)});
-  $('vc1613-clear-btn')?.addEventListener('click',clearSelection);
-  $('vc1613-focus-code-btn')?.addEventListener('click',focusCode);
+ }
+ for(const id of ['v113-video-code','v800-code','scout-code-input']){
+  const input=$(id);if(!input||input.dataset.vc16157Bound)return;
+  input.dataset.vc16157Bound='1';
+  input.addEventListener('focus',()=>{state.lastInput=input;detectContext()});
+  input.addEventListener('input',()=>{state.lastInput=input;detectContext()});
+ }
+ detectContext();
+ return true;
 }
-function ensureUI(){
-  injectStyles();
-  const frame=$('v800-video-frame');
-  if(!frame)return false;
-  if(!$('vc1613-zone-toggle')){
-    const b=document.createElement('button');
-    b.id='vc1613-zone-toggle';b.type='button';b.className='vc1613-zone-fab';b.textContent='🎯 Zonas';
-    b.setAttribute('aria-expanded','false');
-    b.addEventListener('click',()=>toggle());
-    frame.appendChild(b);
-  }
-  if(!$('vc1613-board'))frame.insertAdjacentHTML('beforeend',boardHtml());
-  bindBoard();
-  const entry=document.querySelector('#v113-video-code-panel .v113-video-code-entry');
-  if(entry && !$('vc1613-zone-hint')){
-    const hint=document.createElement('div');
-    hint.id='vc1613-zone-hint';hint.className='vc1613-zone-hint';
-    hint.textContent='Pizarra disponible: abre “🎯 Zonas” para marcar el destino del balón sin reducir la pantalla de vídeo.';
-    entry.appendChild(hint);
-  }
-  document.querySelectorAll('#v113-video-code, #v800-code, #scout-code-input').forEach(input=>{
-    if(input.dataset.vc1613Bound==='1')return;
-    input.dataset.vc1613Bound='1';
-    input.addEventListener('input',syncInputPreview);
-    input.addEventListener('focus',syncInputPreview);
-  });
-  syncInputPreview();
-  return true;
+// The original keypad is mounted by the existing match workspace on demand.
+// Observe only direct additions in its coding panel, not the full app, to avoid
+// reintroducing the MutationObserver startup loop fixed in V16.1.5.4.
+function attach(){
+ const panel=$('v113-video-code-panel');if(!panel)return;
+ mount();
+ const observer=new MutationObserver(records=>{
+  if(records.some(r=>Array.from(r.addedNodes).some(n=>n.nodeType===1&&n.id==='vc54-code-keypad')))mount();
+ });
+ observer.observe(panel,{childList:true});
 }
-
-/* V16.1.5.4: the previous global observer called ensureUI after its own
-   textContent mutations, producing an endless microtask loop at startup.
-   Watch only for newly added *mount points*; our own board updates are ignored. */
-let scheduled=false,observerCalls=0,uiRefreshes=0;
-const mountSelectors='#v800-video-frame, #v113-video-code-panel, .v113-video-code-entry';
-function hasMountPoint(node){
-  return node?.nodeType===1 &&
-    (node.matches?.(mountSelectors) || !!node.querySelector?.(mountSelectors));
-}
-const mo=new MutationObserver(records=>{
-  observerCalls++;
-  if(!records.some(record=>Array.from(record.addedNodes).some(hasMountPoint)))return;
-  if(scheduled)return;
-  scheduled=true;
-  requestAnimationFrame(()=>{
-    scheduled=false;
-    uiRefreshes++;
-    ensureUI();
-  });
-});
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureUI,{once:true});
-else ensureUI();
-const mountHost=document.getElementById('scout-match-mode');
-if(mountHost)mo.observe(mountHost,{childList:true,subtree:true});
-window.addEventListener('resize',syncInputPreview,{passive:true});
-window.VC_1613_ZONE_BOARD={version:'16.1.5.4',ensureUI,toggle,applySelection,clearSelection,diagnostics:()=>({open:state.open,token:token(),activeInput:activeInput()?.id||null,observerCalls,uiRefreshes})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
+window.VC_1613_ZONE_BOARD={version:'16.1.5.7',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
 })();
