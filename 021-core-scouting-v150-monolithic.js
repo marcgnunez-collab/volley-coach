@@ -44,6 +44,7 @@ function scoutOpponentLabel(v,pos=''){return String(v||'').trim()||`Rival ${pos.
    - Exhaustive analysis is NOT simplified; it remains on analysis/PDF paths. */
 const V902_JOURNAL_DB='VolleyCoachScoutJournalV902',V902_JOURNAL_STORE='liveMatches',V920_JOURNAL_LIVE_STORE='liveRallies';
 let v902CommitTimer=null,v902CommitBusy=false,v902CommitQueued=false,v902LastMutation=null,v902LastFullAt=0,v902RenderFrame=0;
+let v902JournalFailures=0,v902LastJournalError='';
 
 function v902MutationState(m){
   const s=scoutSet(m),
@@ -98,36 +99,66 @@ function v902OpenJournal(){
 window.scoutV931WarmJournal=async function(){try{await v902OpenJournal();return true}catch(_){return false}};
 async function v902JournalWrite(m,reason='change'){
   if(!m||!Number(m.id))return false;
+  /* V16.1.5.8: capture the change BEFORE awaiting IndexedDB.  Otherwise a
+     subsequent mutation could replace the rally state while a write waits. */
   const key=`${equipoActivo}:${Number(m.id)}`,savedAt=new Date().toISOString();
+  const liveOnly=reason==='action';
+  const payload=liveOnly?{
+    key,version:'9.2.0',teamId:String(equipoActivo),matchId:Number(m.id),savedAt,
+    reason:'action-delta',currentSet:Number(m.currentSet)||1,status:String(m.status||'live'),
+    liveRally:scoutClone(m.liveRally||{actions:[]})
+  }:{
+    key,version:'9.2.0',teamId:String(equipoActivo),matchId:Number(m.id),savedAt,reason,
+    match:scoutClone(m)
+  };
   try{
     const db=await v902OpenJournal();
-    if(reason==='action'){
-      /* V9.2: action-only journal stores the live rally, not the whole match. */
-      const row={
-        key,version:'9.2.0',teamId:String(equipoActivo),matchId:Number(m.id),savedAt,reason:'action-delta',
-        currentSet:Number(m.currentSet)||1,status:String(m.status||'live'),
-        liveRally:scoutClone(m.liveRally||{actions:[]})
-      };
-      await new Promise((resolve,reject)=>{
-        const tx=db.transaction(V920_JOURNAL_LIVE_STORE,'readwrite');
-        tx.objectStore(V920_JOURNAL_LIVE_STORE).put(row);
-        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
-      });
-    }else{
-      const row={
-        key,version:'9.2.0',teamId:String(equipoActivo),matchId:Number(m.id),savedAt,reason,
-        match:scoutClone(m)
-      };
+    if(liveOnly){
+      /* An action delta without a base full snapshot cannot be recovered.
+         Read/create the base and write the delta in ONE transaction.  This is
+         relevant for newly created matches and slow IndexedDB startups. */
       await new Promise((resolve,reject)=>{
         const tx=db.transaction([V902_JOURNAL_STORE,V920_JOURNAL_LIVE_STORE],'readwrite');
-        tx.objectStore(V902_JOURNAL_STORE).put(row);
-        /* Critical snapshot already contains the latest live state. */
+        const full=tx.objectStore(V902_JOURNAL_STORE);
+        const live=tx.objectStore(V920_JOURNAL_LIVE_STORE);
+        const read=full.get(key);
+        read.onsuccess=()=>{
+          if(!read.result?.match){
+            // Anchor and delta must describe the SAME latest state. The match
+            // may have advanced while IndexedDB was opening.
+            const current={...payload,savedAt:scoutNow(),
+              liveRally:scoutClone(m.liveRally||{actions:[]}),
+              currentSet:Number(m.currentSet)||1,status:String(m.status||'live')};
+            full.put({...current,reason:'initial-action-anchor',match:scoutClone(m)});
+            live.put(current);
+            return;
+          }
+          // Never replay an older action over a more recent full checkpoint.
+          if(Date.parse(read.result.savedAt||0)>Date.parse(payload.savedAt))return;
+          const prior=live.get(key);
+          prior.onsuccess=()=>{
+            if(!prior.result||Date.parse(prior.result.savedAt||0)<=Date.parse(payload.savedAt)){
+              live.put(payload);
+            }
+          };
+        };
+        read.onerror=()=>{try{tx.abort()}catch(_){} };
+        tx.oncomplete=()=>resolve(true);
+        tx.onerror=()=>reject(tx.error||new Error('No se pudo guardar la acción'));
+        tx.onabort=()=>reject(tx.error||new Error('Guardado parcial cancelado'));
+      });
+    }else{
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction([V902_JOURNAL_STORE,V920_JOURNAL_LIVE_STORE],'readwrite');
+        tx.objectStore(V902_JOURNAL_STORE).put(payload);
         tx.objectStore(V920_JOURNAL_LIVE_STORE).delete(key);
-        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+        tx.oncomplete=()=>resolve(true);
+        tx.onerror=()=>reject(tx.error||new Error('No se pudo completar el checkpoint'));
+        tx.onabort=()=>reject(tx.error||new Error('Checkpoint cancelado'));
       });
     }
     return true;
-  }catch(err){console.warn('V9.3.1 journal',err);return false}
+  }catch(err){v902JournalFailures++;v902LastJournalError=String(err?.message||err);console.warn('V9.3.1 journal',err);return false}
 }
 window.scoutV902JournalReadAll=async function(){
   try{
@@ -209,7 +240,7 @@ function v902ScheduleCommit(reason='idle',delay=1100){
 window.scoutV902Flush=()=>v902FullCommit('manual-flush',true);
 window.scoutV902PerformanceDiagnostics=()=>({
   version:'9.3.1',lastFullAt:v902LastFullAt,commitPending:!!v902CommitTimer,commitBusy:v902CommitBusy,
-  lastMutation:v902LastMutation,journalDb:V902_JOURNAL_DB
+  lastMutation:v902LastMutation,journalDb:V902_JOURNAL_DB,journalFailures:v902JournalFailures,lastJournalError:v902LastJournalError
 });
 
 function scoutSave(render=true){
@@ -219,7 +250,12 @@ function scoutSave(render=true){
   v902LastMutation=next;
 
   /* Immediate independent safety layer. Never waits for the full application save. */
-  if(m)void v902JournalWrite(m,actionOnly?'action':'critical');
+  if(m)void v902JournalWrite(m,actionOnly?'action':'critical').then(ok=>{
+    if(ok)return;
+    const badge=$('scout-save-badge');
+    if(badge){badge.title='El diario IndexedDB no ha confirmado este cambio. Comprueba el guardado principal o exporta una copia JSON.';
+      badge.textContent='Diario local no disponible · revisar respaldo';}
+  });
 
   if(critical){
     /* V9.3.1: the full match is already being written to IndexedDB journal above.

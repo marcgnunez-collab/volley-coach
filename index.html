@@ -141,7 +141,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach | V16.1.5.7 · Inline Scouting Board</title>
+<title>Volley Coach | V16.1.5.8 · Data Reliability Pro</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -680,6 +680,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <button onclick="abrirCloud()"><span>☁</span><div><b>Nube</b><small>Sincronización móvil / ordenador</small></div><strong>→</strong></button>
     <button onclick="vc1532ShowCloudDiagnostic()"><span>⊙</span><div><b>Diagnóstico nube</b><small>Conexión, errores y cambios pendientes</small></div><strong>→</strong></button>
     <button onclick="VC_PERFORMANCE_CORE.open()"><span>▤</span><div><b>Rendimiento</b><small>Arranque, bloqueos y módulos lentos</small></div><strong>→</strong></button>
+    <button type="button" onclick="vc16158OpenAudit()"><span>✓</span><div><b>Auditoría de scoutings</b><small>Integridad, recuperación y copia del equipo</small></div><strong>→</strong></button>
   </div>
   <section id="vc60-diagnostics" hidden aria-label="Diagnóstico de rendimiento">
     <div class="vc60-header">
@@ -3402,7 +3403,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.5.7',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.1.5.8',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12106,6 +12107,27 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
   open();
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+<script id="vc16158-reliability-loader">
+/* V16.1.5.8 · Load diagnostics only on a user click; no extra startup work. */
+(()=>{
+ 'use strict';
+ let pending=null;
+ window.vc16158OpenAudit=function(){
+   const api=window.VC_DATA_RELIABILITY_16158;
+   if(api)return api.open();
+   if(pending)return pending;
+   pending=new Promise(resolve=>{
+     const script=document.createElement('script');
+     script.src='./125-vc16158-data-reliability.js?v=16.1.5.8';
+     script.async=true;
+     script.onload=()=>{pending=null;resolve(window.VC_DATA_RELIABILITY_16158?.open?.()||false)};
+     script.onerror=()=>{pending=null;alert('No se ha podido cargar la auditoría. Comprueba que el archivo 125 está publicado.');resolve(false)};
+     document.head.appendChild(script);
+   });
+   return pending;
+ };
 })();
 </script>
 </body></html>
