@@ -10,8 +10,8 @@ const fmt=(n,digit=1)=>n==null?'—':`${Number(n).toLocaleString('es-ES',{maximu
 const pct=(a,b)=>b?Math.round(a/b*1000)/10:null;
 const signed=n=>n>0?`+${n}`:String(n);
 const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación',D:'Defensa',F:'Freeball',C:'Cobertura'};
-const pages={overview:['Panorama','KPIs y lectura del partido'],players:['Hoja estadística','Rendimiento por jugador'],rotations:['Rotaciones','K1 / K2 y comparación'],distribution:['Distribución','Recepción y colocador'],zones:['Zonas','Origen, destino y bloqueo'],explorer:['Explorador','Acciones y evidencia en vídeo']};
-const state={page:'players',team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
+const pages={overview:['Panorama','KPIs y lectura del partido'],players:['Hoja estadística','Rendimiento por jugador'],rotations:['Rotaciones','K1 / K2 y comparación'],distribution:['Distribución','Recepción y colocador'],zones:['Zonas','Origen, destino y bloqueo'],explorer:['Explorador','Acciones y evidencia en vídeo'],deep:['Fundamentos Pro','Todos los gestos y contextos']};
+const state={page:'players',team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
 /* Collect all accessible matches (including finished scouting), without changing
    the active match. A different team or a remote sync may update this list. */
@@ -167,13 +167,35 @@ function pageExplorer(data){
  const tr=selection.slice(0,150).map(a=>`<tr><td>${a.set}</td><td>${a.r.index}</td><td>${html(a.player)}</td><td>${html(categories[a.skill]||a.skill)}</td><td>${html(a.ev)}</td><td><code>${html(a.code)}</code></td><td>${a.video?'Vinculada':'Sin marca'}</td><td>${pickButton('▶', [a.key],`${a.code} · ${a.player}`)}</td></tr>`).join('');
  return `<div class="vc157-panel"><h3>Explorador de acciones</h3><div class="vc157-explorer-filters"><label>Jugador<select id="vc157-player">${selOpts(players.map(x=>[x,x]),f.player,'Todos')}</select></label><label>Fundamento<select id="vc157-skill">${selOpts(Object.entries(categories).map(([k,v])=>[k,v]),f.skill,'Todos')}</select></label><label>Valoración<select id="vc157-rating">${selOpts(['#','+','!','-','/','='].map(x=>[x,x]),f.rating,'Todas')}</select></label></div><p>${selection.length} coincidencias · ${selection.filter(a=>a.video).length} con referencia de vídeo · ${pickButton('▶ Seleccionar todas',selection.map(a=>a.key),'Búsqueda combinada')}</p>${table(['Set','Rally','Jugador','Fundamento','Eval.','Código','Vídeo','Abrir'],tr)}${selection.length>150?'<p class="vc157-note">Se muestran las primeras 150 filas. La selección puede incluir todas las coincidencias.</p>':''}</div>`;
 }
+let deepLoading=null,deepLoadError='';
+function pageDeep(data,surface){
+ const api=window.VC_ALL_SKILLS_1617;
+ if(api?.render){
+  try{
+   api.installStyle();
+   surface.innerHTML=api.render(data,{skill:state.deepSkill,dimension:state.deepDim,player:state.deepPlayer},{pickButton,table,html});
+  }catch(e){console.error('Fundamentos Pro',e);surface.innerHTML='<div class="vc157-panel">No se puede mostrar este análisis. El análisis técnico anterior sigue disponible.</div>'}
+  return;
+ }
+ surface.innerHTML=`<div class="vc157-panel"><h3>Fundamentos Pro</h3><p>${deepLoadError?'No se ha podido cargar el módulo de análisis detallado.':'Preparando los desgloses de todos los fundamentos…'}</p>${deepLoadError?'<button id="vc171-retry" type="button">Reintentar</button>':''}</div>`;
+ if(deepLoading||deepLoadError)return;
+ deepLoading=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');
+  script.src='./126-vc1617-all-skills-analytics.js?v=16.1.7';script.defer=true;
+  script.onload=()=>resolve(true);
+  script.onerror=()=>reject(new Error('No se pudo descargar el módulo Fundamentos Pro'));
+  document.body.appendChild(script);
+ });
+ deepLoading.then(()=>{deepLoading=null;if(state.page==='deep'&&!state.technical)renderPage()})
+  .catch(err=>{deepLoading=null;deepLoadError=String(err.message||err);console.warn('Fundamentos Pro',err);if(state.page==='deep'&&!state.technical)renderPage()});
+}
 function renderPage(){
  if(!state.loaded||state.technical)return;
  const data=dataset(),surface=$('vc157-content');if(!surface)return;
  if(!data){surface.innerHTML='<div class="vc157-empty">Selecciona un scouting para empezar el análisis.</div>';return;}
  const p=state.page;
  const content={overview:pageOverview,players:pagePlayers,rotations:pageRotations,distribution:pageDistribution,zones:pageZones,explorer:pageExplorer}[p]||pagePlayers;
- surface.innerHTML=content(data);
+ if(p==='deep')pageDeep(data,surface);else surface.innerHTML=content(data);
  const meta=$('vc157-sample');if(meta)meta.textContent=periodLabel(data);
  document.querySelectorAll('#vc157-tabs [data-section]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===state.page)));
  const title=$('vc157-section-title');if(title)title.textContent=pages[p][0];
@@ -258,6 +280,8 @@ function mount(){
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b)return;state.page=b.dataset.section;state.player='';state.skill='';state.rating='';renderPage()});
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
+  if(id==='vc171-dimension'){state.deepDim=t.value;renderPage();return}
+  if(id==='vc171-player'){state.deepPlayer=t.value;renderPage();return}
   if(id==='vc157-match'){
    const chosen=matches().find(m=>String(m.id)===String(t.value));
    if(!chosen){buildHeader();return;}
@@ -273,6 +297,8 @@ function mount(){
  });
  host.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.vc171Skill){state.deepSkill=t.dataset.vc171Skill;state.deepDim='player';state.deepPlayer='';renderPage();return}
+  if(t.id==='vc171-retry'){deepLoadError='';renderPage();return}
   if(t.dataset.pick){let keys=[];try{keys=JSON.parse(decodeURIComponent(t.dataset.pick))}catch(_){ }selectKeys(keys,t.dataset.pickTitle);return}
   switch(t.id){
    case 'vc157-refresh-matches':refresh();break;
@@ -403,5 +429,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:550px){#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto!important}#vc157-studio .vc157-filterbar .vc157-match-field{grid-column:1!important}#vc157-studio .vc157-filterbar>label:not(.vc157-match-field){grid-column:span 1}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.1.6',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.1.7',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
