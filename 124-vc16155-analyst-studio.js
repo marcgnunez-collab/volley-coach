@@ -1,4 +1,4 @@
-/* Volley Coach V16.2.1 · Analysis Pro · Profundidad táctica y colocador
+/* Volley Coach V16.2.2 · Analysis Pro · Visualización táctica y vídeo
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -24,7 +24,7 @@ const subpages={
  setter:[['distribution','Distribución y destinos'],['details','Tempos y combinaciones']]
 };
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
-const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',setterPlayer:'',setterReception:'',setterTempo:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
+const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
 /* Collect all accessible matches (including finished scouting), without changing
    the active match. A different team or a remote sync may update this list. */
@@ -159,6 +159,74 @@ const attackStats=(items)=>{const attacks=items.filter(Boolean);return {n:attack
 const effStat=s=>fmt(pct(s.k-s.e-s.b,s.n));
 function tabRows(grouped,valueName,keysName){return [...grouped].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'es')).map(([name,items])=>({name,items,att:attackStats(items.map(x=>x.attack)),keys:items.flatMap(pairKeys)}))}
 function groupedBy(items,label){const map=new Map();for(const item of items){const key=setterText(label(item));if(!map.has(key))map.set(key,[]);map.get(key).push(item)}return tabRows(map)}
+// V16.2.2: registered selection references avoid embedding large action arrays in SVG paths.
+const diagramDrills=new Map();let diagramSerial=0;
+function drillAttrs(keys,title){
+ const id='d'+(++diagramSerial);diagramDrills.set(id,{keys:[...new Set(keys.filter(Boolean))],title});
+ return `data-vc1622-drill="${id}"`;
+}
+const zoneOrder=[4,3,2,7,8,9,5,6,1];
+const zoneIndex=z=>zoneOrder.indexOf(Number(z));
+function zonePoint(z,x,y,w=255,h=240){const i=zoneIndex(z);return i<0?null:{x:x+(i%3+.5)*w/3,y:y+(Math.floor(i/3)+.5)*h/3};}
+const parsedZone=v=>{const m=String(v??'').trim().toUpperCase().match(/^Z?([1-9])([A-D])?$/);return m?m[1]:null};
+const attackKind=a=>a.ev==='#'?'kill':a.ev==='='||a.ev==='/'?'error':'continuation';
+function mapAttackFilter(rows){return rows.filter(a=>(!state.attackPlayer||a.player===state.attackPlayer)&&(!state.attackResult||attackKind(a)===state.attackResult));}
+const diagramColor=(s)=>s.n===0?'#7890a3':(s.k-s.e-s.b)>0?'#1d8576':(s.k-s.e-s.b)<0?'#c66b55':'#6283ab';
+function diagramCourt(x,y,w,h,label,counts){
+ const max=Math.max(1,...zoneOrder.map(z=>(counts.get(String(z))||[]).length));
+ return `<text x="${x}" y="${y-16}" class="vc1622-label">${html(label)}</text>`+zoneOrder.map((z,i)=>{
+  const col=i%3,row=Math.floor(i/3),xx=x+col*w/3,yy=y+row*h/3,items=counts.get(String(z))||[];
+  const strength=items.length/max;
+  const fill=`rgba(41,123,173,${(0.04+strength*.23).toFixed(3)})`;
+  return `<rect x="${xx.toFixed(1)}" y="${yy.toFixed(1)}" width="${(w/3).toFixed(1)}" height="${(h/3).toFixed(1)}" rx="3" fill="${fill}" stroke="#abc5d7" stroke-width="1"/><text x="${(xx+w/6).toFixed(1)}" y="${(yy+h/6-5).toFixed(1)}" text-anchor="middle" class="vc1622-court-number">Z${z}</text><text x="${(xx+w/6).toFixed(1)}" y="${(yy+h/6+15).toFixed(1)}" text-anchor="middle" class="vc1622-court-count">${items.length}</text>`;
+ }).join('');
+}
+function groupZone(items,field){const m=new Map();for(const row of items){const z=parsedZone(field(row));if(!z)continue;if(!m.has(z))m.set(z,[]);m.get(z).push(row)}return m;}
+function attackDiagram(data){
+ const rows=mapAttackFilter(data.attacks),paths=new Map();
+ for(const a of rows){const from=parsedZone(a.a.startZone),to=parsedZone(a.a.endZone);if(!from||!to)continue;const key=from+':'+to;if(!paths.has(key))paths.set(key,{from,to,items:[]});paths.get(key).items.push(a)}
+ const routes=[...paths.values()].sort((a,b)=>b.items.length-a.items.length||Number(a.from)-Number(b.from)||Number(a.to)-Number(b.to));
+ const observed=routes.reduce((n,r)=>n+r.items.length,0),top=routes.slice(0,10);
+ const origins=groupZone(rows,a=>a.a.startZone),destinations=groupZone(rows,a=>a.a.endZone);
+ const arrows=top.map((route,i)=>{
+  const start=zonePoint(route.from,30,56),end=zonePoint(route.to,625,56);if(!start||!end)return '';
+  const stats=attackStats(route.items),color=diagramColor(stats),width=(1.8+Math.min(5.2,Math.sqrt(route.items.length)*.65)).toFixed(1);
+  const d=`M ${start.x.toFixed(1)} ${start.y.toFixed(1)} C 340 ${(start.y+i%4*3).toFixed(1)}, 545 ${(end.y+i%4*3).toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+  return `<path d="${d}" stroke="${color}" stroke-width="${width}" opacity="0.63" fill="none" marker-end="url(#vc1622-arrow)" pointer-events="none"/><path d="${d}" class="vc1622-route-hit" ${drillAttrs(route.items.map(a=>a.key),`Ataque Z${route.from} → Z${route.to}`)} tabindex="0" role="button" aria-label="Ver ${route.items.length} ataques de Z${route.from} a Z${route.to}" stroke="transparent" stroke-width="18" fill="none"><title>Z${route.from} → Z${route.to} · ${route.items.length} ataques · ${stats.k} puntos · EFF ${effStat(stats)}</title></path>`;
+ }).join('');
+ const figures=`<div class="vc1622-diagramwrap"><svg class="vc1622-diagram" viewBox="0 0 920 338" role="group" aria-label="Trayectorias agrupadas de ataque desde zonas de origen hasta zonas de destino codificadas">
+ <defs><marker id="vc1622-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="#416e85"/></marker></defs>
+ ${diagramCourt(30,56,255,240,'ORIGEN REGISTRADO',origins)}${diagramCourt(625,56,255,240,'DESTINO REGISTRADO',destinations)}${arrows}
+ </svg></div>`;
+ const trows=routes.slice(0,24).map(route=>{const st=attackStats(route.items);return `<tr><td>Z${route.from} → Z${route.to}</td><td>${route.items.length}</td><td>${st.k}</td><td>${st.e+st.b}</td><td>${effStat(st)}</td><td><button type="button" class="vc157-pick" ${drillAttrs(route.items.map(a=>a.key),`Ataques Z${route.from} → Z${route.to}`)}>Ver acciones</button></td></tr>`}).join('');
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Trayectorias reales de ataque</h3><p>Mapa desde el origen hasta el destino. Solo se dibujan acciones con ambas zonas registradas.</p></div><span class="vc157-tag">${observed}/${rows.length} trayectorias completas</span></div>
+ <div class="vc1622-filterline"><label>Atacante<select id="vc1622-attack-player">${selOpts([...new Set(data.attacks.map(a=>a.player))].sort((a,b)=>a.localeCompare(b,'es')).map(x=>[x,x]),state.attackPlayer,'Todos')}</select></label><label>Resultado<select id="vc1622-attack-result">${selOpts([['kill','Punto (#)'],['error','Error o bloqueado (= /)'],['continuation','Continúa la jugada']],state.attackResult,'Todos')}</select></label><span class="vc1622-legend"><i class="positive"></i>EFF positiva <i class="negative"></i>EFF negativa <i class="neutral"></i>Neutra</span></div>
+ ${figures}<p class="vc157-note">Se muestran las 10 rutas más frecuentes en el dibujo y hasta 24 en la tabla. El grosor indica frecuencia y el color, el signo de la eficiencia en la ruta. El filtro de resultado se aplica antes del cálculo. Las zonas muestran recuentos; no son coordenadas reales de impacto.</p>
+ ${table(['Origen → destino','Ataques','Puntos','Errores y bloqueados','EFF','Evidencias'],trows)}${routes.length>24?`<p class="vc157-note">${routes.length-24} rutas adicionales no se muestran en la tabla para mantener el rendimiento; todas cuentan en los totales.</p>`:''}</div>`;
+}
+function setterDiagram(pairs){
+ const mapped=pairs.filter(p=>parsedZone(p.set.a.setTarget));
+ const destinations=groupZone(mapped,p=>p.set.a.setTarget);
+ const total=mapped.length;
+ const routes=zoneOrder.map(z=>({z,items:destinations.get(String(z))||[]})).filter(x=>x.items.length);
+ const arrows=routes.map(({z,items})=>{const end=zonePoint(z,495,49,270,243);const st=attackStats(items.map(p=>p.attack));const color=diagramColor(st);const d=`M 137 165 Q 295 ${end.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+  return `<path d="${d}" stroke="${color}" stroke-width="${(2+Math.min(7,Math.sqrt(items.length))).toFixed(1)}" opacity="0.70" fill="none" marker-end="url(#vc1622-set-arrow)" pointer-events="none"/><path d="${d}" stroke="transparent" stroke-width="19" fill="none" class="vc1622-route-hit" tabindex="0" role="button" aria-label="Ver colocaciones a Z${z}" ${drillAttrs(items.flatMap(pairKeys),`Colocaciones a Z${z}`)}><title>Z${z}: ${items.length}/${total} colocaciones; ${st.n} ataques posteriores; EFF ${effStat(st)}</title></path>`;
+ }).join('');
+ const targetMap=new Map([...destinations].map(([z,items])=>[z,items]));
+ const fig=`<div class="vc1622-diagramwrap"><svg class="vc1622-diagram" viewBox="0 0 815 335" role="group" aria-label="Distribución esquemática de las colocaciones con destino codificado"><defs><marker id="vc1622-set-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="#426e85"/></marker></defs>
+ <rect x="18" y="130" width="124" height="74" rx="13" fill="#e4f1fc" stroke="#9cc3df"/><text x="80" y="158" class="vc1622-setnode" text-anchor="middle">COLOCADOR</text><text x="80" y="183" class="vc1622-court-count" text-anchor="middle">${pairs.length} coloc.</text>
+ ${diagramCourt(495,49,270,243,'DESTINO DE COLOCACIÓN',targetMap)}${arrows}</svg></div>`;
+ const cards=routes.map(({z,items})=>{const st=attackStats(items.map(p=>p.attack));return `<button type="button" class="vc1622-destcard" ${drillAttrs(items.flatMap(pairKeys),`Destino de colocación Z${z}`)}><b>Z${z}</b><strong>${items.length}</strong><span>${fmt(pct(items.length,total))} del destino zonal · Ataque ${st.k}/${st.n} · EFF ${effStat(st)}</span></button>`}).join('');
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Red de distribución del colocador</h3><p>Flechas agrupadas según los destinos Z1–Z9 registrados, con acceso al ataque posterior cuando existe.</p></div><span class="vc157-tag">${total}/${pairs.length} destinos zonales</span></div>${fig}<div class="vc1622-destcards">${cards||'<p class="vc157-muted">Ninguna colocación tiene destino zonal codificado con los filtros actuales.</p>'}</div><p class="vc157-note">El nodo de colocador es esquemático: no indica desde dónde se realizó el toque. El color corresponde a la eficiencia de los ataques posteriores vinculados; si no hay ataque vinculado, se muestra neutro. No se infiere el atacante ni el tempo.</p></div>`;
+}
+function rotationDashboard(data){
+ const active=state.rotation;
+ const cards=data.rotations.map(r=>{const keys=data.actions.filter(a=>a.r&&(data.target==='ours'?a.r.rotation:a.r.opponentRotation)===r.rotation).map(a=>a.key);
+  const show=(label,x)=>`<div class="vc1622-rotline"><small>${label} <b>${x.w}/${x.n}</b></small><div class="vc1622-track"><i style="width:${x.pct||0}%"></i></div><strong>${fmt(x.pct)}</strong></div>`;
+  return `<div class="vc1622-rotcard ${String(active)===String(r.rotation)?'is-active':''}"><div class="vc1622-rothead"><b>R${r.rotation}</b><small>${r.rallies} rallies · G-P ${signed(2*r.won-r.rallies)}</small></div>${show('K1',r.k1)}${show('K2',r.k2)}<div class="vc1622-rotactions"><button type="button" class="vc1622-rot-filter" data-vc1622-rotation="${r.rotation}" ${active===String(r.rotation)?'disabled':''}>Filtrar R${r.rotation}</button><button type="button" class="vc157-pick" ${drillAttrs(keys,`Rotación R${r.rotation}`)}>Jugadas</button></div></div>`;
+ }).join('');
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Comparador visual R1–R6</h3><p>Conversión K1 y K2 con muestras separadas. Pulsa una rotación para filtrar toda la vista.</p></div><span class="vc157-tag">${data.points.rallies} rallies</span></div><div class="vc1622-rotgrid">${cards}</div>${active?'<button type="button" class="vc1622-clear-rot" data-vc1622-rotation="">Mostrar todas las rotaciones</button>':''}<p class="vc157-note">Los porcentajes sin oportunidades se muestran como «—». Una rotación con pocos rallies no permite concluir que sea mejor o peor. El filtro de rotación del encabezado también controla esta vista.</p></div>`;
+}
 function pageRotations(data){
  const rows=data.rotations.map(r=>{
   const rRows=data.actions.filter(a=>a.r&&(data.target==='ours'?a.r.rotation:a.r.opponentRotation)===r.rotation);
@@ -175,7 +243,7 @@ function pageRotations(data){
   return `<tr><td>${label} <small>${html(ev)}</small></td><td>${list.length}</td><td>${w}/${list.length}</td><td>${fmt(pct(w,list.length))}</td><td>${st.k}/${st.n}</td><td>${effStat(st)}</td><td>${pickButton('Ver',list.map(c=>c.rec.key),`Recepción ${ev} en K1`)}</td></tr>`;
  }).join('');
  const knownK1=data.chains.length,miss=Math.max(0,validK1.length-knownK1);
- return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Rotaciones · rendimiento real por complejo</h3><p>K1 y K2 por rally resuelto. Recepción y ataque se calculan sobre acciones codificadas, no sobre todos los rallies.</p></div><span class="vc157-tag">${data.points.rallies} rallies</span></div>
+ return `${rotationDashboard(data)}<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Rotaciones · rendimiento real por complejo</h3><p>K1 y K2 por rally resuelto. Recepción y ataque se calculan sobre acciones codificadas, no sobre todos los rallies.</p></div><span class="vc157-tag">${data.points.rallies} rallies</span></div>
  ${table(['Rot.','K1 G/T','K1 %','K2 G/T','K2 %','Rallies','G-P','Rec. +/#','Ataque # / EFF','Acciones'],rows)}
  <p class="vc157-note">G-P de esta tabla = rallies ganados menos perdidos. Rec. +/# y ataque pueden estar incompletos si el scouting no registra todas las acciones; un rally se cuenta una sola vez para K1/K2.</p></div>
  <div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Side-out según la recepción</h3><p>Comparación por calidad de la primera recepción registrada en cada rally de K1.</p></div><span class="vc157-tag">${knownK1}/${validK1.length} K1 con recepción</span></div>
@@ -208,10 +276,8 @@ function pageDistribution(data){
  const byDest=groupedBy(pairs,p=>p.set.a.setTarget),total=pairs.length;
  const setterRows=bySetter.map(g=>`<tr><td>${pickButton(g.name,g.keys,`Colocaciones de ${g.name}`)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,total))}</td><td>${g.att.n}/${g.items.length}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Distribución · ${g.name}`)}</td></tr>`).join('');
  const destRows=byDest.map(g=>`<tr><td>${html(g.name)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,total))}</td><td>${g.att.n}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Destino ${g.name}`)}</td></tr>`).join('');
- const inZones=pairs.filter(p=>setterZone(p.set.a.setTarget)),validCount=inZones.length;
- const court=[4,3,2,7,8,9,5,6,1].map(z=>{const here=inZones.filter(p=>setterZone(p.set.a.setTarget)===String(z));return `<button class="vc1621-zone" type="button" data-pick="${encodeURIComponent(JSON.stringify(here.flatMap(pairKeys)))}" data-pick-title="Colocaciones a Z${z}"><b>Z${z}</b><strong>${here.length}</strong><small>${fmt(pct(here.length,validCount))}</small></button>`}).join('');
- return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Distribución por colocador</h3><p>Se agrupan colocaciones reales y ataques posteriores vinculados a la misma posesión.</p></div><span class="vc157-tag">${data.pairs.length} colocaciones</span></div>${setterFilters(data)}${setterSummary(data,pairs)}${table(['Colocador','Total','Uso','Ataques vinculados','Kill','EFF','Evidencias'],setterRows)}</div>
- <div class="vc157-grid2"><div class="vc157-panel"><h3>Mapa de destinos de la colocación</h3><p>${validCount}/${total} colocaciones con zona Z1–Z9 explícita. Pulsa una zona para inspeccionar acciones.</p><div class="vc1621-court">${court}</div><p class="vc157-note">Los destinos no zonales (combinaciones o texto libre) aparecen en la tabla, pero no se sitúan artificialmente en la pista.</p></div><div class="vc157-panel"><h3>Destinos registrados y eficacia</h3>${table(['Destino','Uso','%','Ataques','Kill','EFF','Acciones'],destRows)}<p class="vc157-note">«Sin registrar» significa que no se escribió destino. La efectividad se refiere únicamente a los ataques vinculados, no a las colocaciones sin ataque.</p></div></div>`;
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Distribución por colocador</h3><p>Colocaciones reales y primeros ataques vinculados en la misma posesión.</p></div><span class="vc157-tag">${data.pairs.length} colocaciones</span></div>${setterFilters(data)}${setterSummary(data,pairs)}${table(['Colocador','Total','Uso','Ataques vinculados','Kill','EFF','Evidencias'],setterRows)}</div>
+ ${setterDiagram(pairs)}<div class="vc157-panel"><h3>Destinos exactos registrados</h3>${table(['Destino','Uso','%','Ataques','Kill','EFF','Acciones'],destRows)}<p class="vc157-note">Los destinos de texto libre, las subzonas y «Sin registrar» permanecen en la tabla, sin ubicarlos arbitrariamente en la pista. EFF solo incluye los ataques realmente vinculados.</p></div>`;
 }
 function pageSetterDetails(data){
  const pairs=setterPairsView(data),n=pairs.length;
@@ -230,11 +296,12 @@ function pageSetterDetails(data){
  <div class="vc157-panel"><h3>Contexto de recepción</h3>${table(['Recepción','Coloc.','Ataques','Kill','EFF','Acciones'],recRows)}<p class="vc157-note">Sin recepción registrada puede ser transición K2, un rally incompleto o una recepción omitida. No se etiqueta automáticamente como recepción negativa.</p></div></div>`;
 }
 function pageZones(data){
- const zones=new Map(data.zoneCounts),tot=data.zoneCounts.reduce((n,[,items])=>n+items.length,0);
- const body=[4,3,2,7,8,9,5,6,1].map(z=>{const rows=zones.get(String(z))||[],clickRows=rows.map(r=>r.key);return `<button class="vc157-zone" data-pick="${encodeURIComponent(JSON.stringify(clickRows))}" data-pick-title="Ataques en Z${z}"><b>Z${z}</b><strong>${rows.length}</strong><small>${fmt(pct(rows.length,tot))}</small><i style="opacity:${Math.max(.08,Math.min(.55,rows.length/Math.max(1,tot)*2.5))}"></i></button>`}).join('');
- const blMap=new Map();for(const r of data.attacks){const k=r.a.blockers==null||r.a.blockers===''?'Sin registrar':String(r.a.blockers);if(!blMap.has(k))blMap.set(k,[]);blMap.get(k).push(r)}
- const blockers=[...blMap].map(([k,rows])=>{const kill=rows.filter(a=>a.ev==='#').length,neg=rows.filter(a=>a.ev==='='||a.ev==='/').length;return `<tr><td>${html(k)}</td><td>${rows.length}</td><td>${fmt(pct(kill,rows.length))}</td><td>${fmt(pct(kill-neg,rows.length))}</td><td>${pickButton('▶',rows.map(a=>a.key),`Bloqueadores ${k}`)}</td></tr>`}).join('');
- return `<div class="vc157-grid2"><div class="vc157-panel"><h3>Destinos de ataque · pista 9×4</h3><p>${tot}/${data.attacks.length} ataques tienen una zona registrada. Pulsa una zona para ver sus acciones.</p><div class="vc157-court">${body}</div><p class="vc157-note">Subzonas A–D disponibles en los datos originales y exportaciones; aquí se agregan a las nueve zonas para facilitar la lectura.</p></div><div class="vc157-panel"><h3>Ataque según bloqueo rival</h3>${table(['Bloqueadores','Ataques','Kill %','EFF','Vídeo'],blockers)}<p class="vc157-note">Se incluyen únicamente las características codificadas. Sin datos registrados, no se inventa el tipo de bloqueo.</p></div></div>`;
+ const attack=mapAttackFilter(data.attacks);
+ const blMap=new Map();for(const r of attack){const k=r.a.blockers==null||r.a.blockers===''?'Sin registrar':String(r.a.blockers);if(!blMap.has(k))blMap.set(k,[]);blMap.get(k).push(r)}
+ const blockers=[...blMap].map(([k,rows])=>{const kill=rows.filter(a=>a.ev==='#').length,neg=rows.filter(a=>a.ev==='='||a.ev==='/').length;return `<tr><td>${html(k)}</td><td>${rows.length}</td><td>${fmt(pct(kill,rows.length))}</td><td>${fmt(pct(kill-neg,rows.length))}</td><td>${pickButton('Ver',rows.map(a=>a.key),`Bloqueadores ${k}`)}</td></tr>`}).join('');
+ const zones=groupZone(attack,a=>a.a.endZone),zN=[...zones.values()].reduce((n,x)=>n+x.length,0);
+ const zoneRows=zoneOrder.map(z=>{const items=zones.get(String(z))||[],st=attackStats(items);return `<tr><td>Z${z}</td><td>${items.length}</td><td>${fmt(pct(items.length,zN))}</td><td>${st.k}</td><td>${st.e+st.b}</td><td>${effStat(st)}</td><td>${pickButton('Ver',items.map(a=>a.key),`Ataques al destino Z${z}`)}</td></tr>`}).join('');
+ return `${attackDiagram(data)}<div class="vc157-grid2"><div class="vc157-panel"><h3>Rendimiento por zona de destino</h3><p>${zN}/${attack.length} ataques tienen destino zonal registrado.</p>${table(['Zona','Ataques','Uso','Puntos','Errores','EFF','Evidencias'],zoneRows)}</div><div class="vc157-panel"><h3>Ataque según bloqueo rival</h3>${table(['Bloqueadores','Ataques','Kill %','EFF','Jugadas'],blockers)}<p class="vc157-note">Solo se muestran características de bloqueo codificadas. «Sin registrar» no equivale a bloqueo de cero jugadores.</p></div></div>`;
 }
 function pageSeason(){
  const api=window.VC_ANALYSIS_INTELLIGENCE_1614;
@@ -300,6 +367,7 @@ function pageDeep(data,surface){
 function renderPage(){
  if(!state.loaded||state.technical)return;
  const surface=$('vc157-content');if(!surface)return;
+ diagramDrills.clear();diagramSerial=0;
  const studio=$('vc157-studio');if(studio){studio.dataset.vc1620Setter=String(state.page==='setter'&&state.subpage.setter==='details');studio.dataset.vc1620Season=String(state.page==='season');}
  const heading=$('vc157-section-title');if(heading)heading.textContent=pages[state.page]?.[0]||'Resumen';
  const meta=$('vc157-sample');
@@ -335,16 +403,17 @@ function selectKeys(keys,title){
 function renderInspector(){
  const out=$('vc157-inspector-content');if(!out)return;
  const rows=state.selected,video=rows.filter(r=>r.video),title=$('vc157-inspector-title');if(title)title.textContent=state.selectedTitle;
- out.innerHTML=rows.length?`<p><b>${rows.length}</b> acciones · <b>${video.length}</b> con marca de vídeo</p><div class="vc157-inspector-list">${rows.slice(0,45).map(r=>`<div class="vc157-inspector-item"><div><b>${html(r.code||r.skill+r.ev)}</b><small>Set ${r.set} · ${html(r.player)}</small></div><span>${r.video?'Vídeo':'Sin tiempo'}</span></div>`).join('')}</div>${rows.length>45?'<p>Se muestran las primeras 45 acciones.</p>':''}`:'<p>Selecciona una cifra, rotación, zona o jugada para ver las acciones que forman ese resultado.</p>';
+ out.innerHTML=rows.length?`<p><b>${rows.length}</b> acciones · <b>${video.length}</b> con referencia temporal</p><div class="vc157-inspector-list">${rows.slice(0,60).map(r=>`<div class="vc157-inspector-item"><div><b>${html(r.code||r.skill+r.ev)}</b><small>Set ${r.set} · Rally ${r.r.index} · ${html(r.player)} · ${html(r.ev)}</small></div>${r.video?`<button type="button" class="vc1622-clip" data-vc1622-clip="${encodeURIComponent(r.key)}" aria-label="Abrir vídeo de la acción ${html(r.code||r.skill+r.ev)}">▶ Vídeo</button>`:'<span>Sin marca</span>'}</div>`).join('')}</div>${rows.length>60?'<p>Se muestran las primeras 60 acciones. La selección para vídeo incluye todas las que tienen referencia temporal.</p>':''}`:'<p>Selecciona una cifra, rotación, flecha, zona o jugada para inspeccionar las acciones que la componen.</p>';
  const btn=$('vc157-video');if(btn)btn.disabled=!video.length;
 }
-function openVideo(){
- const m=currentMatch(),keys=state.selected.filter(a=>a.video).map(x=>x.key);
- if(!m||!keys.length)return;
+function openVideoKeys(keys){
+ const m=currentMatch();if(!m||!keys.length)return;
  const api=window.VC_VIDEO_ANALYTICS_1612;
  if(!api?.openKeys){const note=$('vc157-inspector-note');if(note)note.textContent='Video Analytics no está disponible en esta versión.';return;}
- try{const ok=api.openKeys(m.id,keys);if(!ok){const note=$('vc157-inspector-note');if(note)note.textContent='No se ha podido abrir la selección de vídeo.';}}catch(e){console.warn('Analyst Studio video',e)}
+ try{const ok=api.openKeys(m.id,keys);if(!ok){const note=$('vc157-inspector-note');if(note)note.textContent='No se ha podido abrir la selección de vídeo. Comprueba el partido y la fuente de vídeo.';}}
+ catch(e){console.warn('Analyst Studio video',e);const note=$('vc157-inspector-note');if(note)note.textContent='Error al abrir el vídeo.';}
 }
+function openVideo(){openVideoKeys(state.selected.filter(a=>a.video).map(x=>x.key))}
 function exportFile(ext){
  if(ext==='csv-official'){
   const core=window.VC_STATISTICS_1616,match=currentMatch();if(!core?.csvForMatch||!match)return;
@@ -394,17 +463,19 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.1</span><h2>Centro de análisis</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.2</span><h2>Centro de análisis</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 2.1 · Estadísticas calculadas sin modificar el scouting. Muestras explícitas y acciones trazables. La Hoja Oficial conserva su generador y estructura.</p>`;
+ <p class="vc157-footer">Analysis Pro 2.2 · Estadísticas calculadas sin modificar el scouting. Muestras explícitas y acciones trazables. La Hoja Oficial conserva su generador y estructura.</p>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
+  if(id==='vc1622-attack-player'){state.attackPlayer=t.value;state.selected=[];renderInspector();renderPage();return}
+  if(id==='vc1622-attack-result'){state.attackResult=t.value;state.selected=[];renderInspector();renderPage();return}
   if(id==='vc1621-setter-player'){state.setterPlayer=t.value;renderPage();return}
   if(id==='vc1621-setter-reception'){state.setterReception=t.value;renderPage();return}
   if(id==='vc1621-setter-tempo'){state.setterTempo=t.value;renderPage();return}
@@ -413,7 +484,7 @@ function mount(){
   if(id==='vc157-match'){
    const chosen=matches().find(m=>String(m.id)===String(t.value));
    if(!chosen){buildHeader();return;}
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.setterPlayer='';state.setterReception='';state.setterTempo='';
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';
    // Never dispatch the old select's change from Studio: the legacy renderer
    // can rebuild its options and switch back to the active match mid-selection.
    setNativeSelection(state.match);
@@ -424,13 +495,17 @@ function mount(){
   refresh();
  });
  host.addEventListener('click',e=>{
+  const hit=e.target.closest('[data-vc1622-drill]');
+  if(hit){const obj=diagramDrills.get(hit.dataset.vc1622Drill);if(obj)selectKeys(obj.keys,obj.title);return;}
   const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.vc1622Clip){openVideoKeys([decodeURIComponent(t.dataset.vc1622Clip)]);return;}
+  if(t.hasAttribute('data-vc1622-rotation')){state.rotation=t.dataset.vc1622Rotation;state.selected=[];renderInspector();buildHeader();renderPage();return;}
   if(t.dataset.vc171Skill){if(state.page==='setter'&&t.dataset.vc171Skill!=='E'){state.page='players';state.subpage.players='fundamentals';}state.deepSkill=t.dataset.vc171Skill;state.deepDim='player';state.deepPlayer='';renderPage();return}
   if(t.id==='vc171-retry'){deepLoadError='';renderPage();return}
   if(t.dataset.seasonMatch){
    const chosen=matches().find(m=>String(m.id)===String(t.dataset.seasonMatch));
    if(!chosen)return;
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.setterPlayer='';state.setterReception='';state.setterTempo='';
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';
    state.page='overview';state.selected=[];state.selectedTitle='Selecciona una cifra';setNativeSelection(state.match);
    renderInspector();buildHeader();renderPage();return;
   }
@@ -445,6 +520,7 @@ function mount(){
    case 'vc157-json':exportFile('json');break;
   }
  });
+ host.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const t=e.target.closest('svg [data-vc1622-drill]');if(!t)return;e.preventDefault();const obj=diagramDrills.get(t.dataset.vc1622Drill);if(obj)selectKeys(obj.keys,obj.title);});
  native.addEventListener('change',()=>{
   if(!state.technical && !state.match){state.match=native.value;state.set='';state.rotation='';refresh()}
  });
@@ -547,6 +623,41 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 #vc157-studio .vc1620-trendrow>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#vc157-studio .vc1620-trendrow b{color:#265d84}
 #vc157-studio .vc1620-track{height:10px;overflow:hidden;background:#e8f0f6;border-radius:8px}#vc157-studio .vc1620-track i{display:block;background:#377caa;height:100%;border-radius:8px}
 
+
+/* V16.2.2: accessible tactical maps, distribution network and rotation comparisons. */
+#vc157-studio .vc1622-filterline{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:12px 0}
+#vc157-studio .vc1622-filterline label{display:grid;gap:4px;min-width:155px;flex:1;color:#56748d;font:750 10px/1.4 system-ui}
+#vc157-studio .vc1622-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;color:#6a8398;margin:0 0 10px}
+#vc157-studio .vc1622-legend i{width:11px;height:11px;border-radius:4px;background:#6283ab;margin-left:6px}
+#vc157-studio .vc1622-legend .positive{background:#1d8576}#vc157-studio .vc1622-legend .negative{background:#c66b55}
+#vc157-studio .vc1622-diagramwrap{width:100%;overflow-x:auto;border:1px solid #d5e4ee;border-radius:11px;background:linear-gradient(#fff,#f7fbff);margin:11px 0}
+#vc157-studio .vc1622-diagram{display:block;width:100%;min-width:540px;height:auto;max-height:340px}
+#vc157-studio .vc1622-label{font:800 13px system-ui;fill:#244f6e;letter-spacing:.06em}
+#vc157-studio .vc1622-court-number{font:750 12px system-ui;fill:#3b7093}
+#vc157-studio .vc1622-court-count{font:850 18px system-ui;fill:#123e5e}
+#vc157-studio .vc1622-setnode{font:800 13px system-ui;fill:#18517d}
+#vc157-studio .vc1622-route-hit{cursor:pointer;pointer-events:stroke}
+#vc157-studio .vc1622-route-hit:focus-visible{stroke:#183e60;stroke-opacity:.26;outline:none}
+#vc157-studio .vc1622-destcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+#vc157-studio .vc1622-destcard{display:grid!important;grid-template-columns:35px 46px 1fr;gap:6px;align-items:center;text-align:left!important;min-width:0!important;min-height:52px!important;padding:8px!important;border:1px solid #d9e6ef!important;border-radius:9px!important;background:#f3f8fc!important;color:#244d6b!important}
+#vc157-studio .vc1622-destcard b{font-size:12px}#vc157-studio .vc1622-destcard strong{font-size:17px}#vc157-studio .vc1622-destcard span{font-size:10px;line-height:1.45}
+#vc157-studio .vc1622-rotgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:13px 0}
+#vc157-studio .vc1622-rotcard{background:#f8fbfe;border:1px solid #d6e5f0;border-radius:10px;padding:11px;min-width:0}
+#vc157-studio .vc1622-rotcard.is-active{border-color:#257bb5;background:#eaf5fd}
+#vc157-studio .vc1622-rothead{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:10px}
+#vc157-studio .vc1622-rothead b{color:#165886;font-size:17px}#vc157-studio .vc1622-rothead small{color:#728da3;font-size:9px;text-align:right}
+#vc157-studio .vc1622-rotline{display:grid;grid-template-columns:1fr;gap:4px;margin-bottom:7px;font-size:10px}
+#vc157-studio .vc1622-rotline small{display:flex;justify-content:space-between;gap:5px;color:#527692}
+#vc157-studio .vc1622-rotline strong{text-align:right;color:#275c80;font-size:11px}
+#vc157-studio .vc1622-track{height:7px;background:#dfecf5;border-radius:10px;overflow:hidden}
+#vc157-studio .vc1622-track i{display:block;height:100%;background:#337cac;border-radius:10px}
+#vc157-studio .vc1622-rotactions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+#vc157-studio .vc1622-rot-filter,#vc157-studio .vc1622-clear-rot{background:#e8f1f8!important;color:#185b8f!important;border:1px solid #c6dce9!important;border-radius:7px!important;min-height:30px!important;padding:5px 8px!important;font-size:10px!important;font-weight:750!important}
+#vc157-studio .vc1622-rot-filter:disabled{opacity:.45;cursor:default}
+#vc157-studio .vc1622-clip{background:#e1effb!important;border:1px solid #bbd5e8!important;border-radius:7px!important;color:#165a8d!important;font:750 10px system-ui!important;padding:7px!important;white-space:nowrap}
+@media(max-width:1120px){#vc157-studio .vc1622-rotgrid{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1622-destcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){#vc157-studio .vc1622-rotgrid{grid-template-columns:1fr 1fr}#vc157-studio .vc1622-destcards{grid-template-columns:1fr}#vc157-studio .vc1622-filterline label{flex:1 1 100%}#vc157-studio .vc1622-rotcard{padding:8px}}
+
 /* V16.2.1 tactical and setter improvements */
 #vc157-studio .vc1621-setterfilters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 16px}
 #vc157-studio .vc1621-setterfilters label{display:grid;gap:5px;min-width:0;color:#607c96;font:750 10px/1.4 system-ui}
@@ -564,5 +675,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:950px){#vc157-studio .vc157-work{grid-template-columns:1fr;grid-template-areas:'nav' 'head' 'tabs' 'contents';padding:12px}#vc157-studio .vc157-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:static;min-height:0}#vc157-studio .vc157-tabs button{min-height:54px!important}#vc157-studio .vc157-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-grid2{grid-template-columns:1fr}}
 @media(max-width:620px){#vc157-studio .vc157-top{padding:17px;align-items:flex-start;gap:11px}#vc157-studio .vc157-top h2{font-size:22px!important}#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:11px}#vc157-studio .vc157-filterbar>label:not(.vc157-match-field){grid-column:span 1}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}#vc157-studio .vc157-tabs button b{font-size:11px}#vc157-studio .vc157-stagehead h3{font-size:19px!important}#vc157-studio .vc157-panel{padding:11px}#vc157-studio .vc157-export button{padding:7px!important}#vc157-studio .vc157-explorer-filters{grid-template-columns:1fr 1fr}#vc157-studio .vc1620-season-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1620-trendrow{grid-template-columns:minmax(70px,1fr) minmax(45px,1.2fr) 50px 40px;gap:4px;font-size:10px}}
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.2.1',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.2.2',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
