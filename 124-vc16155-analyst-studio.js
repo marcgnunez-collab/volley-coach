@@ -1,4 +1,4 @@
-/* Volley Coach V16.2.5 · Analysis Pro · Dashboard estructural
+/* Volley Coach V16.2.6 · Analysis Pro · Player Performance Pro
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -19,12 +19,12 @@ const pages={
  season:['Temporada','Comparación de partidos y evolución']
 };
 const subpages={
- players:[['sheet','Hoja por jugador'],['fundamentals','Fundamentos Pro']],
+ players:[['sheet','Hoja por jugador'],['profile','Ficha individual'],['compare','Comparador'],['fundamentals','Fundamentos Pro']],
  tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
  setter:[['distribution','Distribución y destinos'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']]
 };
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
-const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
+const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
 /* Collect all accessible matches (including finished scouting), without changing
    the active match. A different team or a remote sync may update this list. */
@@ -134,13 +134,145 @@ function sheetRows(data){
   const direct=r=>['S','A','B'].includes(r.skill)&&r.ev==='#';
   const gpRelevant=r=>direct(r)||(r.skill==='S'&&r.ev==='=')||(r.skill==='A'&&['=','/'].includes(r.ev))||(r.skill==='B'&&r.ev==='=');
   const cell=(n,label,chosen)=>`<td>${pickButton(n,chosen,`${label} · ${p.name}`)}</td>`;
-  return `<tr><td class="vc157-player">${pickButton(p.name,keys,`Todas las acciones · ${p.name}`,'vc157-namelink')}</td><td>${p.n}</td>${cell(''+pts,'Puntos directos',canonical?officialKeys(['wonActions']):by(direct))}${cell(''+signed(gp),'G-P oficial',canonical?officialKeys(['wonActions','lostActions']):by(gpRelevant))}${cell(''+signed(serveGP),'Saque G-P',by(r=>r.skill==='S'&&['#','='].includes(r.ev)))}<td>${pickButton(fmt(recPct),by(r=>r.skill==='R'&&['#','+'].includes(r.ev)),`Recepciones positivas · ${p.name}`)}<small>${rec.positive||0}/${rec.n||0}</small></td><td>${pickButton(`${rec.perfect||0}/${rec.n||0}`,by(r=>r.skill==='R'&&r.ev==='#'),`Recepciones perfectas · ${p.name}`)}</td><td>${pickButton(`${ap}/${attack.n||0}`,by(r=>r.skill==='A'&&r.ev==='#'),`Ataques punto · ${p.name}`)}</td><td>${pickButton(`${ae}+${ab}`,by(r=>r.skill==='A'&&['=','/'].includes(r.ev)),`Errores y ataques bloqueados · ${p.name}`)}</td><td>${pickButton(fmt(atkEff),by(r=>r.skill==='A'),`Todos los ataques · ${p.name}`)}</td><td>${pickButton(''+(block.kills||0),by(r=>r.skill==='B'&&r.ev==='#'),`Bloqueos punto · ${p.name}`)}</td></tr>`;
+  return `<tr><td class="vc157-player">${pickButton(p.name,keys,`Todas las acciones · ${p.name}`,'vc157-namelink')}<button class="vc1626-profilelink" type="button" data-vc1626-open="${html(vc1626Identity(playerActions[0]))}" title="Abrir ficha de ${html(p.name)}">Ficha ↗</button></td><td>${p.n}</td>${cell(''+pts,'Puntos directos',canonical?officialKeys(['wonActions']):by(direct))}${cell(''+signed(gp),'G-P oficial',canonical?officialKeys(['wonActions','lostActions']):by(gpRelevant))}${cell(''+signed(serveGP),'Saque G-P',by(r=>r.skill==='S'&&['#','='].includes(r.ev)))}<td>${pickButton(fmt(recPct),by(r=>r.skill==='R'&&['#','+'].includes(r.ev)),`Recepciones positivas · ${p.name}`)}<small>${rec.positive||0}/${rec.n||0}</small></td><td>${pickButton(`${rec.perfect||0}/${rec.n||0}`,by(r=>r.skill==='R'&&r.ev==='#'),`Recepciones perfectas · ${p.name}`)}</td><td>${pickButton(`${ap}/${attack.n||0}`,by(r=>r.skill==='A'&&r.ev==='#'),`Ataques punto · ${p.name}`)}</td><td>${pickButton(`${ae}+${ab}`,by(r=>r.skill==='A'&&['=','/'].includes(r.ev)),`Errores y ataques bloqueados · ${p.name}`)}</td><td>${pickButton(fmt(atkEff),by(r=>r.skill==='A'),`Todos los ataques · ${p.name}`)}</td><td>${pickButton(''+(block.kills||0),by(r=>r.skill==='B'&&r.ev==='#'),`Bloqueos punto · ${p.name}`)}</td></tr>`;
  }).join('');
 }
 function pagePlayers(data){return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Hoja individual · G-P y eficiencia</h3><p>Una fila por jugador y todas las acciones del filtro. Pulsa un jugador o una cifra para inspeccionar sus jugadas.</p></div><span class="vc157-tag">${data.playerGroups.length} jugadores</span></div>
  ${table(['Jugador','Acc.','PTS','G-P','Saq. G-P','Rec. +/#','Rec. #','Ataque #','Err+BLO','Atq. EFF','Bloq. #'],sheetRows(data),'vc157-sheet')}
  <p class="vc157-note">PTS y G-P = atribución terminal de la Hoja Oficial; máximo una acción terminal por rally. Recepción +/# = (# + +)/total; eficiencia de ataque = (# − = − /)/ataques. Revisa los denominadores antes de comparar.</p></div>
  <div class="vc157-grid2"><div class="vc157-panel"><h3>Acciones registradas por fundamento</h3>${table(['Fundamento','Total','Positivas','Errores','Vídeo'],Object.entries(categories).map(([s,n])=>{const g=data.skills[s],rows=rowsBy(data,r=>r.skill===s);if(!g?.n)return'';return `<tr><td>${n}</td><td>${g.n}</td><td>${g.positive||0}</td><td>${g.errors||0}</td><td>${pickButton('Ver',rows.map(x=>x.key),n)}</td></tr>`}).join(''))}</div></div>`}
+/* V16.2.6 · Player Performance Pro. Read-only and based on the same closed-rally rows
+   as the official sheet. Player history requires stable own-team ID + matching
+   name snapshots; rival shirt numbers are never used to combine matches. */
+function vc1626Norm(v){return String(v??'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').replace(/[^a-z0-9]+/g,' ').trim()}
+function vc1626Identity(row){
+ const id=Number(row?.a?.playerId);
+ if(row?.team==='ours'&&Number.isSafeInteger(id)&&id>0)return `id:${id}`;
+ return `label:${vc1626Norm(row?.player)||'sin identificar'}`;
+}
+function vc1626Roster(data){
+ const players=new Map();
+ for(const row of data.actions){
+  const key=vc1626Identity(row);
+  if(!players.has(key))players.set(key,{key,name:row.player,rows:[],id:key.startsWith('id:')?Number(key.slice(3)):null});
+  const p=players.get(key);p.rows.push(row);
+  if(row.player&&p.name==='Sin identificar')p.name=row.player;
+ }
+ return [...players.values()].sort((a,b)=>b.rows.length-a.rows.length||a.name.localeCompare(b.name,'es'));
+}
+function vc1626Stats(rows){
+ const skill=c=>rows.filter(r=>r.skill===c);
+ const att=skill('A'),rec=skill('R'),serve=skill('S'),block=skill('B'),set=skill('E'),def=skill('D');
+ const n=arr=>arr.length,eq=(arr,v)=>arr.filter(x=>x.ev===v).length;
+ const atkK=eq(att,'#'),atkE=eq(att,'='),atkB=eq(att,'/');
+ const positive=rec.filter(x=>x.ev==='#'||x.ev==='+').length;
+ return {rows,n:rows.length,video:rows.filter(r=>r.video).length,
+  attack:{n:n(att),k:atkK,e:atkE,b:atkB,eff:pct(atkK-atkE-atkB,n(att)),killPct:pct(atkK,n(att)),rows:att},
+  reception:{n:n(rec),positive,perfect:eq(rec,'#'),errors:eq(rec,'='),pct:pct(positive,n(rec)),rows:rec},
+  serve:{n:n(serve),ace:eq(serve,'#'),error:eq(serve,'='),rows:serve},
+  block:{n:n(block),points:eq(block,'#'),rows:block},set:{n:n(set),rows:set},defense:{n:n(def),rows:def},
+  skills:Object.fromEntries(Object.keys(categories).map(key=>[key,skill(key)]))};
+}
+function vc1626Opts(roster,selected){return roster.map(p=>`<option value="${html(p.key)}" ${selected===p.key?'selected':''}>${html(p.name)} · ${p.rows.length} acciones</option>`).join('')}
+function vc1626Find(roster,key){return roster.find(p=>p.key===key)||roster[0]||null}
+function vc1626ProfileMetric(label,value,note,rows){return `<div class="vc1626-stat"><small>${html(label)}</small><strong>${html(value)}</strong><span>${html(note)}</span>${pickButton('Ver acciones',rows.map(r=>r.key),`${label} · ficha individual`)}</div>`}
+function vc1626GroupMetrics(rows){
+ const s=vc1626Stats(rows);
+ return `${vc1626ProfileMetric('Ataque · EFF',fmt(s.attack.eff),`${s.attack.k} puntos − ${s.attack.e} errores − ${s.attack.b} bloqueados / ${s.attack.n} ataques`,s.attack.rows)}
+ ${vc1626ProfileMetric('Recepción positiva',fmt(s.reception.pct),`${s.reception.positive}/${s.reception.n} recepciones # o +`,s.reception.rows)}
+ ${vc1626ProfileMetric('Saque',`${s.serve.ace}/${s.serve.n}`,`${s.serve.error} errores · ${s.serve.n} intentos`,s.serve.rows)}
+ ${vc1626ProfileMetric('Bloqueo punto',String(s.block.points),`${s.block.n} bloqueos registrados`,s.block.rows)}
+ ${vc1626ProfileMetric('Colocaciones',String(s.set.n),'Colocaciones codificadas',s.set.rows)}
+ ${vc1626ProfileMetric('Acciones',String(s.n),`${s.video} con marca temporal`,s.rows)}`;
+}
+function vc1626Skills(rows){
+ const total=rows.length;
+ const tr=Object.entries(categories).map(([code,label])=>{
+  const ss=rows.filter(r=>r.skill===code),n=ss.length;
+  if(!n)return '';
+  const st=vc1626Stats(ss);
+  let detail=code==='A'?`${st.attack.k} # · ${st.attack.e} = · ${st.attack.b} / · EFF ${fmt(st.attack.eff)}`:
+   code==='R'?`${st.reception.positive}/${st.reception.n} positivas · ${fmt(st.reception.pct)}`:
+   code==='S'?`${st.serve.ace} aces · ${st.serve.error} errores`:
+   code==='B'?`${st.block.points} puntos`:`${ss.filter(r=>['#','+'].includes(r.ev)).length} positivas`;
+  return `<tr><td><b>${html(label)}</b></td><td>${n}<small>${fmt(pct(n,total))} del registro</small></td><td><span class="vc1626-bar"><i style="width:${Math.max(0,pct(n,total)||0)}%"></i></span></td><td>${html(detail)}</td><td>${pickButton('Jugadas',ss.map(r=>r.key),`${label} · ficha`)}</td></tr>`;
+ }).join('');
+ return table(['Fundamento','Acciones','Distribución','Detalle','Evidencias'],tr,'vc1626-sheet');
+}
+function vc1626Breakdown(rows,field){
+ const choices=field==='set'?[...new Set(rows.map(r=>r.set))].sort((a,b)=>a-b):[1,2,3,4,5,6];
+ return choices.map(c=>{
+  const rr=rows.filter(r=>field==='set'?r.set===c:r.rotation===c),s=vc1626Stats(rr);
+  if(!rr.length)return '';
+  const label=field==='set'?`Set ${c}`:`R${c}`;
+  return `<tr><td><b>${label}</b></td><td>${rr.length}</td><td>${s.attack.k}/${s.attack.n}<small>EFF ${fmt(s.attack.eff)}</small></td><td>${s.reception.positive}/${s.reception.n}<small>${fmt(s.reception.pct)}</small></td><td>${s.serve.ace}/${s.serve.n}</td><td>${pickButton('Ver',rr.map(r=>r.key),`${label} · ficha`)}</td></tr>`;
+ }).join('');
+}
+function vc1626History(p){
+ if(state.team!=='ours')return '<p class="vc1626-hint">La evolución individual del rival no se agrupa entre partidos: el dorsal no garantiza una identidad estable.</p>';
+ if(!p.id)return '<p class="vc1626-hint">El jugador no tiene un identificador estable. La comparación entre partidos se omite para evitar unir personas distintas.</p>';
+ const names=new Set(p.rows.map(r=>vc1626Norm(r.a?.playerNameSnapshot)).filter(Boolean));
+ if(!names.size)return '<p class="vc1626-hint">No hay un nombre guardado en las acciones para verificar la identidad entre partidos. El histórico individual no se calcula.</p>';
+ const api=window.VC_ANALYSIS_INTELLIGENCE_1614;
+ const history=[];
+ for(const m of matches().slice(0,12)){
+  try{
+   const d=api.model(filteredMatch(m),scoutedTeam(),{team:'ours'});
+   const all=d.actions.filter(r=>r.team==='ours'&&Number(r.a?.playerId)===p.id);
+   const good=all.filter(r=>names.has(vc1626Norm(r.a?.playerNameSnapshot)));
+   // Reject a match when its ID also belongs to a conflicting known identity.
+   const conflict=all.some(r=>r.a?.playerNameSnapshot&&!names.has(vc1626Norm(r.a.playerNameSnapshot)));
+   if(!good.length||conflict)continue;
+   history.push({m,stats:vc1626Stats(good)});
+  }catch(err){console.warn('Player Performance: historial omitido',m.id,err)}
+ }
+ history.sort((a,b)=>String(a.m.date||'').localeCompare(String(b.m.date||''))||Number(a.m.id||0)-Number(b.m.id||0));
+ if(!history.length)return '<p class="vc1626-hint">No se han encontrado partidos con coincidencia verificada de ID y nombre guardado.</p>';
+ const rows=history.map(x=>{const s=x.stats;return `<tr><td><button class="vc1626-matchlink" data-vc1626-history="${html(String(x.m.id))}">${html(x.m.opponent||'Rival')}</button><small>${html(x.m.date||'Sin fecha')}</small></td><td>${s.n}</td><td>${s.attack.k}/${s.attack.n}<small>EFF ${fmt(s.attack.eff)}</small></td><td>${s.reception.positive}/${s.reception.n}<small>${fmt(s.reception.pct)}</small></td><td>${s.serve.ace}</td><td>${s.block.points}</td></tr>`}).join('');
+ const chart=history.map(x=>{const a=x.stats.attack;return `<div class="vc1626-trendrow"><small>${html(x.m.opponent||'Rival')}</small><span class="vc1626-trendtrack"><i style="width:${a.n&&a.eff!=null?Math.max(0,Math.min(100,(a.eff+100)/2)):0}%"></i></span><b>${fmt(a.eff)}</b><small>${a.n} ataques</small></div>`}).join('');
+ return `<p class="vc1626-hint">Hasta 12 scoutings recientes. Solo coincidencias con ID y nombre guardado. No se aplican los filtros de set ni rotación a esta serie.</p><div class="vc1626-historygrid"><div>${table(['Partido','Acc.','Ataque','Recepción','Aces','Bloq.'],rows)}</div><div class="vc1626-minichart"><b>Ataque · EFF por partido</b>${chart}<p class="vc1626-hint">La barra representa visualmente EFF entre −100 % y +100 %, no el porcentaje de ataques ganados.</p></div></div>`;
+}
+function pagePlayerProfile(data){
+ const roster=vc1626Roster(data);
+ if(!roster.length)return '<div class="vc157-empty">Todavía no hay acciones cerradas de jugadores con los filtros actuales.</div>';
+ const player=vc1626Find(roster,state.profilePlayer);state.profilePlayer=player.key;
+ const rows=player.rows,stats=vc1626Stats(rows);
+ const options=vc1626Opts(roster,player.key);
+ const phases=[['K1',rows.filter(r=>r.r?.serving&&r.r.serving!==r.team)],['K2',rows.filter(r=>r.r?.serving===r.team)],['Sin saque registrado',rows.filter(r=>!r.r?.serving)]].filter(([,list])=>list.length);
+ return `<section class="vc157-panel vc1626-profilehead"><div class="vc1626-profiletop"><div><span class="vc1626-overline">PLAYER PERFORMANCE PRO · PERFIL DE PARTIDO</span><h3>${html(player.name)}</h3><p>Datos del equipo ${data.target==='ours'?'propio':'rival'} · ${rows.length} acciones registradas · ${stats.video} con vídeo</p></div><label>Seleccionar jugador<select id="vc1626-player">${options}</select></label></div><div class="vc1626-summary">${vc1626GroupMetrics(rows)}</div><p class="vc157-note">Los indicadores se calculan sobre acciones registradas y rallies cerrados. La ficha no atribuye un resultado de rally completo a una única persona.</p></section>
+ <div class="vc157-panel"><h3>Rendimiento por fundamento</h3><p>Desglose de acciones registradas, valoraciones y evidencia original.</p>${vc1626Skills(rows)}</div>
+ <div class="vc157-grid2"><section class="vc157-panel"><h3>Por rotación</h3>${table(['Rot.','Acc.','Ataque','Recepción','Aces','Jugadas'],vc1626Breakdown(rows,'rotation'))}<p class="vc157-note">R1–R6 se refiere a la rotación del equipo en el instante de la acción, no a la rotación nominal o posición del jugador.</p></section><section class="vc157-panel"><h3>Por set</h3>${table(['Set','Acc.','Ataque','Recepción','Aces','Jugadas'],vc1626Breakdown(rows,'set'))}</section></div>
+ <section class="vc157-panel"><h3>Participación por complejo</h3>${table(['Fase','Acciones','Ataques','Rec. positivas','Colocaciones','Jugadas'],phases.map(([phase,rr])=>{const st=vc1626Stats(rr);return `<tr><td>${phase}</td><td>${st.n}</td><td>${st.attack.k}/${st.attack.n}<small>EFF ${fmt(st.attack.eff)}</small></td><td>${st.reception.positive}/${st.reception.n}</td><td>${st.set.n}</td><td>${pickButton('Ver',rr.map(r=>r.key),`${phase} · ${player.name}`)}</td></tr>`}).join(''))}<p class="vc157-note">K1 y K2 clasifican las acciones según quién sacaba antes del rally. Las acciones sin saque conocido se indican aparte. No representan un porcentaje individual de side-out o de break.</p></section>
+ <section class="vc157-panel"><h3>Evolución individual entre partidos</h3>${vc1626History(player)}</section>`;
+}
+function vc1626ComparisonMetric(label,a,b,fn,den){
+ const A=fn(a),B=fn(b),val=x=>x==null?'—':fmt(x),small=Math.min(den(a),den(b))<8;
+ return `<tr><th scope="row">${html(label)}</th><td><b>${val(A)}</b><small>n=${den(a)}</small></td><td><b>${val(B)}</b><small>n=${den(b)}</small></td><td>${small?'<span class="vc1626-small">Muestra pequeña</span>':(A==null||B==null?'—':`${signed(Math.round((A-B)*10)/10)} pp`)}</td></tr>`;
+}
+function pagePlayerCompare(data){
+ const roster=vc1626Roster(data);
+ if(roster.length<2)return '<div class="vc157-panel"><h3>Comparador de jugadores</h3><p>Se necesitan al menos dos jugadores con acciones codificadas en este scouting y filtros.</p></div>';
+ let a=roster.find(p=>p.key===state.comparePlayerA)||null;
+ let b=roster.find(p=>p.key===state.comparePlayerB)||null;
+ if(!a)a=roster.find(p=>p.key!==b?.key)||roster[0];
+ if(!b||b.key===a.key)b=roster.find(p=>p.key!==a.key)||null;
+ if(!a||!b)return '<div class="vc157-empty">Elige dos jugadores diferentes.</div>';
+ state.comparePlayerA=a.key;state.comparePlayerB=b.key;
+ const x=vc1626Stats(a.rows),y=vc1626Stats(b.rows);
+ const row=(title,fn)=>`<tr><td>${title}</td><td>${fn(x)}</td><td>${fn(y)}</td><td>—</td></tr>`;
+ return `<section class="vc157-panel"><div class="vc157-panelhead"><div><h3>Comparador individual</h3><p>Compara dos jugadores en el mismo scouting y con los mismos filtros globales.</p></div><span class="vc157-tag">Datos comparables por contexto, no por minutos jugados</span></div><div class="vc1626-comparefilters"><label>Jugador A<select id="vc1626-player-a">${vc1626Opts(roster,a.key)}</select></label><label>Jugador B<select id="vc1626-player-b">${vc1626Opts(roster,b.key)}</select></label></div><div class="vc1626-duel"><div><span>JUGADOR A</span><strong>${html(a.name)}</strong><small>${x.n} acciones · ${x.video} con vídeo</small>${pickButton('Abrir todas sus jugadas',a.rows.map(r=>r.key),a.name)}</div><div><span>JUGADOR B</span><strong>${html(b.name)}</strong><small>${y.n} acciones · ${y.video} con vídeo</small>${pickButton('Abrir todas sus jugadas',b.rows.map(r=>r.key),b.name)}</div></div>
+ ${table(['Indicador',a.name,b.name,'Diferencia A−B'],[
+  vc1626ComparisonMetric('Ataque · EFF',x,y,s=>s.attack.eff,s=>s.attack.n),
+  vc1626ComparisonMetric('Ataque · puntos %',x,y,s=>s.attack.killPct,s=>s.attack.n),
+  vc1626ComparisonMetric('Recepción positiva +/#',x,y,s=>s.reception.pct,s=>s.reception.n),
+  row('Ataque · puntos / intentos',s=>`${s.attack.k} / ${s.attack.n}`),
+  row('Ataque · errores + bloqueados',s=>`${s.attack.e+s.attack.b}`),
+  row('Saque · aces / intentos',s=>`${s.serve.ace} / ${s.serve.n}`),
+  row('Bloqueos punto / intentos',s=>`${s.block.points} / ${s.block.n}`),
+  row('Colocaciones',s=>s.set.n)
+ ].join(''))}<p class="vc157-note">La diferencia en pp solo se muestra con al menos 8 intentos por jugador; las muestras individuales se indican siempre. Compara jugadores con roles parecidos y volumen suficiente. Los totales no están normalizados por tiempo en pista.</p></section>
+ <section class="vc157-panel"><h3>Comparación por fundamento</h3>${table(['Fundamento','Acciones A','Acciones B','Jugadas A','Jugadas B'],Object.entries(categories).map(([k,label])=>{const aa=x.skills[k],bb=y.skills[k];if(!aa.length&&!bb.length)return '';return `<tr><td>${html(label)}</td><td>${aa.length}</td><td>${bb.length}</td><td>${pickButton('Ver',aa.map(r=>r.key),`${label} · ${a.name}`)}</td><td>${pickButton('Ver',bb.map(r=>r.key),`${label} · ${b.name}`)}</td></tr>`}).join(''))}</section>`;
+}
 function overviewKpi(label,number,note,keys){
  return `<div class="vc1625-kpi"><span>${html(label)}</span><strong>${html(number)}</strong><small>${html(note)}</small>${pickButton('Consultar acciones',keys,`Detalle · ${label}`)}</div>`;
 }
@@ -573,7 +705,7 @@ function renderPage(){
  if(inDeepView()){
   pageDeep(data,surface);
  }else if(page==='overview')surface.innerHTML=pageOverview(data);
- else if(page==='players')surface.innerHTML=pagePlayers(data);
+ else if(page==='players')surface.innerHTML=subpage==='profile'?pagePlayerProfile(data):subpage==='compare'?pagePlayerCompare(data):pagePlayers(data);
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
  else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?pageSetterDetails(data):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
@@ -647,17 +779,20 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.5</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.6</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 2.5 · Dashboard táctico interactivo. Estadísticas calculadas sin modificar el scouting, con muestras explícitas, acciones trazables y una lectura visual mejorada. La Hoja Oficial conserva su generador y estructura.</p></div>`;
+ <p class="vc157-footer">Analysis Pro 2.6 · Player Performance Pro integrado en Dashboard táctico. Estadísticas calculadas sin modificar el scouting, con muestras explícitas, acciones trazables y una lectura visual mejorada. La Hoja Oficial conserva su generador y estructura.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
+  if(id==='vc1626-player'){state.profilePlayer=t.value;state.selected=[];renderInspector();renderPage();return}
+  if(id==='vc1626-player-a'){state.comparePlayerA=t.value;if(state.comparePlayerA===state.comparePlayerB)state.comparePlayerB='';state.selected=[];renderInspector();renderPage();return}
+  if(id==='vc1626-player-b'){state.comparePlayerB=t.value;if(state.comparePlayerB===state.comparePlayerA)state.comparePlayerA='';state.selected=[];renderInspector();renderPage();return}
   if(id==='vc1622-attack-player'){state.attackPlayer=t.value;state.selected=[];renderInspector();renderPage();return}
   if(id==='vc1622-attack-result'){state.attackResult=t.value;state.selected=[];renderInspector();renderPage();return}
   if(id==='vc1623-rec'){state.seqReception=t.value;state.seqCompareA='';state.seqCompareB='';state.selected=[];renderInspector();renderPage();return}
@@ -683,6 +818,10 @@ function mount(){
   refresh();
  });
  host.addEventListener('click',e=>{
+  const profile=e.target.closest('[data-vc1626-open]');
+  if(profile){state.profilePlayer=profile.dataset.vc1626Open;state.page='players';state.subpage.players='profile';state.selected=[];renderInspector();renderPage();return}
+  const history=e.target.closest('[data-vc1626-history]');
+  if(history){const chosen=matches().find(m=>String(m.id)===history.dataset.vc1626History);if(chosen){state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.page='players';state.subpage.players='profile';state.selected=[];setNativeSelection(state.match);renderInspector();buildHeader();renderPage()}return}
   const go=e.target.closest('[data-vc1625-page]');
   if(go&&pages[go.dataset.vc1625Page]){state.page=go.dataset.vc1625Page;if(go.dataset.vc1625Subpage&&subpages[state.page]?.some(([key])=>key===go.dataset.vc1625Subpage))state.subpage[state.page]=go.dataset.vc1625Subpage;renderPage();return;}
   const rotation=e.target.closest('[data-vc1625-rotation]');
@@ -726,6 +865,7 @@ function open(){if(!mount())return false;refresh();return true}
 const CSS=`
 body.v11-shell #scout-analysis[data-vc157-mode="studio"] > .scout-analysis-shell{display:none!important}
 body.v11-shell #scout-analysis[data-vc157-mode="studio"] > :is(#vc1615-back,#vc157-back){display:none!important}
+#scout-analysis[data-vc157-mode="studio"] > :is(#vc1614-intelligence,#vc1614-view-switch){display:none!important}
 #scout-analysis[data-vc157-mode="technical"]>#vc157-studio{display:none!important}
 #vc157-studio, #vc157-studio *{box-sizing:border-box}
 body.v11-shell #scout-analysis #vc157-studio{
@@ -996,6 +1136,44 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:1100px){#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr)}#vc157-studio .vc157-inspector{position:static;max-height:none}}
 @media(max-width:930px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}#vc157-studio .vc157-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){#vc157-studio .vc1625-dashgrid{grid-template-columns:1fr}#vc157-studio .vc1625-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1625-scorehead{flex-direction:column;align-items:start}}
+/* V16.2.6 · Player Performance Pro: scoped styles, retaining existing sheet & renderer. */
+#vc157-studio .vc1626-overline{display:block;font:850 10px/1.4 system-ui;letter-spacing:.10em;color:#41779e;margin-bottom:7px}
+#vc157-studio .vc1626-profiletop{display:flex;align-items:end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px}
+#vc157-studio .vc1626-profiletop h3{font-size:24px!important;margin:0!important}
+#vc157-studio .vc1626-profiletop p{margin-top:6px!important}
+#vc157-studio .vc1626-profiletop label,#vc157-studio .vc1626-comparefilters label{display:grid;gap:7px;min-width:200px;font:800 10px/1.4 system-ui;text-transform:uppercase;color:#5e7d96;letter-spacing:.025em}
+#vc157-studio .vc1626-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#vc157-studio .vc1626-stat{display:grid;align-content:start;gap:5px;padding:15px;background:linear-gradient(150deg,#f9fcff,#eff6fb);border:1px solid #dce8f1;border-radius:12px;min-width:0}
+#vc157-studio .vc1626-stat small{font-size:10px;font-weight:850;letter-spacing:.035em;text-transform:uppercase;color:#5b7e99}
+#vc157-studio .vc1626-stat strong{font-size:clamp(22px,2.3vw,31px);line-height:1.1;color:#143e60;font-variant-numeric:tabular-nums}
+#vc157-studio .vc1626-stat>span{font-size:10px;line-height:1.5;color:#617d96;min-height:30px}
+#vc157-studio .vc1626-stat button{justify-self:start}
+#vc157-studio .vc1626-sheet{min-width:720px}
+#vc157-studio .vc1626-bar{display:block;background:#e3eef5;height:9px;min-width:90px;border-radius:10px;overflow:hidden}
+#vc157-studio .vc1626-bar i{display:block;background:linear-gradient(90deg,#3f9ac5,#1d6298);height:100%;border-radius:10px}
+#vc157-studio .vc1626-hint{font-size:11px!important;color:#637f95!important;line-height:1.55}
+#vc157-studio .vc1626-historygrid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(245px,1fr);gap:14px;align-items:start}
+#vc157-studio .vc1626-minichart{padding:14px;background:#f8fbfe;border:1px solid #dfebf2;border-radius:12px;min-width:0}
+#vc157-studio .vc1626-minichart>b{display:block;font-size:12px;color:#194966;margin-bottom:14px}
+#vc157-studio .vc1626-trendrow{display:grid;grid-template-columns:minmax(70px,1fr) minmax(70px,1.5fr) 55px 55px;gap:8px;align-items:center;font-size:10px;margin:10px 0;min-width:0}
+#vc157-studio .vc1626-trendrow small{color:#63809b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vc157-studio .vc1626-trendrow>b{color:#1c587f;text-align:right}
+#vc157-studio .vc1626-trendtrack{height:9px;border-radius:10px;background:#e2edf5;overflow:hidden}
+#vc157-studio .vc1626-trendtrack i{height:100%;display:block;background:#2f7fae;border-radius:10px}
+#vc157-studio .vc1626-matchlink{background:none!important;border:none!important;color:#216997!important;text-decoration:underline;text-underline-offset:3px;font-weight:800!important;padding:0!important;text-align:left!important}
+#vc157-studio .vc1626-comparefilters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}
+#vc157-studio .vc1626-duel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:13px 0 18px}
+#vc157-studio .vc1626-duel>div{display:grid;gap:5px;padding:16px;border:1px solid #d9e6ef;background:#f5f9fc;border-radius:12px}
+#vc157-studio .vc1626-duel>div>span{font-size:10px;font-weight:900;letter-spacing:.08em;color:#4f83a5}
+#vc157-studio .vc1626-duel strong{font-size:18px;color:#163f60;line-height:1.3}
+#vc157-studio .vc1626-duel small{font-size:11px;color:#668198}
+#vc157-studio .vc1626-duel button{justify-self:start}
+#vc157-studio .vc1626-small{color:#91662e;font-size:10px;font-weight:800}
+#vc157-studio .vc1626-profilelink{background:transparent!important;border:0!important;color:#307eae!important;font-size:10px!important;font-weight:800!important;padding:2px 4px!important;margin-left:6px!important;white-space:nowrap}
+@media(max-width:1230px){#vc157-studio .vc1626-historygrid{grid-template-columns:1fr}#vc157-studio .vc1626-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#vc157-studio .vc1626-comparefilters,#vc157-studio .vc1626-duel{grid-template-columns:1fr}#vc157-studio .vc1626-profiletop label{width:100%}}
+@media(max-width:510px){#vc157-studio .vc1626-summary{grid-template-columns:1fr}#vc157-studio .vc1626-trendrow{grid-template-columns:1fr 1.5fr 45px;gap:5px}#vc157-studio .vc1626-trendrow small:last-child{display:none}}
+
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.2.5',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.2.6',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
