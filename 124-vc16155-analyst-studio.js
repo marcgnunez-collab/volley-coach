@@ -1,4 +1,4 @@
-/* Volley Coach V16.1.5.7 · Analyst Studio Pro
+/* Volley Coach V16.2.0 · Analysis Pro · Espacio único
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -10,8 +10,21 @@ const fmt=(n,digit=1)=>n==null?'—':`${Number(n).toLocaleString('es-ES',{maximu
 const pct=(a,b)=>b?Math.round(a/b*1000)/10:null;
 const signed=n=>n>0?`+${n}`:String(n);
 const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación',D:'Defensa',F:'Freeball',C:'Cobertura'};
-const pages={overview:['Panorama','KPIs y lectura del partido'],players:['Hoja estadística','Rendimiento por jugador'],rotations:['Rotaciones','K1 / K2 y comparación'],distribution:['Distribución','Recepción y colocador'],zones:['Zonas','Origen, destino y bloqueo'],explorer:['Explorador','Acciones y evidencia en vídeo'],deep:['Fundamentos Pro','Todos los gestos y contextos']};
-const state={page:'players',team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
+const pages={
+ overview:['Resumen','Rendimiento general y lectura táctica'],
+ players:['Estadísticas','Hoja individual y fundamentos'],
+ tactics:['Táctica','Rotaciones, K1 / K2 y mapas de zonas'],
+ setter:['Colocador','Distribución, tempo y secuencias'],
+ explorer:['Vídeo y acciones','Busca, filtra y revisa evidencias'],
+ season:['Temporada','Comparación de partidos y evolución']
+};
+const subpages={
+ players:[['sheet','Hoja por jugador'],['fundamentals','Fundamentos Pro']],
+ tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
+ setter:[['distribution','Distribución'],['details','Tempos y combinaciones']]
+};
+function inDeepView(){return (state.page==='players'&&state.subpage.players==='fundamentals')||(state.page==='setter'&&state.subpage.setter==='details');}
+const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
 /* Collect all accessible matches (including finished scouting), without changing
    the active match. A different team or a remote sync may update this list. */
@@ -87,7 +100,7 @@ function buildHeader(){
  const te=$('vc157-team');if(te)te.value=state.team;
  const rot=$('vc157-rotation');if(rot)rot.value=state.rotation;
  const phase=$('vc157-phase');if(phase)phase.value=state.phase;
- const mat=$('vc157-match-label');if(mat)mat.textContent=m?`${m.opponent||'Rival'} · ${m.date||'Sin fecha'} · ${arr(m.sets).length} sets`:'Selecciona un scouting para comenzar';
+ const mat=$('vc157-match-label');if(mat)mat.textContent=m?`${m.opponent||'Rival'} · ${m.date||'Sin fecha'} · ${arr(m.sets).length} sets · ${m.status==='finished'?'Finalizado':'En curso'}`:'Selecciona un scouting para comenzar';
  const count=$('vc157-match-count');if(count)count.textContent=`${ms.length} disponibles`;
 }
 function table(headers,rows,klass=''){return `<div class="vc157-tablewrap"><table class="vc157-table ${klass}"><thead><tr>${headers.map(s=>`<th>${html(s)}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${headers.length}" class="vc157-muted">Sin datos registrados para los filtros actuales.</td></tr>`}</tbody></table></div>`}
@@ -127,7 +140,7 @@ function sheetRows(data){
 function pagePlayers(data){return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Hoja individual · G-P y eficiencia</h3><p>Una fila por jugador y todas las acciones del filtro. Pulsa un jugador o una cifra para inspeccionar sus jugadas.</p></div><span class="vc157-tag">${data.playerGroups.length} jugadores</span></div>
  ${table(['Jugador','Acc.','PTS','G-P','Saq. G-P','Rec. +/#','Rec. #','Ataque #','Err+BLO','Atq. EFF','Bloq. #'],sheetRows(data),'vc157-sheet')}
  <p class="vc157-note">PTS y G-P = atribución terminal de la Hoja Oficial; máximo una acción terminal por rally. Recepción +/# = (# + +)/total; eficiencia de ataque = (# − = − /)/ataques. Revisa los denominadores antes de comparar.</p></div>
- <div class="vc157-grid2"><div class="vc157-panel"><h3>Acciones registradas por fundamento</h3>${table(['Fundamento','Total','Positivas','Errores','Vídeo'],Object.entries(categories).map(([s,n])=>{const g=data.skills[s],rows=rowsBy(data,r=>r.skill===s);if(!g?.n)return'';return `<tr><td>${n}</td><td>${g.n}</td><td>${g.positive||0}</td><td>${g.errors||0}</td><td>${pickButton('Ver',rows.map(x=>x.key),n)}</td></tr>`}).join(''))}</div><div class="vc157-panel"><h3>Interpretación de estadísticas</h3><p>El número de intentos determina la fiabilidad de la lectura. Las celdas no convierten valoraciones técnicas en puntos de marcador.</p><p class="vc157-note">La Hoja Oficial PDF mantiene su generador y su estructura. Esta tabla es una vista interactiva adicional.</p></div></div>`}
+ <div class="vc157-grid2"><div class="vc157-panel"><h3>Acciones registradas por fundamento</h3>${table(['Fundamento','Total','Positivas','Errores','Vídeo'],Object.entries(categories).map(([s,n])=>{const g=data.skills[s],rows=rowsBy(data,r=>r.skill===s);if(!g?.n)return'';return `<tr><td>${n}</td><td>${g.n}</td><td>${g.positive||0}</td><td>${g.errors||0}</td><td>${pickButton('Ver',rows.map(x=>x.key),n)}</td></tr>`}).join(''))}</div></div>`}
 function pageOverview(data){
  const p=data.points,rec=data.skills.R||{},atk=data.skills.A||{};
  const tiles=[['Side-out K1',fmt(p.k1.pct),`${p.k1.w}/${p.k1.n} rallies`,'K1'],['Break K2',fmt(p.k2.pct),`${p.k2.w}/${p.k2.n} rallies`,'K2'],['Recepción +/#',fmt(rec.positivePct),`${rec.positive||0}/${rec.n||0} acciones`,'R'],['Ataque EFF',fmt(atk.eff),`${atk.kills||0} − ${atk.errors||0} − ${atk.blocked||0} / ${atk.n||0}`,'A']];
@@ -160,6 +173,38 @@ function pageZones(data){
  const blockers=[...blMap].map(([k,rows])=>{const kill=rows.filter(a=>a.ev==='#').length,neg=rows.filter(a=>a.ev==='='||a.ev==='/').length;return `<tr><td>${html(k)}</td><td>${rows.length}</td><td>${fmt(pct(kill,rows.length))}</td><td>${fmt(pct(kill-neg,rows.length))}</td><td>${pickButton('▶',rows.map(a=>a.key),`Bloqueadores ${k}`)}</td></tr>`}).join('');
  return `<div class="vc157-grid2"><div class="vc157-panel"><h3>Destinos de ataque · pista 9×4</h3><p>${tot}/${data.attacks.length} ataques tienen una zona registrada. Pulsa una zona para ver sus acciones.</p><div class="vc157-court">${body}</div><p class="vc157-note">Subzonas A–D disponibles en los datos originales y exportaciones; aquí se agregan a las nueve zonas para facilitar la lectura.</p></div><div class="vc157-panel"><h3>Ataque según bloqueo rival</h3>${table(['Bloqueadores','Ataques','Kill %','EFF','Vídeo'],blockers)}<p class="vc157-note">Se incluyen únicamente las características codificadas. Sin datos registrados, no se inventa el tipo de bloqueo.</p></div></div>`;
 }
+function pageSeason(){
+ const api=window.VC_ANALYSIS_INTELLIGENCE_1614;
+ const all=matches();
+ if(!all.length)return '<div class="vc157-panel"><h3>Temporada</h3><p>No hay scoutings disponibles en el equipo seleccionado.</p></div>';
+ // Visible window explicitly bounded for responsiveness on mobile devices.
+ const recent=all.slice(0,12),history=[];
+ for(const match of recent){
+  try{
+   const d=api.model(filteredMatch(match),scoutedTeam(),{team:state.team});
+   const p=d.points,at=d.skills.A||{},rec=d.skills.R||{};
+   history.push({match,id:String(match.id),p,at,rec,actions:d.actions.length});
+  }catch(e){console.warn('Analysis Pro temporada: no se pudo analizar un partido',match.id,e)}
+ }
+ if(!history.length)return '<div class="vc157-panel"><p>No hay partidos interpretables para construir la comparativa.</p></div>';
+ const total=(selector)=>history.reduce((sum,x)=>sum+selector(x),0);
+ const k1W=total(x=>x.p.k1.w),k1N=total(x=>x.p.k1.n),k2W=total(x=>x.p.k2.w),k2N=total(x=>x.p.k2.n);
+ const rallies=total(x=>x.p.rallies),wins=total(x=>x.p.won||0),atN=total(x=>x.at.n||0),atKills=total(x=>x.at.kills||0),atNeg=total(x=>(x.at.errors||0)+(x.at.blocked||0));
+ const overall=[['Partidos analizados',history.length,'Últimos scoutings disponibles'],['Rallies',rallies,'Cerrados y válidos'],['K1 · Side-out',fmt(pct(k1W,k1N)),`${k1W}/${k1N} oportunidades`],['K2 · Break',fmt(pct(k2W,k2N)),`${k2W}/${k2N} oportunidades`],['Ataque EFF',fmt(pct(atKills-atNeg,atN)),`${atKills} − ${atNeg} / ${atN} ataques`]];
+ const rows=history.map(({match,id,p,at,rec,actions},index)=>{
+  const gp=p.rallies?`${signed(2*(p.won||0)-p.rallies)}`:'—';
+  const link=`<button type="button" class="vc157-season-link" data-season-match="${html(id)}" title="Abrir scouting ${html(match.opponent||'Rival')}">${html(match.opponent||'Rival')} <span>↗</span></button>`;
+  return `<tr><td>${link}<small>${html(match.date||'Sin fecha')}</small></td><td>${p.rallies}</td><td>${gp}</td><td>${p.k1.w}/${p.k1.n} <small>${fmt(p.k1.pct)}</small></td><td>${p.k2.w}/${p.k2.n} <small>${fmt(p.k2.pct)}</small></td><td>${fmt(at.eff)}</td><td>${fmt(rec.positivePct)}</td><td>${actions}</td></tr>`;
+ }).join('');
+ const trend=history.slice().reverse().map(({match,p})=>{
+  const val=p.k1.pct;
+  return `<div class="vc1620-trendrow"><span>${html(match.opponent||'Rival')}</span><div class="vc1620-track"><i style="width:${val==null?0:Math.max(0,Math.min(100,val))}%"></i></div><b>${fmt(val)}</b><small>${p.k1.w}/${p.k1.n}</small></div>`;
+ }).join('');
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Evolución de los últimos ${history.length} scoutings</h3><p>Comparativa del equipo ${state.team==='ours'?'propio':'rival'} · ${state.phase?'Filtro '+state.phase+' aplicado a esta consulta':'K1 y K2 completos'}. En esta vista no se aplican los filtros de set y rotación del partido individual.</p></div><span class="vc157-tag">${all.length} disponibles</span></div>
+ <div class="vc1620-season-metrics">${overall.map(([name,value,note])=>`<div><span>${name}</span><strong>${value}</strong><small>${note}</small></div>`).join('')}</div></div>
+ <div class="vc157-panel"><h3>Comparación entre partidos</h3>${table(['Partido','Rallies','G-P','K1','K2','Atq. EFF','Rec. +/#','Acciones'],rows)}<p class="vc157-note">Selecciona el nombre de un partido para abrir su resumen. G-P = rallies ganados menos perdidos; no equivale a G-P de puntos directos por jugador.</p></div>
+ <div class="vc157-panel"><h3>Tendencia de side-out K1</h3><div class="vc1620-trend">${trend}</div><p class="vc157-note">Porcentajes descriptivos, sin promediar porcentajes de partidos. El agregado utiliza los denominadores. No atribuye causalidad ni compara rivales de distinta dificultad.</p></div>`;
+}
 function pageExplorer(data){
  const players=[...new Set(data.actions.map(x=>x.player))].sort((a,b)=>a.localeCompare(b,'es'));
  const f=state;
@@ -174,7 +219,7 @@ function pageDeep(data,surface){
   try{
    api.installStyle();
    surface.innerHTML=api.render(data,{skill:state.deepSkill,dimension:state.deepDim,player:state.deepPlayer},{pickButton,table,html});
-  }catch(e){console.error('Fundamentos Pro',e);surface.innerHTML='<div class="vc157-panel">No se puede mostrar este análisis. El análisis técnico anterior sigue disponible.</div>'}
+  }catch(e){console.error('Fundamentos Pro',e);surface.innerHTML='<div class="vc157-panel">No se puede mostrar este análisis. Revisa la disponibilidad del módulo de fundamentos.</div>'}
   return;
  }
  surface.innerHTML=`<div class="vc157-panel"><h3>Fundamentos Pro</h3><p>${deepLoadError?'No se ha podido cargar el módulo de análisis detallado.':'Preparando los desgloses de todos los fundamentos…'}</p>${deepLoadError?'<button id="vc171-retry" type="button">Reintentar</button>':''}</div>`;
@@ -186,19 +231,38 @@ function pageDeep(data,surface){
   script.onerror=()=>reject(new Error('No se pudo descargar el módulo Fundamentos Pro'));
   document.body.appendChild(script);
  });
- deepLoading.then(()=>{deepLoading=null;if(state.page==='deep'&&!state.technical)renderPage()})
-  .catch(err=>{deepLoading=null;deepLoadError=String(err.message||err);console.warn('Fundamentos Pro',err);if(state.page==='deep'&&!state.technical)renderPage()});
+ deepLoading.then(()=>{deepLoading=null;if(inDeepView()&&!state.technical)renderPage()})
+  .catch(err=>{deepLoading=null;deepLoadError=String(err.message||err);console.warn('Fundamentos Pro',err);if(inDeepView()&&!state.technical)renderPage()});
 }
 function renderPage(){
  if(!state.loaded||state.technical)return;
- const data=dataset(),surface=$('vc157-content');if(!surface)return;
- if(!data){surface.innerHTML='<div class="vc157-empty">Selecciona un scouting para empezar el análisis.</div>';return;}
- const p=state.page;
- const content={overview:pageOverview,players:pagePlayers,rotations:pageRotations,distribution:pageDistribution,zones:pageZones,explorer:pageExplorer}[p]||pagePlayers;
- if(p==='deep')pageDeep(data,surface);else surface.innerHTML=content(data);
- const meta=$('vc157-sample');if(meta)meta.textContent=periodLabel(data);
+ const surface=$('vc157-content');if(!surface)return;
+ const studio=$('vc157-studio');if(studio){studio.dataset.vc1620Setter=String(state.page==='setter'&&state.subpage.setter==='details');studio.dataset.vc1620Season=String(state.page==='season');}
+ const heading=$('vc157-section-title');if(heading)heading.textContent=pages[state.page]?.[0]||'Resumen';
+ const meta=$('vc157-sample');
  document.querySelectorAll('#vc157-tabs [data-section]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===state.page)));
- const title=$('vc157-section-title');if(title)title.textContent=pages[p][0];
+ const sub=$('vc1620-subtabs');
+ if(sub){
+  const options=subpages[state.page]||[];
+  sub.hidden=options.length===0;
+  sub.innerHTML=options.map(([key,label])=>`<button type="button" data-subpage="${key}" aria-pressed="${state.subpage[state.page]===key}">${html(label)}</button>`).join('');
+ }
+ if(state.page==='season'){
+  if(meta)meta.textContent=`${matches().length} scoutings disponibles · Comparativa de partidos`;
+  surface.innerHTML=pageSeason();state.draws++;return;
+ }
+ const data=dataset();
+ if(!data){surface.innerHTML='<div class="vc157-empty">Selecciona un scouting para empezar el análisis.</div>';if(meta)meta.textContent='Sin scouting disponible';return;}
+ if(meta)meta.textContent=periodLabel(data);
+ const page=state.page,subpage=state.subpage[page];
+ if(inDeepView()){
+  if(page==='setter'){state.deepSkill='E';}
+  pageDeep(data,surface);
+ }else if(page==='overview')surface.innerHTML=pageOverview(data);
+ else if(page==='players')surface.innerHTML=pagePlayers(data);
+ else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
+ else if(page==='setter')surface.innerHTML=pageDistribution(data);
+ else if(page==='explorer')surface.innerHTML=pageExplorer(data);
  state.draws++;
 }
 function selectKeys(keys,title){
@@ -253,7 +317,7 @@ function switchMode(technical){
  const studio=$('vc157-studio');if(studio)studio.hidden=!!technical;
  const base=$('vc1614-view-switch');
  base?.querySelector(`[data-mode="${technical?'technical':'intelligence'}"]`)?.click();
- const btn=$('vc157-back');if(btn)btn.hidden=!technical;
+
  if(technical){
   setNativeSelection(state.match);
   // Only the technical view runs the legacy (expensive) render pipeline.
@@ -268,16 +332,15 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH · ANALYST STUDIO</span><h2>Análisis profesional de partido</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf">PDF hoja oficial</button><button id="vc157-propdf">PDF análisis Pro</button><button id="vc157-technical">Análisis técnico</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.0</span><h2>Centro de análisis</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
- <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ANALYST WORKSPACE</span><h3 id="vc157-section-title">Hoja estadística</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
- <div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Vista técnica de solo lectura. Las métricas provienen del motor V16.1.4 y solo incluyen rallies cerrados. La Hoja Oficial PDF conserva su generador V11.4.</p>`;
+ <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
+ <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
+ <p class="vc157-footer">Analysis Pro 2.0 · Estadísticas calculadas sin modificar el scouting. Muestras explícitas y acciones trazables. La Hoja Oficial conserva su generador y estructura.</p>`;
  view.appendChild(host);
- const back=document.createElement('button');back.id='vc157-back';back.hidden=true;back.textContent='← Volver a Analyst Studio';view.insertBefore(back,view.querySelector('.scout-analysis-shell'));
- back.addEventListener('click',()=>switchMode(false));
- $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b)return;state.page=b.dataset.section;state.player='';state.skill='';state.rating='';renderPage()});
+ $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
+ $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
   if(id==='vc171-dimension'){state.deepDim=t.value;renderPage();return}
@@ -297,14 +360,20 @@ function mount(){
  });
  host.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
-  if(t.dataset.vc171Skill){state.deepSkill=t.dataset.vc171Skill;state.deepDim='player';state.deepPlayer='';renderPage();return}
+  if(t.dataset.vc171Skill){if(state.page==='setter'&&t.dataset.vc171Skill!=='E'){state.page='players';state.subpage.players='fundamentals';}state.deepSkill=t.dataset.vc171Skill;state.deepDim='player';state.deepPlayer='';renderPage();return}
   if(t.id==='vc171-retry'){deepLoadError='';renderPage();return}
+  if(t.dataset.seasonMatch){
+   const chosen=matches().find(m=>String(m.id)===String(t.dataset.seasonMatch));
+   if(!chosen)return;
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';
+   state.page='overview';state.selected=[];state.selectedTitle='Selecciona una cifra';setNativeSelection(state.match);
+   renderInspector();buildHeader();renderPage();return;
+  }
   if(t.dataset.pick){let keys=[];try{keys=JSON.parse(decodeURIComponent(t.dataset.pick))}catch(_){ }selectKeys(keys,t.dataset.pickTitle);return}
   switch(t.id){
    case 'vc157-refresh-matches':refresh();break;
    case 'vc157-official':window.scoutV114ExportOfficialPDF?.(currentMatch()?.id);break;
    case 'vc157-propdf':window.scoutV114ExportAnalysisPDF?.(currentMatch()?.id);break;
-   case 'vc157-technical':switchMode(true);break;
    case 'vc157-video':openVideo();break;
    case 'vc157-csv':exportFile('csv');break;
    case 'vc157-csv-official':exportFile('csv-official');break;
@@ -320,114 +389,101 @@ function mount(){
 }
 function open(){if(!mount())return false;refresh();return true}
 const CSS=`
-body.v11-shell #scout-analysis[data-vc157-mode="studio"]>.scout-analysis-shell{display:none!important}
-#scout-analysis[data-vc157-mode="studio"]>#vc157-back{display:none!important}
+body.v11-shell #scout-analysis[data-vc157-mode="studio"] > .scout-analysis-shell{display:none!important}
+body.v11-shell #scout-analysis[data-vc157-mode="studio"] > :is(#vc1615-back,#vc157-back){display:none!important}
 #scout-analysis[data-vc157-mode="technical"]>#vc157-studio{display:none!important}
-body.v11-shell #scout-analysis #vc157-studio{font:500 13px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;color:#183550;max-width:100%;min-width:0;margin:0 auto 25px}
-#vc157-studio *{box-sizing:border-box}#vc157-studio button{cursor:pointer;font-family:inherit}#vc157-studio button:focus-visible,#vc157-studio select:focus-visible{outline:3px solid #8bc3f2;outline-offset:1px}
-#vc157-studio .vc157-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:#102943;color:#fff;border-radius:12px 12px 0 0;padding:20px 22px}
-#vc157-studio .vc157-eyebrow{font-size:10px;font-weight:850;color:#75b9e9;letter-spacing:.10em}
-#vc157-studio .vc157-top h2{color:#fff!important;font:850 25px/1.2 system-ui!important;margin:5px 0!important}
-#vc157-studio .vc157-top p{color:#a9c3da;margin:0;font-size:12px}
+#vc157-studio, #vc157-studio *{box-sizing:border-box}
+body.v11-shell #scout-analysis #vc157-studio{--vc1620-ink:#193955;--vc1620-muted:#607c96;--vc1620-line:#d9e5ef;--vc1620-paper:#fff;max-width:100%;min-width:0;color:var(--vc1620-ink);font:500 13px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;margin:0 auto 28px}
+#vc157-studio button{cursor:pointer;font-family:inherit}#vc157-studio button:focus-visible,#vc157-studio select:focus-visible{outline:3px solid #8cc5f3;outline-offset:2px}
+#vc157-studio .vc157-top{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;padding:24px 28px;background:linear-gradient(117deg,#0d2740,#173f62);color:#fff;border-radius:16px 16px 0 0}
+#vc157-studio .vc157-eyebrow{display:block;color:#80c5ee;letter-spacing:.13em;font-size:10px;font-weight:850}
+#vc157-studio .vc157-top h2{font:850 clamp(22px,2.2vw,29px)/1.2 system-ui!important;color:#fff!important;margin:5px 0!important}
+#vc157-studio .vc157-top p{font-size:12px;color:#c3d8e8;margin:4px 0 0}
 #vc157-studio .vc157-actions{display:flex;gap:7px;flex-wrap:wrap}
-#vc157-studio .vc157-actions button,#vc157-studio .vc157-export button{background:#244666!important;color:#eaf5ff!important;border:1px solid #44698b!important;border-radius:8px!important;padding:9px 11px!important;font:750 11px system-ui!important;min-height:34px!important}
-#vc157-studio .vc157-actions button.vc157-pdf{background:#eff6ff!important;color:#10467d!important;border-color:#d6e5f4!important}
-#vc157-studio .vc157-filterbar{display:grid;grid-template-columns:minmax(190px,2fr) repeat(4,minmax(90px,1fr));gap:8px;padding:13px 14px;background:#fff;border:1px solid #d5e1ec}
-#vc157-studio .vc157-filterbar label,#vc157-studio .vc157-explorer-filters label{display:grid;gap:4px;color:#56738c;font:800 10px/1.3 system-ui;min-width:0}
-body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-width:100%!important;min-height:36px!important;height:36px!important;min-width:0!important;padding:6px 8px!important;border-radius:7px!important;border:1px solid #ccdae7!important;background:#fff!important;color:#173e61!important;font:700 11px system-ui!important}
-#vc157-studio .vc157-work{background:#f6f9fc;border:1px solid #d5e1ec;border-top:0;padding:12px;border-radius:0 0 12px 12px}
-#vc157-studio .vc157-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;background:#e7eef6;padding:5px;border-radius:10px;margin:0 0 12px}
-#vc157-studio .vc157-tabs button{background:transparent!important;border:1px solid transparent!important;border-radius:8px!important;padding:9px 6px!important;min-height:52px!important;color:#58758c!important;min-width:0!important;display:grid;align-content:center;gap:3px;text-align:center}
-#vc157-studio .vc157-tabs button[aria-selected="true"]{background:#fff!important;border-color:#c6d9e8!important;color:#154d7b!important;box-shadow:0 2px 7px #1b43600f}
-#vc157-studio .vc157-tabs b{font-size:12px}#vc157-studio .vc157-tabs span{font-size:9px;color:inherit}
-#vc157-studio .vc157-stagehead{display:flex;align-items:end;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:2px 5px 13px}
-#vc157-studio .vc157-stagehead h3{font:850 20px/1.2 system-ui!important;color:#143b5c!important;margin:4px 0!important}
-#vc157-studio .vc157-stagehead p{color:#718aa0;font-size:11px;margin:0}
-#vc157-studio .vc157-export{display:flex;gap:5px}#vc157-studio .vc157-export button{background:#fff!important;color:#28618d!important;border-color:#c7dce9!important}
-#vc157-studio .vc157-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,275px);gap:11px;align-items:start}
-#vc157-studio .vc157-content{min-width:0!important;display:grid;gap:11px;margin:0;padding:0;width:auto;max-width:none}
-#vc157-studio .vc157-panel,#vc157-studio .vc157-inspector{background:#fff;border:1px solid #d8e5ef;border-radius:10px;padding:15px;min-width:0;box-shadow:0 3px 10px #102a4207}
-#vc157-studio .vc157-panel h3,#vc157-studio .vc157-inspector h3{color:#164265!important;font:850 15px/1.3 system-ui!important;margin:0 0 10px!important}
-#vc157-studio .vc157-panel p{font:500 11px/1.55 system-ui;color:#617e95}
-#vc157-studio .vc157-panelhead{display:flex;gap:10px;align-items:start;justify-content:space-between}
-#vc157-studio .vc157-panelhead h3{margin-bottom:4px!important}
-#vc157-studio .vc157-tag{background:#eaf3fb;color:#2c668f;border-radius:999px;padding:5px 8px;white-space:nowrap;font-size:10px}
-#vc157-studio .vc157-tablewrap{overflow:auto;max-width:100%;border:1px solid #e2eaf1;border-radius:7px}
-#vc157-studio .vc157-table{width:100%;border-collapse:collapse;font:650 11px/1.4 system-ui;white-space:nowrap;min-width:550px}
-#vc157-studio .vc157-table th{background:#edf4f9;color:#597b94;letter-spacing:.01em;text-align:left;font-weight:850;font-size:10px;padding:10px 9px;border-bottom:1px solid #d3e2ed}
-#vc157-studio .vc157-table td{color:#365d78;font-variant-numeric:tabular-nums;padding:9px;border-bottom:1px solid #ebf0f5}
-#vc157-studio .vc157-table tbody tr:hover{background:#f7fbff}#vc157-studio .vc157-table td small{display:block;color:#90a3b4;font-size:9px}
-#vc157-studio .vc157-table .vc157-player{font-weight:850;color:#1a4e76}
-#vc157-studio .vc157-table .vc157-muted{padding:16px;color:#718a9e;text-align:center}
-#vc157-studio .vc157-pick{background:transparent!important;border:0!important;color:#1766a4!important;font:800 11px system-ui!important;text-decoration:underline;text-decoration-color:#abd0ea;text-underline-offset:3px;padding:2px!important;white-space:nowrap}
-#vc157-studio .vc157-pick:hover{color:#073c67!important}
-#vc157-studio .vc157-note{border-top:1px solid #e6edf4;padding-top:10px;margin-top:11px!important;color:#768fa2!important;font-size:10px!important}
-#vc157-studio .vc157-grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-#vc157-studio .vc157-inspector{position:sticky;top:74px;max-height:min(76vh,800px);overflow:auto}
-#vc157-studio .vc157-inspector-head{border-bottom:1px solid #e4edf4;padding-bottom:7px;margin-bottom:8px}
-#vc157-studio .vc157-inspector-head span{font-size:9px;font-weight:900;letter-spacing:.1em;color:#6e94b3}
-#vc157-studio .vc157-inspector-head h3{margin:5px 0!important;font-size:14px!important}
-#vc157-studio .vc157-inspector p{font-size:11px;color:#617e95;line-height:1.5}
-#vc157-studio .vc157-inspector-list{display:grid;gap:5px;max-height:285px;overflow:auto}
-#vc157-studio .vc157-inspector-item{display:flex;justify-content:space-between;align-items:center;gap:4px;background:#f4f8fb;border:1px solid #e2ebf3;border-radius:7px;padding:7px}
-#vc157-studio .vc157-inspector-item b{color:#254e6c;font:850 11px ui-monospace,Consolas,monospace}
-#vc157-studio .vc157-inspector-item small{display:block;color:#7591a7;font-size:9px}
-#vc157-studio .vc157-inspector-item>span{font-size:9px;color:#598bb1;white-space:nowrap}
-#vc157-studio #vc157-video{background:#155ba4!important;color:#fff!important;border:1px solid #155ba4!important;border-radius:8px!important;min-height:38px!important;padding:9px!important;width:100%;font:850 11px system-ui!important;margin-top:10px}
-#vc157-studio #vc157-video:disabled{opacity:.4;cursor:not-allowed}
-#vc157-studio .vc157-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-#vc157-studio .vc157-metric{display:grid;gap:5px;align-content:start;background:#fff;border:1px solid #d8e5ef;border-radius:10px;padding:12px}
-#vc157-studio .vc157-metric>span{color:#68849a;font-size:10px;font-weight:800}
-#vc157-studio .vc157-metric strong{color:#163c5e;font-size:23px}
-#vc157-studio .vc157-metric small{color:#8297a9;font-size:10px}
-#vc157-studio .vc157-metric button{justify-self:start}
-#vc157-studio .vc157-statline{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e8eef4}
-#vc157-studio .vc157-insight{border-left:3px solid #6d9cc1;background:#f4f9fd;padding:9px 10px;border-radius:6px;margin-bottom:6px}
-#vc157-studio .vc157-insight b{font-size:11px;color:#234e70}#vc157-studio .vc157-insight p{margin:4px 0}
-#vc157-studio .vc157-cellbar{display:inline-block;width:45px;height:5px;border-radius:5px;background:#e0eaf3;margin-right:6px;vertical-align:middle;overflow:hidden}
-#vc157-studio .vc157-cellbar i{display:block;height:100%;background:#2f83bd}
-#vc157-studio .vc157-court{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;background:#cfa067;border:2px solid #b88041;border-radius:9px;padding:7px;max-width:410px}
-#vc157-studio .vc157-zone{display:grid;place-items:center;gap:3px;min-height:82px!important;position:relative;overflow:hidden;background:#fff9ef!important;border:1px solid #ddc6a8!important;border-radius:7px!important;color:#20455f!important}
-#vc157-studio .vc157-zone i{position:absolute;inset:0;background:#368dd4;pointer-events:none}
-#vc157-studio .vc157-zone>*:not(i){position:relative;z-index:1}#vc157-studio .vc157-zone strong{font-size:21px}
-#vc157-studio .vc157-explorer-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:10px}
-#vc157-studio .vc157-footer{margin-top:12px;font-size:10px;color:#7a90a4}
-#scout-analysis #vc157-back{background:#eaf4fc!important;color:#205b85!important;border:1px solid #b6d3ea!important;border-radius:9px!important;padding:10px 13px!important;margin-bottom:12px;font:800 12px system-ui!important}
-#scout-analysis #vc157-back[hidden]{display:none!important}
-@media(max-width:1200px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}#vc157-studio .vc157-filterbar{grid-template-columns:repeat(3,minmax(0,1fr))}#vc157-studio .vc157-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:900px){#vc157-studio .vc157-columns{grid-template-columns:1fr}#vc157-studio .vc157-inspector{position:static;max-height:none}#vc157-studio .vc157-grid2{grid-template-columns:1fr}}
-@media(max-width:600px){#vc157-studio .vc157-top{padding:14px}#vc157-studio .vc157-top h2{font-size:20px!important}#vc157-studio .vc157-filterbar{grid-template-columns:1fr 1fr}#vc157-studio .vc157-filterbar label:first-child{grid-column:1/-1}#vc157-studio .vc157-work{padding:7px}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-tabs button{min-height:49px!important}#vc157-studio .vc157-tabs span{font-size:8px}#vc157-studio .vc157-panel{padding:10px}#vc157-studio .vc157-explorer-filters{grid-template-columns:1fr 1fr}}
-
-/* V16.1.5.6 · Analyst Workbench: dense statistical sheet, persistent filters,
-   vertical technical navigation and contextual video inspector. */
-#vc157-studio .vc157-top{padding:13px 18px!important;border-radius:10px 10px 0 0!important}
-#vc157-studio .vc157-top h2{font-size:21px!important;margin:2px 0!important}
-#vc157-studio .vc157-top p{font-size:11px!important}
-#vc157-studio .vc157-filterbar{grid-template-columns:minmax(195px,2fr) auto repeat(4,minmax(80px,1fr))!important;align-items:end!important;background:#f7fafc!important;padding:10px 13px!important;gap:8px!important}
+#vc157-studio .vc157-actions button{min-height:37px!important;border:1px solid #547491!important;border-radius:8px!important;background:#254f71!important;color:#fff!important;font-weight:750!important;font-size:11px!important;padding:9px 12px!important}
+#vc157-studio .vc157-actions .vc157-pdf{background:#fff!important;border-color:#fff!important;color:#174d77!important}
+#vc157-studio .vc157-filterbar{display:grid;grid-template-columns:minmax(240px,2.4fr) auto repeat(4,minmax(115px,1fr));align-items:end;gap:10px;background:#fff;border:1px solid var(--vc1620-line);border-top:0;padding:15px 22px}
+#vc157-studio .vc157-filterbar label, #vc157-studio .vc157-explorer-filters label, #vc157-studio .vc171-filters label{display:grid;gap:5px;min-width:0;color:var(--vc1620-muted);font:750 10px/1.4 system-ui;letter-spacing:.01em}
 #vc157-studio .vc157-match-field{position:relative}
-#vc157-studio .vc157-match-count{font:700 9px/1 system-ui,sans-serif;color:#5f819d;position:absolute;right:0;top:0}
-#vc157-studio #vc157-refresh-matches{min-height:36px!important;padding:7px 10px!important;color:#265985!important;background:#fff!important;border:1px solid #cad9e8!important;border-radius:7px!important;font:750 11px system-ui,sans-serif!important}
-#vc157-studio .vc157-work{display:grid!important;grid-template-columns:160px minmax(0,1fr)!important;grid-template-areas:"nav head" "nav contents"!important;gap:8px 13px!important;padding:10px!important;align-items:start}
-#vc157-studio .vc157-tabs{grid-area:nav!important;display:flex!important;flex-direction:column!important;position:sticky;top:76px;padding:7px!important;gap:4px!important;margin:0!important;align-self:start;min-height:270px;background:#eaf0f6!important}
-#vc157-studio .vc157-tabs button{text-align:left!important;min-height:46px!important;padding:9px 10px!important;justify-content:start!important;align-content:center!important}
-#vc157-studio .vc157-tabs b{font-size:11px!important}
-#vc157-studio .vc157-tabs span{font-size:9px!important}
-#vc157-studio .vc157-stagehead{grid-area:head!important;padding:2px 4px 8px!important}
-#vc157-studio .vc157-stagehead h3{font-size:18px!important}
-#vc157-studio .vc157-columns{grid-area:contents!important;grid-template-columns:minmax(0,1fr) minmax(225px,250px)!important;gap:9px!important}
-#vc157-studio .vc157-panel,#vc157-studio .vc157-inspector{padding:12px!important;box-shadow:none!important}
-#vc157-studio .vc157-inspector{top:76px!important}
-#vc157-studio .vc157-table{font-size:10.5px!important}
-#vc157-studio .vc157-table td{padding:7px 7px!important}
-#vc157-studio .vc157-table th{padding:8px 7px!important;position:sticky;top:0;z-index:1}
-#vc157-studio .vc157-table td:first-child,#vc157-studio .vc157-table th:first-child{position:sticky;left:0;background:#fff;z-index:2;box-shadow:1px 0 #dce6ef}
-#vc157-studio .vc157-table th:first-child{background:#edf4f9;z-index:3}
-#vc157-studio .vc157-table tbody tr:hover td:first-child{background:#f7fbff}
-#vc157-studio .vc157-content{gap:9px!important}
-@media(max-width:1220px){#vc157-studio .vc157-filterbar{grid-template-columns:minmax(180px,2fr) auto repeat(2,minmax(85px,1fr))!important}#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr)!important}#vc157-studio .vc157-inspector{position:static!important;max-height:none!important}}
-@media(max-width:850px){#vc157-studio .vc157-work{grid-template-columns:1fr!important;grid-template-areas:"nav" "head" "contents"!important}#vc157-studio .vc157-tabs{position:static!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:0!important}#vc157-studio .vc157-tabs button{text-align:center!important}#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important}}
-@media(max-width:550px){#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto!important}#vc157-studio .vc157-filterbar .vc157-match-field{grid-column:1!important}#vc157-studio .vc157-filterbar>label:not(.vc157-match-field){grid-column:span 1}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-
+#vc157-studio .vc157-match-count{position:absolute;right:0;top:0;font-size:9px;color:#497ba0;font-weight:750}
+body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-width:none!important;min-width:0!important;height:39px!important;min-height:39px!important;border:1px solid #cadbe8!important;border-radius:8px!important;padding:7px 9px!important;background:#fff!important;color:#244963!important;font:700 12px system-ui!important}
+#vc157-studio #vc157-refresh-matches{height:39px!important;min-height:39px!important;padding:7px 12px!important;border:1px solid var(--vc1620-line)!important;border-radius:8px!important;background:#eff6fc!important;color:#195b8d!important;font-weight:750!important;font-size:11px!important}
+#vc157-studio .vc157-work{display:grid;grid-template-columns:203px minmax(0,1fr);grid-template-areas:'nav head' 'nav tabs' 'nav contents';column-gap:18px;row-gap:12px;align-items:start;background:#f5f8fb;border:1px solid var(--vc1620-line);border-top:0;padding:20px;border-radius:0 0 16px 16px;min-width:0}
+#vc157-studio .vc157-tabs{grid-area:nav!important;display:flex!important;flex-direction:column!important;position:sticky;top:72px;background:#eaf1f7;border:1px solid #d7e4ef;border-radius:12px;padding:8px;gap:4px;margin:0!important;min-width:0}
+#vc157-studio .vc157-tabs button{min-height:58px!important;text-align:left!important;padding:10px 12px!important;display:grid;gap:2px;align-content:center;white-space:normal!important;background:transparent!important;border:1px solid transparent!important;border-radius:9px!important;color:#52738f!important}
+#vc157-studio .vc157-tabs button b{font-size:12px;font-weight:850}#vc157-studio .vc157-tabs button span{font-size:10px;line-height:1.3;color:inherit;opacity:.8}
+#vc157-studio .vc157-tabs button[aria-selected="true"]{background:#fff!important;color:#154d7c!important;border-color:#cbddec!important;box-shadow:0 2px 8px #143b5512}
+#vc157-studio .vc157-stagehead{grid-area:head;display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:0 3px 9px;border-bottom:1px solid #dbe6ef}
+#vc157-studio .vc157-stagehead h3{color:#153a5b!important;font:850 22px/1.2 system-ui!important;margin:5px 0!important}#vc157-studio .vc157-stagehead p{color:#67839a;font-size:11px;margin:0}
+#vc157-studio .vc157-export{display:flex;gap:5px;flex-wrap:wrap}
+#vc157-studio .vc157-export button{background:#fff!important;border:1px solid #cbdce8!important;border-radius:8px!important;color:#245b84!important;min-height:34px!important;font:750 10px system-ui!important;padding:8px 10px!important}
+#vc157-studio .vc1620-subtabs{grid-area:tabs;display:flex;gap:7px;flex-wrap:wrap;min-width:0}
+#vc157-studio .vc1620-subtabs[hidden]{display:none!important}
+#vc157-studio .vc1620-subtabs button{border:1px solid #d5e2ec!important;background:#fff!important;color:#53748f!important;padding:8px 14px!important;min-height:36px!important;border-radius:8px!important;font-weight:750!important;font-size:11px!important}
+#vc157-studio .vc1620-subtabs button[aria-pressed="true"]{color:#fff!important;background:#1b5a90!important;border-color:#1b5a90!important}
+#vc157-studio[data-vc1620-setter="true"] .vc171-skillbar{display:none!important}
+#vc157-studio[data-vc1620-season="true"] .vc157-inspector{display:none!important}
+#vc157-studio[data-vc1620-season="true"] .vc157-columns{grid-template-columns:minmax(0,1fr)!important}
+#vc157-studio .vc157-columns{grid-area:contents;display:grid;grid-template-columns:minmax(0,1fr) minmax(238px,280px);gap:14px;align-items:start;min-width:0}
+#vc157-studio .vc157-content{display:grid;gap:14px;min-width:0;max-width:100%;margin:0}
+#vc157-studio .vc157-panel,#vc157-studio .vc157-inspector{background:#fff;border:1px solid var(--vc1620-line);border-radius:12px;padding:18px;min-width:0;box-shadow:0 2px 10px #18344f08}
+#vc157-studio .vc157-panel h3,#vc157-studio .vc157-inspector h3{color:#173e60!important;font:850 15px/1.3 system-ui!important;margin:0 0 9px!important}
+#vc157-studio .vc157-panel p,#vc157-studio .vc157-inspector p{font-size:11px;color:#668198;line-height:1.55;margin:7px 0}
+#vc157-studio .vc157-panelhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#vc157-studio .vc157-tag{font-size:10px;color:#2e648a;padding:5px 10px;background:#eef6fc;border-radius:20px;white-space:nowrap}
+#vc157-studio .vc157-tablewrap{max-width:100%;overflow-x:auto;border:1px solid #e0eaf2;border-radius:8px}
+#vc157-studio .vc157-table{border-collapse:collapse;width:100%;min-width:570px;white-space:nowrap;font:650 11px/1.35 system-ui;font-variant-numeric:tabular-nums}
+#vc157-studio .vc157-table th{background:#eff5fa;color:#54758e;text-align:left;padding:10px 8px;font:800 10px system-ui;position:sticky;top:0;z-index:1;border-bottom:1px solid #d5e1eb}
+#vc157-studio .vc157-table td{padding:9px 8px;border-bottom:1px solid #e8eff5;color:#335a77;vertical-align:middle}
+#vc157-studio .vc157-table tbody tr:hover{background:#f6faff}
+#vc157-studio .vc157-table td small{display:block;color:#899caf;font-size:10px}
+#vc157-studio .vc157-table td:first-child,#vc157-studio .vc157-table th:first-child{position:sticky;left:0;background:#fff;z-index:2;box-shadow:1px 0 #e0e9ef}
+#vc157-studio .vc157-table th:first-child{background:#eff5fa;z-index:3}
+#vc157-studio .vc157-table .vc157-muted{padding:18px;color:#7d95a8;text-align:center}
+#vc157-studio .vc157-player{font-weight:800}
+#vc157-studio .vc157-pick{background:transparent!important;border:0!important;color:#17649b!important;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#b5d4e7;padding:2px!important;font:800 11px system-ui!important;white-space:nowrap!important}
+#vc157-studio .vc157-note{margin-top:12px!important;border-top:1px solid #e8eff4;padding-top:10px;color:#7c94a6!important;font-size:10px!important}
+#vc157-studio .vc157-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#vc157-studio .vc157-inspector{position:sticky;top:72px;max-height:min(78vh,850px);overflow:auto}
+#vc157-studio .vc157-inspector-head{padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid #e0ebf2}
+#vc157-studio .vc157-inspector-head span{color:#6b94b5;font:900 9px system-ui;letter-spacing:.12em}
+#vc157-studio .vc157-inspector-list{display:grid;gap:6px;max-height:330px;overflow:auto}
+#vc157-studio .vc157-inspector-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f4f8fb;padding:9px;border:1px solid #e1ebf4;border-radius:8px}
+#vc157-studio .vc157-inspector-item b{font:850 11px ui-monospace,Consolas,monospace;color:#284c6b}
+#vc157-studio .vc157-inspector-item small{display:block;font-size:9px;color:#819aad}
+#vc157-studio .vc157-inspector-item>span{font-size:9px;color:#4e7e9d}
+#vc157-studio #vc157-video{min-height:40px!important;background:#165c97!important;border:1px solid #165c97!important;border-radius:8px!important;color:#fff!important;width:100%;font-weight:850!important;font-size:11px!important;margin-top:12px}
+#vc157-studio #vc157-video:disabled{opacity:.45;cursor:not-allowed}
+#vc157-studio .vc157-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#vc157-studio .vc157-metric{display:grid;gap:5px;align-content:start;min-width:0;background:#fff;border:1px solid var(--vc1620-line);border-radius:11px;padding:15px}
+#vc157-studio .vc157-metric>span{color:#63819a;font-size:10px;font-weight:800}
+#vc157-studio .vc157-metric strong{color:#153a5a;font-size:clamp(19px,2vw,27px);line-height:1.2}
+#vc157-studio .vc157-metric small{font-size:10px;color:#7b93a7}
+#vc157-studio .vc157-metric button{justify-self:start}
+#vc157-studio .vc157-statline{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #e8eff5;font-size:12px}
+#vc157-studio .vc157-insight{border-left:3px solid #5a9ac5;background:#f1f7fc;border-radius:7px;margin-bottom:9px;padding:11px}
+#vc157-studio .vc157-insight b{font-size:11px;color:#245174}
+#vc157-studio .vc157-cellbar{display:inline-block;width:50px;height:6px;border-radius:7px;background:#e3edf5;overflow:hidden;margin-right:5px;vertical-align:middle}
+#vc157-studio .vc157-cellbar i{display:block;height:100%;background:#468abc}
+#vc157-studio .vc157-court{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;max-width:420px;border:2px solid #ad7b47;background:#cfa570;border-radius:10px;padding:7px}
+#vc157-studio .vc157-zone{display:grid;position:relative;place-items:center;gap:3px;min-height:80px!important;overflow:hidden;border:1px solid #dfcbae!important;border-radius:7px!important;background:#fff9f0!important;color:#22445b!important}
+#vc157-studio .vc157-zone i{position:absolute;inset:0;background:#3282bc;pointer-events:none}#vc157-studio .vc157-zone>:not(i){position:relative;z-index:1}#vc157-studio .vc157-zone strong{font-size:20px}
+#vc157-studio .vc157-explorer-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+#vc157-studio .vc157-footer{color:#8197a9;font-size:10px;margin:13px 2px}
+#vc157-studio .vc157-empty{background:#fff;border:1px dashed #b5ccdf;border-radius:10px;padding:32px;color:#66849e;text-align:center}
+#vc157-studio .vc1620-season-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:12px}
+#vc157-studio .vc1620-season-metrics>div{display:grid;gap:5px;border:1px solid #dae7f0;border-radius:9px;padding:12px;background:#f7fafd;min-width:0}
+#vc157-studio .vc1620-season-metrics span{font-size:10px;font-weight:800;color:#547d97}
+#vc157-studio .vc1620-season-metrics strong{font-size:20px;color:#153b5f}
+#vc157-studio .vc1620-season-metrics small{font-size:9px;color:#7794a8}
+#vc157-studio .vc157-season-link{border:0!important;background:transparent!important;color:#165c94!important;font:800 11px system-ui!important;padding:2px!important;text-decoration:underline;text-underline-offset:3px}
+#vc157-studio .vc1620-trend{display:grid;gap:9px;margin-top:12px}
+#vc157-studio .vc1620-trendrow{display:grid;grid-template-columns:minmax(100px,1.1fr) minmax(80px,2fr) 65px 55px;gap:9px;align-items:center;color:#54758e;font-size:11px}
+#vc157-studio .vc1620-trendrow>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#vc157-studio .vc1620-trendrow b{color:#265d84}
+#vc157-studio .vc1620-track{height:10px;overflow:hidden;background:#e8f0f6;border-radius:8px}#vc157-studio .vc1620-track i{display:block;background:#377caa;height:100%;border-radius:8px}
+@media(max-width:1250px){#vc157-studio .vc157-filterbar{grid-template-columns:minmax(190px,2fr) auto repeat(2,minmax(105px,1fr))}#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr)}#vc157-studio .vc157-inspector{position:static;max-height:none}#vc157-studio .vc1620-season-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:950px){#vc157-studio .vc157-work{grid-template-columns:1fr;grid-template-areas:'nav' 'head' 'tabs' 'contents';padding:12px}#vc157-studio .vc157-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:static;min-height:0}#vc157-studio .vc157-tabs button{min-height:54px!important}#vc157-studio .vc157-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-grid2{grid-template-columns:1fr}}
+@media(max-width:620px){#vc157-studio .vc157-top{padding:17px;align-items:flex-start;gap:11px}#vc157-studio .vc157-top h2{font-size:22px!important}#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:11px}#vc157-studio .vc157-filterbar>label:not(.vc157-match-field){grid-column:span 1}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}#vc157-studio .vc157-tabs button b{font-size:11px}#vc157-studio .vc157-stagehead h3{font-size:19px!important}#vc157-studio .vc157-panel{padding:11px}#vc157-studio .vc157-export button{padding:7px!important}#vc157-studio .vc157-explorer-filters{grid-template-columns:1fr 1fr}#vc157-studio .vc1620-season-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1620-trendrow{grid-template-columns:minmax(70px,1fr) minmax(45px,1.2fr) 50px 40px;gap:4px;font-size:10px}}
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.1.7',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.2.0',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
