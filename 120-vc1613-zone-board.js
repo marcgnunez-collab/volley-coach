@@ -1,4 +1,4 @@
-/* Volley Coach V16.1.5.7 — Inline DataVolley zone keypad.
+/* Volley Coach V16.1.7 — Inline DataVolley zone keypad, below quick code.
    One board in the existing coding panel. Changes the draft code only;
    neither adds actions nor writes match data. No global subtree observers. */
 (()=>{
@@ -139,8 +139,19 @@ function mount(){
  if(!board){
    const d=document.createElement('div');d.innerHTML=boardMarkup();board=d.firstElementChild;
  }
+ // Put the interactive court directly under the quick-code input/status,
+ // before the Pro keyboard and recent actions. Reuse the same board node
+ // so zone selection and registered listeners are preserved.
  if(entry){
-  if(board.previousElementSibling!==entry)entry.insertAdjacentElement('afterend',board);
+  const keyboard=entry.querySelector('#vc1645-video');
+  const status=entry.querySelector('#v113-video-code-status');
+  if(keyboard){
+   if(board.parentElement!==entry||board.nextElementSibling!==keyboard)entry.insertBefore(board,keyboard);
+  }else if(status){
+   if(board.previousElementSibling!==status)status.insertAdjacentElement('afterend',board);
+  }else if(board.parentElement!==entry){
+   entry.appendChild(board);
+  }
  }else if(keypad&&keypad.parentElement===panel){
   if(board.previousElementSibling!==keypad)keypad.insertAdjacentElement('afterend',board);
  }
@@ -155,7 +166,7 @@ function mount(){
   });
  }
  for(const id of ['v113-video-code','v800-code','scout-code-input']){
-  const input=$(id);if(!input||input.dataset.vc16157Bound)return;
+  const input=$(id);if(!input||input.dataset.vc16157Bound)continue;
   input.dataset.vc16157Bound='1';
   input.addEventListener('focus',()=>{state.lastInput=input;detectContext()});
   input.addEventListener('input',()=>{state.lastInput=input;detectContext()});
@@ -175,5 +186,5 @@ function attach(){
  observer.observe(panel,{childList:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
-window.VC_1613_ZONE_BOARD={version:'16.1.6',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
+window.VC_1613_ZONE_BOARD={version:'16.1.7',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
 })();
