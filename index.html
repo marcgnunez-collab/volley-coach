@@ -3403,7 +3403,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.2.8',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.3.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12130,4 +12130,5 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
  };
 })();
 </script>
+<script id="vc1630-core-reliability" src="./127-vc1630-core-reliability.js?v=16.3.0" defer data-vc-module="true"></script>
 </body></html>
