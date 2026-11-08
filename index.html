@@ -3403,7 +3403,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.2.7',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=16.2.8',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12097,7 +12097,7 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
    loading=true;
    const script=document.createElement('script');
    script.id='vc16155-analyst-studio-script';
-   script.src='./124-vc16155-analyst-studio.js?v=16.2.7';
+   script.src='./124-vc16155-analyst-studio.js?v=16.2.8';
    script.async=true;
    script.onload=()=>{loading=false;try{if(view.classList.contains('active'))window.VC_ANALYST_STUDIO_16155?.open?.()}catch(e){console.error('Analyst Studio initialization',e)}};
    script.onerror=()=>{loading=false;failed=true;console.warn('Analyst Studio unavailable; legacy analysis remains active.')};
