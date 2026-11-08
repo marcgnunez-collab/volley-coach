@@ -47,24 +47,165 @@ window.v152PrintAdvancedPlayer=printAdvanced;window.v151PrintCurrentPlayer=print
 
 /* ---------- PROFESSIONAL EXCHANGE CENTER ---------- */
 let importPayload=null;
-function download(name,content,type='application/octet-stream'){const blob=content instanceof Blob?content:new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function download(name,content,type='application/octet-stream'){const blob=content instanceof Blob?content:new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},30000)}
 function cleanName(s){return String(s||'volley').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,80)||'volley'}
 function allMatches(){return arr(V()?.getMatches?.())}
 function currentMatch(){return active()}
 function exchangePayload(scope='season'){const ms=scope==='current'?(currentMatch()?[currentMatch()]:[]):allMatches();return{type:'volley-coach-exchange',schema:'vcx/1.0',appVersion:VERSION,exportedAt:new Date().toISOString(),scope,matchCount:ms.length,source:{app:'Volley Coach',statisticsEngine:window.VC_STATS_ENGINE?.version||null,matchState:window.MatchState?.schema||null},matches:(typeof structuredClone==='function'?structuredClone(ms):JSON.parse(JSON.stringify(ms)))}}
-function csvCell(v){const s=String(v??'');return /[",\n;]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
-function actionsCSV(ms){const head=['match_id','date','opponent','set','rally','score_us','score_opponent','rotation','opponent_rotation','phase','serving','team','player_id','player','skill','evaluation','start_zone','end_zone','code','video_seconds'];const lines=[head.join(',')];ms.forEach(m=>rows(m).forEach(a=>{lines.push([m.id,m.date||'',m.opponent||'',a.set||'',a.rallyIndex||a.rallyId||'',a.scoreUs??a.scoreAfter?.us??'',a.scoreOpponent??a.scoreAfter?.opponent??'',a.rotation||'',a.opponentRotation||'',a.phase||'',a.servingBefore||'',a.team||'',a.playerId||'',a.playerNameSnapshot||a.playerLabel||'',a.skill||'',a.evaluation||'',a.startZone||'',a.endZone||'',a.code||'',a.videoTimestamp??a.liveVideoTime??a.videoAction??a.videoTime??''].map(csvCell).join(','))}));return lines.join('\n')}
+function csvCell(v){return window.VC_EXCHANGE_SAFETY_1633?.csvCell(v)??String(v??'')}
+function actionsCSV(ms){
+ const helper=window.VC_EXCHANGE_SAFETY_1633;
+ if(!helper?.csvRows)throw Error('El exportador CSV seguro no está disponible.');
+ const head=['match_id','date','opponent','set','rally','score_us','score_opponent','rotation','opponent_rotation','phase','serving','team','player_id','player','skill','evaluation','start_zone','end_zone','code','video_seconds'];
+ const result=[head];
+ ms.forEach(m=>rows(m).forEach(a=>result.push([
+  m.id,m.date??'',m.opponent??'',a.set??'',a.rallyIndex??a.rallyId??'',
+  a.scoreUs??a.scoreAfter?.us??'',a.scoreOpponent??a.scoreAfter?.opponent??'',
+  a.rotation??'',a.opponentRotation??'',a.phase??'',a.servingBefore??'',a.team??'',
+  a.playerId??'',a.playerNameSnapshot??a.playerLabel??'',a.skill??'',a.evaluation??'',
+  a.startZone??'',a.endZone??'',a.code??'',
+  a.videoTimestamp??a.liveVideoTime??a.videoAction??a.videoTime??''
+ ])));
+ return helper.csvRows(result);
+}
 function dvCodes(ms){const out=['# Volley Coach V15.2 · DataVolley code exchange','# One action code per line. Metadata lines start with #.'];ms.forEach(m=>{out.push(`# MATCH ${m.id||''} | ${m.date||''} | ${m.opponent||'Rival'}`);let lastSet=null;rows(m).forEach(a=>{if(a.set!==lastSet){lastSet=a.set;out.push(`# SET ${lastSet||''}`)}if(a.code)out.push(String(a.code).trim())})});return out.join('\n')}
-window.v152Export=function(kind,scope='season'){const ms=scope==='current'?(currentMatch()?[currentMatch()]:[]):allMatches();if(!ms.length)return alert('No hay scoutings para exportar.');const base=scope==='current'?cleanName(`${ms[0].date||''}_${ms[0].opponent||'partido'}`):`temporada_${new Date().toISOString().slice(0,10)}`;if(kind==='vcx')download(`${base}.vcx`,JSON.stringify(exchangePayload(scope),null,2),'application/json');else if(kind==='json')download(`${base}_backup.json`,JSON.stringify({type:'volley-coach-scout-backup',match:ms[0]||null,matches:ms,exportedAt:new Date().toISOString()},null,2),'application/json');else if(kind==='csv')download(`${base}_acciones.csv`,actionsCSV(ms),'text/csv;charset=utf-8');else if(kind==='dvcodes')download(`${base}_datavolley_codes.txt`,dvCodes(ms),'text/plain;charset=utf-8')};
-function extractCodes(text){const lines=String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean),codes=[];for(const line of lines){if(line.startsWith('#'))continue;const parts=line.includes(';')?line.split(';'):line.split(/\s+/);for(const p0 of parts){const p=p0.trim().replace(/^"|"$/g,'');if(/^(?:R)?\d{1,3}[SREABDFC][#\+!\-\/=]/i.test(p))codes.push(p)}}return [...new Set(codes)]}
-function previewImport(file,text){let kind='unknown',summary='',data=null,codes=[];try{const j=JSON.parse(text);if(j?.type==='volley-coach-exchange'&&Array.isArray(j.matches)){kind='vcx';data=j;summary=`VCX · ${j.matches.length} scoutings · versión ${j.appVersion||'—'}`}else if(j?.match||Array.isArray(j?.matches)){kind='json';data=j;summary=`JSON Volley Coach · ${j.matches?.length||1} scouting(s)`}}catch(_){}if(kind==='unknown'){codes=extractCodes(text);if(codes.length){kind=/\.dvw$/i.test(file.name)?'dvw-codes':'codes';summary=`${kind==='dvw-codes'?'DVW experimental':'Códigos DataVolley'} · ${codes.length} códigos detectados`}}importPayload={file,kind,data,codes,text};const box=$('v152-import-preview');box?.classList.add('open');if(box)box.innerHTML=`<b>${esc(file.name)}</b><div class="v152-import-status">${esc(summary||'Formato no reconocido')}</div><pre>${esc(kind==='vcx'||kind==='json'?JSON.stringify(data,null,2).slice(0,5000):codes.slice(0,80).join('\n'))}</pre><div class="v152-smart-actions"><button type="button" class="primary" onclick="v152CommitImport()" ${kind==='unknown'?'disabled':''}>Importar</button><button type="button" class="ghost" onclick="v152ClearImport()">Cancelar</button></div>`}
+window.v152Export=function(kind,scope='season'){
+ try{
+  const ms=scope==='current'?(currentMatch()?[currentMatch()]:[]):allMatches();
+  if(!ms.length)return alert('No hay scoutings para exportar.');
+  const base=scope==='current'?cleanName(`${ms[0].date||''}_${ms[0].opponent||'partido'}`):`temporada_${new Date().toISOString().slice(0,10)}`;
+  if(kind==='vcx')download(`${base}.vcx`,JSON.stringify(exchangePayload(scope),null,2),'application/json');
+  else if(kind==='json')download(`${base}_backup.json`,JSON.stringify({type:'volley-coach-scout-backup',match:ms[0]||null,matches:ms,exportedAt:new Date().toISOString()},null,2),'application/json');
+  else if(kind==='csv')download(`${base}_acciones.csv`,actionsCSV(ms),'text/csv;charset=utf-8');
+  else if(kind==='dvcodes')download(`${base}_datavolley_codes.txt`,dvCodes(ms),'text/plain;charset=utf-8');
+  else throw Error('Formato de exportación no soportado.');
+ }catch(err){console.error('Exchange export',err);alert(`No se pudo preparar la descarga: ${err?.message||err}`)}
+};
+window.v1633CheckExport=function(){
+ const check={scouting:!!currentMatch(),puente:!!B()?.actionRows,pdfOficial:typeof window.scoutV114ExportOfficialPDF==='function',libreriaPDF:!!window.jspdf?.jsPDF,libreriaHTML:!!window.html2canvas,pdfNativo:typeof window.VC_V752_PDF_CORE?.exportOfficialMatch==='function',csv:!!window.VC_EXCHANGE_SAFETY_1633?.csvRows};
+ alert(`Diagnóstico de exportación (no genera archivos):\n${Object.entries(check).map(([k,v])=>`${k}: ${v?'Disponible':'No cargado'}`).join('\n')}\n\nSi las librerías PDF no están cargadas, utiliza su carga bajo demanda o el PDF alternativo nativo. La descarga final requiere una prueba manual.`);
+ return check;
+};
+window.v1633NativePDF=function(){
+ const m=currentMatch();if(!m)return alert('Abre un scouting antes de exportar.');
+ const core=window.VC_V752_PDF_CORE;
+ if(typeof core?.exportOfficialMatch!=='function')return alert('El exportador nativo no está disponible en esta instalación.');
+ try{core.exportOfficialMatch(m)}catch(err){console.error('PDF nativo',err);alert(`No se pudo generar el PDF alternativo: ${err?.message||err}`)}
+};
+function extractCodes(text){return window.VC_EXCHANGE_SAFETY_1633?.extractCodes(text)||[]}
+function selectedTeam(){return String(V()?.getTeamId?.()||'')}
+function importMatchList(payload){return payload.kind==='vcx'?payload.data?.matches:(Array.isArray(payload.data?.matches)?payload.data.matches:payload.data?.match?[payload.data.match]:[])}
+function safePlan(ms){
+ const helper=window.VC_EXCHANGE_SAFETY_1633;
+ if(!helper?.planImport)throw Error('No se ha cargado la protección de importación V16.3.3.');
+ return helper.planImport(ms,allMatches(),{normalize:typeof window.scoutNormalizeMatch==='function'?window.scoutNormalizeMatch:null});
+}
+function previewImport(file,text){
+ let kind='unknown',summary='',data=null,codes=[],plan=null,error='';
+ const helper=window.VC_EXCHANGE_SAFETY_1633;
+ if(!helper){error='No está disponible el módulo de seguridad V16.3.3.'}
+ else if(/\.dvw$/i.test(file.name)){error='Los archivos DVW binarios no son importables como texto. Exporta códigos de texto o un archivo VCX.'}
+ else try{
+  try{
+   const json=JSON.parse(text);
+   if(json?.type==='volley-coach-exchange'&&Array.isArray(json.matches)){kind='vcx';data=json}
+   else if(json?.match||Array.isArray(json?.matches)){kind='json';data=json}
+  }catch(_){}
+  if(kind==='vcx'||kind==='json'){
+   plan=safePlan(importMatchList({kind,data}));
+   summary=`${kind.toUpperCase()} · ${plan.total} scoutings · ${plan.additions.length} por añadir · ${plan.forked} con ID nuevo · ${plan.skipped} idénticos omitidos.`;
+  }else{
+   codes=extractCodes(text);
+   if(codes.length){kind='codes';summary=`Códigos de texto · ${codes.length} acciones, incluidas las repeticiones.`}
+   else error='Formato no reconocido o CSV de acciones. Para restaurar un partido usa VCX/JSON, no el CSV de estadísticas.';
+  }
+ }catch(e){error=String(e?.message||e);kind='unknown'}
+ importPayload={file,kind,data,codes,team:selectedTeam(),error};
+ const box=$('v152-import-preview');box?.classList.add('open');
+ if(box){
+  const details=kind==='codes'?codes.slice(0,20).join(' · '):
+   plan?importMatchList({kind,data}).slice(0,20).map(m=>`${m.date||'Sin fecha'} · ${m.opponent||'Rival'} · ID ${m.id} · ${arr(m.sets).length} sets`).join('\n'):'';
+  box.innerHTML=`<b>${esc(file.name)}</b><div class="v152-import-status">${esc(error||summary)}</div>${details?`<pre>${esc(details)}</pre>`:''}<p class="v152-import-status">No se sustituirán scoutings existentes. Las copias divergentes se guardarán con otro identificador. Se solicitará descargar una copia local antes de importar.</p><div class="v152-smart-actions"><button type="button" class="primary" onclick="v152CommitImport()" ${error||kind==='unknown'?'disabled':''}>Importar con protección</button><button type="button" class="ghost" onclick="v152ClearImport()">Cancelar</button></div>`;
+ }
+}
 window.v152ChooseImport=function(){const input=$('v152-import-file');input?.click()};
-window.v152ImportSelected=function(ev){const f=ev?.target?.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>previewImport(f,String(r.result||''));r.readAsText(f)};
+window.v152ImportSelected=function(ev){
+ const f=ev?.target?.files?.[0];if(!f)return;
+ if(f.size>25*1024*1024){alert('Archivo demasiado grande. Límite de importación: 25 MB.');return}
+ const r=new FileReader();r.onload=()=>previewImport(f,String(r.result||''));
+ r.onerror=()=>alert('No se ha podido leer el archivo. No se han modificado datos.');r.readAsText(f);
+};
 window.v152ClearImport=function(){importPayload=null;const box=$('v152-import-preview');box?.classList.remove('open');if(box)box.innerHTML='';const f=$('v152-import-file');if(f)f.value=''};
-async function protectBeforeImport(){try{await window.v137SaveNow?.()}catch(_){}try{await window.VC_SAVE_STATE?.snapshot?.()}catch(_){}}
-function mergeMatches(incoming){const target=allMatches();let added=0,replaced=0,renamed=0;arr(incoming).forEach(raw=>{if(!raw||typeof raw!=='object')return;const m=typeof window.scoutNormalizeMatch==='function'?window.scoutNormalizeMatch(raw):raw;let idx=target.findIndex(x=>String(x.id)===String(m.id));if(idx>=0){const same=String(target[idx]?.opponent||'')===String(m.opponent||'')&&String(target[idx]?.date||'')===String(m.date||'');if(same){const newer=String(m.updatedAt||m.createdAt||'')>=String(target[idx]?.updatedAt||target[idx]?.createdAt||'');if(newer){target[idx]=m;replaced++}}else{m.id=Date.now()+Math.floor(Math.random()*100000);target.push(m);added++;renamed++}}else{target.push(m);added++}});try{window.scoutSave?.(false)}catch(_){}return{added,replaced,renamed}}
-window.v152CommitImport=async function(){if(!importPayload)return;await protectBeforeImport();const p=importPayload;if(p.kind==='vcx'||p.kind==='json'){const ms=p.kind==='vcx'?p.data.matches:(Array.isArray(p.data.matches)?p.data.matches:p.data.match?[p.data.match]:[]);if(!ms.length)return alert('El archivo no contiene scoutings importables.');if(!confirm(`Importar ${ms.length} scouting(s)? Antes se ha creado una protección local.`))return;const r=mergeMatches(ms);alert(`Importación completada: ${r.added} añadidos · ${r.replaced} actualizados${r.renamed?` · ${r.renamed} IDs reasignados`:''}.`);window.v152ClearImport();try{window.v122RenderSwitcher?.()}catch(_){}return}if(p.kind==='codes'||p.kind==='dvw-codes'){const m=currentMatch();if(!m)return alert('Abre primero el scouting donde quieres importar los códigos.');if(m.status==='finished')return alert('El scouting está finalizado y es de solo lectura.');if(!confirm(`Se registrarán ${p.codes.length} códigos en el rally actual usando el parser profesional. Durante la importación Smart Rally no moverá el marcador automáticamente. ¿Continuar?`))return;let ok=0,fail=0;const previous=smartMode;if(smartMode==='auto')smartMode='assist';for(const c of p.codes){try{const r=window.VC_SCOUT_CORE?.register?.(c,m);if(r?.ok===false)fail++;else ok++}catch(_){fail++}}smartMode=previous;try{window.scoutSave?.(false)}catch(_){}alert(`Códigos importados: ${ok}. No reconocidos: ${fail}.`);window.v152ClearImport();renderSmart();return}}
-function ensureExchange(){if($('v152-exchange-modal'))return;const m=document.createElement('div');m.id='v152-exchange-modal';m.className='v152-exchange-modal';m.innerHTML=`<div class="v152-exchange-card" role="dialog" aria-modal="true"><div class="v152-exchange-head"><div><span>INTERCAMBIO PROFESIONAL · V15.2</span><h2>Importar / Exportar</h2><p>Backup completo, acciones estructuradas y códigos DataVolley con previsualización antes de modificar datos.</p></div><button type="button" class="ghost" onclick="v152CloseExchange()">Cerrar ×</button></div><div class="v152-exchange-body"><div class="v152-exchange-grid"><section class="v152-exchange-section"><header><span>EXPORTAR</span><b>Partido actual</b></header><div class="v152-exchange-list"><div class="v152-exchange-option"><span>VCX</span><div><b>Volley Coach Exchange</b><small>Partido completo y recuperable, con rallies, vídeo, alineaciones y metadatos.</small></div><button onclick="v152Export('vcx','current')">Exportar</button></div><div class="v152-exchange-option"><span>CSV</span><div><b>Acciones estructuradas</b><small>Una fila por acción, preparada para Excel/R/Python.</small></div><button onclick="v152Export('csv','current')">Exportar</button></div><div class="v152-exchange-option"><span>DV</span><div><b>Códigos DataVolley</b><small>Una acción/código por línea para intercambio y revisión.</small></div><button onclick="v152Export('dvcodes','current')">Exportar</button></div></div></section><section class="v152-exchange-section"><header><span>EXPORTAR</span><b>Temporada / histórico</b></header><div class="v152-exchange-list"><div class="v152-exchange-option"><span>VCX</span><div><b>Backup de temporada</b><small>Todos los scoutings actuales en un único archivo versionado.</small></div><button onclick="v152Export('vcx','season')">Exportar</button></div><div class="v152-exchange-option"><span>CSV</span><div><b>Dataset completo</b><small>Todas las acciones de todos los partidos.</small></div><button onclick="v152Export('csv','season')">Exportar</button></div><div class="v152-exchange-option"><span>DV</span><div><b>Códigos de temporada</b><small>Códigos agrupados por partido y set.</small></div><button onclick="v152Export('dvcodes','season')">Exportar</button></div></div></section></div><section class="v152-exchange-section"><header><span>IMPORTAR</span><b>Previsualización y protección antes de aplicar</b></header><div class="v152-exchange-list"><div class="v152-import-drop"><b>VCX · JSON · TXT/CSV de códigos · DVW experimental</b><p>El lector DVW solo intenta extraer códigos reconocibles; no promete reconstruir el formato propietario completo.</p><button type="button" class="primary" onclick="v152ChooseImport()">Seleccionar archivo</button><input id="v152-import-file" type="file" hidden accept=".vcx,.json,.txt,.csv,.dvw,application/json,text/plain,text/csv" onchange="v152ImportSelected(event)"></div><div id="v152-import-preview" class="v152-import-preview"></div></div></section></div></div>`;m.addEventListener('click',e=>{if(e.target===m)window.v152CloseExchange()});document.body.appendChild(m)}
+function requireSafeBackup(){
+ let body,kind='estado';
+ try{
+  const get=window.estadoLocal;
+  if(typeof get==='function'){const state=get();if(state&&typeof state==='object')body=JSON.stringify(state,null,2)}
+  if(!body){kind='scoutings';body=JSON.stringify(exchangePayload('season'),null,2)}
+  if(!body||body.length<20)throw Error('No hay una copia válida para exportar.');
+  download(`VolleyCoach_PreImport_${kind}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`,body,'application/json');
+ }catch(err){alert(`No se ha podido crear la copia previa: ${err?.message||err}. La importación se ha cancelado.`);return false}
+ return confirm('Se ha solicitado la descarga de una copia local. Comprueba que la has guardado correctamente y que puedes abrir el archivo JSON. ¿Confirmas que tienes la copia y deseas continuar?');
+}
+async function protectBeforeImport(){
+ if(window.VC_SYNC_SAFETY_1631?.status?.().blocked)throw Error('Hay conflictos de sincronización pendientes. Resuélvelos antes de importar.');
+ if(typeof window.v137SaveNow==='function')await window.v137SaveNow();
+ if(typeof window.VC_SAVE_STATE?.snapshot==='function')await window.VC_SAVE_STATE.snapshot();
+}
+async function importMatchesSafely(incoming){
+ const bridge=V(),target=bridge?.getMatches?.();
+ if(!Array.isArray(target))throw Error('No está disponible el almacén de scoutings del equipo actual.');
+ const plan=safePlan(incoming);
+ if(!plan.additions.length)return { ...plan, saved:true };
+ if(typeof bridge?.save!=='function'||typeof window.scoutV902Flush!=='function')throw Error('El guardado confirmado del scouting no está disponible. No se ha aplicado la importación.');
+ const old=target.slice();
+ try{
+  target.push(...plan.additions);
+  bridge.save();
+  let saved=await window.scoutV902Flush();
+  if(saved===false)saved=await window.scoutV902Flush();
+  if(saved!==true)throw Error('El guardado local no ha confirmado la importación.');
+  return {...plan,saved:true};
+ }catch(err){
+  target.splice(0,target.length,...old);
+  try{bridge.save();await window.scoutV902Flush()}catch(rollbackError){console.error('Error al revertir importación',rollbackError)}
+  throw err;
+ }
+}
+window.v152CommitImport=async function(){
+ const p=importPayload;if(!p||p.error)return;
+ if(!window.VC_EXCHANGE_SAFETY_1633)return alert('No está disponible el control de seguridad de importación.');
+ if(p.team!==selectedTeam())return alert('Se ha cambiado de equipo. Vuelve a seleccionar el archivo para evitar importar en el equipo equivocado.');
+ const button=$('v152-import-preview')?.querySelector('.primary');if(button?.disabled)return;
+ if(button)button.disabled=true;
+ try{
+  if(p.kind==='vcx'||p.kind==='json'){
+   const ms=importMatchList(p),plan=safePlan(ms);
+   if(!plan.additions.length)return alert('Estos scoutings ya existen sin cambios. No es necesario importarlos.');
+   if(!requireSafeBackup())return;
+   if(!confirm(`Se añadirán ${plan.additions.length} scoutings (${plan.forked} con ID distinto para conservar versiones). No se reemplazará ningún partido existente. ¿Continuar?`))return;
+   await protectBeforeImport();
+   const res=await importMatchesSafely(ms);
+   alert(`Importación guardada localmente: ${res.additions.length} añadidos, ${res.forked} IDs nuevos y ${res.skipped} duplicados idénticos omitidos. Comprueba la nube antes de borrar cualquier copia.`);
+   window.v152ClearImport();try{window.v122RenderSwitcher?.()}catch(_){}return;
+  }
+  if(p.kind==='codes'){
+   const m=currentMatch();if(!m)return alert('Abre primero un scouting para importar códigos.');
+   if(m.status==='finished')return alert('El scouting está finalizado: reábrelo desde Partidos guardados antes de modificarlo.');
+   if(typeof window.VC_SCOUT_CORE?.register!=='function'||typeof V()?.save!=='function')return alert('El motor de scouting no está disponible.');
+   if(!requireSafeBackup())return;
+   if(!confirm(`Se añadirán ${p.codes.length} códigos al rally activo, respetando los repetidos. Esta operación no es atómica: revisa los resultados antes de confirmar puntos. ¿Continuar?`))return;
+   await protectBeforeImport();
+   let ok=0,fail=0;const previous=smartMode;if(smartMode==='auto')smartMode='assist';
+   try{for(const c of p.codes){try{const result=window.VC_SCOUT_CORE.register(c,m);if(result?.ok===false)fail++;else ok++}catch(_){fail++}}}finally{smartMode=previous}
+   V().save();let persisted=await window.scoutV902Flush?.();if(persisted===false)persisted=await window.scoutV902Flush?.();
+   alert(`Códigos procesados: ${ok}. Rechazados: ${fail}. ${persisted===true?'Guardado local confirmado.':'No se ha confirmado el guardado local: conserva la copia y verifica el scouting.'}`);
+   window.v152ClearImport();renderSmart();return;
+  }
+ }catch(err){console.error('Importación protegida',err);alert(`No se pudo finalizar la importación: ${err?.message||err}. Comprueba la copia local descargada.`)}
+ finally{if(button?.isConnected)button.disabled=false}
+};
+function ensureExchange(){if($('v152-exchange-modal'))return;const m=document.createElement('div');m.id='v152-exchange-modal';m.className='v152-exchange-modal';m.innerHTML=`<div class="v152-exchange-card" role="dialog" aria-modal="true"><div class="v152-exchange-head"><div><span>INTERCAMBIO SEGURO · V16.3.3</span><h2>Importar / Exportar</h2><p>Copias previas, importación no destructiva, CSV seguro y exportación PDF alternativa.</p></div><button type="button" class="ghost" onclick="v152CloseExchange()">Cerrar ×</button></div><div class="v152-exchange-body"><div class="v152-exchange-grid"><section class="v152-exchange-section"><header><span>EXPORTAR</span><b>Partido actual</b></header><div class="v152-exchange-list"><div class="v152-exchange-option"><span>VCX</span><div><b>Volley Coach Exchange</b><small>Partido completo y recuperable, con rallies, vídeo, alineaciones y metadatos.</small></div><button onclick="v152Export('vcx','current')">Exportar</button></div><div class="v152-exchange-option"><span>CSV</span><div><b>Acciones estructuradas</b><small>Una fila por acción, preparada para Excel/R/Python.</small></div><button onclick="v152Export('csv','current')">Exportar</button></div><div class="v152-exchange-option"><span>DV</span><div><b>Códigos DataVolley</b><small>Una acción/código por línea para intercambio y revisión.</small></div><button onclick="v152Export('dvcodes','current')">Exportar</button></div></div></section><section class="v152-exchange-section"><header><span>EXPORTAR</span><b>Temporada / histórico</b></header><div class="v152-exchange-list"><div class="v152-exchange-option"><span>VCX</span><div><b>Backup de temporada</b><small>Todos los scoutings actuales en un único archivo versionado.</small></div><button onclick="v152Export('vcx','season')">Exportar</button></div><div class="v152-exchange-option"><span>CSV</span><div><b>Dataset completo</b><small>Todas las acciones de todos los partidos.</small></div><button onclick="v152Export('csv','season')">Exportar</button></div><div class="v152-exchange-option"><span>DV</span><div><b>Códigos de temporada</b><small>Códigos agrupados por partido y set.</small></div><button onclick="v152Export('dvcodes','season')">Exportar</button></div></div></section></div><div class="v152-smart-actions"><button type="button" class="ghost" onclick="v1633CheckExport()">Verificar exportaciones</button><button type="button" class="ghost" onclick="v1633NativePDF()" title="Formato alternativo que no sustituye la hoja oficial habitual">PDF alternativo (nativo)</button></div><section class="v152-exchange-section"><header><span>IMPORTAR</span><b>Previsualización y protección antes de aplicar</b></header><div class="v152-exchange-list"><div class="v152-import-drop"><b>VCX · JSON · TXT/CSV de códigos</b><p>Importa copias completas VCX/JSON o códigos de texto. DVW binario y CSV estadístico no se importan como partidos.</p><button type="button" class="primary" onclick="v152ChooseImport()">Seleccionar archivo</button><input id="v152-import-file" type="file" hidden accept=".vcx,.json,.txt,.csv,application/json,text/plain,text/csv" onchange="v152ImportSelected(event)"></div><div id="v152-import-preview" class="v152-import-preview"></div></div></section></div></div>`;m.addEventListener('click',e=>{if(e.target===m)window.v152CloseExchange()});document.body.appendChild(m)}
 window.v152OpenExchange=function(){ensureExchange();const m=$('v152-exchange-modal');m?.classList.add('open');m?.querySelector('button')?.focus()};window.v152CloseExchange=function(){$('v152-exchange-modal')?.classList.remove('open');window.v152ClearImport?.()};
 function addExchangeEntrypoints(){ensureExchange();const tools=$('v140-tools-sheet')?.querySelector('.v140-tools-list');if(tools&&!tools.querySelector('[data-v152-exchange]')){const b=document.createElement('button');b.type='button';b.dataset.v152Exchange='1';b.innerHTML='<span>⇄</span><div><b>Importar / Exportar Pro <em class="v152-tools-badge">V15.2</em></b><small>VCX, CSV, códigos DataVolley y lector DVW experimental.</small></div>';b.onclick=()=>{document.getElementById('v140-tools-sheet')?.classList.remove('open');window.v152OpenExchange()};tools.appendChild(b)}const h=document.querySelector('#v151-season-root .v151-head-actions');if(h&&!h.querySelector('[data-v152-exchange]')){const b=document.createElement('button');b.type='button';b.className='ghost';b.dataset.v152Exchange='1';b.textContent='⇄ Intercambio';b.onclick=window.v152OpenExchange;h.insertBefore(b,h.firstChild)}}
 const oldTools=window.v140OpenTools;if(typeof oldTools==='function'&&!oldTools.__v152){const w=function(...args){const out=oldTools.apply(this,args);setTimeout(addExchangeEntrypoints,0);return out};w.__v152=true;window.v140OpenTools=w}
