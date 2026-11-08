@@ -1,4 +1,4 @@
-/* Volley Coach V16.2.6 · Analysis Pro · Player Performance Pro
+/* Volley Coach V16.2.7 · Analysis Pro · Tactical board & table fix
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -141,7 +141,7 @@ function pagePlayers(data){return `<div class="vc157-panel"><div class="vc157-pa
  ${table(['Jugador','Acc.','PTS','G-P','Saq. G-P','Rec. +/#','Rec. #','Ataque #','Err+BLO','Atq. EFF','Bloq. #'],sheetRows(data),'vc157-sheet')}
  <p class="vc157-note">PTS y G-P = atribución terminal de la Hoja Oficial; máximo una acción terminal por rally. Recepción +/# = (# + +)/total; eficiencia de ataque = (# − = − /)/ataques. Revisa los denominadores antes de comparar.</p></div>
  <div class="vc157-grid2"><div class="vc157-panel"><h3>Acciones registradas por fundamento</h3>${table(['Fundamento','Total','Positivas','Errores','Vídeo'],Object.entries(categories).map(([s,n])=>{const g=data.skills[s],rows=rowsBy(data,r=>r.skill===s);if(!g?.n)return'';return `<tr><td>${n}</td><td>${g.n}</td><td>${g.positive||0}</td><td>${g.errors||0}</td><td>${pickButton('Ver',rows.map(x=>x.key),n)}</td></tr>`}).join(''))}</div></div>`}
-/* V16.2.6 · Player Performance Pro. Read-only and based on the same closed-rally rows
+/* V16.2.7 · Tactical board & table fix. Read-only and based on the same closed-rally rows
    as the official sheet. Player history requires stable own-team ID + matching
    name snapshots; rival shirt numbers are never used to combine matches. */
 function vc1626Norm(v){return String(v??'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').replace(/[^a-z0-9]+/g,' ').trim()}
@@ -360,22 +360,36 @@ function attackDiagram(data){
  const rows=mapAttackFilter(data.attacks),paths=new Map();
  for(const a of rows){const from=parsedZone(a.a.startZone),to=parsedZone(a.a.endZone);if(!from||!to)continue;const key=from+':'+to;if(!paths.has(key))paths.set(key,{from,to,items:[]});paths.get(key).items.push(a)}
  const routes=[...paths.values()].sort((a,b)=>b.items.length-a.items.length||Number(a.from)-Number(b.from)||Number(a.to)-Number(b.to));
- const observed=routes.reduce((n,r)=>n+r.items.length,0),top=routes.slice(0,10);
+ const observed=routes.reduce((n,r)=>n+r.items.length,0),top=routes.slice(0,12);
  const origins=groupZone(rows,a=>a.a.startZone),destinations=groupZone(rows,a=>a.a.endZone);
+ const court={x:48,y:64,leftW:338,gap:38,rightW:338,h:210};
+ const rightX=court.x+court.leftW+court.gap;
+ const halfCellW=court.leftW/3,cellH=court.h/3;
+ const maxZone=Math.max(1,...zoneOrder.map(z=>Math.max((origins.get(String(z))||[]).length,(destinations.get(String(z))||[]).length)));
+ const center=(side,z)=>zonePoint(z,side==='left'?court.x:rightX,court.y,side==='left'?court.leftW:court.rightW,court.h);
+ const zoneRect=(side,z,list,title)=>{
+  const i=zoneIndex(z);const col=i%3,row=Math.floor(i/3);
+  const xx=(side==='left'?court.x:rightX)+col*halfCellW,yy=court.y+row*cellH;
+  const count=list.length;const strength=count/maxZone;const fill=(side==='left')?`rgba(49,124,178,${(0.10+strength*0.28).toFixed(3)})`:`rgba(63,143,189,${(0.10+strength*0.28).toFixed(3)})`;
+  const attrs=count?drillAttrs(list.map(a=>a.key),`${title} · Z${z}`):'';
+  return `<g><rect x="${xx.toFixed(1)}" y="${yy.toFixed(1)}" width="${halfCellW.toFixed(1)}" height="${cellH.toFixed(1)}" rx="4" fill="${fill}" stroke="#b7cfdf" stroke-width="1.1"/><text x="${(xx+halfCellW/2).toFixed(1)}" y="${(yy+cellH/2-10).toFixed(1)}" text-anchor="middle" class="vc1622-court-number">Z${z}</text><text x="${(xx+halfCellW/2).toFixed(1)}" y="${(yy+cellH/2+14).toFixed(1)}" text-anchor="middle" class="vc1622-court-count">${count}</text>${count?`<rect x="${xx.toFixed(1)}" y="${yy.toFixed(1)}" width="${halfCellW.toFixed(1)}" height="${cellH.toFixed(1)}" rx="4" fill="transparent" class="vc1622-route-hit" ${attrs} tabindex="0" role="button" aria-label="Zona ${z}: ${count} acciones"><title>${title} Z${z} · ${count} acciones</title></rect>`:''}</g>`;
+ };
+ const baseCourt=`<rect x="${court.x}" y="${court.y}" width="${court.leftW}" height="${court.h}" rx="10" fill="#f7fbfe" stroke="#8bb5d1" stroke-width="2"/><rect x="${rightX}" y="${court.y}" width="${court.rightW}" height="${court.h}" rx="10" fill="#f7fbfe" stroke="#8bb5d1" stroke-width="2"/><rect x="${(court.x+court.leftW).toFixed(1)}" y="${court.y}" width="${court.gap}" height="${court.h}" fill="#eef5fb" stroke="#bfd6e6"/><line x1="${(court.x+court.leftW+court.gap/2).toFixed(1)}" y1="${court.y-4}" x2="${(court.x+court.leftW+court.gap/2).toFixed(1)}" y2="${(court.y+court.h+4).toFixed(1)}" stroke="#255d86" stroke-width="3.2"/><line x1="${court.x}" y1="${(court.y+cellH).toFixed(1)}" x2="${(court.x+court.leftW).toFixed(1)}" y2="${(court.y+cellH).toFixed(1)}" stroke="#b8cfdf"/><line x1="${court.x}" y1="${(court.y+cellH*2).toFixed(1)}" x2="${(court.x+court.leftW).toFixed(1)}" y2="${(court.y+cellH*2).toFixed(1)}" stroke="#b8cfdf"/><line x1="${(court.x+halfCellW).toFixed(1)}" y1="${court.y}" x2="${(court.x+halfCellW).toFixed(1)}" y2="${(court.y+court.h).toFixed(1)}" stroke="#b8cfdf"/><line x1="${(court.x+halfCellW*2).toFixed(1)}" y1="${court.y}" x2="${(court.x+halfCellW*2).toFixed(1)}" y2="${(court.y+court.h).toFixed(1)}" stroke="#b8cfdf"/><line x1="${rightX}" y1="${(court.y+cellH).toFixed(1)}" x2="${(rightX+court.rightW).toFixed(1)}" y2="${(court.y+cellH).toFixed(1)}" stroke="#b8cfdf"/><line x1="${rightX}" y1="${(court.y+cellH*2).toFixed(1)}" x2="${(rightX+court.rightW).toFixed(1)}" y2="${(court.y+cellH*2).toFixed(1)}" stroke="#b8cfdf"/><line x1="${(rightX+halfCellW).toFixed(1)}" y1="${court.y}" x2="${(rightX+halfCellW).toFixed(1)}" y2="${(court.y+court.h).toFixed(1)}" stroke="#b8cfdf"/><line x1="${(rightX+halfCellW*2).toFixed(1)}" y1="${court.y}" x2="${(rightX+halfCellW*2).toFixed(1)}" y2="${(court.y+court.h).toFixed(1)}" stroke="#b8cfdf"/><text x="${(court.x+court.leftW/2).toFixed(1)}" y="${court.y-18}" class="vc1622-label" text-anchor="middle">CAMPO DE ORIGEN</text><text x="${(rightX+court.rightW/2).toFixed(1)}" y="${court.y-18}" class="vc1622-label" text-anchor="middle">CAMPO DE DESTINO</text><text x="${(court.x+court.leftW+court.gap/2).toFixed(1)}" y="${court.y-18}" class="vc1622-label" text-anchor="middle">RED</text>`;
+ const leftZones=zoneOrder.map(z=>zoneRect('left',z,origins.get(String(z))||[],'Origen de ataque')).join('');
+ const rightZones=zoneOrder.map(z=>zoneRect('right',z,destinations.get(String(z))||[],'Destino de ataque')).join('');
  const arrows=top.map((route,i)=>{
-  const start=zonePoint(route.from,30,56),end=zonePoint(route.to,625,56);if(!start||!end)return '';
-  const stats=attackStats(route.items),color=diagramColor(stats),width=(1.8+Math.min(5.2,Math.sqrt(route.items.length)*.65)).toFixed(1);
-  const d=`M ${start.x.toFixed(1)} ${start.y.toFixed(1)} C 340 ${(start.y+i%4*3).toFixed(1)}, 545 ${(end.y+i%4*3).toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
-  return `<path d="${d}" stroke="${color}" stroke-width="${width}" opacity="0.63" fill="none" marker-end="url(#vc1622-arrow)" pointer-events="none"/><path d="${d}" class="vc1622-route-hit" ${drillAttrs(route.items.map(a=>a.key),`Ataque Z${route.from} → Z${route.to}`)} tabindex="0" role="button" aria-label="Ver ${route.items.length} ataques de Z${route.from} a Z${route.to}" stroke="transparent" stroke-width="18" fill="none"><title>Z${route.from} → Z${route.to} · ${route.items.length} ataques · ${stats.k} puntos · EFF ${effStat(stats)}</title></path>`;
+  const start=center('left',route.from),end=center('right',route.to);if(!start||!end)return '';
+  const stats=attackStats(route.items),color=diagramColor(stats),width=(2.2+Math.min(5.8,Math.sqrt(route.items.length)*.72)).toFixed(1);
+  const bend=((i%4)-1.5)*12;
+  const midX=(court.x+court.leftW+court.gap/2), d=`M ${start.x.toFixed(1)} ${start.y.toFixed(1)} C ${(midX-72).toFixed(1)} ${(start.y+bend).toFixed(1)}, ${(midX+72).toFixed(1)} ${(end.y+bend).toFixed(1)}, ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+  return `<path d="${d}" stroke="${color}" stroke-width="${width}" opacity="0.68" fill="none" marker-end="url(#vc1622-arrow-real)" pointer-events="none"/><path d="${d}" class="vc1622-route-hit" ${drillAttrs(route.items.map(a=>a.key),`Ataque Z${route.from} → Z${route.to}`)} tabindex="0" role="button" aria-label="Ver ${route.items.length} ataques de Z${route.from} a Z${route.to}" stroke="transparent" stroke-width="18" fill="none"><title>Z${route.from} → Z${route.to} · ${route.items.length} ataques · ${stats.k} puntos · EFF ${effStat(stats)}</title></path>`;
  }).join('');
- const figures=`<div class="vc1622-diagramwrap"><svg class="vc1622-diagram" viewBox="0 0 920 338" role="group" aria-label="Trayectorias agrupadas de ataque desde zonas de origen hasta zonas de destino codificadas">
- <defs><marker id="vc1622-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="#416e85"/></marker></defs>
- ${diagramCourt(30,56,255,240,'ORIGEN REGISTRADO',origins)}${diagramCourt(625,56,255,240,'DESTINO REGISTRADO',destinations)}${arrows}
- </svg></div>`;
+ const legendY=court.y+court.h+28;
+ const figures=`<div class="vc1622-diagramwrap"><svg class="vc1622-diagram" viewBox="0 0 920 350" role="group" aria-label="Campo de voleibol completo con trayectorias de ataque desde el origen hasta el destino codificado"><defs><marker id="vc1622-arrow-real" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M 0 0 L 7 3.5 L 0 7 z" fill="#416e85"/></marker></defs>${baseCourt}${leftZones}${rightZones}${arrows}<g><circle cx="78" cy="${legendY}" r="5.5" fill="#1d8576"/><text x="92" y="${legendY+4}" fill="#567a95" font-size="11">EFF positiva</text><circle cx="206" cy="${legendY}" r="5.5" fill="#6283ab"/><text x="220" y="${legendY+4}" fill="#567a95" font-size="11">EFF neutra</text><circle cx="318" cy="${legendY}" r="5.5" fill="#c66b55"/><text x="332" y="${legendY+4}" fill="#567a95" font-size="11">EFF negativa</text><text x="665" y="${legendY+4}" text-anchor="end" fill="#6b879e" font-size="11">${observed}/${rows.length} con origen y destino codificados</text></g></svg></div>`;
  const trows=routes.slice(0,24).map(route=>{const st=attackStats(route.items);return `<tr><td>Z${route.from} → Z${route.to}</td><td>${route.items.length}</td><td>${st.k}</td><td>${st.e+st.b}</td><td>${effStat(st)}</td><td><button type="button" class="vc157-pick" ${drillAttrs(route.items.map(a=>a.key),`Ataques Z${route.from} → Z${route.to}`)}>Ver acciones</button></td></tr>`}).join('');
- return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Trayectorias reales de ataque</h3><p>Mapa desde el origen hasta el destino. Solo se dibujan acciones con ambas zonas registradas.</p></div><span class="vc157-tag">${observed}/${rows.length} trayectorias completas</span></div>
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Campo real de trayectorias de ataque</h3><p>Visualización unificada del origen y el destino en un único campo de voleibol. Solo se dibujan acciones con ambas zonas registradas.</p></div><span class="vc157-tag">${observed}/${rows.length} trayectorias completas</span></div>
  <div class="vc1622-filterline"><label>Atacante<select id="vc1622-attack-player">${selOpts([...new Set(data.attacks.map(a=>a.player))].sort((a,b)=>a.localeCompare(b,'es')).map(x=>[x,x]),state.attackPlayer,'Todos')}</select></label><label>Resultado<select id="vc1622-attack-result">${selOpts([['kill','Punto (#)'],['error','Error o bloqueado (= /)'],['continuation','Continúa la jugada']],state.attackResult,'Todos')}</select></label><span class="vc1622-legend"><i class="positive"></i>EFF positiva <i class="negative"></i>EFF negativa <i class="neutral"></i>Neutra</span></div>
- ${figures}<p class="vc157-note">Se muestran las 10 rutas más frecuentes en el dibujo y hasta 24 en la tabla. El grosor indica frecuencia y el color, el signo de la eficiencia en la ruta. El filtro de resultado se aplica antes del cálculo. Las zonas muestran recuentos; no son coordenadas reales de impacto.</p>
+ ${figures}<p class="vc157-note">Pulsa una flecha o una zona para ver las acciones. El grosor de la flecha indica frecuencia y el color refleja la eficiencia de la ruta. Las zonas muestran recuentos codificados; no son coordenadas exactas de golpeo.</p>
  ${table(['Origen → destino','Ataques','Puntos','Errores y bloqueados','EFF','Evidencias'],trows)}${routes.length>24?`<p class="vc157-note">${routes.length-24} rutas adicionales no se muestran en la tabla para mantener el rendimiento; todas cuentan en los totales.</p>`:''}</div>`;
 }
 function setterDiagram(pairs){
@@ -779,12 +793,12 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.6</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.7</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 2.6 · Player Performance Pro integrado en Dashboard táctico. Estadísticas calculadas sin modificar el scouting, con muestras explícitas, acciones trazables y una lectura visual mejorada. La Hoja Oficial conserva su generador y estructura.</p></div>`;
+ <p class="vc157-footer">Analysis Pro 2.7 · Tactical Board & Table Fix. Campo táctico unificado, flechas reales por zonas y tablas de análisis con desplazamiento lateral corregido. Estadísticas calculadas sin modificar el scouting y con acciones trazables. La Hoja Oficial conserva su generador y estructura.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
@@ -939,9 +953,11 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 #vc157-studio .vc157-table tbody tr:nth-child(even) td{background:#fbfdff}
 #vc157-studio .vc157-table tbody tr:hover td{background:#f2f8fd}
 #vc157-studio .vc157-table td small{display:block;color:#899caf;font-size:10px;margin-top:2px}
-#vc157-studio .vc157-table td:first-child,#vc157-studio .vc157-table th:first-child{position:sticky;left:0;z-index:2;box-shadow:1px 0 0 #e0e9ef}
+#vc157-studio .vc157-table td:first-child,#vc157-studio .vc157-table th:first-child{position:static;left:auto;z-index:auto;box-shadow:none}
 #vc157-studio .vc157-table td:first-child{background:inherit}
-#vc157-studio .vc157-table th:first-child{background:linear-gradient(180deg,#f4f8fb,#edf4f8);z-index:3}
+#vc157-studio .vc157-table th:first-child{background:linear-gradient(180deg,#f4f8fb,#edf4f8)}
+#vc157-studio .vc157-tablewrap{position:relative}
+#vc157-studio .vc157-tablewrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:18px;pointer-events:none;background:linear-gradient(270deg,rgba(248,251,253,.92),rgba(248,251,253,0))}
 #vc157-studio .vc157-table .vc157-muted{padding:22px;color:#7d95a8;text-align:center}
 #vc157-studio .vc157-player{font-weight:850}
 #vc157-studio .vc157-pick{background:transparent!important;border:0!important;color:#17649b!important;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#b5d4e7;padding:2px!important;font:800 11px system-ui!important;white-space:nowrap!important}
@@ -1136,7 +1152,7 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:1100px){#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr)}#vc157-studio .vc157-inspector{position:static;max-height:none}}
 @media(max-width:930px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}#vc157-studio .vc157-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){#vc157-studio .vc1625-dashgrid{grid-template-columns:1fr}#vc157-studio .vc1625-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1625-scorehead{flex-direction:column;align-items:start}}
-/* V16.2.6 · Player Performance Pro: scoped styles, retaining existing sheet & renderer. */
+/* V16.2.7 · Tactical board & table fix, retaining Player Performance Pro. */
 #vc157-studio .vc1626-overline{display:block;font:850 10px/1.4 system-ui;letter-spacing:.10em;color:#41779e;margin-bottom:7px}
 #vc157-studio .vc1626-profiletop{display:flex;align-items:end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px}
 #vc157-studio .vc1626-profiletop h3{font-size:24px!important;margin:0!important}
@@ -1175,5 +1191,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:510px){#vc157-studio .vc1626-summary{grid-template-columns:1fr}#vc157-studio .vc1626-trendrow{grid-template-columns:1fr 1.5fr 45px;gap:5px}#vc157-studio .vc1626-trendrow small:last-child{display:none}}
 
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.2.6',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.2.7',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
