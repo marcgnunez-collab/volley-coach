@@ -1,4 +1,4 @@
-/* Volley Coach V16.2.8 · Analysis Pro · Court Orientation Pro
+/* Volley Coach V16.3.2 · Analysis Pro · Court Orientation Pro
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -26,6 +26,11 @@ const subpages={
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
 const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
+// Same immutable-for-UI model that painted the current view. Never reused for a
+// fresh refresh or export: scouting data can change in place after a cloud pull.
+let paintedModel=null;
+const vc1632Metrics={modelCalls:0,modelMs:0,modelMaxMs:0,drillReuses:0,drillMisses:0,renderCalls:0,renderMs:0,renderMaxMs:0};
+const perfNow=()=>typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
 /* Collect all accessible matches (including finished scouting), without changing
    the active match. A different team or a remote sync may update this list. */
 function matches(){
@@ -74,7 +79,9 @@ function filteredMatch(m){
  return {...m,sets:arr(m.sets).map(s=>({...s,rallies:arr(s.rallies).filter(r=>r?.servingBefore===wanted)}))};
 }
 function dataset(){const api=window.VC_ANALYSIS_INTELLIGENCE_1614,m=currentMatch();if(!api?.model||!m)return null;
- return api.model(filteredMatch(m),scoutedTeam(),{team:state.team,set:state.set,rotation:state.rotation});
+ const started=perfNow();
+ try{return api.model(filteredMatch(m),scoutedTeam(),{team:state.team,set:state.set,rotation:state.rotation});}
+ finally{const elapsed=perfNow()-started;vc1632Metrics.modelCalls++;vc1632Metrics.modelMs+=elapsed;vc1632Metrics.modelMaxMs=Math.max(vc1632Metrics.modelMaxMs,elapsed)}
 }
 function selOpts(values,value,all){return `<option value="">${html(all)}</option>${values.map(([k,v])=>`<option value="${html(k)}" ${String(value)===String(k)?'selected':''}>${html(v)}</option>`).join('')}`}
 function buildHeader(){
@@ -722,6 +729,8 @@ function pageDeep(data,surface){
 function renderPage(){
  if(!state.loaded||state.technical)return;
  const surface=$('vc157-content');if(!surface)return;
+ const started=perfNow();vc1632Metrics.renderCalls++;
+ paintedModel=null;
  diagramDrills.clear();diagramSerial=0;
  const studio=$('vc157-studio');if(studio){studio.dataset.vc1620Setter=String(state.page==='setter'&&state.subpage.setter==='details');studio.dataset.vc1620Season=String(state.page==='season');}
  const heading=$('vc157-section-title');if(heading)heading.textContent=pages[state.page]?.[0]||'Resumen';
@@ -735,10 +744,11 @@ function renderPage(){
  }
  if(state.page==='season'){
   if(meta)meta.textContent=`${matches().length} scoutings disponibles · Comparativa de partidos`;
-  surface.innerHTML=pageSeason();state.draws++;return;
+  surface.innerHTML=pageSeason();state.draws++;measurePaint(started);return;
  }
  const data=dataset();
- if(!data){surface.innerHTML='<div class="vc157-empty">Selecciona un scouting para empezar el análisis.</div>';if(meta)meta.textContent='Sin scouting disponible';return;}
+ if(!data){surface.innerHTML='<div class="vc157-empty">Selecciona un scouting para empezar el análisis.</div>';if(meta)meta.textContent='Sin scouting disponible';measurePaint(started);return;}
+ paintedModel=data;
  if(meta)meta.textContent=periodLabel(data);
  const page=state.page,subpage=state.subpage[page];
  if(inDeepView()){
@@ -748,10 +758,14 @@ function renderPage(){
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
  else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?pageSetterDetails(data):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
- state.draws++;
+ state.draws++;measurePaint(started);
 }
+function measurePaint(started){const elapsed=perfNow()-started;vc1632Metrics.renderMs+=elapsed;vc1632Metrics.renderMaxMs=Math.max(vc1632Metrics.renderMaxMs,elapsed)}
 function selectKeys(keys,title){
- const data=dataset();if(!data)return;
+ // A drill-down must show the exact actions behind the rendered statistic.
+ // Reusing the painted model also avoids parsing the whole match again.
+ const data=paintedModel||dataset();if(paintedModel)vc1632Metrics.drillReuses++;else vc1632Metrics.drillMisses++;
+ if(!data)return;
  const keyset=new Set(keys),selection=data.actions.filter(x=>keyset.has(x.key));
  state.selected=selection;state.selectedTitle=title||'Jugadas seleccionadas';renderInspector();
 }
@@ -812,13 +826,24 @@ function switchMode(technical){
 }
 function refresh(){
  if(!view?.classList.contains('active')||!state.loaded||state.technical)return;
- buildHeader();renderPage();
+ paintedModel=null;buildHeader();renderPage();
+}
+function onTeamChanged(){
+ paintedModel=null;
+ state.match=String(matches()[0]?.id||'');
+ state.set='';state.rotation='';state.phase='';state.player='';state.skill='';state.rating='';
+ state.profilePlayer='';state.comparePlayerA='';state.comparePlayerB='';
+ state.setterPlayer='';state.setterReception='';state.setterTempo='';
+ state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';
+ state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
+ state.selected=[];state.selectedTitle='Selecciona una cifra de la tabla';
+ if(state.loaded){renderInspector();refresh()}
 }
 function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.8</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.8 · PERFORMANCE 16.3.2</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
@@ -1224,5 +1249,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 #vc157-studio .vc1628-real-wrap .vc1622-route-hit:focus-visible{stroke:#1c6494;stroke-opacity:.5;outline:none}
 `;
 /* Scoped visual overrides appended to the existing stylesheet. */
-window.VC_ANALYST_STUDIO_16155={version:'16.2.8',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.3.2',mount,open,refresh,onTeamChanged,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
 })();

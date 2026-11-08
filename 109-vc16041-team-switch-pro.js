@@ -1,4 +1,4 @@
-/* Volley Coach V16.0.4.1 · Team Switch Pro
+/* Volley Coach V16.3.2 · Team Switch Pro
  * Saves the outgoing team once, swaps the canonical state synchronously, then
  * renders only the active view. Supabase and scouting/video engines are unchanged.
  * Does not alter, delete or rename stored team keys.
@@ -6,10 +6,11 @@
 (()=>{
 'use strict';
 if(window.VC_TEAM_SWITCH_PRO)return;
-const VERSION='16.0.4.1';
+const VERSION='16.3.2';
 const byId=id=>document.getElementById(id);
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let busy=false,menuOpen=false,changed=0,lastDurationMs=0,lastError='',renderCount=0,saveCount=0;
+let lastSaveMs=0,lastRestoreMs=0,lastRenderMs=0,studioSwitches=0;
 const valid=id=>typeof EQUIPOS!=='undefined'&&Object.prototype.hasOwnProperty.call(EQUIPOS,id);
 const active=()=>String(typeof equipoActivo==='undefined'?'':equipoActivo);
 const teamName=id=>valid(id)?EQUIPOS[id].nombre:id;
@@ -76,7 +77,13 @@ function refreshActiveView(){
   }else if(id==='jugadores'){
     run('renderPlayers');
   }else if(id==='scout-analysis'){
-    run('scoutRenderAnalysis');
+    const studio=window.VC_ANALYST_STUDIO_16155;
+    const diag=studio?.diagnostics?.();
+    if(studio?.onTeamChanged && diag?.loaded && !diag.technical){
+      // Don't rebuild hidden legacy tables. Clear the old match selection
+      // and refresh exactly the modern workspace once after changing team.
+      try{studio.onTeamChanged();studioSwitches++;renderCount++}catch(err){console.warn('Team Switch Pro: studio',err)}
+    }else run('scoutRenderAnalysis');
   }else if(id==='scout-match-mode'){
     run('v800Render');
   }else if(id==='scout-dashboard'){
@@ -134,12 +141,13 @@ function switchSync(target,fromUi=false){
   if(active()===target){paintSelection();return true}
   const previous=active();const start=performance.now();lastError='';
   try{
-    persistOutgoingTeam();
-    restoreIncoming(target);
+    let checkpoint=performance.now();
+    persistOutgoingTeam();lastSaveMs=performance.now()-checkpoint;
+    checkpoint=performance.now();restoreIncoming(target);lastRestoreMs=performance.now()-checkpoint;
     // Broadcast only after the canonical state belongs to the new team.
     try{window.MatchState?.touch?.('team:changed',{teamId:target,source:VERSION})}catch(err){console.warn('Team Switch Pro: MatchState',err)}
     try{window.dispatchEvent(new CustomEvent('vc:teamchange',{detail:{teamId:target,previousTeamId:previous,version:VERSION}}))}catch(_){ }
-    refreshActiveView();
+    const renderStart=performance.now();refreshActiveView();lastRenderMs=performance.now()-renderStart;
     paintSelection();changed++;
     lastDurationMs=performance.now()-start;
     const indicator=byId('save-indicator');if(indicator)indicator.textContent='✓ '+teamName(target)+' · equipo activo';
@@ -214,5 +222,5 @@ window.v11SetTeam=id=>{void selectFromUi(id);return true};
 // They call the updated v11SetTeam global, so both legacy controls still work.
 function boot(){buildUi();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-window.VC_TEAM_SWITCH_PRO={version:VERSION,switchNow:switchSync,select:selectFromUi,diagnostics:()=>({version:VERSION,activeTeam:active(),changes:changed,lastDurationMs:Math.round(lastDurationMs),saved:saveCount,viewRenders:renderCount,busy,lastError})};
+window.VC_TEAM_SWITCH_PRO={version:VERSION,switchNow:switchSync,select:selectFromUi,diagnostics:()=>({version:VERSION,activeTeam:active(),changes:changed,lastDurationMs:Math.round(lastDurationMs),lastSaveMs:Math.round(lastSaveMs),lastRestoreMs:Math.round(lastRestoreMs),lastRenderMs:Math.round(lastRenderMs),studioSwitches,saved:saveCount,viewRenders:renderCount,busy,lastError})};
 })();
