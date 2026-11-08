@@ -1,4 +1,4 @@
-/* Volley Coach V16.2.4 · Analysis Pro · Professional UI refresh
+/* Volley Coach V16.2.5 · Analysis Pro · Dashboard estructural
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -141,13 +141,55 @@ function pagePlayers(data){return `<div class="vc157-panel"><div class="vc157-pa
  ${table(['Jugador','Acc.','PTS','G-P','Saq. G-P','Rec. +/#','Rec. #','Ataque #','Err+BLO','Atq. EFF','Bloq. #'],sheetRows(data),'vc157-sheet')}
  <p class="vc157-note">PTS y G-P = atribución terminal de la Hoja Oficial; máximo una acción terminal por rally. Recepción +/# = (# + +)/total; eficiencia de ataque = (# − = − /)/ataques. Revisa los denominadores antes de comparar.</p></div>
  <div class="vc157-grid2"><div class="vc157-panel"><h3>Acciones registradas por fundamento</h3>${table(['Fundamento','Total','Positivas','Errores','Vídeo'],Object.entries(categories).map(([s,n])=>{const g=data.skills[s],rows=rowsBy(data,r=>r.skill===s);if(!g?.n)return'';return `<tr><td>${n}</td><td>${g.n}</td><td>${g.positive||0}</td><td>${g.errors||0}</td><td>${pickButton('Ver',rows.map(x=>x.key),n)}</td></tr>`}).join(''))}</div></div>`}
-function pageOverview(data){
- const p=data.points,rec=data.skills.R||{},atk=data.skills.A||{};
- const tiles=[['Side-out K1',fmt(p.k1.pct),`${p.k1.w}/${p.k1.n} rallies`,'K1'],['Break K2',fmt(p.k2.pct),`${p.k2.w}/${p.k2.n} rallies`,'K2'],['Recepción +/#',fmt(rec.positivePct),`${rec.positive||0}/${rec.n||0} acciones`,'R'],['Ataque EFF',fmt(atk.eff),`${atk.kills||0} − ${atk.errors||0} − ${atk.blocked||0} / ${atk.n||0}`,'A']];
+function overviewKpi(label,number,note,keys){
+ return `<div class="vc1625-kpi"><span>${html(label)}</span><strong>${html(number)}</strong><small>${html(note)}</small>${pickButton('Consultar acciones',keys,`Detalle · ${label}`)}</div>`;
+}
+function overviewTrend(data){
+ const timeline=data.timeline.slice(-100),ys=timeline.map(x=>x.diff),lo=Math.min(-1,...ys),hi=Math.max(1,...ys);
+ const W=520,H=178,left=34,right=14,top=14,bottom=25;
+ const xx=i=>left+(timeline.length<2?(W-left-right)/2:i*(W-left-right)/(timeline.length-1));
+ const yy=v=>top+(hi-v)*(H-top-bottom)/(hi-lo);
+ const pts=timeline.map((x,i)=>`${xx(i).toFixed(1)},${yy(x.diff).toFixed(1)}`).join(' ');
+ const zero=yy(0).toFixed(1),last=timeline[timeline.length-1],g=last?.diff??0;
+ const dots=timeline.length&&timeline.length<=24?timeline.map((x,i)=>`<circle cx="${xx(i).toFixed(1)}" cy="${yy(x.diff).toFixed(1)}" r="2.6" fill="${x.diff>=0?'#256a9c':'#c16b54'}"/>`).join(''):'';
+ return `<section class="vc157-panel vc1625-plot"><div class="vc157-panelhead"><div><h3>Evolución del partido</h3><p>Diferencia acumulada de rallies ganados y perdidos, en orden registrado.</p></div><span class="vc157-tag">G-P ${signed(g)}</span></div>
+ <svg class="vc1625-trendsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de diferencia acumulada de rallies, último valor ${signed(g)}"><line x1="${left}" y1="${zero}" x2="${W-right}" y2="${zero}" stroke="#b7c8d7" stroke-width="1" stroke-dasharray="4 5"/>${[-1,0,1].map(f=>{const v=Math.round(lo+(hi-lo)*(f+1)/2);return `<text x="${left-7}" y="${(yy(v)+4).toFixed(1)}" text-anchor="end" fill="#648099" font-size="11">${v}</text>`}).join('')}${timeline.length>1?`<polyline points="${pts}" fill="none" stroke="#2876af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`:''}${dots}<text x="${left}" y="${H-6}" fill="#69839a" font-size="11">Primer rally</text><text x="${W-right}" y="${H-6}" fill="#69839a" text-anchor="end" font-size="11">Último rally</text></svg><div class="vc1625-plotfoot"><span>${timeline.length} rallies representados</span><button type="button" data-vc1625-page="explorer">Explorar jugadas</button></div></section>`;
+}
+function overviewRotations(data){
+ const rows=data.rotations.map(r=>{
+  const keys=data.actions.filter(a=>a.r&&(data.target==='ours'?a.r.rotation:a.r.opponentRotation)===r.rotation).map(a=>a.key);
+  return `<tr><th scope="row"><button type="button" data-vc1625-rotation="${r.rotation}" title="Abrir análisis de R${r.rotation}">R${r.rotation}</button></th><td>${fmt(r.k1.pct)}<small>${r.k1.w}/${r.k1.n}</small></td><td>${fmt(r.k2.pct)}<small>${r.k2.w}/${r.k2.n}</small></td><td>${signed(2*r.won-r.rallies)}</td><td>${pickButton('Ver',keys,`R${r.rotation} · acciones`)}</td></tr>`;
+ }).join('');
+ return `<section class="vc157-panel vc1625-rotations"><div class="vc157-panelhead"><div><h3>Rendimiento por rotación</h3><p>Conversión de K1 y K2 con muestras y G-P.</p></div><button class="vc1625-more" data-vc1625-page="tactics">Ver táctica</button></div><div class="vc1625-rotwrap"><table><thead><tr><th>Rot.</th><th>K1</th><th>K2</th><th>G-P</th><th>Jugadas</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+}
+function overviewCourt(items,keyFor,heading,description,buttonTo){
+ const mapped=groupZone(items,keyFor),n=[...mapped.values()].reduce((v,x)=>v+x.length,0),max=Math.max(1,...[...mapped.values()].map(a=>a.length));
+ const cells=zoneOrder.map(z=>{
+  const group=mapped.get(String(z))||[],count=group.length;
+  const keys=[...new Set(group.flatMap(x=>x?.set?.key?pairKeys(x):[x.key]).filter(Boolean))];
+  const alpha=(0.06+0.46*count/max).toFixed(2);
+  const enc=encodeURIComponent(JSON.stringify(keys));
+  return `<button class="vc1625-courtcell" style="--zone-strength:${alpha}" data-pick="${enc}" data-pick-title="${html(heading)} · zona ${z}" ${!count?'disabled':''} aria-label="Zona ${z}: ${count} acciones"><span>Z${z}</span><b>${count||'—'}</b></button>`;
+ }).join('');
+ return `<section class="vc157-panel vc1625-courtpanel"><div class="vc157-panelhead"><div><h3>${heading}</h3><p>${description}</p></div><button class="vc1625-more" data-vc1625-page="${buttonTo}">Abrir detalle</button></div><div class="vc1625-courtframe"><div class="vc1625-courttop"><span>RED · PISTA 9 ZONAS</span><span>${n} codificadas / ${items.length} totales</span></div><div class="vc1625-courtgrid">${cells}</div></div><p class="vc157-note">Pulsa una zona para ver las acciones. Las celdas son zonas codificadas, no posiciones exactas del balón.</p></section>`;
+}
+function overviewPatterns(data){
+ const groups=seqGroups(sequenceRows(data)).slice(0,5),total=sequenceRows(data).length;
+ const list=groups.map((g,i)=>`<button type="button" class="vc1625-patternrow" ${drillAttrs(g.keys,`Patrón ${i+1} · ${g.first.setter} → ${g.first.attacker}`)}><span class="vc1625-patternindex">${String(i+1).padStart(2,'0')}</span><span class="vc1625-patternlabel"><b>${html(g.first.setter)} → ${html(g.first.attacker)}</b><small>${html(g.first.reception)} · Tempo ${html(g.first.tempo)}</small></span><span class="vc1625-patternval"><b>${g.rows.length}</b><small>${fmt(pct(g.rows.length,total))}</small></span></button>`).join('');
+ return `<section class="vc157-panel vc1625-patternpanel"><div class="vc157-panelhead"><div><h3>Secuencias más frecuentes</h3><p>Recepción → colocador → atacante, solo relaciones verificables.</p></div><button class="vc1625-more" data-vc1625-page="setter" data-vc1625-subpage="sequences">Todas</button></div><div class="vc1625-patterns">${list||'<p class="vc157-muted">Todavía no hay secuencias de colocación registradas.</p>'}</div></section>`;
+}
+function overviewInsights(data){
  const insights=window.VC_ANALYSIS_INTELLIGENCE_1614?.insights?.(data)||[];
- return `<div class="vc157-metrics">${tiles.map(([n,v,s,c])=>`<div class="vc157-metric"><span>${n}</span><strong>${v}</strong><small>${s}</small>${pickButton('Ver jugadas',data.actions.filter(a=>(c==='K1'?a.r.serving&&a.r.serving!==data.target:c==='K2'?a.r.serving===data.target:a.skill===c)).map(x=>x.key),n)}</div>`).join('')}</div>
- <div class="vc157-grid2"><div class="vc157-panel"><h3>Lectura táctica</h3>${insights.map(i=>`<div class="vc157-insight"><b>${html(i.title)}</b><p>${html(i.detail)}</p><small>${html(i.how)}</small></div>`).join('')||'<p>No se detectan patrones suficientemente respaldados por la muestra.</p>'}</div>
- <div class="vc157-panel"><h3>Calidad del registro</h3><div class="vc157-statline"><span>Rallies válidos</span><b>${p.rallies}</b></div><div class="vc157-statline"><span>Acciones codificadas</span><b>${data.actions.length}</b></div><div class="vc157-statline"><span>Acciones con vídeo</span><b>${data.videoCount}/${data.actions.length}</b></div><div class="vc157-statline"><span>Rallies sin saque registrado</span><b>${data.unknownServe}</b></div><p class="vc157-note">Las hipótesis son descriptivas. Sin muestra suficiente, no se infiere causa táctica.</p></div></div>`;
+ return `<section class="vc157-panel vc1625-reading"><div class="vc157-panelhead"><div><h3>Lectura del partido</h3><p>Observaciones descriptivas respaldadas por la muestra registrada.</p></div></div><div class="vc1625-readinglist">${insights.slice(0,3).map(i=>`<div><b>${html(i.title)}</b><p>${html(i.detail)}</p></div>`).join('')||'<p>La muestra actual todavía no permite destacar un patrón con suficiente respaldo.</p>'}</div><div class="vc1625-quality">Registro: ${data.points.rallies} rallies cerrados · ${data.actions.length} acciones · ${data.videoCount} con vídeo</div></section>`;
+}
+function pageOverview(data){
+ const p=data.points,rec=data.skills.R||{},atk=data.skills.A||{},serve=data.skills.S||{},block=data.skills.B||{};
+ const actions=c=>data.actions.filter(a=>a.skill===c).map(a=>a.key);
+ const k1=data.actions.filter(a=>a.r.serving&&a.r.serving!==data.target).map(x=>x.key);
+ const k2=data.actions.filter(a=>a.r.serving===data.target).map(x=>x.key);
+ const metrics=`<div class="vc1625-metrics">${overviewKpi('SIDE-OUT · K1',fmt(p.k1.pct),`${p.k1.w}/${p.k1.n} rallies`,k1)}${overviewKpi('BREAK · K2',fmt(p.k2.pct),`${p.k2.w}/${p.k2.n} rallies`,k2)}${overviewKpi('ATAQUE · EFF',fmt(atk.eff),`${atk.kills||0} − ${atk.errors||0} − ${atk.blocked||0} / ${atk.n||0}`,actions('A'))}${overviewKpi('RECEPCIÓN +/#',fmt(rec.positivePct),`${rec.positive||0}/${rec.n||0} acciones`,actions('R'))}${overviewKpi('BLOQUEOS PUNTO',String(block.kills||0),`${block.n||0} acciones`,actions('B'))}${overviewKpi('ACES DE SAQUE',String(serve.kills||0),`${serve.n||0} saques`,actions('S'))}</div>`;
+ return `<div class="vc1625-overview"><div class="vc1625-scorehead"><div><span class="vc1625-label">DASHBOARD DEL PARTIDO</span><h3>${html(currentMatch()?.opponent||'Scouting seleccionado')}</h3><p>Equipo ${data.target==='ours'?'propio':'rival'} · ${data.points.rallies} rallies válidos · Datos calculados del scouting</p></div><span class="vc1625-scorebadge">${data.points.won||0} ganados / ${data.points.rallies-(data.points.won||0)} perdidos</span></div>${metrics}
+ <div class="vc1625-dashgrid">${overviewTrend(data)}${overviewRotations(data)}${overviewCourt(data.attacks,x=>x.a.endZone,'Mapa de ataque','Destinos codificados · número de ataques por zona','tactics')}${overviewCourt(data.pairs,x=>x.set?.a?.setTarget,'Distribución del colocador','Destinos codificados · colocaciones registradas','setter')}${overviewPatterns(data)}${overviewInsights(data)}</div></div>`;
 }
 // Tactical and setter analysis only read normalized actions from the 16.1.4 engine.
 // A coded receiver/tempo/target is required to assign contextual categories.
@@ -605,12 +647,12 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.4</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.5</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 2.4 · Interfaz profesional unificada. Estadísticas calculadas sin modificar el scouting, con muestras explícitas, acciones trazables y una lectura visual mejorada. La Hoja Oficial conserva su generador y estructura.</p></div>`;
+ <p class="vc157-footer">Analysis Pro 2.5 · Dashboard táctico interactivo. Estadísticas calculadas sin modificar el scouting, con muestras explícitas, acciones trazables y una lectura visual mejorada. La Hoja Oficial conserva su generador y estructura.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
@@ -641,6 +683,10 @@ function mount(){
   refresh();
  });
  host.addEventListener('click',e=>{
+  const go=e.target.closest('[data-vc1625-page]');
+  if(go&&pages[go.dataset.vc1625Page]){state.page=go.dataset.vc1625Page;if(go.dataset.vc1625Subpage&&subpages[state.page]?.some(([key])=>key===go.dataset.vc1625Subpage))state.subpage[state.page]=go.dataset.vc1625Subpage;renderPage();return;}
+  const rotation=e.target.closest('[data-vc1625-rotation]');
+  if(rotation){state.rotation=rotation.dataset.vc1625Rotation;state.page='tactics';state.subpage.tactics='rotations';state.selected=[];renderInspector();buildHeader();renderPage();return;}
   const hit=e.target.closest('[data-vc1622-drill]');
   if(hit){const obj=diagramDrills.get(hit.dataset.vc1622Drill);if(obj)selectKeys(obj.keys,obj.title);return;}
   const t=e.target.closest('button');if(!t)return;
@@ -871,6 +917,85 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:900px){#vc157-studio .vc157-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-grid2{grid-template-columns:1fr}#vc157-studio .vc1622-rotgrid,#vc157-studio .vc1622-destcards{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1620-season-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1623-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1623-compare{grid-template-columns:1fr}}
 @media(max-width:720px){#vc157-studio .vc157-top{padding:22px 18px}#vc157-studio .vc157-toolbar{padding:14px 14px 16px}#vc157-studio .vc157-work{padding:14px}#vc157-studio .vc157-metrics,#vc157-studio .vc1623-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-explorer-filters{grid-template-columns:1fr}#vc157-studio .vc1623-flowtop{align-items:flex-start;flex-direction:column;gap:3px}#vc157-studio .vc1623-flowtop small{text-align:left}#vc157-studio .vc1623-flowpath{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);row-gap:5px}#vc157-studio .vc1623-flowpath span:nth-last-child(1){grid-column:1/4}}
 @media(max-width:560px){#vc157-studio .vc157-filterbar,#vc157-studio .vc1623-filterbar{grid-template-columns:1fr}#vc157-studio .vc157-metrics,#vc157-studio .vc1623-metrics,#vc157-studio .vc1622-rotgrid,#vc157-studio .vc1622-destcards,#vc157-studio .vc1620-season-metrics{grid-template-columns:1fr}#vc157-studio .vc157-stagehead{align-items:flex-start}#vc157-studio .vc157-export{width:100%}#vc157-studio .vc157-export button{flex:1}#vc157-studio .vc157-tabs button{min-width:155px}#vc157-studio .vc157-table{min-width:560px}}
+
+/* V16.2.5 · Real layout change. Navigation is horizontal, overview is a dashboard. */
+#vc157-studio .vc157-appshell{border-radius:17px}
+#vc157-studio .vc157-top{padding:19px 24px;background:linear-gradient(112deg,#12324f,#1d537e);align-items:center}
+#vc157-studio .vc157-brand{gap:3px}
+#vc157-studio .vc157-top h2{font-size:24px!important;line-height:1.2!important}
+#vc157-studio .vc157-top p{font-size:11px}
+#vc157-studio .vc157-headmeta{display:none}
+#vc157-studio .vc157-toolbar{padding:10px 17px}
+#vc157-studio .vc157-filterbar{gap:8px;grid-template-columns:minmax(210px,2.4fr) auto repeat(4,minmax(105px,1fr))}
+#vc157-studio .vc157-work{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:'nav' 'head' 'tabs' 'contents';row-gap:12px;padding:12px 16px 18px}
+#vc157-studio .vc157-tabs{grid-area:nav;position:static;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));flex-direction:row!important;gap:5px;padding:5px;background:#ecf2f7;border-radius:11px;overflow:visible}
+#vc157-studio .vc157-tabs button{min-height:47px!important;min-width:0!important;padding:9px 10px!important;text-align:center!important;gap:1px}
+#vc157-studio .vc157-tabs button b{font-size:11px}
+#vc157-studio .vc157-tabs button span{display:none}
+#vc157-studio .vc157-tabs button[aria-selected="true"]{background:#2169a1!important;color:#fff!important;border-color:#2169a1!important}
+#vc157-studio .vc157-tabs button[aria-selected="true"] b{color:#fff!important}
+#vc157-studio .vc157-stagehead{grid-area:head;align-items:center;padding:5px 4px 9px}
+#vc157-studio .vc157-stagehead h3{font-size:19px!important}
+#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr) minmax(222px,260px);gap:12px}
+#vc157-studio .vc157-content{gap:12px}
+#vc157-studio .vc157-panel,#vc157-studio .vc157-inspector{padding:13px;border-radius:12px}
+#vc157-studio .vc157-inspector{top:18px;max-height:75vh}
+#vc157-studio .vc157-inspector-head h3{font-size:13px!important}
+#vc157-studio .vc1625-overview{display:grid;gap:12px;min-width:0}
+#vc157-studio .vc1625-scorehead{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #dce7ef;border-radius:11px;background:linear-gradient(110deg,#f8fbff,#edf5fb);padding:12px 15px}
+#vc157-studio .vc1625-label{font-size:9px;letter-spacing:.09em;font-weight:850;color:#5384a5}
+#vc157-studio .vc1625-scorehead h3{margin:1px 0!important;font-size:15px!important;color:#183d5c!important}
+#vc157-studio .vc1625-scorehead p{font-size:10px;color:#678297;margin:0}
+#vc157-studio .vc1625-scorebadge{white-space:nowrap;border:1px solid #cee2f2;background:#fff;border-radius:9px;color:#245f88;font-size:11px;font-weight:850;padding:9px 12px;font-variant-numeric:tabular-nums}
+#vc157-studio .vc1625-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#vc157-studio .vc1625-kpi{min-width:0;display:flex;flex-direction:column;gap:4px;border:1px solid #dbe6ee;border-radius:12px;padding:11px 12px;background:#fff}
+#vc157-studio .vc1625-kpi>span{font-size:9px;font-weight:850;letter-spacing:.035em;color:#577d99}
+#vc157-studio .vc1625-kpi strong{font-size:clamp(18px,2.1vw,25px);line-height:1.1;color:#143c5e;font-weight:900;font-variant-numeric:tabular-nums}
+#vc157-studio .vc1625-kpi small{font-size:9px;color:#7892a5}
+#vc157-studio .vc1625-kpi .vc157-pick{align-self:flex-start;margin-top:auto;font-size:9px!important}
+#vc157-studio .vc1625-dashgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+#vc157-studio .vc1625-dashgrid .vc157-panel{height:100%;min-width:0;overflow:hidden}
+#vc157-studio .vc1625-dashgrid .vc157-panelhead{align-items:center}
+#vc157-studio .vc1625-dashgrid h3{font-size:13px!important;margin:0 0 3px!important}
+#vc157-studio .vc1625-dashgrid .vc157-panelhead p{font-size:10px;line-height:1.4;margin:0}
+#vc157-studio .vc1625-more{border:1px solid #cbdde9!important;background:#f2f8fd!important;border-radius:8px!important;padding:6px 9px!important;color:#22618a!important;font-size:10px!important;font-weight:800!important;white-space:nowrap}
+#vc157-studio .vc1625-trendsvg{width:100%;height:auto;display:block;margin:11px 0 5px;max-height:188px}
+#vc157-studio .vc1625-plotfoot{display:flex;gap:6px;justify-content:space-between;align-items:center;color:#748a9c;font-size:10px;border-top:1px solid #e8f0f5;padding-top:9px}
+#vc157-studio .vc1625-plotfoot button{background:#eef6fc!important;border:1px solid #d8e7f2!important;border-radius:7px!important;color:#1b628e!important;padding:5px 8px!important;font-size:10px!important;font-weight:750!important}
+#vc157-studio .vc1625-rotwrap{overflow-x:auto;margin-top:10px}
+#vc157-studio .vc1625-rotwrap table{width:100%;border-collapse:collapse;font:700 10px/1.35 system-ui;white-space:nowrap;font-variant-numeric:tabular-nums}
+#vc157-studio .vc1625-rotwrap thead{background:#f0f5f9}
+#vc157-studio .vc1625-rotwrap th,#vc157-studio .vc1625-rotwrap td{padding:7px 5px;border-bottom:1px solid #e8eef4;text-align:left}
+#vc157-studio .vc1625-rotwrap tbody tr:nth-child(even){background:#fafcfe}
+#vc157-studio .vc1625-rotwrap td small{display:block;color:#90a4b4;font-size:9px;font-weight:500}
+#vc157-studio .vc1625-rotwrap th button{border:0!important;background:transparent!important;color:#165b8c!important;font-size:11px!important;font-weight:850!important;padding:2px!important}
+#vc157-studio .vc1625-rotwrap .vc157-pick{font-size:10px!important}
+#vc157-studio .vc1625-courtframe{margin-top:13px;border:1px solid #bfdbec;border-radius:12px;background:#e7f2f9;padding:10px}
+#vc157-studio .vc1625-courttop{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;padding:0 2px 8px;color:#56819e;font-size:9px;font-weight:800;letter-spacing:.025em}
+#vc157-studio .vc1625-courtgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;background:#d0e4f1;border-radius:9px;border:2px solid #80acc9;padding:5px;position:relative}
+#vc157-studio .vc1625-courtgrid::after{content:'';position:absolute;left:0;right:0;top:33.333%;border-top:2px solid #1d5c8b;pointer-events:none}
+#vc157-studio .vc1625-courtcell{min-height:63px!important;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;background:linear-gradient(0deg,rgba(36,119,178,var(--zone-strength)),rgba(255,255,255,.9))!important;border:1px solid #b3d2e6!important;border-radius:6px!important;color:#1b567f!important;font-weight:850!important;transition:box-shadow .15s ease,transform .15s ease}
+#vc157-studio .vc1625-courtcell:enabled:hover{box-shadow:0 0 0 2px #247db4;transform:scale(1.015)}
+#vc157-studio .vc1625-courtcell:disabled{opacity:.48;cursor:default!important}
+#vc157-studio .vc1625-courtcell span{font-size:10px}
+#vc157-studio .vc1625-courtcell b{font-size:16px}
+#vc157-studio .vc1625-patterns{display:grid;gap:5px;margin-top:10px}
+#vc157-studio .vc1625-patternrow{display:grid!important;grid-template-columns:26px minmax(0,1fr) 36px;align-items:center;gap:7px;text-align:left!important;padding:8px!important;border:1px solid #e2ebf2!important;background:#f9fcfe!important;border-radius:8px!important;color:#254c66!important;min-width:0}
+#vc157-studio .vc1625-patternrow:hover{background:#eff7fc!important}
+#vc157-studio .vc1625-patternindex{font-size:10px;font-weight:900;color:#4d8cb5}
+#vc157-studio .vc1625-patternlabel{display:grid;gap:2px;min-width:0}
+#vc157-studio .vc1625-patternlabel b{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vc157-studio .vc1625-patternlabel small{font-size:9px;color:#839aab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vc157-studio .vc1625-patternval{text-align:right;display:grid;gap:2px}
+#vc157-studio .vc1625-patternval b{font-size:13px}
+#vc157-studio .vc1625-patternval small{font-size:9px;color:#8aa2b3}
+#vc157-studio .vc1625-readinglist>div{padding:8px 0;border-bottom:1px solid #edf1f5}
+#vc157-studio .vc1625-readinglist b{font-size:11px;color:#1f5478}
+#vc157-studio .vc1625-readinglist p{margin:3px 0!important;font-size:10px!important}
+#vc157-studio .vc1625-quality{padding-top:10px;color:#7b91a4;font-size:10px}
+@media(max-width:1100px){#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr)}#vc157-studio .vc157-inspector{position:static;max-height:none}}
+@media(max-width:930px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}#vc157-studio .vc157-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#vc157-studio .vc1625-dashgrid{grid-template-columns:1fr}#vc157-studio .vc1625-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1625-scorehead{flex-direction:column;align-items:start}}
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.2.4',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.2.5',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
