@@ -1,4 +1,4 @@
-/* Volley Coach V16.2.0 · Analysis Pro · Espacio único
+/* Volley Coach V16.2.1 · Analysis Pro · Profundidad táctica y colocador
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -13,7 +13,7 @@ const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación
 const pages={
  overview:['Resumen','Rendimiento general y lectura táctica'],
  players:['Estadísticas','Hoja individual y fundamentos'],
- tactics:['Táctica','Rotaciones, K1 / K2 y mapas de zonas'],
+ tactics:['Táctica','Rotaciones, side-out, K1 / K2 y mapas'],
  setter:['Colocador','Distribución, tempo y secuencias'],
  explorer:['Vídeo y acciones','Busca, filtra y revisa evidencias'],
  season:['Temporada','Comparación de partidos y evolución']
@@ -21,10 +21,10 @@ const pages={
 const subpages={
  players:[['sheet','Hoja por jugador'],['fundamentals','Fundamentos Pro']],
  tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
- setter:[['distribution','Distribución'],['details','Tempos y combinaciones']]
+ setter:[['distribution','Distribución y destinos'],['details','Tempos y combinaciones']]
 };
-function inDeepView(){return (state.page==='players'&&state.subpage.players==='fundamentals')||(state.page==='setter'&&state.subpage.setter==='details');}
-const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
+function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
+const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',setterPlayer:'',setterReception:'',setterTempo:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
 let host=null,native=null,view=null;
 /* Collect all accessible matches (including finished scouting), without changing
    the active match. A different team or a remote sync may update this list. */
@@ -149,22 +149,85 @@ function pageOverview(data){
  <div class="vc157-grid2"><div class="vc157-panel"><h3>Lectura táctica</h3>${insights.map(i=>`<div class="vc157-insight"><b>${html(i.title)}</b><p>${html(i.detail)}</p><small>${html(i.how)}</small></div>`).join('')||'<p>No se detectan patrones suficientemente respaldados por la muestra.</p>'}</div>
  <div class="vc157-panel"><h3>Calidad del registro</h3><div class="vc157-statline"><span>Rallies válidos</span><b>${p.rallies}</b></div><div class="vc157-statline"><span>Acciones codificadas</span><b>${data.actions.length}</b></div><div class="vc157-statline"><span>Acciones con vídeo</span><b>${data.videoCount}/${data.actions.length}</b></div><div class="vc157-statline"><span>Rallies sin saque registrado</span><b>${data.unknownServe}</b></div><p class="vc157-note">Las hipótesis son descriptivas. Sin muestra suficiente, no se infiere causa táctica.</p></div></div>`;
 }
+// Tactical and setter analysis only read normalized actions from the 16.1.4 engine.
+// A coded receiver/tempo/target is required to assign contextual categories.
+const setterText=v=>v==null||String(v).trim()===''?'Sin registrar':String(v).trim();
+const setterZone=v=>{const m=String(v??'').trim().toUpperCase().match(/^Z?([1-9])([A-D])?$/);return m?m[1]:null};
+const setterRec=p=>['#','+'].includes(p.recEval)?'Positiva / perfecta':p.recEval?'Otra recepción':'Sin recepción registrada';
+const pairKeys=p=>[p.set?.key,p.attack?.key].filter(Boolean);
+const attackStats=(items)=>{const attacks=items.filter(Boolean);return {n:attacks.length,k:attacks.filter(a=>a.ev==='#').length,e:attacks.filter(a=>a.ev==='=').length,b:attacks.filter(a=>a.ev==='/').length}};
+const effStat=s=>fmt(pct(s.k-s.e-s.b,s.n));
+function tabRows(grouped,valueName,keysName){return [...grouped].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'es')).map(([name,items])=>({name,items,att:attackStats(items.map(x=>x.attack)),keys:items.flatMap(pairKeys)}))}
+function groupedBy(items,label){const map=new Map();for(const item of items){const key=setterText(label(item));if(!map.has(key))map.set(key,[]);map.get(key).push(item)}return tabRows(map)}
 function pageRotations(data){
  const rows=data.rotations.map(r=>{
- const rRows=data.actions.filter(a=>a.r&&(data.target==='ours'?a.r.rotation:a.r.opponentRotation)===r.rotation);
- const gp=2*r.won-r.rallies;
- return `<tr><td class="vc157-strong">R${r.rotation}</td><td>${r.k1.w}/${r.k1.n}</td><td><div class="vc157-cellbar"><i style="width:${r.k1.pct||0}%"></i></div>${fmt(r.k1.pct)}</td><td>${r.k2.w}/${r.k2.n}</td><td>${fmt(r.k2.pct)}</td><td>${r.rallies}</td><td>${signed(gp)}</td><td>${pickButton('▶ Jugadas',rRows.map(a=>a.key),`Rotación R${r.rotation}`)}</td></tr>`}).join('');
- return `<div class="vc157-panel"><h3>Rotaciones · K1 y K2 comparados</h3>${table(['Rotación','K1 G/T','K1 %','K2 G/T','K2 %','Rallies','G-P','Vídeo'],rows)}<p class="vc157-note">K1 = rallies ganados recibiendo / oportunidades de recepción. K2 = rallies ganados al saque / oportunidades de saque. Un rally cuenta una sola vez.</p></div>`
+  const rRows=data.actions.filter(a=>a.r&&(data.target==='ours'?a.r.rotation:a.r.opponentRotation)===r.rotation);
+  const att=rRows.filter(a=>a.skill==='A'),at=attackStats(att),gp=2*r.won-r.rallies;
+  const rr=data.chains.filter(c=>(data.target==='ours'?c.r.rotation:c.r.opponentRotation)===r.rotation);
+  const recCount=rr.length,recGood=rr.filter(c=>c.positive).length;
+  return `<tr><td class="vc157-strong">R${r.rotation}</td><td>${r.k1.w}/${r.k1.n}</td><td><div class="vc157-cellbar"><i style="width:${r.k1.pct||0}%"></i></div>${fmt(r.k1.pct)}</td><td>${r.k2.w}/${r.k2.n}</td><td>${fmt(r.k2.pct)}</td><td>${r.rallies}</td><td>${signed(gp)}</td><td>${recGood}/${recCount}<small>${fmt(pct(recGood,recCount))}</small></td><td>${at.k}/${at.n}<small>${effStat(at)} EFF</small></td><td>${pickButton('Ver',rRows.map(a=>a.key),`Rotación R${r.rotation}`)}</td></tr>`;
+ }).join('');
+ const validK1=data.rallies.filter(r=>r.winning&&r.serving&&r.serving!==data.target);
+ const withRec=new Set(data.chains.map(c=>c.r));
+ const quality=[['#','Perfecta'],['+','Positiva'],['!','Neutra'],['-','Negativa'],['/','Mala /'],['=','Error =']].map(([ev,label])=>{
+  const list=data.chains.filter(c=>c.rec.ev===ev),w=list.filter(c=>c.outcome).length;
+  const attacks=list.map(c=>c.attack).filter(Boolean),st=attackStats(attacks);
+  return `<tr><td>${label} <small>${html(ev)}</small></td><td>${list.length}</td><td>${w}/${list.length}</td><td>${fmt(pct(w,list.length))}</td><td>${st.k}/${st.n}</td><td>${effStat(st)}</td><td>${pickButton('Ver',list.map(c=>c.rec.key),`Recepción ${ev} en K1`)}</td></tr>`;
+ }).join('');
+ const knownK1=data.chains.length,miss=Math.max(0,validK1.length-knownK1);
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Rotaciones · rendimiento real por complejo</h3><p>K1 y K2 por rally resuelto. Recepción y ataque se calculan sobre acciones codificadas, no sobre todos los rallies.</p></div><span class="vc157-tag">${data.points.rallies} rallies</span></div>
+ ${table(['Rot.','K1 G/T','K1 %','K2 G/T','K2 %','Rallies','G-P','Rec. +/#','Ataque # / EFF','Acciones'],rows)}
+ <p class="vc157-note">G-P de esta tabla = rallies ganados menos perdidos. Rec. +/# y ataque pueden estar incompletos si el scouting no registra todas las acciones; un rally se cuenta una sola vez para K1/K2.</p></div>
+ <div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Side-out según la recepción</h3><p>Comparación por calidad de la primera recepción registrada en cada rally de K1.</p></div><span class="vc157-tag">${knownK1}/${validK1.length} K1 con recepción</span></div>
+ ${table(['Recepción','Rallies','Ganados','Side-out','Ataques #/T','Ataque EFF','Jugadas'],quality)}
+ <p class="vc157-note">${miss} rallies de K1 sin recepción codificada quedan fuera de esta comparación. Las filas sin observaciones muestran «—» en los porcentajes. La asociación recepción–ataque no demuestra causalidad.</p></div>`;
+}
+function setterPairsView(data){
+ return data.pairs.filter(p=>
+  (!state.setterPlayer||p.set.player===state.setterPlayer)&&
+  (!state.setterReception||setterRec(p)===state.setterReception)&&
+  (!state.setterTempo||setterText(p.set.a.setTempo)===state.setterTempo));
+}
+function setterFilters(data){
+ const players=[...new Set(data.pairs.map(p=>p.set.player))].sort((a,b)=>a.localeCompare(b,'es'));
+ const tempos=[...new Set(data.pairs.map(p=>setterText(p.set.a.setTempo)))].sort((a,b)=>a.localeCompare(b,'es'));
+ const rec=['Positiva / perfecta','Otra recepción','Sin recepción registrada'];
+ return `<div class="vc1621-setterfilters"><label>Colocador<select id="vc1621-setter-player">${selOpts(players.map(v=>[v,v]),state.setterPlayer,'Todos los colocadores')}</select></label>
+ <label>Recepción previa<select id="vc1621-setter-reception">${selOpts(rec.map(v=>[v,v]),state.setterReception,'Todas / K1 y transición')}</select></label>
+ <label>Tempo colocación<select id="vc1621-setter-tempo">${selOpts(tempos.map(v=>[v,v]),state.setterTempo,'Todos los tempos')}</select></label></div>`;
+}
+function setterSummary(data,items){
+ const linked=items.filter(p=>p.attack),s=attackStats(linked.map(p=>p.attack));
+ const target=items.filter(p=>setterZone(p.set.a.setTarget)||setterText(p.set.a.setTarget)!=='Sin registrar').length;
+ const tempos=items.filter(p=>setterText(p.set.a.setTempo)!=='Sin registrar').length;
+ const sample=[['Colocaciones',items.length,`De ${data.pairs.length} del scouting filtrado`],['Ataque vinculado',`${linked.length}/${items.length}`,fmt(pct(linked.length,items.length))],['Destino registrado',`${target}/${items.length}`,fmt(pct(target,items.length))],['Tempo registrado',`${tempos}/${items.length}`,fmt(pct(tempos,items.length))]];
+ return `<div class="vc1621-metrics">${sample.map(([name,value,detail])=>`<div><span>${html(name)}</span><strong>${html(value)}</strong><small>${html(detail)}</small></div>`).join('')}</div><p class="vc157-note">El primer ataque del equipo tras la colocación se vincula solo si no ha intervenido antes el rival u otra colocación. Kill: ${s.k}/${s.n}; EFF: ${effStat(s)}. No representa necesariamente todas las oportunidades de ataque del rally.</p>`;
 }
 function pageDistribution(data){
- const groups=new Map();for(const p of data.pairs){const key=p.target||'Sin codificar';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)}
- const rows=[...groups].sort((a,b)=>b[1].length-a[1].length).map(([target,items])=>{
-  const attacks=items.map(i=>i.attack).filter(Boolean),kill=attacks.filter(x=>x.ev==='#').length,err=attacks.filter(x=>x.ev==='=').length,bl=attacks.filter(x=>x.ev==='/').length;
-  return `<tr><td>${html(target)}</td><td>${items.length}</td><td>${fmt(pct(items.length,data.pairs.length))}</td><td>${attacks.length}</td><td>${fmt(pct(kill,attacks.length))}</td><td>${fmt(pct(kill-err-bl,attacks.length))}</td><td>${pickButton('▶ Ver',items.flatMap(i=>[i.set?.key,i.attack?.key]).filter(Boolean),`Destino ${target}`)}</td></tr>`}).join('');
- const rec=[['Recepción positiva',data.chains.filter(c=>c.positive)],['Recepción restante',data.chains.filter(c=>!c.positive)]].map(([key,rows])=>{
-  const won=rows.filter(r=>r.outcome).length;
-  return `<tr><td>${key}</td><td>${rows.length}</td><td>${won}/${rows.length}</td><td>${fmt(pct(won,rows.length))}</td><td>${pickButton('▶ Ver',rows.map(r=>r.rec?.key).filter(Boolean),key)}</td></tr>`}).join('');
- return `<div class="vc157-panel"><h3>Distribución del colocador</h3><p class="vc157-sub">Colocaciones codificadas y primer ataque posterior de la misma posesión.</p>${table(['Destino','Uso','% uso','Ataques','Kill %','EFF','Vídeo'],rows)}</div><div class="vc157-panel"><h3>Recepción → colocación → ataque</h3>${table(['Calidad','Rallies','Ganados','Side-out','Evidencia'],rec)}<p class="vc157-note">La primera cadena del rally es una asociación temporal; no implica causalidad. El destino se muestra sin inferir cuando no fue codificado.</p></div>`;
+ const pairs=setterPairsView(data),bySetter=groupedBy(pairs,p=>p.set.player);
+ const byDest=groupedBy(pairs,p=>p.set.a.setTarget),total=pairs.length;
+ const setterRows=bySetter.map(g=>`<tr><td>${pickButton(g.name,g.keys,`Colocaciones de ${g.name}`)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,total))}</td><td>${g.att.n}/${g.items.length}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Distribución · ${g.name}`)}</td></tr>`).join('');
+ const destRows=byDest.map(g=>`<tr><td>${html(g.name)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,total))}</td><td>${g.att.n}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Destino ${g.name}`)}</td></tr>`).join('');
+ const inZones=pairs.filter(p=>setterZone(p.set.a.setTarget)),validCount=inZones.length;
+ const court=[4,3,2,7,8,9,5,6,1].map(z=>{const here=inZones.filter(p=>setterZone(p.set.a.setTarget)===String(z));return `<button class="vc1621-zone" type="button" data-pick="${encodeURIComponent(JSON.stringify(here.flatMap(pairKeys)))}" data-pick-title="Colocaciones a Z${z}"><b>Z${z}</b><strong>${here.length}</strong><small>${fmt(pct(here.length,validCount))}</small></button>`}).join('');
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Distribución por colocador</h3><p>Se agrupan colocaciones reales y ataques posteriores vinculados a la misma posesión.</p></div><span class="vc157-tag">${data.pairs.length} colocaciones</span></div>${setterFilters(data)}${setterSummary(data,pairs)}${table(['Colocador','Total','Uso','Ataques vinculados','Kill','EFF','Evidencias'],setterRows)}</div>
+ <div class="vc157-grid2"><div class="vc157-panel"><h3>Mapa de destinos de la colocación</h3><p>${validCount}/${total} colocaciones con zona Z1–Z9 explícita. Pulsa una zona para inspeccionar acciones.</p><div class="vc1621-court">${court}</div><p class="vc157-note">Los destinos no zonales (combinaciones o texto libre) aparecen en la tabla, pero no se sitúan artificialmente en la pista.</p></div><div class="vc157-panel"><h3>Destinos registrados y eficacia</h3>${table(['Destino','Uso','%','Ataques','Kill','EFF','Acciones'],destRows)}<p class="vc157-note">«Sin registrar» significa que no se escribió destino. La efectividad se refiere únicamente a los ataques vinculados, no a las colocaciones sin ataque.</p></div></div>`;
+}
+function pageSetterDetails(data){
+ const pairs=setterPairsView(data),n=pairs.length;
+ const tempo=groupedBy(pairs,p=>p.set.a.setTempo);
+ const tempoRows=tempo.map(g=>`<tr><td>${html(g.name)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,n))}</td><td>${g.att.n}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Tempo ${g.name}`)}</td></tr>`).join('');
+ const attacks=groupedBy(pairs,p=>p.attack?.player||'Sin ataque vinculado');
+ const attackRows=attacks.map(g=>`<tr><td>${html(g.name)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,n))}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Colocaciones hacia ${g.name}`)}</td></tr>`).join('');
+ const combos=groupedBy(pairs,p=>p.set.a.attackCombo||p.attack?.a.attackCombo);
+ const comboRows=combos.map(g=>`<tr><td>${html(g.name)}</td><td>${g.items.length}</td><td>${fmt(pct(g.items.length,n))}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Combinación ${g.name}`)}</td></tr>`).join('');
+ const ctx=groupedBy(pairs,p=>setterRec(p));
+ const recRows=ctx.map(g=>`<tr><td>${html(g.name)}</td><td>${g.items.length}</td><td>${g.att.n}</td><td>${g.att.k}/${g.att.n}</td><td>${effStat(g.att)}</td><td>${pickButton('Ver',g.keys,`Contexto ${g.name}`)}</td></tr>`).join('');
+ return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Tempos, atacantes y combinaciones</h3><p>Filtros cruzados con colocador, recepción y tempo. Cada fila contiene las acciones que permiten verificar el cálculo.</p></div><span class="vc157-tag">${n} colocaciones</span></div>${setterFilters(data)}${setterSummary(data,pairs)}</div>
+ <div class="vc157-grid2"><div class="vc157-panel"><h3>Tempo declarado por el colocador</h3>${table(['Tempo','Coloc.','Uso','Ataques','Kill','EFF','Acciones'],tempoRows)}<p class="vc157-note">Solo se utiliza «setTempo» registrado en la colocación. No se sustituye por el tempo del ataque ni se adivina por el destino.</p></div>
+ <div class="vc157-panel"><h3>Atacante después de la colocación</h3>${table(['Atacante','Secuencias','Uso','Kill','EFF','Acciones'],attackRows)}<p class="vc157-note">Un atacante sin codificar no se atribuye a otra persona. Se diferencia del atacante que no llegó a ejecutar una acción codificada.</p></div>
+ <div class="vc157-panel"><h3>Combinación codificada</h3>${table(['Combinación','Coloc.','Uso','Kill','EFF','Acciones'],comboRows)}<p class="vc157-note">Se muestra el código «attackCombo» de la colocación o del ataque posterior, si existe. No se confunde con la zona de destino.</p></div>
+ <div class="vc157-panel"><h3>Contexto de recepción</h3>${table(['Recepción','Coloc.','Ataques','Kill','EFF','Acciones'],recRows)}<p class="vc157-note">Sin recepción registrada puede ser transición K2, un rally incompleto o una recepción omitida. No se etiqueta automáticamente como recepción negativa.</p></div></div>`;
 }
 function pageZones(data){
  const zones=new Map(data.zoneCounts),tot=data.zoneCounts.reduce((n,[,items])=>n+items.length,0);
@@ -256,12 +319,11 @@ function renderPage(){
  if(meta)meta.textContent=periodLabel(data);
  const page=state.page,subpage=state.subpage[page];
  if(inDeepView()){
-  if(page==='setter'){state.deepSkill='E';}
   pageDeep(data,surface);
  }else if(page==='overview')surface.innerHTML=pageOverview(data);
  else if(page==='players')surface.innerHTML=pagePlayers(data);
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
- else if(page==='setter')surface.innerHTML=pageDistribution(data);
+ else if(page==='setter')surface.innerHTML=subpage==='details'?pageSetterDetails(data):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
  state.draws++;
 }
@@ -332,23 +394,26 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.0</span><h2>Centro de análisis</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-top"><div><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.1</span><h2>Centro de análisis</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 2.0 · Estadísticas calculadas sin modificar el scouting. Muestras explícitas y acciones trazables. La Hoja Oficial conserva su generador y estructura.</p>`;
+ <p class="vc157-footer">Analysis Pro 2.1 · Estadísticas calculadas sin modificar el scouting. Muestras explícitas y acciones trazables. La Hoja Oficial conserva su generador y estructura.</p>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
+  if(id==='vc1621-setter-player'){state.setterPlayer=t.value;renderPage();return}
+  if(id==='vc1621-setter-reception'){state.setterReception=t.value;renderPage();return}
+  if(id==='vc1621-setter-tempo'){state.setterTempo=t.value;renderPage();return}
   if(id==='vc171-dimension'){state.deepDim=t.value;renderPage();return}
   if(id==='vc171-player'){state.deepPlayer=t.value;renderPage();return}
   if(id==='vc157-match'){
    const chosen=matches().find(m=>String(m.id)===String(t.value));
    if(!chosen){buildHeader();return;}
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.setterPlayer='';state.setterReception='';state.setterTempo='';
    // Never dispatch the old select's change from Studio: the legacy renderer
    // can rebuild its options and switch back to the active match mid-selection.
    setNativeSelection(state.match);
@@ -365,7 +430,7 @@ function mount(){
   if(t.dataset.seasonMatch){
    const chosen=matches().find(m=>String(m.id)===String(t.dataset.seasonMatch));
    if(!chosen)return;
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.setterPlayer='';state.setterReception='';state.setterTempo='';
    state.page='overview';state.selected=[];state.selectedTitle='Selecciona una cifra';setNativeSelection(state.match);
    renderInspector();buildHeader();renderPage();return;
   }
@@ -481,9 +546,23 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 #vc157-studio .vc1620-trendrow{display:grid;grid-template-columns:minmax(100px,1.1fr) minmax(80px,2fr) 65px 55px;gap:9px;align-items:center;color:#54758e;font-size:11px}
 #vc157-studio .vc1620-trendrow>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#vc157-studio .vc1620-trendrow b{color:#265d84}
 #vc157-studio .vc1620-track{height:10px;overflow:hidden;background:#e8f0f6;border-radius:8px}#vc157-studio .vc1620-track i{display:block;background:#377caa;height:100%;border-radius:8px}
+
+/* V16.2.1 tactical and setter improvements */
+#vc157-studio .vc1621-setterfilters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 16px}
+#vc157-studio .vc1621-setterfilters label{display:grid;gap:5px;min-width:0;color:#607c96;font:750 10px/1.4 system-ui}
+#vc157-studio .vc1621-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:13px 0}
+#vc157-studio .vc1621-metrics>div{display:grid;align-content:start;gap:4px;background:#f2f7fc;border:1px solid #d9e6f0;border-radius:10px;padding:10px;min-width:0}
+#vc157-studio .vc1621-metrics span{font-size:10px;color:#55758d;font-weight:750}
+#vc157-studio .vc1621-metrics strong{font-size:19px;color:#183e61}
+#vc157-studio .vc1621-metrics small{color:#7090a8;font-size:9px}
+#vc157-studio .vc1621-court{max-width:440px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;border:2px solid #ad7b47;border-radius:11px;background:#cba270;padding:7px;margin:12px auto}
+#vc157-studio .vc1621-court .vc1621-zone{min-height:86px!important;display:grid;place-content:center;gap:3px;border:1px solid #d4bd9f!important;border-radius:7px!important;background:#fff9f0!important;color:#2d536f!important}
+#vc157-studio .vc1621-zone strong{font-size:19px}#vc157-studio .vc1621-zone small{font-size:10px}
+@media(max-width:780px){#vc157-studio .vc1621-setterfilters{grid-template-columns:1fr}#vc157-studio .vc1621-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 @media(max-width:1250px){#vc157-studio .vc157-filterbar{grid-template-columns:minmax(190px,2fr) auto repeat(2,minmax(105px,1fr))}#vc157-studio .vc157-columns{grid-template-columns:minmax(0,1fr)}#vc157-studio .vc157-inspector{position:static;max-height:none}#vc157-studio .vc1620-season-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:950px){#vc157-studio .vc157-work{grid-template-columns:1fr;grid-template-areas:'nav' 'head' 'tabs' 'contents';padding:12px}#vc157-studio .vc157-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:static;min-height:0}#vc157-studio .vc157-tabs button{min-height:54px!important}#vc157-studio .vc157-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc157-grid2{grid-template-columns:1fr}}
 @media(max-width:620px){#vc157-studio .vc157-top{padding:17px;align-items:flex-start;gap:11px}#vc157-studio .vc157-top h2{font-size:22px!important}#vc157-studio .vc157-filterbar{grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:11px}#vc157-studio .vc157-filterbar>label:not(.vc157-match-field){grid-column:span 1}#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}#vc157-studio .vc157-tabs button b{font-size:11px}#vc157-studio .vc157-stagehead h3{font-size:19px!important}#vc157-studio .vc157-panel{padding:11px}#vc157-studio .vc157-export button{padding:7px!important}#vc157-studio .vc157-explorer-filters{grid-template-columns:1fr 1fr}#vc157-studio .vc1620-season-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1620-trendrow{grid-template-columns:minmax(70px,1fr) minmax(45px,1.2fr) 50px 40px;gap:4px;font-size:10px}}
 `;
-window.VC_ANALYST_STUDIO_16155={version:'16.2.0',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
+window.VC_ANALYST_STUDIO_16155={version:'16.2.1',mount,open,refresh,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false})};
 })();
