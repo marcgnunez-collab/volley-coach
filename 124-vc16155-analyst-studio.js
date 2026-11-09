@@ -1,4 +1,4 @@
-/* Volley Coach V16.3.2 · Analysis Pro · Court Orientation Pro
+/* Volley Coach V16.5.0 · Analysis Pro 3.0 · Custom Worksheets and Tactical Lab
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -10,21 +10,35 @@ const fmt=(n,digit=1)=>n==null?'—':`${Number(n).toLocaleString('es-ES',{maximu
 const pct=(a,b)=>b?Math.round(a/b*1000)/10:null;
 const signed=n=>n>0?`+${n}`:String(n);
 const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación',D:'Defensa',F:'Freeball',C:'Cobertura'};
+// Analysis Pro 3.0: five workspaces. Legacy route keys remain as non-visible
+// aliases so internal links and old integrations cannot strand the user.
 const pages={
- overview:['Resumen','Rendimiento general y lectura táctica'],
- players:['Estadísticas','Hoja individual y fundamentos'],
- tactics:['Táctica','Rotaciones, side-out, K1 / K2 y mapas'],
- setter:['Colocador','Distribución, tempo y secuencias'],
- explorer:['Vídeo y acciones','Busca, filtra y revisa evidencias'],
- season:['Temporada','Comparación de partidos y evolución']
+ overview:['Resumen','Lectura rápida del partido'],
+ players:['Estadísticas','Constructor de hojas y fundamentos'],
+ lab:['Laboratorio táctico','Rotaciones, ataque, colocador y secuencias'],
+ athletes:['Jugadores','Fichas individuales y comparador'],
+ explorer:['Vídeo y acciones','Búsqueda y revisión de evidencias'],
+ tactics:['Laboratorio táctico','Compatibilidad con rutas antiguas'],
+ setter:['Laboratorio táctico','Compatibilidad con rutas antiguas'],
+ season:['Temporada','Comparación histórica disponible desde el menú general']
 };
+const mainPages=['overview','players','lab','athletes','explorer'];
 const subpages={
- players:[['sheet','Hoja por jugador'],['profile','Ficha individual'],['compare','Comparador'],['fundamentals','Fundamentos Pro']],
+ players:[['builder','Hojas configurables'],['sheet','Hoja oficial por jugador'],['fundamentals','Fundamentos Pro']],
+ lab:[['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']],
+ athletes:[['profile','Ficha individual'],['compare','Comparador A/B']],
  tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
  setter:[['distribution','Distribución y destinos'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']]
 };
+function routeTo(main,sub){
+ if(main==='tactics')return ['lab',sub==='zones'?'zones':'rotations'];
+ if(main==='setter')return ['lab',['distribution','details','sequences'].includes(sub)?sub:'distribution'];
+ if(main==='players'&&['profile','compare'].includes(sub))return ['athletes',sub];
+ return [main,sub];
+}
+
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
-const state={page:'overview',subpage:{players:'sheet',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',loaded:false,draws:0};
+const state={page:'overview',subpage:{players:'builder',lab:'rotations',athletes:'profile',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',worksheet:{skill:'A',group:'player',reception:'all',sort:'count',columns:['count','kills','errors','blocked','gp','eff','video']},worksheetSavedName:'',worksheetNotice:'',loaded:false,draws:0};
 let host=null,native=null,view=null;
 // Same immutable-for-UI model that painted the current view. Never reused for a
 // fresh refresh or export: scouting data can change in place after a cloud pull.
@@ -726,13 +740,26 @@ function pageDeep(data,surface){
  deepLoading.then(()=>{deepLoading=null;if(inDeepView()&&!state.technical)renderPage()})
   .catch(err=>{deepLoading=null;deepLoadError=String(err.message||err);console.warn('Fundamentos Pro',err);if(inDeepView()&&!state.technical)renderPage()});
 }
+function pageCustomWorksheet(data){
+ const api=window.VC_CUSTOM_WORKSHEETS_1650;
+ if(!api?.render)return '<div class="vc157-panel"><h3>Hojas configurables</h3><p>El módulo de hojas no se ha cargado. Comprueba el archivo 135-vc1650-custom-worksheets.js.</p></div>';
+ state.worksheet=api.sanitize(state.worksheet);
+ return api.render(data,state.worksheet,{pickButton,savedName:state.worksheetSavedName});
+}
+function saveWorksheetExport(){
+ const api=window.VC_CUSTOM_WORKSHEETS_1650,data=paintedModel||dataset(),match=currentMatch();
+ if(!api?.csv||!data||!match)return;
+ const contents=api.csv(data,state.worksheet),blob=new Blob([contents],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download=`volley-coach-hoja-personalizada-${String(match.id).replace(/[^a-zA-Z0-9_-]/g,'_')}.csv`;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
 function renderPage(){
  if(!state.loaded||state.technical)return;
  const surface=$('vc157-content');if(!surface)return;
  const started=perfNow();vc1632Metrics.renderCalls++;
  paintedModel=null;
  diagramDrills.clear();diagramSerial=0;
- const studio=$('vc157-studio');if(studio){studio.dataset.vc1620Setter=String(state.page==='setter'&&state.subpage.setter==='details');studio.dataset.vc1620Season=String(state.page==='season');}
+ const studio=$('vc157-studio');if(studio){studio.dataset.vc1620Setter=String((state.page==='setter'&&state.subpage.setter==='details')||(state.page==='lab'&&state.subpage.lab==='details'));studio.dataset.vc1620Season=String(state.page==='season');}
  const heading=$('vc157-section-title');if(heading)heading.textContent=pages[state.page]?.[0]||'Resumen';
  const meta=$('vc157-sample');
  document.querySelectorAll('#vc157-tabs [data-section]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===state.page)));
@@ -754,10 +781,13 @@ function renderPage(){
  if(inDeepView()){
   pageDeep(data,surface);
  }else if(page==='overview')surface.innerHTML=pageOverview(data);
- else if(page==='players')surface.innerHTML=subpage==='profile'?pagePlayerProfile(data):subpage==='compare'?pagePlayerCompare(data):pagePlayers(data);
+ else if(page==='players')surface.innerHTML=subpage==='builder'?pageCustomWorksheet(data):pagePlayers(data);
+ else if(page==='athletes')surface.innerHTML=subpage==='compare'?pagePlayerCompare(data):pagePlayerProfile(data);
+ else if(page==='lab')surface.innerHTML=subpage==='zones'?pageZones(data):subpage==='distribution'?pageDistribution(data):subpage==='details'?pageSetterDetails(data):subpage==='sequences'?pageSequences(data):pageRotations(data);
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
  else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?pageSetterDetails(data):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
+ const note=$('vc1650-message');if(note&&state.worksheetNotice)note.textContent=state.worksheetNotice;
  state.draws++;measurePaint(started);
 }
 function measurePaint(started){const elapsed=perfNow()-started;vc1632Metrics.renderMs+=elapsed;vc1632Metrics.renderMaxMs=Math.max(vc1632Metrics.renderMaxMs,elapsed)}
@@ -843,17 +873,41 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 2.8 · PERFORMANCE 16.3.2</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 3.0 · V16.5.0</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
- <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${Object.entries(pages).map(([k,[v,sub]])=>`<button type="button" data-section="${k}" aria-selected="false"><b>${v}</b><span>${sub}</span></button>`).join('')}</nav>
+ <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${mainPages.map(k=>`<button type="button" data-section="${k}" aria-selected="false"><b>${pages[k][0]}</b><span>${pages[k][1]}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 2.8 · Court Orientation Pro. Campo táctico unificado, flechas reales por zonas y tablas de análisis con desplazamiento lateral corregido. Estadísticas calculadas sin modificar el scouting y con acciones trazables. La Hoja Oficial conserva su generador y estructura.</p></div>`;
+ <p class="vc157-footer">Analysis Pro 3.0 · Cinco espacios de trabajo, laboratorio táctico y hojas configurables guardadas localmente. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
+  // Editing the view name must not refresh the page on blur: doing so would
+  // detach the Save button just as the user clicks it.
+  if(id==='vc1650-name')return;
+  if(id.startsWith('vc1650-')){
+   const api=window.VC_CUSTOM_WORKSHEETS_1650;if(!api)return;
+   if(id==='vc1650-views'){
+    const choice=api.views().find(x=>x.name===t.value);
+    state.worksheetSavedName=choice?.name||'';
+    if(choice)state.worksheet=api.sanitize(choice.config);
+    state.worksheetNotice='';renderPage();return;
+   }
+   if(['vc1650-skill','vc1650-group','vc1650-reception','vc1650-sort'].includes(id)){
+    state.worksheet={...state.worksheet,[id.slice(7)]:t.value};
+    state.worksheet=api.sanitize(state.worksheet);
+    state.worksheetSavedName='';state.worksheetNotice='';state.selected=[];renderInspector();renderPage();return;
+   }
+  }
+  if(t.matches?.('[data-vc1650-col]')){
+   const col=t.dataset.vc1650Col;
+   const cols=new Set(state.worksheet.columns);
+   if(t.checked)cols.add(col);else cols.delete(col);
+   state.worksheet=window.VC_CUSTOM_WORKSHEETS_1650.sanitize({...state.worksheet,columns:[...cols]});
+   state.worksheetSavedName='';state.worksheetNotice='';renderPage();return;
+  }
   if(id==='vc1626-player'){state.profilePlayer=t.value;state.selected=[];renderInspector();renderPage();return}
   if(id==='vc1626-player-a'){state.comparePlayerA=t.value;if(state.comparePlayerA===state.comparePlayerB)state.comparePlayerB='';state.selected=[];renderInspector();renderPage();return}
   if(id==='vc1626-player-b'){state.comparePlayerB=t.value;if(state.comparePlayerB===state.comparePlayerA)state.comparePlayerA='';state.selected=[];renderInspector();renderPage();return}
@@ -883,13 +937,18 @@ function mount(){
  });
  host.addEventListener('click',e=>{
   const profile=e.target.closest('[data-vc1626-open]');
-  if(profile){state.profilePlayer=profile.dataset.vc1626Open;state.page='players';state.subpage.players='profile';state.selected=[];renderInspector();renderPage();return}
+  if(profile){state.profilePlayer=profile.dataset.vc1626Open;state.page='athletes';state.subpage.athletes='profile';state.selected=[];renderInspector();renderPage();return}
   const history=e.target.closest('[data-vc1626-history]');
-  if(history){const chosen=matches().find(m=>String(m.id)===history.dataset.vc1626History);if(chosen){state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.page='players';state.subpage.players='profile';state.selected=[];setNativeSelection(state.match);renderInspector();buildHeader();renderPage()}return}
+  if(history){const chosen=matches().find(m=>String(m.id)===history.dataset.vc1626History);if(chosen){state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.page='athletes';state.subpage.athletes='profile';state.selected=[];setNativeSelection(state.match);renderInspector();buildHeader();renderPage()}return}
   const go=e.target.closest('[data-vc1625-page]');
-  if(go&&pages[go.dataset.vc1625Page]){state.page=go.dataset.vc1625Page;if(go.dataset.vc1625Subpage&&subpages[state.page]?.some(([key])=>key===go.dataset.vc1625Subpage))state.subpage[state.page]=go.dataset.vc1625Subpage;renderPage();return;}
+  if(go&&pages[go.dataset.vc1625Page]){
+   const [destination,sub]=routeTo(go.dataset.vc1625Page,go.dataset.vc1625Subpage);
+   state.page=destination;
+   if(sub&&subpages[state.page]?.some(([key])=>key===sub))state.subpage[state.page]=sub;
+   renderPage();return;
+  }
   const rotation=e.target.closest('[data-vc1625-rotation]');
-  if(rotation){state.rotation=rotation.dataset.vc1625Rotation;state.page='tactics';state.subpage.tactics='rotations';state.selected=[];renderInspector();buildHeader();renderPage();return;}
+  if(rotation){state.rotation=rotation.dataset.vc1625Rotation;state.page='lab';state.subpage.lab='rotations';state.selected=[];renderInspector();buildHeader();renderPage();return;}
   const hit=e.target.closest('[data-vc1622-drill]');
   if(hit){const obj=diagramDrills.get(hit.dataset.vc1622Drill);if(obj)selectKeys(obj.keys,obj.title);return;}
   const t=e.target.closest('button');if(!t)return;
@@ -897,7 +956,7 @@ function mount(){
   if(t.dataset.vc1623Compare){const key=decodeURIComponent(t.dataset.vc1623Key||'');if(t.dataset.vc1623Compare==='A')state.seqCompareA=key;else state.seqCompareB=key;renderPage();return;}
   if(t.id==='vc1623-export'){exportSequenceCsv();return;}
   if(t.hasAttribute('data-vc1622-rotation')){state.rotation=t.dataset.vc1622Rotation;state.selected=[];renderInspector();buildHeader();renderPage();return;}
-  if(t.dataset.vc171Skill){if(state.page==='setter'&&t.dataset.vc171Skill!=='E'){state.page='players';state.subpage.players='fundamentals';}state.deepSkill=t.dataset.vc171Skill;state.deepDim='player';state.deepPlayer='';renderPage();return}
+  if(t.dataset.vc171Skill){if(['setter','lab'].includes(state.page)&&t.dataset.vc171Skill!=='E'){state.page='players';state.subpage.players='fundamentals';}state.deepSkill=t.dataset.vc171Skill;state.deepDim='player';state.deepPlayer='';renderPage();return}
   if(t.id==='vc171-retry'){deepLoadError='';renderPage();return}
   if(t.dataset.seasonMatch){
    const chosen=matches().find(m=>String(m.id)===String(t.dataset.seasonMatch));
@@ -905,6 +964,15 @@ function mount(){
    state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
    state.page='overview';state.selected=[];state.selectedTitle='Selecciona una cifra';setNativeSelection(state.match);
    renderInspector();buildHeader();renderPage();return;
+  }
+  if(t.id==='vc1650-save'||t.id==='vc1650-delete'||t.id==='vc1650-export'){
+   const api=window.VC_CUSTOM_WORKSHEETS_1650;if(!api)return;
+   if(t.id==='vc1650-export'){saveWorksheetExport();return;}
+   const name=t.id==='vc1650-save'?($('vc1650-name')?.value||''):state.worksheetSavedName;
+   const result=t.id==='vc1650-save'?api.saveView(name,state.worksheet):api.removeView(name);
+   state.worksheetNotice=result.message;
+   if(result.ok)state.worksheetSavedName=t.id==='vc1650-save'?String(name).trim().slice(0,50):'';
+   renderPage();return;
   }
   if(t.dataset.pick){let keys=[];try{keys=JSON.parse(decodeURIComponent(t.dataset.pick))}catch(_){ }selectKeys(keys,t.dataset.pickTitle);return}
   switch(t.id){
@@ -1247,7 +1315,41 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 #vc157-studio .vc1628-setter-court{width:100%;min-width:480px;max-height:none;aspect-ratio:720/440;object-fit:contain}
 #vc157-studio .vc1628-real-wrap .vc1622-route-hit:hover{stroke-opacity:.22;stroke:#205f86;cursor:pointer}
 #vc157-studio .vc1628-real-wrap .vc1622-route-hit:focus-visible{stroke:#1c6494;stroke-opacity:.5;outline:none}
+
+/* V16.5.0 · Five workspaces and custom worksheet — scoped to Analysis Pro. */
+#vc157-studio .vc157-tabs{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#vc157-studio .vc157-tabs button{min-height:49px!important}
+#vc157-studio .vc1650-sheet{display:grid;gap:15px}
+#vc157-studio .vc1650-eyebrow{display:block;font-size:10px;letter-spacing:.11em;color:#2a76a6;font-weight:850;margin-bottom:6px}
+#vc157-studio .vc1650-config{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:15px;border:1px solid #d7e4ed;border-radius:12px;background:#f5f9fc}
+#vc157-studio .vc1650-config label,#vc157-studio .vc1650-savebar label{display:grid;gap:6px;font-size:11px;color:#4b6b83;font-weight:800;min-width:0}
+#vc157-studio .vc1650-config label{font-size:10px;letter-spacing:.025em;text-transform:uppercase}
+#vc157-studio .vc1650-config select:disabled{opacity:.6;cursor:not-allowed}
+#vc157-studio .vc1650-columnpanel{border:1px solid #dce7ef;border-radius:12px;padding:12px;background:#fff}
+#vc157-studio .vc1650-columnhead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap}
+#vc157-studio .vc1650-columnhead b{font-size:12px;color:#183d58}
+#vc157-studio .vc1650-columnhead span{font-size:10px;color:#6c879a}
+#vc157-studio .vc1650-checks{display:flex;flex-wrap:wrap;gap:7px}
+#vc157-studio .vc1650-check{display:inline-flex;gap:6px;align-items:center;padding:7px 9px;border:1px solid #dbe7f0;border-radius:8px;background:#f7fafc;color:#2b5571;font-size:10px;font-weight:700;cursor:pointer}
+#vc157-studio .vc1650-check input{width:15px;height:15px;margin:0;accent-color:#1c689d}
+#vc157-studio .vc1650-savebar{display:grid;grid-template-columns:minmax(130px,1fr) minmax(145px,1fr) auto auto auto;gap:8px;align-items:end}
+#vc157-studio .vc1650-savebar input{height:42px;width:100%;padding:8px 10px;border:1px solid #cbdbe6;border-radius:10px;color:#193e5d;background:white;font:700 12px system-ui}
+#vc157-studio .vc1650-savebar button{min-height:42px!important;background:#edf6fd!important;color:#1c628f!important;border:1px solid #cddfec!important;border-radius:10px!important;padding:8px 11px!important;font-size:11px!important;font-weight:800!important;white-space:nowrap}
+#vc157-studio #vc1650-save{background:#1a659a!important;border-color:#1a659a!important;color:#fff!important}
+#vc157-studio .vc1650-savebar button:disabled{opacity:.5;cursor:not-allowed}
+#vc157-studio .vc1650-summary{display:flex;gap:8px;flex-wrap:wrap}
+#vc157-studio .vc1650-summary span{padding:9px 11px;border:1px solid #dce7ef;border-radius:9px;background:#f8fbfd;color:#53718a;font-size:11px}
+#vc157-studio .vc1650-summary strong{color:#153f60;font-size:15px;margin-right:4px}
+#vc157-studio .vc1650-tablewrap{max-width:100%;overscroll-behavior-x:contain}
+#vc157-studio .vc1650-table{border-collapse:separate;border-spacing:0;min-width:620px}
+#vc157-studio .vc1650-table th:first-child,#vc157-studio .vc1650-table td:first-child{position:static!important;left:auto!important;z-index:auto!important;box-shadow:none!important}
+#vc157-studio .vc1650-table tbody th{font-weight:750;color:#164b73;background:#fff;text-align:left;padding:9px 10px;border-bottom:1px solid #e7eef4;white-space:nowrap}
+#vc157-studio .vc1650-num{font-variant-numeric:tabular-nums;white-space:nowrap}
+#vc157-studio .vc1650-message{border-top:1px solid #e5edf3;padding-top:8px;color:#587891!important;margin:0!important}
+@media(max-width:1200px){#vc157-studio .vc1650-config{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1650-savebar{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1650-savebar button{width:100%}}
+@media(max-width:850px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:600px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}#vc157-studio .vc1650-config,#vc157-studio .vc1650-savebar{grid-template-columns:1fr}}
 `;
 /* Scoped visual overrides appended to the existing stylesheet. */
-window.VC_ANALYST_STUDIO_16155={version:'16.3.2',mount,open,refresh,onTeamChanged,setPage:(p)=>{if(pages[p]){state.page=p;renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
+window.VC_ANALYST_STUDIO_16155={version:'16.5.0',mount,open,refresh,onTeamChanged,setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
 })();
