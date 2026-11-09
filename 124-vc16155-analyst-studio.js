@@ -19,11 +19,12 @@ const pages={
  athletes:['Jugadores','Fichas individuales y comparador'],
  explorer:['Vídeo y acciones','Búsqueda y revisión de evidencias'],
  comparisons:['Comparativas','Partidos, jugadores y rivales'],
+ reports:['Informes Pro','Partidos, jugadores y rivales · PDF propio'],
  tactics:['Laboratorio táctico','Compatibilidad con rutas antiguas'],
  setter:['Laboratorio táctico','Compatibilidad con rutas antiguas'],
  season:['Temporada','Comparación histórica disponible desde el menú general']
 };
-const mainPages=['overview','players','lab','athletes','explorer','comparisons'];
+const mainPages=['overview','players','lab','athletes','explorer','comparisons','reports'];
 const subpages={
  players:[['builder','Hojas configurables'],['sheet','Hoja oficial por jugador'],['fundamentals','Fundamentos Pro']],
  lab:[['workbench','Mesa táctica'],['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']],
@@ -39,6 +40,31 @@ function routeTo(main,sub){
  return [main,sub];
 }
 
+// V16.5.7: report preferences contain only presentation flags, never match data.
+function reportPreferences(){
+ return window.VC_REPORTS_1657?.loadPrefs?.()||{kind:'match',sections:{}}
+}
+function saveReportPreferences(){
+ window.VC_REPORTS_1657?.savePrefs?.(state.report);
+}
+let reportEntries=[];
+function exportReportFile(type){
+ const api=window.VC_REPORTS_1657;
+ if(!api)return;
+ const plan=api.make(reportEntries,state.report),notice=$('vc1657-status');
+ if(plan.error){if(notice)notice.textContent=plan.error;return;}
+ const button=$(type==='pdf'?'vc1657-pdf':'vc1657-html');if(button)button.disabled=true;
+ const task=async()=>{
+  if(type==='pdf'){
+   if(!window.jspdf?.jsPDF){if(!window.v141EnsurePdfLibraries)throw new Error('Motor PDF no disponible; utiliza la descarga HTML.');await window.v141EnsurePdfLibraries();}
+   api.createPDF(plan,window.jspdf?.jsPDF).save(api.filename(plan,'pdf'));
+  }else{
+   const blob=new Blob([api.htmlDocument(plan)],{type:'text/html;charset=utf-8'});
+   const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=api.filename(plan,'html');document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);
+  }
+ };
+ task().then(()=>{if(notice)notice.textContent=type==='pdf'?'PDF generado.':'HTML descargado; también puedes imprimirlo como PDF desde el navegador.'}).catch(error=>{console.warn('Informes Pro',error);if(notice)notice.textContent=`Error al exportar: ${error.message||error}. Puedes utilizar el HTML como alternativa.`}).finally(()=>{if(button?.isConnected)button.disabled=false});
+}
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
 const state={page:'overview',subpage:{players:'builder',lab:'workbench',athletes:'profile',comparisons:'matches',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',labFilters:{reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''},selected:[],selectedTitle:'Selecciona una cifra de la tabla',worksheet:{skill:'A',group:'player',reception:'all',sort:'count',columns:['count','kills','errors','blocked','gp','eff','video']},worksheetSavedName:'',worksheetNotice:'',compareSelection:{matchA:'',matchB:'',playerA:'',playerB:''},loaded:false,draws:0};
 let host=null,native=null,view=null;
@@ -849,7 +875,7 @@ function renderPage(){
  const started=perfNow();vc1632Metrics.renderCalls++;
  paintedModel=null;
  diagramDrills.clear();diagramSerial=0;
- const studio=$('vc157-studio');if(studio)studio.dataset.vc1656Comparisons=String(state.page==='comparisons');if(studio){studio.dataset.vc1620Setter=String((state.page==='setter'&&state.subpage.setter==='details')||(state.page==='lab'&&state.subpage.lab==='details'));studio.dataset.vc1620Season=String(state.page==='season');}
+ const studio=$('vc157-studio');if(studio){studio.dataset.vc1656Comparisons=String(state.page==='comparisons');studio.dataset.vc1657Reports=String(state.page==='reports');}if(studio){studio.dataset.vc1620Setter=String((state.page==='setter'&&state.subpage.setter==='details')||(state.page==='lab'&&state.subpage.lab==='details'));studio.dataset.vc1620Season=String(state.page==='season');}
  const heading=$('vc157-section-title');if(heading)heading.textContent=pages[state.page]?.[0]||'Resumen';
  const meta=$('vc157-sample');
  document.querySelectorAll('#vc157-tabs [data-section]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===state.page)));
@@ -858,6 +884,12 @@ function renderPage(){
   const options=subpages[state.page]||[];
   sub.hidden=options.length===0;
   sub.innerHTML=options.map(([key,label])=>`<button type="button" data-subpage="${key}" aria-pressed="${state.subpage[state.page]===key}">${html(label)}</button>`).join('');
+ }
+ if(state.page==='reports'){
+  const api=window.VC_REPORTS_1657;reportEntries=comparisonEntries();
+  if(meta)meta.textContent=`${reportEntries.length} scoutings accesibles · Informes históricos solo lectura`;
+  surface.innerHTML=api?.render?api.render(reportEntries,state.report):'<div class="vc157-panel">No se ha cargado el módulo 140 de Informes Pro.</div>';
+  state.draws++;measurePaint(started);return;
  }
  if(state.page==='comparisons'){
   const core=window.VC_COMPARISONS_1656,entries=comparisonEntries();
@@ -965,15 +997,19 @@ function onTeamChanged(){
  state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
  state.labFilters={reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''};
  state.selected=[];state.selectedTitle='Selecciona una cifra de la tabla';
+ state.report={...state.report,matchId:'',compareId:'',playerKey:'',rivalKey:''};
  if(state.loaded){renderInspector();refresh()}
 }
 function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
+ const reports=window.VC_REPORTS_1657;
+ if(reports?.css&&!$('vc1657-style')){const st=document.createElement('style');st.id='vc1657-style';st.textContent=reports.css;document.head.appendChild(st);}
+ state.report=reportPreferences();
  const comparative=window.VC_COMPARISONS_1656;
  if(comparative?.css&&!$('vc1656-style')){const style=document.createElement('style');style.id='vc1656-style';style.textContent=comparative.css;document.head.appendChild(style);}
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 3.0 · V16.5.6</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 3.0 · V16.5.7</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${mainPages.map(k=>`<button type="button" data-section="${k}" aria-selected="false"><b>${pages[k][0]}</b><span>${pages[k][1]}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
@@ -982,8 +1018,28 @@ function mount(){
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;if(state.page==='comparisons'){state.selected=[];state.selectedTitle='Selecciona un scouting del historial';renderInspector();}renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
+ host.addEventListener('input',e=>{
+  const t=e.target;if(!['vc1657-title','vc1657-notes'].includes(t.id))return;
+  const key=t.id==='vc1657-title'?'title':'notes';state.report={...state.report,[key]:t.value};
+  const api=window.VC_REPORTS_1657,preview=$('vc1657-preview-body');if(api&&preview)preview.innerHTML=api.reportBody(api.make(reportEntries,state.report));
+ });
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
+  if(id==='vc1657-title'||id==='vc1657-notes')return;
+  if(id==='vc1657-kind'){
+   state.report={...state.report,kind:t.value,matchId:'',compareId:'',playerKey:'',rivalKey:''};saveReportPreferences();renderPage();return;
+  }
+  if(id==='vc1657-subject'){
+   const field=state.report.kind==='match'?'matchId':state.report.kind==='player'?'playerKey':'rivalKey';
+   state.report={...state.report,[field]:t.value,compareId:field==='matchId'?'':state.report.compareId};renderPage();return;
+  }
+  if(id==='vc1657-compare'){state.report={...state.report,compareId:t.value};renderPage();return;}
+  if(t.matches?.('[data-vc1657-section]')){
+   const key=t.dataset.vc1657Section;
+   state.report={...state.report,sections:{...state.report.sections,[key]:t.checked}};
+   saveReportPreferences();renderPage();return;
+  }
+
   // Editing the view name must not refresh the page on blur: doing so would
   // detach the Save button just as the user clicks it.
   if(t.matches?.('[data-vc1651-filter]')){
@@ -1055,6 +1111,8 @@ function mount(){
   refresh();
  });
  host.addEventListener('click',e=>{
+  if(e.target.closest('#vc1657-pdf')){exportReportFile('pdf');return;}
+  if(e.target.closest('#vc1657-html')){exportReportFile('html');return;}
   const labReset=e.target.closest('#vc1651-reset');
   if(labReset){state.labFilters=window.VC_TACTICAL_LAB_1651.blank();state.selected=[];state.selectedTitle='Selecciona una cifra o una zona';renderInspector();renderPage();return;}
   const labOpen=e.target.closest('[data-vc1651-subpage]');
@@ -1504,5 +1562,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:520px){#vc157-studio .vc1651-filtergrid,#vc157-studio .vc1651-metrics{grid-template-columns:1fr}#vc157-studio .vc1651-courtwrap svg{min-width:470px}}
 `;
 /* Scoped visual overrides appended to the existing stylesheet. */
-window.VC_ANALYST_STUDIO_16155={version:'16.5.6',mount,open,refresh,onTeamChanged,videoSelection:()=>({matchId:String(currentMatch()?.id||''),page:state.page,subpage:state.subpage[state.page]||'',selected:state.selected.map(r=>({key:String(r.key),video:!!r.video,code:String(r.code||r.skill+r.ev||''),player:String(r.player||''),set:r.set,rally:r.r?.index||''})),title:state.selectedTitle}),setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
+window.VC_ANALYST_STUDIO_16155={version:'16.5.7',mount,open,refresh,onTeamChanged,videoSelection:()=>({matchId:String(currentMatch()?.id||''),page:state.page,subpage:state.subpage[state.page]||'',selected:state.selected.map(r=>({key:String(r.key),video:!!r.video,code:String(r.code||r.skill+r.ev||''),player:String(r.player||''),set:r.set,rally:r.r?.index||''})),title:state.selectedTitle}),setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
 })();
