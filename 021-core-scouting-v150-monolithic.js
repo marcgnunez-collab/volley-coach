@@ -5088,13 +5088,13 @@ function v880ZoneBounds(zone){
 function v880XYToSubzone(x,y,zone=v880XYToZone(x,y)){
   const b=v880ZoneBounds(zone);if(!b)return '';
   const right=Number(x)>=b.x0+0.5,front=Number(y)>=b.y0+0.5;
-  if(front&&!right)return 'A';if(front&&right)return 'B';if(!front&&!right)return 'D';return 'C';
+  if(front&&!right)return 'C';if(front&&right)return 'B';if(!front&&!right)return 'D';return 'A';
 }
 function v880XYToToken(x,y){const z=v880XYToZone(x,y);return String(z)+v880XYToSubzone(x,y,z)}
 function v880ZoneCenter(token){
   const z=v880BaseToken(token),s=v880SubToken(token),b=v880ZoneBounds(z);if(!b)return null;
   if(!s)return{x:b.x0+0.5,y:b.y0+0.5};
-  const off={A:[0.25,0.75],B:[0.75,0.75],D:[0.25,0.25],C:[0.75,0.25]}[s];
+  const off={C:[0.25,0.75],B:[0.75,0.75],D:[0.25,0.25],A:[0.75,0.25]}[s];
   return{x:b.x0+off[0],y:b.y0+off[1]};
 }
 function v880FormatCoord(c){return c?`x ${Number(c.x).toFixed(2)} · y ${Number(c.y).toFixed(2)}`:'sin coordenada exacta'}
@@ -5233,7 +5233,7 @@ function v880SelectedCoord(which){return which==='origin'?v880OriginCoord:v880De
 function v880ZoneCell(zone,which){
   const selected=v880Selection(which),base=v880BaseToken(selected);
   if(v880CourtPrecision==='zone')return `<div class="v880-zone-cell ${String(base)===String(zone)?'selected':''}"><button type="button" class="v880-zone-main ${String(base)===String(zone)?'selected':''}" onclick="scoutV880PickLocation('${which}','${zone}')">Z${zone}</button></div>`;
-  const letters=['A','B','D','C'];
+  const letters=['C','B','D','A'];
   return `<div class="v880-zone-cell ${String(base)===String(zone)?'selected':''}"><span class="v880-zone-number">${zone}</span><div class="v880-subgrid">${letters.map(s=>`<button type="button" class="${selected===String(zone)+s?'selected':''}" onclick="scoutV880PickLocation('${which}','${zone+s}')">${s}</button>`).join('')}</div></div>`;
 }
 function v880RenderCoordinateLayer(box,which){
@@ -5326,7 +5326,7 @@ window.scoutExportCSV=function(id){
 };
 
 window.VC_DATAVOLLEY_COURT={version:V880_VERSION,zones:[...V880_ZONE_ORDER],subzones:['A','B','C','D'],
-  subzoneOrientation:{A:'front-left',B:'front-right',D:'rear-left',C:'rear-right'},xyToZone:v880XYToZone,xyToSubzone:v880XYToSubzone,xyToToken:v880XYToToken,zoneCenter:v880ZoneCenter,
+  subzoneOrientation:{A:'rear-right',B:'front-right',C:'front-left',D:'rear-left'},xyToZone:v880XYToZone,xyToSubzone:v880XYToSubzone,xyToToken:v880XYToToken,zoneCenter:v880ZoneCenter,
   coneSyntax:'>C1 ... >C8',note:'contactZone is separate from DataVolley trajectory for reception/dig'};
 if(window.VC_SCOUT_CORE){window.VC_SCOUT_CORE.version=V880_VERSION;window.VC_SCOUT_CORE.datavolleyCourt=window.VC_DATAVOLLEY_COURT;window.VC_SCOUT_CORE.parse=(raw,m=scoutActive(),oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);window.VC_SCOUT_CORE.register=(raw,m=scoutActive())=>v857RegisterRaw(raw,m)}
 scoutUpdateAdvancedFields();

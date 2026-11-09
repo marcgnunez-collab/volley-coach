@@ -1,4 +1,4 @@
-/* Volley Coach V17.0.1 · Professional Workspace visual fix.
+/* Volley Coach V17.0.2 · Professional Workspace brand & layout polish.
  * Navigation and presentation adapter ONLY. Does not read/write local data, Supabase,
  * scouting, media or training engines. Keeps all original view IDs and APIs intact.
  */
@@ -66,7 +66,7 @@ function makeSidebar(doc){
  const aside=doc.getElementById('v11-sidebar');if(!aside)return false;
  const footer=aside.querySelector('.v11-sidebar-footer');
  const wrapper=doc.createElement('div');wrapper.className='vc17-sidebar-frame';
- wrapper.innerHTML=`<div class="vc17-brand"><div class="vc17-brand-mark" aria-hidden="true"><b>V</b><i>C</i></div><div><strong>Volley Coach</strong><span>PROFESSIONAL WORKSPACE</span></div><button type="button" class="vc17-side-close" aria-label="Cerrar menú" data-vc17-close>×</button></div>
+ wrapper.innerHTML=`<div class="vc17-brand"><div class="vc17-brand-mark" aria-hidden="true"><img src="./vc-logo-mark.png?v=17.0.2" alt=""></div><div><strong>Volley Coach</strong><span>PROFESSIONAL WORKSPACE</span></div><button type="button" class="vc17-side-close" aria-label="Cerrar menú" data-vc17-close>×</button></div>
  <nav class="vc17-primary-nav" aria-label="Áreas de la aplicación">${GROUPS.map(g=>`<div class="vc17-nav-group" data-vc17-group="${g.id}">
   <button type="button" class="vc17-nav-main" data-vc17-main="${g.id}" aria-expanded="false"><span class="vc17-nav-icon" aria-hidden="true">${navIcon(g.id)}</span><span>${g.label}</span>${g.items.length?'<span class="vc17-chevron" aria-hidden="true">⌄</span>':''}</button>
   ${g.items.length?`<div class="vc17-subnav" role="group" aria-label="${g.label}">${g.items.map(x=>`<button type="button" data-vc17-view="${x[0]}">${x[1]}</button>`).join('')}</div>`:''}</div>`).join('')}</nav>`;
@@ -93,7 +93,7 @@ function makeContext(doc){
 function makeDashboard(doc){
  const dashboard=doc.getElementById('dashboard');if(!dashboard)return;
  const home=doc.createElement('div');home.id='vc17-dashboard';
- home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.0.1</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><span>VC</span><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
+ home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.0.2</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
  <div class="vc17-section-header"><div><span>ÁREAS DE TRABAJO</span><h3>¿Qué necesitas hacer?</h3></div></div>
  <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${navIcon(g.id)}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
  <div class="vc17-section-header vc17-space"><div><span>ESTADO DEL EQUIPO</span><h3>Actividad y accesos rápidos</h3></div><button type="button" class="vc17-text-button" id="vc17-refresh">Actualizar</button></div>
