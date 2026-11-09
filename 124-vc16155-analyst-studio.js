@@ -869,7 +869,23 @@ function saveWorksheetExport(){
  const a=document.createElement('a');a.href=url;a.download=`volley-coach-hoja-personalizada-${String(match.id).replace(/[^a-zA-Z0-9_-]/g,'_')}.csv`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
+let vc1661ReportPreviewTimer=null,vc1661PreviewRenders=0;
+function vc1661PreviewSchedule(){
+ if(vc1661ReportPreviewTimer!==null)clearTimeout(vc1661ReportPreviewTimer);
+ vc1661ReportPreviewTimer=setTimeout(()=>{
+  vc1661ReportPreviewTimer=null;
+  if(state.page!=='reports'||!view?.classList.contains('active'))return;
+  const preview=$('vc1657-preview-body'),api=window.VC_REPORTS_1657;
+  if(!api||!preview)return;
+  preview.innerHTML=api.reportBody(api.make(reportEntries,state.report));
+  vc1661PreviewRenders++;
+ },180);
+}
+function vc1661PreviewCancel(){
+ if(vc1661ReportPreviewTimer!==null){clearTimeout(vc1661ReportPreviewTimer);vc1661ReportPreviewTimer=null;}
+}
 function renderPage(){
+ vc1661PreviewCancel();
  if(!state.loaded||state.technical)return;
  const surface=$('vc157-content');if(!surface)return;
  const started=perfNow();vc1632Metrics.renderCalls++;
@@ -1021,7 +1037,7 @@ function mount(){
  host.addEventListener('input',e=>{
   const t=e.target;if(!['vc1657-title','vc1657-notes'].includes(t.id))return;
   const key=t.id==='vc1657-title'?'title':'notes';state.report={...state.report,[key]:t.value};
-  const api=window.VC_REPORTS_1657,preview=$('vc1657-preview-body');if(api&&preview)preview.innerHTML=api.reportBody(api.make(reportEntries,state.report));
+  vc1661PreviewSchedule();
  });
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;

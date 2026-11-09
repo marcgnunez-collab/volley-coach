@@ -145,7 +145,40 @@ document.addEventListener('keydown',event=>{
 });
 $('vc-review-pro-timeline')?.addEventListener('pointercancel',()=>{state.dragging=false});
 $('vc-review-pro-timeline')?.addEventListener('blur',()=>{state.dragging=false});
-setInterval(refresh,450);
-rebuildMarks();refresh();
-window.VC_VIDEO_REVIEW_PRO={version:'16.0.3.5',diagnostics:()=>({source:activeSource(),marks:state.marks.length,available:currentData().available,performance:{updates:state.updates,skipped:state.skipped}}),refresh};
+// V16.6.1: adaptive, self-scheduled UI refresh. Does not change the media clock,
+// recording, delay engine, or playback; only the read-only labels and timeline.
+let vc1661Timer=null,vc1661NextMs=5000,vc1661WakePending=false;
+const vc1661Active=()=>root.classList.contains('active')&&document.visibilityState!=='hidden';
+function vc1661Cadence(){
+ if(!vc1661Active())return 5000;
+ const d=currentData();
+ return d.playing?450:1400;
+}
+function vc1661Tick(){
+ vc1661Timer=null;
+ refresh();
+ vc1661NextMs=vc1661Cadence();
+ vc1661Timer=setTimeout(vc1661Tick,vc1661NextMs);
+}
+function vc1661Wake(){
+ if(vc1661WakePending)return;
+ vc1661WakePending=true;
+ queueMicrotask(()=>{
+  vc1661WakePending=false;
+  if(vc1661Timer!==null)clearTimeout(vc1661Timer);
+  vc1661Timer=null;
+  vc1661Tick();
+ });
+}
+for(const name of ['play','pause','seeking','seeked','loadedmetadata','durationchange','ratechange','ended']){
+ video()?.addEventListener(name,vc1661Wake,{passive:true});
+}
+new MutationObserver(vc1661Wake).observe(root,{attributes:true,attributeFilter:['class']});
+document.addEventListener('visibilitychange',vc1661Wake);
+root.addEventListener('change',e=>{if(e.target.closest?.('[id^="v117-review-source-"]'))vc1661Wake()});
+// Mode changes may be made by buttons. The next refresh is immediate but
+// does not intercept source selection or the normal event handlers.
+root.addEventListener('click',e=>{if(e.target.closest?.('[data-vc1642-mode],[data-vc1642-action],[id^="v117-review-source-"]'))vc1661Wake()});
+rebuildMarks();vc1661Tick();
+window.VC_VIDEO_REVIEW_PRO={version:'16.6.1',diagnostics:()=>({source:activeSource(),marks:state.marks.length,available:currentData().available,performance:{updates:state.updates,skipped:state.skipped,pollMs:vc1661NextMs,active:vc1661Active()}}),refresh,refreshNow:vc1661Wake};
 })();

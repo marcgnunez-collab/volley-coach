@@ -139,7 +139,16 @@ body.v158-view-only #vc1660-bench .vc1660-review{display:none!important}
     $('vc155-match')?.addEventListener('change',()=>{lastSignature='';render(true)});
     root.document.addEventListener('visibilitychange',()=>{if(!root.document.hidden)render(true)});
     root.addEventListener('focus',()=>render(true));
-    root.setInterval(()=>{if($('vc155-bench')?.classList.contains('active')){try{render()}catch(e){const msg=String(e?.message||e);if(lastError!==msg){lastError=msg;console.warn('Bench decision center',e)}}}},2200);
+    // V16.6.1: idle pages no longer execute the short-interval bench loop.
+    // The view observer forces an immediate refresh upon entering the bench.
+    const benchLoop=()=>{
+      const on=$('vc155-bench')?.classList.contains('active')&&!root.document.hidden;
+      if(on){try{render()}catch(e){const msg=String(e?.message||e);if(lastError!==msg){lastError=msg;console.warn('Bench decision center',e)}}}
+      root.setTimeout(benchLoop,on?2200:12000);
+    };
+    new MutationObserver(()=>{if($('vc155-bench')?.classList.contains('active'))render(true)})
+      .observe(bench,{attributes:true,attributeFilter:['class']});
+    root.setTimeout(benchLoop,2200);
     render(true);return true;
   }
   root.VC_BENCH_LIVE_1660={...api,render,review,diagnostics:()=>({version:api.version,initialized,window:windowSize,visible:visibleRows.length,rendered:!!$('vc1660-bench')})};
