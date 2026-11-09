@@ -1,4 +1,4 @@
-/* Volley Coach V17.0 · Professional Workspace.
+/* Volley Coach V17.0.1 · Professional Workspace visual fix.
  * Navigation and presentation adapter ONLY. Does not read/write local data, Supabase,
  * scouting, media or training engines. Keeps all original view IDs and APIs intact.
  */
@@ -50,13 +50,25 @@ function statusFromDOM(doc){
   plannedMinutes:cleanString($('dash-current-time')?.textContent)||'—'};
 }
 function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function navIcon(id){
+ const paths={
+ home:'<path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/>',
+ training:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+ matches:'<circle cx="12" cy="12" r="9"/><path d="M12 3 6 8l2 7 7 2 6-5M6 8 3 11M15 17l-1 4"/>',
+ analysis:'<path d="M4 20V12M10 20V8M16 20V4M22 20V10"/><path d="M2 21h22"/>',
+ video:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 8 6 4-6 4z"/>',
+ team:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6M21 20v-2a5 5 0 0 0-4-4.8"/>',
+ management:'<circle cx="12" cy="12" r="3"/><path d="M4 12a8 8 0 0 1 16 0 8 8 0 0 1-16 0z"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'
+ };
+ return '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[id]||paths.home)+'</svg>';
+}
 function makeSidebar(doc){
  const aside=doc.getElementById('v11-sidebar');if(!aside)return false;
  const footer=aside.querySelector('.v11-sidebar-footer');
  const wrapper=doc.createElement('div');wrapper.className='vc17-sidebar-frame';
  wrapper.innerHTML=`<div class="vc17-brand"><div class="vc17-brand-mark" aria-hidden="true"><b>V</b><i>C</i></div><div><strong>Volley Coach</strong><span>PROFESSIONAL WORKSPACE</span></div><button type="button" class="vc17-side-close" aria-label="Cerrar menú" data-vc17-close>×</button></div>
  <nav class="vc17-primary-nav" aria-label="Áreas de la aplicación">${GROUPS.map(g=>`<div class="vc17-nav-group" data-vc17-group="${g.id}">
-  <button type="button" class="vc17-nav-main" data-vc17-main="${g.id}" aria-expanded="false"><span class="vc17-nav-icon" aria-hidden="true">${g.icon}</span><span>${g.label}</span>${g.items.length?'<span class="vc17-chevron" aria-hidden="true">⌄</span>':''}</button>
+  <button type="button" class="vc17-nav-main" data-vc17-main="${g.id}" aria-expanded="false"><span class="vc17-nav-icon" aria-hidden="true">${navIcon(g.id)}</span><span>${g.label}</span>${g.items.length?'<span class="vc17-chevron" aria-hidden="true">⌄</span>':''}</button>
   ${g.items.length?`<div class="vc17-subnav" role="group" aria-label="${g.label}">${g.items.map(x=>`<button type="button" data-vc17-view="${x[0]}">${x[1]}</button>`).join('')}</div>`:''}</div>`).join('')}</nav>`;
  aside.replaceChildren(wrapper);
  if(footer){footer.classList.add('vc17-footer');aside.appendChild(footer)}
@@ -81,9 +93,9 @@ function makeContext(doc){
 function makeDashboard(doc){
  const dashboard=doc.getElementById('dashboard');if(!dashboard)return;
  const home=doc.createElement('div');home.id='vc17-dashboard';
- home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.0</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><span>VC</span><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
+ home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.0.1</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><span>VC</span><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
  <div class="vc17-section-header"><div><span>ÁREAS DE TRABAJO</span><h3>¿Qué necesitas hacer?</h3></div></div>
- <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${g.icon}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
+ <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${navIcon(g.id)}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
  <div class="vc17-section-header vc17-space"><div><span>ESTADO DEL EQUIPO</span><h3>Actividad y accesos rápidos</h3></div><button type="button" class="vc17-text-button" id="vc17-refresh">Actualizar</button></div>
  <div class="vc17-summary-grid"><div class="vc17-stat"><span>Equipo activo</span><b id="vc17-kpi-team">—</b><small>Contexto de trabajo</small></div><div class="vc17-stat"><span>Ejercicios</span><b id="vc17-kpi-exercises">—</b><small>Biblioteca disponible</small></div><div class="vc17-stat"><span>Sesiones esta semana</span><b id="vc17-kpi-week">—</b><small>Según planificación local</small></div><div class="vc17-stat"><span>Historial</span><b id="vc17-kpi-history">—</b><small>Sesiones registradas</small></div></div>
  <div class="vc17-home-bottom"><section class="vc17-home-panel"><div class="vc17-home-panel-top"><h3>Entrenamientos</h3><button type="button" data-vc17-link="planificacion">Ver planificación ↗</button></div><p>Planifica, prepara y consulta el trabajo del equipo.</p><div class="vc17-home-feature"><b id="vc17-feature-session">—</b><span id="vc17-feature-session-time">Duración de la sesión en preparación</span></div><div class="vc17-home-panel-links"><button type="button" data-vc17-link="entrenamiento">Sesión actual</button><button type="button" data-vc17-link="ejercicios">Ejercicios</button><button type="button" data-vc17-link="historial">Historial</button></div></section>
@@ -186,7 +198,7 @@ function mount(root){
    const el=$(id);if(el&&typeof root.MutationObserver==='function')new root.MutationObserver(updateAll).observe(el,{childList:true,subtree:true,characterData:true});
   });
   activate(activeView);updateAll();
-  root.VC17_WORKSPACE={version:'17.0.0',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
+  root.VC17_WORKSPACE={version:'17.0.1',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
  };
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 }
