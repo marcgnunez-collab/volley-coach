@@ -1,7 +1,7 @@
-/* Volley Coach V16.5.0 · SAFE RECOVERY SERVICE WORKER
+/* Volley Coach V16.5.1 · SAFE RECOVERY SERVICE WORKER
    Network-first navigation, no blocking 56-resource install, no deletion of user data. */
 'use strict';
-const CACHE_NAME='volley-coach-v16.5.0-analysis-pro';
+const CACHE_NAME='volley-coach-v16.5.1-tactical-lab';
 const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
 self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));

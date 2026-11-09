@@ -1,4 +1,4 @@
-/* Volley Coach V16.5.0 · Analysis Pro 3.0 · Custom Worksheets and Tactical Lab
+/* Volley Coach V16.5.1 · Analysis Pro 3.0 · Tactical Laboratory Pro
    Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the sole statistical engine. No match writes and NO PDF template changes. */
 (()=>{
@@ -25,7 +25,7 @@ const pages={
 const mainPages=['overview','players','lab','athletes','explorer'];
 const subpages={
  players:[['builder','Hojas configurables'],['sheet','Hoja oficial por jugador'],['fundamentals','Fundamentos Pro']],
- lab:[['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']],
+ lab:[['workbench','Mesa táctica'],['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']],
  athletes:[['profile','Ficha individual'],['compare','Comparador A/B']],
  tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
  setter:[['distribution','Distribución y destinos'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']]
@@ -38,7 +38,7 @@ function routeTo(main,sub){
 }
 
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
-const state={page:'overview',subpage:{players:'builder',lab:'rotations',athletes:'profile',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',selected:[],selectedTitle:'Selecciona una cifra de la tabla',worksheet:{skill:'A',group:'player',reception:'all',sort:'count',columns:['count','kills','errors','blocked','gp','eff','video']},worksheetSavedName:'',worksheetNotice:'',loaded:false,draws:0};
+const state={page:'overview',subpage:{players:'builder',lab:'workbench',athletes:'profile',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',labFilters:{reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''},selected:[],selectedTitle:'Selecciona una cifra de la tabla',worksheet:{skill:'A',group:'player',reception:'all',sort:'count',columns:['count','kills','errors','blocked','gp','eff','video']},worksheetSavedName:'',worksheetNotice:'',loaded:false,draws:0};
 let host=null,native=null,view=null;
 // Same immutable-for-UI model that painted the current view. Never reused for a
 // fresh refresh or export: scouting data can change in place after a cloud pull.
@@ -461,6 +461,70 @@ function rotationDashboard(data){
  }).join('');
  return `<div class="vc157-panel"><div class="vc157-panelhead"><div><h3>Comparador visual R1–R6</h3><p>Conversión K1 y K2 con muestras separadas. Pulsa una rotación para filtrar toda la vista.</p></div><span class="vc157-tag">${data.points.rallies} rallies</span></div><div class="vc1622-rotgrid">${cards}</div>${active?'<button type="button" class="vc1622-clear-rot" data-vc1622-rotation="">Mostrar todas las rotaciones</button>':''}<p class="vc157-note">Los porcentajes sin oportunidades se muestran como «—». Una rotación con pocos rallies no permite concluir que sea mejor o peor. El filtro de rotación del encabezado también controla esta vista.</p></div>`;
 }
+
+/* V16.5.1: one tactical workbench, one canonical model, one filter context.
+ * Uses real possession-bounded setter pairs; incomplete sequences are not invented. */
+function labInspectFiltered(){
+ const api=window.VC_TACTICAL_LAB_1651,data=paintedModel;
+ if(!api||!data)return;
+ const rows=api.apply(sequenceRows(data),state.labFilters);
+ const keys=new Set(api.uniqueKeys(rows));
+ const selected=data.actions.filter(a=>keys.has(a.key));
+ state.selected=selected.slice(0,250);
+ state.selectedTitle=`Mesa táctica · ${rows.length} secuencias · ${selected.length} acciones${selected.length>250?' (primeras 250)':''}`;
+ renderInspector();
+}
+function labSelector(name,title,options,selected,all){
+ return `<label>${html(title)}<select data-vc1651-filter="${html(name)}" aria-label="${html(title)}">${selOpts(options.map(v=>Array.isArray(v)?v:[v,v]),selected,all)}</select></label>`;
+}
+function labCourt(summary){
+ const rows=summary.rows.filter(x=>x.attack);
+ const attacks=rows.map(x=>x.attack);
+ const origins=groupZone(attacks,a=>a.a.startZone),dest=groupZone(attacks,a=>a.a.endZone);
+ const x=48,y=48,size=260,net=x+size;
+ const routes=summary.routes.filter(g=>g.items.length).slice(0,10);
+ const arrows=routes.map((route,i)=>{
+  const r=route.items[0],from=vc1628Cell('left',parsedZone(r.attack.a.startZone),x,y,size),to=vc1628Cell('right',parsedZone(r.attack.a.endZone),net,y,size);
+  if(!from||!to)return '';
+  const stat=window.VC_TACTICAL_LAB_1651.rating(route.items),color=stat.eff==null?'#6283ab':stat.eff>0?'#1d8576':stat.eff<0?'#c66b55':'#6283ab';
+  const bump=(i%5-2)*7,d=`M${from.x.toFixed(1)} ${from.y.toFixed(1)} C${(net-48).toFixed(1)} ${(from.y+bump).toFixed(1)} ${(net+48).toFixed(1)} ${(to.y+bump).toFixed(1)} ${to.x.toFixed(1)} ${to.y.toFixed(1)}`;
+  return `<path d="${d}" fill="none" stroke="${color}" opacity=".8" stroke-width="${(2+Math.min(4,Math.sqrt(route.n)*.75)).toFixed(1)}" marker-end="url(#vc1651-arrow)" pointer-events="none"/><path d="${d}" fill="none" stroke="transparent" stroke-width="20" class="vc1622-route-hit" role="button" tabindex="0" ${drillAttrs(route.keys,`Ataques ${route.name}`)} aria-label="${html(route.name)} · ${route.n} ataques"><title>${html(route.name)} · ${route.n} ataques · EFF ${fmt(stat.eff)}</title></path>`;
+ }).join('');
+ return `<section class="vc157-panel vc1651-board"><div class="vc157-panelhead"><div><h3>Trayectorias de ataque</h3><p>Campo completo, zonas enfrentadas y solo rutas registradas.</p></div><button type="button" class="vc1651-more" data-vc1651-subpage="zones">Ampliar</button></div><div class="vc1651-courtwrap"><svg viewBox="0 0 665 372" role="group" aria-label="Pista real: origen y destino de ataque con flechas filtradas"><defs><marker id="vc1651-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6Z" fill="#456e85"/></marker></defs>${vc1628CourtBackground(x,y,size)}${vc1628PaintHalf('left',x,y,size,origins,'Origen ataque')}${vc1628PaintHalf('right',net,y,size,dest,'Destino ataque')}${arrows}<line x1="${net}" y1="${y-16}" x2="${net}" y2="${y+size+16}" stroke="#153e58" stroke-width="4" pointer-events="none"/></svg></div><p class="vc157-note">${summary.trajectories}/${rows.length} ataques vinculados tienen origen y destino. Las flechas agrupadas son rutas entre centros de zonas, no trayectorias medidas del balón. Pulsa una flecha o zona para abrir acciones.</p></section>`;
+}
+function labSetterCourt(summary){
+ const rows=summary.rows.filter(r=>r.pair?.set);
+ const mapped=rows.filter(x=>parsedZone(x.pair.set.a.setTarget));
+ const grouped=groupZone(mapped.map(x=>x.pair.set),s=>s.a.setTarget);
+ const x=210,y=40,size=260,net=x+size;
+ const paths=summary.destinations.slice(0,9).map(g=>{
+  const r=g.items[0],z=parsedZone(r.pair.set.a.setTarget),dest=vc1628Cell('left',z,x,y,size);if(!dest)return '';
+  const st=window.VC_TACTICAL_LAB_1651.rating(g.items),color=st.eff==null?'#6283ab':st.eff>0?'#1d8576':st.eff<0?'#c66b55':'#6283ab',d=`M 80 176 Q 152 ${dest.y.toFixed(1)} ${dest.x.toFixed(1)} ${dest.y.toFixed(1)}`;
+  return `<path d="${d}" stroke="${color}" stroke-width="${(2+Math.min(5,Math.sqrt(g.n))).toFixed(1)}" opacity=".75" fill="none" marker-end="url(#vc1651-set-arrow)" pointer-events="none"/><path d="${d}" fill="none" stroke="transparent" stroke-width="19" role="button" tabindex="0" class="vc1622-route-hit" ${drillAttrs(g.keys,`Colocaciones a ${g.name}`)} aria-label="${g.n} colocaciones a ${g.name}"><title>${g.name}: ${g.n} colocaciones · EFF ${fmt(st.eff)}</title></path>`;
+ }).join('');
+ return `<section class="vc157-panel vc1651-board"><div class="vc157-panelhead"><div><h3>Distribución del colocador</h3><p>Destinos codificados y ataques posteriores vinculados.</p></div><button type="button" class="vc1651-more" data-vc1651-subpage="distribution">Ampliar</button></div><div class="vc1651-courtwrap"><svg viewBox="0 0 525 350" role="group" aria-label="Distribución de colocación sobre media pista y red"><defs><marker id="vc1651-set-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6Z" fill="#456e85"/></marker></defs><rect x="${x-7}" y="${y-7}" width="${size+14}" height="${size+14}" fill="#d9ba8d" rx="9"/>${vc1628PaintHalf('left',x,y,size,grouped,'Destino colocación')}<line x1="${net}" y1="${y-13}" x2="${net}" y2="${y+size+13}" stroke="#193e57" stroke-width="5"/><text x="${net}" y="${y-17}" font-size="10" text-anchor="middle" fill="#426983">RED</text><rect x="12" y="142" width="112" height="65" rx="10" fill="#e5f2fc" stroke="#a9ccdf"/><text x="68" y="164" font-size="12" font-weight="800" text-anchor="middle" fill="#205477">COLOCADOR</text><text x="68" y="185" font-size="11" text-anchor="middle" fill="#205477">Esquemático</text>${paths}</svg></div><p class="vc157-note">${summary.setterTargets}/${rows.length} colocaciones tienen destino zonal. El origen de las flechas es esquemático, no una posición de toque registrada.</p></section>`;
+}
+function pageLabWorkbench(data){
+ const api=window.VC_TACTICAL_LAB_1651;
+ if(!api)return `<div class="vc157-empty">El módulo del laboratorio no se ha cargado. Actualiza la página para intentar recuperarlo.</div>`;
+ const all=sequenceRows(data),filters=api.sanitize(state.labFilters);state.labFilters=filters;
+ const filtered=api.apply(all,filters),s=api.summarize(filtered),names=key=>[...new Set(all.map(x=>x[key]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+ const options=['reception','setter','attacker','tempo','outcome','destination'];
+ const any=options.some(k=>filters[k]&&(k!=='reception'||filters[k]!=='all'));
+ const rlab=[['positive','Positiva o perfecta'],['other','Otra recepción registrada'],['missing','Sin recepción vinculada'],['unknown','Valoración no estándar']];
+ const outs=Object.entries(seqOutcomeLabel);
+ const zoneOptions=[1,2,3,4,5,6,7,8,9].map(n=>[String(n),'Z'+n]);
+ const filtersHtml=`<div class="vc1651-filtergrid">${labSelector('reception','Recepción previa',rlab,filters.reception==='all'?'':filters.reception,'Todas')}${labSelector('setter','Colocador',names('setter'),filters.setter,'Todos')}${labSelector('attacker','Atacante',names('attacker'),filters.attacker,'Todos')}${labSelector('tempo','Tempo',names('tempo'),filters.tempo,'Todos')}${labSelector('outcome','Resultado ataque',outs,filters.outcome,'Todos')}${labSelector('destination','Destino del ataque',zoneOptions,filters.destination,'Todas las zonas')}</div>`;
+ const stats=s.stats;
+ const tile=(name,value,detail,keys)=>`<div class="vc1651-kpi"><span>${html(name)}</span><strong>${html(value)}</strong><small>${html(detail)}</small>${pickButton('Ver acciones',keys,`${name} · Mesa táctica`)}</div>`;
+ const metrics=`<div class="vc1651-metrics">${tile('Colocaciones filtradas',`${s.n}/${all.length}`,'Secuencias de colocación',s.keys)}${tile('Recepción → colocación → ataque',`${s.complete}/${s.n}`,'Cadenas con recepción y ataque',s.rows.filter(x=>x.rec&&x.attack).flatMap(x=>x.keys))}${tile('Ataque vinculado',`${s.linked}/${s.n}`,'Primer ataque tras la colocación',s.rows.filter(x=>x.attack).flatMap(x=>x.keys))}${tile('Ataque · EFF',fmt(stats.eff),`${stats.k} puntos, ${stats.e+stats.blocked} errores/bloqueos / ${stats.n} ataques valorados`,s.rows.filter(x=>x.attack).flatMap(x=>x.keys))}</div>`;
+ const patRows=s.patterns.slice(0,15).map(g=>{const x=g.items[0],stat=api.rating(g.items);
+  return `<tr><td>${html(x.reception)}</td><td>${html(x.setter)}</td><td>${html(x.attacker)}</td><td>${html(x.tempo)}</td><td>${g.n}</td><td>${fmt(pct(g.n,s.n))}</td><td>${stat.k}/${stat.n}</td><td>${fmt(stat.eff)}</td><td>${pickButton('Ver',g.keys,`Patrón ${x.setter} → ${x.attacker}`)}</td></tr>`;
+ }).join('');
+ const setters=s.setters.slice(0,10).map(g=>{const st=api.rating(g.items);return `<tr><td>${html(g.name)}</td><td>${g.n}</td><td>${fmt(pct(g.n,s.n))}</td><td>${st.k}/${st.n}</td><td>${fmt(st.eff)}</td><td>${pickButton('Jugadas',g.keys,`Colocador ${g.name}`)}</td></tr>`}).join('');
+ const routeRows=s.routes.slice(0,8).map(g=>{const st=api.rating(g.items);return `<tr><td>${html(g.name)}</td><td>${g.n}</td><td>${st.k}/${st.n}</td><td>${fmt(st.eff)}</td><td>${pickButton('Ver',g.keys,`Ruta ${g.name}`)}</td></tr>`}).join('');
+ return `<div class="vc1651-workbench"><section class="vc157-panel vc1651-filterpanel"><div class="vc157-panelhead"><div><span class="vc1651-eyebrow">TACTICAL LABORATORY PRO · V16.5.1</span><h3>Mesa táctica · filtros cruzados</h3><p>Una consulta para distribución, ataque, combinaciones y jugadas. Respeta los filtros de equipo, set, rotación y K1/K2 del encabezado.</p></div><button type="button" id="vc1651-reset" ${!any?'disabled':''}>Limpiar filtros</button></div>${filtersHtml}<div class="vc1651-footnote">${s.n} de ${all.length} secuencias verificables cumplen los filtros. Las recepciones ausentes no se tratan como negativas. No se incluyen ataques sin colocación vinculada.</div></section>${metrics}<div class="vc1651-boardgrid">${labCourt(s)}${labSetterCourt(s)}</div><div class="vc1651-tablegrid"><section class="vc157-panel"><div class="vc157-panelhead"><div><h3>Combinaciones más frecuentes</h3><p>Recepción → colocador → atacante → resultado.</p></div><button type="button" class="vc1651-more" data-vc1651-subpage="sequences">Comparar patrones</button></div>${table(['Recepción','Colocador','Atacante','Tempo','N','Uso','Puntos/T','EFF','Acciones'],patRows)}${s.patterns.length>15?`<p class="vc157-note">Se muestran 15 de ${s.patterns.length} patrones. Los totales incluyen todas las secuencias filtradas.</p>`:''}</section><section class="vc157-panel"><h3>Colocadores de la muestra</h3>${table(['Colocador','Colocaciones','Uso','Puntos/T','EFF','Acciones'],setters)}<h3 class="vc1651-secondary-title">Principales rutas de ataque</h3>${table(['Ruta','N','Puntos/T','EFF','Acciones'],routeRows)}</section></div><p class="vc157-note">EFF = (puntos − errores − bloqueados) / ataques valorados. Los porcentajes no se muestran cuando el denominador es cero. Las rutas están basadas en zonas registradas, no en posiciones continuas de balón; no se atribuye causalidad ni puntuación individual del rally.</p></div>`;
+}
 function pageRotations(data){
  const rows=data.rotations.map(r=>{
   const rRows=data.actions.filter(a=>a.r&&(data.target==='ours'?a.r.rotation:a.r.opponentRotation)===r.rotation);
@@ -783,7 +847,7 @@ function renderPage(){
  }else if(page==='overview')surface.innerHTML=pageOverview(data);
  else if(page==='players')surface.innerHTML=subpage==='builder'?pageCustomWorksheet(data):pagePlayers(data);
  else if(page==='athletes')surface.innerHTML=subpage==='compare'?pagePlayerCompare(data):pagePlayerProfile(data);
- else if(page==='lab')surface.innerHTML=subpage==='zones'?pageZones(data):subpage==='distribution'?pageDistribution(data):subpage==='details'?pageSetterDetails(data):subpage==='sequences'?pageSequences(data):pageRotations(data);
+ else if(page==='lab')surface.innerHTML=subpage==='workbench'?pageLabWorkbench(data):subpage==='zones'?pageZones(data):subpage==='distribution'?pageDistribution(data):subpage==='details'?pageSetterDetails(data):subpage==='sequences'?pageSequences(data):pageRotations(data);
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
  else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?pageSetterDetails(data):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
@@ -866,6 +930,7 @@ function onTeamChanged(){
  state.setterPlayer='';state.setterReception='';state.setterTempo='';
  state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';
  state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
+ state.labFilters={reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''};
  state.selected=[];state.selectedTitle='Selecciona una cifra de la tabla';
  if(state.loaded){renderInspector();refresh()}
 }
@@ -873,12 +938,12 @@ function mount(){
  view=$('scout-analysis');native=$('scout-analysis-match');if(!view||!native||!window.VC_ANALYSIS_INTELLIGENCE_1614?.model)return false;
  if($('vc157-studio')){state.loaded=true;return true;}
  const style=document.createElement('style');style.id='vc157-style';style.textContent=CSS;document.head.appendChild(style);
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 3.0 · V16.5.0</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 3.0 · V16.5.1</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${mainPages.map(k=>`<button type="button" data-section="${k}" aria-selected="false"><b>${pages[k][0]}</b><span>${pages[k][1]}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 3.0 · Cinco espacios de trabajo, laboratorio táctico y hojas configurables guardadas localmente. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
+ <p class="vc157-footer">Analysis Pro 3.0 · Mesa táctica con filtros cruzados, pistas, secuencias e inspector vinculados. Se conservan las hojas configurables. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
@@ -886,6 +951,15 @@ function mount(){
   const t=e.target,id=t.id;
   // Editing the view name must not refresh the page on blur: doing so would
   // detach the Save button just as the user clicks it.
+  if(t.matches?.('[data-vc1651-filter]')){
+   const api=window.VC_TACTICAL_LAB_1651;
+   if(!api)return;
+   const name=t.dataset.vc1651Filter;
+   if(!Object.prototype.hasOwnProperty.call(state.labFilters,name))return;
+   state.labFilters=api.sanitize({...state.labFilters,[name]:t.value});
+   state.selected=[];state.selectedTitle='Acciones del contexto filtrado';renderInspector();
+   renderPage();labInspectFiltered();return;
+  }
   if(id==='vc1650-name')return;
   if(id.startsWith('vc1650-')){
    const api=window.VC_CUSTOM_WORKSHEETS_1650;if(!api)return;
@@ -925,7 +999,7 @@ function mount(){
   if(id==='vc157-match'){
    const chosen=matches().find(m=>String(m.id)===String(t.value));
    if(!chosen){buildHeader();return;}
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';state.labFilters={reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''};
    // Never dispatch the old select's change from Studio: the legacy renderer
    // can rebuild its options and switch back to the active match mid-selection.
    setNativeSelection(state.match);
@@ -936,6 +1010,10 @@ function mount(){
   refresh();
  });
  host.addEventListener('click',e=>{
+  const labReset=e.target.closest('#vc1651-reset');
+  if(labReset){state.labFilters=window.VC_TACTICAL_LAB_1651.blank();state.selected=[];state.selectedTitle='Selecciona una cifra o una zona';renderInspector();renderPage();return;}
+  const labOpen=e.target.closest('[data-vc1651-subpage]');
+  if(labOpen){const key=labOpen.dataset.vc1651Subpage;if(subpages.lab.some(([name])=>key===name)){state.page='lab';state.subpage.lab=key;renderPage();}return;}
   const profile=e.target.closest('[data-vc1626-open]');
   if(profile){state.profilePlayer=profile.dataset.vc1626Open;state.page='athletes';state.subpage.athletes='profile';state.selected=[];renderInspector();renderPage();return}
   const history=e.target.closest('[data-vc1626-history]');
@@ -1349,7 +1427,36 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:1200px){#vc157-studio .vc1650-config{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1650-savebar{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1650-savebar button{width:100%}}
 @media(max-width:850px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:600px){#vc157-studio .vc157-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}#vc157-studio .vc1650-config,#vc157-studio .vc1650-savebar{grid-template-columns:1fr}}
+
+/* Tactical Laboratory Pro V16.5.1 · shared-filter dashboard */
+#vc157-studio .vc1651-workbench{display:grid;gap:14px;min-width:0}
+#vc157-studio .vc1651-filterpanel{background:linear-gradient(180deg,#fff,#f6faff);border-color:#bed9eb}
+#vc157-studio .vc1651-eyebrow{font-size:10px;letter-spacing:.10em;color:#2674a9;font-weight:850}
+#vc157-studio #vc1651-reset{border:1px solid #bcd8e9!important;background:#f2f8fd!important;color:#255f86!important;border-radius:8px!important;padding:8px 13px!important;font-size:11px!important;font-weight:800!important;white-space:nowrap}
+#vc157-studio #vc1651-reset:disabled{opacity:.45;cursor:default}
+#vc157-studio .vc1651-filtergrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0 10px}
+#vc157-studio .vc1651-filtergrid label{display:grid;gap:4px;min-width:0;font-size:10px;color:#5f7990;font-weight:850}
+#vc157-studio .vc1651-filtergrid select{min-width:0;width:100%}
+#vc157-studio .vc1651-footnote{color:#50748f;font-size:11px;border-top:1px solid #d9e9f3;padding-top:10px}
+#vc157-studio .vc1651-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#vc157-studio .vc1651-kpi{border:1px solid #d7e5ef;border-radius:11px;background:#fff;padding:12px;min-width:0;display:grid;gap:5px;align-content:start}
+#vc157-studio .vc1651-kpi span{font-size:10px;color:#527c98;font-weight:850}
+#vc157-studio .vc1651-kpi strong{font-size:22px;color:#16466b;line-height:1.25;font-variant-numeric:tabular-nums}
+#vc157-studio .vc1651-kpi small{font-size:10px;color:#7290a4;line-height:1.4}
+#vc157-studio .vc1651-kpi button{justify-self:start;margin-top:3px}
+#vc157-studio .vc1651-boardgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#vc157-studio .vc1651-board{min-width:0;overflow:hidden}
+#vc157-studio .vc1651-courtwrap{width:100%;overflow-x:auto;margin-top:12px;border-radius:12px;background:#f2f7fb;border:1px solid #dce9f1}
+#vc157-studio .vc1651-courtwrap svg{display:block;width:100%;min-width:400px;height:auto}
+#vc157-studio .vc1651-more{background:#eaf4fb!important;color:#24638f!important;border:1px solid #cce2f1!important;border-radius:8px!important;padding:7px 10px!important;font-size:10px!important;font-weight:850!important;white-space:nowrap}
+#vc157-studio .vc1651-tablegrid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;min-width:0}
+#vc157-studio .vc1651-tablegrid .vc157-panel{min-width:0}
+#vc157-studio .vc1651-tablegrid .vc157-table{min-width:600px}
+#vc157-studio .vc1651-secondary-title{margin-top:18px!important;padding-top:14px;border-top:1px solid #dce7ef}
+@media(max-width:1420px){#vc157-studio .vc1651-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#vc157-studio .vc1651-boardgrid,#vc157-studio .vc1651-tablegrid{grid-template-columns:1fr}}
+@media(max-width:790px){#vc157-studio .vc1651-filtergrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#vc157-studio .vc1651-filtergrid,#vc157-studio .vc1651-metrics{grid-template-columns:1fr}#vc157-studio .vc1651-courtwrap svg{min-width:470px}}
 `;
 /* Scoped visual overrides appended to the existing stylesheet. */
-window.VC_ANALYST_STUDIO_16155={version:'16.5.0',mount,open,refresh,onTeamChanged,setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
+window.VC_ANALYST_STUDIO_16155={version:'16.5.1',mount,open,refresh,onTeamChanged,setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
 })();
