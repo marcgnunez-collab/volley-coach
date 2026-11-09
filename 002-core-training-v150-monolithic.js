@@ -1224,7 +1224,7 @@ function crearSesionDesdePlanificacion(fechaForzada=''){
 function crearSesionDiaPlanificacion(fecha){crearSesionDesdePlanificacion(fecha)}
 function guardarPlan(){return crearSesionDesdePlanificacion('')}
 /* V12.5 removed unreachable function: cambiarSemana */
-function eliminarPlan(id){if(meta.planificacionId===id)meta.planificacionId=null;planificacion=planificacion.filter(x=>x.id!==id);save();renderPlanificacion();renderAvisoPlanHoy()}
+function eliminarPlan(id){try{window.VC_TRAINING_SYNC_1653?.markDeleted?.(equipoActivo,id)}catch(_){}if(meta.planificacionId===id)meta.planificacionId=null;planificacion=planificacion.filter(x=>x.id!==id);save();renderPlanificacion();renderAvisoPlanHoy()}
 function usarPlan(id){
   const p=planificacion.find(x=>x.id===id);if(!p)return;const esRealizado=!!p.realizado;
   const ids=(p.ejercicios||[]).map(x=>x.id).filter(id=>baseDeDatos.some(e=>e.id===id));
