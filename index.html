@@ -144,7 +144,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.0.2</title>
+<title>Volley Coach · Professional Workspace V17.0.3</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.0.2">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -685,6 +685,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <button onclick="vc1532ShowCloudDiagnostic()"><span>⊙</span><div><b>Diagnóstico nube</b><small>Conexión, errores y cambios pendientes</small></div><strong>→</strong></button>
     <button onclick="VC_PERFORMANCE_CORE.open()"><span>▤</span><div><b>Rendimiento</b><small>Arranque, bloqueos y módulos lentos</small></div><strong>→</strong></button>
     <button type="button" onclick="vc16158OpenAudit()"><span>✓</span><div><b>Auditoría de scoutings</b><small>Integridad, recuperación y copia del equipo</small></div><strong>→</strong></button>
+    <button type="button" onclick="window.VC1703_AUDIT?.open?.()"><span>▣</span><div><b>Auditoría funcional V17</b><small>Entrenamientos, partidos, copias y navegación</small></div><strong>→</strong></button>
   </div>
   <section id="vc60-diagnostics" hidden aria-label="Diagnóstico de rendimiento">
     <div class="vc60-header">
@@ -3407,7 +3408,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.0.2',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.0.3',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -7561,13 +7562,22 @@ function currentTeamObject(teamId=equipoActivo){
 }
 
 /* Deletions need tombstones so another device cannot resurrect deleted plans/history. */
+/* V17.0.3: only publish deletion tombstones AFTER the original deletion succeeded.
+   The history editor asks for confirmation internally. Marking a tombstone before
+   confirmation could silently delete a record on the other device even when
+   the coach pressed Cancel. Keep the classical cloud writer unchanged. */
 const deletePlanBase=window.eliminarPlan;
 if(typeof deletePlanBase==='function'&&!deletePlanBase.__v953){
   const wrapped=function(id){
     const team=currentTeamObject();
-    markDeleted(team,'v953DeletedPlanIds',id);
+    const existed=Array.isArray(team?.planificacion)&&team.planificacion.some(p=>Number(p?.id)===Number(id));
     const out=deletePlanBase.apply(this,arguments);
-    try{guardarEstadoLocalSinCloud();programarSubidaCloud()}catch(_){}
+    const after=currentTeamObject();
+    const removed=existed&&Array.isArray(after?.planificacion)&&!after.planificacion.some(p=>Number(p?.id)===Number(id));
+    if(removed){
+      markDeleted(after,'v953DeletedPlanIds',id);
+      try{guardarEstadoLocalSinCloud();programarSubidaCloud()}catch(_){}
+    }
     return out;
   };
   wrapped.__v953=true;window.eliminarPlan=wrapped;
@@ -7576,9 +7586,14 @@ const deleteHistoryBase=window.borrarEntrenamientoHistorialEquipo;
 if(typeof deleteHistoryBase==='function'&&!deleteHistoryBase.__v953){
   const wrapped=function(teamId,id){
     const team=currentTeamObject(teamId);
-    markDeleted(team,'v953DeletedHistoryIds',id);
+    const existed=Array.isArray(team?.historial)&&team.historial.some(h=>Number(h?.id)===Number(id));
     const out=deleteHistoryBase.apply(this,arguments);
-    try{guardarEstadoLocalSinCloud();programarSubidaCloud()}catch(_){}
+    const after=currentTeamObject(teamId);
+    const removed=existed&&Array.isArray(after?.historial)&&!after.historial.some(h=>Number(h?.id)===Number(id));
+    if(removed){
+      markDeleted(after,'v953DeletedHistoryIds',id);
+      try{guardarEstadoLocalSinCloud();programarSubidaCloud()}catch(_){}
+    }
     return out;
   };
   wrapped.__v953=true;window.borrarEntrenamientoHistorialEquipo=wrapped;
@@ -12352,5 +12367,6 @@ body.vc17-shell #vc17-dashboard .vc17-workspace-card:hover{border-color:#a8caef!
 @media(prefers-reduced-motion:reduce){body.vc17-shell #vc17-dashboard .vc17-workspace-card{transition:none!important}}
 
 </style>
-<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.0.2" defer data-vc-module="true"></script>
+<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.0.3" defer data-vc-module="true"></script>
+<script id="vc1703-functional-audit" src="./144-vc1703-functional-audit.js?v=17.0.3" defer data-vc-module="true"></script>
 </body></html>
