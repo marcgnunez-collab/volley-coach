@@ -94,6 +94,18 @@
   updateStatus();return report;
  }
  function hasConflicts(){return pending.size>0}
+ // V16.5.2: older versions sometimes persisted a new remote baseline before
+ // actually installing its scouting. A clean local copy differing from that
+ // baseline must be offered for manual recovery, not silently treated as an edit.
+ function flagUntrackedLocal(plan){
+  if(!plan?.plans)return 0;
+  for(const group of Object.values(plan.plans))for(const item of group.values()){
+   if(item.reason!=='actualizado-en-dispositivo'||!item.remote||!item.local)continue;
+   pending.set(item.key,{...item,choice:'conflict',reason:'copia-local-no-confirmada',localHash:digest(item.local),remoteHash:digest(item.remote)});
+  }
+  if(pending.size){lastNotice='Hay copias locales distintas de la nube sin una edición pendiente registrada. Descarga ambas copias y selecciona cuál conservar.';updateStatus()}
+  return pending.size;
+ }
  function confirmRemote(remote){ensureAccount();const remoteMaps=teamEntries(remote);for(const [team,map] of Object.entries(remoteMaps))for(const [id,m] of map)tracked[`${team}:${id}`]=digest(m);persist();}
  function confirmWritten(sent){ensureAccount();const maps=teamEntries(sent);for(const [team,map] of Object.entries(maps))for(const [id,m] of map)tracked[`${team}:${id}`]=digest(m);persist();}
  function reconcile(listPlan){return combine(listPlan)}
@@ -227,5 +239,5 @@
  .vc1631-modal[hidden]{display:none!important}.vc1631-modal{position:fixed;inset:0;z-index:2147483600;background:rgba(12,30,48,.68);display:grid;place-items:center;padding:16px}.vc1631-card{width:min(700px,96vw);max-height:92vh;overflow:auto;background:#fff;color:#15354e;border-radius:16px;padding:22px;font:13px/1.5 system-ui;box-shadow:0 18px 60px #0a1c3044}.vc1631-card header{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #dce6ed;padding-bottom:10px}.vc1631-card header small{font-size:10px;letter-spacing:.1em;color:#5a8ba9;font-weight:800}.vc1631-card h2{font-size:21px;margin:3px 0;color:#15354e}.vc1631-card button{cursor:pointer;border:1px solid #c9dce8;background:#f2f8fc;color:#195b84;padding:9px 12px;border-radius:8px;font-weight:750;margin:4px}.vc1631-card button:disabled{opacity:.4;cursor:not-allowed}.vc1631-explain{line-height:1.55;color:#56758b}.vc1631-actions{display:flex;flex-wrap:wrap;gap:8px}.vc1631-ack{display:flex;gap:10px;align-items:flex-start;padding:12px 0;color:#23506f}.vc1631-ack input{margin-top:3px;flex:none}.vc1631-conflict{margin:8px 0;border:1px solid #e5d0ba;background:#fff9f2;padding:12px;border-radius:10px}.vc1631-conflict h3{margin:0 0 5px;font-size:14px;color:#67472d}.vc1631-conflict p{margin:0 0 10px;color:#80634b}#vc1631-note{min-height:18px;color:#53758c}`;win.document.head.appendChild(css);
   const ready=()=>{ensureModal();updateStatus()};if(win.document.readyState==='loading')win.document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
  }
- return {version:VERSION,installed:true,resolve,evaluate,digest,canonical,teamEntries,prepare,confirmRemote,confirmWritten,hasConflicts,status,open,close,allowRealtime,install,applyResolved,resolveConflict,diagnostics:status};
+ return {version:VERSION,installed:true,resolve,evaluate,digest,canonical,teamEntries,prepare,flagUntrackedLocal,confirmRemote,confirmWritten,hasConflicts,status,open,close,allowRealtime,install,applyResolved,resolveConflict,diagnostics:status};
 });

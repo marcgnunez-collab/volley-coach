@@ -1460,7 +1460,7 @@ async function cloudLogin(){
   setCloudUI('syncing','Conectando…');
   const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
   if(error){setCloudUI('error','Error al entrar');alert(error.message);return}
-  cloudUser=data.user;setCloudUI('online','Nube conectada · guardado automático');programarSubidaCloud();alert('Sesión iniciada. El guardado automático en la nube está activo.')
+  cloudUser=data.user;setCloudUI('online','Nube conectada · comprobando estado');try{void window.v962ForceSync?.('auth-login')}catch(_){}alert('Sesión iniciada. Se comprobará la nube antes de enviar cambios.')
 }
 async function cloudLogout(){if(cloudClient)await cloudClient.auth.signOut();cloudUser=null;setCloudUI('', 'Nube desconectada')}
 async function actualizarEstadoCloud(){

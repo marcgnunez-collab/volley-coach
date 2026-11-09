@@ -1,7 +1,7 @@
 
 (()=>{
 'use strict';
-const VERSION='15.2.6',DEVICE_KEY='vc_v138_device_id',DEVICE_NAME_KEY='vc_v138_device_name',POLL_ACTIVE_MS=45000,POLL_IDLE_MS=120000,FAST_EVENT='match_patch';
+const VERSION='16.5.2',DEVICE_KEY='vc_v138_device_id',DEVICE_NAME_KEY='vc_v138_device_name',POLL_ACTIVE_MS=12000,POLL_IDLE_MS=25000,FAST_EVENT='match_patch';
 const $=id=>document.getElementById(id),now=()=>Date.now(),clone=v=>{try{return structuredClone(v)}catch(_){try{return JSON.parse(JSON.stringify(v))}catch(__){return v}}};
 const isMobile=()=>/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 function makeId(){try{return crypto.randomUUID()}catch(_){return 'dev_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10)}}
@@ -55,10 +55,50 @@ function applyFastPatch(payload){
    return false;
  }
  fastApplying=true;try{if(!equiposData[teamId]&&typeof estadoEquipoVacio==='function')equiposData[teamId]=estadoEquipoVacio(teamId);const team=equiposData[teamId];let target=findLocalMatch(teamId,payload.matchId||payload.match?.id);if(payload.mode==='full'&&payload.match){const local=Array.isArray(team.scoutingMatches)?team.scoutingMatches:[];if(!localCloudDirty()){team.scoutingMatches=[...local.filter(m=>Number(m?.id)!==Number(payload.match.id)),clone(payload.match)]}else{team.scoutingMatches=typeof fusionarScoutingsSeguros==='function'?fusionarScoutingsSeguros(local,[payload.match]):local}target=findLocalMatch(teamId,payload.match.id)}else if(target&&payload.patch)applyPatchToMatch(target,payload.patch);else{setTimeout(()=>syncRemote('missing-fast'),60);return false}if(teamId===String(equipoActivo)){try{scoutingMatches=typeof scoutClone==='function'?scoutClone(team.scoutingMatches):clone(team.scoutingMatches)}catch(_){};if(Number(scoutingActiveId)===Number(target?.id))refreshFastUi()}if(incomingSeq>0)lastFastSequence.set(orderKey,incomingSeq);scheduleLocalPersist();lastRemoteAt=now();lastRemoteDevice=String(payload.deviceId||'');lastRemoteName=String(payload.deviceName||'Otro dispositivo');knownDevices[lastRemoteDevice]={...(knownDevices[lastRemoteDevice]||{}),id:lastRemoteDevice,name:lastRemoteName,type:payload.deviceType||'',lastSeen:lastRemoteAt,seq:Number(payload.seq)||0};persistKnown();render();clearTimeout(remoteSyncTimer);remoteSyncTimer=setTimeout(()=>void syncRemote('fast-followup'),1700);return true}finally{fastApplying=false}}
-function onFast(message){try{applyFastPatch(message?.payload||message)}catch(err){console.warn('V15.2.6 fast patch',err)}}
+let confirmedNotices=0,lastConfirmedNotice='',lastConfirmedNoticeAt=0;
+function requestConfirmedPull(reason='commit'){
+ clearTimeout(remoteSyncTimer);
+ remoteSyncTimer=setTimeout(()=>void syncRemote(reason),220);
+}
+async function notifyConfirmed(stamp){
+ if(rtState!=='SUBSCRIBED'||!channel||!cloudConnected()||!stamp)return false;
+ try{
+  const result=await channel.send({type:'broadcast',event:FAST_EVENT,payload:{mode:'cloud_commit',deviceId,stamp:String(stamp),changedAt:now()}});
+  return result==='ok';
+ }catch(err){console.warn('V16.5.2 cloud commit notification',err);return false}
+}
+function onFast(message){
+ const payload=message?.payload||message;
+ if(!payload||payload.deviceId===deviceId)return;
+ if(payload.mode==='cloud_commit'){
+  if(typeof payload.stamp!=='string'||!Number.isFinite(Date.parse(payload.stamp)))return;
+  confirmedNotices++;lastConfirmedNotice=payload.stamp;lastConfirmedNoticeAt=now();
+  // Realtime is a wake-up signal only. Read the committed state from Supabase.
+  requestConfirmedPull('confirmed-broadcast');render();return;
+ }
+ // Old versions can still send unconfirmed action patches: do not apply them.
+ // Pull instead; this also helps during rolling upgrades.
+ if(window.VC_SYNC_SAFETY_1631?.allowRealtime){requestConfirmedPull('legacy-notice');return}
+ try{applyFastPatch(payload)}catch(err){console.warn('V15.2.6 fast patch',err)}
+}
 function buildFastPayload(reason){const m=active();if(!m)return null;const s=currentSet(m),setIndex=Math.max(0,(Number(m.currentSet)||1)-1),why=String(reason||'');const full=/reconnect|selected|new|create|boot|result|final|rally:edit|rally-edit|undo.*rally|restore|import/i.test(why)||!s;const base={version:VERSION,deviceId,deviceName,deviceType:isMobile()?'mobile':'desktop',seq,changedAt:now(),teamId:String(equipoActivo||''),matchId:Number(m.id)||0,mode:full?'full':'patch'};if(full){base.match=clone(m);return base}const top=clone(m);delete top.sets;delete top.updatedAt;base.patch={...top,remoteUpdatedAt:m.updatedAt,setIndex,set:clone(s),setSummaries:(Array.isArray(m.sets)?m.sets:[]).map(x=>x?{number:x.number,setNo:x.setNo,scoreUs:x.scoreUs,scoreOpponent:x.scoreOpponent,finished:x.finished,winner:x.winner}:null)};return base}
 function queueFast(reason='matchstate'){if(window.VC_SYNC_SAFETY_1631?.status)return;if(fastApplying||rtState!=='SUBSCRIBED'||!channel||!cloudConnected())return;clearTimeout(fastTimer);fastTimer=setTimeout(async()=>{if(rtState!=='SUBSCRIBED'||!channel)return;touchMeta(reason);const payload=buildFastPayload(reason);if(!payload)return;try{await channel.send({type:'broadcast',event:FAST_EVENT,payload})}catch(err){console.warn('V15.2.6 broadcast',err)}},45)}
-async function syncRemote(reason='fallback'){if(!cloudConnected())return false;if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}try{lastPullAt=now();await window.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});render();return true}catch(err){console.warn('V15.2.6 remote sync',err);return false}}
+async function syncRemote(reason='fallback'){
+ if(!cloudConnected())return false;
+ if(remoteSyncTimer){clearTimeout(remoteSyncTimer);remoteSyncTimer=null}
+ const engine=window.VC_V962_CLOUD_EFFICIENT;
+ if(!engine?.sync)return false;
+ if(engine.diagnostics?.().syncing){
+  // A notice received during a write must not be swallowed by its in-flight promise.
+  requestConfirmedPull('after-busy-'+reason);return false;
+ }
+ try{
+  const ok=await engine.sync({reason:`v138-${reason}`,manual:false,allowWrite:false,pullOnly:true});
+  lastPullAt=now();
+  if(ok){lastRemoteAt=now();lastRemoteName='Nube confirmada';}
+  render();return !!ok;
+ }catch(err){console.warn('V16.5.2 remote sync',err);return false}
+}
 function onRemote(payload){try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;clearTimeout(remoteSyncTimer);const recentFast=meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000;remoteSyncTimer=setTimeout(()=>void syncRemote(recentFast?'db-complete-after-fast':'db-change'),recentFast?700:350)}catch(err){console.warn('V15.2.6 postgres event',err)}}
 let presencePeers=[];
 function syncPresence(){
@@ -89,5 +129,5 @@ function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL
 function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
 async function resumeSync(reason='resume'){try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
 function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();queueFast(d?.reason||'matchstate');if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
-window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,sendBenchNote,connect:connectRealtime,refreshPresence:trackPresence,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({protectedLocalChanges,staleFastMessages,version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:true,compactPatches:true,durableCompletion:true,allTopLevelMatchFields:true,presencePeers:presencePeers.slice()})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,sendBenchNote,connect:connectRealtime,refreshPresence:trackPresence,sync:syncRemote,broadcast:queueFast,notifyConfirmed,render,diagnostics:()=>({protectedLocalChanges,staleFastMessages,confirmedNotices,lastConfirmedNotice,lastConfirmedNoticeAt,version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:false,compactPatches:false,durableCompletion:true,allTopLevelMatchFields:true,presencePeers:presencePeers.slice()})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/15.2.6'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

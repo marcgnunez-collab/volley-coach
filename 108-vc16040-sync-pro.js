@@ -3,7 +3,7 @@
    No Supabase credentials are stored, no new database tables are required. */
 (()=>{
 'use strict';
-const VERSION='16.0.4.0',POLL_MS=3500;
+const VERSION='16.5.2',POLL_MS=2000;
 const $=id=>document.getElementById(id);
 const device=()=>window.VC_DEVICE_SYNC?.diagnostics?.()||{};
 const cloud=()=>window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
@@ -15,8 +15,9 @@ const label=(c,d)=>{
  if(c.lastSyncError)return {state:'error',text:'Error al sincronizar',detail:String(c.lastSyncError).slice(0,160)};
  if(c.dirty)return {state:'pending',text:c.syncing?'Enviando cambios…':'Cambios pendientes de nube',detail:'No cierres este dispositivo hasta comprobar el guardado.'};
  if(c.syncing)return {state:'pending',text:'Comprobando nube…',detail:'Consultando cambios de otros dispositivos.'};
- if(c.lastWriteAt)return {state:'online',text:'Última subida confirmada',detail:'Confirmada '+formatTime(c.lastWriteAt)};
- return {state:'pending',text:'Conectado · sin subida confirmada',detail:'Puedes comprobar la nube con Sincronizar ahora.'};
+ if(c.lastReadAt&&c.lastWriteAt)return {state:'online',text:'Nube leída y subida confirmada',detail:`Última lectura ${formatTime(c.lastReadAt)} · subida ${formatTime(c.lastWriteAt)}`};
+ if(c.lastReadAt)return {state:'online',text:'Nube consultada',detail:'Última comprobación '+formatTime(c.lastReadAt)};
+ return {state:'pending',text:'Conectado · sin lectura confirmada',detail:'Pulsa Sincronizar ahora y revisa el resultado.'};
 };
 function connectedDevices(d){
  if(d.realtimeState!=='SUBSCRIBED')return null;
@@ -101,7 +102,7 @@ async function manualSync(){
  if(!engine?.sync||!cloud().connected){showAction('La nube no está conectada; los cambios permanecen en este dispositivo.');return}
  if(window.VC_SYNC_SAFETY_1631?.hasConflicts?.()){window.VC_SYNC_SAFETY_1631.open();showAction('Sincronización bloqueada hasta resolver los conflictos.');return}
  manualBusy=true;draw(true);
- try{await engine.sync({reason:'vc16040-manual',manual:false,allowWrite:true});const guard=window.VC_SYNC_SAFETY_1631?.status?.();if(guard?.blocked){showAction('Conflictos pendientes. No se han enviado cambios. Abre Revisar conflictos.');return}const s=label(cloud(),device());showAction(s.text+'. '+s.detail)}
+ try{const ok=await engine.sync({reason:'vc16040-manual',manual:false,allowWrite:true});const guard=window.VC_SYNC_SAFETY_1631?.status?.();if(guard?.blocked){showAction('Conflictos pendientes. No se han enviado cambios. Abre Revisar conflictos.');return}const c=cloud();if(!ok&&c.lastSyncError){showAction('Sincronización detenida: '+c.lastSyncError);return}const s=label(c,device());showAction(s.text+'. '+s.detail+'. Comprueba que el cambio aparece también en el otro dispositivo.')}
  catch(e){showAction('Error de sincronización: '+String(e?.message||e))}
  finally{manualBusy=false;draw(true)}
 }
