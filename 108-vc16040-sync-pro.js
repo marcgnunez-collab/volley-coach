@@ -3,7 +3,7 @@
    No Supabase credentials are stored, no new database tables are required. */
 (()=>{
 'use strict';
-const VERSION='16.5.3',POLL_MS=2000;
+const VERSION='16.5.4-legacy-recovery',POLL_MS=3500;
 const $=id=>document.getElementById(id);
 const device=()=>window.VC_DEVICE_SYNC?.diagnostics?.()||{};
 const cloud=()=>window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
@@ -15,9 +15,8 @@ const label=(c,d)=>{
  if(c.lastSyncError)return {state:'error',text:'Error al sincronizar',detail:String(c.lastSyncError).slice(0,160)};
  if(c.dirty)return {state:'pending',text:c.syncing?'Enviando cambios…':'Cambios pendientes de nube',detail:'No cierres este dispositivo hasta comprobar el guardado.'};
  if(c.syncing)return {state:'pending',text:'Comprobando nube…',detail:'Consultando cambios de otros dispositivos.'};
- if(c.lastReadAt&&c.lastWriteAt)return {state:'online',text:'Nube leída y subida confirmada',detail:`Última lectura ${formatTime(c.lastReadAt)} · subida ${formatTime(c.lastWriteAt)}`};
- if(c.lastReadAt)return {state:'online',text:'Nube consultada',detail:'Última comprobación '+formatTime(c.lastReadAt)};
- return {state:'pending',text:'Conectado · sin lectura confirmada',detail:'Pulsa Sincronizar ahora y revisa el resultado.'};
+ if(c.lastWriteAt)return {state:'online',text:'Última subida confirmada',detail:'Confirmada '+formatTime(c.lastWriteAt)};
+ return {state:'pending',text:'Conectado · sin subida confirmada',detail:'Puedes comprobar la nube con Sincronizar ahora.'};
 };
 function connectedDevices(d){
  if(d.realtimeState!=='SUBSCRIBED')return null;
@@ -31,13 +30,11 @@ function ensure(){
  let modal=$('vc16040-sync-modal');
  if(!modal){
    modal=node('div','vc16040-modal');modal.id='vc16040-sync-modal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-label','Sync Pro: dispositivos y sincronización');modal.hidden=true;
-   modal.innerHTML=`<section class="vc16040-card"><header><div><small>VOLLEY COACH · SYNC PRO</small><h2>Dispositivos y nube</h2></div><button type="button" id="vc16040-close" aria-label="Cerrar">Cerrar</button></header><div class="vc16040-grid"><div><label>DISPOSITIVOS EN LÍNEA</label><strong id="vc16040-count">—</strong><small id="vc16040-presence-state">Comprobando presencia</small></div><div><label>ESTADO DE LOS DATOS</label><strong id="vc16040-cloud-state">—</strong><small id="vc16040-cloud-detail"></small></div></div><h3>Sesiones detectadas</h3><ul id="vc16040-devices"></ul><p id="vc1653-planning-status" role="status" class="vc16040-note">Planificación · sin comprobar</p><div class="vc16040-foot"><button type="button" id="vc1653-check-plans">Comprobar planificación</button><button type="button" id="vc16040-sync-now">Sincronizar ahora</button><button type="button" id="vc1631-conflicts-open">Revisar conflictos</button><button type="button" id="vc16040-backup">Descargar copia JSON</button><button type="button" id="vc16040-copy">Copiar diagnóstico</button><button type="button" id="vc16040-legacy">Historial de actividad</button></div><p id="vc16040-action-message" role="status"></p><p id="vc1631-sync-warning" role="alert" hidden></p><p class="vc16040-note">Dispositivos conectados mide presencia en Realtime, no confirma que los cambios estén guardados. Varias pestañas del mismo navegador se cuentan como un dispositivo. No edites el mismo rally simultáneamente desde dos equipos sin comprobar después el resultado.</p></section>`;
+   modal.innerHTML=`<section class="vc16040-card"><header><div><small>VOLLEY COACH · SYNC CLÁSICO RESTAURADO</small><h2>Dispositivos y nube</h2></div><button type="button" id="vc16040-close" aria-label="Cerrar">Cerrar</button></header><div class="vc16040-grid"><div><label>DISPOSITIVOS EN LÍNEA</label><strong id="vc16040-count">—</strong><small id="vc16040-presence-state">Comprobando presencia</small></div><div><label>ESTADO DE LOS DATOS</label><strong id="vc16040-cloud-state">—</strong><small id="vc16040-cloud-detail"></small></div></div><h3>Sesiones detectadas</h3><ul id="vc16040-devices"></ul><div class="vc16040-foot"><button type="button" id="vc16040-sync-now">Sincronizar ahora</button><button type="button" id="vc16040-backup">Descargar copia JSON</button><button type="button" id="vc16040-copy">Copiar diagnóstico</button><button type="button" id="vc16040-legacy">Historial de actividad</button></div><p id="vc16040-action-message" role="status"></p><p class="vc16040-note">Dispositivos conectados mide presencia en Realtime, no confirma que los cambios estén guardados. Varias pestañas del mismo navegador se cuentan como un dispositivo. No edites el mismo partido o entrenamiento simultáneamente desde dos equipos: este modo restaurado prioriza la entrega de cambios y no tiene el bloqueo de conflictos de Sync Pro 2.0. Conserva siempre copias JSON en ambos dispositivos.</p></section>`;
    document.body.appendChild(modal);
    $('vc16040-close').addEventListener('click',close);
    modal.addEventListener('click',e=>{if(e.target===modal)close()});
    $('vc16040-sync-now').addEventListener('click',manualSync);
-   $('vc1653-check-plans').addEventListener('click',checkPlans);
-   $('vc1631-conflicts-open')?.addEventListener('click',()=>window.VC_SYNC_SAFETY_1631?.open?.());
    $('vc16040-backup').addEventListener('click',backup);
    $('vc16040-copy').addEventListener('click',copyDiagnostic);
    $('vc16040-legacy').addEventListener('click',()=>{close();window.v154OpenCollaboration?.()});
@@ -55,8 +52,7 @@ function setText(id,text){const el=$(id);if(el&&el.textContent!==String(text))el
 function showAction(message){setText('vc16040-action-message',message)}
 function draw(force=false){
  if(!document.body)return;
- const d=device(),c=cloud(),p=connectedDevices(d),s=label(c,d),guard=window.VC_SYNC_SAFETY_1631?.status?.();
- if(guard?.blocked){s.state='error';s.text=`Conflicto en ${guard.conflicts} scouting(s)`;s.detail='Revisa las copias antes de permitir nuevas subidas.';}
+ const d=device(),c=cloud(),p=connectedDevices(d),s=label(c,d);
  const status=p===null?'Presencia no conectada':p.length===0?'Verificando dispositivos…':`${p.length} dispositivo${p.length===1?'':'s'} en línea`;
  const button=$('vc154-presence-button');const oldLabel=$('vc154-presence-count');
  if(button){button.classList.toggle('online',p!==null&&p.length>0);button.classList.toggle('offline',p===null);button.setAttribute('aria-label',status+'. '+s.text)}
@@ -67,10 +63,6 @@ function draw(force=false){
  setText('vc16040-presence-state',p===null?'Realtime desconectado':p.length?'Presencia confirmada':'Esperando confirmación de presencia');
  setText('vc16040-cloud-state',s.text);
  setText('vc16040-cloud-detail',s.detail);
- const plan=window.VC_TRAINING_SYNC_1653?.diagnostics?.();
- if(plan){const teams=plan.teams||{};setText('vc1653-planning-status',`Planificación: ${plan.lastMessage}. Infantil: ${teams.infantil?.local??'?'} local / ${teams.infantil?.remote??'?'} nube. Cadete: ${teams.cadete?.local??'?'} local / ${teams.cadete?.remote??'?'} nube.${plan.conflicts?.length?' Comprueba las sesiones conflictivas antes de editar.':''}`)}
- const warn=$('vc1631-sync-warning');if(warn){warn.hidden=!guard?.blocked;warn.textContent=guard?.blocked?`Sincronización pausada: ${guard.conflicts} scouting(s) por resolver.`:''}
- const conflictBtn=$('vc1631-conflicts-open');if(conflictBtn)conflictBtn.textContent=guard?.blocked?`Revisar ${guard.conflicts} conflicto(s)`:'Revisar conflictos';
  const parent=$('vc16040-devices');
  const info=(p||[]).map(x=>({id:String(x.deviceId||''),name:String(x.name||'Dispositivo'),type:String(x.type||'').toLowerCase(),team:String(x.teamId||'')}));
  const signature=JSON.stringify(info);
@@ -84,7 +76,7 @@ function draw(force=false){
 }
 function safeDiag(){
  const c=cloud(),d=device();const p=connectedDevices(d);
- return {version:VERSION,at:new Date().toISOString(),online:navigator.onLine,realtime:d.realtimeState||'sin datos',devicesConfirmed:p===null?null:p.length,cloudConnected:!!c.connected,dirty:!!c.dirty,syncing:!!c.syncing,lastWriteAt:c.lastWriteAt||null,lastReadAt:c.lastReadAt||null,conflicts:c.conflictCount||0,errors:c.failureCount||0,errorMessage:String(c.lastSyncError||'').slice(0,180),conflictGuard:window.VC_SYNC_SAFETY_1631?.status?.()||null,fastChangesProtected:d.protectedLocalChanges||0,fastStaleDiscarded:d.staleFastMessages||0,planning:window.VC_TRAINING_SYNC_1653?.diagnostics?.()||null,recentTransitions:logs.slice(-40)};
+ return {version:VERSION,at:new Date().toISOString(),online:navigator.onLine,realtime:d.realtimeState||'sin datos',devicesConfirmed:p===null?null:p.length,cloudConnected:!!c.connected,dirty:!!c.dirty,syncing:!!c.syncing,lastWriteAt:c.lastWriteAt||null,lastReadAt:c.lastReadAt||null,conflicts:c.conflictCount||0,errors:c.failureCount||0,errorMessage:String(c.lastSyncError||'').slice(0,180),fastChangesProtected:d.protectedLocalChanges||0,fastStaleDiscarded:d.staleFastMessages||0,recentTransitions:logs.slice(-40)};
 }
 function download(name,blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
 async function backup(){
@@ -99,26 +91,12 @@ async function copyDiagnostic(){
  try{await navigator.clipboard.writeText(t);showAction('Diagnóstico copiado (sin identificadores de cuenta ni claves).')}
  catch(_){window.prompt('Copia este diagnóstico:',t)}
 }
-async function checkPlans(){
- if(manualBusy)return;
- const engine=window.VC_V962_CLOUD_EFFICIENT;
- if(!engine?.sync||!cloud().connected){showAction('Conecta Supabase en ambos dispositivos antes de comprobar Planificación.');return}
- manualBusy=true;draw(true);
- try{
-  await engine.sync({reason:'vc1653-check-plans',manual:false,allowWrite:false,pullOnly:true});
-  const d=window.VC_TRAINING_SYNC_1653?.diagnostics?.();
-  const c=cloud();
-  showAction((d?.lastMessage||'Comprobación terminada.')+(c.lastSyncError?' Estado general: '+c.lastSyncError:'')+' No se ha forzado ninguna subida.');
- }catch(e){showAction('Error comprobando planificación: '+String(e?.message||e))}
- finally{manualBusy=false;draw(true)}
-}
 async function manualSync(){
  if(manualBusy)return;
  const engine=window.VC_V962_CLOUD_EFFICIENT;
  if(!engine?.sync||!cloud().connected){showAction('La nube no está conectada; los cambios permanecen en este dispositivo.');return}
- if(window.VC_SYNC_SAFETY_1631?.hasConflicts?.()){window.VC_SYNC_SAFETY_1631.open();showAction('Sincronización bloqueada hasta resolver los conflictos.');return}
  manualBusy=true;draw(true);
- try{const ok=await engine.sync({reason:'vc16040-manual',manual:false,allowWrite:true});const guard=window.VC_SYNC_SAFETY_1631?.status?.();if(guard?.blocked){showAction('Conflictos pendientes. No se han enviado cambios. Abre Revisar conflictos.');return}const c=cloud();if(!ok&&c.lastSyncError){showAction('Sincronización detenida: '+c.lastSyncError);return}const s=label(c,device());showAction(s.text+'. '+s.detail+'. Comprueba que el cambio aparece también en el otro dispositivo.')}
+ try{await engine.sync({reason:'vc16040-manual',manual:false,allowWrite:true});const s=label(cloud(),device());showAction(s.text+'. '+s.detail)}
  catch(e){showAction('Error de sincronización: '+String(e?.message||e))}
  finally{manualBusy=false;draw(true)}
 }
