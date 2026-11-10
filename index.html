@@ -128,7 +128,7 @@ window.addEventListener('error',function(event){
   const target=event.target;
   if(!target||target.tagName!=='SCRIPT'||!target.src||!target.hasAttribute('data-vc-module'))return;
   if(!window.VC_MODULE_LOAD_ERRORS.includes(target.src))window.VC_MODULE_LOAD_ERRORS.push(target.src);
-  console.error('[Volley Coach V16.0.2] Falta un módulo:',target.src);
+  console.error('[Volley Coach V17.12] Error al cargar módulo:',target.src);
   const notify=()=>{
     document.documentElement.classList.remove('v118-booting','v139-booting');
     let alert=document.getElementById('vc1602-missing-modules');
@@ -138,15 +138,19 @@ window.addEventListener('error',function(event){
       alert.style.cssText='position:fixed;z-index:2147483647;left:12px;right:12px;top:12px;padding:16px 20px;background:#fff7ed;color:#7c2d12;border:2px solid #f97316;border-radius:8px;font:600 14px/1.5 system-ui,sans-serif;box-shadow:0 4px 24px #0003';
       (document.body||document.documentElement).appendChild(alert);
     }
-    alert.textContent='Error de instalación V16.0.2: faltan '+window.VC_MODULE_LOAD_ERRORS.length+' módulos JavaScript. Revisa que todos los módulos JavaScript requeridos estén publicados junto a index.html. Se ha interrumpido la carga normal.';
+    const missing=window.VC_MODULE_LOAD_ERRORS.map(src=>{try{return new URL(src,location.href).pathname.split('/').pop()}catch(_){return src}});
+    alert.textContent='Volley Coach V17.12 · No se han cargado '+missing.length+' módulos JavaScript: '+missing.join(', ')+'. Comprueba que los archivos están publicados en GitHub con los mismos nombres y rutas. No borres los datos locales; algunas funciones pueden no estar disponibles.';
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',notify,{once:true});else notify();
 },true);
 </script>
 
 <meta charset="UTF-8" />
+<!-- Critical V17.9 guard must load before the cloud engine can read remote state. -->
+<script id="vc1790-sync-safety" src="./154-vc1790-sync-safety.js?v=17.12.0" data-vc-module="true"></script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.8.0</title>
+<title>Volley Coach · Professional Workspace V17.12.0</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -12429,7 +12433,8 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 
 <script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
 <script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0" defer data-vc-module="true"></script>
-<script id="vc1790-sync-safety" src="./154-vc1790-sync-safety.js?v=17.9.0" defer data-vc-module="true"></script>
+
 <script id="vc17100-unified-video" src="./155-vc17100-unified-video.js?v=17.10.0" defer data-vc-module="true"></script>
 <script id="vc17110-training-video-pro" src="./156-vc17110-training-video-pro.js?v=17.11.0" defer data-vc-module="true"></script>
+<script id="vc17120-match-recording-pro" src="./157-vc17120-match-recording-pro.js?v=17.12.0" defer data-vc-module="true"></script>
 </body></html>

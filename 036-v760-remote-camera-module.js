@@ -308,6 +308,7 @@ window.vcRemoteSourceChanged=function(value){
 };
 window.VC_REMOTE_CAMERA={
   getStream:()=>state.stream,
+  getPublisherStream:()=>state.publisherStream,
   getPublisherOrientation:()=>state.publisherOrientation||null,
   getPublisherOrientationPreference:()=>state.publisherOrientationPreference||'auto',
   isConnected:()=>state.connected&&!!state.stream?.getVideoTracks?.().some(t=>t.readyState==='live'),
