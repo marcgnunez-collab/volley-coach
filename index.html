@@ -144,7 +144,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.0.3</title>
+<title>Volley Coach · Training Workspace V17.1.0</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.0.2">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -3408,7 +3408,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.0.3',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.1.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12367,6 +12367,7 @@ body.vc17-shell #vc17-dashboard .vc17-workspace-card:hover{border-color:#a8caef!
 @media(prefers-reduced-motion:reduce){body.vc17-shell #vc17-dashboard .vc17-workspace-card{transition:none!important}}
 
 </style>
-<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.0.3" defer data-vc-module="true"></script>
+<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.1.0" defer data-vc-module="true"></script>
 <script id="vc1703-functional-audit" src="./144-vc1703-functional-audit.js?v=17.0.3" defer data-vc-module="true"></script>
+<script id="vc1710-training-workspace" src="./145-vc1710-training-workspace.js?v=17.1.0" defer data-vc-module="true"></script>
 </body></html>
