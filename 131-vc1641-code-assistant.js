@@ -21,7 +21,7 @@
  }
  const activeView=()=>!!$('scout-match-mode')?.classList.contains('active');
  const compact=raw=>String(raw??'').trim().toUpperCase().replace(/\s+/g,'');
- const pattern=/^(R)?(\d{1,3})([SREABDFC])([#+!\-/=])?(?:\.([1-9])>([1-9]))?(.*)$/;
+ const pattern=/^(R)?(\d{1,3})([SREABDFC])([#+!\-/=])?(?:\.([1-9][ABCD]?)(?:>([1-9][ABCD]?))?)?(.*)$/;
  function parse(raw){
   const code=compact(raw);
   if(!code)return {kind:'empty',code,message:'Escribe dorsal y fundamento. Los botones no registran acciones.'};
@@ -39,7 +39,7 @@
   const ev=p[4]||'!';
   return {kind:'ready',code,team:p[1]?'opponent':'ours',number:p[2],skill:p[3],evaluation:ev,
    startZone:p[5]||'',endZone:p[6]||'',serve,combo,phase,blockers,
-   message:`${p[1]?'Rival':'Nuestro'} #${p[2]} · ${skillNames[p[3]]} · ${evalNames[ev]}${p[4]?'':' (valoración por defecto)'}${p[5]?` · Z${p[5]} → Z${p[6]}`:''}${combo?` · ${combo}`:''}${phase?` · ${phase}`:''}`};
+   message:`${p[1]?'Rival':'Nuestro'} #${p[2]} · ${skillNames[p[3]]} · ${evalNames[ev]}${p[4]?'':' (valoración por defecto)'}${p[5]?(p[6]?` · Z${p[5]} → Z${p[6]}`:` · Z${p[5]}`):''}${combo?` · ${combo}`:''}${phase?` · ${phase}`:''}`};
  }
  function withEvaluation(raw,value){
   if(!Object.prototype.hasOwnProperty.call(evalNames,value))return null;
