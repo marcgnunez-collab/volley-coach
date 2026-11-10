@@ -144,15 +144,16 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.4.0</title>
-<link rel="manifest" href="./manifest.webmanifest?v=17.4.0">
+<title>Volley Coach · Professional Workspace V17.4.1</title>
+<link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Volley Coach">
-<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=17.0.2">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=17.0.2">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=17.4.1">
+<link rel="icon" type="image/x-icon" href="./volley-coach.ico?v=17.4.1">
+<link rel="icon" type="image/png" sizes="192x192" href="./vc-app-192-v1741.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 <script id="v118-first-paint-guard">
 (()=>{
@@ -3408,7 +3409,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.4.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.4.1',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12169,7 +12170,7 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
 </script>
 <script id="vc1630-core-reliability" src="./127-vc1630-core-reliability.js?v=16.3.0" defer data-vc-module="true"></script>
 <script id="vc1661-runtime-stability" src="./142-vc1661-runtime-stability.js?v=16.6.1" data-vc-module="true" defer></script>
-<link rel="stylesheet" href="./vc17-workspace.css?v=17.4.0">
+<link rel="stylesheet" href="./vc17-workspace.css?v=17.4.1">
 <!-- Critical inline CSS: the workspace remains legible if GitHub omits or caches the external CSS file. -->
 <style id="vc1701-critical-css">
 /* V17.0 · New navigation structure. All selectors scoped to vc17-shell. */
@@ -12366,8 +12367,18 @@ body.vc17-shell #vc17-dashboard .vc17-workspace-card:hover{border-color:#a8caef!
 @media(max-width:600px){body.vc17-shell #v11-topbar>.vc16041-team-control{min-width:110px!important;max-width:125px!important}body.vc17-shell #v11-sidebar .vc17-brand{padding-right:26px!important}body.vc17-shell #v11-topbar #vc17-sync-button{min-width:41px!important;max-width:41px!important}body.vc17-shell #v11-topbar #vc17-search-open{min-width:41px!important;max-width:41px!important}}
 @media(prefers-reduced-motion:reduce){body.vc17-shell #vc17-dashboard .vc17-workspace-card{transition:none!important}}
 
+
+/* V17.4.1: Realtime-presence count remains visible outside Match Mode, even on mobile. */
+body.vc17-shell #v11-topbar .vc1741-devices-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;min-height:44px!important;padding:7px 10px!important;background:#eef7ff!important;border:1px solid #bdd9f9!important;border-radius:10px!important;color:#174b84!important;box-shadow:none!important;white-space:nowrap!important;font:700 11px/1.15 system-ui,-apple-system,"Segoe UI",sans-serif!important;flex:0 0 auto!important;cursor:pointer}
+body.vc17-shell .vc1741-devices-button b{font-size:15px!important;font-weight:850!important;font-variant-numeric:tabular-nums!important;color:#10427c!important}
+body.vc17-shell .vc1741-devices-button svg{flex:0 0 auto!important}
+body.vc17-shell .vc1741-devices-button[data-presence="unknown"]{background:#f5f7fa!important;border-color:#d8e0e8!important;color:#617489!important}
+body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!important}
+@media(max-width:1150px){body.vc17-shell #v11-topbar .vc1741-devices-button span{display:none!important}}
+@media(max-width:600px){body.vc17-shell #v11-topbar .vc1741-devices-button{width:41px!important;min-width:41px!important;max-width:41px!important;padding:5px 3px!important;gap:2px!important}body.vc17-shell #v11-topbar .vc1741-devices-button svg{width:13px!important;height:13px!important}body.vc17-shell .vc1741-devices-button b{font-size:13px!important}}
+
 </style>
-<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.1.0" defer data-vc-module="true"></script>
+<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.4.1" defer data-vc-module="true"></script>
 <script id="vc1703-functional-audit" src="./144-vc1703-functional-audit.js?v=17.0.3" defer data-vc-module="true"></script>
 <script id="vc1710-training-workspace" src="./145-vc1710-training-workspace.js?v=17.1.0" defer data-vc-module="true"></script>
 <script id="vc1720-match-workspace" src="./146-vc1720-match-workspace.js?v=17.2.0" defer data-vc-module="true"></script>

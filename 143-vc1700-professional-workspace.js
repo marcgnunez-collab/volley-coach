@@ -1,4 +1,4 @@
-/* Volley Coach V17.1.0 · Professional Workspace brand & layout polish.
+/* Volley Coach V17.4.1 · Professional Workspace brand & layout polish.
  * Navigation and presentation adapter ONLY. Does not read/write local data, Supabase,
  * scouting, media or training engines. Keeps all original view IDs and APIs intact.
  */
@@ -39,10 +39,26 @@ function cloudSummary(raw){
  const lower=text.toLowerCase();
  return {text,kind:/error|fall|desconect|pendiente|conflicto|sin conexi[oó]n/.test(lower)?'warn':/sincroniz|conectad|actualizad|guardad|online/.test(lower)?'ok':'idle'};
 }
-function statusFromDOM(doc){
+// Presence is a live Realtime signal, not the last known device in a scouting panel.
+// Preserve the legacy DOM fallback only when the Sync Pro presence API is not loaded.
+function presenceCount(root,doc){
+ try{
+  if(typeof root?.VC_SYNC_PRO?.connectedDevices==='function'){
+   const connected=root.VC_SYNC_PRO.connectedDevices();
+   return Array.isArray(connected)?new Set(connected.map(p=>String(p?.deviceId||'')).filter(Boolean)).size:null;
+  }
+  const device=root?.VC_DEVICE_SYNC?.diagnostics?.();
+  if(device){
+   if(device.realtimeState!=='SUBSCRIBED')return null;
+   return new Set((Array.isArray(device.presencePeers)?device.presencePeers:[]).map(p=>String(p?.deviceId||'')).filter(Boolean)).size;
+  }
+ }catch(_){return null}
+ const raw=cleanString(doc.getElementById('vc52-peer-count')?.textContent);
+ return /^\d+$/.test(raw)?Number(raw):null;
+}
+function statusFromDOM(doc,root=doc.defaultView){
  const $=id=>doc.getElementById(id);
- const countRaw=cleanString($('vc52-peer-count')?.textContent);
- const peers=/^\d+$/.test(countRaw)?Number(countRaw):null;
+ const peers=presenceCount(root,doc);
  return {team:cleanString($('team-active-name')?.textContent||$('v11-team-name')?.textContent)||'Equipo activo',
   cloud:cloudSummary($('cloud-label')?.textContent||$('v11-cloud-label')?.textContent),
   peers,exerciseCount:cleanString($('dash-library')?.textContent)||'—',weekCount:cleanString($('dash-week-count')?.textContent)||'—',
@@ -80,6 +96,7 @@ function makeTopbar(doc){
  const cloud=doc.createElement('div');cloud.id='vc17-top-actions';cloud.className='vc17-top-actions';
  cloud.innerHTML=`<div class="vc17-team-control" aria-label="Seleccionar equipo"><span>Equipo</span><select id="vc17-team-select" aria-label="Equipo activo"><option value="infantil">Infantil</option><option value="cadete">Cadete</option></select></div>
  <button type="button" id="vc17-sync-button" class="vc17-sync-button" aria-label="Abrir estado de nube"><span class="vc17-cloud-dot" id="vc17-cloud-dot"></span><span class="vc17-sync-copy"><b id="vc17-cloud-title">Nube</b><small id="vc17-peer-label">Dispositivos: sin comprobar</small></span></button>
+ <button type="button" id="vc1741-devices-button" class="vc1741-devices-button" aria-label="Presencia de dispositivos sin confirmar" title="Ver dispositivos conectados"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="15" height="11" rx="1.5"/><path d="M6 20h7M9.5 15v5"/><rect x="18" y="9" width="4" height="10" rx="1"/></svg><b id="vc1741-devices-number">—</b><span>dispositivos</span></button>
  <button type="button" id="vc17-search-open" class="vc17-search-button" aria-label="Buscar una sección" title="Buscar una sección (Ctrl+K)">⌕ <span>Buscar</span> <kbd>Ctrl K</kbd></button>`;
  if(original)original.style.display='none';bar.appendChild(cloud);
  const left=bar.querySelector('.v11-topbar-left');if(left){const button=left.querySelector('.v11-menu-toggle');if(button){button.textContent='☰';button.setAttribute('aria-label','Abrir navegación');button.setAttribute('aria-expanded','false')}}
@@ -93,7 +110,7 @@ function makeContext(doc){
 function makeDashboard(doc){
  const dashboard=doc.getElementById('dashboard');if(!dashboard)return;
  const home=doc.createElement('div');home.id='vc17-dashboard';
- home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.1.0</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
+ home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.4.1</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
  <div class="vc17-section-header"><div><span>ÁREAS DE TRABAJO</span><h3>¿Qué necesitas hacer?</h3></div></div>
  <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${navIcon(g.id)}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
  <div class="vc17-section-header vc17-space"><div><span>ESTADO DEL EQUIPO</span><h3>Actividad y accesos rápidos</h3></div><button type="button" class="vc17-text-button" id="vc17-refresh">Actualizar</button></div>
@@ -148,7 +165,7 @@ function mount(root){
    }catch(err){console.warn('VC17: no se pudo abrir',view,err);return false}
   }
   function updateAll(){
-   const s=statusFromDOM(doc);
+   const s=statusFromDOM(doc,root);
    function txt(id,val){const el=$(id);if(el&&el.textContent!==String(val))el.textContent=String(val)}
    txt('vc17-kpi-team',s.team);txt('vc17-kpi-exercises',s.exerciseCount);txt('vc17-kpi-week',s.weekCount);txt('vc17-kpi-history',s.historyCount);
    txt('vc17-feature-session',s.sessionCount+' ejercicios');txt('vc17-feature-session-time',s.plannedMinutes);
@@ -156,8 +173,15 @@ function mount(root){
    txt('vc17-feature-match',active?'vs '+cleanString(active.opponent||'Rival'):'Sin partido activo');
    txt('vc17-feature-match-count',matches.length+' scoutings guardados');
    txt('vc17-cloud-title',s.cloud.text);txt('vc17-feature-cloud',s.cloud.text);
-   const peers=s.peers===null?'Otros dispositivos: sin comprobar':`Otros dispositivos conectados: ${s.peers}`;
+   const peers=s.peers===null?'Dispositivos: sin comprobar':`Dispositivos conectados: ${s.peers}`;
    txt('vc17-peer-label',peers);txt('vc17-feature-peers',peers);
+   txt('vc1741-devices-number',s.peers===null?'—':String(s.peers));
+   const presenceBtn=$('vc1741-devices-button');
+   if(presenceBtn){
+    presenceBtn.dataset.presence=s.peers===null?'unknown':'confirmed';
+    const label=s.peers===null?'Presencia de dispositivos sin confirmar':`${s.peers} dispositivo${s.peers===1?'':'s'} conectado${s.peers===1?'':'s'} · Ver detalles`;
+    presenceBtn.setAttribute('aria-label',label);presenceBtn.title=label;
+   }
    const dot=$('vc17-cloud-dot');if(dot)dot.dataset.state=s.cloud.kind;
    const teamSelect=$('vc17-team-select');
    const team=String(root.equipoActivo||'').toLowerCase();
@@ -168,11 +192,15 @@ function mount(root){
   function closeSearch(){const el=$('vc17-command');if(el)el.hidden=true;searchLastFocus?.focus?.()}
   function drawSearch(q){const result=$('vc17-command-results');if(!result)return;const term=cleanString(q).toLocaleLowerCase('es');const candidates=GROUPS.flatMap(g=>g.items.length?g.items.map(([id,label])=>({id,label,group:g.label})):[{id:g.defaultView,label:g.label,group:'Inicio'}]).filter(x=>!term||`${x.label} ${x.group}`.toLocaleLowerCase('es').includes(term)).slice(0,12);result.replaceChildren(...candidates.map(x=>{const b=doc.createElement('button');b.type='button';b.dataset.vc17Link=x.id;b.innerHTML=`<strong>${escapeHTML(x.label)}</strong><small>${escapeHTML(x.group)}</small>`;return b}));if(!candidates.length)result.textContent='No se ha encontrado esa sección.'}
   doc.addEventListener('click',event=>{
-   const btn=event.target.closest?.('[data-vc17-main],[data-vc17-view],[data-vc17-link],[data-vc17-close],[data-vc17-cloud],[data-vc17-dismiss],#vc17-sync-button,#vc17-search-open,#vc17-refresh');if(!btn)return;
+   const btn=event.target.closest?.('[data-vc17-main],[data-vc17-view],[data-vc17-link],[data-vc17-close],[data-vc17-cloud],[data-vc17-dismiss],#vc17-sync-button,#vc1741-devices-button,#vc17-search-open,#vc17-refresh');if(!btn)return;
    if(btn.matches('[data-vc17-dismiss]'))return closeSearch();
    if(btn.matches('[data-vc17-close]'))return closeMenu();
    if(btn.matches('#vc17-search-open'))return openSearch();
    if(btn.matches('#vc17-refresh')){try{root.renderDashboard?.()}catch(_){}return updateAll()}
+   if(btn.matches('#vc1741-devices-button')){
+    if(typeof root.VC_SYNC_PRO?.open==='function')return root.VC_SYNC_PRO.open();
+    return root.abrirCloud?.();
+   }
    if(btn.matches('[data-vc17-cloud],#vc17-sync-button'))return root.abrirCloud?.();
    if(btn.dataset.vc17Main){route(btn.dataset.vc17Main,btn.dataset.vc17Main);return}
    const target=btn.dataset.vc17View||btn.dataset.vc17Link;if(target){const contextGroup=btn.closest('[data-vc17-group]')?.dataset.vc17Group;const ok=route(target,contextGroup);if(ok)closeSearch()}
@@ -198,9 +226,12 @@ function mount(root){
    const el=$(id);if(el&&typeof root.MutationObserver==='function')new root.MutationObserver(updateAll).observe(el,{childList:true,subtree:true,characterData:true});
   });
   activate(activeView);updateAll();
-  root.VC17_WORKSPACE={version:'17.1.0',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
+  // Live presence changes without DOM updates when away from Match Mode. This
+  // timer reads the existing diagnostic API; it does not connect or sync.
+  root.setInterval?.(()=>{if(doc.visibilityState==='visible')updateAll()},3500);
+  root.VC17_WORKSPACE={version:'17.4.1',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
  };
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 }
-return {GROUPS,VIEW_GROUP,resolveRoute,navTitle,cloudSummary,statusFromDOM,escapeHTML,mount};
+return {GROUPS,VIEW_GROUP,resolveRoute,navTitle,cloudSummary,statusFromDOM,presenceCount,escapeHTML,mount};
 });
