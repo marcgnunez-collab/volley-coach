@@ -1,7 +1,7 @@
-/* Volley Coach V17.2.0 · SAFE RECOVERY SERVICE WORKER (Sync Clásico intacto)
+/* Volley Coach V17.3.0 · SAFE RECOVERY SERVICE WORKER (Sync Clásico intacto)
    Network-first navigation, no blocking 56-resource install, no deletion of user data. */
 'use strict';
-const CACHE_NAME='volley-coach-v17.2.0-match-workspace';
+const CACHE_NAME='volley-coach-v17.3.0-analysis-workspace';
 const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
 self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
