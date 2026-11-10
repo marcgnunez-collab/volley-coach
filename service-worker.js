@@ -3,9 +3,9 @@
    Las respuestas privadas de Supabase no se interceptan ni se almacenan.
    No toca localStorage ni IndexedDB. La caché NO garantiza uso completo offline. */
 'use strict';
-const CACHE_NAME='volley-coach-v17.12.0-match-recording-pro';
+const CACHE_NAME='volley-coach-v18.0.0-video-evidence';
 const APP_PREFIX='volley-coach-v';
-const SHELL=['./index.html','./recuperacion.html','./vc17-workspace.css','./manifest.webmanifest','./154-vc1790-sync-safety.js','./157-vc17120-match-recording-pro.js'];
+const SHELL=['./index.html','./recuperacion.html','./vc17-workspace.css','./manifest.webmanifest','./154-vc1790-sync-safety.js','./157-vc17120-match-recording-pro.js','./158-vc17121-install-health.js','./159-vc1800-cross-video-evidence.js'];
 const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
 const asset=u=>/\.(?:js|css|png|webmanifest|svg|ico|woff2?)$/i.test(u.pathname);
 async function cacheSuccessful(cache,request,response){

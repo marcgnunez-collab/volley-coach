@@ -139,7 +139,7 @@ window.addEventListener('error',function(event){
       (document.body||document.documentElement).appendChild(alert);
     }
     const missing=window.VC_MODULE_LOAD_ERRORS.map(src=>{try{return new URL(src,location.href).pathname.split('/').pop()}catch(_){return src}});
-    alert.textContent='Volley Coach V17.12 · No se han cargado '+missing.length+' módulos JavaScript: '+missing.join(', ')+'. Comprueba que los archivos están publicados en GitHub con los mismos nombres y rutas. No borres los datos locales; algunas funciones pueden no estar disponibles.';
+    alert.textContent='Volley Coach V18.0 · No se han cargado '+missing.length+' módulos JavaScript: '+missing.join(', ')+'. Comprueba que los archivos están publicados en GitHub con los mismos nombres y rutas. No borres los datos locales; algunas funciones pueden no estar disponibles.';
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',notify,{once:true});else notify();
 },true);
@@ -150,7 +150,7 @@ window.addEventListener('error',function(event){
 <script id="vc1790-sync-safety" src="./154-vc1790-sync-safety.js?v=17.12.0" data-vc-module="true"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.12.0</title>
+<title>Volley Coach · Professional Workspace V18.0.0</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -158,7 +158,7 @@ window.addEventListener('error',function(event){
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Volley Coach">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=17.4.1">
-<link rel="icon" type="image/x-icon" href="./volley-coach.ico?v=17.4.1">
+<link rel="icon" type="image/png" href="./favicon-48.png?v=17.12.1">
 <link rel="icon" type="image/png" sizes="192x192" href="./vc-app-192-v1741.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 <script id="v118-first-paint-guard">
@@ -12437,4 +12437,6 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <script id="vc17100-unified-video" src="./155-vc17100-unified-video.js?v=17.10.0" defer data-vc-module="true"></script>
 <script id="vc17110-training-video-pro" src="./156-vc17110-training-video-pro.js?v=17.11.0" defer data-vc-module="true"></script>
 <script id="vc17120-match-recording-pro" src="./157-vc17120-match-recording-pro.js?v=17.12.0" defer data-vc-module="true"></script>
+<script id="vc17121-install-health" src="./158-vc17121-install-health.js?v=17.12.1" defer data-vc-module="true"></script>
+<script id="vc1800-video-evidence" src="./159-vc1800-cross-video-evidence.js?v=18.0.0" defer data-vc-module="true"></script>
 </body></html>
