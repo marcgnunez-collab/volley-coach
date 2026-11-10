@@ -98,7 +98,7 @@ function mount(root){
     else if(view)route(view);
   });
   doc.body.classList.add('vc1710-shell');
-  const observer=new root.MutationObserver(()=>sync());
+  const observer=new root.MutationObserver(()=>{const q=root.VC175_UI_SCHEDULER;q?q.schedule("vc17-training",sync):sync()});
   for(const id of ALL_VIEWS)observer.observe($(id),{attributes:true,attributeFilter:['class']});
   // Read-only listeners: never call the existing guardarSesionMeta/save/sync methods.
   ['sesion-fecha','sesion-objetivo','sesion-jugadores','sesion-duracion-objetivo'].forEach(id=>{

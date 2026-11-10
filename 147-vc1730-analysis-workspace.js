@@ -156,13 +156,14 @@
      if(existing&&!existing.disabled)existing.click();
     }
    });
-   const viewObserver=new root.MutationObserver(sync);viewObserver.observe(view,{attributes:true,attributeFilter:['class','data-vc157-mode']});
+   const refresh=()=>{const q=root.VC175_UI_SCHEDULER;q?q.schedule("vc17-analysis",sync):sync()};
+   const viewObserver=new root.MutationObserver(refresh);viewObserver.observe(view,{attributes:true,attributeFilter:['class','data-vc157-mode']});
    // The Analyst Studio is lazy loaded. Observe only until its original tabs exist.
    const attach=()=>{
     if(!$('vc157-tabs'))return false;
     if(studioObserver){studioObserver.disconnect();studioObserver=null;}
     if(!tabObserver){
-     tabObserver=new root.MutationObserver(sync);
+     tabObserver=new root.MutationObserver(refresh);
      $('vc157-tabs').querySelectorAll('[data-section]').forEach(b=>tabObserver.observe(b,{attributes:true,attributeFilter:['aria-selected']}));
      const subs=$('vc1620-subtabs');if(subs)tabObserver.observe(subs,{childList:true,subtree:false});
      const sample=$('vc157-sample');if(sample)tabObserver.observe(sample,{childList:true,characterData:true,subtree:true});

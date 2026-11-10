@@ -169,9 +169,13 @@ function mount(root){
    function txt(id,val){const el=$(id);if(el&&el.textContent!==String(val))el.textContent=String(val)}
    txt('vc17-kpi-team',s.team);txt('vc17-kpi-exercises',s.exerciseCount);txt('vc17-kpi-week',s.weekCount);txt('vc17-kpi-history',s.historyCount);
    txt('vc17-feature-session',s.sessionCount+' ejercicios');txt('vc17-feature-session-time',s.plannedMinutes);
-   let active=null,matches=[];try{active=root.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null;matches=root.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]}catch(_){ }
-   txt('vc17-feature-match',active?'vs '+cleanString(active.opponent||'Rival'):'Sin partido activo');
-   txt('vc17-feature-match-count',matches.length+' scoutings guardados');
+   // The dashboard is hidden in most workflows. Skip the match-list traversal
+   // unless its cards are actually visible; presence/cloud status stays live.
+   if($('dashboard')?.classList.contains('active')){
+    let active=null,matches=[];try{active=root.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null;matches=root.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]}catch(_){ }
+    txt('vc17-feature-match',active?'vs '+cleanString(active.opponent||'Rival'):'Sin partido activo');
+    txt('vc17-feature-match-count',matches.length+' scoutings guardados');
+   }
    txt('vc17-cloud-title',s.cloud.text);txt('vc17-feature-cloud',s.cloud.text);
    const peers=s.peers===null?'Dispositivos: sin comprobar':`Dispositivos conectados: ${s.peers}`;
    txt('vc17-peer-label',peers);txt('vc17-feature-peers',peers);
@@ -223,13 +227,13 @@ function mount(root){
   if(typeof baseTeam==='function'&&!baseTeam.__vc17){const wrapped=function(...args){const out=baseTeam.apply(this,args);updateAll();return out};wrapped.__vc17=true;root.cambiarEquipo=wrapped}
   // Observe only the legacy status fields, not the entire document. No polling / network calls.
   ['cloud-label','vc52-peer-count','team-active-name','dash-library','dash-week-count','dash-history-count','dash-current-count','dash-current-time'].forEach(id=>{
-   const el=$(id);if(el&&typeof root.MutationObserver==='function')new root.MutationObserver(updateAll).observe(el,{childList:true,subtree:true,characterData:true});
+   const el=$(id);if(el&&typeof root.MutationObserver==='function')new root.MutationObserver(()=>{const q=root.VC175_UI_SCHEDULER;q?q.schedule("vc17-status",updateAll):updateAll()}).observe(el,{childList:true,subtree:true,characterData:true});
   });
   activate(activeView);updateAll();
   // Live presence changes without DOM updates when away from Match Mode. This
   // timer reads the existing diagnostic API; it does not connect or sync.
   root.setInterval?.(()=>{if(doc.visibilityState==='visible')updateAll()},3500);
-  root.VC17_WORKSPACE={version:'17.4.1',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
+  root.VC17_WORKSPACE={version:'17.5.0',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
  };
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 }

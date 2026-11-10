@@ -129,7 +129,7 @@ body.vc1720-shell .vc1720-tools button:focus-visible,body.vc1720-shell button.vc
     else if(button.dataset.vc1720Related)navigate(button.dataset.vc1720Related);
    });
    doc.body.classList.add('vc1720-shell');
-   const observer=new root.MutationObserver(()=>render());
+   const observer=new root.MutationObserver(()=>{const q=root.VC175_UI_SCHEDULER;q?q.schedule("vc17-match",render):render()});
    for(const id of MATCH_VIEWS)observer.observe($(id),{attributes:true,attributeFilter:['class']});
    for(const id of ['v800-title','v800-score-us','v800-score-opponent','v800-set-label','vc155-us-score','vc155-opp-score','team-active-name']){const e=$(id);if(e)observer.observe(e,{childList:true,characterData:true,subtree:true});}
    for(const id of ['vc155-match','v800-match-select','v123-match-select'])$(id)?.addEventListener('change',render);
