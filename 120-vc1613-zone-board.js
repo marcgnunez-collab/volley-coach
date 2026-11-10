@@ -50,8 +50,8 @@ function detectContext(){
  const input=codeInput();if(!input)return;
  const skill=skillOf(input.value);
  if(skill!==state.lastSkill){
-  state.lastSkill=skill;state.manualMode=false;
-  state.mode=skill==='B'?'origin':'destination';
+  state.lastSkill=skill;
+  if(!state.manualMode)state.mode=skill==='B'?'origin':'destination';
  }
  const heading=$('vc1613-mode-desc');
  if(heading)heading.textContent=`${labelForMode()} del balón · clic para completar el código`;
@@ -84,6 +84,7 @@ function applyZone(zone,sub=''){
   state.updates++;
  }
  state.lastMode=state.mode;
+ window.dispatchEvent(new CustomEvent('vc1752:zone-applied',{detail:{zone:state.zone,sub:state.sub,token:token(),mode:state.mode,before,after}}));
  state.lastInput=input;
  detectContext();
  setStatus(`${label()} aplicada · ${after} · pulsa Enter o Añadir cuando esté listo.`, 'ok');
@@ -99,7 +100,8 @@ function boardMarkup(){
  return `<section id="vc1613-board" class="vc1613-inline-board" aria-label="Teclado de zonas DataVolley">
  <header class="vc1613-header"><div><strong>PISTA INTERACTIVA · 9×4</strong><small id="vc1613-mode-desc">Destino del balón · clic para completar el código</small></div><span id="vc1613-current-token">Sin zona</span></header>
  <div id="vc1613-modes" class="vc1613-modes" role="group" aria-label="Tipo de localización"><button type="button" data-location-mode="destination" aria-pressed="true">Destino</button><button type="button" data-location-mode="origin" aria-pressed="false">Origen</button><button type="button" id="vc1613-clear-selection">Limpiar selección</button></div>
- <div class="vc1613-court-grid" aria-label="Zonas y subzonas de la pista">${ZONES.map(z=>`<div class="vc1613-cell"><button type="button" class="vc1613-zone" data-zone="${z}" data-sub="" aria-pressed="false" aria-label="Zona ${z}">Z${z}</button><div class="vc1613-quads">${['A','B','C','D'].map(sub=>`<button type="button" data-zone="${z}" data-sub="${sub}" aria-pressed="false" aria-label="Zona ${z}, subzona ${sub}">${sub}</button>`).join('')}</div></div>`).join('')}</div>
+ <div class="vc1613-orientation" aria-label="Orientación de subzonas">RED ARRIBA · C-B / D-A · FONDO ABAJO</div>
+ <div class="vc1613-court-grid" aria-label="Zonas y subzonas de la pista">${ZONES.map(z=>`<div class="vc1613-cell"><button type="button" class="vc1613-zone" data-zone="${z}" data-sub="" aria-pressed="false" aria-label="Zona ${z}">Z${z}</button><div class="vc1613-quads">${['C','B','D','A'].map(sub=>`<button type="button" data-zone="${z}" data-sub="${sub}" aria-pressed="false" aria-label="Zona ${z}, subzona ${sub}: ${({C:"arriba izquierda",B:"arriba derecha",D:"abajo izquierda",A:"abajo derecha"})[sub]}">${sub}</button>`).join('')}</div></div>`).join('')}</div>
  <p class="vc1613-status" id="vc1613-board-status" role="status">Escribe el código y pulsa una zona. No guarda hasta pulsar Añadir.</p>
  </section>`;
 }
@@ -117,6 +119,7 @@ function injectStyle(){
 #scout-match-mode .vc1613-modes{display:grid;grid-template-columns:1fr 1fr auto;gap:4px;margin-bottom:7px}
 body.v11-shell #scout-match-mode #vc1613-board .vc1613-modes button{background:#fff!important;color:#45677f!important;border:1px solid #cbdbea!important;font:750 10px/1.1 system-ui,sans-serif!important;border-radius:6px!important;min-height:29px!important;min-width:0!important;padding:5px 7px!important}
 body.v11-shell #scout-match-mode #vc1613-board .vc1613-modes button.selected{background:#185b9b!important;color:white!important;border-color:#185b9b!important}
+#scout-match-mode .vc1613-orientation{font:800 9px/1.3 system-ui,sans-serif;color:#577a99;text-align:center;letter-spacing:.05em;margin:0 0 6px}
 #scout-match-mode .vc1613-court-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:0!important}
 #scout-match-mode .vc1613-cell{background:#fff!important;display:grid!important;gap:3px!important;padding:3px!important;border:1px solid #ccdae8!important;border-radius:7px!important;min-width:0!important}
 body.v11-shell #scout-match-mode #vc1613-board .vc1613-zone{min-height:22px!important;padding:2px!important;font:850 11px/1 system-ui,sans-serif!important;border:0!important;background:#eaf2fb!important;color:#2a577f!important;border-radius:4px!important}
@@ -186,5 +189,5 @@ function attach(){
  observer.observe(panel,{childList:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
-window.VC_1613_ZONE_BOARD={version:'16.1.7',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
+window.VC_1613_ZONE_BOARD={version:'17.5.2',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,applyToken:(zone,sub='')=>/^[1-9]$/.test(String(zone))&&/^[ABCD]?$/.test(String(sub).toUpperCase())?applyZone(zone,String(sub).toUpperCase()):false,setMode:(mode)=>{if(!['origin','destination'].includes(mode))return false;state.mode=mode;state.manualMode=true;detectContext();return true},restoreModeContext:(previous,current)=>{if(!['origin','destination'].includes(previous)||!['origin','destination'].includes(current))return false;state.lastMode=previous;state.mode=current;state.manualMode=true;detectContext();return true},clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
 })();
