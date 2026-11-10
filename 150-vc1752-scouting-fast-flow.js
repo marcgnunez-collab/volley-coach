@@ -1,4 +1,4 @@
-/* Volley Coach V17.5.3 · Ruta automática origen > destino.
+/* Volley Coach V17.5.4 · Ruta automática, panel tras la pista y barra legible.
  * Presentación/draft only: no añade acciones, puntos, rally, nube ni guardado.
  * Reutiliza el teclado 9×4, los dos campos existentes y el motor de scouting.
  */
@@ -12,7 +12,7 @@
  }
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='17.5.3';
+ const VERSION='17.5.4';
  const ORIENTATION=Object.freeze(['C','B','D','A']);
  const safeUndo=(now,snapshot)=>snapshot&&String(now)===String(snapshot.after)?snapshot.before:null;
  const nextStep=(step,applied)=>!applied?step:step==='origin'?'destination':step==='destination'?'done':'done';
@@ -82,7 +82,10 @@
      }
     });
    }
-   if(strip.parentNode!==entry||strip.nextElementSibling!==zone)entry.insertBefore(strip,zone);
+   // Keep the panel UNDER the 9×4 court inside its existing section.
+   // This preserves the court's required sibling order (right before the
+   // video keyboard) and avoids a move/reinsert loop during rerenders.
+   if(strip.parentElement!==zone||zone.lastElementChild!==strip)zone.appendChild(strip);
    if(created||!mounted){mounted=true;update()}
    return true;
   }
@@ -119,22 +122,38 @@
   }
   function installStyle(){if($('vc1752-style'))return;
    const el=doc.createElement('style');el.id='vc1752-style';el.textContent=`
- #scout-match-mode #vc1752-strip{display:grid;gap:7px;margin:9px 0;padding:9px;background:#fff;border:1px solid #cbddeb;border-radius:10px;min-width:0;font:650 11px/1.35 system-ui,sans-serif;color:#285477}
+ /* V17.5.4 · Estado operativo compacto: evita el texto apilado sin estructura */
+ body.v11-shell #scout-match-mode #vc54-operation-bar{
+  display:grid!important;grid-template-columns:minmax(96px,1.05fr) minmax(70px,.6fr) minmax(90px,.8fr) minmax(112px,1fr) minmax(105px,1fr) minmax(130px,1.1fr)!important;
+  align-items:stretch!important;gap:7px!important;max-width:100%!important;margin:10px 0 14px!important;padding:9px!important;
+  background:#f6faff!important;border:1px solid #d2e0ee!important;border-radius:13px!important;
+  box-sizing:border-box!important;color:#183d62!important;overflow:visible!important;
+  font:650 12px/1.35 system-ui,sans-serif!important;
+ }
+ body.v11-shell #scout-match-mode #vc54-operation-bar>div{min-width:0!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;gap:3px!important;padding:8px 11px!important;background:#fff!important;border:1px solid #dfebf5!important;border-radius:9px!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-live-indicator{flex-direction:row!important;align-items:center!important;gap:7px!important;color:#16704a!important;font-size:11px!important;font-weight:850!important;letter-spacing:.025em!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-live-indicator i{display:inline-block!important;flex:0 0 8px!important;width:8px!important;height:8px!important;border-radius:50%!important;background:#17a36f!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation small{display:block!important;color:#617d98!important;font-size:10px!important;font-weight:800!important;line-height:1.2!important;letter-spacing:.045em!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation strong{display:block!important;color:#143a60!important;font-size:13px!important;font-weight:800!important;line-height:1.3!important;white-space:normal!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-clock strong{font-variant-numeric:tabular-nums!important}
+ @media(max-width:870px){body.v11-shell #scout-match-mode #vc54-operation-bar{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+ @media(max-width:530px){body.v11-shell #scout-match-mode #vc54-operation-bar{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:6px!important;gap:5px!important;margin:8px 0 11px!important}body.v11-shell #scout-match-mode #vc54-operation-bar>div{padding:8px!important}body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-clock{grid-column:span 2!important}}
+ #scout-match-mode #vc1613-board #vc1752-strip{display:grid;gap:9px;margin:12px 0 0;padding:11px;background:#fff;border:1px solid #b8d1e6;border-radius:10px;min-width:0;font:650 12px/1.45 system-ui,sans-serif;color:#285477}
  #scout-match-mode .vc1752-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
- #scout-match-mode .vc1752-heading b{font-size:10px;color:#114a7a;letter-spacing:.045em}
- #scout-match-mode .vc1752-heading small{font-size:9px;color:#658098}
- #scout-match-mode .vc1752-actions{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr;gap:5px;min-width:0}
- body.v11-shell #scout-match-mode #vc1752-strip button{min-height:35px!important;min-width:0!important;border:1px solid #bfd3e6!important;border-radius:7px!important;background:#f5f9fd!important;color:#24587f!important;padding:6px!important;font:750 10px/1.15 system-ui,sans-serif!important;box-shadow:none!important}
+ #scout-match-mode .vc1752-heading b{font-size:12px;color:#114a7a;letter-spacing:.045em}
+ #scout-match-mode .vc1752-heading small{font-size:11px;color:#658098}
+ #scout-match-mode .vc1752-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;min-width:0}
+ body.v11-shell #scout-match-mode #vc1752-strip button{min-height:35px!important;min-width:0!important;border:1px solid #bfd3e6!important;border-radius:7px!important;background:#f5f9fd!important;color:#24587f!important;padding:6px!important;font:750 11px/1.25 system-ui,sans-serif!important;box-shadow:none!important}
  body.v11-shell #scout-match-mode #vc1752-guide[aria-pressed="true"]{background:#1e67b2!important;color:white!important;border-color:#1e67b2!important}
  body.v11-shell #scout-match-mode #vc1752-strip button:disabled{opacity:.45!important;cursor:not-allowed}
  body.v11-shell #scout-match-mode #vc1752-strip button:focus-visible{outline:3px solid #83b9ea!important;outline-offset:2px}
- #scout-match-mode .vc1752-route{background:#e5f2fc;border:1px solid #bfd8ec;border-radius:7px;padding:7px 9px;color:#185580;font:800 10px/1.35 system-ui,sans-serif}
+ #scout-match-mode .vc1752-route{background:#e5f2fc;border:1px solid #bfd8ec;border-radius:7px;padding:7px 9px;color:#185580;font:750 11px/1.45 system-ui,sans-serif}
  body.v11-shell #scout-match-mode #vc1613-board [data-zone].vc1752-origin{box-shadow:inset 0 0 0 3px #1594bd!important}
  body.v11-shell #scout-match-mode #vc1613-board [data-zone].vc1752-destination{box-shadow:inset 0 0 0 3px #e69b37!important}
- #scout-match-mode .vc1752-bottom{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#69839a;font-size:9px}
+ #scout-match-mode .vc1752-bottom{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#69839a;font-size:11px}
  #scout-match-mode #vc1752-recent{display:flex;gap:4px;flex-wrap:wrap}
  body.v11-shell #scout-match-mode #vc1752-recent button{min-height:27px!important;min-width:36px!important;font-weight:850!important}
- #scout-match-mode #vc1752-feedback{margin:0!important;color:#507c9b;font-size:9px;overflow-wrap:anywhere}
+ #scout-match-mode #vc1752-feedback{margin:0!important;color:#507c9b;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
  #scout-match-mode #vc1613-board .vc1613-quads button{min-height:32px!important;font-size:12px!important}
  @media(max-width:650px){#scout-match-mode .vc1752-actions{grid-template-columns:repeat(2,minmax(0,1fr))}body.v11-shell #scout-match-mode #vc1752-strip button{min-height:43px!important}#scout-match-mode #vc1613-board .vc1613-quads button{min-height:38px!important}}
  `;doc.head.appendChild(el)
