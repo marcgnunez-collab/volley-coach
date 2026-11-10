@@ -42,7 +42,7 @@ async function walkChunks(id,callback){const db=await openDB();let after=null,to
  }return{chunks:total,bytes};
  }finally{db.close()}}
 function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.download=name;a.href=u;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
-function metadata(s){return{version:VERSION,id:s.id,filename:s.filename,mode:s.mode,mime:s.mime,startedAt:s.startedAt,endedAt:s.endedAt||null,durationMs:s.durationMs,bytes:s.bytes,completed:!!s.completed,error:s.error||null,match:s.match||null,markers:Array.isArray(s.markers)?s.markers:[],checkpointAt:s.checkpointAt||null,chunkCount:s.chunkCount||null}}
+function metadata(s){return{version:VERSION,id:s.id,filename:s.filename,mode:s.mode,mime:s.mime,startedAt:s.startedAt,endedAt:s.endedAt||null,durationMs:s.durationMs,bytes:s.bytes,completed:!!s.completed,error:s.error||null,match:s.match||null,training:s.training||null,markers:Array.isArray(s.markers)?s.markers:[],checkpointAt:s.checkpointAt||null,chunkCount:s.chunkCount||null}}
 async function downloadMetadata(id){const s=await getSession(id);if(!s)throw Error('Grabación no encontrada');download(new Blob([JSON.stringify(metadata(s),null,2)],{type:'application/json'}),safeName(s.filename||id)+'_marcadores.json');tell('Metadatos exportados.')}
 async function doExport(id){if(state.busy)return false;const s=await getSession(id);if(!s)throw Error('Grabación no encontrada');
  if(s.mode==='disk'){

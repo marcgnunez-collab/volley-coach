@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
 <!-- V17.5.0: scoped CSS cache and critical core preloads; script execution order unchanged. -->
-<link rel="preload" as="style" href="./vc17-match-legacy.css?v=17.5.0">
 <link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=16.5.3">
 <link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=16.1.6">
 <script id="vc16060-performance-core">
@@ -3405,14 +3404,22 @@ renderCompetition();renderPlanificacion();
     notice.style.cssText='position:fixed;bottom:16px;left:16px;right:16px;max-width:390px;z-index:2147483000;background:#102c4b;color:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 10px 32px #08213b55;display:flex;gap:10px;align-items:center;justify-content:space-between;font:600 13px/1.35 system-ui,sans-serif';
     const msg=document.createElement('span');msg.textContent='Hay una actualización disponible. Aplícala cuando termines de guardar o grabar.';
     const btn=document.createElement('button');btn.textContent='Actualizar';btn.style.cssText='background:#fff;color:#123c63;border:0;border-radius:7px;padding:9px 12px;font-weight:750;cursor:pointer';
-    btn.addEventListener('click',()=>{try{window.scoutSave?.(false)}catch(_){}location.reload()});
+    btn.addEventListener('click',()=>{
+      const c=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+      if(c.dirty||c.syncing||c.lastSyncError){
+        const ok=window.confirm('Hay cambios locales pendientes, una sincronización en curso o un error de nube. Actualizar ahora puede interrumpir el trabajo. Guarda una copia JSON y comprueba que no haya grabaciones activas antes de continuar. ¿Actualizar de todos modos?');
+        if(!ok)return;
+      }
+      try{window.scoutSave?.(false)}catch(_){}
+      location.reload();
+    });
     notice.append(msg,btn);document.body?.appendChild(notice);
   }
   const hadController=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.8.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.10.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -8436,6 +8443,16 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
         if(remote?.state&&(manual||stamp!==lastRemoteStamp||wasConflict)){
           /* Existing merger retains matches and training records; the writer
              checks the exact row version to avoid stale full-state overwrites. */
+          // V17.9: no mezclar un estado remoto distinto con cambios locales
+          // pendientes sin confirmar antes una copia recuperable en IndexedDB.
+          // Si falla la copia, se cancela esta sincronización (fail-closed).
+          if(dirty){
+            const protectedRevision=localRevision;
+            const safety=window.VC_V179_SYNC_SAFETY;
+            if(typeof safety?.beforeRemoteApply!=='function')throw Error('Protección V17.9 no cargada. Sin aplicar cambios remotos.');
+            await safety.beforeRemoteApply({localState:localState(),remoteStamp:stamp,localRevision:protectedRevision});
+            if(localRevision!==protectedRevision)throw Error('Hay cambios locales nuevos durante la copia. Se reintentará sin aplicar el estado remoto.');
+          }
           window.aplicarEstadoCloud?.(remote.state);
           remoteApplied=true;lastRemoteStamp=stamp;
           try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
@@ -11544,7 +11561,6 @@ window.VC_16051_WORKSPACE={version:'16.0.5.1',diagnostics:()=>({video:!!$('v800-
 #scout-match-mode #v800-shell[data-vc52-mode="analizar"] #v112-video-drawer{display:none!important}#scout-dashboard .v118-scout-modules>.v118-module.match[onclick*="'match'"]{display:none!important}@media(max-width:1320px){#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}#scout-match-mode #vc52-pro-host .v900-intel-column{grid-column:1/-1!important}}@media(max-width:880px){#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr)!important}#scout-match-mode #vc52-pro-host .v900-intel-column{grid-column:auto!important}#scout-match-mode #vc52-devices-body>.v138-device-strip{grid-template-columns:1fr 1fr!important}}@media(max-width:620px){#scout-match-mode #vc52-modes{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;padding:6px}#scout-match-mode #vc52-modes button{flex:0 0 auto;min-width:130px;scroll-snap-align:start;font-size:11px}#scout-match-mode #vc52-presence-bar{align-items:flex-start}#scout-match-mode #vc52-devices{margin-left:auto}#scout-match-mode #vc52-devices-body>.v138-device-strip{grid-template-columns:minmax(0,1fr)!important}#scout-match-mode #vc52-pro-host .v900-live-grid{grid-template-columns:minmax(0,1fr)!important}}#scout-match-mode #vc52-presence-bar .vc52-scout-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#scout-match-mode #vc52-presence-bar .vc52-scout-actions>button{font-size:11px;font-weight:700;min-height:34px;padding:7px 11px;border:1px solid #cee0eb;border-radius:9px;background:#fff;color:#20516f;cursor:pointer}#scout-match-mode #vc52-presence-bar .vc52-scout-actions>button:last-child{background:#17658f;color:#fff;border-color:#17658f}#scout-match-mode #vc52-match-tools{border:1px solid #d9e5ed;border-radius:11px;background:white;margin:7px 0}#scout-match-mode #vc52-match-tools>summary{padding:10px 12px;cursor:pointer;color:#345c76;font-size:12px;font-weight:750}#scout-match-mode #vc52-match-tools:not([open])>.v119-probar{display:none!important}#scout-match-mode #vc52-match-tools[open]>.v119-probar{padding:8px!important;margin:0!important;display:block!important}
 </style>
 <script src="./114-vc16052-scouting-unificado.js" data-vc-module="true"></script>
-<link rel="stylesheet" href="./vc17-match-legacy.css?v=17.5.0" id="vc1750-match-css">
 <script id="vc160541-professional-runtime">
 /* Volley Coach V16.0.5.4 · Professional Match Cockpit
    Presentation only: rearranges the real court, video, coding and stats nodes.
@@ -12362,7 +12378,7 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 
 </style>
 <script id="vc1750-ui-scheduler" src="./148-vc1750-ui-scheduler.js?v=17.5.0" defer data-vc-module="true"></script>
-<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.5.0" defer data-vc-module="true"></script>
+<script id="vc1700-professional-workspace" src="./143-vc1700-professional-workspace.js?v=17.10.0" defer data-vc-module="true"></script>
 <script id="vc1703-functional-audit" src="./144-vc1703-functional-audit.js?v=17.0.3" defer data-vc-module="true"></script>
 <script id="vc1710-training-workspace" src="./145-vc1710-training-workspace.js?v=17.5.0" defer data-vc-module="true"></script>
 <script id="vc1720-match-workspace" src="./146-vc1720-match-workspace.js?v=17.5.0" defer data-vc-module="true"></script>
@@ -12413,4 +12429,6 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 
 <script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
 <script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0" defer data-vc-module="true"></script>
+<script id="vc1790-sync-safety" src="./154-vc1790-sync-safety.js?v=17.9.0" defer data-vc-module="true"></script>
+<script id="vc17100-unified-video" src="./155-vc17100-unified-video.js?v=17.10.0" defer data-vc-module="true"></script>
 </body></html>

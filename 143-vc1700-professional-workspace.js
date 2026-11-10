@@ -10,18 +10,17 @@
 'use strict';
 const GROUPS=[
  {id:'home',label:'Inicio',icon:'⌂',defaultView:'dashboard',items:[]},
- {id:'training',label:'Entrenamientos',icon:'◇',defaultView:'entrenamiento',items:[['planificacion','Planificar'],['entrenamiento','Dirigir'],['historial','Evaluar'],['ejercicios','Biblioteca'],['estadisticas','Seguimiento']]},
- {id:'matches',label:'Partidos',icon:'◈',defaultView:'scout-dashboard',items:[['scout-dashboard','Centro de partidos'],['competicion','Calendario'],['scout-plan','Preparación'],['scout-match-mode','En directo'],['scout-workspace-v900','Codificación'],['vc155-bench','Banquillo']]},
+ {id:'training',label:'Entrenamientos',icon:'◇',defaultView:'entrenamiento',items:[['planificacion','Planificar'],['entrenamiento','Dirigir'],['scout-video-hub','Vídeo · Delay y grabación'],['historial','Evaluar'],['ejercicios','Biblioteca'],['estadisticas','Seguimiento']]},
+ {id:'matches',label:'Partidos',icon:'◈',defaultView:'scout-dashboard',items:[['scout-dashboard','Centro de partidos'],['competicion','Calendario'],['scout-plan','Preparación'],['scout-match-mode','En directo'],['scout-workspace-v900','Codificación'],['vc155-bench','Banquillo'],['scout-video-hub','Vídeo y grabación']]},
  {id:'analysis',label:'Análisis',icon:'▥',defaultView:'scout-analysis',items:[['scout-analysis','Estadísticas y táctica'],['v11-reports','Informes'],['scout-season','Temporada'],['scout-matchup','Rivales']]},
- {id:'video',label:'Vídeo',icon:'▷',defaultView:'scout-video-hub',items:[['scout-video-hub','Video Studio']]},
  {id:'team',label:'Equipo',icon:'◎',defaultView:'jugadores',items:[['jugadores','Plantilla'],['scout-season','Temporada'],['scout-safe','Copias y recuperación']]},
- {id:'management',label:'Gestión',icon:'⚙',defaultView:'v11-management',items:[['v11-management','Configuración'],['scout-safe','Recuperación']]}
+ {id:'management',auxiliary:true,label:'Gestión',icon:'⚙',defaultView:'v11-management',items:[['v11-management','Configuración'],['scout-safe','Recuperación']]}
 ];
 const GROUP_BY_ID=Object.fromEntries(GROUPS.map(x=>[x.id,x]));
 // Explicit resolution for routes shared by more than one workspace.
 const VIEW_GROUP={dashboard:'home',entrenamiento:'training',planificacion:'training',ejercicios:'training',historial:'training',estadisticas:'training',
  'scout-dashboard':'matches',competicion:'matches','scout-plan':'matches','scout-match-mode':'matches','scout-workspace-v900':'matches','vc155-bench':'matches',
- 'scout-analysis':'analysis','v11-reports':'analysis','scout-season':'analysis','scout-matchup':'analysis','scout-video-hub':'video',jugadores:'team',
+ 'scout-analysis':'analysis','v11-reports':'analysis','scout-season':'analysis','scout-matchup':'analysis','scout-video-hub':'matches',jugadores:'team',
  'v11-management':'management','scout-safe':'management'};
 const ALIASES={home:'dashboard',training:'entrenamiento',planning:'planificacion',players:'jugadores','scout-home':'scout-dashboard',
  scouting:'scout-workspace-v900',match:'scout-match-mode',bench:'vc155-bench',analysis:'scout-analysis',reports:'v11-reports',video:'scout-video-hub',management:'v11-management'};
@@ -83,9 +82,9 @@ function makeSidebar(doc){
  const footer=aside.querySelector('.v11-sidebar-footer');
  const wrapper=doc.createElement('div');wrapper.className='vc17-sidebar-frame';
  wrapper.innerHTML=`<div class="vc17-brand"><div class="vc17-brand-mark" aria-hidden="true"><img src="./vc-logo-mark.png?v=17.0.2" alt=""></div><div><strong>Volley Coach</strong><span>PROFESSIONAL WORKSPACE</span></div><button type="button" class="vc17-side-close" aria-label="Cerrar menú" data-vc17-close>×</button></div>
- <nav class="vc17-primary-nav" aria-label="Áreas de la aplicación">${GROUPS.map(g=>`<div class="vc17-nav-group" data-vc17-group="${g.id}">
+ <nav class="vc17-primary-nav" aria-label="Áreas de la aplicación">${GROUPS.filter(g=>!g.auxiliary).map(g=>`<div class="vc17-nav-group" data-vc17-group="${g.id}">
   <button type="button" class="vc17-nav-main" data-vc17-main="${g.id}" aria-expanded="false"><span class="vc17-nav-icon" aria-hidden="true">${navIcon(g.id)}</span><span>${g.label}</span>${g.items.length?'<span class="vc17-chevron" aria-hidden="true">⌄</span>':''}</button>
-  ${g.items.length?`<div class="vc17-subnav" role="group" aria-label="${g.label}">${g.items.map(x=>`<button type="button" data-vc17-view="${x[0]}">${x[1]}</button>`).join('')}</div>`:''}</div>`).join('')}</nav>`;
+  ${g.items.length?`<div class="vc17-subnav" role="group" aria-label="${g.label}">${g.items.map(x=>`<button type="button" data-vc17-view="${x[0]}">${x[1]}</button>`).join('')}</div>`:''}</div>`).join('')}</nav><div class="vc17100-nav-tools"><button type="button" data-vc17-link="v11-management">Configuración</button><button type="button" data-vc17-link="scout-safe">Copias y recuperación</button></div>`;
  aside.replaceChildren(wrapper);
  if(footer){footer.classList.add('vc17-footer');aside.appendChild(footer)}
  return true;
@@ -110,9 +109,9 @@ function makeContext(doc){
 function makeDashboard(doc){
  const dashboard=doc.getElementById('dashboard');if(!dashboard)return;
  const home=doc.createElement('div');home.id='vc17-dashboard';
- home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.4.1</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
+ home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V17.10</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
  <div class="vc17-section-header"><div><span>ÁREAS DE TRABAJO</span><h3>¿Qué necesitas hacer?</h3></div></div>
- <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${navIcon(g.id)}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
+ <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)&&!g.auxiliary).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${navIcon(g.id)}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
  <div class="vc17-section-header vc17-space"><div><span>ESTADO DEL EQUIPO</span><h3>Actividad y accesos rápidos</h3></div><button type="button" class="vc17-text-button" id="vc17-refresh">Actualizar</button></div>
  <div class="vc17-summary-grid"><div class="vc17-stat"><span>Equipo activo</span><b id="vc17-kpi-team">—</b><small>Contexto de trabajo</small></div><div class="vc17-stat"><span>Ejercicios</span><b id="vc17-kpi-exercises">—</b><small>Biblioteca disponible</small></div><div class="vc17-stat"><span>Sesiones esta semana</span><b id="vc17-kpi-week">—</b><small>Según planificación local</small></div><div class="vc17-stat"><span>Historial</span><b id="vc17-kpi-history">—</b><small>Sesiones registradas</small></div></div>
  <div class="vc17-home-bottom"><section class="vc17-home-panel"><div class="vc17-home-panel-top"><h3>Entrenamientos</h3><button type="button" data-vc17-link="planificacion">Ver planificación ↗</button></div><p>Planifica, prepara y consulta el trabajo del equipo.</p><div class="vc17-home-feature"><b id="vc17-feature-session">—</b><span id="vc17-feature-session-time">Duración de la sesión en preparación</span></div><div class="vc17-home-panel-links"><button type="button" data-vc17-link="entrenamiento">Sesión actual</button><button type="button" data-vc17-link="ejercicios">Ejercicios</button><button type="button" data-vc17-link="historial">Historial</button></div></section>
@@ -137,13 +136,17 @@ function mount(root){
   const $=id=>doc.getElementById(id);
   function closeMenu(){doc.getElementById('v11-sidebar')?.classList.remove('open');$('v11-sidebar-overlay')?.classList.remove('open');doc.querySelector('.v11-menu-toggle')?.setAttribute('aria-expanded','false')}
   function activate(view,preferredGroup){
-   activeView=view;const group=(GROUP_BY_ID[preferredGroup]?.items.some(x=>x[0]===view)||GROUP_BY_ID[preferredGroup]?.defaultView===view)?preferredGroup:resolveRoute(view).group;
+   const prior=activeView;activeView=view;
+   if(view==='scout-video-hub'&&preferredGroup!=='training'&&preferredGroup!=='matches'&&prior!=='scout-video-hub'&&['entrenamiento','planificacion','ejercicios','historial','estadisticas'].includes(prior))preferredGroup='training';
+   const videoGroup=view==='scout-video-hub'?(preferredGroup==='training'||preferredGroup==='matches'?preferredGroup:(root.VC17_VIDEO_CONTEXT?.kind==='training'?'training':'matches')):null;
+   const group=videoGroup||((GROUP_BY_ID[preferredGroup]?.items.some(x=>x[0]===view)||GROUP_BY_ID[preferredGroup]?.defaultView===view)?preferredGroup:resolveRoute(view).group);
+   if(view==='scout-video-hub')root.VC17_VIDEO_CONTEXT={...(root.VC17_VIDEO_CONTEXT||{}),kind:group};
    openGroup=group;
    doc.querySelectorAll('[data-vc17-group]').forEach(node=>{const selected=node.dataset.vc17Group===group;node.classList.toggle('active',selected);node.classList.toggle('expanded',selected);node.querySelector('.vc17-nav-main')?.setAttribute('aria-expanded',String(selected))});
    doc.querySelectorAll('[data-vc17-view]').forEach(btn=>{const selected=btn.dataset.vc17View===view&&btn.closest('[data-vc17-group]')?.dataset.vc17Group===group;btn.classList.toggle('active',selected);if(selected)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current')});
    const meta=GROUP_BY_ID[group]||GROUP_BY_ID.home;
    if($('vc17-area-kicker'))$('vc17-area-kicker').textContent=meta.label;
-   if($('vc17-view-label'))$('vc17-view-label').textContent=view==='dashboard'?'Centro de trabajo':navTitle(view);
+   if($('vc17-view-label'))$('vc17-view-label').textContent=view==='dashboard'?'Centro de trabajo':view==='scout-video-hub'?(group==='training'?'Vídeo de entrenamiento':'Vídeo de partido'):navTitle(view);
    const links=$('vc17-context-links');if(links){
     const nav=meta.items.length?meta.items:[[meta.defaultView,meta.label]];
     links.replaceChildren(...nav.map(([id,label])=>{const b=doc.createElement('button');b.type='button';b.textContent=label;b.dataset.vc17Link=id;b.className='vc17-context-link'+(id===view?' active':'');if(id===view)b.setAttribute('aria-current','page');return b}));
@@ -156,7 +159,7 @@ function mount(root){
    try{
     // Reuse original workspace activation; never copy or change business data.
     if(['scout-dashboard','scout-match-mode','scout-workspace-v900','scout-analysis','vc155-bench','competicion','scout-plan','scout-matchup','scout-season'].includes(view))root.openWorkspace?.('scouting');
-    else if(view==='scout-video-hub')root.openWorkspace?.('video');
+    else if(view==='scout-video-hub'){root.VC17_VIDEO_CONTEXT={...(root.VC17_VIDEO_CONTEXT||{}),kind:preferredGroup==='training'?'training':preferredGroup==='matches'?'matches':(['entrenamiento','planificacion','ejercicios','historial','estadisticas'].includes(activeView)?'training':'matches')};root.openWorkspace?.('video');}
     else if(['dashboard','entrenamiento','planificacion','ejercicios','historial','estadisticas','jugadores'].includes(view))root.openWorkspace?.('training');
     if(typeof root.showView!=='function')return false;
     root.showView(view,root.botonVista?.(view)||null);
@@ -233,7 +236,7 @@ function mount(root){
   // Live presence changes without DOM updates when away from Match Mode. This
   // timer reads the existing diagnostic API; it does not connect or sync.
   root.setInterval?.(()=>{if(doc.visibilityState==='visible')updateAll()},3500);
-  root.VC17_WORKSPACE={version:'17.5.0',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
+  root.VC17_WORKSPACE={version:'17.10.0',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
  };
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 }

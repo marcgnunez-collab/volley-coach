@@ -1,45 +1,59 @@
-/* Volley Coach V17.8.0 · SAFE RECOVERY SERVICE WORKER (Sync Clásico intacto)
-   Network-first navigation, no blocking 56-resource install, no deletion of user data. */
+/* Volley Coach V17.9.0 · Actualizaciones comprobadas y recuperación sin borrar datos.
+   Navegación y scripts: red primero, caché solo si falla la red.
+   Las respuestas privadas de Supabase no se interceptan ni se almacenan.
+   No toca localStorage ni IndexedDB. La caché NO garantiza uso completo offline. */
 'use strict';
-const CACHE_NAME='volley-coach-v17.8.0-analisis-pro';
+const CACHE_NAME='volley-coach-v17.10.0-unified-video';
+const APP_PREFIX='volley-coach-v';
+const SHELL=['./index.html','./recuperacion.html','./vc17-workspace.css','./manifest.webmanifest'];
 const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
-self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
-self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
-self.addEventListener('message',e=>{if(e.data==='SKIP_WAITING')self.skipWaiting()});
+const asset=u=>/\.(?:js|css|png|webmanifest|svg|ico|woff2?)$/i.test(u.pathname);
+async function cacheSuccessful(cache,request,response){
+  if(response&&response.ok&&response.type!=='opaque'){
+    try{await cache.put(request,response.clone());}catch(_){}
+  }
+}
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    // Instalación tolerante: un recurso opcional no debe bloquear el despliegue.
+    await Promise.allSettled(SHELL.map(async(path)=>{
+      const request=new Request(new URL(path,self.registration.scope).href,{cache:'no-store'});
+      const response=await fetch(request);
+      await cacheSuccessful(cache,request,response);
+    }));
+    await self.skipWaiting();
+  })());
+});
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(k=>k.startsWith(APP_PREFIX)&&k!==CACHE_NAME).map(k=>caches.delete(k)));
+    await self.clients.claim();
+  })());
+});
+self.addEventListener('message',event=>{if(event.data==='SKIP_WAITING')self.skipWaiting();});
 self.addEventListener('fetch',event=>{
- const req=event.request;if(req.method!=='GET')return;
- const url=new URL(req.url);
- if(isCloudOrApi(url))return;
- if(url.origin!==self.location.origin)return;
- if(req.mode==='navigate'){
-   event.respondWith((async()=>{
-     const cache=await caches.open(CACHE_NAME);
-     try{
-       const response=await fetch(req,{cache:'no-store'});
-       if(response&&response.ok){
-         event.waitUntil(cache.put(req,response.clone()).catch(()=>{}));
-         return response;
-       }
-     }catch(_){ }
-     const saved=await cache.match(req,{ignoreSearch:true});
-     if(saved)return saved;
-     if(!/recuperacion\.html$/.test(url.pathname)){
-       const home=await cache.match(new URL('./index.html',self.registration.scope));
-       if(home)return home;
-     }
-     return new Response('<!doctype html><html lang="es"><meta charset="utf-8"><title>Volley Coach sin conexión</title><body style="font:16px system-ui;padding:30px"><h1>Volley Coach</h1><p>No se puede abrir esta versión sin conexión. Vuelve a intentarlo cuando tengas Internet. No se han borrado tus datos.</p></body></html>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
-   })());return;
- }
- if(/\.(?:js|css|png|webmanifest|svg|ico|woff2?)$/i.test(url.pathname)){
-   event.respondWith((async()=>{
-     const cache=await caches.open(CACHE_NAME);
-     const saved=await cache.match(req);
-     if(saved)return saved;
-     try{
-       const response=await fetch(req,{cache:'no-store'});
-       if(response&&response.ok)event.waitUntil(cache.put(req,response.clone()).catch(()=>{}));
-       return response;
-     }catch(_){return Response.error()}
-   })());
- }
+  const request=event.request;
+  if(request.method!=='GET')return;
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin||isCloudOrApi(url))return;
+  if(request.mode!=='navigate'&&!asset(url))return;
+  event.respondWith((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    try{
+      const response=await fetch(request,{cache:'no-store'});
+      if(response&&response.ok)event.waitUntil(cacheSuccessful(cache,request,response));
+      return response; // No sustituir un 404 de despliegue por JS antiguo.
+    }catch(_){
+      const saved=await cache.match(request,{ignoreSearch:request.mode==='navigate'});
+      if(saved)return saved;
+      if(request.mode==='navigate'){
+        const home=await cache.match(new URL('./index.html',self.registration.scope));
+        if(home)return home;
+        return new Response('<!doctype html><html lang="es"><meta charset="utf-8"><title>Volley Coach sin conexión</title><body style="font:16px system-ui;padding:30px"><h1>Sin conexión</h1><p>No se puede abrir esta versión sin Internet. Tus datos locales no se han borrado. Vuelve a conectarte para cargar todos los módulos.</p></body></html>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
+      }
+      return Response.error();
+    }
+  })());
 });

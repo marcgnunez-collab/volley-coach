@@ -125,9 +125,14 @@ function currentSetNo(){
   }catch(_){return null}
 }
 function defaultName(){
-  const m=currentMatch();
+  const context=vcRecordContext();
+  if(context.kind==='training'){
+    const t=context.training||{};
+    return `Entrenamiento_${t.date||new Date().toISOString().slice(0,10)}_${t.team||'Equipo'}`;
+  }
+  const m=context.match||currentMatch();
   if(m)return `${m.date||new Date().toISOString().slice(0,10)}_${m.opponent||'Partido'}`;
-  return `Entrenamiento_${new Date().toISOString().slice(0,10)}`;
+  return `Partido_${new Date().toISOString().slice(0,10)}`;
 }
 function updateUI(){
   const elapsed=recordingElapsed();
@@ -155,13 +160,29 @@ function updateUI(){
     }
   }
 }
+function vcRecordContext(){
+  // Snapshot at REC start; subsequent navigation must not reassign the recording.
+  try{
+    const c=window.VC17_VIDEO_UNIFIED?.recordContext?.();
+    if(c?.kind==='training')return {kind:'training',training:c.training||null,match:null};
+  }catch(_){}
+  let m=null;
+  // Respect the explicit Video Studio match selection when the hub is visible.
+  try{
+    const inStudio=document.getElementById('scout-video-hub')?.classList.contains('active');
+    const selectedId=inStudio?document.getElementById('v780-match')?.value:null;
+    if(selectedId)m=(window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()||[]).find(x=>String(x.id)===String(selectedId))||null;
+  }catch(_){}
+  m=m||currentMatch();
+  return {kind:'matches',training:null,match:m?{id:m.id,date:m.date,opponent:m.opponent}:null};
+}
 function startTimer(){
   clearInterval(state.timer);
   state.timer=setInterval(()=>{
     // Recording and set markers continue even when the modal is closed.
     // Rebuilding the marker DOM twice a second outside Recording Studio is wasted work.
     if(document.visibilityState==='visible'&&$('live-delay-modal')?.classList.contains('open'))updateUI();
-    if(state.active&&$('vc-recording-auto-set')?.checked){
+    if(state.active&&state.recordContext?.kind!=='training'&&$('vc-recording-auto-set')?.checked){
       const setNo=currentSetNo();
       if(setNo&&setNo!==state.lastSet){
         state.lastSet=setNo;
@@ -286,7 +307,8 @@ function metadataPayload(session){
     source:session.source,
     mode:session.mode,
     markers:session.markers||[],
-    match:session.match||null
+    match:session.match||null,
+    training:session.training||null
   };
 }
 function downloadJSON(obj,name){
@@ -557,11 +579,11 @@ window.vcRecordingStart=async function(){
     const videoTracks=recStream?.getVideoTracks?.()||[];
     if(!videoTracks.length)throw new Error('No hay ninguna pista LIVE de vídeo activa.');
 
-    const sessionId=makeId(),m=currentMatch();
+    const sessionId=makeId(),recordContext=vcRecordContext();
     Object.assign(state,{
       active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
-      sessionId,filename,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
-      writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:currentSetNo(),blockCounter:0,
+      sessionId,filename,recordContext,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
+      writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:recordContext.kind==='training'?null:currentSetNo(),blockCounter:0,
       sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'
         ?`LIVE móvil directo · ${window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()?.outputOrientation==='portrait'?'vertical 9:16':'horizontal 16:9'} · independiente del Delay`
         :'LIVE cámara local · independiente del Delay',
@@ -572,7 +594,7 @@ window.vcRecordingStart=async function(){
     const initialSession={
       id:sessionId,filename,startedAt:nowIso(),endedAt:null,durationMs:0,bytes:0,mime,mode,
       source:sourceLabel(),completed:false,markers:[],requestedBitrate:Number($('vc-rec34-bitrate')?.value)||3500000,
-      match:m?{id:m.id,date:m.date,opponent:m.opponent}:null
+      match:recordContext.match,training:recordContext.training
     };
     if(handle){
       try{await dbPutSession({...initialSession,fileHandle:handle})}
@@ -655,11 +677,11 @@ window.vcRecordingTogglePause=function(){
 async function finalizeSession(){
   await state.writeQueue;
   const endedAt=nowIso(),durationMs=recordingElapsed();
-  const m=currentMatch();
+  const recordContext=state.recordContext||{match:null,training:null};
   const baseSession={
     id:state.sessionId,filename:state.filename,startedAt:new Date(state.startedAt).toISOString(),
     endedAt,durationMs,bytes:state.bytes,mime:state.mime,mode:state.mode,source:sourceLabel(),
-    markers:state.markers,completed:false,match:m?{id:m.id,date:m.date,opponent:m.opponent}:null,
+    markers:state.markers,completed:false,match:recordContext.match||null,training:recordContext.training||null,
     error:state.writeError?String(state.writeError?.message||state.writeError):state.recorderError?String(state.recorderError?.message||state.recorderError):null
   };
   /* Persist an incomplete state first. It becomes completed only after the
