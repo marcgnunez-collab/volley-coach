@@ -147,7 +147,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.6.0</title>
+<title>Volley Coach · Professional Workspace V17.7.0</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -3412,7 +3412,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.6.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.7.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12409,6 +12409,7 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 @media(max-width:570px){#scout-video-hub .vc1751-desk{padding:10px;gap:9px}#scout-video-hub .vc1751-heading{align-items:flex-start}#scout-video-hub #vc1751-library-open{width:100%}#scout-video-hub .vc1751-readiness{gap:5px}#scout-video-hub .vc1751-readiness>div{padding:9px}#scout-video-hub .vc1751-readiness strong{font-size:11px}#scout-video-hub .vc1751-readiness small,#scout-video-hub .vc1751-readiness span{font-size:9px}#scout-video-hub .vc1751-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#scout-video-hub .vc1751-shortcuts button{width:100%;padding:9px 5px!important;font-size:10px!important}#scout-video-hub .vc1751-shortcuts button:last-child{grid-column:1/-1}#scout-video-hub .vc1751-recording{align-items:stretch;flex-direction:column}#scout-video-hub .vc1751-recording button{align-self:flex-start}}
 </style>
 <script id="vc1751-video-production" src="./149-vc1751-video-production-workspace.js?v=17.5.1" defer data-vc-module="true"></script>
-<script id="vc1752-scouting-fast-flow" src="./150-vc1752-scouting-fast-flow.js?v=17.6.0" defer data-vc-module="true"></script>
-<script id="vc1760-scouting-inteligente" src="./151-vc1760-scouting-inteligente.js?v=17.6.0" defer data-vc-module="true"></script>
+<script id="vc1752-scouting-fast-flow" src="./150-vc1752-scouting-fast-flow.js?v=17.7.0" defer data-vc-module="true"></script>
+
+<script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
 </body></html>

@@ -1,4 +1,4 @@
-/* Volley Coach V17.6.0 · Ruta automática, panel tras la pista y barra legible.
+/* Volley Coach V17.5.4 · Ruta automática, panel tras la pista y barra legible.
  * Presentación/draft only: no añade acciones, puntos, rally, nube ni guardado.
  * Reutiliza el teclado 9×4, los dos campos existentes y el motor de scouting.
  */
@@ -12,7 +12,7 @@
  }
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='17.6.0';
+ const VERSION='17.5.4';
  const ORIENTATION=Object.freeze(['C','B','D','A']);
  const safeUndo=(now,snapshot)=>snapshot&&String(now)===String(snapshot.after)?snapshot.before:null;
  const nextStep=(step,applied)=>!applied?step:step==='origin'?'destination':step==='destination'?'done':'done';
@@ -122,7 +122,7 @@
   }
   function installStyle(){if($('vc1752-style'))return;
    const el=doc.createElement('style');el.id='vc1752-style';el.textContent=`
- /* V17.6.0 · Estado operativo compacto: evita el texto apilado sin estructura */
+ /* V17.5.4 · Estado operativo compacto: evita el texto apilado sin estructura */
  body.v11-shell #scout-match-mode #vc54-operation-bar{
   display:grid!important;grid-template-columns:minmax(96px,1.05fr) minmax(70px,.6fr) minmax(90px,.8fr) minmax(112px,1fr) minmax(105px,1fr) minmax(130px,1.1fr)!important;
   align-items:stretch!important;gap:7px!important;max-width:100%!important;margin:10px 0 14px!important;padding:9px!important;
@@ -159,14 +159,6 @@
  `;doc.head.appendChild(el)
   }
   installStyle();
-  // When the authoritative Add action succeeds, start a clean two-touch route.
-  // The code was saved by the existing motor; this listener edits only UI state.
-  root.addEventListener('vc1760:registered',()=>{
-   step='origin';originToken='';destinationToken='';lastEdit=null;
-   board()?.clearSelection?.();board()?.setMode?.('origin');
-   status('Acción registrada. Lista una nueva ruta: primero origen, después destino.');
-   update();
-  });
   root.addEventListener('vc1752:zone-applied',onZone);
   root.addEventListener('vc1752:zone-mode-manual',onManualMode);
   const observer=new MutationObserver(()=>ensure());
