@@ -147,7 +147,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.7.0</title>
+<title>Volley Coach · Professional Workspace V17.8.0</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -3412,7 +3412,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.7.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.8.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12412,4 +12412,5 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <script id="vc1752-scouting-fast-flow" src="./150-vc1752-scouting-fast-flow.js?v=17.7.0" defer data-vc-module="true"></script>
 
 <script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
+<script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0" defer data-vc-module="true"></script>
 </body></html>
