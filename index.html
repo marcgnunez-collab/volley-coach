@@ -147,7 +147,7 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V17.5.0</title>
+<title>Volley Coach · Professional Workspace V17.5.1</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -1043,9 +1043,9 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
   <div class="v780-hub">
     <div class="v780-hero">
       <div>
-        <span class="pro-kicker">VÍDEO · WORKSPACE V16.0.5.8</span>
-        <h2>Vídeo Studio</h2>
-        <p>Reproduce y graba en una pestaña. Analiza jugadas y clips en la otra, sin reiniciar el vídeo.</p>
+        <span class="pro-kicker">VIDEO STUDIO PRO · V17.5.1</span>
+        <h2>Vídeo, captura y análisis</h2>
+        <p>Un único reproductor para grabar, revisar rallies y organizar clips del mismo partido.</p>
       </div>
       <div class="v780-hero-actions">
         <button class="ghost" type="button" onclick="v780OpenRecordingPicker()">Grabaciones V7.7</button>
@@ -3412,7 +3412,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.5.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.5.1',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12367,4 +12367,46 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <script id="vc1710-training-workspace" src="./145-vc1710-training-workspace.js?v=17.5.0" defer data-vc-module="true"></script>
 <script id="vc1720-match-workspace" src="./146-vc1720-match-workspace.js?v=17.5.0" defer data-vc-module="true"></script>
 <script id="vc1730-analysis-workspace" src="./147-vc1730-analysis-workspace.js?v=17.5.0" defer data-vc-module="true"></script>
+<style id="vc1751-production-styles">
+/* V17.5.1 · Video Production Workspace — presentation only. */
+#scout-video-hub .vc1751-desk{display:grid;gap:11px;background:linear-gradient(165deg,#f8fbff,#f2f7ff);border:1px solid #d6e4f4;border-radius:13px;padding:14px;min-width:0;color:#193c5f;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+#scout-video-hub .vc1751-desk *{box-sizing:border-box}
+#scout-video-hub .vc1751-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+#scout-video-hub .vc1751-heading h3{margin:2px 0 3px!important;padding:0!important;border:0!important;font-size:17px!important;color:#103d70!important;font-weight:850!important}
+#scout-video-hub .vc1751-heading p{margin:0;font-size:11px;color:#627d99;line-height:1.45}
+#scout-video-hub .vc1751-kicker{color:#206cba;font-size:9px;letter-spacing:.1em;font-weight:850}
+#scout-video-hub .vc1751-readiness{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#scout-video-hub .vc1751-readiness>div{padding:11px;min-width:0;display:grid;align-content:start;gap:3px;background:white;border:1px solid #dce6f2;border-radius:10px}
+#scout-video-hub .vc1751-readiness small{font-size:10px;text-transform:uppercase;letter-spacing:.025em;color:#67819d;font-weight:800}
+#scout-video-hub .vc1751-readiness strong{font-size:13px;line-height:1.3;color:#113e73;overflow-wrap:anywhere;font-weight:850}
+#scout-video-hub .vc1751-readiness span{font-size:10px;line-height:1.4;color:#6d8195}
+#scout-video-hub .vc1751-shortcuts{display:flex;flex-wrap:wrap;gap:7px}
+#scout-video-hub .vc1751-desk button{min-height:39px!important;padding:8px 12px!important;background:#fff!important;color:#17558d!important;border:1px solid #c5d8ec!important;border-radius:8px!important;box-shadow:none!important;font:750 11px/1.2 system-ui,sans-serif!important;cursor:pointer}
+#scout-video-hub .vc1751-desk button:hover:not(:disabled){background:#eaf4ff!important;border-color:#90bce9!important}
+#scout-video-hub .vc1751-desk button:focus-visible{outline:3px solid #65a6ed!important;outline-offset:2px}
+#scout-video-hub .vc1751-desk button:disabled{opacity:.52!important;cursor:not-allowed}
+#scout-video-hub #vc1751-library-open{background:#1768bf!important;color:#fff!important;border-color:#1768bf!important}
+#scout-video-hub .vc1751-feedback{margin:0;color:#577998;font-size:10px;line-height:1.45}
+#scout-video-hub .vc1751-feedback[data-error="1"]{color:#aa443e}
+#scout-video-hub .vc1751-library{border-top:1px solid #dce8f5;padding-top:11px;display:grid;gap:8px}
+#scout-video-hub #vc1751-library[hidden]{display:none!important}
+#scout-video-hub .vc1751-library-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+#scout-video-hub .vc1751-library-head h4{margin:0!important;color:#174a7a;font-size:14px!important}
+#scout-video-hub .vc1751-library-head p{margin:3px 0 0;font-size:10px;color:#71879c}
+#scout-video-hub .vc1751-library-head>div:last-child{display:flex;gap:6px}
+#scout-video-hub #vc1751-library-state{font-size:11px;color:#426b94;margin:0}
+#scout-video-hub .vc1751-recordings{display:grid;gap:7px;max-height:300px;overflow:auto}
+#scout-video-hub .vc1751-recording{display:flex;gap:12px;align-items:center;justify-content:space-between;background:#fff;border:1px solid #d7e4f0;padding:11px;border-radius:9px}
+#scout-video-hub .vc1751-recording>div{min-width:0;display:grid;gap:4px;overflow-wrap:anywhere}
+#scout-video-hub .vc1751-recording strong{font-size:12px;color:#153a64}
+#scout-video-hub .vc1751-recording small,#scout-video-hub .vc1751-recording span{font-size:10px;color:#6d8498}
+#scout-video-hub .vc1751-empty{padding:15px;border:1px dashed #cbddee;border-radius:9px;font-size:11px;color:#71869c}
+#scout-video-hub .v780-hero{padding:15px 19px!important}
+#scout-video-hub .v780-hero h2{font-size:21px!important}
+#scout-video-hub .vc1642-command{padding:13px 15px!important}
+#scout-video-hub .vc1642-heading strong{font-size:17px!important}
+@media(max-width:950px){#scout-video-hub .vc1751-readiness{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:570px){#scout-video-hub .vc1751-desk{padding:10px;gap:9px}#scout-video-hub .vc1751-heading{align-items:flex-start}#scout-video-hub #vc1751-library-open{width:100%}#scout-video-hub .vc1751-readiness{gap:5px}#scout-video-hub .vc1751-readiness>div{padding:9px}#scout-video-hub .vc1751-readiness strong{font-size:11px}#scout-video-hub .vc1751-readiness small,#scout-video-hub .vc1751-readiness span{font-size:9px}#scout-video-hub .vc1751-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#scout-video-hub .vc1751-shortcuts button{width:100%;padding:9px 5px!important;font-size:10px!important}#scout-video-hub .vc1751-shortcuts button:last-child{grid-column:1/-1}#scout-video-hub .vc1751-recording{align-items:stretch;flex-direction:column}#scout-video-hub .vc1751-recording button{align-self:flex-start}}
+</style>
+<script id="vc1751-video-production" src="./149-vc1751-video-production-workspace.js?v=17.5.1" defer data-vc-module="true"></script>
 </body></html>
