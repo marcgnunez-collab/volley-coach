@@ -136,7 +136,7 @@ window.addEventListener('error',function(event){
       alert.style.cssText='position:fixed;z-index:2147483647;left:12px;right:12px;top:12px;padding:16px 20px;background:#fff7ed;color:#7c2d12;border:2px solid #f97316;border-radius:8px;font:600 14px/1.5 system-ui,sans-serif;box-shadow:0 4px 24px #0003';
       (document.body||document.documentElement).appendChild(alert);
     }
-    alert.textContent='Error de instalación V16.0.2: faltan '+window.VC_MODULE_LOAD_ERRORS.length+' módulos JavaScript. Sube los 38 archivos .js junto a index.html en la raíz de GitHub. Se ha interrumpido la carga normal.';
+    alert.textContent='Error de instalación V16.0.2: faltan '+window.VC_MODULE_LOAD_ERRORS.length+' módulos JavaScript. Revisa que todos los módulos JavaScript requeridos estén publicados junto a index.html. Se ha interrumpido la carga normal.';
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',notify,{once:true});else notify();
 },true);
@@ -144,8 +144,8 @@ window.addEventListener('error',function(event){
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Analysis Workspace V17.3.0</title>
-<link rel="manifest" href="./manifest.webmanifest?v=17.0.2">
+<title>Volley Coach · Professional Workspace V17.4.0</title>
+<link rel="manifest" href="./manifest.webmanifest?v=17.4.0">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3408,7 +3408,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.3.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.4.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12169,7 +12169,7 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
 </script>
 <script id="vc1630-core-reliability" src="./127-vc1630-core-reliability.js?v=16.3.0" defer data-vc-module="true"></script>
 <script id="vc1661-runtime-stability" src="./142-vc1661-runtime-stability.js?v=16.6.1" data-vc-module="true" defer></script>
-<link rel="stylesheet" href="./vc17-workspace.css?v=17.0.2">
+<link rel="stylesheet" href="./vc17-workspace.css?v=17.4.0">
 <!-- Critical inline CSS: the workspace remains legible if GitHub omits or caches the external CSS file. -->
 <style id="vc1701-critical-css">
 /* V17.0 · New navigation structure. All selectors scoped to vc17-shell. */
