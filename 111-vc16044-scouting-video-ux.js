@@ -1,6 +1,6 @@
 (()=>{
   'use strict';
-  const VERSION='16.0.4.4';
+  const VERSION='17.5.3';
   const INPUT_IDS=new Set(['v800-code','v113-video-code','scout-code-input']);
   const $=id=>document.getElementById(id);
   const drawer=()=>$('v112-video-drawer');
@@ -60,30 +60,72 @@
     const button=$('vc1644-theater-btn');
     if(button){button.textContent=allowed?'⤢ Salir de pantalla grande':'⤢ Pantalla grande';button.setAttribute('aria-pressed',String(!!allowed));}
     if(allowed)diagnostics.openTheater++;
+    ensureControls();
     return allowed;
   }
   function ensureControls(){
-    const d=drawer(),head=d?.querySelector('.v112-video-drawer-head');
-    if(!head||$('vc1644-theater-btn'))return;
-    const tools=document.createElement('div');tools.className='vc1644-video-tools';
-    const label=document.createElement('span');label.className='vc1644-focus-hint';label.textContent='Códigos: a/A equivalen · Alt+K enfoca';
-    const focus=document.createElement('button');focus.type='button';focus.id='vc1644-focus-code';focus.textContent='⌨ Escribir código';focus.addEventListener('click',()=>focusCode());
-    const expand=document.createElement('button');expand.type='button';expand.id='vc1644-theater-btn';expand.setAttribute('aria-pressed','false');expand.textContent='⤢ Pantalla grande';expand.addEventListener('click',()=>setTheater(!d.classList.contains('vc1644-theater')));
-    tools.append(label,focus,expand);
-    const close=head.querySelector('button[onclick*="v112ToggleVideo"]');
-    if(close)head.insertBefore(tools,close);else head.append(tools);
+    const d=drawer();
+    // The old header is often replaced by the later cockpit/workspace scripts.
+    // Keep controls on the video card itself, which is visible during scouting.
+    const topHead=d?.querySelector('.v112-video-drawer-head');
+    const videoHead=d?.querySelector('.v112-video-card > .v800-card-head');
+    const active=!!d?.classList.contains('vc1644-theater');
+    // Normal view: next to 'Cerrar vídeo'. Theater: inside the video card,
+    // because the outer drawer heading is hidden in the fullscreen layout.
+    const head=(active?videoHead:topHead)||(videoHead||topHead);
+    if(!head)return false;
+    let holder=$('vc55-video-controls');
+    if(!holder){holder=document.createElement('div');holder.id='vc55-video-controls';holder.className='vc55-video-controls';}
+    if(holder.parentElement!==head){
+      const close=!active?topHead?.querySelector('button[onclick*="v112ToggleVideo"]'):null;
+      if(close&&close.parentElement===head)head.insertBefore(holder,close);
+      else head.appendChild(holder);
+    }
+    let focus=$('vc1644-focus-code');
+    if(!focus){
+      focus=document.createElement('button');focus.type='button';focus.id='vc1644-focus-code';
+      focus.textContent='⌨ Escribir código';focus.addEventListener('click',focusCode);
+    }
+    if(focus.parentElement!==holder)holder.appendChild(focus);
+    let expand=$('vc1644-theater-btn');
+    if(!expand){
+      expand=document.createElement('button');expand.type='button';expand.id='vc1644-theater-btn';
+      expand.addEventListener('click',()=>setTheater(!drawer()?.classList.contains('vc1644-theater')));
+    }
+    if(expand.parentElement!==holder)holder.appendChild(expand);
+    expand.setAttribute('aria-pressed',String(active));
+    const text=active?'⤢ Salir de pantalla grande':'⤢ Pantalla grande';
+    if(expand.textContent!==text)expand.textContent=text;
+    expand.title=active?'Volver a la vista normal (Esc)':'Ampliar el vídeo conservando la codificación (Esc para cerrar)';
     const entry=d.querySelector('.v113-video-code-entry');
     if(entry&&!entry.querySelector('.vc1644-code-tip')){
       const hint=document.createElement('p');hint.className='vc1644-code-tip';hint.textContent='Escribe sin Shift: 7a# se convierte en 7A#. Enter guarda la acción.';
       entry.appendChild(hint);
     }
     INPUT_IDS.forEach(id=>{$(id)?.setAttribute('spellcheck','false');$(id)?.setAttribute('autocapitalize','characters')});
+    return true;
   }
-  // Observe only two class attributes. No periodic DOM rewrites or video restarts.
+  // Watch the video drawer only: re-rendered heads must regain the button.
   function reconcile(){
     if(drawer()?.classList.contains('vc1644-theater')&&(!isMatchVisible()||!shell()?.classList.contains('v112-video-open'))){setTheater(false)}
   }
   ensureControls();
+  let pending=false,observedDrawer=null;
+  const restoreObserver=new MutationObserver(scheduleRestore);
+  function watchDrawer(){
+    const current=drawer();
+    if(current===observedDrawer)return;
+    restoreObserver.disconnect();observedDrawer=current;
+    if(current)restoreObserver.observe(current,{childList:true,subtree:true});
+  }
+  function scheduleRestore(){
+    if(pending)return;
+    pending=true;
+    requestAnimationFrame(()=>{pending=false;watchDrawer();ensureControls();reconcile()});
+  }
+  watchDrawer();
+  // Only the shell's immediate children, to recover if the whole drawer is recreated.
+  if(shell())new MutationObserver(scheduleRestore).observe(shell(),{childList:true});
   const observer=new MutationObserver(reconcile);
   if(shell())observer.observe(shell(),{attributes:true,attributeFilter:['class']});
   if(mainView())observer.observe(mainView(),{attributes:true,attributeFilter:['class']});

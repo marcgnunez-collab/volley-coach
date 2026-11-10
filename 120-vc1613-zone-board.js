@@ -164,7 +164,7 @@ function mount(){
    const z=e.target.closest('[data-zone]');
    if(z){applyZone(z.dataset.zone,z.dataset.sub||'');return;}
    const mode=e.target.closest('[data-location-mode]');
-   if(mode){state.mode=mode.dataset.locationMode;state.manualMode=true;detectContext();return;}
+   if(mode){state.mode=mode.dataset.locationMode;state.manualMode=true;detectContext();window.dispatchEvent(new CustomEvent('vc1752:zone-mode-manual',{detail:{mode:state.mode}}));return;}
    if(e.target.closest('#vc1613-clear-selection'))reset();
   });
  }
@@ -189,5 +189,5 @@ function attach(){
  observer.observe(panel,{childList:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
-window.VC_1613_ZONE_BOARD={version:'17.5.2',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,applyToken:(zone,sub='')=>/^[1-9]$/.test(String(zone))&&/^[ABCD]?$/.test(String(sub).toUpperCase())?applyZone(zone,String(sub).toUpperCase()):false,setMode:(mode)=>{if(!['origin','destination'].includes(mode))return false;state.mode=mode;state.manualMode=true;detectContext();return true},restoreModeContext:(previous,current)=>{if(!['origin','destination'].includes(previous)||!['origin','destination'].includes(current))return false;state.lastMode=previous;state.mode=current;state.manualMode=true;detectContext();return true},clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
+window.VC_1613_ZONE_BOARD={version:'17.5.3',ensureUI:mount,toggle:()=>true,applySelection:()=>state.zone?applyZone(state.zone,state.sub):false,applyToken:(zone,sub='')=>/^[1-9]$/.test(String(zone))&&/^[ABCD]?$/.test(String(sub).toUpperCase())?applyZone(zone,String(sub).toUpperCase()):false,setMode:(mode)=>{if(!['origin','destination'].includes(mode))return false;state.mode=mode;state.manualMode=true;detectContext();return true},restoreModeContext:(previous,current)=>{if(!['origin','destination'].includes(previous)||!['origin','destination'].includes(current))return false;state.lastMode=previous;state.mode=current;state.manualMode=true;detectContext();return true},clearSelection:reset,replaceLocation,diagnostics:()=>({mounted:!!$('vc1613-board'),inline:!!$('vc1613-board')?.closest('#v113-video-code-panel'),code:codeInput()?.value||'',zone:token(),mode:state.mode,updates:state.updates})};
 })();
