@@ -1,4 +1,4 @@
-/* Volley Coach V18.8.0 · Analysis Pro Tactical Workspace
+/* Volley Coach V18.9.0 · Analysis Pro Tactical Workspace
    Read-only professional workspace. Reuses VC_ANALYSIS_INTELLIGENCE_1614.model
    as the canonical statistical engine. No scouting writes or PDF template changes. */
 (()=>{
@@ -15,7 +15,7 @@ const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación
 const pages={
  overview:['Resumen','Lectura del partido y tendencias'],
  players:['Rendimiento','Hojas estadísticas y fundamentos'],
- lab:['Táctica y fundamentos','Saque, recepción, ataque, bloqueo, rotaciones y secuencias'],
+ lab:['Táctica y fundamentos','Saque, recepción, ataque, bloqueo, rotaciones, cruces y secuencias'],
  athletes:['Jugadores','Fichas individuales y comparador'],
  explorer:['Vídeo y acciones','Búsqueda y revisión de evidencias'],
  comparisons:['Histórico','Partidos, jugadores y rivales'],
@@ -27,7 +27,7 @@ const pages={
 const mainPages=['overview','players','lab','athletes','explorer','comparisons','reports'];
 const subpages={
  players:[['builder','Hojas configurables'],['sheet','Hoja oficial por jugador'],['fundamentals','Fundamentos Pro']],
- lab:[['serve','Saque y recepción'],['attack','Ataque'],['block','Bloqueo y defensa'],['workbench','Mesa táctica'],['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones'],['quality','Calidad del scouting']],
+ lab:[['serve','Saque y recepción'],['attack','Ataque'],['block','Bloqueo y defensa'],['workbench','Mesa táctica'],['rotations','Rotaciones y K1/K2'],['matchups','Cruces de rotaciones'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones'],['quality','Calidad del scouting']],
  athletes:[['profile','Ficha individual'],['compare','Comparador A/B']],
  comparisons:[['matches','Partidos A/B'],['players','Jugadores y evolución'],['rivals','Scouting de rivales']],
  tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
@@ -66,7 +66,7 @@ function exportReportFile(type){
  task().then(()=>{if(notice)notice.textContent=type==='pdf'?'PDF generado.':'HTML descargado; también puedes imprimirlo como PDF desde el navegador.'}).catch(error=>{console.warn('Informes Pro',error);if(notice)notice.textContent=`Error al exportar: ${error.message||error}. Puedes utilizar el HTML como alternativa.`}).finally(()=>{if(button?.isConnected)button.disabled=false});
 }
 function inDeepView(){return state.page==='players'&&state.subpage.players==='fundamentals';}
-const state={page:'overview',subpage:{players:'builder',lab:'workbench',athletes:'profile',comparisons:'matches',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',labFilters:{reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''},selected:[],selectedTitle:'Selecciona una cifra de la tabla',worksheet:{skill:'A',group:'player',reception:'all',sort:'count',columns:['count','kills','errors','blocked','gp','eff','video']},worksheetSavedName:'',worksheetNotice:'',compareSelection:{matchA:'',matchB:'',playerA:'',playerB:''},loaded:false,draws:0};
+const state={page:'overview',subpage:{players:'builder',lab:'workbench',athletes:'profile',comparisons:'matches',tactics:'rotations',setter:'distribution'},team:'ours',set:'',rotation:'',phase:'',skill:'',rating:'',player:'',match:'',technical:false,deepSkill:'A',deepDim:'player',deepPlayer:'',profilePlayer:'',comparePlayerA:'',comparePlayerB:'',setterPlayer:'',setterReception:'',setterTempo:'',attackPlayer:'',attackResult:'',seqReception:'',seqReceiver:'',seqAttacker:'',seqOutcome:'',seqCompareA:'',seqCompareB:'',labFilters:{reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''},selected:[],selectedTitle:'Selecciona una cifra de la tabla',worksheet:{skill:'A',group:'player',reception:'all',sort:'count',columns:['count','kills','errors','blocked','gp','eff','video']},worksheetSavedName:'',worksheetNotice:'',compareSelection:{matchA:'',matchB:'',playerA:'',playerB:''},matchupRivalRotation:'',loaded:false,draws:0};
 let host=null,native=null,view=null;
 // Same immutable-for-UI model that painted the current view. Never reused for a
 // fresh refresh or export: scouting data can change in place after a cloud pull.
@@ -125,6 +125,7 @@ function dataset(){const api=window.VC_ANALYSIS_INTELLIGENCE_1614,m=currentMatch
  try{return api.model(filteredMatch(m),scoutedTeam(),{team:state.team,set:state.set,rotation:state.rotation});}
  finally{const elapsed=perfNow()-started;vc1632Metrics.modelCalls++;vc1632Metrics.modelMs+=elapsed;vc1632Metrics.modelMaxMs=Math.max(vc1632Metrics.modelMaxMs,elapsed)}
 }
+function matchupDataset(){const api=window.VC_ANALYSIS_INTELLIGENCE_1614,m=currentMatch();if(!api?.model||!m)return null;return api.model(m,scoutedTeam(),{team:state.team})}
 function selOpts(values,value,all){return `<option value="">${html(all)}</option>${values.map(([k,v])=>`<option value="${html(k)}" ${String(value)===String(k)?'selected':''}>${html(v)}</option>`).join('')}`}
 function buildHeader(){
  const ms=matches(),m=syncSelection(),sets=arr(m?.sets).map(s=>[String(s.number),`Set ${s.number}`]);
@@ -917,11 +918,11 @@ function renderPage(){
   if(meta)meta.textContent=`${matches().length} scoutings disponibles · Comparativa de partidos`;
   surface.innerHTML=pageSeason();state.draws++;measurePaint(started);return;
  }
- const data=dataset();
+ const page=state.page,subpage=state.subpage[page],isMatchupPage=page==='lab'&&subpage==='matchups';
+ const data=isMatchupPage?matchupDataset():dataset();
  if(!data){surface.innerHTML='<div class="vc157-empty">Selecciona un scouting para empezar el análisis.</div>';if(meta)meta.textContent='Sin scouting disponible';measurePaint(started);return;}
  paintedModel=data;
- if(meta)meta.textContent=periodLabel(data);
- const page=state.page,subpage=state.subpage[page];
+ if(meta)meta.textContent=isMatchupPage?'Partido completo · Cruces de rotaciones · K1/K2':periodLabel(data);
  if(inDeepView()){
   pageDeep(data,surface);
  }else if(page==='overview')surface.innerHTML=pageOverview(data);
@@ -933,15 +934,16 @@ function renderPage(){
   else if(subpage==='attack')surface.innerHTML=advanced?.renderAttack?advanced.renderAttack(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de ataque V18.8.0.</div>';
   else if(subpage==='block')surface.innerHTML=advanced?.renderBlockDefense?advanced.renderBlockDefense(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de bloqueo y defensa V18.8.0.</div>';
   else if(subpage==='quality')surface.innerHTML=advanced?.renderQuality?advanced.renderQuality(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de calidad del scouting V18.8.0.</div>';
+  else if(subpage==='matchups')surface.innerHTML=window.VC_ROTATION_MATCHUP_1890?.renderPage?window.VC_ROTATION_MATCHUP_1890.renderPage(data,state,{table,pickButton,html,fmt,pct,signed}):'<div class="vc157-empty">No se ha cargado Rotation Matchup Pro V18.9.0.</div>';
   else if(subpage==='workbench')surface.innerHTML=pageLabWorkbench(data);
   else if(subpage==='zones')surface.innerHTML=pageZones(data);
   else if(subpage==='distribution')surface.innerHTML=pageDistribution(data);
-  else if(subpage==='details')surface.innerHTML=pageSetterDetails(data);
+  else if(subpage==='details')surface.innerHTML=window.VC_SETTER_PRO_1881?.renderPage?window.VC_SETTER_PRO_1881.renderPage(data,state,{table,pickButton,html,fmt,pct,signed}):pageSetterDetails(data);
   else if(subpage==='sequences')surface.innerHTML=pageSequences(data);
   else surface.innerHTML=pageRotations(data);
  }
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
- else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?pageSetterDetails(data):pageDistribution(data);
+ else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?(window.VC_SETTER_PRO_1881?.renderPage?window.VC_SETTER_PRO_1881.renderPage(data,state,{table,pickButton,html,fmt,pct,signed}):pageSetterDetails(data)):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
  if(page==='lab'&&subpage==='workbench')labInspectFiltered();
  const note=$('vc1650-message');if(note&&state.worksheetNotice)note.textContent=state.worksheetNotice;
@@ -1022,7 +1024,7 @@ function onTeamChanged(){
  state.profilePlayer='';state.comparePlayerA='';state.comparePlayerB='';
  state.setterPlayer='';state.setterReception='';state.setterTempo='';
  state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';
- state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
+ state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';state.matchupRivalRotation='';
  state.labFilters={reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''};
  state.selected=[];state.selectedTitle='Selecciona una cifra de la tabla';
  state.report={...state.report,matchId:'',compareId:'',playerKey:'',rivalKey:''};
@@ -1037,12 +1039,12 @@ function mount(){
  state.report=reportPreferences();
  const comparative=window.VC_COMPARISONS_1656;
  if(comparative?.css&&!$('vc1656-style')){const style=document.createElement('style');style.id='vc1656-style';style.textContent=comparative.css;document.head.appendChild(style);}
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO · V18.8.0</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO · V18.9.0</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${mainPages.map(k=>`<button type="button" data-section="${k}" aria-selected="false"><b>${pages[k][0]}</b><span>${pages[k][1]}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro V18.8.0 · Partido, fundamentos, táctica, jugadores, histórico e informes. Motor estadístico original en modo de solo lectura. Se conservan las hojas configurables. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
+ <p class="vc157-footer">Analysis Pro V18.9.0 · Partido, fundamentos, táctica, cruces de rotaciones, jugadores, histórico e informes. Motor estadístico original en modo de solo lectura. Se conservan las hojas configurables. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;if(state.page==='comparisons'){state.selected=[];state.selectedTitle='Selecciona un scouting del historial';renderInspector();}renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
@@ -1054,6 +1056,7 @@ function mount(){
  host.addEventListener('change',e=>{
   const t=e.target,id=t.id;
   if(id==='vc1657-title'||id==='vc1657-notes')return;
+  if(id==='vc1890-rival-rotation'){state.matchupRivalRotation=t.value;state.selected=[];state.selectedTitle='Acciones del cruce de rotaciones';renderInspector();renderPage();return;}
   if(id==='vc1657-kind'){
    state.report={...state.report,kind:t.value,matchId:'',compareId:'',playerKey:'',rivalKey:''};saveReportPreferences();renderPage();return;
   }
@@ -1128,13 +1131,13 @@ function mount(){
   if(id==='vc157-match'){
    const chosen=matches().find(m=>String(m.id)===String(t.value));
    if(!chosen){buildHeader();return;}
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';state.labFilters={reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''};
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.player='';state.matchupRivalRotation='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';state.labFilters={reception:'all',setter:'',attacker:'',tempo:'',outcome:'',destination:''};
    // Never dispatch the old select's change from Studio: the legacy renderer
    // can rebuild its options and switch back to the active match mid-selection.
    setNativeSelection(state.match);
    state.selected=[];state.selectedTitle='Selecciona una cifra de la tabla';renderInspector();
   } else if(id==='vc157-team'||id==='vc157-set'||id==='vc157-rotation'||id==='vc157-phase'){
-   state[id.slice(6)]=t.value;state.selected=[];renderInspector();
+   state[id.slice(6)]=t.value;if(id==='vc157-team')state.matchupRivalRotation='';state.selected=[];renderInspector();
   } else if(id==='vc157-player'||id==='vc157-skill'||id==='vc157-rating')state[id.slice(6)]=t.value;
   refresh();
  });
@@ -1148,7 +1151,7 @@ function mount(){
   const profile=e.target.closest('[data-vc1626-open]');
   if(profile){state.profilePlayer=profile.dataset.vc1626Open;state.page='athletes';state.subpage.athletes='profile';state.selected=[];renderInspector();renderPage();return}
   const history=e.target.closest('[data-vc1626-history]');
-  if(history){const chosen=matches().find(m=>String(m.id)===history.dataset.vc1626History);if(chosen){state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.page='athletes';state.subpage.athletes='profile';state.selected=[];setNativeSelection(state.match);renderInspector();buildHeader();renderPage()}return}
+  if(history){const chosen=matches().find(m=>String(m.id)===history.dataset.vc1626History);if(chosen){state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.matchupRivalRotation='';state.page='athletes';state.subpage.athletes='profile';state.selected=[];setNativeSelection(state.match);renderInspector();buildHeader();renderPage()}return}
   const go=e.target.closest('[data-vc1625-page]');
   if(go&&pages[go.dataset.vc1625Page]){
    const [destination,sub]=routeTo(go.dataset.vc1625Page,go.dataset.vc1625Subpage);
@@ -1170,7 +1173,7 @@ function mount(){
   if(t.dataset.seasonMatch){
    const chosen=matches().find(m=>String(m.id)===String(t.dataset.seasonMatch));
    if(!chosen)return;
-   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
+   state.match=String(chosen.id);state.set='';state.rotation='';state.phase='';state.matchupRivalRotation='';state.setterPlayer='';state.setterReception='';state.setterTempo='';state.attackPlayer='';state.attackResult='';state.seqReception='';state.seqReceiver='';state.seqAttacker='';state.seqOutcome='';state.seqCompareA='';state.seqCompareB='';
    state.page='overview';state.selected=[];state.selectedTitle='Selecciona una cifra';setNativeSelection(state.match);
    renderInspector();buildHeader();renderPage();return;
   }
@@ -1590,5 +1593,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:520px){#vc157-studio .vc1651-filtergrid,#vc157-studio .vc1651-metrics{grid-template-columns:1fr}#vc157-studio .vc1651-courtwrap svg{min-width:470px}}
 `;
 /* Scoped visual overrides appended to the existing stylesheet. */
-window.VC_ANALYST_STUDIO_16155={version:'18.8.0',mount,open,refresh,onTeamChanged,videoSelection:()=>({matchId:String(currentMatch()?.id||''),page:state.page,subpage:state.subpage[state.page]||'',selected:state.selected.map(r=>({key:String(r.key),video:!!r.video,code:String(r.code||r.skill+r.ev||''),player:String(r.player||''),set:r.set,rally:r.r?.index||''})),title:state.selectedTitle}),setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
+window.VC_ANALYST_STUDIO_16155={version:'18.8.1',mount,open,refresh,onTeamChanged,videoSelection:()=>({matchId:String(currentMatch()?.id||''),page:state.page,subpage:state.subpage[state.page]||'',selected:state.selected.map(r=>({key:String(r.key),video:!!r.video,code:String(r.code||r.skill+r.ev||''),player:String(r.player||''),set:r.set,rally:r.r?.index||''})),title:state.selectedTitle}),setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
 })();

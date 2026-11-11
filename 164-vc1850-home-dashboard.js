@@ -1,4 +1,4 @@
-/* Volley Coach V18.5.0 · Home Dashboard Pro.
+/* Volley Coach V18.9.0 · Home Dashboard Pro · visual refresh.
  * Read-only projection of existing competitions, training, scouting and clip data.
  * No new local/cloud persistence or changes to match/scout/media engines.
  */
@@ -9,7 +9,7 @@
   if(root&&root.document)api.mount(root);
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
 'use strict';
-const VERSION='18.5.0';
+const VERSION='18.9.0';
 const clean=x=>String(x??'').replace(/\s+/g,' ').trim();
 const arr=x=>Array.isArray(x)?x:[];
 function localISO(date=new Date()){
@@ -65,7 +65,7 @@ function mount(root){
    <div class="vc1850-feature-row">
     <article class="vc1850-match-hero" aria-label="Próximo partido">
      <div class="vc1850-match-copy"><div class="vc1850-feature-label">◷ PRÓXIMO PARTIDO</div><h3 id="vc1850-next-match">Sin partido programado</h3><p id="vc1850-match-details">Programa tu siguiente encuentro para verlo aquí.</p><button type="button" data-vc1850-action="open-match">Abrir partidos <span aria-hidden="true">→</span></button></div>
-     <div class="vc1850-court" aria-hidden="true"><svg viewBox="0 0 380 250" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="vc1850-court-fill" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#ffb875"/><stop offset="1" stop-color="#ec804b"/></linearGradient></defs><path d="M46 196 157 90 349 111 280 218Z" fill="url(#vc1850-court-fill)" stroke="#fff5e5" stroke-width="4"/><path d="M102 142 309 171M157 90 280 218M230 97 335 133" stroke="#fff5e5" stroke-width="2.5" opacity=".8"/><path d="M91 122 335 147" stroke="#e5effe" stroke-width="3"/><path d="M99 61 343 88 335 148 91 122Z" fill="#cae7fc" fill-opacity=".13" stroke="#dcefff" stroke-width="2"/><path d="M99 61 91 122 M135 65 127 126 M172 69 164 129 M209 73 201 133 M246 77 238 137 M283 81 275 141 M320 85 312 145 M99 80 341 107 M97 100 338 128" stroke="#e9f4ff" stroke-width="1" opacity=".65"/><path d="M91 49v107 M343 74v103" stroke="#a7d2ef" stroke-width="7" stroke-linecap="round"/></svg></div>
+     <div class="vc1850-court" aria-hidden="true"><img src="./assets/vc1850-court-premium.png" alt="" loading="lazy" decoding="async"></div>
     </article>
     <article class="vc1850-training-feature"><div class="vc1850-feature-label">◉ PRÓXIMO ENTRENAMIENTO</div><h3 id="vc1850-next-training">Sin sesión programada</h3><div id="vc1850-training-details">Planifica el próximo entrenamiento del equipo.</div><button type="button" data-vc1850-action="open-training">Abrir planificación <span aria-hidden="true">→</span></button></article>
    </div>

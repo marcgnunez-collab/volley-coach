@@ -1,4 +1,4 @@
-/* Volley Coach V18.8.0 · Analysis Pro Workspace.
+/* Volley Coach V18.9.0 · Analysis Pro Workspace.
  * Read-only navigation adapter for the existing Analyst Studio. Its filters,
  * calculations, scouting selection, inspector, videos and PDF exporters remain
  * owned exclusively by their original modules. No persistence or cloud writes.
@@ -10,11 +10,11 @@
  if(root&&root.document)api.mount(root);
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='18.8.0';
+ const VERSION='18.9.0';
  const MODES=[
   {id:'match',title:'Partido',subtitle:'Resumen, marcador y rendimiento',links:[['overview','','Resumen del partido'],['players','builder','Hojas configurables'],['players','sheet','Hoja oficial G-P'],['explorer','','Vídeo y acciones']]},
   {id:'fundamentals',title:'Fundamentos',subtitle:'Saque, recepción, ataque y defensa',links:[['lab','serve','Saque y recepción'],['lab','attack','Análisis de ataque'],['lab','block','Bloqueo y defensa'],['players','fundamentals','Fundamentos Pro'],['lab','quality','Calidad del scouting']]},
-  {id:'tactics',title:'Táctica',subtitle:'Rotaciones, colocador y secuencias',links:[['lab','workbench','Mesa táctica'],['lab','rotations','Rotaciones K1/K2'],['lab','zones','Mapa de ataque'],['lab','distribution','Distribución del colocador'],['lab','details','Tempos y combinaciones'],['lab','sequences','Secuencias de juego']]},
+  {id:'tactics',title:'Táctica',subtitle:'Rotaciones, cruces, colocador y secuencias',links:[['lab','workbench','Mesa táctica'],['lab','rotations','Rotaciones K1/K2'],['lab','matchups','Cruces de rotaciones'],['lab','zones','Mapa de ataque'],['lab','distribution','Distribución del colocador'],['lab','details','Colocador Pro · sistemas ofensivos'],['lab','sequences','Secuencias de juego']]},
   {id:'players',title:'Jugadores',subtitle:'Rendimiento y comparación individual',links:[['athletes','profile','Ficha individual'],['athletes','compare','Comparador A/B']]},
   {id:'history',title:'Histórico',subtitle:'Evolución entre partidos y rivales',links:[['comparisons','matches','Partidos A/B'],['comparisons','players','Evolución de jugadores'],['comparisons','rivals','Scouting de rivales']]},
   {id:'reports',title:'Informes',subtitle:'Exportación y presentación',links:[['reports','','Informes Pro']]}
