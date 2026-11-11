@@ -3,9 +3,9 @@
    Las respuestas privadas de Supabase no se interceptan ni se almacenan.
    No toca localStorage ni IndexedDB. La caché NO garantiza uso completo offline. */
 'use strict';
-const CACHE_NAME='volley-coach-v18.2.0-video-reliability';
+const CACHE_NAME='volley-coach-v18.3.0-linked-live-delay-clips';
 const APP_PREFIX='volley-coach-v';
-const SHELL=['./index.html','./recuperacion.html','./vc17-workspace.css','./manifest.webmanifest','./154-vc1790-sync-safety.js','./157-vc17120-match-recording-pro.js','./158-vc17121-install-health.js','./159-vc1800-cross-video-evidence.js','./vc181-video-studio.css','./160-vc1810-video-studio-layout.js','./vc182-video-reliability.css','./161-vc1820-video-reliability.js'];
+const SHELL=['./index.html','./recuperacion.html','./vc17-workspace.css','./manifest.webmanifest','./154-vc1790-sync-safety.js','./157-vc17120-match-recording-pro.js','./158-vc17121-install-health.js','./159-vc1800-cross-video-evidence.js','./vc181-video-studio.css','./160-vc1810-video-studio-layout.js','./vc182-video-reliability.css','./161-vc1820-video-reliability.js','./vc183-video-workspaces.css','./162-vc1830-video-workspaces.js'];
 const isCloudOrApi=u=>/supabase\.(?:co|in)$/.test(u.hostname)||/(?:\/rest\/v1\/|\/auth\/v1\/|\/realtime\/v1\/|\/storage\/v1\/)/.test(u.pathname);
 const asset=u=>/\.(?:js|css|png|webmanifest|svg|ico|woff2?)$/i.test(u.pathname);
 async function cacheSuccessful(cache,request,response){

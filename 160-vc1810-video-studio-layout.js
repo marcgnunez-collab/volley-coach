@@ -235,7 +235,9 @@
    root.VC_VIDEO_STUDIO_1810={version:VERSION,setContext:viewContext,setTab:changeTab,refresh,diagnostics:()=>({version:VERSION,context:state.context,tab:state.tab,wide:state.wide,solo:state.solo,updates:state.updates,originalVideoCount:studio.querySelectorAll('#v780-player-video').length,originalLiveCount:studio.querySelectorAll('#v117-review-stream').length,originalRecorderCount:studio.querySelectorAll('#vc-rec34-strip').length,lastError:state.lastError,scoutingEngineModified:false,syncEngineModified:false})};
    return true;
   }
-  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',start,{once:true});else start();return true;
+  let attempts=0;
+  function bootstrap(){if(start())return;if(++attempts<48)root.setTimeout?.(bootstrap,250);}
+  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',bootstrap,{once:true});else bootstrap();return true;
  }
  return {VERSION,CONTEXTS,TABS,clean,formatSeconds,selectContext,validContext,validTab,mount};
 });
