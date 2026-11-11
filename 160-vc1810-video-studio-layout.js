@@ -9,7 +9,7 @@
  if(root&&root.document)api.mount(root);
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='18.1.0';
+ const VERSION='18.4.3';
  const CONTEXTS=['partido','entrenamiento','analisis'];
  const TABS=['directo','delay','revision','clips'];
  const clean=value=>String(value??'').replace(/\s+/g,' ').trim();
@@ -27,8 +27,8 @@
    if(root.VC_VIDEO_STUDIO_1810)return true;
    const $=id=>doc.getElementById(id);
    const studio=$('scout-video-hub'),hub=studio?.querySelector('.v780-hub'),main=studio?.querySelector('.v780-main');
-   if(!studio||!hub||!main||!$('v780-video-frame')||!$('vc1642-command')||!root.VC17_VIDEO_UNIFIED)return false;
-   const state={context:selectContext(root.VC17_VIDEO_UNIFIED.getKind?.()),tab:'directo',wide:false,solo:false,updates:0,lastError:''};
+   if(!studio||!hub||!main||!$('v780-video-frame'))return false;
+   const state={context:selectContext(root.VC17_VIDEO_UNIFIED?.getKind?.()),tab:'directo',wide:false,solo:false,updates:0,lastError:''};
    const html=`
     <div class="vc181-titlebar">
       <div class="vc181-identity"><span class="vc181-logo" aria-hidden="true">VC</span><div><span class="vc181-eyebrow">VOLLEY COACH · VIDEO STUDIO PRO</span><h2 id="vc181-title">Vídeo de partido</h2><p id="vc181-subtitle">Grabación, directo y revisión en un mismo espacio</p></div></div>
@@ -115,7 +115,7 @@
      feedback('Finaliza y guarda la grabación actual antes de cambiar entre partido y entrenamiento.',true);return false;
     }
     state.context=next;
-    root.VC17_VIDEO_UNIFIED.setContext(next==='entrenamiento'?'training':'matches');
+    root.VC17_VIDEO_UNIFIED?.setContext?.(next==='entrenamiento'?'training':'matches');
     if(next==='analisis')changeTab('revision');
     else if(state.tab==='clips'&&next==='entrenamiento')changeTab('revision');
     else if(next==='partido'&&state.tab==='clips')changeTab('directo');
@@ -144,7 +144,7 @@
      case 'file':$('v780-file')?.click();return;
      case 'youtube':if(state.context==='entrenamiento'){feedback('YouTube no es una fuente de grabación. Usa un archivo local o la cámara.');return}return invoke('v782OpenYouTubeDialog');
      case 'configure':openTechnical();if(state.tab==='delay')root.v117ReviewSetSource?.('delay');else root.v117ReviewSetSource?.('live');technical.scrollIntoView?.({block:'nearest'});return;
-     case 'recordings':root.VC17_VIDEO_UNIFIED.openLibrary?.();return;
+     case 'recordings':root.VC17_VIDEO_UNIFIED?.openLibrary?.();return;
      case 'back':if(d.videoLoaded)return invoke('v780Jump',-8);return invoke('vcReviewProSkip',-8);
      case 'next':if(d.videoLoaded)return invoke('v780Jump',5);return invoke('vcReviewProSkip',5);
      case 'play':if(d.videoLoaded)return invoke('v780TogglePlay');return invoke('vcReviewProToggle');
@@ -188,8 +188,8 @@
     const set=sameMatch?clean($('v113-video-set')?.textContent||$('vc155-set')?.textContent):'';
     $('vc181-us').textContent=us||'—';$('vc181-op').textContent=op||'—';$('vc181-set').textContent=set||'SET —';
     $('vc181-match-status').textContent=sameMatch?'Marcador del scouting activo.':'Para ver el marcador, selecciona el scouting activo.';
-    const session=root.VC17_VIDEO_UNIFIED.trainingSnapshot?.(doc)||{};
-    const train=root.VC17_VIDEO_CONTEXT?.kind==='training'?(root.VC17_VIDEO_UNIFIED.recordContext?.().training||{}):{};
+    const session=root.VC17_VIDEO_UNIFIED?.trainingSnapshot?.(doc)||{};
+    const train=root.VC17_VIDEO_CONTEXT?.kind==='training'?(root.VC17_VIDEO_UNIFIED?.recordContext?.().training||{}):{};
     $('vc181-training-label').textContent=train.objective||clean($('sesion-objetivo')?.value)||'Sesión de entrenamiento';
     $('vc181-training-date').textContent=train.date||clean($('sesion-fecha')?.value)||'Fecha pendiente';
     for(const btn of side.querySelectorAll('[data-vc181-delay]')){const v=Number(root.liveDelayDiagnostics?.()?.delaySeconds);btn.setAttribute('aria-pressed',String(v===Number(btn.dataset.vc181Delay)))}

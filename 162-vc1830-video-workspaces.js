@@ -9,7 +9,7 @@
  if(root&&root.document)api.mount(root);
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='18.4.2',SCREENS=['camara','revision','clips','biblioteca'];
+ const VERSION='18.4.3',SCREENS=['camara','revision','clips','biblioteca'];
  const clean=x=>String(x??'').replace(/\s+/g,' ').trim();
  function validScreen(x){return SCREENS.includes(x)}
  function clipTime(x){const n=Number(x);if(!Number.isFinite(n)||n<0)return '--:--';const s=Math.floor(n);return (Math.floor(s/3600)?String(Math.floor(s/3600)).padStart(2,'0')+':':'')+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
@@ -38,7 +38,7 @@
    const state={screen:'camara',changing:false,updates:0,markers:[],markerSig:'',lastError:'',busy:false};
    // A new navigation level: Clips is a full workspace, not a panel under Live/Delay.
    const menu=doc.createElement('div');menu.id='vc183-navigation';menu.className='vc183-navigation';
-   menu.innerHTML=`<div class="vc183-nav-caption">VIDEO STUDIO PRO · ESPACIOS INDEPENDIENTES</div><nav aria-label="Áreas de Video Studio Pro">
+   menu.innerHTML=`<div class="vc183-nav-caption">VIDEO STUDIO PRO · V18.4.3 · 4 ESPACIOS</div><nav aria-label="Áreas de Video Studio Pro">
      <button type="button" data-vc183-screen="camara" aria-current="page"><span class="vc183-nav-icon">◉</span><span><b>Cámara + Delay</b><small>Un origen · dos vistas</small></span></button>
      <button type="button" data-vc183-screen="revision"><span class="vc183-nav-icon">▶</span><span><b>Revisión</b><small>Vídeo y rallies</small></span></button>
      <button type="button" data-vc183-screen="clips"><span class="vc183-nav-icon">✂</span><span><b>Clips Studio</b><small>Editar y comparar</small></span></button>
