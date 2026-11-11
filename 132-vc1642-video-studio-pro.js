@@ -6,7 +6,7 @@
 (()=>{
  'use strict';
  if(window.VC_VIDEO_STUDIO_1642)return;
- const VERSION='16.4.2';
+ const VERSION='16.4.3';
  const $=id=>document.getElementById(id);
  const root=$('scout-video-hub'),hub=root?.querySelector('.v780-hub');
  if(!root||!hub)return;
@@ -28,14 +28,6 @@
    <button type="button" data-vc1642-mode="clips" aria-pressed="false"><b>03 · Clips</b><small>Marcas IN/OUT, catálogo y montajes</small></button>
   </nav>
   <div class="vc1642-actions" aria-label="Acciones rápidas del espacio de vídeo">
-   <div class="vc1642-source-buttons" aria-label="Seleccionar fuente">
-    <span>Fuente</span>
-    <button type="button" data-vc1642-action="file">Abrir archivo</button>
-    <button type="button" data-vc1642-action="recordings">Grabaciones</button>
-    <button type="button" data-vc1642-action="live">Cámara LIVE</button>
-    <button type="button" data-vc1642-action="delay">Delay</button>
-    <button type="button" data-vc1642-action="youtube">YouTube</button>
-   </div>
    <div class="vc1642-review-buttons" aria-label="Atajos de revisión">
     <button type="button" data-vc1642-action="back" title="Retroceder 8 segundos">−8 s</button>
     <button type="button" data-vc1642-action="play" title="Reproducir o pausar">Reproducir / Pausa</button>
@@ -79,6 +71,7 @@
  #scout-video-hub.vc1642-ready .v780-hero-actions{display:none!important}
  #scout-video-hub.vc1642-ready[data-vc1642-mode="capture"] .v117-review-source-tabs{display:none!important}
  #scout-video-hub.vc1642-ready[data-vc1642-mode="capture"] .v117-review-sourcebar{min-height:70px}
+ #scout-video-hub.vc1642-ready[data-vc1642-mode="capture"] .vc1642-actions{display:none!important}
  #scout-video-hub.vc1642-ready[data-vc1642-mode="capture"] .vc1642-review-buttons,
  #scout-video-hub.vc1642-ready[data-vc1642-mode="capture"] .vc1642-clip-buttons{display:none!important}
  #scout-video-hub.vc1642-ready[data-vc1642-mode="review"] .vc1642-source-buttons,
@@ -117,7 +110,7 @@
    button.setAttribute('aria-pressed',String(isActive));
    if(focus&&isActive)button.focus();
   }
-  say(next==='capture'?'Selecciona la fuente y utiliza los controles originales para iniciar o detener la cámara y la grabación.':next==='review'?'Selecciona un rally o una acción. El reproductor se mantiene cargado al cambiar de espacio.':'Selecciona o crea clips y playlists; la fuente de vídeo sigue siendo la del partido actual.');
+  say(next==='capture'?'Usa los controles superiores y el panel principal para elegir fuente, LIVE, DELAY y grabación.':next==='review'?'Selecciona un rally o una acción. El reproductor se mantiene cargado al cambiar de espacio.':'Selecciona o crea clips y playlists; la fuente de vídeo sigue siendo la del partido actual.');
   schedule();return true;
  }
  function refresh(){
