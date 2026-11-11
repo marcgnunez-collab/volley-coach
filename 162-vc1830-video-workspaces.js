@@ -1,4 +1,4 @@
-/* Volley Coach V18.3.0 — Pantallas de vídeo independientes y Live/Delay vinculados.
+/* Volley Coach V18.4.0 — Video Studio: cuatro espacios independientes, una captura compartida.
  * Presentación y control explícito sobre motores existentes: NO crea streams,
  * MediaRecorder, elementos video ni mutaciones de scouting/sincronización.
  */
@@ -9,7 +9,7 @@
  if(root&&root.document)api.mount(root);
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='18.3.0',SCREENS=['camara','revision','clips'];
+ const VERSION='18.4.0',SCREENS=['camara','revision','clips','biblioteca'];
  const clean=x=>String(x??'').replace(/\s+/g,' ').trim();
  function validScreen(x){return SCREENS.includes(x)}
  function clipTime(x){const n=Number(x);if(!Number.isFinite(n)||n<0)return '--:--';const s=Math.floor(n);return (Math.floor(s/3600)?String(Math.floor(s/3600)).padStart(2,'0')+':':'')+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
@@ -38,14 +38,15 @@
    const state={screen:'camara',changing:false,updates:0,markers:[],markerSig:'',lastError:'',busy:false};
    // A new navigation level: Clips is a full workspace, not a panel under Live/Delay.
    const menu=doc.createElement('div');menu.id='vc183-navigation';menu.className='vc183-navigation';
-   menu.innerHTML=`<div class="vc183-nav-caption">ESPACIOS DE VÍDEO</div><nav aria-label="Áreas de Video Studio Pro">
+   menu.innerHTML=`<div class="vc183-nav-caption">VIDEO STUDIO PRO · ESPACIOS INDEPENDIENTES</div><nav aria-label="Áreas de Video Studio Pro">
      <button type="button" data-vc183-screen="camara" aria-current="page"><span class="vc183-nav-icon">◉</span><span><b>Cámara + Delay</b><small>Un origen · dos vistas</small></span></button>
      <button type="button" data-vc183-screen="revision"><span class="vc183-nav-icon">▶</span><span><b>Revisión</b><small>Vídeo y rallies</small></span></button>
-     <button type="button" data-vc183-screen="clips"><span class="vc183-nav-icon">✂</span><span><b>Clips</b><small>Biblioteca y editor</small></span></button>
+     <button type="button" data-vc183-screen="clips"><span class="vc183-nav-icon">✂</span><span><b>Clips Studio</b><small>Editar y comparar</small></span></button>
+     <button type="button" data-vc183-screen="biblioteca"><span class="vc183-nav-icon">▤</span><span><b>Videoteca</b><small>Grabaciones locales</small></span></button>
     </nav>`;
    chrome.appendChild(menu);
    const header=doc.createElement('section');header.id='vc183-screen-heading';header.className='vc183-screen-heading';
-   header.innerHTML=`<div><span id="vc183-kicker">LIVE Y DELAY CONECTADOS</span><h3 id="vc183-heading">Cámara y revisión diferida</h3><p id="vc183-description">La misma captura alimenta el directo y el búfer de Delay. Cambia de vista sin reiniciar la cámara.</p></div><div class="vc183-heading-actions"><div id="vc183-review-actions" class="vc183-review-actions" aria-label="Fuentes para revisión"><button type="button" data-vc183-action="file">Abrir archivo</button><button type="button" data-vc183-action="recordings">Videoteca</button><button type="button" data-vc183-action="youtube">YouTube</button><button type="button" data-vc183-action="filters">Filtros</button><button type="button" data-vc183-action="sync">Vincular tiempo</button></div><span class="vc183-view-status" id="vc183-status">Cámara detenida</span></div>`;
+   header.innerHTML=`<div><span id="vc183-kicker">LIVE Y DELAY CONECTADOS</span><h3 id="vc183-heading">Cámara y revisión diferida</h3><p id="vc183-description">La misma captura alimenta el directo y el búfer de Delay. Cambia de vista sin reiniciar la cámara.</p></div><div class="vc183-heading-actions"><div id="vc183-review-actions" class="vc183-review-actions" aria-label="Fuentes para revisión"><button type="button" data-vc183-action="file">Abrir archivo</button><button type="button" data-vc183-action="recordings">Videoteca</button><button type="button" data-vc183-action="youtube">YouTube</button><button type="button" data-vc183-action="filters">Filtros</button><button type="button" data-vc183-action="sync">Vincular tiempo</button><button type="button" data-vc183-action="go-clips">Abrir Clips</button></div><span class="vc183-view-status" id="vc183-status">Cámara detenida</span></div>`;
    hub.insertBefore(header,main);
    // Reuse the exact same original video player and transport; only the sidebar changes.
    const controls=doc.createElement('aside');controls.id='vc183-capture-side';controls.className='vc183-capture-side';
@@ -66,11 +67,23 @@
    const timeline=doc.createElement('section');timeline.id='vc183-timeline';timeline.className='vc183-timeline';
    timeline.innerHTML=`<div class="vc183-timeline-head"><div><span>TIME LINE PRO</span><h3>Rallies y acciones vinculados</h3><p>Selecciona una marca para abrir el momento asociado al vídeo cargado.</p></div><div class="vc183-timeline-filters"><label>Mostrar<select id="vc183-mark-filter"><option value="all">Todas</option><option value="rally">Rallies</option><option value="ataque">Ataques</option><option value="saque">Saques</option><option value="recepcion">Recepciones</option></select></label><span id="vc183-mark-count">0 referencias</span></div></div><div class="vc183-marker-rail" id="vc183-marker-rail" aria-label="Marcas de vídeo"></div><div id="vc183-marker-list" class="vc183-marker-list"></div><p class="vc183-timeline-help">Las marcas solo aparecen cuando el scouting contiene referencias temporales. Sin vídeo sincronizado no se puede reproducir la jugada.</p>`;
    hub.insertBefore(timeline,main.nextSibling);
+   // Keep the full legacy rally history accessible, but not stacked below the new
+   // timestamp rail as an apparent second Timeline. No data or controls are removed.
+   const legacyTimeline=hub.querySelector(':scope > .v780-timeline-panel');
+   if(legacyTimeline){
+    const history=doc.createElement('details');history.id='vc184-rally-history';history.className='vc184-rally-history';
+    history.innerHTML='<summary>Historial completo de rallies (incluidas acciones sin tiempo)</summary>';
+    legacyTimeline.before(history);history.appendChild(legacyTimeline);
+   }
    // Dedicated clips landing page — separate heading and catalog. The one playback
    // element remains in main as a clip preview; no duplicate recorder or video.
    const clipsHead=doc.createElement('section');clipsHead.id='vc183-clips-heading';clipsHead.className='vc183-clips-heading';
-   clipsHead.innerHTML=`<div><span>CLIP STUDIO PRO · ESPACIO INDEPENDIENTE</span><h3>Biblioteca y editor de clips</h3><p>Selecciona jugadas, marca IN/OUT, organiza referencias y compara ejecuciones de entrenamiento.</p></div><div class="vc183-clip-actions"><button type="button" data-vc183-action="back-review">← Volver a revisión</button><button type="button" data-vc183-action="export">Exportar catálogo CSV</button></div>`;
+   clipsHead.innerHTML=`<div><span>CLIP STUDIO PRO · ESPACIO INDEPENDIENTE</span><h3>Biblioteca y editor de clips</h3><p>Selecciona jugadas, marca IN/OUT, organiza referencias y compara ejecuciones de entrenamiento.</p></div><div class="vc183-clip-actions"><button type="button" data-vc183-action="back-review">← Volver a revisión</button><button type="button" data-vc183-action="export">Exportar referencias CSV</button></div>`;
    hub.insertBefore(clipsHead,main);
+   // Fourth workspace: the real local recording library from V17.10, not a second store.
+   const libraryHead=doc.createElement('section');libraryHead.id='vc183-library-heading';libraryHead.className='vc183-library-heading';
+   libraryHead.innerHTML=`<div><span>VIDEOTECA · ALMACENAMIENTO LOCAL</span><h3>Grabaciones y archivos</h3><p>Consulta las grabaciones guardadas en este dispositivo. El vídeo no se sube automáticamente a la nube.</p></div><div class="vc183-library-actions"><button type="button" data-vc183-action="refresh-library">Actualizar grabaciones</button><button type="button" data-vc183-action="open-library-file">Abrir archivo en Revisión</button></div>`;
+   hub.insertBefore(libraryHead,main);
    const clipHelp=doc.createElement('section');clipHelp.id='vc183-clips-guide';clipHelp.className='vc183-clips-guide';clipHelp.innerHTML='<strong>Clips de entrenamiento</strong><p>Abre un vídeo local en el editor de entrenamiento y guarda los momentos IN/OUT con ejercicio y jugador. Para partidos utiliza las referencias vinculadas al scouting.</p>';
    const training=$('vc17110-panel');if(training)training.insertAdjacentElement('beforebegin',clipHelp);else hub.append(clipHelp);
    const originalVideo=main.querySelector('.v780-video-panel');
@@ -127,17 +140,35 @@
    function setScreen(next){
     if(!validScreen(next))return false;
     state.screen=next;studio.dataset.vc183Screen=next;studio.dataset.vc183Training=String(ctx()==='entrenamiento');
-    // Reuse original V18.1 routing; this may toggle legacy CSS but does not
-    // disconnect Live/Delay nor recreate the media element.
-    if(next==='camara')root.VC_VIDEO_STUDIO_1810.setTab?.(studio.dataset.vc183View==='delay'?'delay':'directo');
-    else if(next==='revision')root.VC_VIDEO_STUDIO_1810.setTab?.('revision');
-    else root.VC_VIDEO_STUDIO_1810.setTab?.('clips');
-    for(const b of menu.querySelectorAll('[data-vc183-screen]')){if(b.dataset.vc183Screen===next)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')}
-    const desc={camara:['LIVE Y DELAY CONECTADOS','Cámara y revisión diferida','La misma captura alimenta LIVE y DELAY. Alterna sin reiniciar la cámara.'],revision:['REVISIÓN TÁCTICA','Revisión de partido y entrenamiento','Reproduce el archivo, consulta los rallies y revisa las marcas temporales.'],clips:['CLIP STUDIO PRO','Clips en una pantalla independiente','Edita y consulta clips sin mezclar controles de cámara con los del catálogo.']}[next];
+    // The existing player, Live/Delay capture and recorder remain mounted.
+    // Do not switch the legacy mode when the shared camera or REC is active:
+    // that may change a source while the coach is still recording.
+    const capturing=!!captureDiagnostics().running||!!recordDiagnostics().active;
+    if(!capturing){
+     if(next==='camara')root.VC_VIDEO_STUDIO_1810.setTab?.(studio.dataset.vc183View==='delay'?'delay':'directo');
+     else if(next==='revision'||next==='biblioteca')root.VC_VIDEO_STUDIO_1810.setTab?.('revision');
+     else if(ctx()!=='entrenamiento')root.VC_VIDEO_STUDIO_1810.setTab?.('clips');
+    }
+    for(const b of menu.querySelectorAll('[data-vc183-screen]')){
+     const selected=b.dataset.vc183Screen===next;
+     if(selected){b.setAttribute('aria-current','page');b.setAttribute('aria-pressed','true')}
+     else{b.removeAttribute('aria-current');b.setAttribute('aria-pressed','false')}
+    }
+    const desc={
+     camara:['LIVE Y DELAY CONECTADOS','Cámara + Delay','La misma captura alimenta la vista en directo, el búfer de Delay y la grabación local.'],
+     revision:['REVISIÓN TÁCTICA','Revisión de vídeo','Abre una grabación y consulta las jugadas o los ejercicios asociados a su tiempo.'],
+     clips:['CLIPS STUDIO','Edición y comparación','Guarda referencias IN/OUT y crea listas de jugadas sin tocar el vídeo original.'],
+     biblioteca:['VIDEOTECA','Grabaciones locales','Recupera vídeos de partidos y entrenamientos en este dispositivo.']
+    }[next];
     $('vc183-kicker').textContent=desc[0];$('vc183-heading').textContent=desc[1];$('vc183-description').textContent=desc[2];
-    if(next==='clips'&&ctx()==='entrenamiento'){$('vc183-clips-heading').querySelector('h3').textContent='Clips de entrenamiento';}
-    else $('vc183-clips-heading').querySelector('h3').textContent='Biblioteca y editor de clips';
-    if(next!=='camara')drawTimeline();
+    const ch=clipsHead.querySelector('h3');if(ch)ch.textContent=ctx()==='entrenamiento'?'Clips de entrenamiento · A/B':'Clips Studio · Partido';
+    if(next==='revision')drawTimeline();
+    if(next==='biblioteca'){
+     const info=$('vc17100-library-info');if(info)info.textContent='Consultando las grabaciones del dispositivo…';
+     Promise.resolve().then(()=>root.VC17_VIDEO_UNIFIED?.openLibrary?.()).then(ok=>{
+      if(ok===false&&state.screen==='biblioteca')feedback('No se ha podido leer la biblioteca local. Puedes abrir un archivo desde Revisión.',true);
+     }).catch(err=>feedback('No se pudo consultar la videoteca: '+String(err?.message||err),true));
+    }
     update();return true;
    }
    function getMarkers(){
@@ -184,7 +215,8 @@
     put('vc183-capture-state',running?'En directo':starting?'Conectando…':'Sin iniciar');
     const span=Number(d.buffered)||0,delay=Number(d.delaySeconds)||10;
     put('vc183-buffer-state',running?`${Math.round(span)} s disponibles · −${delay} s`:'Sin búfer');
-    put('vc183-status',state.screen==='clips'?'Editor de clips':state.screen==='revision'?'Revisión de vídeo':running?'Cámara activa':starting?'Conectando cámara':'Cámara detenida');
+    put('vc183-status',state.screen==='biblioteca'?'Videoteca local':state.screen==='clips'?'Clips Studio':state.screen==='revision'?'Revisión de vídeo':running?'Cámara activa':starting?'Conectando cámara':'Cámara detenida');
+    studio.dataset.vc183Capturing=String(running||r.active||r.stopping);
     $('vc183-start').disabled=running||starting;$('vc183-stop').disabled=!running&&!starting||r.active||r.stopping;
     const originalRecStart=$('vc-rec34-strip-start'),originalRecStop=$('vc-rec34-strip-stop');
     $('vc183-rec-start').disabled=!originalRecStart||originalRecStart.disabled;
@@ -200,7 +232,10 @@
    function extraAction(kind){
     if(kind==='return'){if(!captureDiagnostics().running){feedback('Inicia la cámara compartida para utilizar Delay.',true);return false}root.liveDelayReturn?.();return cameraView('delay')}
     if(kind==='configure'){if(typeof root.v117ReviewConfigureLive==='function')return root.v117ReviewConfigureLive();feedback('La configuración original no está disponible.',true);return false}
-    if(kind==='recordings'){root.VC17_VIDEO_UNIFIED?.openLibrary?.();return true}
+    if(kind==='recordings')return setScreen('biblioteca');
+    if(kind==='refresh-library'){void root.VC17_VIDEO_UNIFIED?.openLibrary?.();return true}
+    if(kind==='open-library-file'){setScreen('revision');return extraAction('file')}
+    if(kind==='go-clips')return setScreen('clips');
     if(kind==='file'){const input=$('v780-file');if(!input){feedback('No está disponible el selector de vídeo.',true);return false}input.click();return true}
     if(kind==='youtube'){if(ctx()==='entrenamiento'){feedback('En entrenamientos utiliza un archivo local o una grabación propia.',true);return false}if(typeof root.v782OpenYouTubeDialog==='function'){root.v782OpenYouTubeDialog();return true}feedback('No está disponible YouTube en esta vista.',true);return false}
     if(kind==='filters'){const panel=$('vc181-filters');if(panel){panel.open=true;panel.scrollIntoView?.({block:'nearest'});return true}return false}
@@ -228,6 +263,7 @@
    });
    header.addEventListener('click',event=>{const b=event.target.closest('[data-vc183-action]');if(b)extraAction(b.dataset.vc183Action)});
    clipsHead.addEventListener('click',event=>{const b=event.target.closest('[data-vc183-action]');if(b)extraAction(b.dataset.vc183Action)});
+   libraryHead.addEventListener('click',event=>{const b=event.target.closest('[data-vc183-action]');if(b)extraAction(b.dataset.vc183Action)});
    timeline.addEventListener('click',event=>{const b=event.target.closest('[data-vc183-key]');if(b)openMarker(b.dataset.vc183Key)});
    $('vc183-mark-filter')?.addEventListener('change',drawTimeline);
    // V18.1 transport and older Clip Studio shortcuts must open the dedicated screen.
@@ -238,7 +274,7 @@
    // Existing context tabs remain functional; refresh the dedicated clip screen.
    if(root.MutationObserver)new root.MutationObserver(()=>{
     studio.dataset.vc183Training=String(ctx()==='entrenamiento');
-    if(state.screen==='clips'){const h=clipsHead.querySelector('h3');h.textContent=ctx()==='entrenamiento'?'Clips de entrenamiento':'Biblioteca y editor de clips'}
+    if(state.screen==='clips'){const h=clipsHead.querySelector('h3');h.textContent=ctx()==='entrenamiento'?'Clips de entrenamiento · A/B':'Clips Studio · Partido'}
     update();
    }).observe(studio,{attributes:true,attributeFilter:['data-vc181-context']});
    $('v780-match')?.addEventListener('change',()=>{if(state.screen!=='camara')drawTimeline()});
@@ -247,7 +283,7 @@
    studio.classList.add('vc183-ready');studio.dataset.vc183View=currentSource()==='delay'?'delay':'live';
    const loaded=!!root.v780Diagnostics?.().videoLoaded;state.screen=(loaded&&['local','youtube'].includes(currentSource()))?'revision':'camara';
    setScreen(state.screen);
-   root.VC_VIDEO_WORKSPACES_1830={version:VERSION,setScreen,cameraView,delaySeconds,startCamera,stopCamera,drawTimeline,diagnostics:()=>({version:VERSION,screen:state.screen,linkedCapture:!!captureDiagnostics().running,view:studio.dataset.vc183View,originalVideoCount:studio.querySelectorAll('#v780-player-video').length,originalLiveCount:studio.querySelectorAll('#v117-review-stream').length,clipStudioCount:studio.querySelectorAll('#vc-clip33').length,trainingEditorCount:studio.querySelectorAll('#vc17110-panel').length,markers:state.markers.length,recorderReplaced:false,cloudSyncModified:false,lastError:state.lastError})};
+   root.VC_VIDEO_WORKSPACES_1830={version:VERSION,setScreen,cameraView,delaySeconds,startCamera,stopCamera,drawTimeline,diagnostics:()=>({version:VERSION,screen:state.screen,linkedCapture:!!captureDiagnostics().running,view:studio.dataset.vc183View,originalVideoCount:studio.querySelectorAll('#v780-player-video').length,originalLiveCount:studio.querySelectorAll('#v117-review-stream').length,libraryCount:studio.querySelectorAll('#vc17100-library').length,clipStudioCount:studio.querySelectorAll('#vc-clip33').length,trainingEditorCount:studio.querySelectorAll('#vc17110-panel').length,markers:state.markers.length,recorderReplaced:false,cloudSyncModified:false,lastError:state.lastError})};
    return true;
   }
   let attempts=0;

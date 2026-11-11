@@ -86,17 +86,27 @@ function mount(root){
    updateContext();return next;
   }
   function open(kind='matches',feature='studio'){
-   setContext(kind);
-   if(feature==='delay'||feature==='record'){
-    if(typeof root.openLiveDelay!=='function'){setFeedback('El motor Live/Delay no está disponible.',true);return false;}
-    root.openLiveDelay(kind==='training'?'training':'scouting');
-    if(feature==='record')setFeedback('Inicia la cámara y pulsa «Iniciar REC» en el panel de grabación. No se empieza a grabar automáticamente.');
-    return true;
+   if(recordingStatus()&&getKind()!==normalizeKind(kind)){
+    setFeedback('Finaliza y exporta la grabación actual antes de cambiar entre partido y entrenamiento.',true);return false;
    }
+   // All entry points go through the same Video Studio: no more bypass to the
+   // historical separate Live/Delay window when a coach chooses the shortcut.
+   setContext(kind);
    const ok=navigate('scout-video-hub');
    if(!ok){setFeedback('No se pudo abrir Vídeo Pro.',true);return false;}
-   if(kind==='training')root.VC_VIDEO_STUDIO_1642?.setMode?.('capture');
-   if(feature==='library')void openLibrary();
+   const target=kind==='training'?'entrenamiento':'partido';
+   if(root.VC_VIDEO_STUDIO_1810?.diagnostics?.().context!==target){
+    root.VC_VIDEO_STUDIO_1810?.setContext?.(target);
+   }
+   const workspaces=root.VC_VIDEO_WORKSPACES_1830;
+   if(feature==='library'){
+    if(typeof workspaces?.setScreen==='function')workspaces.setScreen('biblioteca');
+    else void openLibrary();
+   }else if(feature==='delay'||feature==='record'){
+    if(typeof workspaces?.setScreen==='function')workspaces.setScreen('camara');
+    else root.VC_VIDEO_STUDIO_1810?.setTab?.('delay');
+    if(feature==='record')setFeedback('Conecta la cámara y pulsa «Iniciar REC»; la grabación nunca comienza automáticamente.');
+   }
    return true;
   }
   function recordingStatus(){let d={};try{d=root.vcRecordingDiagnostics?.()||{}}catch(_){}return !!d.active;}

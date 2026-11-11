@@ -3423,7 +3423,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=17.10.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=18.4.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12434,7 +12434,7 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
 <script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0" defer data-vc-module="true"></script>
 
-<script id="vc17100-unified-video" src="./155-vc17100-unified-video.js?v=17.10.0" defer data-vc-module="true"></script>
+<script id="vc17100-unified-video" src="./155-vc17100-unified-video.js?v=18.4.0" defer data-vc-module="true"></script>
 <script id="vc17110-training-video-pro" src="./156-vc17110-training-video-pro.js?v=17.11.0" defer data-vc-module="true"></script>
 <script id="vc17120-match-recording-pro" src="./157-vc17120-match-recording-pro.js?v=17.12.0" defer data-vc-module="true"></script>
 <script id="vc17121-install-health" src="./158-vc17121-install-health.js?v=17.12.1" defer data-vc-module="true"></script>
@@ -12446,7 +12446,7 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <!-- V18.2 · Recording and Delay Pro diagnostics, using the existing media engines. -->
 <link rel="stylesheet" href="./vc182-video-reliability.css?v=18.2.0">
 <script id="vc1820-video-reliability" src="./161-vc1820-video-reliability.js?v=18.2.0" defer data-vc-module="true"></script>
-<!-- V18.3 · Different workspaces: linked LIVE + DELAY / review / independent clips screen. -->
-<link rel="stylesheet" href="./vc183-video-workspaces.css?v=18.3.0">
-<script id="vc1830-video-workspaces" src="./162-vc1830-video-workspaces.js?v=18.3.0" defer data-vc-module="true"></script>
+<!-- V18.4 · Four separate workspaces: Camera + Delay / Review / Clip Studio / Local video library. -->
+<link rel="stylesheet" href="./vc183-video-workspaces.css?v=18.4.0">
+<script id="vc1830-video-workspaces" src="./162-vc1830-video-workspaces.js?v=18.4.0" defer data-vc-module="true"></script>
 </body></html>
