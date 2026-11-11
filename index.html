@@ -3423,7 +3423,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=18.4.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=18.4.2',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -12447,6 +12447,7 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <link rel="stylesheet" href="./vc182-video-reliability.css?v=18.2.0">
 <script id="vc1820-video-reliability" src="./161-vc1820-video-reliability.js?v=18.2.0" defer data-vc-module="true"></script>
 <!-- V18.4 · Four separate workspaces: Camera + Delay / Review / Clip Studio / Local video library. -->
-<link rel="stylesheet" href="./vc183-video-workspaces.css?v=18.4.0">
-<script id="vc1830-video-workspaces" src="./162-vc1830-video-workspaces.js?v=18.4.0" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc183-video-workspaces.css?v=18.4.2">
+<script id="vc1830-video-workspaces" src="./162-vc1830-video-workspaces.js?v=18.4.2" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc1842-professional-video.css?v=18.4.2">
 </body></html>
