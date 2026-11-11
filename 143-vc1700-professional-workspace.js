@@ -10,7 +10,7 @@
 'use strict';
 const GROUPS=[
  {id:'home',label:'Inicio',icon:'⌂',defaultView:'dashboard',items:[]},
- {id:'training',label:'Entrenamientos',icon:'◇',defaultView:'entrenamiento',items:[['planificacion','Planificar'],['entrenamiento','Dirigir'],['scout-video-hub','Vídeo · Delay y grabación'],['historial','Evaluar'],['ejercicios','Biblioteca'],['estadisticas','Seguimiento']]},
+ {id:'training',label:'Entrenamientos',icon:'◇',defaultView:'entrenamiento',items:[['planificacion','Planificar'],['entrenamiento','Preparar sesión'],['scout-video-hub','Vídeo · Delay y grabación'],['historial','Evaluar'],['ejercicios','Biblioteca'],['estadisticas','Seguimiento']]},
  {id:'matches',label:'Partidos',icon:'◈',defaultView:'scout-dashboard',items:[['scout-dashboard','Centro de partidos'],['competicion','Calendario'],['scout-plan','Preparación'],['scout-match-mode','En directo'],['scout-workspace-v900','Codificación'],['vc155-bench','Banquillo'],['scout-video-hub','Vídeo y grabación']]},
  {id:'analysis',label:'Análisis',icon:'▥',defaultView:'scout-analysis',items:[['scout-analysis','Estadísticas y táctica'],['v11-reports','Informes'],['scout-season','Temporada'],['scout-matchup','Rivales']]},
  {id:'team',label:'Equipo',icon:'◎',defaultView:'jugadores',items:[['jugadores','Plantilla'],['scout-season','Temporada'],['scout-safe','Copias y recuperación']]},

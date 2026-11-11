@@ -12,7 +12,7 @@
 const VERSION='17.1.0';
 const AREAS=[
  {id:'plan',title:'Planificar',description:'Calendario y biblioteca',primary:'planificacion',views:['planificacion','ejercicios'],links:[['planificacion','Calendario'],['ejercicios','Biblioteca de ejercicios']]},
- {id:'direct',title:'Dirigir',description:'Sesión y ejercicios actuales',primary:'entrenamiento',views:['entrenamiento'],links:[['entrenamiento','Sesión actual']]},
+ {id:'direct',title:'Preparar',description:'Sesión, ejercicios y vídeos',primary:'entrenamiento',views:['entrenamiento'],links:[['entrenamiento','Editor de sesión']]},
  {id:'review',title:'Evaluar',description:'Historial y seguimiento',primary:'historial',views:['historial','estadisticas'],links:[['historial','Historial'],['estadisticas','Seguimiento']]}
 ];
 const ALL_VIEWS=AREAS.flatMap(a=>a.views);
