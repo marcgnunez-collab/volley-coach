@@ -1,4 +1,4 @@
-/* Volley Coach V17.3.0 · Analysis Workspace.
+/* Volley Coach V18.8.0 · Analysis Pro Workspace.
  * Read-only navigation adapter for the existing Analyst Studio. Its filters,
  * calculations, scouting selection, inspector, videos and PDF exporters remain
  * owned exclusively by their original modules. No persistence or cloud writes.
@@ -10,21 +10,25 @@
  if(root&&root.document)api.mount(root);
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
- const VERSION='17.3.0';
+ const VERSION='18.8.0';
  const MODES=[
-  {id:'match',title:'Partido',subtitle:'Resumen y rendimiento',links:[['overview','','Resumen'],['players','builder','Estadísticas'],['players','sheet','Hoja por jugador'],['players','fundamentals','Fundamentos'],['athletes','profile','Jugadores'],['explorer','','Vídeo y acciones']]},
-  {id:'tactics',title:'Táctica',subtitle:'Pistas y secuencias',links:[['lab','workbench','Mesa táctica'],['lab','rotations','Rotaciones K1/K2'],['lab','zones','Mapa de ataque'],['lab','distribution','Colocador'],['lab','details','Tempos y combinaciones'],['lab','sequences','Secuencias'],['explorer','','Inspector de acciones']]},
-  {id:'history',title:'Histórico',subtitle:'Comparativas y rivales',links:[['comparisons','matches','Partidos A/B'],['comparisons','players','Evolución de jugadores'],['comparisons','rivals','Rivales'],['athletes','compare','Comparador individual']]},
-  {id:'reports',title:'Informes',subtitle:'Presentar resultados',links:[['reports','','Informes Pro']]}
+  {id:'match',title:'Partido',subtitle:'Resumen, marcador y rendimiento',links:[['overview','','Resumen del partido'],['players','builder','Hojas configurables'],['players','sheet','Hoja oficial G-P'],['explorer','','Vídeo y acciones']]},
+  {id:'fundamentals',title:'Fundamentos',subtitle:'Saque, recepción, ataque y defensa',links:[['lab','serve','Saque y recepción'],['lab','attack','Análisis de ataque'],['lab','block','Bloqueo y defensa'],['players','fundamentals','Fundamentos Pro'],['lab','quality','Calidad del scouting']]},
+  {id:'tactics',title:'Táctica',subtitle:'Rotaciones, colocador y secuencias',links:[['lab','workbench','Mesa táctica'],['lab','rotations','Rotaciones K1/K2'],['lab','zones','Mapa de ataque'],['lab','distribution','Distribución del colocador'],['lab','details','Tempos y combinaciones'],['lab','sequences','Secuencias de juego']]},
+  {id:'players',title:'Jugadores',subtitle:'Rendimiento y comparación individual',links:[['athletes','profile','Ficha individual'],['athletes','compare','Comparador A/B']]},
+  {id:'history',title:'Histórico',subtitle:'Evolución entre partidos y rivales',links:[['comparisons','matches','Partidos A/B'],['comparisons','players','Evolución de jugadores'],['comparisons','rivals','Scouting de rivales']]},
+  {id:'reports',title:'Informes',subtitle:'Exportación y presentación',links:[['reports','','Informes Pro']]}
  ];
- const PAGE_MODE={overview:'match',players:'match',athletes:'match',lab:'tactics',explorer:'tactics',comparisons:'history',reports:'reports',season:'history'};
+ const PAGE_MODE={overview:'match',players:'match',athletes:'players',lab:'tactics',explorer:'match',comparisons:'history',reports:'reports',season:'history'};
  const ALLOWED=new Set(['overview','players','athletes','lab','explorer','comparisons','reports']);
  const LINK_KEYS=new Set(MODES.flatMap(mode=>mode.links.map(link=>link[0]+':'+(link[1]||''))));
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const clean=s=>String(s==null?'':s).replace(/\s+/g,' ').trim();
  function modeForPage(page,sub){
-  if(page==='athletes'&&sub==='compare')return 'history';
-  if(page==='explorer')return 'tactics';
+  if(page==='lab'&&['serve','attack','block','quality'].includes(sub))return 'fundamentals';
+  if(page==='players'&&sub==='fundamentals')return 'fundamentals';
+  if(page==='athletes')return 'players';
+  if(page==='explorer')return 'match';
   return PAGE_MODE[page]||'match';
  }
  function currentTab(doc){const tab=doc.querySelector('#vc157-tabs [data-section][aria-selected="true"]');return tab?.dataset.section||'overview';}
@@ -56,7 +60,7 @@
  body.vc1730-shell .vc1730-match small{font-size:9px;color:#728ba1;font-weight:800;letter-spacing:.05em}
  body.vc1730-shell .vc1730-match strong{font-size:12px;color:#18486e;overflow-wrap:anywhere}
  body.vc1730-shell .vc1730-filter-summary{font-size:10px;color:#426a87;background:#fff;border:1px solid #dce9f4;border-radius:8px;padding:9px 11px;max-width:100%;line-height:1.4}
- body.vc1730-shell .vc1730-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 13px;background:#fff;border-bottom:1px solid #e7edf3}
+ body.vc1730-shell .vc1730-modes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:10px 13px;background:#fff;border-bottom:1px solid #e7edf3}
  body.vc1730-shell .vc1730-mode{display:flex!important;gap:9px;align-items:center;text-align:left!important;min-height:64px!important;padding:10px 11px!important;background:#fff!important;border:1px solid #dce7f0!important;border-radius:11px!important;color:#2d5674!important;box-shadow:none!important;font-family:system-ui,sans-serif!important;white-space:normal}
  body.vc1730-shell .vc1730-mode-number{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;flex:none;background:#ebf3fb;color:#236ba7;font:850 12px system-ui}
  body.vc1730-shell .vc1730-mode b{display:block;font-size:12px;color:inherit;line-height:1.3}
@@ -78,14 +82,14 @@
  body.vc1730-shell #scout-analysis[data-vc157-mode="studio"] #vc1620-subtabs{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;pointer-events:none!important;margin:0!important;padding:0!important}
  body.vc1730-shell #scout-analysis[data-vc157-mode="studio"] #vc157-studio .vc157-toolbar{margin-top:0!important}
  body.vc1730-shell #scout-analysis[data-vc157-mode="studio"] .vc157-stagehead{margin-top:5px}
- @media(max-width:940px){body.vc1730-shell .vc1730-head{padding:16px}body.vc1730-shell .vc1730-modes{gap:5px}}
- @media(max-width:610px){body.vc1730-shell .vc1730-head{flex-direction:column;align-items:stretch;padding:14px}body.vc1730-shell .vc1730-head h2{font-size:20px!important}body.vc1730-shell .vc1730-head-actions{justify-content:flex-start}body.vc1730-shell .vc1730-context{padding:10px 12px}body.vc1730-shell .vc1730-modes{gap:5px;padding:6px}body.vc1730-shell .vc1730-mode{flex-direction:column;justify-content:center;gap:5px;text-align:center!important;min-height:85px!important;padding:7px 3px!important}body.vc1730-shell .vc1730-mode b{font-size:11px}body.vc1730-shell .vc1730-mode small{font-size:9px}body.vc1730-shell .vc1730-links{padding:9px;gap:4px}body.vc1730-shell .vc1730-links button{padding:7px 8px!important;font-size:10px!important}body.vc1730-shell .vc1730-bottom{padding:9px 11px}}
+ @media(max-width:1050px){body.vc1730-shell .vc1730-head{padding:16px}body.vc1730-shell .vc1730-modes{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}}
+ @media(max-width:610px){body.vc1730-shell .vc1730-head{flex-direction:column;align-items:stretch;padding:14px}body.vc1730-shell .vc1730-head h2{font-size:20px!important}body.vc1730-shell .vc1730-head-actions{justify-content:flex-start}body.vc1730-shell .vc1730-context{padding:10px 12px}body.vc1730-shell .vc1730-modes{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:6px}body.vc1730-shell .vc1730-mode{flex-direction:column;justify-content:center;gap:5px;text-align:center!important;min-height:85px!important;padding:7px 3px!important}body.vc1730-shell .vc1730-mode b{font-size:11px}body.vc1730-shell .vc1730-mode small{font-size:9px}body.vc1730-shell .vc1730-links{padding:9px;gap:4px}body.vc1730-shell .vc1730-links button{padding:7px 8px!important;font-size:10px!important}body.vc1730-shell .vc1730-bottom{padding:9px 11px}}
  `;
- function markup(){return `<div class="vc1730-head"><div><small>ANALYSIS WORKSPACE · V${VERSION}</small><h2>Centro de análisis</h2><p>Del dato a la jugada: estadísticas, laboratorio, vídeo e informes desde un único estudio.</p></div><div class="vc1730-head-actions"><button type="button" data-vc1730-action="video" disabled>▶ Ver jugadas seleccionadas</button><button type="button" data-vc1730-action="official">PDF oficial</button><button type="button" data-vc1730-action="pro">PDF análisis</button></div></div>
+ function markup(){return `<div class="vc1730-head"><div><small>ANALYSIS PRO WORKSPACE · V${VERSION}</small><h2>Centro de análisis</h2><p>Análisis verificable del partido: fundamentos, táctica, jugadores, histórico y evidencias en un único estudio.</p></div><div class="vc1730-head-actions"><button type="button" data-vc1730-action="video" disabled>▶ Ver jugadas seleccionadas</button><button type="button" data-vc1730-action="official">PDF oficial</button><button type="button" data-vc1730-action="pro">PDF análisis</button></div></div>
 <div class="vc1730-context" aria-label="Contexto del análisis"><div class="vc1730-match"><small>SCOUTING DEL ANÁLISIS</small><strong data-vc1730-match>Sin scouting seleccionado</strong></div><div class="vc1730-filter-summary" data-vc1730-filters>Filtros compartidos en el análisis del partido</div></div>
 <nav class="vc1730-modes" aria-label="Áreas de análisis">${MODES.map((m,i)=>`<button type="button" class="vc1730-mode" data-vc1730-mode="${m.id}"><span class="vc1730-mode-number">0${i+1}</span><span><b>${m.title}</b><small>${m.subtitle}</small></span></button>`).join('')}</nav>
 <div class="vc1730-links" data-vc1730-links aria-label="Herramientas del área"></div>
-<div class="vc1730-bottom"><span data-vc1730-info>Los filtros de partido se comparten en Partido y Táctica. Histórico e Informes tienen su selección propia.</span><div class="vc1730-legacy"><button type="button" data-vc1730-view="scout-season">Temporada clásica</button><button type="button" data-vc1730-view="scout-matchup">Ficha del rival</button><button type="button" data-vc1730-view="v11-reports">Informes clásicos</button></div></div>`;}
+<div class="vc1730-bottom"><span data-vc1730-info>Los filtros de partido se comparten en Partido, Fundamentos y Táctica. Histórico e Informes tienen su selección propia.</span><div class="vc1730-legacy"><button type="button" data-vc1730-view="scout-season">Temporada clásica</button><button type="button" data-vc1730-view="scout-matchup">Ficha del rival</button><button type="button" data-vc1730-view="v11-reports">Informes clásicos</button></div></div>`;}
  function mount(root){
   const doc=root.document;if(!doc||doc.getElementById('vc1730-workspace'))return;
   const start=()=>{
@@ -126,7 +130,7 @@
     const videos=(selected?.selected||[]).filter(a=>a.video).length;
     const videoBtn=shell.querySelector('[data-vc1730-action="video"]');videoBtn.disabled=!videos;
     videoBtn.textContent=videos?`▶ Ver ${videos} jugadas en vídeo`:'▶ Ver jugadas seleccionadas';
-    const info=shell.querySelector('[data-vc1730-info]');const note=mode.id==='history'||mode.id==='reports'?'Las comparativas y los informes usan sus propios periodos y conjuntos de datos. No heredan automáticamente el filtro del set.':'La selección de scouting, equipo, set, rotación y K1/K2 se controla únicamente desde la barra original de filtros.';
+    const info=shell.querySelector('[data-vc1730-info]');const note=mode.id==='history'||mode.id==='reports'?'Las comparativas y los informes usan sus propios periodos y conjuntos de datos. No heredan automáticamente el filtro del set.':'La selección de scouting, equipo, set, rotación y K1/K2 se comparte entre Partido, Fundamentos y Táctica.';
     if(info.textContent!==note)info.textContent=note;
    }
    function selectPage(page,sub=''){

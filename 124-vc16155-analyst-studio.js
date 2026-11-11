@@ -1,6 +1,6 @@
-/* Volley Coach V16.5.1 · Analysis Pro 3.0 · Tactical Laboratory Pro
-   Read-only professional workspace. Uses VC_ANALYSIS_INTELLIGENCE_1614.model
-   as the sole statistical engine. No match writes and NO PDF template changes. */
+/* Volley Coach V18.8.0 · Analysis Pro Tactical Workspace
+   Read-only professional workspace. Reuses VC_ANALYSIS_INTELLIGENCE_1614.model
+   as the canonical statistical engine. No scouting writes or PDF template changes. */
 (()=>{
 'use strict';
 if(window.VC_ANALYST_STUDIO_16155)return;
@@ -13,21 +13,21 @@ const categories={S:'Saque',R:'Recepción',A:'Ataque',B:'Bloqueo',E:'Colocación
 // Analysis Pro 3.0: five workspaces. Legacy route keys remain as non-visible
 // aliases so internal links and old integrations cannot strand the user.
 const pages={
- overview:['Resumen','Lectura rápida del partido'],
- players:['Estadísticas','Constructor de hojas y fundamentos'],
- lab:['Laboratorio táctico','Rotaciones, ataque, colocador y secuencias'],
+ overview:['Resumen','Lectura del partido y tendencias'],
+ players:['Rendimiento','Hojas estadísticas y fundamentos'],
+ lab:['Táctica y fundamentos','Saque, recepción, ataque, bloqueo, rotaciones y secuencias'],
  athletes:['Jugadores','Fichas individuales y comparador'],
  explorer:['Vídeo y acciones','Búsqueda y revisión de evidencias'],
- comparisons:['Comparativas','Partidos, jugadores y rivales'],
- reports:['Informes Pro','Partidos, jugadores y rivales · PDF propio'],
- tactics:['Laboratorio táctico','Compatibilidad con rutas antiguas'],
- setter:['Laboratorio táctico','Compatibilidad con rutas antiguas'],
+ comparisons:['Histórico','Partidos, jugadores y rivales'],
+ reports:['Informes Pro','Informes y exportaciones'],
+ tactics:['Táctica y fundamentos','Compatibilidad con rutas antiguas'],
+ setter:['Colocador','Compatibilidad con rutas antiguas'],
  season:['Temporada','Comparación histórica disponible desde el menú general']
 };
 const mainPages=['overview','players','lab','athletes','explorer','comparisons','reports'];
 const subpages={
  players:[['builder','Hojas configurables'],['sheet','Hoja oficial por jugador'],['fundamentals','Fundamentos Pro']],
- lab:[['workbench','Mesa táctica'],['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones']],
+ lab:[['serve','Saque y recepción'],['attack','Ataque'],['block','Bloqueo y defensa'],['workbench','Mesa táctica'],['rotations','Rotaciones y K1/K2'],['zones','Mapa de ataque'],['distribution','Distribución del colocador'],['details','Tempos y combinaciones'],['sequences','Secuencias y patrones'],['quality','Calidad del scouting']],
  athletes:[['profile','Ficha individual'],['compare','Comparador A/B']],
  comparisons:[['matches','Partidos A/B'],['players','Jugadores y evolución'],['rivals','Scouting de rivales']],
  tactics:[['rotations','Rotaciones y complejos'],['zones','Zonas y bloqueo']],
@@ -551,7 +551,7 @@ function pageLabWorkbench(data){
  }).join('');
  const setters=s.setters.slice(0,10).map(g=>{const st=api.rating(g.items);return `<tr><td>${html(g.name)}</td><td>${g.n}</td><td>${fmt(pct(g.n,s.n))}</td><td>${st.k}/${st.n}</td><td>${fmt(st.eff)}</td><td>${pickButton('Jugadas',g.keys,`Colocador ${g.name}`)}</td></tr>`}).join('');
  const routeRows=s.routes.slice(0,8).map(g=>{const st=api.rating(g.items);return `<tr><td>${html(g.name)}</td><td>${g.n}</td><td>${st.k}/${st.n}</td><td>${fmt(st.eff)}</td><td>${pickButton('Ver',g.keys,`Ruta ${g.name}`)}</td></tr>`}).join('');
- return `<div class="vc1651-workbench"><section class="vc157-panel vc1651-filterpanel"><div class="vc157-panelhead"><div><span class="vc1651-eyebrow">TACTICAL LABORATORY PRO · V16.5.5</span><h3>Mesa táctica · filtros cruzados</h3><p>Una consulta para distribución, ataque, combinaciones y jugadas. Respeta los filtros de equipo, set, rotación y K1/K2 del encabezado.</p></div><button type="button" id="vc1651-reset" ${!any?'disabled':''}>Limpiar filtros</button></div>${filtersHtml}<div class="vc1651-footnote">${s.n} de ${all.length} secuencias verificables cumplen los filtros. Las recepciones ausentes no se tratan como negativas. No se incluyen ataques sin colocación vinculada.</div></section>${metrics}<div class="vc1651-boardgrid">${labCourt(s)}${labSetterCourt(s)}</div><div class="vc1651-tablegrid"><section class="vc157-panel"><div class="vc157-panelhead"><div><h3>Combinaciones más frecuentes</h3><p>Recepción → colocador → atacante → resultado.</p></div><button type="button" class="vc1651-more" data-vc1651-subpage="sequences">Comparar patrones</button></div>${table(['Recepción','Colocador','Atacante','Tempo','N','Uso','Puntos/T','EFF','Acciones'],patRows)}${s.patterns.length>15?`<p class="vc157-note">Se muestran 15 de ${s.patterns.length} patrones. Los totales incluyen todas las secuencias filtradas.</p>`:''}</section><section class="vc157-panel"><h3>Colocadores de la muestra</h3>${table(['Colocador','Colocaciones','Uso','Puntos/T','EFF','Acciones'],setters)}<h3 class="vc1651-secondary-title">Principales rutas de ataque</h3>${table(['Ruta','N','Puntos/T','EFF','Acciones'],routeRows)}</section></div><p class="vc157-note">EFF = (puntos − errores − bloqueados) / ataques valorados. Los porcentajes no se muestran cuando el denominador es cero. Las rutas están basadas en zonas registradas, no en posiciones continuas de balón; no se atribuye causalidad ni puntuación individual del rally.</p></div>`;
+ return `<div class="vc1651-workbench"><section class="vc157-panel vc1651-filterpanel"><div class="vc157-panelhead"><div><span class="vc1651-eyebrow">TACTICAL LABORATORY PRO · V18.8.0</span><h3>Mesa táctica · filtros cruzados</h3><p>Una consulta para distribución, ataque, combinaciones y jugadas. Respeta los filtros de equipo, set, rotación y K1/K2 del encabezado.</p></div><button type="button" id="vc1651-reset" ${!any?'disabled':''}>Limpiar filtros</button></div>${filtersHtml}<div class="vc1651-footnote">${s.n} de ${all.length} secuencias verificables cumplen los filtros. Las recepciones ausentes no se tratan como negativas. No se incluyen ataques sin colocación vinculada.</div></section>${metrics}<div class="vc1651-boardgrid">${labCourt(s)}${labSetterCourt(s)}</div><div class="vc1651-tablegrid"><section class="vc157-panel"><div class="vc157-panelhead"><div><h3>Combinaciones más frecuentes</h3><p>Recepción → colocador → atacante → resultado.</p></div><button type="button" class="vc1651-more" data-vc1651-subpage="sequences">Comparar patrones</button></div>${table(['Recepción','Colocador','Atacante','Tempo','N','Uso','Puntos/T','EFF','Acciones'],patRows)}${s.patterns.length>15?`<p class="vc157-note">Se muestran 15 de ${s.patterns.length} patrones. Los totales incluyen todas las secuencias filtradas.</p>`:''}</section><section class="vc157-panel"><h3>Colocadores de la muestra</h3>${table(['Colocador','Colocaciones','Uso','Puntos/T','EFF','Acciones'],setters)}<h3 class="vc1651-secondary-title">Principales rutas de ataque</h3>${table(['Ruta','N','Puntos/T','EFF','Acciones'],routeRows)}</section></div><p class="vc157-note">EFF = (puntos − errores − bloqueados) / ataques valorados. Los porcentajes no se muestran cuando el denominador es cero. Las rutas están basadas en zonas registradas, no en posiciones continuas de balón; no se atribuye causalidad ni puntuación individual del rally.</p></div>`;
 }
 function pageRotations(data){
  const rows=data.rotations.map(r=>{
@@ -927,7 +927,19 @@ function renderPage(){
  }else if(page==='overview')surface.innerHTML=pageOverview(data);
  else if(page==='players')surface.innerHTML=subpage==='builder'?pageCustomWorksheet(data):pagePlayers(data);
  else if(page==='athletes')surface.innerHTML=subpage==='compare'?pagePlayerCompare(data):pagePlayerProfile(data);
- else if(page==='lab')surface.innerHTML=subpage==='workbench'?pageLabWorkbench(data):subpage==='zones'?pageZones(data):subpage==='distribution'?pageDistribution(data):subpage==='details'?pageSetterDetails(data):subpage==='sequences'?pageSequences(data):pageRotations(data);
+ else if(page==='lab'){
+  const advanced=window.VC_ANALYSIS_PRO_1880,tools={pickButton,table,html,fmt,pct,signed};
+  if(subpage==='serve')surface.innerHTML=advanced?.renderServeReceive?advanced.renderServeReceive(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de saque y recepción V18.8.0.</div>';
+  else if(subpage==='attack')surface.innerHTML=advanced?.renderAttack?advanced.renderAttack(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de ataque V18.8.0.</div>';
+  else if(subpage==='block')surface.innerHTML=advanced?.renderBlockDefense?advanced.renderBlockDefense(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de bloqueo y defensa V18.8.0.</div>';
+  else if(subpage==='quality')surface.innerHTML=advanced?.renderQuality?advanced.renderQuality(data,tools):'<div class="vc157-empty">No se ha cargado el módulo de calidad del scouting V18.8.0.</div>';
+  else if(subpage==='workbench')surface.innerHTML=pageLabWorkbench(data);
+  else if(subpage==='zones')surface.innerHTML=pageZones(data);
+  else if(subpage==='distribution')surface.innerHTML=pageDistribution(data);
+  else if(subpage==='details')surface.innerHTML=pageSetterDetails(data);
+  else if(subpage==='sequences')surface.innerHTML=pageSequences(data);
+  else surface.innerHTML=pageRotations(data);
+ }
  else if(page==='tactics')surface.innerHTML=subpage==='zones'?pageZones(data):pageRotations(data);
  else if(page==='setter')surface.innerHTML=subpage==='sequences'?pageSequences(data):subpage==='details'?pageSetterDetails(data):pageDistribution(data);
  else if(page==='explorer')surface.innerHTML=pageExplorer(data);
@@ -1025,12 +1037,12 @@ function mount(){
  state.report=reportPreferences();
  const comparative=window.VC_COMPARISONS_1656;
  if(comparative?.css&&!$('vc1656-style')){const style=document.createElement('style');style.id='vc1656-style';style.textContent=comparative.css;document.head.appendChild(style);}
- host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO 3.0 · V16.5.7</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
+ host=document.createElement('div');host.id='vc157-studio';host.className='vc157-studio';host.innerHTML=`<div class="vc157-appshell"><div class="vc157-top"><div class="vc157-brand"><span class="vc157-eyebrow">VOLLEY COACH / ANALYSIS PRO · V18.8.0</span><h2>Centro de análisis profesional</h2><p id="vc157-match-label">Datos conectados a Scouting Pro y al vídeo</p><div class="vc157-headmeta"><span class="vc157-metapill">Vista unificada</span><span class="vc157-metapill">Solo lectura</span><span class="vc157-metapill">Trazabilidad de jugadas</span></div></div><div class="vc157-actions"><button id="vc157-official" class="vc157-pdf" title="Exportación oficial sin cambios">PDF oficial</button><button id="vc157-propdf">PDF análisis</button></div></div>
  <div class="vc157-toolbar"><div class="vc157-filterbar"><label class="vc157-match-field">Scouting <span id="vc157-match-count" class="vc157-match-count"></span><select id="vc157-match" aria-label="Seleccionar scouting del análisis"></select></label><button type="button" id="vc157-refresh-matches" title="Actualizar lista de scoutings">↻ Actualizar</button><label>Equipo<select id="vc157-team"><option value="ours">Nuestro equipo</option><option value="opponent">Rival</option></select></label><label>Set<select id="vc157-set"></select></label><label>Rotación<select id="vc157-rotation">${selOpts([1,2,3,4,5,6].map(n=>[n,'R'+n]),'','Todas')}</select></label><label>Complejo<select id="vc157-phase"><option value="">K1 + K2</option><option value="K1">K1 · Side-out</option><option value="K2">K2 · Break</option></select></label></div></div>
  <div class="vc157-work"><nav id="vc157-tabs" class="vc157-tabs" aria-label="Espacios de análisis">${mainPages.map(k=>`<button type="button" data-section="${k}" aria-selected="false"><b>${pages[k][0]}</b><span>${pages[k][1]}</span></button>`).join('')}</nav>
  <div class="vc157-stagehead"><div><span class="vc157-eyebrow">ESTUDIO TÁCTICO · SOLO LECTURA</span><h3 id="vc157-section-title">Resumen</h3><p id="vc157-sample"></p></div><div class="vc157-export"><button id="vc157-csv-official">CSV Hoja Oficial</button><button id="vc157-csv">CSV avanzado</button><button id="vc157-json">JSON</button></div></div>
  <div id="vc1620-subtabs" class="vc1620-subtabs" hidden></div><div class="vc157-columns"><main id="vc157-content" class="vc157-content"></main><aside class="vc157-inspector"><div class="vc157-inspector-head"><span>INSPECTOR DE JUGADAS</span><h3 id="vc157-inspector-title">Selecciona una cifra de la tabla</h3></div><div id="vc157-inspector-content"><p>Selecciona una cifra para explorar las acciones que la componen.</p></div><button id="vc157-video" disabled>▶ Abrir jugadas en vídeo</button><p id="vc157-inspector-note">Se utiliza Video Analytics y el reproductor original.</p></aside></div></div>
- <p class="vc157-footer">Analysis Pro 3.0 · Mesa táctica con filtros cruzados, pistas, secuencias e inspector vinculados. Se conservan las hojas configurables. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
+ <p class="vc157-footer">Analysis Pro V18.8.0 · Partido, fundamentos, táctica, jugadores, histórico e informes. Motor estadístico original en modo de solo lectura. Se conservan las hojas configurables. Los cálculos, la Hoja Oficial, los PDF y la sincronización originales permanecen intactos.</p></div>`;
  view.appendChild(host);
  $('vc157-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-section]');if(!b||!pages[b.dataset.section])return;state.page=b.dataset.section;if(state.page==='comparisons'){state.selected=[];state.selectedTitle='Selecciona un scouting del historial';renderInspector();}renderPage()});
  $('vc1620-subtabs').addEventListener('click',e=>{const b=e.target.closest('[data-subpage]');if(!b)return;const allowed=(subpages[state.page]||[]).some(([k])=>k===b.dataset.subpage);if(!allowed)return;state.subpage[state.page]=b.dataset.subpage;renderPage()});
@@ -1578,5 +1590,5 @@ body.v11-shell #scout-analysis #vc157-studio select{width:100%!important;max-wid
 @media(max-width:520px){#vc157-studio .vc1651-filtergrid,#vc157-studio .vc1651-metrics{grid-template-columns:1fr}#vc157-studio .vc1651-courtwrap svg{min-width:470px}}
 `;
 /* Scoped visual overrides appended to the existing stylesheet. */
-window.VC_ANALYST_STUDIO_16155={version:'16.5.7',mount,open,refresh,onTeamChanged,videoSelection:()=>({matchId:String(currentMatch()?.id||''),page:state.page,subpage:state.subpage[state.page]||'',selected:state.selected.map(r=>({key:String(r.key),video:!!r.video,code:String(r.code||r.skill+r.ev||''),player:String(r.player||''),set:r.set,rally:r.r?.index||''})),title:state.selectedTitle}),setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
+window.VC_ANALYST_STUDIO_16155={version:'18.8.0',mount,open,refresh,onTeamChanged,videoSelection:()=>({matchId:String(currentMatch()?.id||''),page:state.page,subpage:state.subpage[state.page]||'',selected:state.selected.map(r=>({key:String(r.key),video:!!r.video,code:String(r.code||r.skill+r.ev||''),player:String(r.player||''),set:r.set,rally:r.r?.index||''})),title:state.selectedTitle}),setPage:(p)=>{if(pages[p]){state.page=routeTo(p)[0];renderPage()}},diagnostics:()=>({loaded:state.loaded,draws:state.draws,page:state.page,technical:state.technical,selected:state.selected.length,locked:false,performance:{...vc1632Metrics,modelMs:+vc1632Metrics.modelMs.toFixed(1),renderMs:+vc1632Metrics.renderMs.toFixed(1),modelMaxMs:+vc1632Metrics.modelMaxMs.toFixed(1),renderMaxMs:+vc1632Metrics.renderMaxMs.toFixed(1)}})};
 })();
