@@ -695,7 +695,7 @@ function moverEjercicioAFase(id,slug){const e=baseDeDatos.find(x=>x.id===id);if(
 function snapshotEjercicioCompleto(e){
   if(!e)return null;
   const fs=normalizarFundamentos(e);
-  return {id:e.id,nombre:e.nombre||'',tiempo:Number(e.tiempo)||0,escuela:e.escuela||'',fundamentos:fs,fundamento:fs[0]||'',formato:e.formato||'',nivel:e.nivel||'',intensidad:e.intensidad||'Media',tipo:e.tipo||'',jugadores:e.jugadores||'',material:e.material||'',video:e.video||'',objetivo:e.objetivo||'',descripcion:e.descripcion||'',variantes:e.variantes||'',errores:e.errores||'',fase:e.fase||'',pizarra:e.pizarra||null,seccionSesion:seccionEjercicioSesion(e.id,e)};
+  return {id:e.id,nombre:e.nombre||'',tiempo:Number(e.tiempo)||0,escuela:e.escuela||'',fundamentos:fs,fundamento:fs[0]||'',formato:e.formato||'',nivel:e.nivel||'',intensidad:e.intensidad||'Media',tipo:e.tipo||'',jugadores:e.jugadores||'',material:e.material||'',video:e.video||'',videosReferencia:Array.isArray(e.videosReferencia)?e.videosReferencia.slice(0,8):[],objetivo:e.objetivo||'',descripcion:e.descripcion||'',variantes:e.variantes||'',errores:e.errores||'',fase:e.fase||'',pizarra:e.pizarra||null,seccionSesion:seccionEjercicioSesion(e.id,e)};
 }
 function enriquecerEjercicioGuardado(e){
   const vivo=e&&e.id!=null?baseDeDatos.find(x=>x.id===e.id):null;
@@ -794,7 +794,7 @@ function toggleExerciseStats(id){const panel=$('stats-ex-'+id);if(!panel)return;
 function renderConteoBiblioteca(){const box=$('conteo-biblioteca');if(!box)return;const grupos=['Recepción','Ataque','Colocación','Bloqueo','Defensa','Reconstrucción','Juegos','Saque','Control'];const datos=[['Total',baseDeDatos.length],...grupos.map(g=>[g,baseDeDatos.filter(e=>normalizarFundamentos(e).includes(g)).length])];box.innerHTML=datos.map(([g,n])=>`<div class="metric"><span class="small">${g}</span><b>${n}</b></div>`).join('')}
 function filtrarEjercicios(){renderConteoBiblioteca();actualizarEtiquetaFundamentosFiltro();let q=$('buscar').value.trim().toLowerCase(),escuela=$('escuela').value,funs=getFundamentosFiltro(),nivel=$('nivel').value,tipo=$('tipo').value,fav=$('favoritos').value;const hayCriterio=!!(q||escuela||funs.length||nivel||tipo||fav||seccionDestinoSesion);if(!hayCriterio){$('contenedor-principal').innerHTML='<div class="empty">Selecciona un filtro o escribe el nombre de un ejercicio.</div>';return}let d=baseDeDatos.filter(e=>{const fs=normalizarFundamentos(e);return (!seccionDestinoSesion||q||coincideFiltroSeccionDestino(e))&&(!escuela||escuela==='Todas'||e.escuela===escuela)&&(!funs.length||funs.every(f=>fs.includes(f)))&&(!nivel||nivel==='Todos'||(e.nivel||'Intermedio')===nivel)&&(!tipo||tipo==='Todos'||(e.tipo||'')===tipo)&&(!fav||fav==='Todos'||e.favorito)&&(!q||[e.nombre,e.descripcion,e.objetivo,fs.join(' '),e.material,e.tipo||''].join(' ').toLowerCase().includes(q))});renderizar(d)}
 function renderizar(datos){
-  $('contenedor-principal').innerHTML=datos.map(e=>{
+  $('contenedor-principal').innerHTML=datos.filter(e=>!e.vc187SessionCopy).map(e=>{
     const uso=usoEjercicioGlobal(e.id,e.nombre);
     const enSesion=sesionActual.includes(e.id);const seccionActualEj=enSesion?seccionEjercicioSesion(e.id,e):null;const moverA=seccionDestinoSesion&&enSesion&&seccionActualEj!==seccionDestinoSesion;
     const chips=(team)=>uso[team].slice().sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))).map(u=>`<span class="usage-chip">${esc(u.fecha)}${u.objetivo?' · '+esc(u.objetivo):''}</span>`).join('')||'<span class="small">Sin usos</span>';
