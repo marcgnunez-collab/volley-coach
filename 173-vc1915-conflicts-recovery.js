@@ -44,6 +44,35 @@
    return {schema:'vc1915-record-manifest',version:VERSION,records};
  }
  const conflictKey=(team,type,id)=>JSON.stringify([team,type,id]);
+ // V19.1.6: una reversión verificable del último rally NO es una pérdida de
+ // datos. Si el rival remoto ha añadido más rallies entretanto, NO se aplica.
+ function isMatchingUndo(local,remote){
+   const intent=obj(local?.vc1916UndoIntent),setNumber=Number(intent.setNumber);
+   if(!intent.rallyId||!setNumber||!Number.isInteger(Number(intent.previousCount)))return false;
+   if(String(local?.id)!==String(remote?.id)||Number(local?.currentSet)!==Number(remote?.currentSet))return false;
+   const ls=arr(local?.sets),rs=arr(remote?.sets);
+   if(ls.length!==rs.length)return false;
+   for(let i=0;i<rs.length;i++){
+     if(Number(rs[i]?.number)!==Number(ls[i]?.number))return false;
+     if(Number(rs[i]?.number)!==setNumber&&digest(rs[i])!==digest(ls[i]))return false;
+   }
+   const a=ls.find(s=>Number(s.number)===setNumber),b=rs.find(s=>Number(s.number)===setNumber);
+   if(!a||!b)return false;
+   const al=arr(a.rallies),bl=arr(b.rallies);
+   if(bl.length!==Number(intent.previousCount)||al.length!==Number(intent.afterCount)||al.length+1!==bl.length)return false;
+   const removed=bl[bl.length-1];
+   if(!removed||String(removed.id)!==String(intent.rallyId)||String(local?.liveRally?.id)!==String(removed.id))return false;
+   if(!al.every((r,i)=>digest(r)===digest(bl[i])))return false;
+   if(!removed.scoreBefore||Number(a.scoreUs)!==Number(removed.scoreBefore.us)||Number(a.scoreOpponent)!==Number(removed.scoreBefore.opponent))return false;
+   if(digest(arr(local.liveRally.actions))!==digest(arr(removed.actions)))return false;
+   const otherEvents=x=>arr(x?.events).filter(e=>e?.type!=='libero_auto'||String(e.rallyId)!==String(removed.id));
+   if(digest(otherEvents(local))!==digest(otherEvents(remote)))return false;
+   // El resto de campos de identidad y planificación no se debe sustituir.
+   for(const k of ['date','opponent','competition','linkedMatchId','currentSet']){
+     if(stable(local?.[k]??null)!==stable(remote?.[k]??null))return false;
+   }
+   return true;
+ }
  function planMerge(local,remote,baseline={},choices={}){
    const base=obj(baseline.records),selected=obj(choices),operations=[],conflicts=[];
    const teams=new Set([...Object.keys(obj(local?.equiposData)),...Object.keys(obj(remote?.equiposData))]);
@@ -58,11 +87,12 @@
          const localChanged=!bh||lh!==bh,remoteChanged=!bh||rh!==bh;
          const key=conflictKey(team,type,id),choice=selected[key];
          const valid=choice&&choice.local===lh&&choice.remote===rh&&['local','remote'].includes(choice.use);
-         if(localChanged&&remoteChanged&&!valid){
+         const causalUndo=type==='scoutingMatches'&&!valid&&isMatchingUndo(l,r);
+         if(localChanged&&remoteChanged&&!valid&&!causalUndo){
            conflicts.push({key,team,type,id,local:lh,remote:rh,label:String(l?.nombre||l?.titulo||l?.opponent||r?.nombre||r?.titulo||r?.opponent||id).slice(0,120),uncertain:!bh});
            continue;
          }
-         const takeLocal=valid?choice.use==='local':localChanged&&!remoteChanged;
+         const takeLocal=valid?choice.use==='local':causalUndo||(localChanged&&!remoteChanged);
          operations.push({team,type,id,takeLocal,local:lh,remote:rh});
        }
      }
@@ -157,7 +187,7 @@
    delete result.__vc1915ScoutOverrides;
    return result;
  }
- const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,mergeGuarded,validateImport,recoveryPreview,mergeBackup,conflictKey};
+ const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,isMatchingUndo,mergeGuarded,validateImport,recoveryPreview,mergeBackup,conflictKey};
  const context={lastConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:''};
  function install(win){
    const store=win.localStorage, doc=win.document;

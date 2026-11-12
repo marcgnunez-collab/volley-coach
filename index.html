@@ -150,7 +150,7 @@ window.addEventListener('error',function(event){
 <script id="vc1790-sync-safety" src="./154-vc1790-sync-safety.js?v=17.12.0" data-vc-module="true"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V19.1.4</title>
+<title>Volley Coach · Professional Workspace V19.1.6</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -3423,7 +3423,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.1.4',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.1.6',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -8476,9 +8476,21 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
           if(!dirty&&risk.catastrophic){
             throw Error('V19.1: La nube no contiene varios registros locales de entrenamientos o scoutings. Descarga una copia JSON y revisa el diagnóstico en Gestión antes de aceptar cambios externos. No se han aplicado.');
           }
-          // Nunca reemplazar altas locales pendientes por una versión remota antigua.
-          // Los cambios en scoutings siguen usando la fusión existente.
-          const incoming=dirty&&reliability?.mergePending ? reliability.mergePending(localBefore,remote.state):remote.state;
+          // V19.1.5: comprobación de ediciones concurrentes por registro.
+          // Sin una base común, dos versiones distintas del mismo ID requieren
+          // elección explícita: ninguna marca temporal decide silenciosamente.
+          const conflictGuard=window.VC_V1915_RELIABILITY;
+          if(dirty&&(typeof conflictGuard?.prepare!=='function'||typeof conflictGuard?.mergeGuarded!=='function'))
+            throw Error('V19.1.5: módulo de conflictos no disponible. Sin sincronizar cambios locales para evitar sobrescrituras.');
+          const conflictPlan=dirty&&conflictGuard.prepare(localBefore,remote.state,stamp);
+          if(conflictPlan?.conflicts?.length){
+            const blocked=new Error('V19.1.5: '+conflictPlan.conflicts.length+' registros tienen cambios incompatibles. Revisa Conflictos y restauración JSON en Gestión.');
+            blocked.code='VC1915_CONFLICT';throw blocked;
+          }
+          // Nunca reemplazar cambios locales pendientes por una versión remota antigua.
+          const incoming=dirty&&conflictPlan&&conflictGuard?.mergeGuarded
+            ?conflictGuard.mergeGuarded(localBefore,remote.state,conflictPlan)
+            :dirty&&reliability?.mergePending?reliability.mergePending(localBefore,remote.state):remote.state;
           window.aplicarEstadoCloud?.(incoming);
           remoteApplied=true;lastRemoteStamp=stamp;
           try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
@@ -8504,6 +8516,12 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
         break;
       }
       if(mustWrite&&!confirmed){if(!dirty)dirtySince=Date.now();setDirty(true);throw Error('Cambios simultáneos: no se ha confirmado esta subida. Se volverá a intentar.')}
+      // La versión base se almacena solo después de aplicar un pull limpio
+      // o confirmar una subida CAS y quedar sin ediciones pendientes.
+      if(!dirty&&(remoteApplied||confirmed)){
+        try{window.VC_V1915_RELIABILITY?.captureBaseline?.(localState());}
+        catch(manifestError){console.warn('V19.1.5: no se ha guardado el manifiesto de versiones; próxima edición concurrente necesitará revisión.',manifestError)}
+      }
       persistCounters();failureCount=0;lastSyncError='';renderVisible();
       const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
       if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · ${dirty?'cambios pendientes':'sincronizados ✓'}`;
@@ -8512,8 +8530,8 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
       if(indicator)indicator.textContent=dirty?'◷ Guardado local · nube pendiente':confirmed?'✓ Confirmado por la nube':'✓ Guardado · nube al día';
       if(manual)alert(dirty?'Se han recibido cambios, pero quedan modificaciones por subir.':confirmed?'Datos fusionados y confirmados por la nube.':remoteApplied?'Cambios recibidos de la nube.':'Nube comprobada. No había cambios pendientes.');
       return remoteApplied||confirmed;
-    }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.3.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}else setStatus('Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty)scheduleDirty('retry');return false}
-    finally{syncPromise=null;if(dirty&&connected())scheduleDirty('revision-pending')}
+    }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.3.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}else setStatus('Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty&&err?.code!=='VC1915_CONFLICT')scheduleDirty('retry');return false}
+    finally{syncPromise=null;if(dirty&&connected()&&!lastSyncError.includes('registros tienen cambios incompatibles'))scheduleDirty('revision-pending')}
   })();return syncPromise;
 }
 async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'){if(dirty)markDirty('force:'+reason)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
@@ -10328,7 +10346,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <style id="v138-realtime-mobile-style">.v138-device-strip{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(3,minmax(0,1fr));gap:6px;margin:7px 0;padding:7px;border:1px solid #dbe4e9;border-radius:11px;background:#f8fafb}.v138-device-cell{min-width:0;padding:8px 10px;border:1px solid #e2e8ec;border-radius:8px;background:#fff}.v138-device-cell span{display:block;font-size:5.8px;font-weight:950;letter-spacing:.09em;text-transform:uppercase;color:#83919b}.v138-device-cell b{display:block;margin-top:2px;font-size:8.6px;color:#17354c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v138-device-cell small{display:block;margin-top:2px;font-size:6.3px;color:#84929c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v138-device-cell[data-state="ok"]{border-color:#cbe2d4;background:#f5fbf7}.v138-device-cell[data-state="ok"] b{color:#2b6c4c}.v138-device-cell[data-state="pending"]{border-color:#eadbb9;background:#fffaf0}.v138-device-cell[data-state="pending"] b{color:#886827}.v138-device-cell[data-state="error"]{border-color:#edcfcc;background:#fff5f4}.v138-device-cell[data-state="error"] b{color:#934842}.v138-mobile-sync-badge{display:inline-flex;align-items:center;gap:5px}.v138-mobile-sync-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#aebac2}.v138-device-cell[data-state="ok"] .v138-mobile-sync-badge::before{background:#2fa473}.v138-device-cell[data-state="pending"] .v138-mobile-sync-badge::before{background:#d99a3d}@media(max-width:900px){.v138-device-strip{grid-template-columns:1fr 1fr}}@media(max-width:620px){.v138-device-strip{grid-template-columns:1fr 1fr;margin:6px 0;padding:6px;gap:5px}.v138-device-cell{padding:8px}.v138-device-cell b{font-size:9px}.v138-device-cell small{font-size:7px;white-space:normal;line-height:1.3}body.v11-shell button,body.v11-shell summary,body.v11-shell [role="button"],body.v11-shell select{touch-action:manipulation;-webkit-tap-highlight-color:rgba(31,127,224,.12)}body.v11-shell button,body.v11-shell summary{min-height:44px}body.v11-shell input,body.v11-shell select,body.v11-shell textarea{font-size:16px!important;min-height:44px}body.v11-shell input[type="checkbox"],body.v11-shell input[type="radio"]{min-height:0;width:22px!important;height:22px!important}body.v11-shell .modal-close,body.v11-shell .v11-icon-button,body.v11-shell .v11-menu-toggle{min-width:44px!important;min-height:44px!important;width:44px!important;height:44px!important}body.v11-shell .v132-quick-skills button,body.v11-shell .v132-live-tools button,body.v11-shell .v119-probar-actions button,body.v11-shell .v121-score-actions button,body.v11-shell .v120-match-management button{min-height:48px!important;font-size:10px!important}body.v11-shell .v132-zone{min-height:72px!important;touch-action:manipulation}body.v11-shell .v132-zone button,body.v11-shell .v132-subzone{min-width:34px;min-height:34px}body.v11-shell .pro-modal{padding:6px!important;align-items:flex-start!important;overflow:auto!important;-webkit-overflow-scrolling:touch}body.v11-shell .pro-modal-card,body.v11-shell [class*="modal-card"]{max-width:100%!important;width:100%!important;max-height:none!important;margin:6px 0 24px!important}body.v11-shell .actions,body.v11-shell [class*="-actions"]{row-gap:7px}body.v11-shell table{font-size:11px}body.v11-shell .scout-action-detail-table-wrap,body.v11-shell .v135-evidence-table-wrap,body.v11-shell .v1000-evidence-table-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}body.v11-shell .v11-sidebar{width:min(88vw,330px);padding-bottom:24px;overflow-y:auto;-webkit-overflow-scrolling:touch}body.v11-shell .v11-home-button,body.v11-shell .v11-nav-group button{min-height:48px!important}body.v11-shell #v11-main{overflow-x:hidden}}@media(hover:none) and (pointer:coarse){body.v11-shell button:hover,body.v11-shell [onclick]:hover{transform:none!important}body.v11-shell button:active,body.v11-shell summary:active,body.v11-shell [role="button"]:active{filter:brightness(.96)}}
 </style>
 
-<script id="v138-realtime-mobile-runtime" src="./083-v138-realtime-mobile-runtime.js?v=16.5.4" data-vc-module="true"></script>
+<script id="v138-realtime-mobile-runtime" src="./083-v138-realtime-mobile-runtime.js?v=19.1.6" data-vc-module="true"></script>
 
 
 
@@ -13317,4 +13335,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 
 <script id="vc1910-data-reliability" src="./171-vc1910-data-reliability.js?v=19.1.2" defer data-vc-module="true"></script>
 <script id="vc1912-match-consolidation" src="./172-vc1912-match-consolidation.js?v=19.1.3" defer data-vc-module="true"></script>
+<script id="vc1915-conflicts-recovery" src="./173-vc1915-conflicts-recovery.js?v=19.1.5" defer data-vc-module="true"></script>
+<script id="vc1916-undo-realtime" src="./174-vc1916-scout-undo-realtime.js?v=19.1.6" defer data-vc-module="true"></script>
 </body></html>

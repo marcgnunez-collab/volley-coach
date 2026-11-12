@@ -1327,10 +1327,17 @@ function scoutGenericCounts(m){
   return {rallies,actions};
 }
 function scoutGenericStamp(m){for(const x of [m?.updatedAt,m?.manualSavedAt,m?.resultCompleteAt,m?.endedAt,m?.createdAt,m?.date]){const t=Date.parse(x||'');if(Number.isFinite(t))return t}return 0}
-function fusionarScoutingsSeguros(localList,remoteList){
+function fusionarScoutingsSeguros(localList,remoteList,options={}){
   const map=new Map();
-  [...(Array.isArray(localList)?localList:[]),...(Array.isArray(remoteList)?remoteList:[])].forEach(m=>{
+  const authoritativeIncoming=options?.authoritativeIncoming===true;
+  /* V19.1.6: cuando el estado remoto ya ha superado CAS y la comprobación
+     V19.1.5, la versión confirmada es autoritativa incluso si contiene MENOS
+     rallies (deshacer/corregir). La antigua heurística de escoger la lista
+     más larga se conserva para las fusiones históricas no verificadas.
+     Los IDs que solo existen localmente siguen protegidos. */
+  [...(Array.isArray(localList)?localList:[]),...(Array.isArray(remoteList)?remoteList:[])].forEach((m,i)=>{
     const id=Number(m?.id);if(!id)return;const prev=map.get(id);if(!prev){map.set(id,clonar(m));return}
+    if(authoritativeIncoming){map.set(id,clonar(m));return}
     const a=scoutGenericCounts(m),b=scoutGenericCounts(prev),use=a.actions>b.actions||a.rallies>b.rallies||(a.actions===b.actions&&a.rallies===b.rallies&&scoutGenericStamp(m)>scoutGenericStamp(prev));
     if(use)map.set(id,clonar(m));
   });
@@ -1360,7 +1367,7 @@ function aplicarEstadoCloud(s){
   ['infantil','cadete'].forEach(id=>{
     equiposData[id]=limpiarEquipo(equiposData[id],id);
     const localTeam=equiposAntes?.[id]||{};
-    equiposData[id].scoutingMatches=fusionarScoutingsSeguros(localTeam.scoutingMatches,equiposData[id].scoutingMatches);
+    equiposData[id].scoutingMatches=fusionarScoutingsSeguros(localTeam.scoutingMatches,equiposData[id].scoutingMatches,{authoritativeIncoming:true});
     // V19.1.5: respetar la elección explícita de una versión del mismo
     // scouting, después de la fusión heredada que prioriza integridad.
     const picks=s.__vc1915ScoutOverrides?.[id]||{};
