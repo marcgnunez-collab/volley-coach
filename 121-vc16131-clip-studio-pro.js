@@ -4,7 +4,7 @@
 (()=>{
   'use strict';
   if(window.VC_16131_CLIP_STUDIO)return;
-  const VERSION='16.1.3.1', $=id=>document.getElementById(id), arr=x=>Array.isArray(x)?x:[];
+  const VERSION='19.2.4', $=id=>document.getElementById(id), arr=x=>Array.isArray(x)?x:[];
   const root=$('scout-video-hub'), anchor=$('vc-clip33');
   if(!root||!anchor)return;
   const bridge=()=>window.VC_SCOUT_VIDEO_BRIDGE||{};
@@ -111,6 +111,8 @@
   function playEntry(idx){
     const currentItem=state.queue[idx];if(!currentItem){stop();notify('Playlist terminada.');return false}
     const {clip}=currentItem;
+    if(clip.orphaned||clip.unlinked){state.playIndex++;return playEntry(state.playIndex)}
+    if(typeof window.v780OpenAt!=='function'){stop();notify('El reproductor del partido no está disponible.',true);return false}
     const start=Number(clip.start),end=Number(clip.end);
     if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){state.playIndex++;return playEntry(state.playIndex)}
     const ok=window.v780OpenAt?.(Math.max(0,start),'',{pre:0,post:Math.max(.15,end-start)});
@@ -122,7 +124,7 @@
     if(!m||!p){notify('Selecciona una playlist.',true);return false}
     const diag=window.v780Diagnostics?.()||{};
     if(!mediaApi().loaded?.()||diag.match&&String(diag.match)!==String(m.id)){notify('Carga primero la grabación correspondiente a este partido.',true);return false}
-    const map=byItem(available());const sequence=arr(p.entries).map(r=>({ref:r,clip:resolve(r,map)})).filter(x=>x.clip&&Number.isFinite(Number(x.clip.start))&&Number.isFinite(Number(x.clip.end)));
+    const map=byItem(available());const sequence=arr(p.entries).map(r=>({ref:r,clip:resolve(r,map)})).filter(x=>x.clip&&!x.clip.orphaned&&!x.clip.unlinked&&Number.isFinite(Number(x.clip.start))&&Number.isFinite(Number(x.clip.end))&&Number(x.clip.end)>Number(x.clip.start));
     if(!sequence.length){notify('La playlist no contiene jugadas con tiempos válidos. Sincroniza el vídeo.',true);return false}
     stop();state.queue=sequence;state.playIndex=0;state.playing=true;
     if(!playEntry(0))return false;
@@ -143,7 +145,7 @@
   function button(label,callback,cls='',disabled=false){const b=el('button',cls,label);b.type='button';b.disabled=disabled;b.addEventListener('click',callback);return b}
   function build(){if($('vc16131-studio'))return;
     const s=el('section','vc16131-studio');s.id='vc16131-studio';s.setAttribute('aria-label','Clip Studio Pro');
-    s.innerHTML=`<header class="vc16131-heading"><div><span>CLIP STUDIO PRO · V16.1.3.1</span><h3>Playlists tácticas</h3><p>Guarda selecciones de jugadas por partido, sin duplicar clips ni vídeos.</p></div><span id="vc16131-counter">0 playlists</span></header>
+    s.innerHTML=`<header class="vc16131-heading"><div><span>CLIP STUDIO PRO · V19.2.4</span><h3>Playlists tácticas</h3><p>Guarda selecciones de jugadas por partido, sin duplicar clips ni vídeos.</p></div><span id="vc16131-counter">0 playlists</span></header>
     <div class="vc16131-create"><label>Nombre de playlist<input id="vc16131-name" maxlength="140" placeholder="Ej. Recepciones difíciles · Set 2"></label><label>Objetivo táctico<input id="vc16131-goal" maxlength="140" placeholder="Qué quieres revisar o entrenar"></label><button type="button" id="vc16131-create">Crear playlist</button></div>
     <div class="vc16131-layout"><div class="vc16131-library"><h4>Playlists guardadas</h4><div id="vc16131-playlists"></div><div id="vc16131-selected-controls" hidden><label>Nombre<input id="vc16131-edit-name" maxlength="140"></label><label>Objetivo<input id="vc16131-edit-goal" maxlength="140"></label><div class="vc16131-actions"><button type="button" id="vc16131-update">Guardar cambios</button><button type="button" id="vc16131-delete">Eliminar playlist</button></div></div><p id="vc16131-play-state">Ninguna playlist en reproducción.</p><div class="vc16131-actions"><button type="button" id="vc16131-play">▶ Reproducir seguida</button><button type="button" id="vc16131-stop" disabled>■ Detener</button><button type="button" id="vc16131-export">Exportar referencias JSON</button></div></div>
     <div class="vc16131-browser"><div class="vc16131-topline"><h4>Explorar jugadas</h4><button type="button" id="vc16131-refresh">Actualizar</button></div><div class="vc16131-filters"><label>Buscar<input id="vc16131-search" type="search" placeholder="Jugador, código o fundamento"></label><label>Fundamento<select id="vc16131-skill"><option value="">Todos</option><option value="S">Saque</option><option value="R">Recepción</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="E">Colocación</option></select></label><label>Set<select id="vc16131-set"><option value="">Todos</option></select></label></div><div id="vc16131-candidates" class="vc16131-items"></div><div class="vc16131-actions"><button id="vc16131-add" type="button">＋ Añadir seleccionadas</button><button id="vc16131-add-filtered" type="button">＋ Añadir las del filtro</button></div><small>La selección usa las referencias de Smart Clips. Solo son reproducibles si el vídeo del partido está cargado y sincronizado.</small></div></div>
