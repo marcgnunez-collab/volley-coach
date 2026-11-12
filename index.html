@@ -139,7 +139,7 @@ window.addEventListener('error',function(event){
       (document.body||document.documentElement).appendChild(alert);
     }
     const missing=window.VC_MODULE_LOAD_ERRORS.map(src=>{try{return new URL(src,location.href).pathname.split('/').pop()}catch(_){return src}});
-    alert.textContent='Volley Coach V18.0 · No se han cargado '+missing.length+' módulos JavaScript: '+missing.join(', ')+'. Comprueba que los archivos están publicados en GitHub con los mismos nombres y rutas. No borres los datos locales; algunas funciones pueden no estar disponibles.';
+    alert.textContent='Volley Coach · No se han cargado '+missing.length+' módulos JavaScript: '+missing.join(', ')+'. Comprueba que los archivos están publicados en GitHub con los mismos nombres y rutas. No borres los datos locales; algunas funciones pueden no estar disponibles.';
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',notify,{once:true});else notify();
 },true);
@@ -12121,7 +12121,7 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
 <script id="vc1650-custom-worksheets" src="./135-vc1650-custom-worksheets.js?v=16.5.0" defer data-vc-module="true"></script>
 <script id="vc1651-tactical-laboratory" src="./136-vc1651-tactical-laboratory.js?v=16.5.1" defer data-vc-module="true"></script>
 <script id="vc1880-analysis-pro" src="./167-vc1880-analysis-pro.js?v=18.8.0" defer data-vc-module="true"></script>
-<script id="vc1881-setter-pro" src="./168-vc1881-setter-pro.js?v=18.8.1" defer data-vc-module="true"></script>
+<script id="vc1881-setter-pro" src="./168-vc1881-setter-pro.js?v=18.9.1" defer data-vc-module="true"></script>
 <script id="vc1890-rotation-matchup-pro" src="./169-vc1890-rotation-matchup-pro.js?v=18.9.0" data-vc-module="true"></script>
 <script id="vc16155-lazy-analyst-studio">
 /* V18.8.1 — safety-first lazy loader: never block the homepage if Analysis Pro is unavailable. */
@@ -13187,7 +13187,7 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media(max-width:420px){#vc1850-home .vc1850-match-copy{width:86%}#vc1850-home .vc1850-court{opacity:.25;right:-58px;width:66%;min-width:175px}#vc1850-home .vc1850-welcome-actions button{flex:1 1 100%}#vc1850-home .vc1850-training-feature{padding:18px}}
 @media(prefers-reduced-motion:reduce){#vc1850-home button{transition:none!important}}
 </style>
-<script id="vc1850-home-dashboard-module" src="./164-vc1850-home-dashboard.js?v=18.9.0" defer data-vc-module="true"></script>
+<script id="vc1850-home-dashboard-module" src="./164-vc1850-home-dashboard.js?v=18.9.1" defer data-vc-module="true"></script>
 
 <style id="vc1851-match-center-pro-styles">
 /* Volley Coach V18.5.1 · Centro de partidos · estilos de la única vista profesional.
@@ -13285,6 +13285,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media(prefers-reduced-motion:reduce){#vc1851-center button{transition:none!important}}
 
 </style>
-<script id="vc1851-match-center-module" src="./165-vc1851-match-center-pro.js?v=18.9.0" defer data-vc-module="true"></script>
+<script id="vc1851-match-center-module" src="./165-vc1851-match-center-pro.js?v=18.9.1" defer data-vc-module="true"></script>
 <script id="vc1860-training-planner-module" src="./166-vc1860-training-planner.js?v=18.7.1" defer data-vc-module="true"></script>
 </body></html>
