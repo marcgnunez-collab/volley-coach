@@ -2,8 +2,9 @@
 (()=>{
 'use strict';
 
-const VERSION='19.2.1';
+const VERSION='19.2.2';
 const delayPolicy=window.VC_VIDEO_DELAY_POLICY_1921||null;
+const reviewPolicy=window.VC_VIDEO_REVIEW_POLICY_1922||null;
 const $=id=>document.getElementById(id);
 const state={
   context:'training',
@@ -80,7 +81,10 @@ const state={
   recoveryWindowCount:0,
   lastRecoveryReason:'',
   sourceMode:'local',
-  reviewSpeed:1
+  reviewSpeed:1,
+  reviewExpirations:0,
+  autoplayBlocked:false,
+  userScrubbing:false
 };
 const QUALITY_PROFILES=Object.freeze({
   fluid:Object.freeze({label:'Fluido · 360p / 24 FPS',width:640,height:360,fps:24,bitrate:850000}),
@@ -116,6 +120,16 @@ function bufferedRange(){
     const i=v.buffered.length-1;
     return {start:v.buffered.start(i),end:v.buffered.end(i),span:v.buffered.end(i)-v.buffered.start(i),disconnected:i>0};
   }catch(_){return null}
+}
+// In manual review, a segment can still be available before an MSE gap.
+// Automatic Delay always follows the newest segment instead.
+function reviewRange(){
+  const v=delayed();
+  if(!v?.buffered?.length)return null;
+  return reviewPolicy?.reviewRange(v.buffered,Number(v.currentTime))||bufferedRange();
+}
+function currentReviewRange(){
+  return state.mode==='delay'?bufferedRange():reviewRange();
 }
 function savePrefs(){
   try{
@@ -171,9 +185,13 @@ function updateUi(){
   if(mode)mode.textContent=state.mode==='delay'?'Delay':state.mode==='paused'?'Pausa':'Revisión';
   const note=$('live-delay-mode-note');
   if(note)note.textContent=state.mode==='delay'?'seguimiento automático':state.mode==='paused'?'imagen detenida':'navegación manual';
+  const returnButton=$('vc1922-review-transport')?.querySelector('.vc1922-primary');
+  if(returnButton)returnButton.textContent=`Volver a Delay −${delayLabel(state.delay)}`;
   const pause=$('live-delay-pause');
   if(pause)pause.textContent=state.mode==='paused'?'Continuar revisión':'Pausar revisión';
+  $('live-delay-resume')?.classList.toggle('hidden',!state.autoplayBlocked);
 }
+
 async function populateCameras(){
   const sel=$('live-delay-camera');if(!sel||!navigator.mediaDevices?.enumerateDevices)return;
   try{
@@ -219,6 +237,7 @@ function playbackQuality(){
 function delayHealth(){
   const r=bufferedRange(),v=delayed(),now=Date.now();
   if(!state.running)return 'DETENIDO';
+  if(state.autoplayBlocked)return 'TOCA REPRODUCIR';
   if(state.mode==='paused')return 'REVISIÓN EN PAUSA';
   if(state.mode==='review')return 'REVISIÓN MANUAL';
   if(!r||(delayPolicy&&!delayPolicy.getTarget(r,state.delay))||r.span<Math.max(1.6,state.delay+0.65))return 'CARGANDO BÚFER';
@@ -351,18 +370,40 @@ function pruneBuffer(force=false){
   try{
     const start=sb.buffered.start(0),end=sb.buffered.end(sb.buffered.length-1);
     const keep=Math.max(state.maxBuffer,state.delay+20);
-    if(force||end-start>keep+10){
+    const v=delayed();
+    const playback=Number(v?.currentTime);
+    const plan=reviewPolicy?.prunePlan({start,end,keepSeconds:keep,
+      playbackTime:playback,playbackStarted:state.playbackStarted,mode:state.mode,force});
+    if(plan){
+      if(plan.needsReturn){
+        // A paused or manually reviewed moment can become older than the
+        // retention window. Rejoin automatic delay BEFORE discarding it.
+        // Never let the old playhead pin memory indefinitely until a quota crash.
+        if(v?.seeking)return;
+        const newest=bufferedRange();
+        const preferred=delayPolicy?.getTarget(newest,state.delay);
+        const jumpTo=Math.max(plan.removeEnd+1,Number.isFinite(preferred)?preferred:Math.max(start+.25,end-1));
+        if(v){v.currentTime=Math.min(end-.25,jumpTo);v.playbackRate=1;}
+        const expired=plan.reviewExpired;
+        state.mode='delay';state.reviewSpeed=1;state.autoplayBlocked=false;
+        state.lastSeekAt=Date.now();state.playbackStarted=true;
+        if(expired){
+          state.reviewExpirations++;
+          setStatus('<b>La revisión llegó al límite del búfer.</b> Se vuelve al Delay automáticamente para conservar la captura y evitar agotar la memoria. REC continúa.','warn');
+        }
+        updateUi();
+      }
+      state.prunePending=true;sb.remove(start,plan.removeEnd);
+      return;
+    }
+    // Fallback only for older deployments that do not load the 19.2.2 policy.
+    if(!reviewPolicy&&(force||end-start>keep+10)){
       const cutoff=Math.max(start,end-keep);
-      const play=delayed();
-      // Retain at least five seconds behind playback so ongoing decode is not
-      // disturbed while MediaSource is removing old ranges.
-      const playback=Number(play?.currentTime);
       const safe=Number.isFinite(playback)&&state.playbackStarted
-        ?Math.min(cutoff,Math.max(start,playback-5))
-        :cutoff;
+        ?Math.min(cutoff,Math.max(start,playback-5)):cutoff;
       if(safe>start+1){state.prunePending=true;sb.remove(start,safe)}
     }
-  }catch(_){}
+  }catch(err){console.warn('Live Delay prune',err)}
 }
 function targetTime(){
   const r=bufferedRange();if(!r)return null;
@@ -463,14 +504,15 @@ function maintainDelayPro(force=false){
     const wanted=delayPolicy?.playbackRate(diff)??Math.max(.95,Math.min(1.05,1+diff*.025));
     if(Math.abs((Number(v.playbackRate)||1)-wanted)>.009)v.playbackRate=wanted;
   }
-  if(v.paused&&!v.seeking&&now-state.lastPlayAttemptAt>=1200){
+  if(v.paused&&!v.seeking&&!state.autoplayBlocked&&now-state.lastPlayAttemptAt>=1200){
     state.lastPlayAttemptAt=now;
     const play=v.play();
-    if(play?.catch)play.catch(err=>{
+    if(play?.then)play.then(()=>{state.autoplayBlocked=false;updateUi()}).catch(err=>{
       // iOS Safari / autoplay policy can reject silent MSE video playback.
       // Do not pretend that Delay is running when a tap is required.
       if(!state.running||state.mode!=='delay')return;
       state.autoplayErrors++;
+      state.autoplayBlocked=err?.name==='NotAllowedError';
       if(now-state.lastAutoplayNoticeAt>5000){
         state.lastAutoplayNoticeAt=now;
         setState('live-delay-review-state','PULSA REPRODUCIR',false);
@@ -478,16 +520,38 @@ function maintainDelayPro(force=false){
       }
     });
   }
-  setState('live-delay-review-state',state.waitingAt&&now-state.waitingAt>1000?'RECUPERANDO':'RETRASADO',true);
+  if(state.autoplayBlocked)setState('live-delay-review-state','PULSA REPRODUCIR',false);
+  else setState('live-delay-review-state',state.waitingAt&&now-state.waitingAt>1000?'RECUPERANDO':'RETRASADO',true);
 }
 function maintainDelay(force=false){
   if(state.engine==='pro')maintainDelayPro(force);
   else maintainDelayLegacy(force);
 }
+// Rolling review transport does not seek while the user drags its timeline.
+function updateReviewTransport(){
+  const control=$('vc1922-scrub'),v=delayed(),r=currentReviewRange();
+  if(!control)return;
+  const available=!!(state.running&&r&&r.span>.6);
+  control.disabled=!available;
+  if(!available){
+    metricText('vc1922-review-window','ESPERANDO BÚFER');
+    metricText('vc1922-review-position','—');
+    return;
+  }
+  const position=Number(v?.currentTime);
+  if(!state.userScrubbing&&Number.isFinite(position)){
+    const fraction=Math.max(0,Math.min(1,(position-r.start)/r.span));
+    control.value=String(Math.round(fraction*1000));
+  }
+  metricText('vc1922-review-window',`${fmtSec(r.span)} disponibles`);
+  if(!state.userScrubbing)metricText('vc1922-review-position',`${fmtSec(Math.max(0,r.end-position))} del último vídeo`);
+  metricText('vc1922-review-mode',state.mode==='delay'?'DELAY AUTOMÁTICO':state.mode==='paused'?'REVISIÓN PAUSADA':'REVISIÓN MANUAL');
+}
 function updateMetrics(){
   // Telemetry is presentation-only. Never stop MediaRecorder/MSE or delay ticks.
   if(document.visibilityState==='hidden'||(!($('live-delay-modal')?.classList.contains('open'))&&!($('scout-video-hub')?.classList.contains('active'))))return;
   const r=bufferedRange(),v=delayed();
+  updateReviewTransport();
   metricText('live-delay-buffered',r?fmtSec(r.span):'0 s');
   if($('live-delay-actual')){
     const actual=r&&v&&Number.isFinite(v.currentTime)?Math.max(0,r.end-v.currentTime):null;
@@ -716,7 +780,7 @@ window.startLiveDelay=async function(){
     state.chunkSerial=Promise.resolve();
     state.queueBytes=0;state.pendingBlobBytes=0;state.chunkCount=0;state.quotaFailures=0;state.lastChunkAt=0;state.lastError='';
     state.seekCorrections=0;state.playbackWaits=0;state.playbackRecoveries=0;
-    state.autoplayErrors=0;state.lastAutoplayNoticeAt=0;
+    state.autoplayErrors=0;state.autoplayBlocked=false;state.userScrubbing=false;state.lastAutoplayNoticeAt=0;
     resetProTelemetry();
     await createMse();
     if(!state.starting){destroyMse();return;}
@@ -731,7 +795,7 @@ window.startLiveDelay=async function(){
   }
 };
 window.stopLiveDelay=function(silent=false){
-  stopTicker();state.starting=false;state.running=false;state.generation++;state.pendingBlobBytes=0;state.mode='delay';
+  stopTicker();state.starting=false;state.running=false;state.generation++;state.pendingBlobBytes=0;state.mode='delay';state.autoplayBlocked=false;state.userScrubbing=false;
   try{state.recorder?.stop()}catch(_){}
   state.recorder=null;
   try{window.VC_REMOTE_CAMERA?.stopDelayNormalizedStream?.()}catch(_){}
@@ -818,40 +882,78 @@ window.liveDelaySetBuffer=function(v){
 };
 window.liveDelayReturn=function(){
   if(!state.running)return;
-  state.mode='delay';state.reviewSpeed=1;if(delayed())delayed().playbackRate=1;updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${delayLabel(state.delay)} del directo.`,'good')
+  state.autoplayBlocked=false;state.mode='delay';state.reviewSpeed=1;if(delayed())delayed().playbackRate=1;updateUi();maintainDelay(true);setStatus(`<b>Delay automático.</b> Revisión a ${delayLabel(state.delay)} del directo.`,'good')
 };
 window.liveDelayJump=function(delta){
   if(!state.running)return;
-  const v=delayed(),r=bufferedRange();if(!v||!r)return;
-  state.mode='review';
+  const v=delayed(),r=currentReviewRange();if(!v||!r)return;
+  state.mode='review';state.playbackStarted=true;
   const next=Math.max(r.start,Math.min(r.end-.05,(Number(v.currentTime)||r.end-state.delay)+Number(delta||0)));
-  try{v.playbackRate=1;v.currentTime=next;v.play().catch(()=>{})}catch(_){}
+  try{v.playbackRate=1;v.currentTime=reviewPolicy?.reviewSeek(r,next)??next;v.play().catch(()=>{})}catch(_){}
   updateUi();updateMetrics()
 };
 window.liveDelayReplay=function(seconds){
   if(!state.running)return;
-  const v=delayed(),r=bufferedRange();if(!v||!r)return;
-  state.mode='review';
+  const v=delayed(),r=currentReviewRange();if(!v||!r)return;
+  state.mode='review';state.playbackStarted=true;
   const base=Math.max(r.start,r.end-state.delay);
   const start=Math.max(r.start,base-Math.max(1,Number(seconds)||5));
-  try{v.playbackRate=1;v.currentTime=start;v.play().catch(()=>{})}catch(_){}
+  try{v.playbackRate=1;v.currentTime=reviewPolicy?.reviewSeek(r,start)??start;v.play().catch(()=>{})}catch(_){}
   updateUi();updateMetrics();
   setStatus(`<b>Repetición.</b> Revisando ${Math.round(seconds)} s anteriores; la cámara sigue capturando.`,'warn')
 };
 window.liveDelayGetReviewTimeline=function(){
-  const r=bufferedRange(),v=delayed();
+  const r=currentReviewRange(),v=delayed();
   if(!state.running||!r||!v)return {available:false,start:0,end:0,current:0,mode:state.mode};
   return {available:true,start:r.start,end:r.end,current:Math.max(r.start,Math.min(r.end,Number(v.currentTime)||r.start)),mode:state.mode,playing:!v.paused,speed:Number(v.playbackRate)||1};
 };
 window.liveDelaySeekFraction=function(fraction){
   if(!state.running)return false;
-  const r=bufferedRange(),v=delayed();if(!r||!v)return false;
+  const r=currentReviewRange(),v=delayed();if(!r||!v)return false;
   const f=Math.max(0,Math.min(1,Number(fraction)||0));
-  if(f>=0.998){window.liveDelayReturn();return true}
-  const t=Math.max(r.start,Math.min(r.end-0.25,r.start+f*r.span));
+  const t=reviewPolicy?.reviewSeek(r,r.start+f*r.span)??Math.max(r.start,Math.min(r.end-0.25,r.start+f*r.span));
   if(!Number.isFinite(t))return false;
-  state.mode='review';try{v.currentTime=t;v.playbackRate=state.reviewSpeed||1}catch(_){return false}
+  const stayPaused=state.mode==='paused';
+  state.mode=stayPaused?'paused':'review';state.playbackStarted=true;
+  try{
+    v.currentTime=t;v.playbackRate=stayPaused?1:state.reviewSpeed||1;
+    if(!stayPaused){
+      const promise=v.play();
+      if(promise?.catch)promise.catch(err=>{
+        if(err?.name==='NotAllowedError'){
+          state.autoplayBlocked=true;updateUi();
+          setStatus('<b>Reproducción bloqueada.</b> Pulsa Reproducir vídeo para continuar la revisión.','warn');
+        }
+      });
+    }
+  }catch(_){return false}
   updateUi();updateMetrics();return true;
+};
+window.liveDelayScrubbing=function(active){
+  state.userScrubbing=!!active;
+  if(!active)updateReviewTransport();
+};
+window.liveDelayPreviewScrub=function(value){
+  const r=currentReviewRange();if(!r)return;
+  state.userScrubbing=true;
+  const fraction=Math.max(0,Math.min(1,(Number(value)||0)/1000));
+  metricText('vc1922-review-position',`${fmtSec((1-fraction)*r.span)} del último vídeo`);
+};
+window.liveDelayResumeFromGesture=async function(){
+  if(!state.running)return false;
+  const v=delayed();if(!v)return false;
+  try{
+    await v.play();
+    state.autoplayBlocked=false;state.lastPlayAttemptAt=Date.now();
+    updateUi();updateMetrics();
+    setStatus('<b>Reproducción reanudada.</b> La cámara y REC siguen funcionando de forma independiente.','good');
+    return true;
+  }catch(err){
+    state.autoplayBlocked=err?.name==='NotAllowedError';
+    updateUi();
+    setStatus('<b>El navegador sigue bloqueando la reproducción.</b> Comprueba que esta pestaña está visible y utiliza Reproducir.','warn');
+    return false;
+  }
 };
 window.liveDelaySetReviewSpeed=function(rate){
   if(!state.running)return false;
@@ -865,7 +967,7 @@ window.liveDelaySetReviewSpeed=function(rate){
 };
 window.liveDelayFrameStep=function(dir){
   if(!state.running)return false;
-  const v=delayed(),r=bufferedRange();if(!v||!r)return false;
+  const v=delayed(),r=currentReviewRange();if(!v||!r)return false;
   const fps=Number(state.stream?.getVideoTracks?.()[0]?.getSettings?.().frameRate)||quality().fps||30;
   // Browser seeks to an approximate decoded frame; exact frame accuracy is
   // not guaranteed on MediaSource GOP/keyframe boundaries.
@@ -928,6 +1030,8 @@ window.liveDelayDiagnostics=function(){
     maxBufferSeconds:state.maxBuffer,
     mode:state.mode,
     reviewSpeed:state.reviewSpeed,
+    reviewExpirations:state.reviewExpirations,
+    autoplayBlocked:state.autoplayBlocked,
     buffered:r?.span||0,
     latestRangeDisconnected:!!r?.disconnected,
     autoplayErrors:state.autoplayErrors,

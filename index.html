@@ -2717,6 +2717,21 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
       <div><span>Contexto</span><b id="live-delay-context">Entrenamiento</b><small id="live-delay-context-note">corrección técnica</small></div>
     </div>
 
+    <section id="vc1922-review-transport" aria-label="Línea de tiempo de revisión del Delay">
+      <div class="vc1922-head"><strong>REVISIÓN EN DIRECTO · V19.2.2</strong><span id="vc1922-review-mode">DELAY AUTOMÁTICO</span></div>
+      <input type="range" id="vc1922-scrub" min="0" max="1000" step="1" value="0" disabled
+             aria-label="Buscar dentro del vídeo retrasado"
+             oninput="liveDelayPreviewScrub(this.value)"
+             onchange="liveDelaySeekFraction(Number(this.value)/1000);liveDelayScrubbing(false)"
+             onblur="liveDelayScrubbing(false)">
+      <div class="vc1922-foot"><span id="vc1922-review-window">ESPERANDO BÚFER</span><span id="vc1922-review-position">—</span></div>
+      <div class="vc1922-actions">
+        <button type="button" onclick="liveDelayJump(-5)">↶ 5 segundos</button>
+        <button class="vc1922-primary" type="button" onclick="liveDelayReturn()">Volver a Delay −10 s</button>
+        <button id="live-delay-resume" class="vc1922-resume hidden" type="button" onclick="liveDelayResumeFromGesture()">▶ Reproducir vídeo</button>
+      </div>
+    </section>
+
     <section class="vc-video-pro-health" aria-label="Diagnóstico de Video Engine Pro">
       <div class="vc-video-pro-head"><strong>VIDEO ENGINE <span id="live-delay-engine-label">ENGINE PRO</span></strong>
         <div class="vc-video-pro-actions">
@@ -5134,7 +5149,8 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 
 
 <script id="vc1921-delay-policy" src="./177-vc1921-delay-policy.js?v=19.2.1" data-vc-module="true"></script>
-<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=19.2.1" data-vc-module="true"></script>
+<script id="vc1922-review-policy" src="./178-vc1922-review-policy.js?v=19.2.2" data-vc-module="true"></script>
+<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=19.2.2" data-vc-module="true"></script>
 
 
 
@@ -13351,5 +13367,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 <script id="vc1917-universal-sync" src="./175-vc1917-universal-sync.js?v=19.1.7" defer data-vc-module="true"></script>
 <!-- V19.2.0 · Connection Hub; presentation over V7.6 WebRTC and V18.4 capture. -->
 <link rel="stylesheet" href="./vc1920-connection-hub.css?v=19.2.0">
+<link rel="stylesheet" href="./vc1922-live-delay.css?v=19.2.2">
 <script id="vc1920-video-connection-hub" src="./176-vc1920-video-connection-hub.js?v=19.2.0" defer data-vc-module="true"></script>
 </body></html>

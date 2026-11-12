@@ -91,7 +91,7 @@ function nodes(){
   if(!card)return [];
   const selectors=[
     '.live-delay-toolbar','.live-delay-support','.live-delay-grid','.live-delay-metrics',
-    '.live-delay-controls','.live-delay-training-tools','.live-delay-help'
+    '#vc1922-review-transport','.live-delay-controls','.live-delay-training-tools','.live-delay-help'
   ];
   return selectors.map(s=>card.querySelector(s)||$('scout-v740-inline-host')?.querySelector(s)).filter(Boolean);
 }
@@ -105,7 +105,7 @@ function restoreModal(){
   if(!card)return;
   const list=[
     hostFind('.live-delay-toolbar'),hostFind('.live-delay-support'),hostFind('.live-delay-grid'),
-    hostFind('.live-delay-metrics'),hostFind('.live-delay-controls'),
+    hostFind('.live-delay-metrics'),hostFind('#vc1922-review-transport'),hostFind('.live-delay-controls'),
     hostFind('.live-delay-training-tools'),hostFind('.live-delay-help')
   ].filter(Boolean);
   let ref=head?.nextSibling||null;
