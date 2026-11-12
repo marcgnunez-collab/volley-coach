@@ -16,6 +16,7 @@ const LEGACY_GROUPS=[
  {id:'team',label:'Equipo',icon:'◎',defaultView:'jugadores',items:[['jugadores','Plantilla'],['scout-season','Temporada'],['scout-safe','Copias y recuperación']]},
  {id:'management',auxiliary:true,label:'Gestión',icon:'⚙',defaultView:'v11-management',items:[['v11-management','Configuración'],['scout-safe','Recuperación']]}
 ];
+let CANONICAL_MATCH_ROUTE=null;
 let GROUPS=LEGACY_GROUPS;
 let GROUP_BY_ID=Object.fromEntries(GROUPS.map(x=>[x.id,x]));
 // Explicit resolution for routes shared by more than one workspace.
@@ -29,8 +30,10 @@ const cleanString=s=>String(s==null?'':s).replace(/\s+/g,' ').trim();
 function resolveRoute(raw){
  const target=String(raw||'home');
  const g=GROUP_BY_ID[target];if(g)return {view:g.defaultView,group:g.id,mode:null};
- const view=ALIASES[target]||target;
- return {view,group:VIEW_GROUP[view]||'home',mode:['scouting','scout-workspace-v900','coding','codificacion','scouting-pro'].includes(target)?'visual':null};
+ const canonical=CANONICAL_MATCH_ROUTE?.(target);
+ const view=canonical?.view&&canonical.view!==target?canonical.view:(ALIASES[target]||target);
+ const mode=canonical?.mode||(['scouting','scout-workspace-v900','coding','codificacion','scouting-pro'].includes(target)?'visual':null);
+ return {view,group:VIEW_GROUP[view]||'home',mode};
 }
 function navTitle(id){for(const g of GROUPS){if(g.defaultView===id)return g.label;const found=g.items.find(x=>x[0]===id);if(found)return found[1]}return 'Área de trabajo'}
 function cloudSummary(raw){
@@ -110,7 +113,7 @@ function makeContext(doc){
 function makeDashboard(doc){
  const dashboard=doc.getElementById('dashboard');if(!dashboard)return;
  const home=doc.createElement('div');home.id='vc17-dashboard';
- home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V19.1.2</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
+ home.innerHTML=`<div class="vc17-hero"><div class="vc17-hero-copy"><span>VOLLEY COACH · V19.1.3</span><h2>Tu centro de trabajo</h2><p>Prepara entrenamientos, continúa un partido o revisa tus datos desde un mismo lugar.</p><div class="vc17-hero-actions"><button type="button" data-vc17-link="entrenamiento" class="vc17-primary">Continuar sesión</button><button type="button" data-vc17-link="scout-dashboard" class="vc17-secondary">Abrir partidos</button></div></div><div class="vc17-hero-art" aria-hidden="true"><img src="./vc-logo-icon.png?v=17.0.2" alt=""><small>COACHING · SCOUTING · ANALYSIS</small></div></div>
  <div class="vc17-section-header"><div><span>ÁREAS DE TRABAJO</span><h3>¿Qué necesitas hacer?</h3></div></div>
  <div class="vc17-workspaces">${GROUPS.filter(g=>!['home','management'].includes(g.id)&&!g.auxiliary).map(g=>`<button type="button" class="vc17-workspace-card" data-vc17-link="${g.defaultView}"><span class="vc17-work-icon">${navIcon(g.id)}</span><strong>${g.label}</strong><small>${({training:'Planifica y dirige tus sesiones',matches:'Scouting, partido y banquillo',analysis:'Estadísticas, táctica e informes',video:'Reproductor, Delay y clips',team:'Plantilla y desarrollo',settings:'Nube, copias y ajustes'})[g.id]}</small><span class="vc17-work-arrow" aria-hidden="true">↗</span></button>`).join('')}</div>
  <div class="vc17-section-header vc17-space"><div><span>ESTADO DEL EQUIPO</span><h3>Actividad y accesos rápidos</h3></div><button type="button" class="vc17-text-button" id="vc17-refresh">Actualizar</button></div>
@@ -132,6 +135,7 @@ function useNavigationModel(model){
  GROUPS=model.GROUPS;
  GROUP_BY_ID=Object.fromEntries(GROUPS.map(group=>[group.id,group]));
  VIEW_GROUP=model.VIEW_GROUP;
+ CANONICAL_MATCH_ROUTE=typeof model.canonicalMatchRoute==='function'?model.canonicalMatchRoute:null;
  return true;
 }
 function mount(root){
@@ -242,7 +246,18 @@ function mount(root){
   doc.querySelector('.v11-menu-toggle')?.addEventListener('click',()=>{const open=doc.getElementById('v11-sidebar')?.classList.contains('open');doc.querySelector('.v11-menu-toggle')?.setAttribute('aria-expanded',String(!!open))});
   const baseShow=root.showView;
   if(typeof baseShow==='function'&&!baseShow.__vc17){
-   const wrapped=function(...args){const out=baseShow.apply(this,args);const view=doc.querySelector('.view.active')?.id||args[0];if(view)activate(view);return out};wrapped.__vc17=true;root.showView=wrapped;
+   const wrapped=function(...args){
+    const requested=String(args[0]??'');
+    const target=resolveRoute(requested);
+    // Prevent legacy buttons and inline handlers from opening orphan `.view`s.
+    // Retain the original showView for all canonical destinations.
+    const redirected=!!(requested&&target.view!==requested&&doc.getElementById(target.view)?.classList.contains('view'));
+    const actual=redirected?[target.view,root.botonVista?.(target.view)||null]:args;
+    const out=baseShow.apply(this,actual);
+    if(redirected&&target.mode==='visual')root.vc52SetMode?.('visual');
+    const view=doc.querySelector('.view.active')?.id||actual[0];if(view)activate(view);
+    return out;
+   };wrapped.__vc17=true;root.showView=wrapped;
   }
   const baseRender=root.renderDashboard;
   if(typeof baseRender==='function'&&!baseRender.__vc17){const wrapped=function(...args){const out=baseRender.apply(this,args);updateAll();return out};wrapped.__vc17=true;root.renderDashboard=wrapped}
@@ -256,7 +271,7 @@ function mount(root){
   // Live presence changes without DOM updates when away from Match Mode. This
   // timer reads the existing diagnostic API; it does not connect or sync.
   root.setInterval?.(()=>{if(doc.visibilityState==='visible')updateAll()},3500);
-  root.VC17_WORKSPACE={version:'19.1.2',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
+  root.VC17_WORKSPACE={version:'19.1.3',route,resolveRoute,refresh:updateAll,diagnostics:()=>({activeView,activeGroup:resolveRoute(activeView).group,links:doc.querySelectorAll('[data-vc17-link]').length,navGroups:doc.querySelectorAll('[data-vc17-group]').length,classicSyncUnchanged:true,dataModelChanged:false})};
  };
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 }

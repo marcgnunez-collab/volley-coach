@@ -14,7 +14,7 @@
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const VERSION = '19.1.2';
+  const VERSION = '19.1.3';
   const GROUPS = Object.freeze([
     { id: 'home', label: 'Inicio', icon: '⌂', defaultView: 'dashboard', items: [] },
     { id: 'training', label: 'Entrenamientos', icon: '◇', defaultView: 'entrenamiento', items: [
@@ -61,6 +61,29 @@
       return {view:'scout-match-mode',mode:null,legacy:target!=='scout-match-mode'};
     return {view:target,mode:null,legacy:false};
   }
+  /** Shared navigation bridge. All workspace adapters use the V17 router when
+   * available; only early boot uses the original showView fallback.
+   * This adapter does not activate matches or write business data.
+   */
+  function navigateView(root, raw, preferredArea) {
+    const route = canonicalMatchRoute(raw);
+    const view = route.view;
+    const dest = root?.document?.getElementById?.(view);
+    if (!dest || !dest.classList?.contains('view')) return false;
+    if (typeof root?.VC17_WORKSPACE?.route === 'function') {
+      try { return root.VC17_WORKSPACE.route(raw, preferredArea) === true; }
+      catch (err) { root.console?.warn?.('V19: no se pudo abrir la vista', view, err); return false; }
+    }
+    if (typeof root?.showView !== 'function') return false;
+    try {
+      root.showView(view, root.botonVista?.(view) || null);
+      if (route.mode === 'visual') root.vc52SetMode?.('visual');
+      return true;
+    } catch (err) {
+      root.console?.warn?.('V19: no se pudo abrir la vista', view, err);
+      return false;
+    }
+  }
   function activeContext(doc, root) {
     const view = doc.querySelector('.view.active')?.id || 'dashboard';
     return { view, area: VIEW_TO_AREA[view] || 'home', videoOrigin: view === 'scout-video-hub' ?
@@ -77,9 +100,16 @@
     const missing = routed.filter(id => !views.includes(id));
     const duplicated = routed.filter((id, i) => routed.indexOf(id) !== i);
     const hiddenLegacy = views.filter(id => !routed.includes(id));
+    const staticDuplicateLinks = doc.querySelectorAll('.vc1730-legacy').length;
+    const matchPickerCount = doc.querySelectorAll('#vc19-match-picker').length;
     return { version: VERSION, sevenAreas: GROUPS.map(g => g.label), viewCount: views.length,
       routedCount: routed.length, missingRoutes: missing, duplicatedRoutes: duplicated,
-      legacyViewsRetained: hiddenLegacy, noBusinessDataChanges: true };
+      legacyViewsRetained: hiddenLegacy, presentation: {
+        analysisQuickLinkDuplicates: staticDuplicateLinks,
+        scoutingPickerCount: matchPickerCount,
+        scoutingEditorConsolidated: matchPickerCount === 1,
+        connectedDevicesCounterRetained: !!doc.getElementById('vc1741-devices-button')
+      }, noBusinessDataChanges: true };
   }
   function attachAudit(doc) {
     const host = doc.getElementById('v11-management');
@@ -111,7 +141,7 @@
     const doc = root.document;
     root.VC19_UNIFIED_WORKFLOW = {
       version: VERSION, inspect: () => inspect(doc),
-      route: (view, area) => root.VC17_WORKSPACE?.route(view, area) || false,
+      route: (view, area) => navigateView(root, view, area),
       diagnostics: () => ({ ...inspect(doc), active: activeContext(doc, root),
         singleSidebar: doc.querySelectorAll('.vc17-primary-nav').length === 1,
         obsoleteStepperRemoved: !doc.getElementById('vc19-workflow'),
@@ -121,5 +151,5 @@
     else attachAudit(doc);
     return true;
   }
-  return { VERSION, GROUPS, VIEW_GROUP, VIEW_TO_AREA, WORKFLOWS, nextStep, activeContext, canonicalMatchRoute, inspect, mount };
+  return { VERSION, GROUPS, VIEW_GROUP, VIEW_TO_AREA, WORKFLOWS, nextStep, activeContext, canonicalMatchRoute, navigateView, inspect, mount };
 });

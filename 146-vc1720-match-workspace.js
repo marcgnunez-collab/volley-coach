@@ -91,6 +91,26 @@ body.vc1720-shell .vc1720-tools button:focus-visible,body.vc1720-shell button.vc
 <div class="vc1720-tools" data-vc1720-tools aria-label="Herramientas del modo"></div>
 <div class="vc1720-related"><span>REVISIÓN</span><button type="button" data-vc1720-related="scout-analysis">Análisis y estadísticas</button><button type="button" data-vc1720-related="scout-video-hub">Vídeo y clips</button></div>
 <div class="vc1720-note" data-vc1720-note>Los datos se leen en este dispositivo. Los dispositivos presentes no equivalen a una sincronización confirmada.</div>`;}
+ function createCompactController(shell){
+  // Keep nodes (and listeners) in memory so other match views can reuse them.
+  // The live editor already has one canonical workspace and the global menu.
+  const order=Array.from(shell.children);
+  const redundant=order.filter(node=>['vc1720-head','vc1720-modes','vc1720-tools','vc1720-related']
+   .some(cls=>node.classList?.contains(cls)));
+  let compact=false;
+  return {
+   set(value){
+    const requested=!!value;
+    if(requested===compact)return;
+    compact=requested;
+    if(compact){for(const node of redundant)node.remove();}
+    else{for(let i=0;i<order.length;i++){
+      if(shell.children[i]!==order[i])shell.insertBefore(order[i],shell.children[i]||null);
+    }}
+   },
+   get compact(){return compact}, get detachedCount(){return redundant.filter(el=>el.parentElement!==shell).length}
+  };
+ }
  function mount(root){
   const doc=root.document;if(!doc||doc.getElementById('vc1720-workspace'))return;
   const start=()=>{
@@ -98,27 +118,39 @@ body.vc1720-shell .vc1720-tools button:focus-visible,body.vc1720-shell button.vc
    if(!MATCH_VIEWS.every(id=>doc.getElementById(id)))return;
    const css=doc.createElement('style');css.id='vc1720-match-css';css.textContent=CSS;doc.head.appendChild(css);
    const shell=doc.createElement('section');shell.id='vc1720-workspace';shell.className='vc1720-workspace';shell.setAttribute('aria-label','Match Workspace');shell.innerHTML=markup();
+   const compact=createCompactController(shell);
    const $=id=>doc.getElementById(id);
    const view=()=>MATCH_VIEWS.find(id=>$(id)?.classList.contains('active'))||null;
-   function navigate(target){if(!doc.getElementById(target))return false;
-    try{if(typeof root.showView!=='function')return false;
-       root.showView(target,root.botonVista?.(target)||null);
-    }catch(_){return false}
-    render();return true;}
+   function navigate(target){
+    const unified=root.VC19_UNIFIED_WORKFLOW;
+    if(typeof unified?.route==='function'){
+     const ok=unified.route(target);if(ok)render();return ok;
+    }
+    if(!doc.getElementById(target)||typeof root.showView!=='function')return false;
+    try{root.showView(target,root.botonVista?.(target)||null);}catch(_){return false}
+    render();return true;
+   }
    function selectedIdFor(v){const id={"vc155-bench":"vc155-match","scout-match-mode":"vc19-match-picker"}[v];return id?$(id)?.value:null;}
    function render(){const v=view();doc.body.classList.toggle('vc1720-match-active',!!v);if(!v){shell.remove();return;}
     const host=$(v);if(shell.parentElement!==host)host.insertBefore(shell,host.firstChild);
-    const mode=modeForView(v);shell.querySelectorAll('[data-vc1720-mode]').forEach(button=>{if(button.dataset.vc1720Mode===mode.id)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current')});
-    const links=shell.querySelector('[data-vc1720-tools]');
-    const currentLink=links.querySelector('[aria-current="page"]')?.dataset.vc1720View;
-    if(links.dataset.mode!==mode.id||currentLink!==v){
-     links.dataset.mode=mode.id;
-     links.innerHTML=`<span class="vc1720-tools-label">${escapeHTML(mode.title)}</span>${mode.links.map(([id,label])=>`<button type="button" data-vc1720-view="${id}" ${id===v?'aria-current="page"':''}>${escapeHTML(label)}</button>`).join('')}`;
+    // Only the live editor has already been consolidated (V19.1.2).
+    // Remove redundant controls from the DOM instead of keeping invisible click targets.
+    const compactLive=v==='scout-match-mode'&&!!doc.getElementById('vc19-match-picker');
+    compact.set(compactLive);
+    const mode=modeForView(v);
+    if(!compactLive){
+     shell.querySelectorAll('[data-vc1720-mode]').forEach(button=>{if(button.dataset.vc1720Mode===mode.id)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current')});
+     const links=shell.querySelector('[data-vc1720-tools]');
+     const currentLink=links.querySelector('[aria-current="page"]')?.dataset.vc1720View;
+     if(links.dataset.mode!==mode.id||currentLink!==v){
+      links.dataset.mode=mode.id;
+      links.innerHTML=`<span class="vc1720-tools-label">${escapeHTML(mode.title)}</span>${mode.links.map(([id,label])=>`<button type="button" data-vc1720-view="${id}" ${id===v?'aria-current="page"':''}>${escapeHTML(label)}</button>`).join('')}`;
+     }
     }
     let info;try{info=readMatchContext(root.VC_SCOUT_VIDEO_BRIDGE,v,selectedIdFor(v));}catch(_){info=readMatchContext(null,v,null)}
     const fields={status:info.status,opponent:info.opponent,date:info.date,set:info.set==null?'—':String(info.set),rotation:info.rotation==null?'—':`R${info.rotation}`,rallies:info.rallies==null?'—':String(info.rallies)};
     for(const [key,val] of Object.entries(fields)){const field=shell.querySelector(`[data-vc1720-${key}]`);if(field&&field.textContent!==val)field.textContent=val;}
-    shell.querySelector('[data-vc1720-status]').dataset.finished=String(info.isFinished);
+    const status=shell.querySelector('[data-vc1720-status]');if(status)status.dataset.finished=String(info.isFinished);
     const note=info.selectedDifferent?'Estás consultando un partido distinto del scouting activo. Cambiar de vista no lo activa ni sobrescribe.':info.isFinished?'Scouting finalizado: consulta sus datos sin abrirlo para edición.':'Datos locales de este dispositivo. La presencia de otros dispositivos no confirma la recepción de cambios.';
     const label=shell.querySelector('[data-vc1720-note]');if(label.textContent!==note)label.textContent=note;
    }
@@ -139,9 +171,11 @@ body.vc1720-shell .vc1720-tools button:focus-visible,body.vc1720-shell button.vc
    // and save state changes without touching the classic sync engine.
    root.setInterval(()=>{if(!doc.hidden&&view())render()},4000);
    render();
-   root.VC172_MATCH_WORKSPACE={version:VERSION,modeForView,navigate,refresh:render,readCurrent:()=>readMatchContext(root.VC_SCOUT_VIDEO_BRIDGE,view(),selectedIdFor(view())),readonly:true};
+   root.VC172_MATCH_WORKSPACE={version:VERSION,modeForView,navigate,refresh:render,
+    compactDiagnostics:()=>({liveCompact:compact.compact,detachedNavigationNodes:compact.detachedCount}),
+    readCurrent:()=>readMatchContext(root.VC_SCOUT_VIDEO_BRIDGE,view(),selectedIdFor(view())),readonly:true};
   };
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',start,{once:true});else start();
  }
- return {VERSION,MODES,MATCH_VIEWS,modeForView,readMatchContext,escapeHTML,markup,mount};
+ return {VERSION,MODES,MATCH_VIEWS,modeForView,readMatchContext,escapeHTML,markup,createCompactController,mount};
 });

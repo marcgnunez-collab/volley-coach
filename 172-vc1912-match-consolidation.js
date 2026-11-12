@@ -125,7 +125,8 @@
    });
    function open(mode){
     const next=MODES.includes(mode)?mode:null;
-    const ok=root.VC17_WORKSPACE?.route?.(VIEW,'matches') ??
+    const ok=root.VC19_UNIFIED_WORKFLOW?.route?.(VIEW,'matches') ??
+      root.VC17_WORKSPACE?.route?.(VIEW,'matches') ??
       (typeof root.showView==='function'?(root.showView(VIEW,root.botonVista?.(VIEW)||null),true):false);
     if(ok===false)return false;
     if(next)root.vc52SetMode?.(next);

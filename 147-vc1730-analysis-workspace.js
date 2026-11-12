@@ -68,12 +68,10 @@
  body.vc1730-shell .vc1730-mode[aria-current="step"] .vc1730-mode-number{background:#1a67b8;color:#fff}
  body.vc1730-shell .vc1730-links{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:52px;padding:9px 17px;border-bottom:1px solid #eaf0f5}
  body.vc1730-shell .vc1730-links>span{font:850 10px system-ui;color:#778fa2;margin-right:5px}
- body.vc1730-shell .vc1730-links button,body.vc1730-shell .vc1730-legacy button{background:#fff!important;box-shadow:none!important;font:750 11px/1.3 system-ui!important;color:#3a6789!important;padding:8px 11px!important;min-height:35px!important;border:1px solid #e2ebf3!important;border-radius:8px!important}
+ body.vc1730-shell .vc1730-links button{background:#fff!important;box-shadow:none!important;font:750 11px/1.3 system-ui!important;color:#3a6789!important;padding:8px 11px!important;min-height:35px!important;border:1px solid #e2ebf3!important;border-radius:8px!important}
  body.vc1730-shell .vc1730-links button[aria-current="page"]{background:#174c80!important;color:#fff!important;border-color:#174c80!important}
  body.vc1730-shell .vc1730-bottom{border-top:1px solid #e7edf3;padding:8px 17px;background:#f9fbfd;display:flex;align-items:center;gap:7px;justify-content:space-between;flex-wrap:wrap}
  body.vc1730-shell .vc1730-bottom>span{font-size:10px;color:#6a849a;line-height:1.5}
- body.vc1730-shell .vc1730-legacy{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
- body.vc1730-shell .vc1730-legacy button{font-size:10px!important;min-height:31px!important;padding:6px 8px!important}
  body.vc1730-shell .vc1730-mode:focus-visible,body.vc1730-shell .vc1730-links button:focus-visible,body.vc1730-shell .vc1730-head-actions button:focus-visible{outline:3px solid #65a8ef!important;outline-offset:2px!important}
  /* One navigation and one header; keep the original filter controls, evidence inspector and exports. */
  body.vc1730-shell #scout-analysis[data-vc157-mode="studio"] #vc157-tabs{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;pointer-events:none!important;margin:0!important;padding:0!important}
@@ -88,7 +86,7 @@
 <div class="vc1730-context" aria-label="Contexto del análisis"><div class="vc1730-match"><small>SCOUTING DEL ANÁLISIS</small><strong data-vc1730-match>Sin scouting seleccionado</strong></div><div class="vc1730-filter-summary" data-vc1730-filters>Filtros compartidos en el análisis del partido</div></div>
 <nav class="vc1730-modes" aria-label="Áreas de análisis">${MODES.map((m,i)=>`<button type="button" class="vc1730-mode" data-vc1730-mode="${m.id}"><span class="vc1730-mode-number">0${i+1}</span><span><b>${m.title}</b><small>${m.subtitle}</small></span></button>`).join('')}</nav>
 <div class="vc1730-links" data-vc1730-links aria-label="Herramientas del área"></div>
-<div class="vc1730-bottom"><span data-vc1730-info>Los filtros de partido se comparten en Partido, Fundamentos y Táctica. Histórico e Informes tienen su selección propia.</span><div class="vc1730-legacy"><button type="button" data-vc1730-view="scout-season">Temporada clásica</button><button type="button" data-vc1730-view="scout-matchup">Ficha del rival</button><button type="button" data-vc1730-view="v11-reports">Informes clásicos</button></div></div>`;}
+<div class="vc1730-bottom"><span data-vc1730-info>Los filtros de partido se comparten en Partido, Fundamentos y Táctica. Histórico e Informes tienen su selección propia.</span></div>`;}
  function mount(root){
   const doc=root.document;if(!doc||doc.getElementById('vc1730-workspace'))return;
   const start=()=>{
@@ -146,14 +144,10 @@
     sync();return true;
    }
    function selectMode(id){const mode=MODES.find(m=>m.id===id);if(!mode)return false;preferredMode=id;const [p,s]=mode.links[0];return selectPage(p,s);}
-   function navigateLegacy(id){if(!['scout-season','scout-matchup','v11-reports'].includes(id)||!$(id)||typeof root.showView!=='function')return false;
-    root.showView(id,root.botonVista?.(id)||null);return true;
-   }
    shell.addEventListener('click',event=>{
     const b=event.target.closest('button');if(!b||!shell.contains(b))return;
     if(b.dataset.vc1730Mode){selectMode(b.dataset.vc1730Mode);return;}
     if(b.dataset.vc1730Page){const page=b.dataset.vc1730Page,sub=b.dataset.vc1730Sub||'';preferredMode=modeForPage(page,sub);selectPage(page,sub);return;}
-    if(b.dataset.vc1730View){navigateLegacy(b.dataset.vc1730View);return;}
     if(b.dataset.vc1730Action){
      const target=({official:'vc157-official',pro:'vc157-propdf',video:'vc157-video'})[b.dataset.vc1730Action];const existing=$(target);
      if(existing&&!existing.disabled)existing.click();
