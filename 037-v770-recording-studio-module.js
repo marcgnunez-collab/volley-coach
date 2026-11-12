@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 
-const VERSION='16.0.6.3';
+const VERSION='19.2.1';
 const DB_NAME='VolleyCoachRecordingsV770';
 const DB_VERSION=1;
 const $=id=>document.getElementById(id);
@@ -326,9 +326,9 @@ async function writeChunk(blob){
       state.durableBytes=(state.durableBytes||0)+blob.size;
       state.durableChunks=(state.durableChunks||0)+1;
       state.lastDurableAt=Date.now();
-      // A lightweight, durable recovery checkpoint every ten chunks.
+      // A lightweight, durable recovery checkpoint every five chunks.
       // On unexpected shutdown, already committed IDB fragments still survive.
-      if(state.durableChunks%10===0){
+      if(state.durableChunks%5===0){
         await dbPutSession({id:state.sessionId,bytes:state.durableBytes,
           chunkCount:state.durableChunks,durationMs:recordingElapsed(),
           checkpointAt:nowIso(),completed:false});
@@ -505,6 +505,11 @@ function startRecordingHealth(){
           setState('ESPACIO AGOTÁNDOSE','bad');
         }
       }catch(_){}
+    }
+    // If disk/IDB storage cannot keep up, close REC rather than buffering
+    // unbounded uncommitted chunks in RAM. Existing durable chunks stay intact.
+    if(state.active&&state.bytes-state.durableBytes>48*1024*1024){
+      state.writeError=state.writeError||new Error('Cola de escritura superior a 48 MB. Grabación detenida para proteger lo ya guardado.');
     }
     if((state.writeError||state.recorderError)&&state.active&&!state.stopping){
       const note=$('vc-recording-status-note');

@@ -579,7 +579,7 @@ window.vcStopDelayNormalizer=function(){
   state.delayStream=null;state.delayCanvas=null;state.delayCtx=null;
   state.delaySourceVideo=null;state.delaySourceStream=null;state.delaySourceOwned=false;
 };
-async function vcCreateDelayNormalizedStream(source){
+async function vcCreateDelayNormalizedStream(source,profile={}){
   window.vcStopDelayNormalizer();
   if(!source)throw new Error('No existe la señal LIVE para crear el Delay.');
   if(typeof HTMLCanvasElement==='undefined'||typeof document.createElement('canvas').captureStream!=='function'){
@@ -600,13 +600,19 @@ async function vcCreateDelayNormalizedStream(source){
 
   await vcWaitForVideoDimensions(video,3000);
   const spec=vcDelayCanvasSpec(video);
+  // V19.2.1: honor the Delay encoder quality profile. Previously the remote
+  // normalizer always rendered 1280×720 @30 even when 'Fluido' was selected;
+  // decoding WebRTC + rendering + encoding + MSE decoding overloaded laptops.
+  const chosen=window.VC_VIDEO_DELAY_POLICY_1921?.canvasSize?.(spec.width,spec.height,profile)||{
+    width:spec.width,height:spec.height,fps:30
+  };
   const canvas=document.createElement('canvas');
-  canvas.width=spec.width;canvas.height=spec.height;
+  canvas.width=chosen.width;canvas.height=chosen.height;
   const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
   if(!ctx)throw new Error('No se pudo crear el canvas de orientación.');
   state.delayCanvas=canvas;state.delayCtx=ctx;state.delaySourceVideo=video;
   vcDrawDelayNormalizedFrame();
-  const stream=canvas.captureStream(30);
+  const stream=canvas.captureStream(chosen.fps);
   state.delayStream=stream;
   return stream;
 }
