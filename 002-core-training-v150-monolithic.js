@@ -1473,24 +1473,28 @@ function programarSubidaCloud(){
   if(cloudApplying||!cloudUser)return;
   clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>subirNube(false),900);
 }
+/* V19.1.4: compatibility endpoints are no longer allowed to perform a direct
+   full-state upsert or unprotected pull. V9.6.2 installs the live CAS methods. */
 async function subirNube(manual=false){
-  if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
-  setCloudUI('syncing','Sincronizando…');
-  const payload={user_id:cloudUser.id,state:estadoLocal(),updated_at:new Date().toISOString()};
-  const {error}=await cloudClient.from('volley_state').upsert(payload,{onConflict:'user_id'});
-  if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
-  localStorage.setItem('volleyCloudLastSync',payload.updated_at);setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Guardado y sincronizado';
-  if(manual)alert('Datos subidos a la nube.')
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  if(typeof engine?.sync!=='function'){
+    setCloudUI('error','Nube pendiente · motor protegido no disponible');
+    if(manual)alert('La sincronización segura aún no está disponible. Los datos siguen en este dispositivo.');
+    return false;
+  }
+  engine.markDirty('legacy-upload');
+  return engine.sync({reason:'legacy-upload',manual:!!manual,allowWrite:true});
 }
 async function bajarNube(manual=false){
-  if(!cloudClient||!cloudUser){if(manual)alert('Inicia sesión en la nube primero.');return}
-  setCloudUI('syncing','Descargando…');
-  const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
-  if(error){setCloudUI('error','Error de sincronización');if(manual)alert(error.message);return}
-  if(!data){await subirNube(false);if(manual)alert('La nube estaba vacía. Se han subido los datos de este dispositivo.');return}
-  aplicarEstadoCloud(data.state);localStorage.setItem('volleyCloudLastSync',data.updated_at||'');setCloudUI('online','Nube sincronizada');$('save-indicator').textContent='✓ Datos sincronizados';
-  if(manual)alert('Datos descargados de la nube.')
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  if(typeof engine?.sync!=='function'){
+    setCloudUI('error','Nube pendiente · motor protegido no disponible');
+    if(manual)alert('La descarga segura aún no está disponible. No se han aplicado cambios.');
+    return false;
+  }
+  return engine.sync({reason:'legacy-download',manual:!!manual,allowWrite:false,pullOnly:true});
 }
+
 window.addEventListener('online',()=>{if(cloudUser){try{window.v962CloudOnline?.()}catch(_){programarSubidaCloud()}}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){procesarArchivadoAutomaticoPlanificaciones();if(cloudUser)actualizarEstadoCloud()}});
 

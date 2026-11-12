@@ -150,7 +150,7 @@ window.addEventListener('error',function(event){
 <script id="vc1790-sync-safety" src="./154-vc1790-sync-safety.js?v=17.12.0" data-vc-module="true"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Volley Coach · Professional Workspace V19.1.3</title>
+<title>Volley Coach · Professional Workspace V19.1.4</title>
 <link rel="manifest" href="./manifest.webmanifest?v=17.4.1">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png?v=17.0.2">
 <meta name="theme-color" content="#071d35">
@@ -3423,7 +3423,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.1.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.1.4',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -7624,71 +7624,37 @@ if(typeof applyBase==='function'&&!applyBase.__v953){
   wrapped.__v953=true;window.aplicarEstadoCloud=wrapped;
 }
 
+/* V19.1.4: legacy download entry points must use the same protected CAS reader.
+   A direct read + aplicarEstadoCloud used to bypass the V17.9 pre-apply snapshot,
+   the pending-edit merge, and the V19.1 catastrophic-loss guard. */
 async function pullRemote({force=false,render=true}={}){
-  if(typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)return false;
-  if(pullPromise)return pullPromise;
-  pulling=true;
-  pullPromise=(async()=>{
-    try{
-      const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();
-      if(error||!data?.state)return false;
-      const stamp=String(data.updated_at||'');
-      const localScoutSig=JSON.stringify(scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[]));
-      const remoteScoutSource=data.state?.scoutingSyncIndex?.[equipoActivo]||data.state?.equiposData?.[equipoActivo]?.scoutingMatches||[];
-      const remoteScoutSig=JSON.stringify(scoutSyncSignature956(remoteScoutSource));
-      if(!force&&stamp&&stamp===lastRemoteSeen&&localScoutSig===remoteScoutSig)return false;
-      const before=JSON.stringify({
-        p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
-        h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
-        s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
-      });
-      window.aplicarEstadoCloud?.(data.state);
-      lastRemoteSeen=stamp;
-      localStorage.setItem('v953_remote_seen',stamp);
-      localStorage.setItem('volleyCloudLastSync',stamp);
-      const after=JSON.stringify({
-        p:(equiposData?.[equipoActivo]?.planificacion||[]).map(x=>[x.id,recordStamp(x)]),
-        h:(equiposData?.[equipoActivo]?.historial||[]).map(x=>[x.id,recordStamp(x)]),
-        s:scoutSyncSignature956(equiposData?.[equipoActivo]?.scoutingMatches||[])
-      });
-      if(render&&before!==after){
-        try{
-          cargarEquipoEnVariables(equipoActivo);
-          cargarMeta();renderizarSesion();renderPlanificacion();renderHistorial();renderStats();renderDashboard();
-          try{window.scoutRenderHome?.()}catch(_){}
-          try{window.scoutRender?.()}catch(_){}
-          if(document.getElementById('scout-analysis')?.classList.contains('active')){
-            try{window.scoutRenderAnalysis?.()}catch(_){}
-          }
-          if(document.getElementById('save-indicator'))document.getElementById('save-indicator').textContent='☁ Cambios recibidos de otro dispositivo';
-        }catch(err){console.warn('V9.5.7 render sync',err)}
-      }
-      return before!==after;
-    }catch(err){
-      console.warn('V9.5.7 pull',err);return false;
-    }
-  })();
-  try{return await pullPromise}
-  finally{pulling=false;pullPromise=null}
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  if(typeof engine?.sync!=='function'){
+    console.warn('V19.1.4: lectura heredada cancelada; motor protegido no disponible.');
+    return false; // Fail closed, never apply remote data without protection.
+  }
+  // The centralized engine does the safe merge and its own visible-view render.
+  // `force` only means check now; it never bypasses the local safety snapshot.
+  return !!(await engine.sync({reason:force?'v953-force-pull':'v953-pull',manual:false,allowWrite:false,pullOnly:true}));
 }
 
 /* Pull-before-push prevents a stale desktop from overwriting a new mobile training. */
 const uploadBase=window.subirNube;
 if(typeof uploadBase==='function'&&!uploadBase.__v953){
   const wrapped=async function(manual=false){
-    if(!pulling)await pullRemote({force:true,render:true});
-    const out=await uploadBase.call(this,manual);
-    return out;
+    const engine=window.VC_V962_CLOUD_EFFICIENT;
+    if(typeof engine?.sync!=='function')return false;
+    engine.markDirty('v953-legacy-upload');
+    return engine.sync({reason:'v953-legacy-upload',manual:!!manual,allowWrite:true});
   };
   wrapped.__v953=true;window.subirNube=wrapped;
 }
 
 /* Manual download now means merge, not destructive replacement. */
 window.v953SyncNow=async function(){
-  if(typeof window.v962ForceSync==='function')return window.v962ForceSync('manual');
-  const changed=await pullRemote({force:true,render:true});
-  if(typeof subirNube==='function')await subirNube(false);
-  return changed;
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  if(typeof engine?.sync!=='function')return false;
+  return engine.sync({reason:'v953-manual',manual:true,allowWrite:true});
 };
 
 /* V9.6.2: database polling is centralized in the Cloud Efficient engine.
@@ -7955,30 +7921,23 @@ if(typeof deleteBase==='function'&&!deleteBase.__v956){
   wrapped.__v956=true;window.scoutDeleteSaved=wrapped;
 }
 
+/* V19.1.4: the legacy scouting button cannot run a second, unsafe pull/push. */
 async function syncNow(){
   const status=document.getElementById('v956-scout-sync-status');
-  if(status)status.textContent='Sincronizando…';
-  try{
-    let changed=false;
-    if(window.VC_V953_TRAINING_SYNC?.pullRemote){
-      changed=await window.VC_V953_TRAINING_SYNC.pullRemote({force:true,render:true});
-    }
-    if(typeof window.subirNube==='function')await window.subirNube(false);
-    try{cargarEquipoEnVariables?.(equipoActivo)}catch(_){}
-    try{window.scoutRenderHome?.()}catch(_){}
-    try{window.scoutRender?.()}catch(_){}
-    if(document.getElementById('scout-analysis')?.classList.contains('active')){
-      try{window.scoutRenderAnalysis?.()}catch(_){}
-    }
-    const count=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
-    if(status)status.textContent=`${count} scouting${count===1?'':'s'} · nube ✓`;
-    return changed;
-  }catch(err){
-    console.warn('V9.5.6 scouting sync',err);
-    if(status)status.textContent='Error de sincronización';
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  if(typeof engine?.sync!=='function'){
+    if(status)status.textContent='Nube no disponible · datos locales conservados';
     return false;
   }
+  if(status)status.textContent='Sincronizando…';
+  const ok=await engine.sync({reason:'v956-manual-scout',manual:false,allowWrite:true});
+  const diag=engine.diagnostics?.()||{};
+  if(status)status.textContent=diag.lastSyncError?'Error de sincronización · revisar nube':
+    diag.dirty?'Cambios locales pendientes de confirmar':
+    (window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0)+' scoutings · nube comprobada';
+  return !!ok;
 }
+
 window.v956SyncScoutingsNow=syncNow;
 
 /* One repair pass after startup/login state has settled. This fixes the
@@ -8159,6 +8118,22 @@ async function uploadCanonical(canonical,remoteState){
   localStorage.setItem('v957_scout_signature',lastCanonicalSignature);
 }
 async function syncCanonical({upload=true,quiet=false}={}){
+  // V19.1.4: do not install the canonical remote archive before an
+  // IndexedDB snapshot. The protected CAS engine uses mergeTeam/mergeScoutings956.
+  const engine=window.VC_V962_CLOUD_EFFICIENT;
+  const status=document.getElementById('v956-scout-sync-status');
+  if(typeof engine?.sync!=='function'){
+    if(status&&!quiet)status.textContent='Nube no disponible · datos locales conservados';
+    return false;
+  }
+  const ok=await engine.sync({reason:'v957-canonical',manual:false,allowWrite:!!upload,pullOnly:!upload});
+  const diag=engine.diagnostics?.()||{};
+  if(status&&!quiet)status.textContent=diag.lastSyncError?'Error de sincronización · revisar nube':
+    diag.dirty?'Cambios locales pendientes de confirmar':'Nube comprobada';
+  return !!ok;
+}
+/* Historical canonical implementation retained for audit only; no public entry point. */
+async function legacySyncCanonicalDisabled({upload=true,quiet=false}={}){
   if(syncPromise)return syncPromise;
   syncPromise=(async()=>{
     const status=document.getElementById('v956-scout-sync-status');
@@ -8390,9 +8365,10 @@ const VERSION='16.5.4-legacy-restore';
 const PASSIVE_INTERVAL_MS=18000,VISIBLE_MIN_GAP_MS=6000;
 const QUIET_SCOUT_MS=1100,QUIET_NORMAL_MS=2600;
 const MAX_DIRTY_SCOUT_MS=3200,MAX_DIRTY_NORMAL_MS=9000;
-const DIRTY_KEY='v1523_cloud_dirty',REMOTE_STAMP_KEY='v1523_remote_stamp';
+const DIRTY_KEY='v1523_cloud_dirty',REMOTE_STAMP_KEY='v1523_remote_stamp',DIRTY_ACCOUNT_KEY='v1914_dirty_account';
 const MAX_CONFLICT_RETRIES=5;
 let dirty=localStorage.getItem(DIRTY_KEY)==='1';
+let dirtyAccount=localStorage.getItem(DIRTY_ACCOUNT_KEY)||'';
 let localRevision=0,dirtySince=dirty?Date.now():0,dirtyTimer=null,syncPromise=null;
 let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
 let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
@@ -8405,24 +8381,49 @@ function connected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false
 function activeScouting(){try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}}
 function localState(){return typeof estadoLocal==='function'?estadoLocal():null}
 function setStatus(text,kind='online'){try{setCloudUI?.(kind,text)}catch(_){}}
-function setDirty(v){dirty=!!v;try{dirty?localStorage.setItem(DIRTY_KEY,'1'):localStorage.removeItem(DIRTY_KEY)}catch(_){};if(!dirty)dirtySince=0}
+function setDirty(v){
+  dirty=!!v;
+  try{
+    if(dirty){
+      localStorage.setItem(DIRTY_KEY,'1');
+      // Keep offline pending edits tied to the last authenticated identity.
+      if(!dirtyAccount&&connected()){
+        dirtyAccount=String(cloudUser.id);
+        localStorage.setItem(DIRTY_ACCOUNT_KEY,dirtyAccount);
+      }
+    }else{
+      localStorage.removeItem(DIRTY_KEY);
+      localStorage.removeItem(DIRTY_ACCOUNT_KEY);
+      dirtyAccount='';
+      dirtySince=0;
+    }
+  }catch(_){}
+}
+function assertAccount(expected){
+  if(!connected()||String(cloudUser.id)!==String(expected))
+    throw Error('Ha cambiado la cuenta de nube durante la sincronización. No se han aplicado cambios externos.');
+  if(dirty&&dirtyAccount&&dirtyAccount!==String(expected))
+    throw Error('Hay cambios pendientes de otra cuenta en este navegador. Descarga una copia JSON antes de cambiar de cuenta; se ha bloqueado la sincronización.');
+}
 function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
-function scheduleDirty(reason='change'){if(!dirty||!connected())return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,allowWrite:true}),delay)}
-async function readRemote(){if(!connected())return null;const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',cloudUser.id).maybeSingle();reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
+function scheduleDirty(reason='change'){if(!dirty||!connected()||(dirtyAccount&&dirtyAccount!==String(cloudUser.id)))return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,allowWrite:true}),delay)}
+async function readRemote(expectedUserId){assertAccount(expectedUserId);const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',expectedUserId).maybeSingle();assertAccount(expectedUserId);reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
 function nextStamp(previous){const prev=Date.parse(previous||'')||0;return new Date(Math.max(Date.now(),prev+1)).toISOString()}
-async function writeRemote(state,remote){
+async function writeRemote(state,remote,expectedUserId){
+  assertAccount(expectedUserId);
   const updatedAt=nextStamp(remote?.updated_at),payload={state,updated_at:updatedAt};
   let response;
   if(remote?.updated_at){
     /* PostgreSQL performs the condition and UPDATE atomically. If another device
        wrote after our SELECT, the row does not match and we must merge/retry. */
-    response=await cloudClient.from('volley_state').update(payload).eq('user_id',cloudUser.id).eq('updated_at',remote.updated_at).select('updated_at').maybeSingle();
+    response=await cloudClient.from('volley_state').update(payload).eq('user_id',expectedUserId).eq('updated_at',remote.updated_at).select('updated_at').maybeSingle();
   }else if(remote){
     /* Legacy rows without a timestamp need their own conditional update. */
-    response=await cloudClient.from('volley_state').update(payload).eq('user_id',cloudUser.id).is('updated_at',null).select('updated_at').maybeSingle();
+    response=await cloudClient.from('volley_state').update(payload).eq('user_id',expectedUserId).is('updated_at',null).select('updated_at').maybeSingle();
   }else{
-    response=await cloudClient.from('volley_state').insert({user_id:cloudUser.id,...payload}).select('updated_at').maybeSingle();
+    response=await cloudClient.from('volley_state').insert({user_id:expectedUserId,...payload}).select('updated_at').maybeSingle();
   }
+  assertAccount(expectedUserId);
   writes++;persistCounters();
   if(response?.error){
     if(!remote&&String(response.error.code)==='23505')return {conflict:true};
@@ -8440,11 +8441,13 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
   if(!connected()){if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');return false}
   clearTimeout(dirtyTimer);dirtyTimer=null;
   syncPromise=(async()=>{
+    const expectedUserId=String(cloudUser?.id||'');
     if(manual)setStatus('Sincronizando…','syncing');
     try{
       let remoteApplied=false,mustWrite=false,wasConflict=false,confirmed=false;
       for(let attempt=0;attempt<MAX_CONFLICT_RETRIES;attempt++){
-        const remote=await readRemote(),stamp=String(remote?.updated_at||'');
+        assertAccount(expectedUserId);
+        const remote=await readRemote(expectedUserId),stamp=String(remote?.updated_at||'');
         if(remote?.state&&(manual||stamp!==lastRemoteStamp||wasConflict)){
           /* Existing merger retains matches and training records; the writer
              checks the exact row version to avoid stale full-state overwrites. */
@@ -8485,7 +8488,9 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
         const snapshotRevision=localRevision;
         const state=localState();
         if(!state){mustWrite=false;break}
-        const result=await writeRemote(state,remote);
+        assertAccount(expectedUserId);
+        const result=await writeRemote(state,remote,expectedUserId);
+        assertAccount(expectedUserId);
         if(result.conflict){
           conflictCount++;lastWriteConflict=Date.now();wasConflict=true;
           if(!dirty)dirtySince=Date.now();setDirty(true);
@@ -8521,7 +8526,7 @@ window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNo
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);
 setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,fastRealtime:true,compareAndSet:true})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),fastRealtime:true,compareAndSet:true})};
 })();
 </script>
 
