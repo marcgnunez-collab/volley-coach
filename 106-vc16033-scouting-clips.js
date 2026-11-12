@@ -37,8 +37,8 @@ function derivedClips(m=match(),timelineRows=rows(),savedKeys=null){
 function resolvedClip(c,m=match(),index=null){
  if(!c||!m||!c.auto||!c.sourceKey||c.type!=='action')return c;
  const r=index?index.get(String(c.sourceKey)):rows().find(x=>x.type==='action'&&String(x.key)===String(c.sourceKey));
- if(!r)return c;
- const time=timeRange(r,m);if(!time)return c;
+ if(!r)return {...c,orphaned:true};
+ const time=timeRange(r,m);if(!time)return {...c,unlinked:true};
  return {...c,start:time.start,end:time.end,duration:time.end-time.start,videoTimestamp:time.center};
 }
 function catalogue(m=match()){
@@ -57,6 +57,8 @@ function ensureClips(m){if(!m)return null;if(!m.video||typeof m.video!=='object'
 function mapped(m,ms){const v=finite(m?.video?.syncOffset),t=finite(ms);return v===null||t===null?null:Math.max(0,t/1000+v)}
 function actionTime(a,m){for(const k of ['videoTimestamp','liveVideoTime','videoAction','videoTime']){const t=finite(a?.[k]);if(t!==null&&t>=0)return t}return mapped(m,a?.scoutMs)}
 function timeRange(r,m){if(!r||!m)return null;
+ // V19.2.3: use the canonical Video Review clock, not legacy Live Delay time.
+ if(typeof api().rangeForRow==='function')return api().rangeForRow(r);
  const pre=r.type==='action'?8:Math.max(0,finite(m.video?.preRoll)??2),post=r.type==='action'?5:Math.max(0,finite(m.video?.postRoll)??2);
  if(r.type==='action'){const t=actionTime(r.a,m);return t===null?null:{start:Math.max(0,t-pre),end:t+post,center:t,exact:finite(r.a?.videoTimestamp)!==null}}
  if(r.type==='rally'){
@@ -96,7 +98,7 @@ function createFromRecordingMarker(marker,session){
  recordingId:String(session.id),createdAt:new Date().toISOString(),source:String(session.filename||''),auto:false,
  scoutingLinked:true},m)
 }
-function play(c){c=resolvedClip(c);if(!sourceReady()){notify('Carga el archivo o YouTube vinculado al partido y selecciona su pestaña antes de reproducir.',true);return false}if(!Number.isFinite(Number(c.start))||!Number.isFinite(Number(c.end))||Number(c.end)<=Number(c.start)){notify('Intervalo de clip no válido.',true);return false}const t=Number(c.start),span=Number(c.end)-t;state.playingId=c.id;try{const ok=window.v780OpenAt?.(t,String(c.sourceKey||''),{pre:0,post:span});if(ok===false){state.playingId=null;return false}notify(`Reproduciendo ${String(c.name||'clip')} · ${fmt(t)}–${fmt(t+span)}`);return true}catch(e){state.playingId=null;notify('No se pudo reproducir este clip.',true);return false}}
+function play(c){c=resolvedClip(c);if(c?.orphaned||c?.unlinked){notify('La acción original ya no está vinculada a este vídeo. Revisa la corrección del rally antes de reproducir la referencia guardada.',true);return false}if(!sourceReady()){notify('Carga el archivo o YouTube vinculado al partido y selecciona su pestaña antes de reproducir.',true);return false}if(!Number.isFinite(Number(c.start))||!Number.isFinite(Number(c.end))||Number(c.end)<=Number(c.start)){notify('Intervalo de clip no válido.',true);return false}const t=Number(c.start),span=Number(c.end)-t;state.playingId=c.id;try{const ok=window.v780OpenAt?.(t,String(c.sourceKey||''),{pre:0,post:span});if(ok===false){state.playingId=null;return false}notify(`Reproduciendo ${String(c.name||'clip')} · ${fmt(t)}–${fmt(t+span)}`);return true}catch(e){state.playingId=null;notify('No se pudo reproducir este clip.',true);return false}}
 function remove(c){const m=match();if(!m||!window.confirm(`¿Eliminar “${c.name||'clip'}” de este partido?`))return false;const list=ensureClips(m),index=list.findIndex(x=>String(x.id)===String(c.id));if(index<0)return false;const old=list.splice(index,1)[0];if(!persist(m)){list.splice(index,0,old);return false}notify('Clip eliminado.');render(true);return true}
 function csvValue(value){let s=String(value??'');if(/^[\s]*[=+@\-]/.test(s))s="'"+s;return /[,"\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
 function download(blob,filename){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}

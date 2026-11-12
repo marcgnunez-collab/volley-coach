@@ -307,6 +307,7 @@ function metadataPayload(session){
     source:session.source,
     mode:session.mode,
     markers:session.markers||[],
+    pauseWindows:session.pauseWindows||[],
     match:session.match||null,
     training:session.training||null
   };
@@ -587,7 +588,7 @@ window.vcRecordingStart=async function(){
     const sessionId=makeId(),recordContext=vcRecordContext();
     Object.assign(state,{
       active:true,paused:false,recorder:null,stream:recStream,mode,mime,extension:extForMime(mime),
-      sessionId,filename,recordContext,startedAt:Date.now(),pausedAt:0,pausedMs:0,bytes:0,chunkIndex:0,
+      sessionId,filename,recordContext,startedAt:Date.now(),pausedAt:0,pausedMs:0,pauseWindows:[],bytes:0,chunkIndex:0,
       writer,fileHandle:handle,writeQueue:Promise.resolve(),markers:[],lastSet:recordContext.kind==='training'?null:currentSetNo(),blockCounter:0,
       sourceKind:selectedSource,sourceLabelAtStart:selectedSource==='remote'
         ?`LIVE móvil directo · ${window.VC_REMOTE_CAMERA?.getLiveRecordingDiagnostics?.()?.outputOrientation==='portrait'?'vertical 9:16':'horizontal 16:9'} · independiente del Delay`
@@ -599,7 +600,7 @@ window.vcRecordingStart=async function(){
     const initialSession={
       id:sessionId,filename,startedAt:nowIso(),endedAt:null,durationMs:0,bytes:0,mime,mode,
       source:sourceLabel(),completed:false,markers:[],requestedBitrate:Number($('vc-rec34-bitrate')?.value)||3500000,
-      match:recordContext.match,training:recordContext.training
+      match:recordContext.match,training:recordContext.training,pauseWindows:[]
     };
     if(handle){
       try{await dbPutSession({...initialSession,fileHandle:handle})}
@@ -668,13 +669,21 @@ window.vcRecordingTogglePause=function(){
   if(!state.active||!state.recorder)return;
   try{
     if(state.paused){
-      state.pausedMs+=Date.now()-state.pausedAt;state.pausedAt=0;state.paused=false;
+      const resumed=Date.now();
+      state.pausedMs+=resumed-state.pausedAt;
+      const previous=state.pauseWindows?.[state.pauseWindows.length-1];
+      if(previous&&!previous.endAt)previous.endAt=new Date(resumed).toISOString();
+      state.pausedAt=0;state.paused=false;
       state.recorder.resume();setState('● REC','rec');
       addMarkerInternal('Reanudación',true);
     }else{
-      state.paused=true;state.pausedAt=Date.now();state.recorder.pause();setState('PAUSA','pause');
+      state.paused=true;state.pausedAt=Date.now();
+      state.pauseWindows.push({startAt:new Date(state.pausedAt).toISOString(),endAt:null});
+      state.recorder.pause();setState('PAUSA','pause');
       addMarkerInternal('Pausa',true);
     }
+    // Persist pause boundaries alongside REC without blocking recording controls.
+    dbPutSession({id:state.sessionId,pauseWindows:state.pauseWindows}).catch(err=>console.warn('REC pause metadata',err));
     updateUI();
   }catch(err){console.error('V7.7 pause',err)}
 };
@@ -682,11 +691,15 @@ window.vcRecordingTogglePause=function(){
 async function finalizeSession(){
   await state.writeQueue;
   const endedAt=nowIso(),durationMs=recordingElapsed();
+  if(state.paused&&state.pauseWindows?.length){
+    const last=state.pauseWindows[state.pauseWindows.length-1];
+    if(last&&!last.endAt)last.endAt=endedAt;
+  }
   const recordContext=state.recordContext||{match:null,training:null};
   const baseSession={
     id:state.sessionId,filename:state.filename,startedAt:new Date(state.startedAt).toISOString(),
     endedAt,durationMs,bytes:state.bytes,mime:state.mime,mode:state.mode,source:sourceLabel(),
-    markers:state.markers,completed:false,match:recordContext.match||null,training:recordContext.training||null,
+    markers:state.markers,pauseWindows:state.pauseWindows||[],completed:false,match:recordContext.match||null,training:recordContext.training||null,
     error:state.writeError?String(state.writeError?.message||state.writeError):state.recorderError?String(state.recorderError?.message||state.recorderError):null
   };
   /* Persist an incomplete state first. It becomes completed only after the
