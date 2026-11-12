@@ -1361,6 +1361,15 @@ function aplicarEstadoCloud(s){
     equiposData[id]=limpiarEquipo(equiposData[id],id);
     const localTeam=equiposAntes?.[id]||{};
     equiposData[id].scoutingMatches=fusionarScoutingsSeguros(localTeam.scoutingMatches,equiposData[id].scoutingMatches);
+    // V19.1.5: respetar la elección explícita de una versión del mismo
+    // scouting, después de la fusión heredada que prioriza integridad.
+    const picks=s.__vc1915ScoutOverrides?.[id]||{};
+    Object.entries(picks).forEach(([recordId,selected])=>{
+      const matches=equiposData[id].scoutingMatches||[];
+      const index=matches.findIndex(match=>String(match?.id)===recordId);
+      if(index>=0)matches[index]=clonar(selected);
+      else matches.push(clonar(selected));
+    });
     delete equiposData[id].scoutingSafeCloud;
     if(!equiposData[id].scoutingActiveId&&localTeam.scoutingActiveId)equiposData[id].scoutingActiveId=localTeam.scoutingActiveId;
   });
