@@ -262,6 +262,9 @@ let sesionActual=[],planificacion=[],historial=[],plantillas=[],jugadoresEquipo=
 
 let meta={fecha:fechaLocalISO(),equipo:EQUIPOS[equipoActivo].nombre,jugadores:'',duracionObjetivo:'',intensidad:'Media',objetivo:'',calentamiento:'',notas:'',seccionesEjercicios:{},notasBloques:{},playerIds:[]};
 let equiposData=null;
+/* V19.1.7: acceso controlado a la referencia actual de equiposData,
+   que es una variable léxica y NO está expuesta como window.equiposData. */
+window.VC_V1917_TEAM_STATE=()=>equiposData;
 
 function clonar(v){return JSON.parse(JSON.stringify(v))}
 function estadoEquipoVacio(id){
@@ -1380,6 +1383,8 @@ function aplicarEstadoCloud(s){
     delete equiposData[id].scoutingSafeCloud;
     if(!equiposData[id].scoutingActiveId&&localTeam.scoutingActiveId)equiposData[id].scoutingActiveId=localTeam.scoutingActiveId;
   });
+  /* V19.1.7: impedir que la unión histórica recupere scoutings eliminados. */
+  Object.values(equiposData).forEach(team=>window.VC_V1917_UNIVERSAL?.filterDeletedTeam?.(team));
   const cambiosRecepcion=aplicarLimpiezaRecepcionV1();
   const cambiosColocacion=aplicarLimpiezaColocacionV1();
   const cambiosAtaque=aplicarLimpiezaAtaqueV1();aplicarLimpiezaDefensaBloqueoV1();

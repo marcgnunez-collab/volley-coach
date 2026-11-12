@@ -221,7 +221,7 @@
      return true;
    }
    function status(){return {version:VERSION,conflicts:context.lastConflicts.map(x=>({...x})),lastError:context.lastError,hasPreview:!!context.lastPreview};}
-   const api={version:VERSION,prepare,mergeGuarded:(local,remote,plan)=>mergeGuarded(local,remote,plan,win.VC_V191_RELIABILITY),captureBaseline,status,decide,pure};
+   const api={version:VERSION,prepare,getBaseline,mergeGuarded:(local,remote,plan)=>mergeGuarded(local,remote,plan,win.VC_V191_RELIABILITY),captureBaseline,status,decide,pure};
    win.VC_V1915_RELIABILITY=api;
    function element(tag,text){const el=doc.createElement(tag);if(text!==undefined)el.textContent=String(text);return el;}
    let wrapper=null,summary=null,list=null,preview=null,fileInput=null;
