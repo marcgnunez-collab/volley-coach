@@ -108,6 +108,20 @@
     await put(win,item);lastSavedAt=createdAt;savedSession++;lastReason='Copia manual';lastError='';notify(win);
     return item;
   }
+  // V19.1.9: antes de resolver manualmente un conflicto también guardamos
+  // la versión REMOTA, no solo el estado de este dispositivo. Una decisión
+  // local podría sobrescribir el registro en la nube: ambas copias deben ser
+  // recuperables incluso sin conexión posterior.
+  async function backupRemoteState(remoteState,remoteStamp=''){
+    const win=window;
+    const stateJson=pure.validateState(remoteState);
+    const createdAt=Date.now();
+    const item={id:'conflict-remote-'+createdAt+'-'+Math.random().toString(36).slice(2,9),createdAt,
+      kind:'remote-before-conflict',remoteStamp:String(remoteStamp).slice(0,40),localRevision:0,
+      sizeBytes:new Blob([stateJson]).size,stateJson};
+    await put(win,item);lastSavedAt=createdAt;savedSession++;lastReason='Versión de nube antes de resolver conflictos';lastError='';notify(win);
+    return item;
+  }
   function downloadItem(item,win){
     if(!item?.stateJson)throw Error('La copia no contiene datos para descargar.');
     const blob=new Blob([item.stateJson],{type:'application/json;charset=utf-8'});
@@ -159,7 +173,7 @@
         if(!items.length){list.append(el('p','Todavía no hay copias protegidas en este navegador.'));return;}
         for(const item of items){
           const row=el('div',null,'vc179-row'),description=el('div'),controls=el('div',null,'vc179-controls');
-          description.append(el('strong',pure.safeDate(item.createdAt)),el('small',(item.kind==='manual'?'Copia manual':'Anterior a fusión con nube')+' · '+Math.round(item.sizeBytes/1024)+' KB'));
+          description.append(el('strong',pure.safeDate(item.createdAt)),el('small',(item.kind==='manual'?'Copia manual':item.kind==='remote-before-conflict'?'Nube antes de resolver conflicto':'Anterior a fusión con nube')+' · '+Math.round(item.sizeBytes/1024)+' KB'));
           const down=el('button','Descargar JSON'),del=el('button','Eliminar');down.type=del.type='button';
           down.addEventListener('click',()=>{try{downloadItem(item,win);status('Descarga iniciada. Comprueba que el archivo se haya guardado.');}catch(e){status(String(e.message||e));}});
           del.addEventListener('click',async()=>{if(!win.confirm('¿Eliminar esta copia local? Esta operación no se puede deshacer.'))return;try{await remove(win,item.id);status('Copia local eliminada.');await render();}catch(e){status(String(e.message||e));}});
@@ -196,5 +210,5 @@
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
   }
-  return {version:VERSION,pure,beforeRemoteApply,manualBackup,diagnostics,install};
+  return {version:VERSION,pure,beforeRemoteApply,manualBackup,backupRemoteState,diagnostics,install};
 });

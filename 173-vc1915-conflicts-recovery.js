@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='19.1.5',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
+ const VERSION='19.1.9',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];
@@ -31,18 +31,83 @@
    for(const r of arr(list)){const id=recordId(r);if(id!==null&&!map.has(id))map.set(id,r)}
    return map;
  }
+ // Los manifiestos anteriores solo tenían un hash por registro. Guardar también
+ // hashes por campo permite fusionar ediciones INDEPENDIENTES sin elegir a ciegas
+ // entre dos versiones del mismo entrenamiento, jugador o scouting.
+ // Nunca almacenamos los valores sensibles de los registros en localStorage.
+ const FIELDS_BUDGET=260*1024;
+ const META_FIELDS=new Set(['updatedAt','modifiedAt','syncModifiedAt','manualSavedAt','lastEditedAt']);
+ const absent='@vc1919:missing';
+ const valueHash=(record,key)=>own(record,key)&&record[key]!==undefined?digest(record[key]):absent;
+ const semFields=record=>Object.keys(obj(record)).filter(key=>!META_FIELDS.has(key));
+ const semanticDigest=record=>{
+   const essential={};for(const key of semFields(record))essential[key]=record[key];
+   return digest(essential);
+ };
  function makeManifest(state){
-   const records={};
+   const records={},fields={};
    for(const [team,data] of Object.entries(obj(state?.equiposData))){
-     records[team]={};
+     records[team]={};fields[team]={};
      for(const type of TYPES){
-       const items={};
-       for(const [id,r] of indexed(data[type]))items[id]=digest(r);
-       records[team][type]=items;
+       const items={},fieldItems={};
+       for(const [id,r] of indexed(data[type])){
+         items[id]=digest(r);
+         fieldItems[id]=Object.fromEntries(Object.keys(obj(r)).map(key=>[key,valueHash(r,key)]));
+       }
+       records[team][type]=items;fields[team][type]=fieldItems;
      }
    }
-   return {schema:'vc1915-record-manifest',version:VERSION,records};
+   const manifest={schema:'vc1915-record-manifest',version:VERSION,records,fields};
+   // Un equipo muy grande puede exceder el presupuesto de localStorage: el
+   // modo de seguridad anterior sigue funcionando sin los hashes por campo.
+   if(JSON.stringify(manifest).length>FIELDS_BUDGET)delete manifest.fields;
+   return manifest;
  }
+ function mergeIndependentFields(local,remote,baselineFields){
+   if(!baselineFields||typeof baselineFields!=='object')return null;
+   const before=obj(baselineFields),lhs=obj(local),rhs=obj(remote);
+   const keys=new Set([...Object.keys(before),...Object.keys(lhs),...Object.keys(rhs)]);
+   const merged=clone(rhs);let mergedChanges=0;
+   for(const key of keys){
+     // El ID jamás se mezcla a partir de registros con distinta identidad.
+     if(key==='id')continue;
+     const previous=own(before,key)?before[key]:absent;
+     const lHash=valueHash(lhs,key),rHash=valueHash(rhs,key);
+     const lChanged=lHash!==previous,rChanged=rHash!==previous;
+     if(lChanged&&rChanged&&lHash!==rHash){
+       // Si solo difiere la hora de guardado, no se considera una edición
+       // independiente de contenido: se toma el valor remoto y se sigue.
+       if(META_FIELDS.has(key))continue;
+       return null;
+     }
+     if(lChanged&&!rChanged){
+       if(own(lhs,key))merged[key]=clone(lhs[key]);else delete merged[key];
+       mergedChanges++;
+     }
+   }
+   return {merged,mergedChanges};
+ }
+ function previewValue(value){
+   if(value===undefined)return 'sin valor';
+   if(value===null)return 'vacío';
+   if(Array.isArray(value)){
+     if(value.some(item=>Array.isArray(item?.rallies))){
+       const rallies=value.reduce((n,set)=>n+arr(set?.rallies).length,0);
+       return value.length+' sets · '+rallies+' rallies';
+     }
+     return value.length+' elementos';
+   }
+   if(typeof value==='object')return Object.keys(value).length+' propiedades';
+   return String(value).slice(0,140);
+ }
+ function conflictPreview(local,remote,fields){
+   return (fields||[]).slice(0,4).map(key=>({field:key,local:previewValue(local?.[key]),remote:previewValue(remote?.[key])}));
+ }
+ function conflictFields(local,remote){
+   const fields=new Set([...Object.keys(obj(local)),...Object.keys(obj(remote))]);
+   return [...fields].filter(k=>!META_FIELDS.has(k)&&valueHash(obj(local),k)!==valueHash(obj(remote),k)).slice(0,14);
+ }
+
  const conflictKey=(team,type,id)=>JSON.stringify([team,type,id]);
  // V19.1.6: una reversión verificable del último rally NO es una pérdida de
  // datos. Si el rival remoto ha añadido más rallies entretanto, NO se aplica.
@@ -74,12 +139,14 @@
    return true;
  }
  function planMerge(local,remote,baseline={},choices={}){
-   const base=obj(baseline.records),selected=obj(choices),operations=[],conflicts=[];
+   const base=obj(baseline.records),baseFields=obj(baseline.fields);
+   const selected=obj(choices),operations=[],conflicts=[];
    const teams=new Set([...Object.keys(obj(local?.equiposData)),...Object.keys(obj(remote?.equiposData))]);
    for(const team of teams){
      for(const type of TYPES){
        const lm=indexed(local?.equiposData?.[team]?.[type]),rm=indexed(remote?.equiposData?.[team]?.[type]);
        const prior=obj(base[team]?.[type]);
+       const priorFields=obj(baseFields[team]?.[type]);
        for(const [id,l] of lm){
          if(!rm.has(id))continue;
          const r=rm.get(id),lh=digest(l),rh=digest(r),bh=prior[id];
@@ -88,17 +155,30 @@
          const key=conflictKey(team,type,id),choice=selected[key];
          const valid=choice&&choice.local===lh&&choice.remote===rh&&['local','remote'].includes(choice.use);
          const causalUndo=type==='scoutingMatches'&&!valid&&isMatchingUndo(l,r);
-         if(localChanged&&remoteChanged&&!valid&&!causalUndo){
-           conflicts.push({key,team,type,id,local:lh,remote:rh,label:String(l?.nombre||l?.titulo||l?.opponent||r?.nombre||r?.titulo||r?.opponent||id).slice(0,120),uncertain:!bh});
+         // Los datos deportivos son idénticos: los sellos internos de guardado
+         // no deben bloquear una sesión con dos dispositivos conectados.
+         if(!valid&&!causalUndo&&semanticDigest(l)===semanticDigest(r)){
+           operations.push({team,type,id,takeLocal:false,local:lh,remote:rh,metadataOnly:true});
            continue;
          }
+         let mergedFields=null;
+         if(localChanged&&remoteChanged&&!valid&&!causalUndo){
+           mergedFields=mergeIndependentFields(l,r,priorFields[id]);
+           if(!mergedFields){
+             conflicts.push({key,team,type,id,local:lh,remote:rh,
+               label:String(l?.nombre||l?.titulo||l?.opponent||r?.nombre||r?.titulo||r?.opponent||id).slice(0,120),
+               uncertain:!bh,fields:conflictFields(l,r),preview:conflictPreview(l,r,conflictFields(l,r))});
+             continue;
+           }
+         }
          const takeLocal=valid?choice.use==='local':causalUndo||(localChanged&&!remoteChanged);
-         operations.push({team,type,id,takeLocal,local:lh,remote:rh});
+         operations.push({team,type,id,takeLocal,local:lh,remote:rh,...(mergedFields?{merged:mergedFields.merged,autoMerged:true}:{})});
        }
      }
    }
    return {conflicts,operations};
  }
+
  function mergeGuarded(local,remote,plan,legacy){
    if(plan.conflicts.length)throw Error('Conflictos de edición sin resolver; no se han mezclado los registros.');
    const merged=legacy?legacy.mergePending(local,remote):clone(remote);
@@ -106,7 +186,7 @@
    for(const op of plan.operations){
      const localItems=indexed(local?.equiposData?.[op.team]?.[op.type]);
      const remoteItems=indexed(remote?.equiposData?.[op.team]?.[op.type]);
-     const source=op.takeLocal?localItems.get(op.id):remoteItems.get(op.id);
+     const source=op.merged||(op.takeLocal?localItems.get(op.id):remoteItems.get(op.id));
      if(!source)continue;
      if(!merged.equiposData)merged.equiposData={};
      if(!merged.equiposData[op.team])merged.equiposData[op.team]={};
@@ -187,8 +267,8 @@
    delete result.__vc1915ScoutOverrides;
    return result;
  }
- const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,isMatchingUndo,mergeGuarded,validateImport,recoveryPreview,mergeBackup,conflictKey};
- const context={lastConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:''};
+ const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,isMatchingUndo,mergeGuarded,mergeIndependentFields,semanticDigest,conflictFields,conflictPreview,validateImport,recoveryPreview,mergeBackup,conflictKey};
+ const context={lastConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:'',remoteState:null};
  function install(win){
    const store=win.localStorage, doc=win.document;
    // V19.1.8: cloudUser vive en el ámbito léxico del núcleo, no en window.
@@ -205,13 +285,14 @@
      if(!user())return false;
      writeJSON(baselineKey(user()),makeManifest(state));
      store.removeItem(decisionsKey(user()));
-     context.lastConflicts=[];notify();return true;
+     context.lastConflicts=[];context.remoteState=null;notify();return true;
    }
    function notify(){try{win.dispatchEvent(new win.CustomEvent('vc1915:change'))}catch(_){} }
    function prepare(local,remote,remoteStamp=''){
      if(!user())throw Error('La cuenta de nube no está autenticada o el motor de identidad no está disponible. Vuelve a abrir Conexión nube; no se han aplicado cambios.');
      const plan=planMerge(local,remote,getBaseline(),getChoices());
-     context.lastConflicts=plan.conflicts;context.remoteStamp=remoteStamp;context.account=user();notify();
+     context.lastConflicts=plan.conflicts;context.remoteStamp=remoteStamp;context.account=user();
+     context.remoteState=plan.conflicts.length?clone(remote):null;notify();
      return plan;
    }
    function decide(key,use,local,remote){
@@ -227,16 +308,23 @@
    const api={version:VERSION,prepare,getBaseline,mergeGuarded:(local,remote,plan)=>mergeGuarded(local,remote,plan,win.VC_V191_RELIABILITY),captureBaseline,status,decide,pure};
    win.VC_V1915_RELIABILITY=api;
    function element(tag,text){const el=doc.createElement(tag);if(text!==undefined)el.textContent=String(text);return el;}
-   let wrapper=null,summary=null,list=null,preview=null,fileInput=null;
+   let wrapper=null,summary=null,list=null,preview=null,fileInput=null,cloudReview=null;
    function row(parent,text){const p=element('p',text);parent.append(p);return p;}
    function render(){
+     if(cloudReview){
+       const total=context.lastConflicts.length;
+       cloudReview.hidden=!total;
+       cloudReview.textContent=total?'Revisar '+total+' conflicto'+(total===1?'':'s')+' de sincronización':'';
+     }
      if(!wrapper)return;
      list.replaceChildren();const cs=context.lastConflicts;
      summary.textContent=cs.length?cs.length+' edición(es) requieren revisión antes de sincronizar. La nube no se ha sobrescrito.':'Sin conflictos pendientes detectados en esta sesión.';
      for(const c of cs){
        const line=element('div');line.className='vc1915-item';
        row(line,c.team+' · '+c.type+' · '+c.label+' (ID '+c.id+')');
-       row(line,c.uncertain?'Sin versión común conocida: no se puede decidir automáticamente.':'Ambos dispositivos han cambiado este registro.');
+       row(line,c.uncertain?'Sin versión común conocida: es necesario elegir la versión correcta.':'Ambos dispositivos han cambiado este registro.');
+       if(c.fields?.length)row(line,'Campos diferentes: '+c.fields.join(', '));
+       for(const item of c.preview||[])row(line,item.field+' · este dispositivo: '+item.local+' · nube: '+item.remote);
        for(const [title,choice] of [['Conservar mi versión','local'],['Aceptar versión de nube','remote']]){
          const btn=element('button',title);btn.type='button';btn.addEventListener('click',()=>{
            try{decide(c.key,choice,c.local,c.remote);win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v1915-manual-resolution',allowWrite:true});}
@@ -291,6 +379,54 @@
      wrapper=element('section');wrapper.id='vc1915-panel';wrapper.append(element('h4','V19.1.5 · Conflictos y restauración JSON'));
      summary=element('p');list=element('div');preview=element('div');fileInput=element('input');fileInput.type='file';fileInput.accept='.json,application/json';fileInput.hidden=true;fileInput.addEventListener('change',openRecovery);
      const select=element('button','Examinar copia JSON');select.type='button';select.addEventListener('click',()=>fileInput.click());
+     const cloudStatus=doc.getElementById('cloud-status');
+     if(cloudStatus&&!doc.getElementById('vc1919-cloud-review')){
+       cloudReview=element('button','Revisar conflictos de sincronización');
+       cloudReview.id='vc1919-cloud-review';cloudReview.type='button';cloudReview.hidden=true;
+       cloudReview.addEventListener('click',()=>{
+         // El panel de Gestión también permanece disponible, pero en móviles
+         // la revisión debe estar a un toque dentro de Conexión nube.
+         const holder=doc.getElementById('vc1919-cloud-conflicts');
+         if(holder){holder.hidden=false;holder.replaceChildren();
+           holder.append(element('h3','Resolver conflictos antes de sincronizar'));
+           holder.append(element('p','Las copias locales permanecen guardadas. Revisa qué versión conservar; no se borrarán datos automáticamente.'));
+           for(const c of context.lastConflicts){
+             const rowEl=element('section');rowEl.className='vc1919-conflict-row';
+             rowEl.append(element('strong',c.team+' · '+c.type+' · '+c.label));
+             rowEl.append(element('p','Campos diferentes: '+(c.fields?.join(', ')||'contenido del registro')));
+             for(const item of c.preview||[])rowEl.append(element('p',item.field+' · Este dispositivo: '+item.local+' · Nube: '+item.remote));
+             const actions=element('div');actions.className='vc1919-conflict-actions';
+             for(const [title,choice] of [['Conservar este dispositivo','local'],['Aceptar nube','remote']]){
+               const button=element('button',title);button.type='button';button.addEventListener('click',async()=>{
+                 if(!win.confirm('Se conservarán copias de seguridad antes de aplicar esta elección. ¿Continuar?'))return;
+                 button.disabled=true;
+                 try{
+                   const safety=win.VC_V179_SYNC_SAFETY;
+                   if(typeof safety?.manualBackup!=='function')throw Error('No hay sistema de copia local; selección cancelada.');
+                   if(typeof safety.backupRemoteState!=='function'||!context.remoteState)throw Error('No se puede proteger la versión de la nube. Elección cancelada.');
+                   await safety.manualBackup();
+                   await safety.backupRemoteState(context.remoteState,context.remoteStamp);
+                   decide(c.key,choice,c.local,c.remote);
+                   const result=await win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v1919-resolve',allowWrite:true});
+                   if(result===false&&win.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().lastSyncError)
+                     throw Error(win.VC_V962_CLOUD_EFFICIENT.diagnostics().lastSyncError);
+                   cloudReview.click();
+                 }catch(error){win.alert('No se ha aplicado una versión sin protección: '+String(error?.message||error));}
+                 finally{button.disabled=false;}
+               });actions.append(button);
+             }
+             rowEl.append(actions);holder.append(rowEl);
+           }
+         }
+         holder?.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+       });
+       cloudStatus.insertAdjacentElement('afterend',cloudReview);
+       const holder=element('div');holder.id='vc1919-cloud-conflicts';holder.hidden=true;
+       cloudReview.insertAdjacentElement('afterend',holder);
+       const style=element('style');style.id='vc1919-cloud-style';
+       style.textContent='#vc1919-cloud-review{display:block;width:100%;min-height:44px;margin:10px 0;border:1px solid #af6d37;background:#fff4e5;color:#693c1e;border-radius:9px;font:700 13px system-ui;padding:10px}#vc1919-cloud-review[hidden],#vc1919-cloud-conflicts[hidden]{display:none!important}#vc1919-cloud-conflicts{margin:8px 0;padding:12px;border-radius:10px;border:1px solid #d5e1ea;background:#f7fbff;color:#1e405b;font:12px/1.5 system-ui}#vc1919-cloud-conflicts h3{font-size:16px;margin:4px 0 8px}#vc1919-cloud-conflicts p{margin:5px 0 10px}#vc1919-cloud-conflicts .vc1919-conflict-row{border-top:1px solid #d5e1ea;padding:10px 0}#vc1919-cloud-conflicts .vc1919-conflict-actions{display:flex;flex-wrap:wrap;gap:8px}#vc1919-cloud-conflicts button{min-height:44px;min-width:130px;padding:9px;border-radius:7px;border:1px solid #aec7d8;background:white;color:#1c4563;font:700 12px system-ui}';
+       doc.head.append(style);
+     }
      wrapper.append(summary,list,element('p','La restauración requiere una copia previa en IndexedDB. Guarda también una copia JSON en otro dispositivo.'),select,fileInput,preview);
      host.append(wrapper);render();return true;
    }
