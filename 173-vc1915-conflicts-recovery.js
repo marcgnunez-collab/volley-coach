@@ -191,7 +191,10 @@
  const context={lastConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:''};
  function install(win){
    const store=win.localStorage, doc=win.document;
-   const user=()=>String(win.cloudUser?.id||'');
+   // V19.1.8: cloudUser vive en el ámbito léxico del núcleo, no en window.
+   // Consultar únicamente la sesión verificada por el motor CAS (sin usar cachés
+   // o IDs de localStorage que podrían pertenecer a otra cuenta).
+   const user=()=>String(win.VC_V962_CLOUD_EFFICIENT?.getAccountId?.()||'');
    const baselineKey=id=>'v1915_manifest_'+id;
    const decisionsKey=id=>'v1915_decisions_'+id;
    function readJSON(key){try{return JSON.parse(store.getItem(key)||'null')}catch(_){return null}}
@@ -206,7 +209,7 @@
    }
    function notify(){try{win.dispatchEvent(new win.CustomEvent('vc1915:change'))}catch(_){} }
    function prepare(local,remote,remoteStamp=''){
-     if(!user())throw Error('No hay una cuenta identificada para comparar versiones.');
+     if(!user())throw Error('La cuenta de nube no está autenticada o el motor de identidad no está disponible. Vuelve a abrir Conexión nube; no se han aplicado cambios.');
      const plan=planMerge(local,remote,getBaseline(),getChoices());
      context.lastConflicts=plan.conflicts;context.remoteStamp=remoteStamp;context.account=user();notify();
      return plan;
