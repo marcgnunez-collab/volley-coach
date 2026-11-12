@@ -55,6 +55,30 @@
     const sb=new Set(bb);
     return aa.every(x=>sb.has(x));
   }
+  // Reparto robusto incluso cuando algunos ejercicios aún no tienen minutos.
+  // Para V19.1 se comparte algoritmo con el motor de auditoría; esta reserva
+  // evita volver a presentar «Juegos 100%» si falla la carga de un módulo.
+  function vcPdfContentBreakdown(lista){
+    const fromModule=window.VC_V191_RELIABILITY?.contentBreakdown;
+    if(typeof fromModule==='function')return fromModule(lista);
+    const items=Array.isArray(lista)?lista:[];
+    const missing=items.filter(e=>!(Number(e?.tiempo)>0)).length;
+    const weights={};
+    items.forEach(e=>{
+      const tags=typeof normalizarFundamentos==='function'?normalizarFundamentos(e):
+        (Array.isArray(e?.fundamentos)?e.fundamentos:(e?.fundamento?[e.fundamento]:[]));
+      const fs=[...new Set(tags.filter(Boolean))];if(!fs.length)return;
+      const weight=missing?1:Number(e.tiempo);
+      fs.forEach(f=>weights[f]=(weights[f]||0)+weight/fs.length);
+    });
+    const sorted=Object.entries(weights).sort((a,b)=>b[1]-a[1]);
+    const total=sorted.reduce((n,p)=>n+p[1],0)||1;
+    const raw=sorted.map(p=>p[1]/total*100),pct=raw.map(Math.floor);
+    let rem=100-pct.reduce((a,b)=>a+b,0);
+    raw.map((v,i)=>[i,v-Math.floor(v)]).sort((a,b)=>b[1]-a[1]).forEach(([i])=>{if(rem>0){pct[i]++;rem--}});
+    return {mode:missing?'ejercicios':'minutos',withoutDuration:missing,
+      items:sorted.map(([name,weight],i)=>({name,weight,percent:pct[i]}))};
+  }
   function vcPdfField(pdf,yRef,label,value,opts){
     opts=opts||{};
     const W=pdf.internal.pageSize.getWidth(),M=opts.x||15,right=opts.right||W-15;
@@ -65,9 +89,16 @@
     const lab=label+':', lw=pdf.getTextWidth(lab+' '), vx=M+lw, maxW=Math.max(24,right-vx);
     pdf.setFont('helvetica','normal');pdf.setFontSize(size);pdf.setTextColor(...navy);
     const lines=pdf.splitTextToSize(txt,maxW);
+    let continued=false;
     lines.forEach((line,i)=>{
-      if(i===0){pdf.setFont('helvetica','bold');pdf.text(lab,M,yRef.y);pdf.setFont('helvetica','normal');pdf.text(line,vx,yRef.y)}
-      else{pdf.text(line,vx,yRef.y)}
+      if(typeof opts.onOverflow==='function'&&yRef.y+LH>pdf.internal.pageSize.getHeight()-(opts.bottom||18)){
+        opts.onOverflow();continued=true;
+      }
+      if(i===0||continued){
+        pdf.setFont('helvetica','bold');pdf.text(lab,M,yRef.y);
+        pdf.setFont('helvetica','normal');pdf.text(line,vx,yRef.y);
+        continued=false;
+      }else{pdf.text(line,vx,yRef.y)}
       yRef.y+=LH;
     });
     yRef.y+=(opts.after===undefined?1.2:opts.after);
@@ -82,7 +113,10 @@
     pdf.setFontSize(opts.size||8.8);
     pdf.setTextColor(...(opts.color||[16,43,67]));
     while(i<labels.length){
-      if(y>H-(opts.bottom||18)) break;
+      if(y>H-(opts.bottom||18)){
+        if(typeof opts.nextPage!=='function')break;
+        opts.nextPage();y=opts.nextY||18;
+      }
       const left=labels[i]||'', rightLabel=labels[i+1]||'';
       if(left){
         pdf.setFillColor(...(opts.fill||[245,247,249]));
@@ -114,7 +148,7 @@
       const nueva=()=>{pdf.addPage();y=15};
       const aseg=(a=6)=>{if(y+a>H-FOOT)nueva()};
       const txt=v=>(typeof limpiarTextoPDF==='function'?limpiarTextoPDF(v):String(v==null?'':v).replace(/\s+/g,' ').trim());
-      const campo=(lab,val,op={})=>vcPdfField(pdf,{get y(){return y},set y(v){y=v}},lab,val,{...op,color:navy,lineHeight:LH});
+      const campo=(lab,val,op={})=>vcPdfField(pdf,{get y(){return y},set y(v){y=v}},lab,val,{...op,color:navy,lineHeight:LH,onOverflow:nueva,bottom:FOOT+4});
       const footer=(page,total)=>{pdf.setPage(page);normal(7.7,muted);pdf.text(`Volley Coach · ${txt(equipoNombre||h.equipo||'Equipo')} · ${txt(h.fecha)||fechaLocalISO()} · ${page}/${total}`,M,H-6)};
       const teamId=vcPdfTeamIdFromName(equipoNombre);
       const rosterLabels=vcPdfSessionLabels(h,teamId);
@@ -125,20 +159,8 @@
         return typeof enriquecerEjercicioGuardado==='function' ? enriquecerEjercicioGuardado(e) : e;
       });
 
-      let fund=typeof fundamentosConMinutos==='function' ? fundamentosConMinutos(lista) : {};
-      let vals=Object.entries(fund).filter(([,v])=>Number(v)>0).sort((a,b)=>b[1]-a[1]);
-      let sum=vals.reduce((a,x)=>a+Number(x[1]||0),0);
-      if(!(sum>0)){
-        fund={};
-        lista.forEach(e=>{
-          const fs=typeof normalizarFundamentos==='function' ? normalizarFundamentos(e) : (Array.isArray(e?.fundamentos)?e.fundamentos:(e?.fundamento?[e.fundamento]:[]));
-          if(!fs.length) return;
-          const peso=1/fs.length; fs.forEach(f=>fund[f]=(fund[f]||0)+peso);
-        });
-        vals=Object.entries(fund).filter(([,v])=>Number(v)>0).sort((a,b)=>b[1]-a[1]);
-        sum=vals.reduce((a,x)=>a+Number(x[1]||0),0);
-      }
-      if(!(sum>0)) sum=1;
+      const resumen=vcPdfContentBreakdown(lista);
+      const visual=resumen.items;
 
       pdf.setFillColor(...navy);pdf.rect(0,0,W,43,'F');
       bold(8,[210,221,230]);pdf.text('VOLLEY COACH · DOSSIER DE ENTRENAMIENTO',M,14);
@@ -154,26 +176,35 @@
       metrics.forEach(([a,b],i)=>{const x=M+i*(cw+gap);pdf.setFillColor(...light);pdf.roundedRect(x,y,cw,20,2,2,'F');normal(7.5,muted);pdf.text(a.toUpperCase(),x+4,y+6);bold(12,navy);pdf.text(String(b),x+4,y+14)}); y+=29;
 
       bold(9,muted);pdf.text('RESUMEN DE CONTENIDOS',M,y); y+=7;
-      const visual=[...vals];
       if(!visual.length){ normal(9,muted); pdf.text('Sin fundamentos registrados en los ejercicios de esta sesión.',M,y); y+=8; }
       else{
-        const raw=visual.map(([,m])=>Number(m||0)/sum*100),pct=raw.map(Math.floor); let faltan=100-pct.reduce((a,b)=>a+b,0);
-        raw.map((v,i)=>[i,v-Math.floor(v)]).sort((a,b)=>b[1]-a[1]).forEach(([i])=>{if(faltan>0){pct[i]++;faltan--}});
-        visual.forEach(([f,_m],i)=>{const p=pct[i]||0; normal(9,navy); pdf.text(`${f} · ${p}%`,M,y); const bx=M+47,bw=W-M-bx; pdf.setFillColor(233,237,240); pdf.roundedRect(bx,y-3,bw,4,2,2,'F'); pdf.setFillColor(...(i===0?navy2:i===1?orange:i===2?green:[132,151,166])); pdf.roundedRect(bx,y-3,Math.max(2,bw*p/100),4,2,2,'F'); y+=8; });
+        visual.forEach((item,i)=>{
+          aseg(8);
+          const p=item.percent;
+          normal(9,navy); pdf.text(`${item.name} · ${p}%`,M,y);
+          const bx=M+47,bw=W-M-bx;
+          pdf.setFillColor(233,237,240); pdf.roundedRect(bx,y-3,bw,4,2,2,'F');
+          if(p>0){pdf.setFillColor(...(i===0?navy2:i===1?orange:i===2?green:[132,151,166]));
+            pdf.roundedRect(bx,y-3,bw*p/100,4,2,2,'F')}
+          y+=8;
+        });
+        if(resumen.withoutDuration){
+          aseg(6);normal(7.8,muted);pdf.text('Reparto por ejercicios · Hay duraciones sin asignar.',M,y);y+=6;
+        }
       }
 
-      y+=4; bold(9,muted); pdf.text('ESTRUCTURA',M,y); y+=7;
+      y+=4; aseg(14);bold(9,muted); pdf.text('ESTRUCTURA',M,y); y+=7;
       const grupos=typeof ejerciciosPorBloques==='function' ? ejerciciosPorBloques(lista) : {};
       (typeof ORDEN_SECCIONES_ENTRENO!=='undefined'?ORDEN_SECCIONES_ENTRENO:[]).forEach(slug=>{
         const items=grupos[slug]||[], mins=typeof minutosListaEjercicios==='function'?minutosListaEjercicios(items):0;
         if(!items.length && !txt((h.notasBloques||{})[slug])) return;
-        normal(9.2,navy); pdf.text(`${SECCIONES_ENTRENO[slug].numero}  ${SECCIONES_ENTRENO[slug].titulo}`,M,y);
+        aseg(7);normal(9.2,navy); pdf.text(`${SECCIONES_ENTRENO[slug].numero}  ${SECCIONES_ENTRENO[slug].titulo}`,M,y);
         bold(9.2,navy); pdf.text(`${items.length} ej. · ${mins} min`,W-M,y,{align:'right'}); y+=7;
       });
 
-      y+=3; bold(9,muted); pdf.text(`ASISTENTES · ${rosterLabels.length}`,M,y); y+=7;
+      y+=3; aseg(13);bold(9,muted); pdf.text(`ASISTENTES · ${rosterLabels.length}`,M,y); y+=7;
       if(rosterLabels.length){
-        y = vcPdfTwoColumnRoster(pdf,y,rosterLabels,{margin:M,gap:6,rowH:5,boxH:4.2,size:8.5,color:navy,fill:[245,247,249],bottom:18});
+        y = vcPdfTwoColumnRoster(pdf,y,rosterLabels,{margin:M,gap:6,rowH:5,boxH:4.2,size:8.5,color:navy,fill:[245,247,249],bottom:18,nextPage:nueva,nextY:18});
       }else{
         normal(9,muted); pdf.text('No hay asistentes registrados para esta sesión.',M,y); y+=7;
       }
@@ -204,7 +235,7 @@
           if(txt(e.errores)) campo('Claves',e.errores,{size:9,right:pr});
           if(txt(e.variantes)) campo('Variantes',e.variantes,{size:9,right:pr});
           if(pdf.getCurrentPageInfo().pageNumber===pageNo) y=Math.max(y,py+24);
-          normal(7.8,muted); pdf.text([typeof fundamentosTexto==='function'?fundamentosTexto(e):'',e.tipo||'',e.intensidad||''].filter(Boolean).join(' · '),M,y); y+=7;
+          aseg(8);normal(7.8,muted); pdf.text([typeof fundamentosTexto==='function'?fundamentosTexto(e):'',e.tipo||'',e.intensidad||''].filter(Boolean).join(' · '),M,y); y+=7;
         })
       });
       if(txt(h.notas)){bloqueTitulo('Notas del entrenador'); normal(9.2,navy); pdf.splitTextToSize(txt(h.notas),W-M*2).forEach(l=>{aseg(LH); pdf.text(l,M,y); y+=LH});}
