@@ -1,201 +1,116 @@
-/* Volley Coach V19.0.0 — Navegación por flujos, sobre los módulos existentes.
- * Presentación y enrutamiento. No sustituye ni modifica los modelos de
- * entrenamiento, scouting, vídeo, análisis, equipos, nube o guardado.
+/* Volley Coach · Professional Workspace 2.0 (V19.1.1).
+ * Canonical information architecture. Existing views and business engines remain
+ * mounted under their original IDs. This module does not change stored data.
+ * A single navigation renderer (V17 adapter) consumes the registry below.
  */
 (function (root, factory) {
   'use strict';
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
-  if (root && root.document) api.mount(root);
+  if (root && root.document) {
+    // Resolve the model before V17's deferred mount runs. Never mount a second bar.
+    root.VC19_WORKSPACE_MODEL = api;
+    api.mount(root);
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const VERSION = '19.0.0';
-  const WORKFLOWS = Object.freeze({
-    training: {
-      label: 'Entrenamientos',
-      description: 'De la planificación al seguimiento',
-      steps: [
-        ['planificacion', 'Planificar'],
-        ['entrenamiento', 'Preparar sesión'],
-        ['ejercicios', 'Biblioteca'],
-        ['scout-video-hub', 'Vídeo'],
-        ['historial', 'Evaluar'],
-        ['estadisticas', 'Seguimiento']
-      ]
-    },
-    matches: {
-      label: 'Partidos',
-      description: 'Preparación, directo y revisión',
-      steps: [
-        ['scout-dashboard', 'Centro de partidos'],
-        ['scout-plan', 'Preparar'],
-        ['scout-match-mode', 'En directo'],
-        ['scout-video-hub', 'Vídeo'],
-        ['competicion', 'Calendario']
-      ]
-    },
-    analysis: {
-      label: 'Análisis',
-      description: 'Datos, informes y comparativas',
-      steps: [
-        ['scout-analysis', 'Análisis Pro'],
-        ['v11-reports', 'Informes'],
-        ['scout-season', 'Temporada'],
-        ['scout-matchup', 'Rivales']
-      ]
-    },
-    team: {
-      label: 'Equipo y gestión',
-      description: 'Plantilla y datos',
-      steps: [
-        ['jugadores', 'Plantilla'],
-        ['v11-management', 'Gestión'],
-        ['scout-safe', 'Copias y recuperación']
-      ]
-    }
-  });
-  const VIEW_TO_AREA = Object.freeze(Object.fromEntries(Object.entries(WORKFLOWS)
-    .flatMap(([area, config]) => config.steps.map(([view]) => [view, area]))));
-
+  const VERSION = '19.1.1';
+  const GROUPS = Object.freeze([
+    { id: 'home', label: 'Inicio', icon: '⌂', defaultView: 'dashboard', items: [] },
+    { id: 'training', label: 'Entrenamientos', icon: '◇', defaultView: 'entrenamiento', items: [
+      ['planificacion', 'Planificar'], ['entrenamiento', 'Sesión actual'],
+      ['ejercicios', 'Biblioteca'], ['historial', 'Evaluar'], ['estadisticas', 'Seguimiento']
+    ] },
+    { id: 'matches', label: 'Partidos', icon: '◈', defaultView: 'scout-dashboard', items: [
+      ['scout-dashboard', 'Centro de partidos'], ['competicion', 'Calendario'],
+      ['scout-plan', 'Preparar'], ['scout-match-mode', 'En directo'],
+      ['scout-workspace-v900', 'Codificación'], ['vc155-bench', 'Banquillo']
+    ] },
+    { id: 'video', label: 'Vídeo', icon: '▷', defaultView: 'scout-video-hub', items: [
+      ['scout-video-hub', 'Video Studio']
+    ] },
+    { id: 'analysis', label: 'Análisis', icon: '▥', defaultView: 'scout-analysis', items: [
+      ['scout-analysis', 'Análisis Pro'], ['v11-reports', 'Informes'],
+      ['scout-season', 'Temporada'], ['scout-matchup', 'Rivales']
+    ] },
+    { id: 'team', label: 'Equipo', icon: '◎', defaultView: 'jugadores', items: [
+      ['jugadores', 'Plantilla']
+    ] },
+    { id: 'settings', label: 'Configuración', icon: '⚙', defaultView: 'v11-management', items: [
+      ['v11-management', 'Gestión y ajustes'], ['scout-safe', 'Copias y recuperación']
+    ] }
+  ].map(group => Object.freeze({ ...group, items: Object.freeze(group.items.map(item => Object.freeze(item))) })));
+  const VIEW_GROUP = Object.freeze(Object.fromEntries(GROUPS.flatMap(g =>
+    (g.items.length ? g.items : [[g.defaultView, g.label]]).map(([view]) => [view, g.id])
+  ).concat([['scouting', 'matches']])));
+  const WORKFLOWS = Object.freeze(Object.fromEntries(GROUPS.map(g => [g.id, Object.freeze({
+    label: g.label, description: {
+      home: 'Vista general', training: 'Preparación, sesión y evaluación',
+      matches: 'Preparación, directo y registro', video: 'Grabación, Delay, clips y revisión',
+      analysis: 'Datos, informes y evolución', team: 'Jugadores y plantilla',
+      settings: 'Ajustes, integridad y recuperación'
+    }[g.id], steps: g.items.length ? g.items : [[g.defaultView, g.label]]
+  })])));
+  const VIEW_TO_AREA = VIEW_GROUP;
   function activeContext(doc, root) {
     const view = doc.querySelector('.view.active')?.id || 'dashboard';
-    // Un único centro de vídeo, pero conservando el origen real de la sesión.
-    if (view === 'scout-video-hub') {
-      return { view, area: root.VC17_VIDEO_CONTEXT?.kind === 'training' ? 'training' : 'matches' };
-    }
-    const selected = doc.querySelector('[data-vc17-group].active')?.dataset.vc17Group;
-    const area = VIEW_TO_AREA[view] || (selected in WORKFLOWS ? selected : null);
-    return { view, area };
+    return { view, area: VIEW_TO_AREA[view] || 'home', videoOrigin: view === 'scout-video-hub' ?
+      (root?.VC17_VIDEO_CONTEXT?.kind === 'training' ? 'training' : 'matches') : null };
   }
   function nextStep(area, view) {
     const steps = WORKFLOWS[area]?.steps || [];
     const index = steps.findIndex(([id]) => id === view);
-    return index < 0 || index === steps.length - 1 ? null : steps[index + 1];
+    return index < 0 || index + 1 >= steps.length ? null : steps[index + 1];
+  }
+  function inspect(doc) {
+    const views = Array.from(doc.querySelectorAll('.view[id]')).map(v => v.id);
+    const routed = GROUPS.flatMap(g => (g.items.length ? g.items : [[g.defaultView, g.label]]).map(x => x[0]));
+    const missing = routed.filter(id => !views.includes(id));
+    const duplicated = routed.filter((id, i) => routed.indexOf(id) !== i);
+    const hiddenLegacy = views.filter(id => !routed.includes(id));
+    return { version: VERSION, sevenAreas: GROUPS.map(g => g.label), viewCount: views.length,
+      routedCount: routed.length, missingRoutes: missing, duplicatedRoutes: duplicated,
+      legacyViewsRetained: hiddenLegacy, noBusinessDataChanges: true };
+  }
+  function attachAudit(doc) {
+    const host = doc.getElementById('v11-management');
+    if (!host || doc.getElementById('vc19-workspace-audit')) return false;
+    const section = doc.createElement('section');
+    section.id = 'vc19-workspace-audit';
+    const heading = doc.createElement('h3');
+    heading.textContent = 'V19 · Espacio de trabajo';
+    const intro = doc.createElement('p');
+    intro.textContent = 'Siete áreas, una sola navegación. Esta comprobación no modifica datos ni sincronización.';
+    const btn = doc.createElement('button');
+    btn.type = 'button'; btn.textContent = 'Comprobar estructura';
+    const out = doc.createElement('p');
+    out.setAttribute('role', 'status');
+    out.textContent = 'Pulsa para verificar rutas y detectar accesos antiguos.';
+    btn.addEventListener('click', () => {
+      const report = inspect(doc);
+      out.textContent = `${report.sevenAreas.length} áreas · ${report.routedCount} rutas · ` +
+        `${report.missingRoutes.length} rutas ausentes · ${report.duplicatedRoutes.length} duplicadas. ` +
+        (report.legacyViewsRetained.length ?
+          'Vistas heredadas conservadas por compatibilidad: ' + report.legacyViewsRetained.join(', ') + '.' :
+          'No quedan vistas heredadas fuera del mapa.');
+    });
+    section.append(heading, intro, btn, out);
+    host.appendChild(section);
+    return true;
   }
   function mount(root) {
     const doc = root.document;
-    if (!doc) return false;
-    function begin() {
-      if (root.VC19_UNIFIED_WORKFLOW) return true;
-      const main = doc.getElementById('v11-main');
-      const context = doc.getElementById('vc17-context');
-      if (!main || !context || !root.VC17_WORKSPACE?.route) return false;
-      const bar = doc.createElement('nav');
-      bar.id = 'vc19-workflow';
-      bar.className = 'vc19-workflow';
-      bar.setAttribute('aria-label', 'Pasos del área de trabajo');
-      bar.hidden = true;
-      context.insertAdjacentElement('afterend', bar);
-      doc.body.classList.add('vc19-workspace');
-      const brand = doc.querySelector('.vc17-brand span');
-      if (brand) brand.textContent = 'V19 · WORKSPACE PROFESIONAL';
-      let active = { view: '', area: '' };
-      let updates = 0;
-      let pending = false;
-      function refresh() {
-        pending = false;
-        const state = activeContext(doc, root);
-        if (state.area === active.area && state.view === active.view && bar.childElementCount) return true;
-        active = state;
-        const config = WORKFLOWS[state.area];
-        bar.replaceChildren();
-        if (!config) {
-          bar.hidden = true;
-          doc.body.classList.remove('vc19-flow-active');
-          return false;
-        }
-        updates++;
-        bar.hidden = false;
-        doc.body.classList.add('vc19-flow-active');
-        const head = doc.createElement('div');
-        head.className = 'vc19-flow-title';
-        const title = doc.createElement('strong');
-        title.textContent = config.label;
-        const sub = doc.createElement('span');
-        sub.textContent = config.description;
-        head.append(title, sub);
-        const steps = doc.createElement('div');
-        steps.className = 'vc19-flow-steps';
-        steps.setAttribute('role', 'group');
-        steps.setAttribute('aria-label', 'Ir a sección');
-        let activeIndex = -1;
-        config.steps.forEach(([view, label], index) => {
-          const el = doc.createElement('button');
-          el.type = 'button';
-          el.dataset.vc19View = view;
-          el.dataset.vc19Area = state.area;
-          el.className = 'vc19-flow-step';
-          const number = doc.createElement('span');
-          number.className = 'vc19-flow-number';
-          number.textContent = String(index + 1).padStart(2, '0');
-          const text = doc.createElement('span');
-          text.textContent = label;
-          el.append(number, text);
-          if (state.view === view) {
-            activeIndex = index;
-            el.classList.add('active');
-            el.setAttribute('aria-current', 'page');
-          }
-          steps.append(el);
-        });
-        const end = doc.createElement('div');
-        end.className = 'vc19-flow-end';
-        const indexLabel = doc.createElement('small');
-        indexLabel.textContent = activeIndex < 0 ? 'Sección del área' : `Paso ${activeIndex + 1} de ${config.steps.length}`;
-        end.append(indexLabel);
-        const next = nextStep(state.area, state.view);
-        if (next) {
-          const nextButton = doc.createElement('button');
-          nextButton.type = 'button';
-          nextButton.dataset.vc19View = next[0];
-          nextButton.dataset.vc19Area = state.area;
-          nextButton.className = 'vc19-flow-next';
-          nextButton.textContent = 'Siguiente: ' + next[1];
-          end.append(nextButton);
-        }
-        bar.append(head, steps, end);
-        return true;
-      }
-      function schedule() {
-        if (pending) return;
-        pending = true;
-        if (typeof root.requestAnimationFrame === 'function') root.requestAnimationFrame(refresh);
-        else Promise.resolve().then(refresh);
-      }
-      bar.addEventListener('click', event => {
-        const button = event.target?.closest?.('button[data-vc19-view]');
-        if (!button || !bar.contains(button)) return;
-        if (!doc.getElementById(button.dataset.vc19View)?.classList.contains('view')) return;
-        // The V17 router controls the old page lifecycle. Do not write .active
-        // manually or create competing video/scouting instances.
-        root.VC17_WORKSPACE.route(button.dataset.vc19View, button.dataset.vc19Area);
-        schedule();
-      });
-      const observer = typeof root.MutationObserver === 'function' ? new root.MutationObserver(schedule) : null;
-      for (const id of ['vc17-area-kicker', 'vc17-view-label']) {
-        const element = doc.getElementById(id);
-        if (observer && element) observer.observe(element, { childList: true, characterData: true, subtree: true });
-      }
-      doc.addEventListener('vc19:navigate', schedule);
-      refresh();
-      root.VC19_UNIFIED_WORKFLOW = {
-        version: VERSION,
-        refresh,
-        route: (view, area) => root.VC17_WORKSPACE.route(view, area),
-        diagnostics: () => ({ version: VERSION, mounted: !!doc.getElementById('vc19-workflow'),
-          currentView: active.view, area: active.area, steps: bar.querySelectorAll('.vc19-flow-step').length,
-          updates, legacyNavigationPreserved: !!doc.getElementById('v11-sidebar'), dataMigration: false })
-      };
-      return true;
-    }
-    let attempts = 0;
-    function bootstrap() {
-      if (begin()) return;
-      if (++attempts < 36 && typeof root.setTimeout === 'function') root.setTimeout(bootstrap, 200);
-    }
-    if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', bootstrap, { once: true });
-    else bootstrap();
+    root.VC19_UNIFIED_WORKFLOW = {
+      version: VERSION, inspect: () => inspect(doc),
+      route: (view, area) => root.VC17_WORKSPACE?.route(view, area) || false,
+      diagnostics: () => ({ ...inspect(doc), active: activeContext(doc, root),
+        singleSidebar: doc.querySelectorAll('.vc17-primary-nav').length === 1,
+        obsoleteStepperRemoved: !doc.getElementById('vc19-workflow'),
+        connectedDevicesPreserved: !!doc.getElementById('vc1741-devices-button') })
+    };
+    if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', () => attachAudit(doc), { once: true });
+    else attachAudit(doc);
     return true;
   }
-  return { VERSION, WORKFLOWS, VIEW_TO_AREA, nextStep, activeContext, mount };
+  return { VERSION, GROUPS, VIEW_GROUP, VIEW_TO_AREA, WORKFLOWS, nextStep, activeContext, inspect, mount };
 });

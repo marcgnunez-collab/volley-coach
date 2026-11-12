@@ -48,8 +48,8 @@
   };
  }
  const CSS=`
-body.vc1720-match-active #vc17-context{display:none!important}
-body.vc1720-shell #v11-sidebar [data-vc17-view="competicion"],body.vc1720-shell #v11-sidebar [data-vc17-view="scout-plan"],body.vc1720-shell #v11-sidebar [data-vc17-view="scout-workspace-v900"]{display:none!important}
+/* V19.1.1: el contexto global permanece visible en Partidos. */
+/* Se mantienen accesibles las rutas de calendario, preparación y codificación. */
 body.vc1720-shell .vc1720-workspace{min-width:0;max-width:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#183950;background:#fff;border:1px solid #d8e5ef;border-radius:17px;box-shadow:0 7px 23px #0a28450c;overflow:hidden;margin:2px 0 18px}
 body.vc1720-shell .vc1720-head{background:linear-gradient(115deg,#0e294a,#17446f);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:18px 22px;color:#fff}
 body.vc1720-shell .vc1720-kicker{display:block;font-size:10px;letter-spacing:.1em;font-weight:800;color:#a7d5ff;margin-bottom:5px}

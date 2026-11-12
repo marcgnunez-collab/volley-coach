@@ -45,8 +45,7 @@
   return {match:match?.value?match.label:'Sin scouting seleccionado',matchId:match?.value||'',filters:parts.join(' · '),team:team?.value||'',set:set?.value||'',rotation:rotation?.value||'',phase:phase?.value||''};
  }
  const CSS=`
- body.vc1730-shell.vc1730-active #vc17-context{display:none!important}
- body.vc1730-shell #v11-sidebar [data-vc17-group="analysis"] [data-vc17-view="v11-reports"],body.vc1730-shell #v11-sidebar [data-vc17-group="analysis"] [data-vc17-view="scout-season"],body.vc1730-shell #v11-sidebar [data-vc17-group="analysis"] [data-vc17-view="scout-matchup"]{display:none!important}
+ /* V19.1.1: conserve global breadcrumb and all Analysis links. */
  body.vc1730-shell .vc1730-workspace{background:#fff;border:1px solid #d8e5ef;border-radius:17px;overflow:hidden;box-shadow:0 7px 23px #0a28450d;margin:2px 0 18px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#19394e;max-width:100%}
  body.vc1730-shell .vc1730-head{background:linear-gradient(110deg,#0d2849,#164477);padding:19px 22px;display:flex;justify-content:space-between;gap:15px;align-items:center;color:#fff}
  body.vc1730-shell .vc1730-head small{display:block;font:800 10px/1.4 system-ui;letter-spacing:.09em;color:#abd8fa;margin-bottom:5px}
