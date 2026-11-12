@@ -13,7 +13,7 @@
  const VERSION='17.2.0';
  const MODES=[
   {id:'prepare',title:'Preparar',subtitle:'Agenda y estrategia',primary:'scout-dashboard',views:['scout-dashboard','competicion','scout-plan','scout-matchup'],links:[['scout-dashboard','Centro de partidos'],['competicion','Calendario'],['scout-plan','Plan de partido'],['scout-matchup','Match-up']]},
-  {id:'live',title:'En directo',subtitle:'Registro y codificación',primary:'scout-match-mode',views:['scout-match-mode','scout-workspace-v900'],links:[['scout-match-mode','Modo Partido'],['scout-workspace-v900','Scouting Pro']]},
+  {id:'live',title:'En directo',subtitle:'Registro y codificación',primary:'scout-match-mode',views:['scout-match-mode'],links:[['scout-match-mode','Scouting en directo']]},
   {id:'bench',title:'Banquillo',subtitle:'Lectura en tiempo real',primary:'vc155-bench',views:['vc155-bench'],links:[['vc155-bench','Banquillo Pro']]}
  ];
  const MATCH_VIEWS=MODES.flatMap(m=>m.views);
@@ -26,7 +26,7 @@
  function readMatchContext(bridge,view,selectedId){
   const matches=asArray(bridge?.getMatches?.());
   const activeId=bridge?.getActiveId?.();
-  const explicitId=(view==='vc155-bench'||view==='scout-match-mode'||view==='scout-workspace-v900')?selectedId:null;
+  const explicitId=(view==='vc155-bench'||view==='scout-match-mode')?selectedId:null;
   const selected=explicitId!=null&&String(explicitId)!==''?matches.find(m=>String(m.id)===String(explicitId)):null;
   const active=matches.find(m=>String(m.id)===String(activeId))||bridge?.getActive?.()||null;
   // Never silently call activateMatch, save, or overwrite bench's separate selection.
@@ -105,7 +105,7 @@ body.vc1720-shell .vc1720-tools button:focus-visible,body.vc1720-shell button.vc
        root.showView(target,root.botonVista?.(target)||null);
     }catch(_){return false}
     render();return true;}
-   function selectedIdFor(v){const id={"vc155-bench":"vc155-match","scout-match-mode":"v800-match-select","scout-workspace-v900":"v123-match-select"}[v];return id?$(id)?.value:null;}
+   function selectedIdFor(v){const id={"vc155-bench":"vc155-match","scout-match-mode":"vc19-match-picker"}[v];return id?$(id)?.value:null;}
    function render(){const v=view();doc.body.classList.toggle('vc1720-match-active',!!v);if(!v){shell.remove();return;}
     const host=$(v);if(shell.parentElement!==host)host.insertBefore(shell,host.firstChild);
     const mode=modeForView(v);shell.querySelectorAll('[data-vc1720-mode]').forEach(button=>{if(button.dataset.vc1720Mode===mode.id)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current')});

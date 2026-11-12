@@ -1,4 +1,4 @@
-/* Volley Coach · Professional Workspace 2.0 (V19.1.1).
+/* Volley Coach · Professional Workspace 2.0 (V19.1.2).
  * Canonical information architecture. Existing views and business engines remain
  * mounted under their original IDs. This module does not change stored data.
  * A single navigation renderer (V17 adapter) consumes the registry below.
@@ -14,7 +14,7 @@
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const VERSION = '19.1.1';
+  const VERSION = '19.1.2';
   const GROUPS = Object.freeze([
     { id: 'home', label: 'Inicio', icon: '⌂', defaultView: 'dashboard', items: [] },
     { id: 'training', label: 'Entrenamientos', icon: '◇', defaultView: 'entrenamiento', items: [
@@ -23,8 +23,8 @@
     ] },
     { id: 'matches', label: 'Partidos', icon: '◈', defaultView: 'scout-dashboard', items: [
       ['scout-dashboard', 'Centro de partidos'], ['competicion', 'Calendario'],
-      ['scout-plan', 'Preparar'], ['scout-match-mode', 'En directo'],
-      ['scout-workspace-v900', 'Codificación'], ['vc155-bench', 'Banquillo']
+      ['scout-plan', 'Preparar'], ['scout-match-mode', 'Scouting en directo'],
+      ['vc155-bench', 'Banquillo']
     ] },
     { id: 'video', label: 'Vídeo', icon: '▷', defaultView: 'scout-video-hub', items: [
       ['scout-video-hub', 'Video Studio']
@@ -42,7 +42,7 @@
   ].map(group => Object.freeze({ ...group, items: Object.freeze(group.items.map(item => Object.freeze(item))) })));
   const VIEW_GROUP = Object.freeze(Object.fromEntries(GROUPS.flatMap(g =>
     (g.items.length ? g.items : [[g.defaultView, g.label]]).map(([view]) => [view, g.id])
-  ).concat([['scouting', 'matches']])));
+  ).concat([['scouting', 'matches'], ['scout-workspace-v900','matches']])));
   const WORKFLOWS = Object.freeze(Object.fromEntries(GROUPS.map(g => [g.id, Object.freeze({
     label: g.label, description: {
       home: 'Vista general', training: 'Preparación, sesión y evaluación',
@@ -52,6 +52,15 @@
     }[g.id], steps: g.items.length ? g.items : [[g.defaultView, g.label]]
   })])));
   const VIEW_TO_AREA = VIEW_GROUP;
+  /** Canonical work area and legacy destinations; visual mode remains an explicit choice. */
+  function canonicalMatchRoute(raw) {
+    const target=String(raw||'');
+    if(['scouting','scout-workspace-v900','coding','codificacion','scouting-pro'].includes(target))
+      return {view:'scout-match-mode',mode:'visual',legacy:true};
+    if(['match','scout-match-mode'].includes(target))
+      return {view:'scout-match-mode',mode:null,legacy:target!=='scout-match-mode'};
+    return {view:target,mode:null,legacy:false};
+  }
   function activeContext(doc, root) {
     const view = doc.querySelector('.view.active')?.id || 'dashboard';
     return { view, area: VIEW_TO_AREA[view] || 'home', videoOrigin: view === 'scout-video-hub' ?
@@ -112,5 +121,5 @@
     else attachAudit(doc);
     return true;
   }
-  return { VERSION, GROUPS, VIEW_GROUP, VIEW_TO_AREA, WORKFLOWS, nextStep, activeContext, inspect, mount };
+  return { VERSION, GROUPS, VIEW_GROUP, VIEW_TO_AREA, WORKFLOWS, nextStep, activeContext, canonicalMatchRoute, inspect, mount };
 });

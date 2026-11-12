@@ -155,7 +155,7 @@ window.vc52SetMode=function(next){
 };
 window.vc52OpenScouting=function(){window.showView?.(MATCH,window.botonVista?.(MATCH));return setMode('video',{keepPosition:true})};
 window.VC_16052_UNIFIED={
- version:'16.0.5.2',open:window.vc52OpenScouting,mode:window.vc52SetMode,
+ version:'16.0.5.2',open:window.vc52OpenScouting,mode:window.vc52SetMode,currentMode:()=>mode,
  diagnostics:()=>({mounted:$(OLD)?.parentElement?.id==='vc52-pro-host',currentMode:mode,viewActive:visible(),
   v8Video:!!$('v800-shell')?.classList.contains('v112-video-open'),matchId:window.MatchState?.getActive?.()?.id||null,
   presenceKept:!!$('v138-device-strip'),mounts,navigations,sharedCore:!!window.VC_SCOUT_CORE})
