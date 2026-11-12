@@ -3423,7 +3423,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.1.9',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.2.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -5949,7 +5949,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v760-remote-camera-module" src="./036-v760-remote-camera-module.js?v=16.0.6.3" data-vc-module="true"></script>
+<script id="v760-remote-camera-module" src="./036-v760-remote-camera-module.js?v=19.2.0" data-vc-module="true"></script>
 
 
 
@@ -13348,4 +13348,7 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 <script id="vc1915-conflicts-recovery" src="./173-vc1915-conflicts-recovery.js?v=19.1.9" defer data-vc-module="true"></script>
 <script id="vc1916-undo-realtime" src="./174-vc1916-scout-undo-realtime.js?v=19.1.6" defer data-vc-module="true"></script>
 <script id="vc1917-universal-sync" src="./175-vc1917-universal-sync.js?v=19.1.7" defer data-vc-module="true"></script>
+<!-- V19.2.0 · Connection Hub; presentation over V7.6 WebRTC and V18.4 capture. -->
+<link rel="stylesheet" href="./vc1920-connection-hub.css?v=19.2.0">
+<script id="vc1920-video-connection-hub" src="./176-vc1920-video-connection-hub.js?v=19.2.0" defer data-vc-module="true"></script>
 </body></html>

@@ -152,14 +152,12 @@ async function bounded(operation,timeoutMs,description){
 }
 function scheduleReconnect(reason){
   if(!state.viewerWanted||!state.room||!state.key||state.connected||state.reconnecting||state.reconnectTimer)return;
-  if(state.reconnectAttempts>=4){
-    setRemoteStatus('SIN CONEXIÓN · REINTENTAR','bad');
-    setPreviewEmpty('No se ha podido reconectar automáticamente. Pulsa «Reintentar conexión».',false);
-    return;
-  }
-  const seconds=Math.min(16,2**state.reconnectAttempts*2);
+  // V19.2.0: keep retrying while the viewer explicitly wants the remote
+  // source. A hard four-attempt limit left active sessions stranded offline.
+  // Capped exponential backoff (2, 4, 8, 16, 30 s) avoids a tight retry loop.
+  const seconds=Math.min(30,2**Math.min(state.reconnectAttempts,4)*2);
   state.reconnectAttempts++;
-  setRemoteStatus(`RECONECTANDO · ${state.reconnectAttempts}/4`,'wait');
+  setRemoteStatus(`RECONECTANDO · intento ${state.reconnectAttempts}`,'wait');
   state.reconnectTimer=setTimeout(async()=>{
     state.reconnectTimer=null;
     if(!state.viewerWanted||state.connected)return;
