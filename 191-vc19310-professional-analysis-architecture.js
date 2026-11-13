@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.11';
+ const VERSION='19.3.12';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -149,7 +149,7 @@
    else if(state.space==='distribution')body.innerHTML=distributionView(ctx,projection);
    else if(state.space==='court')body.innerHTML=courtView(ctx,projection,state);
    else if(state.space==='search')body.innerHTML=searchView(ctx,projection,state,win.VC_RALLY_SEARCH_1939);
-   else if(state.space==='video')body.innerHTML=videoView(ctx,projection);
+   else if(state.space==='video')body.innerHTML=win.VC_VIDEO_SCORE_19312?.renderAnalysis?.(ctx,projection)||videoView(ctx,projection);
    else body.innerHTML=worksheetsView(ctx,projection);
    const source=state.space==='search'?(win.VC_RALLY_SEARCH_1939?.query?.(projection.model,{...state.search,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase})?.rallies||[]):projection.base.rallies;
    const filtered=enhanced?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
@@ -160,9 +160,13 @@
   function selectRally(key){const r=filteredRallies.find(x=>x.key===key);if(!r)return;state.selected=key;node.querySelectorAll('[data-vc19310-rally]').forEach(b=>b.classList.toggle('is-selected',b.dataset.vc19310Rally===key));
    const legacy=legacyRallies.find(x=>x.set===r.set&&(r.nativeId!=null&&String(x.id)===String(r.nativeId)||x.index===r.index));
    const actionKeys=arr(legacy?.actions).filter(a=>a.video&&a.key).map(a=>a.key),videoApi=win.VC_VIDEO_ANALYTICS_1612;
-   const play=node.querySelector('[data-vc19310-command="play"]');if(play){play.disabled=!actionKeys.length||typeof videoApi?.openKeys!=='function';play.dataset.keys=actionKeys.join(',');}
+   const play=node.querySelector('[data-vc19310-command="play"]');if(play){
+    const canRally=state.space==='video'&&r.nativeId!=null&&typeof win.VC_VIDEO_SCORE_19312?.openRally==='function';
+    play.disabled=!canRally&&(!actionKeys.length||typeof videoApi?.openKeys!=='function');play.dataset.keys=actionKeys.join(',');
+   }
    const target=node.querySelector('[data-vc19310-detail]');if(target)target.textContent=`Set ${r.set} · Rally #${r.index} · ${r.contacts.length} contactos · ${actionKeys.length} acciones con vídeo`;
    node._vc19310VideoKeys=actionKeys;
+   if(state.space==='video')win.VC_VIDEO_SCORE_19312?.updatePreview?.(node,r);
   }
   view.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!node?.contains(b))return;
    const enhancedAction=win.VC_ANALYSIS_SCREENS_19311?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus});
@@ -178,7 +182,12 @@
     case 'refresh':doc.getElementById('vc157-refresh-matches')?.click();delay();break;
     case 'advanced':toggleLegacy(!state.advanced);break;
     case 'official':doc.getElementById('vc157-official')?.click();break;
-    case 'play':{const keys=node._vc19310VideoKeys;if(keys?.length&&ctx?.match?.id!=null)win.VC_VIDEO_ANALYTICS_1612?.openKeys?.(ctx.match.id,keys);break;}
+    case 'play':{
+     const rally=filteredRallies.find(r=>r.key===state.selected);
+     if(state.space==='video'&&win.VC_VIDEO_SCORE_19312?.openRally?.(win,ctx?.match,rally)){break;}
+     const keys=node._vc19310VideoKeys;
+     if(keys?.length&&ctx?.match?.id!=null)win.VC_VIDEO_ANALYTICS_1612?.openKeys?.(ctx.match.id,keys);
+     break;}
     case 'clear-zone':state.zone=null;paint();break;
     case 'apply-search':{node.querySelectorAll('[data-vc19310-search]').forEach(i=>{state.search[i.dataset.vc19310Search]=i.value;});paint();break;}
     case 'clear-search':state.search={status:'closed'};state.searchPreset='';paint();break;
