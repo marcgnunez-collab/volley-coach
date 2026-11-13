@@ -132,6 +132,7 @@
   panel.dataset.vc1935Active=active;
   panel.querySelectorAll('[data-vc1935-view]').forEach(section=>{section.hidden=section.dataset.vc1935View!==active;});
   const side=panel.querySelector('.vc1935-evidence');if(side)side.classList.toggle('vc1935-evidence-full',active==='evidence');
+  if(typeof window!=='undefined')window.VC_ANALYSIS_WORKSPACE_1936?.switchLayout?.(panel,active);
  }
  function afterRender(panel,data){
   ensure(panel);

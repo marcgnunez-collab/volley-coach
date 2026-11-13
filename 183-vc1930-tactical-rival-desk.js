@@ -310,6 +310,7 @@
      'No se ha cargado el motor Analysis Engine Pro (184-vc1933-analysis-engine.js). Los filtros avanzados no estarán activos hasta actualizar ese archivo. El análisis clásico sigue disponible.';
     $('vc1930-results').innerHTML=render(filtered);
     root.VC_ANALYSIS_WORKSPACE_1935?.afterRender?.(panel,filtered);
+    root.VC_ANALYSIS_WORKSPACE_1936?.afterRender?.(panel,filtered);
    }
    function open(){opened=true;panel.hidden=false;if(native)native.hidden=true;view.classList.add('vc1930-active');refresh();panel.scrollIntoView?.({block:'start',behavior:'instant'});}
    function close(){opened=false;panel.hidden=true;if(native)native.hidden=false;view.classList.remove('vc1930-active');}
@@ -324,14 +325,14 @@
     if(b.hasAttribute('data-vc1932-own')){
      $('vc1932-own-rotation').value=b.dataset.vc1932Own;
      $('vc1930-rotation').value=b.dataset.vc1932Rival;
-     refresh();root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+     refresh();if(!root.VC_ANALYSIS_WORKSPACE_1936?.showEvidence?.(panel)){root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}return;
     }
     if(b.hasAttribute('data-vc1932-zone')){
      $(b.dataset.vc1932ZoneKind==='end'?'vc1932-attack-end':'vc1932-attack-start').value=b.dataset.vc1932Zone;
-     refresh();root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+     refresh();if(!root.VC_ANALYSIS_WORKSPACE_1936?.showEvidence?.(panel)){root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}return;
     }
     if(b.hasAttribute('data-vc1932-receive')){
-     $('vc1932-reception').value=b.dataset.vc1932Receive;refresh();root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+     $('vc1932-reception').value=b.dataset.vc1932Receive;refresh();if(!root.VC_ANALYSIS_WORKSPACE_1936?.showEvidence?.(panel)){root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}return;
     }
     if(b.hasAttribute('data-vc1934-filter')){
      const map={setter:'vc1934-setter',target:'vc1934-target',tempo:'vc1934-tempo',attacker:'vc1934-attacker',combo:'vc1934-combo',sequenceReception:'vc1934-sequence-reception'};
@@ -345,18 +346,18 @@
      const a=doc.createElement('a');a.href=url;a.download='volley_coach_v1934_colocaciones_ataques.csv';doc.body.appendChild(a);a.click();a.remove();root.setTimeout(()=>URL.revokeObjectURL(url),1200);return;
     }
     if(b.hasAttribute('data-vc1933-drill-skill')){
-     $('vc1933-skill').value=b.dataset.vc1933DrillSkill;refresh();root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+     $('vc1933-skill').value=b.dataset.vc1933DrillSkill;refresh();if(!root.VC_ANALYSIS_WORKSPACE_1936?.showEvidence?.(panel)){root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}return;
     }
     if(b.hasAttribute('data-vc1933-drill-player')){
      const player=b.dataset.vc1933DrillPlayer;
      if([...$('vc1933-player').options].some(x=>x.value===player))$('vc1933-player').value=player;
-     refresh();root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+     refresh();if(!root.VC_ANALYSIS_WORKSPACE_1936?.showEvidence?.(panel)){root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}return;
     }
     if(b.hasAttribute('data-vc1930-csv')){
      const csv=exportCSV(filtered?.selected||[]);const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=doc.createElement('a');a.href=url;a.download='volley_coach_v1930_evidencia_rival.csv';doc.body.appendChild(a);a.click();a.remove();root.setTimeout(()=>URL.revokeObjectURL(url),1200);return;
     }
     if(b.hasAttribute('data-vc1930-focus')){
-     const code=b.dataset.vc1930Focus;if(code?.startsWith('R')){$('vc1930-rotation').value=code.slice(1);refresh();root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}return;
+     const code=b.dataset.vc1930Focus;if(code?.startsWith('R')){$('vc1930-rotation').value=code.slice(1);refresh();if(!root.VC_ANALYSIS_WORKSPACE_1936?.showEvidence?.(panel)){root.VC_ANALYSIS_WORKSPACE_1935?.activate?.(panel,'evidence');$('vc1930-evidence')?.scrollIntoView?.({block:'start'});}}return;
     }
     if(b.hasAttribute('data-vc1930-match')){
      const id=b.dataset.vc1930Match;if(Number.isSafeInteger(Number(id))&&typeof root.v151OpenMatch==='function'){close();root.v151OpenMatch(Number(id));}return;
