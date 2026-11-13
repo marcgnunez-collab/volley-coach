@@ -13378,6 +13378,104 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 <!-- V19.2.5 · Videoteca: storage health and bounded IDB chunk verification. -->
 <link rel="stylesheet" href="./vc1925-library-health.css?v=19.2.5">
 <script id="vc1925-library-health" src="./182-vc1925-library-health.js?v=19.2.5" defer data-vc-module="true"></script>
-<link rel="stylesheet" href="./vc1930-tactical-rivals.css?v=19.3.0">
-<script id="vc1930-tactical-rivals" src="./183-vc1930-tactical-rival-desk.js?v=19.3.0" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc1930-tactical-rivals.css?v=19.3.1">
+<!-- V19.3.1: estilos integrados de respaldo para instalaciones donde el CSS opcional no se publicó. -->
+<style id="vc1931-tactical-critical">
+/* Volley Coach V19.3.1 — Tactical Intelligence · resilient visual layer.
+   This file is also embedded in index.html so a missing optional CSS upload
+   cannot leave the dashboard unformatted. All rules are scoped to this module. */
+#vc1930-desk[hidden], #scout-analysis.vc1930-active .scout-analysis-shell { display:none !important; }
+#vc1930-desk {
+  --vc-tac-ink:#17324d; --vc-tac-muted:#627891; --vc-tac-border:#dce6f2;
+  --vc-tac-blue:#146ac2; --vc-tac-bg:#f3f7fc;
+  display:flex !important; flex-direction:column !important; gap:16px !important;
+  box-sizing:border-box; width:100% !important; max-width:100% !important;
+  margin:0 0 28px !important; padding:14px !important;
+  background:var(--vc-tac-bg) !important; color:var(--vc-tac-ink) !important;
+  font-family:system-ui,-apple-system,'Segoe UI',sans-serif !important;
+  font-size:14px !important; line-height:1.45 !important;
+}
+#vc1930-desk *, #vc1930-desk *::before, #vc1930-desk *::after {box-sizing:border-box}
+#vc1930-desk .vc1930-head {
+  display:flex !important; flex-wrap:wrap !important; align-items:center !important;
+  justify-content:space-between !important; gap:20px !important; min-height:150px;
+  padding:27px 30px !important; border:1px solid #315a83 !important; border-radius:18px !important;
+  background:linear-gradient(120deg,#0d2947 0%,#13518a 70%,#0e75c9 100%) !important;
+  color:#fff !important; box-shadow:0 9px 22px rgba(15,57,94,.14) !important;
+}
+#vc1930-desk .vc1930-head > div {flex:1 1 340px; min-width:0}
+#vc1930-desk .vc1930-head small {display:block; font-size:11px !important; line-height:1.6 !important; color:#9fd6ff !important; font-weight:800 !important; letter-spacing:.11em !important}
+#vc1930-desk .vc1930-head h2 {display:block; margin:5px 0 9px !important; padding:0 !important; color:#fff !important; font-size:clamp(23px,2.5vw,32px) !important; line-height:1.15 !important; font-weight:850 !important; border:0 !important}
+#vc1930-desk .vc1930-head p {margin:0 !important; max-width:660px; font-size:13px !important; line-height:1.6 !important; color:#dcecff !important}
+#vc1930-desk button, #vc1930-open {
+  display:inline-flex !important; justify-content:center !important; align-items:center !important;
+  gap:6px !important; margin:0 !important; padding:10px 13px !important;
+  min-height:38px !important; min-width:0; max-width:100%;
+  background:#edf6ff !important; color:#155187 !important; border:1px solid #bad2e9 !important;
+  border-radius:9px !important; box-shadow:none !important; text-transform:none !important;
+  font:750 12px/1.25 system-ui,-apple-system,'Segoe UI',sans-serif !important;
+  letter-spacing:0 !important; white-space:normal !important; text-align:center !important;
+  cursor:pointer !important; transition:background .15s,border-color .15s !important;
+}
+#vc1930-desk button:hover,#vc1930-open:hover {background:#dceeff !important; border-color:#77aada !important}
+#vc1930-desk button:focus-visible,#vc1930-desk select:focus-visible {outline:3px solid #64a3ff !important; outline-offset:2px !important}
+#vc1930-desk .vc1930-head [data-vc1930-close] {background:rgba(255,255,255,.12) !important; color:white !important; border-color:rgba(255,255,255,.35) !important; flex:0 0 auto}
+#vc1930-desk .vc1930-head [data-vc1930-close]:hover {background:rgba(255,255,255,.22) !important}
+#vc1930-desk .vc1930-filters {
+  display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  align-items:end !important; gap:12px !important; margin:0 !important; padding:19px 20px !important;
+  border:1px solid var(--vc-tac-border) !important; background:#fff !important;
+  border-radius:15px !important; box-shadow:0 3px 12px rgba(14,52,83,.035) !important;
+}
+#vc1930-desk .vc1930-filters label {display:flex !important; flex-direction:column !important; gap:6px !important; min-width:0 !important; margin:0 !important; color:#415d77 !important; font-size:12px !important; font-weight:750 !important}
+#vc1930-desk .vc1930-filters select {
+  width:100% !important; min-width:0 !important; max-width:100% !important;
+  height:43px !important; min-height:43px !important; margin:0 !important; padding:8px 30px 8px 11px !important;
+  color:#213e5e !important; background:#f8fbff !important; border:1px solid #cbdced !important;
+  border-radius:9px !important; box-shadow:none !important; font:500 13px system-ui,sans-serif !important;
+}
+#vc1930-desk .vc1930-actions {grid-column:1/-1; display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:10px; margin-top:3px}
+#vc1930-desk [data-vc1930-refresh] {background:#126bc5 !important; color:#fff !important; border-color:#126bc5 !important}
+#vc1930-desk [data-vc1930-refresh]:hover {background:#095aab !important}
+#vc1930-desk .vc1930-notice {display:block !important; padding:11px 15px !important; margin:0 !important; border:1px solid #d5e7fa !important; border-radius:11px !important; background:#eaf4ff !important; font-size:12px !important; line-height:1.55 !important; color:#345879 !important}
+#vc1930-desk #vc1930-results {display:flex !important; flex-direction:column !important; gap:16px !important; min-width:0 !important}
+#vc1930-desk .vc1930-section-heading {display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:baseline; margin:0 !important; padding:0 2px !important}
+#vc1930-desk .vc1930-section-heading h3 {margin:0 !important; font-size:16px !important; font-weight:800 !important; color:#183855 !important}
+#vc1930-desk .vc1930-section-heading span {font-size:12px;color:#6b8096}
+#vc1930-desk .vc1930-kpis {display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important; gap:12px !important; min-width:0 !important}
+#vc1930-desk .vc1930-kpis article,#vc1930-desk .vc1930-card {min-width:0 !important; background:#fff !important; border:1px solid var(--vc-tac-border) !important; border-radius:14px !important; box-shadow:0 3px 12px rgba(13,52,90,.035) !important}
+#vc1930-desk .vc1930-kpis article {display:flex !important; flex-direction:column !important; gap:7px !important; min-height:118px !important; padding:18px 16px !important}
+#vc1930-desk .vc1930-kpis span {display:block !important; color:#5b7591 !important; font-size:11px !important; font-weight:750 !important}
+#vc1930-desk .vc1930-kpis strong,#vc1930-desk .vc1930-kpis b {display:block !important; margin:2px 0 !important; color:#155b9b !important; font-size:clamp(21px,2vw,29px) !important; font-weight:850 !important; line-height:1.12 !important; overflow-wrap:anywhere}
+#vc1930-desk .vc1930-kpis strong.vc1930-na {font-size:17px !important; color:#718398 !important}
+#vc1930-desk .vc1930-kpis small {display:block !important; font-size:11px !important; line-height:1.4 !important; color:#71859a !important; overflow-wrap:anywhere}
+#vc1930-desk .vc1930-grid {display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important; min-width:0 !important}
+#vc1930-desk .vc1930-card {display:block !important; padding:20px !important; overflow:hidden !important}
+#vc1930-desk .vc1930-card h3,#vc1930-desk .vc1930-card h4 {display:block !important; margin:0 0 13px !important; padding:0 0 11px !important; color:#193c5b !important; font-size:17px !important; font-weight:800 !important; line-height:1.35 !important; border:0 !important; border-bottom:1px solid #e8eff6 !important}
+#vc1930-desk .vc1930-card h4 {font-size:15px !important}
+#vc1930-desk .vc1930-card p {display:block !important; margin:0 0 12px !important; padding:0 !important; font-size:13px !important; line-height:1.65 !important; color:#506b84 !important}
+#vc1930-desk .vc1930-card p:last-child{margin-bottom:0 !important}
+#vc1930-desk .vc1930-scroll {display:block !important; max-width:100% !important; width:100% !important; overflow-x:auto !important; overflow-y:visible !important; -webkit-overflow-scrolling:touch}
+#vc1930-desk .vc1930-scroll table {display:table !important; width:100% !important; min-width:640px !important; border-collapse:collapse !important; table-layout:auto !important; font:500 12px/1.45 system-ui,sans-serif !important; color:#294563 !important; background:white !important}
+#vc1930-desk .vc1930-scroll thead {display:table-header-group !important}
+#vc1930-desk .vc1930-scroll tbody {display:table-row-group !important}
+#vc1930-desk .vc1930-scroll tr {display:table-row !important; background:#fff !important}
+#vc1930-desk .vc1930-scroll tbody tr:nth-child(even) {background:#f7faff !important}
+#vc1930-desk .vc1930-scroll th,#vc1930-desk .vc1930-scroll td {display:table-cell !important; width:auto !important; float:none !important; position:static !important; padding:13px 12px !important; margin:0 !important; border:0 !important; border-bottom:1px solid #e6edf6 !important; font-size:12px !important; text-align:left !important; vertical-align:middle !important; overflow-wrap:normal !important; white-space:normal !important; background:transparent !important}
+#vc1930-desk .vc1930-scroll th {background:#eef5fc !important; color:#385a78 !important; font-weight:850 !important; font-size:11px !important; white-space:nowrap !important}
+#vc1930-desk .vc1930-scroll td small {display:block !important; color:#748aa0 !important; font-size:10px !important; margin-top:5px !important; line-height:1.45 !important}
+#vc1930-desk .vc1930-scroll td b {color:#1765ac; font-size:13px}
+#vc1930-desk .vc1930-scroll td button {padding:7px 10px !important; min-height:32px !important; font-size:11px !important; margin-right:5px !important; margin-bottom:3px !important}
+#vc1930-desk .vc1930-scroll td[colspan] {color:#72869b !important; font-style:italic !important; text-align:center !important; padding:24px 12px !important}
+#vc1930-desk .vc1930-pattern {display:flex !important; gap:12px !important; align-items:center !important; justify-content:space-between !important; margin:0 !important; padding:11px 1px !important; border-bottom:1px solid #e9eff6 !important; font-size:13px !important; color:#405d78 !important}
+#vc1930-desk .vc1930-pattern b {color:#1766ad}
+#vc1930-desk .vc1930-empty {margin:0 !important; padding:25px !important; border:1px dashed #acc3d8 !important; border-radius:12px !important; background:white !important; color:#667e95 !important; font-size:13px !important}
+#vc1930-desk .vc1930-data-warning {border:1px solid #f1dfb8; background:#fff9ed; border-radius:12px; padding:13px 16px; color:#70521e; font-size:12px; line-height:1.6}
+#vc1930-desk .vc1930-data-warning strong {font-weight:850}
+@media (max-width:1200px){#vc1930-desk .vc1930-kpis{grid-template-columns:repeat(3,minmax(0,1fr)) !important}#vc1930-desk .vc1930-filters{grid-template-columns:repeat(3,minmax(0,1fr)) !important}}
+@media (max-width:820px){#vc1930-desk{padding:10px !important;gap:12px !important}#vc1930-desk .vc1930-grid{grid-template-columns:minmax(0,1fr) !important}#vc1930-desk .vc1930-filters{grid-template-columns:repeat(2,minmax(0,1fr)) !important}#vc1930-desk .vc1930-kpis{grid-template-columns:repeat(2,minmax(0,1fr)) !important}#vc1930-desk .vc1930-card{padding:15px !important}}
+@media (max-width:490px){#vc1930-desk .vc1930-head{padding:18px !important}#vc1930-desk .vc1930-head h2{font-size:24px !important}#vc1930-desk .vc1930-filters{padding:13px !important;gap:10px !important}#vc1930-desk .vc1930-filters label:last-of-type{grid-column:1/-1}#vc1930-desk .vc1930-actions{justify-content:stretch}#vc1930-desk .vc1930-actions button{flex:1 1 130px}#vc1930-desk .vc1930-kpis article{padding:13px !important;min-height:100px !important}#vc1930-desk .vc1930-kpis strong,#vc1930-desk .vc1930-kpis b{font-size:23px !important}}
+@media (prefers-reduced-motion:reduce){#vc1930-desk button{transition:none !important}}
+</style>
+<script id="vc1930-tactical-rivals" src="./183-vc1930-tactical-rival-desk.js?v=19.3.1" defer data-vc-module="true"></script>
 </body></html>
