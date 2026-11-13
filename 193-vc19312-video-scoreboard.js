@@ -1,4 +1,4 @@
-/* Volley Coach V19.3.12 · Historical scoreboard for Video Analysis and Video Review.
+/* Volley Coach V19.3.14 · Historical scoreboard for Video Review and verified Live Delay.
  * Read-only: does not mutate match, video, recording, storage of game data or cloud.
  * No guessed score: video overlay requires reliable source timing and recorded snapshots.
  */
@@ -9,7 +9,7 @@
  if(root){root.VC_VIDEO_SCORE_19312=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.12',PREF_KEY='vc19312:score-overlay:v1';
+ const VERSION='19.3.14',PREF_KEY='vc19312:score-overlay:v1';
  const arr=x=>Array.isArray(x)?x:[];
  const str=x=>String(x??'').trim();
  const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -80,6 +80,44 @@
   // Avoid showing a stale historical score for arbitrarily long video gaps.
   const maxUntil=next?Math.min(next.start,current.end+25):current.end+25;
   if(time<=maxUntil)return current.after;
+  return null;
+ }
+ /**
+  * A Live Delay timestamp is usable only when the running capture has not
+  * restarted, its media timeline is continuous, a matching active scouting
+  * session has been timestamped close to the capture start, and the rally
+  * explicitly carries both bounds + an internally consistent scout clock.
+  * No extrapolation beyond the rally, or through an MSE discontinuity.
+  */
+ function delaySnapshot(match,mediaSeconds,diagnostics,reviewTimeline){
+  const ms=number(mediaSeconds),diag=diagnostics||{},range=reviewTimeline||{};
+  if(ms==null||ms<0||diag.running!==true||diag.context!=='scouting'||diag.captureRestarts>0||diag.latestRangeDisconnected===true||range.available!==true)return null;
+  const captured=number(diag.captureStartEpochMs),sessionId=str(match?.liveVideo?.currentSessionId);
+  if(captured==null||captured<=0||!sessionId)return null;
+  const session=arr(match?.liveVideo?.sessions).find(s=>str(s.id)===sessionId);
+  const started=Date.parse(session?.startedAt||'');
+  if(!Number.isFinite(started)||Math.abs(started-captured)>4500)return null;
+  const sessionMs=number(session?.scoutMsAtStart);
+  if(sessionMs==null)return null;
+  const point=range.current==null?ms:number(range.current);
+  if(point==null||Math.abs(point-ms)>0.2)return null;
+  for(const set of arr(match?.sets)){
+   const setNo=number(set?.number);if(setNo==null)continue;
+   for(const [i,r] of arr(set?.rallies).entries()){
+    if(str(r?.liveVideoSessionId)!==sessionId)continue;
+    const a=number(r?.liveVideoStart),b=number(r?.liveVideoEnd);
+    const startMs=number(r?.scoutStartMs),endMs=number(r?.scoutEndMs);
+    if(a==null||b==null||startMs==null||endMs==null||b<=a||endMs<startMs)continue;
+    // The recorded timestamps must agree with the active scouting session.
+    if(Math.abs(a-(startMs-sessionMs)/1000)>1.25||Math.abs(b-(endMs-sessionMs)/1000)>1.25)continue;
+    // The capture clock and scouting session agree only at sub-few-second
+    // granularity. Exclude both ends of the rally, where point transitions
+    // may otherwise be ambiguous.
+    if(point<a+0.75||point>=b-0.75)continue;
+    const snap=snapshot(r,setNo,i+1,'before');
+    if(hasScore(snap))return {...snap,source:'live-delay-verified'};
+   }
+  }
   return null;
  }
  function scoreMarkup(s){
@@ -161,7 +199,19 @@
    const live=$('v117-review-stream');
    const liveActive=!!(live&&!live.classList.contains('hidden')&&live.srcObject);
    if(!state.enabled){overlay.hidden=true;if(label)label.textContent='Marcador oculto';return;}
-   if(liveActive){overlay.hidden=true;if(label)label.textContent='LIVE/Delay: marcador histórico no disponible en esta vista';return;}
+   if(liveActive){
+    const badge=$('v117-review-stream-badge');
+    const isDelay=badge&&!badge.classList.contains('hidden')&&/^DELAY\b/i.test(badge.textContent||'');
+    if(!isDelay){overlay.hidden=true;if(label)label.textContent='LIVE · el marcador histórico solo corresponde a la revisión';return;}
+    const diag=win.liveDelayDiagnostics?.(),range=win.liveDelayGetReviewTimeline?.();
+    const snap=delaySnapshot(match,range?.current,diag,range);
+    if(!snap){overlay.hidden=true;if(label)label.textContent='DELAY · sin correspondencia temporal verificada de este rally';return;}
+    overlay.hidden=false;
+    const key=[match.id,'delay',snap.set,snap.rally,snap.scores.ours,snap.scores.opponent,snap.serving].join(':');
+    if(state.lastScore!==key){overlay.innerHTML=scoreMarkup(snap);state.lastScore=key;}
+    if(label)label.textContent=`DELAY verificado · Set ${snap.set} · Rally ${snap.rally}`;
+    return;
+   }
    if(!match||!review?.loaded?.()){overlay.hidden=true;if(label)label.textContent='Carga un vídeo del partido';return;}
    const rec=review.recording?.()||null,offset=number(match.video?.syncOffset);
    if(offset==null){overlay.hidden=true;if(label)label.textContent='Sincroniza el vídeo para activar el marcador histórico';return;}
@@ -183,5 +233,5 @@
   win.addEventListener('pagehide',()=>win.clearInterval(interval),{once:true});
   win.VC_VIDEO_SCORE_19312_STATE={refresh:tick,get enabled(){return state.enabled},setEnabled:on=>{state.enabled=!!on;writeEnabled(win,state.enabled);tick()},reset};
  }
- return {VERSION,PREF_KEY,score,snapshot,sourceTime,buildTimeline,atVideoTime,scoreMarkup,renderAnalysis,updatePreview,openRally,mount};
+ return {VERSION,PREF_KEY,score,snapshot,sourceTime,buildTimeline,atVideoTime,delaySnapshot,scoreMarkup,renderAnalysis,updatePreview,openRally,mount};
 });

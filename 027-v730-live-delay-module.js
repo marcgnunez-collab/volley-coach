@@ -1013,6 +1013,7 @@ window.liveDelayDiagnostics=function(){
     starting:state.starting,
     context:state.context,
     running:state.running,
+    captureStartEpochMs:state.running&&Number.isFinite(state.streamStartedAt)&&state.streamStartedAt>0?state.streamStartedAt:null,
     mime:state.mime||chooseMime(),
     qualityProfile:state.qualityProfile,
     requestedLocalWidth:quality().width,

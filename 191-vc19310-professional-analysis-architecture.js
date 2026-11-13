@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.12';
+ const VERSION='19.3.14';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -117,7 +117,7 @@
   function setStatus(msg){const target=node?.querySelector('.vc19310-status');if(target)target.textContent=msg;}
   function findContext(){try{return win.VC_ANALYSIS_MAIN_1937?.selectContext?.(win)||null;}catch(e){setStatus('No se pudo acceder al contexto del partido.');return null}}
   function toggleLegacy(value){
-   state.advanced=!!value;view.classList.toggle('vc19310-legacy',state.advanced);
+   state.advanced=!!value;if(state.advanced)win.VC_INTEGRATED_VIDEO_19314?.park?.(win);view.classList.toggle('vc19310-legacy',state.advanced);
    const btn=node?.querySelector('[data-vc19310-command="advanced"]');
    if(btn)btn.textContent=state.advanced?'Volver al Análisis Pro':'Herramientas originales';
    view.dataset.vc1937Mode=state.advanced?'advanced':'pro';
@@ -132,13 +132,23 @@
    initialized=true;view.classList.add('vc19310-active');
    const source=doc.getElementById('vc157-sample');if(source){watcher=new win.MutationObserver(delay);watcher.observe(source,{childList:true,subtree:true,characterData:true});}
    return true;}
-  function paint(){if(!view.classList.contains('active'))return;if(!build())return;if(view.classList.contains('vc1930-active'))return;
-   ctx=findContext();if(!ctx||!ctx.match){node.querySelector('#vc19310-body').innerHTML='<div class="vc19310-panel"><p>Selecciona un scouting en la barra superior para comenzar.</p></div>';return;}
+  function paint(){if(!view.classList.contains('active')){win.VC_INTEGRATED_VIDEO_19314?.park?.(win);return;}if(!build())return;if(state.advanced||view.classList.contains('vc1930-active')){win.VC_INTEGRATED_VIDEO_19314?.park?.(win);return;}
+   ctx=findContext();if(!ctx||!ctx.match){win.VC_INTEGRATED_VIDEO_19314?.park?.(win);node.querySelector('#vc19310-body').innerHTML='<div class="vc19310-panel"><p>Selecciona un scouting en la barra superior para comenzar.</p></div>';return;}
    projection=baseProjection(win.VC_DATA_ENGINE_1938,ctx.match,ctx);if(!projection){setStatus('Motor de datos no disponible');return;}
    const opts=ctx.team==='ours'?'Nuestro equipo':'Rival';node.querySelector('#vc19310-match-label').textContent=`${val(ctx.match.name||ctx.match.title||ctx.match.opponentName||ctx.match.id)} · ${opts}`;
    node.querySelector('#vc19310-sample').textContent=`${projection.base.rallies.length} rallies · ${projection.base.contacts.length} contactos · sin alterar el scouting`;
    node.querySelectorAll('[data-vc19310-space]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vc19310Space===state.space)));
    const body=node.querySelector('#vc19310-body');
+   // Avoid undocking an active player on unrelated re-renders or clocks.
+   // Rebuild only when the selection or the underlying scouting data changes.
+   const sig=state.space==='video'?[ctx.match.id,ctx.team,ctx.set,ctx.rotation,ctx.phase,
+     projection.base.rallies.length,projection.base.contacts.length,ctx.match.updatedAt||'',
+     ...projection.base.rallies.slice(-5).map(r=>[r.key,r.scoreAfter?.us,r.scoreAfter?.opponent,r.contacts.length].join(':'))].join('|'):'';
+   const videoHost=body.querySelector('#vc19314-player-host');
+   if(state.space==='video'&&sig===body.dataset.vc19314Signature&&videoHost?.contains(doc.getElementById('v780-video-frame')))return;
+   // Restore the ONE native Video Review player before replacing an Analysis view.
+   // Otherwise innerHTML would destroy the playing media element and its handlers.
+   win.VC_INTEGRATED_VIDEO_19314?.park?.(win);
    // V19.3.11 replaces only the professional views, not their data engines.
    // Fall back safely to V19.3.10 when an optional asset is unavailable.
    let enhanced=null;
@@ -149,15 +159,16 @@
    else if(state.space==='distribution')body.innerHTML=distributionView(ctx,projection);
    else if(state.space==='court')body.innerHTML=courtView(ctx,projection,state);
    else if(state.space==='search')body.innerHTML=searchView(ctx,projection,state,win.VC_RALLY_SEARCH_1939);
-   else if(state.space==='video')body.innerHTML=win.VC_VIDEO_SCORE_19312?.renderAnalysis?.(ctx,projection)||videoView(ctx,projection);
+   else if(state.space==='video')body.innerHTML=win.VC_INTEGRATED_VIDEO_19314?.render?.(ctx,projection)||win.VC_VIDEO_SCORE_19312?.renderAnalysis?.(ctx,projection)||videoView(ctx,projection);
    else body.innerHTML=worksheetsView(ctx,projection);
+   body.dataset.vc19314Signature=sig;
    const source=state.space==='search'?(win.VC_RALLY_SEARCH_1939?.query?.(projection.model,{...state.search,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase})?.rallies||[]):projection.base.rallies;
    const filtered=enhanced?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
-   filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
+   filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);if(state.space==='video')win.VC_INTEGRATED_VIDEO_19314?.attach?.(win,node,ctx.match);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
    else if(filtered.length)selectRally(filtered[filtered.length-1].key);
    else state.selected=null;
   }
-  function selectRally(key){const r=filteredRallies.find(x=>x.key===key);if(!r)return;state.selected=key;node.querySelectorAll('[data-vc19310-rally]').forEach(b=>b.classList.toggle('is-selected',b.dataset.vc19310Rally===key));
+  function selectRally(key,{play:autoplay=false}={}){const r=filteredRallies.find(x=>x.key===key);if(!r)return;state.selected=key;node.querySelectorAll('[data-vc19310-rally]').forEach(b=>b.classList.toggle('is-selected',b.dataset.vc19310Rally===key));
    const legacy=legacyRallies.find(x=>x.set===r.set&&(r.nativeId!=null&&String(x.id)===String(r.nativeId)||x.index===r.index));
    const actionKeys=arr(legacy?.actions).filter(a=>a.video&&a.key).map(a=>a.key),videoApi=win.VC_VIDEO_ANALYTICS_1612;
    const play=node.querySelector('[data-vc19310-command="play"]');if(play){
@@ -166,16 +177,20 @@
    }
    const target=node.querySelector('[data-vc19310-detail]');if(target)target.textContent=`Set ${r.set} · Rally #${r.index} · ${r.contacts.length} contactos · ${actionKeys.length} acciones con vídeo`;
    node._vc19310VideoKeys=actionKeys;
-   if(state.space==='video')win.VC_VIDEO_SCORE_19312?.updatePreview?.(node,r);
+   if(state.space==='video'){win.VC_VIDEO_SCORE_19312?.updatePreview?.(node,r);if(win.VC_INTEGRATED_VIDEO_19314){const result=win.VC_INTEGRATED_VIDEO_19314.select?.(win,ctx?.match,r,{play:autoplay});win.VC_INTEGRATED_VIDEO_19314.selectionFeedback?.(node,r,result||{ok:false});}}
   }
   view.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!node?.contains(b))return;
+   if(state.space==='video'){
+    const integrated=win.VC_INTEGRATED_VIDEO_19314?.handleClick?.(win,b,{ctx,projection,node,state,selectRally});
+    if(integrated?.handled)return;
+   }
    const enhancedAction=win.VC_ANALYSIS_SCREENS_19311?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus});
    if(enhancedAction?.handled){if(enhancedAction.repaint)paint();return;}
    if(b.dataset.vc19310Space){state.space=b.dataset.vc19310Space;state.zone=null;toggleLegacy(false);paint();return;}
    if(b.dataset.vc19310Rot){const s=doc.getElementById('vc157-rotation');if(s){s.value=b.dataset.vc19310Rot;s.dispatchEvent(new win.Event('change',{bubbles:true}));delay();}return;}
    if(b.dataset.vc19310Zone){const n=Number(b.dataset.vc19310Zone);state.zone=state.zone===n?null:n;paint();return;}
-   if(b.dataset.vc19310Rally){selectRally(b.dataset.vc19310Rally);return;}
-   if(b.dataset.vc19310Select){selectRally(b.dataset.vc19310Select);return;}
+   if(b.dataset.vc19310Rally){selectRally(b.dataset.vc19310Rally,{play:state.space==='video'});return;}
+   if(b.dataset.vc19310Select){selectRally(b.dataset.vc19310Select,{play:state.space==='video'});return;}
    if(b.dataset.vc19310SearchMode){state.searchMode=b.dataset.vc19310SearchMode;state.search={status:'closed'};paint();return;}
    if(b.dataset.vc19310LegacyPage){const [page,sub='']=b.dataset.vc19310LegacyPage.split(':');toggleLegacy(true);win.VC173_ANALYSIS_WORKSPACE?.selectPage?.(page,sub);return;}
    switch(b.dataset.vc19310Command){
@@ -201,6 +216,7 @@
 
    }
   });
+  view.addEventListener('input',e=>{if(state.space==='video'&&e.target?.matches?.('[data-vc19314-search]'))win.VC_INTEGRATED_VIDEO_19314?.filterCodes?.(node,e.target.value);});
   view.addEventListener('change',e=>{const t=e.target;if(!t)return;
    if(['vc157-match','vc157-team','vc157-set','vc157-phase','vc157-rotation'].includes(t.id)){state.zone=null;state.selected=null;delay();return;}
    if(t.dataset?.vc19310Preset!==undefined&&node?.contains(t)){state.searchPreset=t.value;return;}
@@ -211,7 +227,7 @@
    const mappings={'Fundamento':'skill','Jugador':'player','Valoración':'evaluation','Resultado':'outcome','Rotación propia':'ownRotation','Rotación rival':'rivalRotation','Recepción previa':'reception','Colocador':'setter','Atacante':'attacker','Tempo':'tempo','Combinación':'combo','Zona origen':'startZone','Zona destino':'endZone'};
    if(state.space==='search'&&mappings[t.dataset.vc19310Filter])state.search[mappings[t.dataset.vc19310Filter]]=t.value;
   },true);
-  const observe=new win.MutationObserver(()=>{if(view.classList.contains('active')&&!initialized)delay();else if(view.classList.contains('active')&&initialized&&!view.classList.contains('vc1930-active'))delay();});
+  const observe=new win.MutationObserver(()=>{if(!view.classList.contains('active')){win.VC_INTEGRATED_VIDEO_19314?.park?.(win);return;}if(!initialized)delay();else if(!view.classList.contains('vc1930-active'))delay();});
   observe.observe(view,{attributes:true,attributeFilter:['class','data-vc157-mode']});
   if(view.classList.contains('active'))delay();
   win.VC_PRO_ANALYSIS_19310_STATE={get space(){return state.space},get mounted(){return initialized},show:space=>{if(SPACES.some(x=>x[0]===space)){state.space=space;toggleLegacy(false);paint();}},refresh:delay};

@@ -1,0 +1,78 @@
+/* Volley Coach V19.3.14 · Integrated Video + Scouting. Original, read-only workspace. */
+#scout-analysis.vc19310-active .vc19314-workspace{color:#19344e;min-width:0;font:500 12px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif}
+#scout-analysis.vc19310-active .vc19314-workspace *{box-sizing:border-box}
+#scout-analysis.vc19310-active .vc19314-heading{padding:13px 16px;background:linear-gradient(115deg,#102944,#17517f);border:1px solid #255a85;color:#fff;border-radius:9px;display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:10px}
+#scout-analysis.vc19310-active .vc19314-heading small{display:block;color:#a1d2ff;font-size:10px;font-weight:850;letter-spacing:.09em}
+#scout-analysis.vc19310-active .vc19314-heading h3{color:#fff!important;margin:2px 0!important;font:850 19px/1.25 system-ui!important}
+#scout-analysis.vc19310-active .vc19314-heading p{margin:3px 0 0;color:#d6e9fa;font-size:11px}
+#scout-analysis.vc19310-active .vc19314-header-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+#scout-analysis.vc19310-active .vc19314-header-actions button{font:800 10px system-ui!important;background:#ffffff1d!important;color:#fff!important;border:1px solid #80abd0!important;border-radius:6px!important;min-height:33px!important;padding:7px 9px!important;white-space:nowrap}
+#scout-analysis.vc19310-active .vc19314-header-actions button:hover{background:#2467a4!important}
+#scout-analysis.vc19310-active .vc19314-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+#scout-analysis.vc19310-active .vc19314-kpis>div{display:flex;flex-direction:column;gap:3px;background:#fff;padding:10px 12px;border:1px solid #d5e2ef;border-radius:8px;min-width:0}
+#scout-analysis.vc19310-active .vc19314-kpis span{color:#557591;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.035em}
+#scout-analysis.vc19310-active .vc19314-kpis strong{color:#155997;font-size:25px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1}
+#scout-analysis.vc19310-active .vc19314-kpis small{font-size:10px;color:#66849e}
+#scout-analysis.vc19310-active .vc19314-layout{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(270px,.66fr);gap:10px;align-items:start;min-width:0}
+#scout-analysis.vc19310-active .vc19314-left,#scout-analysis.vc19310-active .vc19314-right{min-width:0;display:grid;gap:10px;align-items:start}
+#scout-analysis.vc19310-active .vc19314-player,#scout-analysis.vc19310-active .vc19314-data,#scout-analysis.vc19310-active .vc19314-rallies,#scout-analysis.vc19310-active .vc19314-selection{padding:11px;background:#fff;border:1px solid #d4e1ed;border-radius:9px;min-width:0;box-shadow:0 3px 12px rgba(15,43,72,.035)}
+#scout-analysis.vc19310-active .vc19314-panelhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;margin-bottom:9px;border-bottom:1px solid #e3edf6}
+#scout-analysis.vc19310-active .vc19314-panelhead strong{font-weight:900;color:#133c5f;font-size:11px;letter-spacing:.04em}
+#scout-analysis.vc19310-active .vc19314-panelhead span{font-size:10px;color:#6b879e}
+#scout-analysis.vc19310-active .vc19314-player-host{background:#061727;border-radius:8px;overflow:hidden;width:100%;min-width:0;aspect-ratio:16/9}
+#scout-analysis.vc19310-active .vc19314-player-host>#v780-video-frame{display:block!important;position:relative!important;width:100%!important;min-width:0!important;height:auto!important;max-width:none!important;aspect-ratio:16/9!important;margin:0!important;border:0!important;border-radius:8px!important;background:#051725!important;overflow:hidden!important}
+#scout-analysis.vc19310-active #vc19314-player-host>#v780-video-frame :is(video,#v782-youtube-wrap,#v782-youtube-player,#v782-youtube-player iframe){max-width:100%;width:100%;height:100%;object-fit:contain}
+#scout-analysis.vc19310-active #vc19314-player-host #v782-youtube-wrap{position:absolute;inset:0;z-index:1}
+#scout-analysis.vc19310-active #vc19314-player-host #v117-review-stream{position:absolute;inset:0;z-index:4;background:#000}
+#scout-analysis.vc19310-active #vc19314-player-host .v780-video-empty{inset:0;position:absolute;display:grid;place-content:center;text-align:center;color:#b4cede}
+#scout-analysis.vc19310-active #vc19314-player-host #v117-review-stream.hidden,#scout-analysis.vc19310-active #vc19314-player-host #v782-youtube-wrap.hidden,#scout-analysis.vc19310-active #vc19314-player-host #v780-player-video.hidden,#scout-analysis.vc19310-active #vc19314-player-host #v780-video-empty.hidden{display:none!important}
+#scout-analysis.vc19310-active .vc19314-empty{min-height:180px;color:#96b7d5;display:grid;place-items:center;padding:15px}
+#scout-analysis.vc19310-active .vc19314-actions{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 3px}
+#scout-analysis.vc19310-active .vc19314-actions button{background:#eaf4fe!important;border:1px solid #bbd6ef!important;border-radius:6px!important;color:#145893!important;min-height:32px!important;padding:7px 10px!important;font-size:11px!important;font-weight:800!important}
+#scout-analysis.vc19310-active .vc19314-actions button:hover{background:#d7ebfd!important}
+#scout-analysis.vc19310-active .vc19314-status{margin:5px 0 2px;font-size:11px;color:#527390}
+#scout-analysis.vc19310-active .vc19314-transport-host:empty{display:none}
+#scout-analysis.vc19310-active .vc19314-transport-host{margin-top:7px}
+#scout-analysis.vc19310-active #vc-review-pro-bar{display:grid!important;gap:8px;background:#f3f8fe;border:1px solid #d5e5f5;border-radius:8px;padding:9px;max-width:100%;min-width:0}
+#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-heading,#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-heading-actions,#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-transport,#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-markers>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px;justify-content:space-between}
+#scout-analysis.vc19310-active #vc-review-pro-bar button{padding:6px 8px!important;background:#fff!important;border:1px solid #c6dbee!important;border-radius:6px!important;color:#174974!important;font-size:10px!important;font-weight:800!important;min-height:30px!important}
+#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-timeline{display:grid;grid-template-columns:100px minmax(0,1fr);gap:9px;align-items:center;color:#315d7e;font-size:11px}
+#scout-analysis.vc19310-active #vc-review-pro-bar input[type=range]{width:100%;min-width:0}
+#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-heading strong{display:block;color:#184c76;font-weight:900}
+#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-eyebrow{display:block;color:#7893a9;font-size:9px;font-weight:850;letter-spacing:.04em}
+#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-markers{display:none}
+#scout-analysis.vc19310-active .vc19314-code-search{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:center;color:#527490;font-size:11px;font-weight:800;margin-bottom:8px}
+#scout-analysis.vc19310-active .vc19314-code-search input{width:100%;min-width:0;padding:8px 10px;background:#f8fbff!important;border:1px solid #c6dbed!important;border-radius:5px!important;font:500 12px system-ui!important;color:#254c6b!important}
+#scout-analysis.vc19310-active .vc19314-code-head,#scout-analysis.vc19310-active .vc19314-code-row{display:grid!important;grid-template-columns:68px 116px minmax(0,1fr) 38px 37px;align-items:center;gap:6px}
+#scout-analysis.vc19310-active .vc19314-code-head{padding:7px 10px;background:#e9f3fc;border:1px solid #d8e6f2;border-radius:5px;font-size:9px;font-weight:900;color:#446988;text-transform:uppercase}
+#scout-analysis.vc19310-active .vc19314-code-list{max-height:385px;overflow:auto;border:1px solid #dbe7f2;border-top:0;border-radius:0 0 6px 6px}
+#scout-analysis.vc19310-active .vc19314-code-row{min-height:32px!important;width:100%!important;box-shadow:none!important;background:#fff!important;border:0!important;border-bottom:1px solid #ebf0f6!important;border-radius:0!important;text-align:left!important;padding:6px 10px!important;color:#375f80!important;font-size:10px!important;cursor:pointer}
+#scout-analysis.vc19310-active .vc19314-code-row:nth-child(even){background:#f8fbfe!important}
+#scout-analysis.vc19310-active .vc19314-code-row:hover,#scout-analysis.vc19310-active .vc19314-code-row.is-selected{background:#e5f1fe!important}
+#scout-analysis.vc19310-active .vc19314-code-row strong{font:850 12px ui-monospace,SFMono-Regular,Consolas,monospace;color:#0d4d85}
+#scout-analysis.vc19310-active .vc19314-code-row i{font-size:14px;font-style:normal;color:#b4c1cd;text-align:center}
+#scout-analysis.vc19310-active .vc19314-code-row i.has-time{color:#159667}
+#scout-analysis.vc19310-active .vc19314-code-row[hidden]{display:none!important}
+#scout-analysis.vc19310-active .vc19314-rally-list{display:grid;gap:4px;max-height:690px;overflow:auto}
+#scout-analysis.vc19310-active .vc19314-rally{display:grid!important;grid-template-columns:90px minmax(0,1fr)!important;grid-template-rows:auto auto;gap:3px 5px!important;align-items:center!important;text-align:left!important}
+#scout-analysis.vc19310-active .vc19314-rally b{grid-row:1/3;font-size:11px;color:#1a4a75}
+#scout-analysis.vc19310-active .vc19314-rally span{font-size:11px;text-align:right;white-space:nowrap;font-weight:800}
+#scout-analysis.vc19310-active .vc19314-rally small{font-size:9px;text-align:right;color:#6e8aa0}
+#scout-analysis.vc19310-active .vc19314-selection p{margin:7px 0;color:#587893;font-size:11px}
+#scout-analysis.vc19310-active .vc19314-selection-score{background:#edf5ff;border:1px solid #d1e5f6;color:#0c497e;padding:10px 12px;border-radius:6px;font-weight:900;font-size:12px;font-variant-numeric:tabular-nums}
+#scout-analysis.vc19310-active .vc19314-no-data{padding:14px;color:#6e879c;font-size:11px}
+/* Historical scoreboard stays inside the real video element after it is reparented. */
+#scout-analysis.vc19310-active #vc19314-player-host #vc19312-video-overlay{position:absolute;z-index:110;top:9px;left:9px;right:auto;max-width:min(260px,74%);background:rgba(6,24,43,.92);padding:8px 10px;border:1px solid rgba(129,191,244,.55);border-radius:7px;color:#fff;pointer-events:none}
+#scout-analysis.vc19310-active #vc19314-player-host #vc19312-video-overlay[hidden]{display:none!important}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-bar{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);gap:6px;align-items:center}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-team{display:flex;flex-direction:column;align-items:center;position:relative}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-team span{font-size:8px;color:#c1dbf0;font-weight:850;text-align:center}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-team strong{color:#fff;font-size:28px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-team.is-serving:before{content:'●';position:absolute;top:0;left:0;color:#f8a65a}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-mid{display:grid;text-align:center;justify-items:center;color:#fff;gap:1px}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-mid b{font-size:10px}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-mid small,#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-mid span{font-size:8px;color:#a7cae7}
+#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-meta{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;font-size:8px;color:#c9ddeb;padding-top:5px;margin-top:5px;border-top:1px solid #ffffff24}
+@media(max-width:1300px){#scout-analysis.vc19310-active .vc19314-layout{grid-template-columns:minmax(0,1fr)}#scout-analysis.vc19310-active .vc19314-right{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr)}#scout-analysis.vc19310-active .vc19314-rally-list{max-height:370px}}
+@media(max-width:850px){#scout-analysis.vc19310-active .vc19314-heading{flex-direction:column;align-items:flex-start}#scout-analysis.vc19310-active .vc19314-header-actions{justify-content:flex-start}#scout-analysis.vc19310-active .vc19314-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){#scout-analysis.vc19310-active .vc19314-heading{padding:11px}#scout-analysis.vc19310-active .vc19314-heading h3{font-size:16px!important}#scout-analysis.vc19310-active .vc19314-kpis strong{font-size:20px}#scout-analysis.vc19310-active .vc19314-kpis>div{padding:8px}#scout-analysis.vc19310-active .vc19314-player,#scout-analysis.vc19310-active .vc19314-data,#scout-analysis.vc19310-active .vc19314-rallies,#scout-analysis.vc19310-active .vc19314-selection{padding:8px}#scout-analysis.vc19310-active .vc19314-right{grid-template-columns:minmax(0,1fr)}#scout-analysis.vc19310-active .vc19314-code-head,#scout-analysis.vc19310-active .vc19314-code-row{grid-template-columns:45px 80px minmax(0,1fr) 27px 23px;gap:3px;padding-left:5px!important;padding-right:5px!important}#scout-analysis.vc19310-active .vc19314-code-row strong{font-size:10px}#scout-analysis.vc19310-active #vc-review-pro-bar .vc-review-pro-timeline{grid-template-columns:1fr}#scout-analysis.vc19310-active #vc19314-player-host #vc19312-video-overlay{top:5px;left:5px;max-width:84%;padding:5px 7px}#scout-analysis.vc19310-active #vc19314-player-host .vc19312-score-team strong{font-size:20px}}
