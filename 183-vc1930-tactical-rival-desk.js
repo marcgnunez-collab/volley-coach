@@ -9,7 +9,7 @@
  if(root){root.VC_TACTICAL_RIVALS_1930=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.2';
+ const VERSION='19.3.3';
  const arr=v=>Array.isArray(v)?v:[];
  const text=v=>String(v??'').trim();
  const norm=v=>text(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').replace(/\s+/g,' ');
@@ -54,13 +54,17 @@
  }
  function attackSummary(items){
   const n=items.length,k=items.filter(a=>a.ev==='#').length,e=items.filter(a=>a.ev==='=').length,b=items.filter(a=>a.ev==='/').length;
-  return {n,k,e,b,eff:pct(k-e-b,n),kill:pct(k,n)};
+  // EFF/Kill share Analysis Engine Pro's denominator: ONLY explicitly rated attacks.
+  // An unrated attempt remains visible in n and in the coverage audit, not as a zero outcome.
+  const rated=items.filter(a=>['#','+','!','-','/','='].includes(a.ev)).length;
+  return {n,k,e,b,eff:pct(k-e-b,rated),kill:pct(k,rated)};
  }
  function reception(rows){
   const list=[];
   for(const r of rows){const rec=r.actions.find(a=>a?.team==='opponent'&&a?.skill==='R');if(rec)list.push(rec)}
   const positive=list.filter(a=>a.ev==='#'||a.ev==='+').length;
-  return {n:list.length,positive,pct:pct(positive,list.length),notCoded:rows.length-list.length};
+  const rated=list.filter(a=>['#','+','!','-','/','='].includes(a.ev)).length;
+  return {n:list.length,positive,pct:pct(positive,rated),notCoded:rows.length-list.length};
  }
  function zone(v){
   const m=text(v).toUpperCase().match(/^Z?([1-9])(?:[A-D])?$/);
@@ -162,12 +166,16 @@
   const raw=arr(extracted?.rows).filter(r=>ids.has(text(r.id)));
   const missingServing=raw.filter(r=>!r.phase).length;
   const missingRotation=raw.filter(r=>!r.rotation).length;
-  const selected=raw.filter(r=>(!filters.phase||r.phase===filters.phase)
+  const selectedBase=raw.filter(r=>(!filters.phase||r.phase===filters.phase)
    &&(!int(filters.rotation)||r.rotation===int(filters.rotation))
    &&(!int(filters.ownRotation)||r.ownRotation===int(filters.ownRotation))
    &&(!filters.reception||receptionCode(r)===filters.reception)
    &&(!zone(filters.attackStart)||attackHasZone(r,'startZone',zone(filters.attackStart)))
    &&(!zone(filters.attackEnd)||attackHasZone(r,'endZone',zone(filters.attackEnd))));
+  // V19.3.3: one cross-filtered rally set drives every legacy KPI, table and evidence.
+  // The engine never alters the source scouting objects and does not infer missing fields.
+  const engine=typeof window!=='undefined'?window.VC_ANALYSIS_ENGINE_1933:null;
+  const selected=engine?.filterRows?engine.filterRows(selectedBase,filters):selectedBase;
   const known=selected.filter(r=>r.phase);const k1=count(known.filter(r=>r.phase==='K1'));const k2=count(known.filter(r=>r.phase==='K2'));
   const aa=attacks(selected),rec=reception(selected),byRotation=[1,2,3,4,5,6].map(no=>{
    const r=selected.filter(x=>x.rotation===no),withPhase=r.filter(x=>x.phase);
@@ -188,6 +196,7 @@
    byRotation,byPlayer,combos,directions,missingServing,missingRotation,trend,fragile,strongest,
    matchups:rotationMatchups(selected),startingZones:zoneDistribution(selected,'startZone'),endingZones:zoneDistribution(selected,'endZone'),
    setter: setterDistribution(selected),recAttack:receptionAttackMatrix(selected),
+   engine:engine?.analyze?engine.analyze(selected,filters):null,
    sample:min,issues:arr(extracted?.failures).filter(id=>ids.has(text(id))),
    videoPossible:selected.filter(x=>x.rally!=null).length};
  }
@@ -200,7 +209,7 @@
  const buttonEvidence=(items)=>`<button type="button" data-vc1930-focus="${safe(items)}">Ver rallies</button>`;
  function markup(){return `<section class="vc1930-desk" id="vc1930-desk" aria-label="Preparación táctica del rival" hidden>
   <header class="vc1930-head"><div><small>V19.3 · TACTICAL INTELLIGENCE</small><h2>Preparación de rivales</h2><p>Análisis cruzado de rotaciones, colocación, recepción y zonas. Solo datos codificados, con evidencia.</p></div><button type="button" data-vc1930-close>Volver al análisis</button></header>
-  <div class="vc1930-filters"><label>Rival<select id="vc1930-rival"><option value="">Todos los rivales</option></select></label><label>Partidos<select id="vc1930-scope"><option value="finished">Solo finalizados</option><option value="all">Incluir en curso</option></select></label><label>Fase del rival<select id="vc1930-phase"><option value="">K1 y K2</option><option value="K1">K1 · recibe</option><option value="K2">K2 · saca</option></select></label><label>Rotación rival<select id="vc1930-rotation"><option value="">R1–R6</option>${[1,2,3,4,5,6].map(n=>`<option value="${n}">R${n}</option>`).join('')}</select></label><label>Rotación propia<select id="vc1932-own-rotation"><option value="">R1–R6 propias</option>${[1,2,3,4,5,6].map(n=>`<option value="${n}">R${n} propia</option>`).join('')}</select></label><label>Recepción rival<select id="vc1932-reception"><option value="">Todas las calidades</option><option value="#">Perfecta #</option><option value="+">Positiva +</option><option value="!">! codificada</option><option value="-">- codificada</option><option value="/">/ codificada</option><option value="=">= codificada</option></select></label><label>Origen del ataque rival<select id="vc1932-attack-start"><option value="">Todas las zonas</option>${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}">Zona ${n}</option>`).join('')}</select></label><label>Destino del ataque rival<select id="vc1932-attack-end"><option value="">Todos los destinos</option>${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}">Zona ${n}</option>`).join('')}</select></label><label>Muestra mínima<select id="vc1930-min"><option value="8">8 rallies</option><option value="5">5 rallies</option><option value="12">12 rallies</option></select></label><div class="vc1930-actions"><button type="button" data-vc1930-refresh>Actualizar resultados</button><button type="button" data-vc1932-reset>Limpiar filtros</button><button type="button" data-vc1930-csv>Exportar evidencia CSV</button></div></div>
+  <div class="vc1930-filters"><label>Rival<select id="vc1930-rival"><option value="">Todos los rivales</option></select></label><label>Partidos<select id="vc1930-scope"><option value="finished">Solo finalizados</option><option value="all">Incluir en curso</option></select></label><label>Fase del rival<select id="vc1930-phase"><option value="">K1 y K2</option><option value="K1">K1 · recibe</option><option value="K2">K2 · saca</option></select></label><label>Rotación rival<select id="vc1930-rotation"><option value="">R1–R6</option>${[1,2,3,4,5,6].map(n=>`<option value="${n}">R${n}</option>`).join('')}</select></label><label>Rotación propia<select id="vc1932-own-rotation"><option value="">R1–R6 propias</option>${[1,2,3,4,5,6].map(n=>`<option value="${n}">R${n} propia</option>`).join('')}</select></label><label>Recepción rival<select id="vc1932-reception"><option value="">Todas las calidades</option><option value="#">Perfecta #</option><option value="+">Positiva +</option><option value="!">! codificada</option><option value="-">- codificada</option><option value="/">/ codificada</option><option value="=">= codificada</option></select></label><label>Origen del ataque rival<select id="vc1932-attack-start"><option value="">Todas las zonas</option>${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}">Zona ${n}</option>`).join('')}</select></label><label>Destino del ataque rival<select id="vc1932-attack-end"><option value="">Todos los destinos</option>${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}">Zona ${n}</option>`).join('')}</select></label><label>Muestra mínima<select id="vc1930-min"><option value="8">8 rallies</option><option value="5">5 rallies</option><option value="12">12 rallies</option></select></label><details class="vc1933-filter-box" open><summary>Analysis Engine Pro · filtros cruzados por jugador, set y acción</summary><div class="vc1933-filter-grid"><label>Set<select id="vc1933-set"><option value="">Todos los sets</option></select></label><label>Equipo analizado<select id="vc1933-team"><option value="opponent">Rival</option><option value="ours">Nuestro equipo</option></select></label><label>Fundamento<select id="vc1933-skill"><option value="">Todos los fundamentos</option><option value="S">Saque</option><option value="R">Recepción</option><option value="E">Colocación</option><option value="A">Ataque</option><option value="B">Bloqueo</option><option value="D">Defensa</option><option value="F">Freeball</option><option value="C">Cobertura</option></select></label><label>Jugador<select id="vc1933-player"><option value="">Todos los jugadores</option></select></label><label>Valoración de la acción<select id="vc1933-eval"><option value="">Todas</option><option value="#"># · Perfecta</option><option value="+">+ · Positiva</option><option value="!">!</option><option value="-">-</option><option value="/">/</option><option value="=">=</option></select></label><label>Ganador del rally<select id="vc1933-result"><option value="">Ambos</option><option value="opponent">Rival</option><option value="ours">Nuestro equipo</option></select></label><label>Acción con vídeo marcado<select id="vc1933-video"><option value="">Cualquiera</option><option value="yes">Sí</option><option value="no">No</option></select></label></div><p class="vc1933-filter-hint">Se aplican simultáneamente a todas las tablas, matriz, evidencia y CSV. Al seleccionar un fundamento y una valoración, deben pertenecer a la misma acción.</p></details><div class="vc1930-actions"><button type="button" data-vc1930-refresh>Actualizar resultados</button><button type="button" data-vc1932-reset>Limpiar filtros</button><button type="button" data-vc1930-csv>Exportar evidencia CSV</button></div></div>
   <div class="vc1930-notice" id="vc1930-notice" role="status"></div>
   <div id="vc1930-results"></div>
  </section>`;}
@@ -225,6 +234,9 @@
   <article class="vc1930-card"><h3>Ataque rival según calidad de recepción</h3><p>Solo se vincula una recepción con el ataque siguiente de la misma posesión, sin acciones intermedias de nuestro equipo. ${cond.total} secuencias verificables. La escala #, +, !, -, /, = se muestra sin reinterpretar sus valores.</p>${receptions}</article>`;
  }
  function render(d){
+  const engine=typeof window!=='undefined'?window.VC_ANALYSIS_ENGINE_1933:null;
+  const advancedHtml=d.engine&&engine?.render?engine.render(d.engine):'';
+  const perspectiveNote=d.engine?.team==='ours'?'<div class="vc1930-data-warning" role="note"><strong>Dos perspectivas:</strong> el Analysis Engine Pro muestra acciones de nuestro equipo. Los indicadores K1/K2, las rotaciones y las tablas históricas de esta mesa siguen describiendo al rival en los mismos rallies seleccionados; no se convierten en estadísticas propias.</div>':'';
   if(!d.eligible.length)return '<p class="vc1930-empty">No hay partidos de ese rival en el periodo seleccionado. Revisa el filtro de Temporada o incluye partidos en curso.</p>';
   const v=(s,rate)=>`<strong${rate==null?' class="vc1930-na"':''}>${rate==null?'Sin datos':fmt(rate)}</strong><small>${s}</small>`;
   const cell=(x)=>`${fmt(x.pct)}<small>${x.w}/${x.n} · ${sample(x.n,d.sample)}</small>`;
@@ -237,10 +249,10 @@
   const trend=d.trend.previous.matches?`Últimos ${d.trend.recent.matches} partidos: K1 rival ${fmt(d.trend.recent.pct)} (${d.trend.recent.w}/${d.trend.recent.n}); anteriores ${d.trend.previous.matches}: ${fmt(d.trend.previous.pct)} (${d.trend.previous.w}/${d.trend.previous.n}). Las muestras no se ajustan por rival ni alineación.`:'Tendencia histórica: hacen falta al menos cuatro partidos del rival en el periodo seleccionado para comparar bloques.';
   const evidence=table(['Partido','Set / rally','Rotación','Fase','Ganador','Abrir'],d.selected.slice().sort((a,b)=>b.date.localeCompare(a.date)||Number(b.set)-Number(a.set)||Number(b.index)-Number(a.index)).slice(0,100).map((r)=>`<tr><td>${safe(r.date)} · ${safe(r.opponent)}</td><td>S${safe(r.set)} · ${safe(r.index)}</td><td>${r.rotation?'R'+r.rotation:'Sin dato'}</td><td>${safe(r.phase||'Sin dato')}</td><td>${r.winner==='opponent'?'Rival':'Nuestro'}</td><td><button type="button" data-vc1930-match="${safe(r.id)}">Partido</button>${r.rally!=null?`<button type="button" data-vc1930-video="${safe(r.id)}" data-vc1930-set="${safe(r.set)}" data-vc1930-rally="${safe(r.rally)}">Vídeo*</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6">Sin rallies cerrados.</td></tr>');
   return `<div class="vc1930-section-heading"><h3>Indicadores del rival</h3><span>Calculados sobre las acciones realmente registradas</span></div><div class="vc1930-kpis"><article><span>Partidos</span><b>${d.eligible.length}</b><small>${d.selected.length} rallies cerrados filtrados</small></article><article><span>K1 rival · recibe</span>${v(`${d.k1.w}/${d.k1.n} · ${sample(d.k1.n,d.sample)}`,d.k1.pct)}</article><article><span>K2 rival · saca</span>${v(`${d.k2.w}/${d.k2.n} · ${sample(d.k2.n,d.sample)}`,d.k2.pct)}</article><article><span>Ataque rival · EFF</span>${v(`n=${d.attacks.n} · (${d.attacks.k}−${d.attacks.e}−${d.attacks.b})/n`,d.attacks.eff)}</article><article><span>Recepción rival #/+</span>${v(`${d.reception.positive}/${d.reception.n} codificadas`,d.reception.pct)}</article></div>
-  ${d.attacks.n===0&&d.reception.n===0?'<div class="vc1930-data-warning" role="note"><strong>Faltan acciones del rival:</strong> los rallies permiten estudiar el resultado de K1/K2, pero no identificar atacantes, combinaciones ni calidad de recepción. Para completar ese análisis, codifica también las acciones del equipo contrario durante el scouting.</div>':''}<div class="vc1930-grid"><article class="vc1930-card"><h3>Lectura táctica verificable</h3><p>${safe(note)}</p><p>${safe(trend)}</p></article><article class="vc1930-card"><h3>Calidad de datos</h3><p>${d.missingServing} rallies sin servidor conocido; ${d.missingRotation} sin rotación rival; ${d.reception.notCoded} sin recepción rival en el filtro actual.</p><p>No se interpretan los campos vacíos como errores. ${d.issues.length?'No se han podido procesar '+d.issues.length+' scoutings.':''}</p></article></div>
+  ${perspectiveNote}${advancedHtml}${d.attacks.n===0&&d.reception.n===0?'<div class="vc1930-data-warning" role="note"><strong>Faltan acciones del rival:</strong> los rallies permiten estudiar el resultado de K1/K2, pero no identificar atacantes, combinaciones ni calidad de recepción. Para completar ese análisis, codifica también las acciones del equipo contrario durante el scouting.</div>':''}<div class="vc1930-grid"><article class="vc1930-card"><h3>Lectura táctica verificable</h3><p>${safe(note)}</p><p>${safe(trend)}</p></article><article class="vc1930-card"><h3>Calidad de datos</h3><p>${d.missingServing} rallies sin servidor conocido; ${d.missingRotation} sin rotación rival; ${d.reception.notCoded} sin recepción rival en el filtro actual.</p><p>No se interpretan los campos vacíos como errores. ${d.issues.length?'No se han podido procesar '+d.issues.length+' scoutings.':''}</p></article></div>
   <article class="vc1930-card"><h3>K1/K2 por rotación del rival</h3><p>Ganados por el rival / oportunidades con servidor conocido. No se infiere rotación si no está codificada.</p>${rot}</article>
   ${renderAdvanced(d)}
-  <article class="vc1930-card"><h3>Principales atacantes del rival</h3><p>Eficiencia = (ataques # − errores = − bloqueados /) / ataques codificados.</p>${attacksTable}</article>
+  <article class="vc1930-card"><h3>Principales atacantes del rival</h3><p>Eficiencia = (ataques # − errores = − bloqueados /) / ataques con valoración reconocida. Los ataques sin valorar se muestran en la auditoría, pero no cuentan como resultado negativo.</p>${attacksTable}</article>
   <div class="vc1930-grid">${patterns(d.combos,'Combinaciones de ataque',d.attacks.n)}${patterns(d.directions,'Direcciones de ataque',d.attacks.n)}</div>
   <article class="vc1930-card" id="vc1930-evidence"><h3>Evidencia · rallies originales</h3><p>Se muestran hasta 100 de ${d.selected.length} rallies. El CSV incluye todos. *El vídeo solo se abrirá si existe una grabación vinculada y disponible.</p>${evidence}</article>`;
  }
@@ -266,8 +278,21 @@
     const extract=root.VC_ANALYSIS_INTELLIGENCE_1614?.extract;
     if(typeof extract!=='function'){$('vc1930-results').innerHTML='<p class="vc1930-empty">No está disponible el motor de análisis. Comprueba que se han cargado los scripts.</p>';return;}
     current=source(ms,m=>extract(m,root.VC_SCOUT_REPORT_BRIDGE));
-    filtered=report(ms,current,{rival:$('vc1930-rival').value,scope:$('vc1930-scope').value,phase:$('vc1930-phase').value,rotation:$('vc1930-rotation').value,ownRotation:$('vc1932-own-rotation').value,reception:$('vc1932-reception').value,attackStart:$('vc1932-attack-start').value,attackEnd:$('vc1932-attack-end').value,minSample:$('vc1930-min').value});
-    $('vc1930-notice').textContent=`Periodo: el seleccionado en Temporada · ${ms.length} scoutings accesibles · ${filtered.eligible.length} partidos seleccionados. Solo rallies con ganador conocido.`;
+    const engine=root.VC_ANALYSIS_ENGINE_1933;
+    if(engine?.facets){
+     const rival=$('vc1930-rival').value,live=$('vc1930-scope').value==='all',team=$('vc1933-team').value;
+     const eligibleRows=current.rows.filter(r=>(!rival||norm(r.opponent)===rival)&&(live||finished(r.match)));
+     const facet=engine.facets(eligibleRows,team);
+     function fill(id,items,label){const el=$(id),old=el.value;el.innerHTML=`<option value="">${label}</option>`+items.map(v=>`<option value="${safe(v)}">${safe(v)}</option>`).join('');el.value=items.includes(old)?old:'';}
+     fill('vc1933-set',facet.sets,'Todos los sets');
+     fill('vc1933-player',facet.players,'Todos los jugadores');
+    }
+    filtered=report(ms,current,{rival:$('vc1930-rival').value,scope:$('vc1930-scope').value,phase:$('vc1930-phase').value,rotation:$('vc1930-rotation').value,ownRotation:$('vc1932-own-rotation').value,reception:$('vc1932-reception').value,attackStart:$('vc1932-attack-start').value,attackEnd:$('vc1932-attack-end').value,minSample:$('vc1930-min').value,
+     set:$('vc1933-set').value,team:$('vc1933-team').value,skill:$('vc1933-skill').value,
+     player:$('vc1933-player').value,evaluation:$('vc1933-eval').value,result:$('vc1933-result').value,video:$('vc1933-video').value});
+    $('vc1930-notice').textContent=engine?.analyze?
+     `Periodo: el seleccionado en Temporada · ${ms.length} scoutings accesibles · ${filtered.eligible.length} partidos seleccionados. Solo rallies con ganador conocido.`:
+     'No se ha cargado el motor Analysis Engine Pro (184-vc1933-analysis-engine.js). Los filtros avanzados no estarán activos hasta actualizar ese archivo. El análisis clásico sigue disponible.';
     $('vc1930-results').innerHTML=render(filtered);
    }
    function open(){opened=true;panel.hidden=false;if(native)native.hidden=true;view.classList.add('vc1930-active');refresh();panel.scrollIntoView?.({block:'start',behavior:'instant'});}
@@ -278,7 +303,7 @@
     if(b.hasAttribute('data-vc1930-close')){close();return}
     if(b.hasAttribute('data-vc1930-refresh')){refresh();return}
     if(b.hasAttribute('data-vc1932-reset')){
-     ['vc1930-rival','vc1930-phase','vc1930-rotation','vc1932-own-rotation','vc1932-reception','vc1932-attack-start','vc1932-attack-end'].forEach(id=>$(id).value='');$('vc1930-scope').value='finished';$('vc1930-min').value='8';refresh();return;
+     ['vc1930-rival','vc1930-phase','vc1930-rotation','vc1932-own-rotation','vc1932-reception','vc1932-attack-start','vc1932-attack-end','vc1933-set','vc1933-skill','vc1933-player','vc1933-eval','vc1933-result','vc1933-video'].forEach(id=>$(id).value='');$('vc1933-team').value='opponent';$('vc1930-scope').value='finished';$('vc1930-min').value='8';refresh();return;
     }
     if(b.hasAttribute('data-vc1932-own')){
      $('vc1932-own-rotation').value=b.dataset.vc1932Own;
@@ -291,6 +316,14 @@
     }
     if(b.hasAttribute('data-vc1932-receive')){
      $('vc1932-reception').value=b.dataset.vc1932Receive;refresh();$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+    }
+    if(b.hasAttribute('data-vc1933-drill-skill')){
+     $('vc1933-skill').value=b.dataset.vc1933DrillSkill;refresh();$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
+    }
+    if(b.hasAttribute('data-vc1933-drill-player')){
+     const player=b.dataset.vc1933DrillPlayer;
+     if([...$('vc1933-player').options].some(x=>x.value===player))$('vc1933-player').value=player;
+     refresh();$('vc1930-evidence')?.scrollIntoView?.({block:'start'});return;
     }
     if(b.hasAttribute('data-vc1930-csv')){
      const csv=exportCSV(filtered?.selected||[]);const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=doc.createElement('a');a.href=url;a.download='volley_coach_v1930_evidencia_rival.csv';doc.body.appendChild(a);a.click();a.remove();root.setTimeout(()=>URL.revokeObjectURL(url),1200);return;
