@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.2.4',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -13378,4 +13378,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 <!-- V19.2.5 · Videoteca: storage health and bounded IDB chunk verification. -->
 <link rel="stylesheet" href="./vc1925-library-health.css?v=19.2.5">
 <script id="vc1925-library-health" src="./182-vc1925-library-health.js?v=19.2.5" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc1930-tactical-rivals.css?v=19.3.0">
+<script id="vc1930-tactical-rivals" src="./183-vc1930-tactical-rival-desk.js?v=19.3.0" defer data-vc-module="true"></script>
 </body></html>
