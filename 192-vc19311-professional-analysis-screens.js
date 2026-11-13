@@ -9,7 +9,7 @@
  if(root)root.VC_ANALYSIS_SCREENS_19311=api;
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.11',SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
+ const VERSION='19.3.11.3',SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const PREF_KEY='vc19311:worksheet-layouts:v1';
  const DEFAULTS=[{name:'Eficiencia de ataque',formula:'100*(POINT-ERROR-BLOCKED)/EVAL',group:'player',skill:'A'},
   {name:'Recepción positiva',formula:'100*POSITIVE/EVAL',group:'player',skill:'R'},
@@ -66,21 +66,43 @@
   const ratio=rs=>rs.length?percentage(pct(rs.filter(r=>r.winner===team).length,rs.length)):'—';
   return `<button type="button" data-vc19310-rot="${n}"><strong>R${n}</strong><span>${count} colocaciones</span><small>K1 ${ratio(k1)} · K2 ${ratio(k2)}</small></button>`;
  }).join('');}
- const COURT_POS={4:[.16,.20],3:[.50,.20],2:[.84,.20],5:[.16,.70],6:[.50,.70],1:[.84,.70],7:[.16,.93],8:[.50,.93],9:[.84,.93]};
- function directionSvg(paths){
+ const COURT_POS={4:[.18,.18],3:[.50,.18],2:[.82,.18],5:[.18,.50],6:[.50,.50],1:[.82,.50],7:[.18,.82],8:[.50,.82],9:[.82,.82]};
+ const DIST_HUB=[.50,.88];
+ function directionSvg(paths,options={}){
   const max=Math.max(1,...paths.map(x=>x.count));
-  return `<svg class="vc19311-direction-overlay" viewBox="0 0 900 600" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="vc19311-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#1264b0"/></marker></defs>${paths.slice(0,12).map((x,i)=>{const from=COURT_POS[x.from],to=COURT_POS[x.to];if(!from||!to)return '';
-   const X=Math.round(from[0]*900),Y=Math.round(from[1]*600),x2=Math.round(to[0]*900),y2=Math.round(to[1]*600);
-   const cx=(X+x2)/2+(i%2?-1:1)*Math.min(i*7,40),cy=(Y+y2)/2-18;
-   return `<path d="M ${X} ${Y} Q ${cx} ${cy} ${x2} ${y2}" stroke="${i===0?'#f17b27':'#1264b0'}" stroke-width="${(2+5*x.count/max).toFixed(2)}" opacity=".7" fill="none" marker-end="url(#vc19311-arrow)"/>`;
+  const mode=options.mode==='distribution'?'distribution':'court';
+  const width=mode==='distribution'?700:900;
+  const height=mode==='distribution'?430:640;
+  const markerId='vc19311-arrow-'+mode;
+  const visible=paths.slice(0,mode==='distribution'?6:12);
+  const renderPath=(from,to,count,index)=>{
+   const source=mode==='distribution'?DIST_HUB:(COURT_POS[from]||DIST_HUB);
+   const target=COURT_POS[to];
+   if(!source||!target)return '';
+   const X=Math.round(source[0]*width),Y=Math.round(source[1]*height),x2=Math.round(target[0]*width),y2=Math.round(target[1]*height);
+   const bend=index%2?-1:1;
+   const curve=Math.min(90,25+index*8);
+   const cx=Math.round((X+x2)/2 + bend*curve);
+   const cy=Math.round((Y+y2)/2 - (mode==='distribution'?70:40));
+   const active=options.activePath&&options.activePath===`${from}→${to}`;
+   const primary=index===0||active;
+   const stroke=primary?'#f08a37':'#2f6db0';
+   const opacity=active?1:(primary?.92:.76);
+   const sw=(mode==='distribution'?5.5:4)+(count/max)*(mode==='distribution'?5:4.5);
+   return `<path d="M ${X} ${Y} Q ${cx} ${cy} ${x2} ${y2}" stroke="${stroke}" stroke-width="${sw.toFixed(2)}" stroke-linecap="round" opacity="${opacity}" fill="none" marker-end="url(#${markerId})"/>`;
+  };
+  return `<svg class="vc19311-direction-overlay ${mode==='distribution'?'is-distribution':'is-court'}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs><marker id="${markerId}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#2f6db0"/></marker><marker id="${markerId}-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#f08a37"/></marker></defs>${visible.map((x,i)=>{
+    const from=mode==='distribution'?6:x.from;
+    return renderPath(from,x.to,x.count,i).replace(`url(#${markerId})`,`url(#${i===0||(options.activePath&&options.activePath===`${from}→${x.to}`)?markerId+'-hot':markerId})`);
   }).join('')}</svg>`;
  }
  function distributionCourt(model){
   const totals=model.coded.length,zoneCounts=new Map(model.zones.map(x=>[x.zone,x.chains.length]));const top=Math.max(1,...zoneCounts.values());
   const pathways=model.zones.filter(z=>z.chains.length).map(z=>({from:6,to:z.zone,count:z.chains.length}));
-  return `<div class="vc19311-dist-court" role="group" aria-label="Distribución a zonas de colocación"><div class="vc19311-dist-label">RED · DISTRIBUCIÓN DE COLOCACIÓN</div><div class="vc19311-court-grid">${[4,3,2,5,6,1].map(z=>{
-   const n=zoneCounts.get(z)||0;return `<button type="button" data-vc19311-dist-zone="Z${z}" class="vc19311-cell" style="--intensity:${(n/top*.50+.09).toFixed(2)}"><small>Z${z}</small><strong>${n||'—'}</strong><span>${percentage(pct(n,totals))}</span></button>`;
-  }).join('')}</div>${directionSvg(pathways)}</div><p class="vc19311-help">Las flechas representan frecuencias de colocación hacia la zona registrada; no son trayectorias físicas medidas. Las zonas sin codificar no se asignan.</p>`;
+  const topTargets=model.groups.slice(0,5).map((g,i)=>`<div class="vc19311-mini-stat ${i===0?'is-top':''}"><span>${esc(g.key||('Z'+g.zone))}</span><strong>${g.chains.length}</strong><small>${percentage(pct(g.chains.length,totals))}</small></div>`).join('');
+  return `<div class="vc19311-dist-shell"><div class="vc19311-dist-court" role="group" aria-label="Distribución a zonas de colocación"><div class="vc19311-dist-label">RED · DISTRIBUCIÓN DE COLOCACIÓN</div><div class="vc19311-court-grid">${[4,3,2,5,6,1].map(z=>{
+   const n=zoneCounts.get(z)||0;return `<button type="button" data-vc19311-dist-zone="Z${z}" class="vc19311-cell" style="--intensity:${(n/top*.52+.09).toFixed(2)}"><small>Z${z}</small><strong>${n||'—'}</strong><span>${percentage(pct(n,totals))}</span></button>`;
+  }).join('')}</div><div class="vc19311-setter-hub"><span>SET</span><strong>Z6</strong></div>${directionSvg(pathways,{mode:'distribution'})}</div><div class="vc19311-dist-side"><div class="vc19311-side-head"><strong>Resumen visual</strong><span>${totals} destinos codificados</span></div><div class="vc19311-mini-grid">${topTargets||'<p class="vc19311-help">Sin destinos codificados.</p>'}</div><p class="vc19311-help">Las flechas muestran la frecuencia de colocación desde la zona de distribución hacia el destino final. No representan una trayectoria física real.</p></div></div>`;
  }
  function distributionView(ctx,projection,state){
   const f=ensureState(state).dist,base=projection.base,model=distributionModel(projection,ctx.team,f);
@@ -108,18 +130,20 @@
  const quadOrder=['C','B','D','A'];
  function courtCells(model,f){const len=f.expanded?9:6,zones=(f.expanded?[4,3,2,5,6,1,7,8,9]:[4,3,2,5,6,1]);
   const max=Math.max(1,...model.byZone.map(x=>x.items.length));
-  return `<div class="vc19311-analysis-court"><div class="vc19311-court-top">${f.kind==='destination'?'DESTINO DE ACCIONES':'ORIGEN DE ACCIONES'} · RED / NET</div><div class="vc19311-court-grid ${len===9?'is-nine':''}">${zones.map(n=>{
-   const z=model.byZone[n-1],active=f.zone===n,quads=quadOrder.map(q=>{const count=z.items.filter(x=>x.z.quadrant===q).length;return `<button type="button" data-vc19311-quadrant="${n}:${q}" class="${active&&f.quad===q?'is-active':''}" aria-label="Zona ${n}, subzona ${q}: ${count} acciones">${q}${count?' '+count:''}</button>`;}).join('');
-   return `<div class="vc19311-court-zone ${active?'is-selected':''}" style="--intensity:${(z.items.length/max*.5+.08).toFixed(2)}"><button type="button" class="vc19311-zone-action" data-vc19311-zone="${n}" aria-pressed="${active}"><strong>Z${n}</strong><b>${z.items.length||'—'}</b><small>${percentage(pct(z.items.length,model.located.length))}</small></button><div class="vc19311-quad-grid">${quads}</div></div>`;
-  }).join('')}</div><p class="vc19311-help">A: abajo derecha · B: arriba derecha · C: arriba izquierda · D: abajo izquierda. ${f.expanded?'Z7–Z9 son zonas adicionales de codificación, no posiciones reglamentarias.':''}</p></div>`;
+  const topZones=model.byZone.filter(z=>(f.expanded||z.zone<=6)&&z.items.length).sort((a,b)=>b.items.length-a.items.length).slice(0,4).map(z=>`<div class="vc19311-zone-pill"><strong>Z${z.zone}</strong><span>${z.items.length}</span><small>${percentage(pct(z.items.length,model.located.length))}</small></div>`).join('');
+  return `<div class="vc19311-analysis-shell"><div class="vc19311-analysis-court"><div class="vc19311-court-top">${f.kind==='destination'?'DESTINO DE ACCIONES':'ORIGEN DE ACCIONES'} · RED / NET</div><div class="vc19311-court-grid ${len===9?'is-nine':''}">${zones.map(n=>{
+   const z=model.byZone[n-1],active=f.zone===n,quads=quadOrder.map(q=>{const count=z.items.filter(x=>x.z.quadrant===q).length;return `<button type="button" data-vc19311-quadrant="${n}:${q}" class="${active&&f.quad===q?'is-active':''}" aria-label="Zona ${n}, subzona ${q}: ${count} acciones"><span>${q}</span><small>${count||'—'}</small></button>`;}).join('');
+   return `<div class="vc19311-court-zone ${active?'is-selected':''}" style="--intensity:${(z.items.length/max*.52+.08).toFixed(2)}"><button type="button" class="vc19311-zone-action" data-vc19311-zone="${n}" aria-pressed="${active}"><strong>Z${n}</strong><b>${z.items.length||'—'}</b><small>${percentage(pct(z.items.length,model.located.length))}</small></button><div class="vc19311-quad-grid">${quads}</div></div>`;
+  }).join('')}</div></div><aside class="vc19311-court-summary"><div class="vc19311-side-head"><strong>Lectura rápida</strong><span>${model.located.length} acciones con zona</span></div><div class="vc19311-mini-grid">${topZones||'<p class="vc19311-help">Sin zonas explícitas.</p>'}</div><p class="vc19311-help">A: abajo derecha · B: arriba derecha · C: arriba izquierda · D: abajo izquierda. ${f.expanded?'Z7–Z9 son zonas adicionales de codificación, no posiciones reglamentarias.':''}</p></aside></div>`;
  }
  function courtView(ctx,projection,state){const f=ensureState(state).court,base=projection.base,model=courtModel(projection,ctx.team,f),skillOptions=Object.entries(SKILLS).map(([k,x])=>[k,x]);
   const bar=`${filterLabel('Fundamento','court.skill',skillOptions,f.skill)}${filterLabel('Jugador','court.player',unique(base.contacts.filter(c=>c.team===ctx.team&&c.skill===f.skill).map(c=>c.player)),f.player)}${filterLabel('Valoración','court.evaluation',['#','+','!','-','/','='],f.evaluation)}${filterLabel('Mapa','court.kind',[['origin','Origen'],['destination','Destino']],f.kind)}<label>Visualización<select data-vc19311-filter="court.expanded"><option value="false"${!f.expanded?' selected':''}>6 zonas oficiales</option><option value="true"${f.expanded?' selected':''}>9 zonas ampliadas</option></select></label><button type="button" data-vc19311-command="court-clear">Quitar selección</button>`;
   const counts=model.byZone.filter(z=>f.expanded||z.zone<=6).map(z=>`<tr><td><button type="button" data-vc19311-zone="${z.zone}">Z${z.zone}</button></td><td>${z.items.length}</td><td>${percentage(pct(z.items.length,model.located.length))}</td><td>${z.items.filter(x=>x.z.quadrant).length}</td></tr>`).join('');
   const routeRows=model.paths.slice(0,20).map(x=>`<tr><td><button type="button" data-vc19311-path="${esc(x.id)}">Z${x.from} → Z${x.to}</button></td><td>${x.count}</td><td>${percentage(pct(x.count,model.pathItems||model.paths.reduce((n,x)=>n+x.count,0)))}</td></tr>`).join('');
   const keyset=model.rallyKeys;const rallies=teamRallies(base,keyset);
+  const activeLabel=f.path?f.path:(f.zone?`Z${f.zone}${f.quad?` · ${f.quad}`:''}`:'Todas las zonas');
   const html=`<div class="vc19311-title"><div><small>COURT & DIRECTION ANALYSIS</small><h3>Mapas de zonas y trayectorias</h3><span>Selecciona una zona, subzona o dirección para revisar los rallies</span></div><button type="button" data-vc19311-command="court-clear">Limpiar mapa</button></div><div class="vc19311-filterbar">${bar}</div><div class="vc19311-metrics"><div><small>Acciones del filtro</small><strong>${model.chosen.length}</strong></div><div><small>Con zona explícita</small><strong>${model.located.length}</strong></div><div><small>Sin zona registrada</small><strong>${model.missing}</strong></div><div><small>Con origen y destino</small><strong>${model.paths.reduce((n,x)=>n+x.count,0)}</strong></div></div>
-   <div class="vc19311-workspace vc19311-court-layout"><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>PISTA INTERACTIVA</strong><span>${f.zone?'Z'+f.zone+(f.quad||''): 'Todas las zonas'} · ${f.path||'Direcciones libres'}</span></div>${courtCells(model,f)}<div class="vc19311-direction-bar"><strong>Flechas de ataque codificadas</strong><span>${model.paths.reduce((n,x)=>n+x.count,0)} pares origen–destino</span></div><div class="vc19311-direction-board">${directionSvg(model.paths)}<small>Esquema de frecuencias; no reproduce trayectorias físicas medidas.</small></div></section><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>ANÁLISIS DE DESTINOS</strong><span>${rallies.length} rallies seleccionados</span></div><h3>Frecuencias por zona</h3><div class="vc19310-scroll"><table><thead><tr><th>Zona</th><th>N</th><th>Uso</th><th>Subzonas</th></tr></thead><tbody>${counts}</tbody></table></div><h3>Direcciones codificadas</h3><div class="vc19310-scroll"><table><thead><tr><th>Origen → destino</th><th>N</th><th>%</th></tr></thead><tbody>${routeRows||'<tr><td colspan="3">Sin pares explícitos</td></tr>'}</tbody></table></div><p class="vc19311-help">No se infieren zonas ausentes. Los porcentajes de zona utilizan solo acciones con zona conocida.</p></section>${evidence(rallies,'EVIDENCIA DE ZONAS')}</div>`;
+   <div class="vc19311-workspace vc19311-court-layout"><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>PISTA INTERACTIVA</strong><span>${activeLabel} · ${model.paths.length} direcciones</span></div>${courtCells(model,f)}<div class="vc19311-direction-bar"><strong>Mapa de trayectorias codificadas</strong><span>${model.paths.reduce((n,x)=>n+x.count,0)} pares origen–destino</span></div><div class="vc19311-direction-board">${directionSvg(model.paths,{mode:'court',activePath:f.path})}<small>Mapa de frecuencias entre origen y destino. Solo usa pares explícitamente codificados.</small></div></section><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>ANÁLISIS DE DESTINOS</strong><span>${rallies.length} rallies seleccionados</span></div><h3>Frecuencias por zona</h3><div class="vc19310-scroll"><table><thead><tr><th>Zona</th><th>N</th><th>Uso</th><th>Subzonas</th></tr></thead><tbody>${counts}</tbody></table></div><h3>Direcciones codificadas</h3><div class="vc19310-scroll"><table><thead><tr><th>Origen → destino</th><th>N</th><th>%</th></tr></thead><tbody>${routeRows||'<tr><td colspan="3">Sin pares explícitos</td></tr>'}</tbody></table></div><p class="vc19311-help">No se infieren zonas ausentes. Los porcentajes de zona utilizan solo acciones con zona conocida, y las direcciones solo los rallies que tienen origen y destino codificados.</p></section>${evidence(rallies,'EVIDENCIA DE ZONAS')}</div>`;
   return {html,rallies};
  }
  // Restricted arithmetic interpreter: no eval, no Function, no arbitrary identifiers.
