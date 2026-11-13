@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.10';
+ const VERSION='19.3.11';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -139,14 +139,20 @@
    node.querySelector('#vc19310-sample').textContent=`${projection.base.rallies.length} rallies · ${projection.base.contacts.length} contactos · sin alterar el scouting`;
    node.querySelectorAll('[data-vc19310-space]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vc19310Space===state.space)));
    const body=node.querySelector('#vc19310-body');
-   if(state.space==='match')body.innerHTML=matchView(ctx,projection);
+   // V19.3.11 replaces only the professional views, not their data engines.
+   // Fall back safely to V19.3.10 when an optional asset is unavailable.
+   let enhanced=null;
+   try{enhanced=win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
+   catch(e){setStatus('La vista profesional no ha podido cargarse; se utiliza la vista anterior.');}
+   if(enhanced)body.innerHTML=enhanced.html;
+   else if(state.space==='match')body.innerHTML=matchView(ctx,projection);
    else if(state.space==='distribution')body.innerHTML=distributionView(ctx,projection);
    else if(state.space==='court')body.innerHTML=courtView(ctx,projection,state);
    else if(state.space==='search')body.innerHTML=searchView(ctx,projection,state,win.VC_RALLY_SEARCH_1939);
    else if(state.space==='video')body.innerHTML=videoView(ctx,projection);
    else body.innerHTML=worksheetsView(ctx,projection);
    const source=state.space==='search'?(win.VC_RALLY_SEARCH_1939?.query?.(projection.model,{...state.search,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase})?.rallies||[]):projection.base.rallies;
-   const filtered=state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source;
+   const filtered=enhanced?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
    filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
    else if(filtered.length)selectRally(filtered[filtered.length-1].key);
    else state.selected=null;
@@ -159,6 +165,8 @@
    node._vc19310VideoKeys=actionKeys;
   }
   view.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!node?.contains(b))return;
+   const enhancedAction=win.VC_ANALYSIS_SCREENS_19311?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus});
+   if(enhancedAction?.handled){if(enhancedAction.repaint)paint();return;}
    if(b.dataset.vc19310Space){state.space=b.dataset.vc19310Space;state.zone=null;toggleLegacy(false);paint();return;}
    if(b.dataset.vc19310Rot){const s=doc.getElementById('vc157-rotation');if(s){s.value=b.dataset.vc19310Rot;s.dispatchEvent(new win.Event('change',{bubbles:true}));delay();}return;}
    if(b.dataset.vc19310Zone){const n=Number(b.dataset.vc19310Zone);state.zone=state.zone===n?null:n;paint();return;}
@@ -187,6 +195,7 @@
   view.addEventListener('change',e=>{const t=e.target;if(!t)return;
    if(['vc157-match','vc157-team','vc157-set','vc157-phase','vc157-rotation'].includes(t.id)){state.zone=null;state.selected=null;delay();return;}
    if(t.dataset?.vc19310Preset!==undefined&&node?.contains(t)){state.searchPreset=t.value;return;}
+   if(node?.contains(t)&&win.VC_ANALYSIS_SCREENS_19311?.handleChange?.({target:t,state})){paint();return;}
    if(!node?.contains(t)||!t.dataset?.vc19310Filter)return;
    if(t.dataset.vc19310Filter==='Fundamento'){state.courtSkill=t.value;state.zone=null;paint();}
    if(t.dataset.vc19310Filter==='Mapa'){state.courtMode=t.value;state.zone=null;paint();}
