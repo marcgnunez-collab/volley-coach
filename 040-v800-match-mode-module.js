@@ -1,84 +1,68 @@
-/* V19.3.13 · Compact Data Volley style scoreboard overlay for scouting video mode. */
+/* V19.3.13.1 · compact scouting overlay with verified historical scores. */
 
 (()=>{
 'use strict';
-const VERSION='8.0.4';
+const VERSION='8.0.5';
 const $=id=>document.getElementById(id);
 const arr=v=>Array.isArray(v)?v:[];
 const POS=['p1','p2','p3','p4','p5','p6'];
 const EVENT_LABELS={timeout_ours:'Tiempo nuestro',timeout_opponent:'Tiempo rival',challenge_ours:'Challenge nuestro',challenge_opponent:'Challenge rival',card:'Tarjeta',injury:'Lesión',interruption:'Interrupción',note:'Nota táctica',substitution:'Cambio',libero:'Líbero'};
 let ticker=null;
 
-let vc19313OverlayStyles=false;
-function vc19313InjectOverlayStyles(){
-  if(vc19313OverlayStyles||!document?.head)return;
-  vc19313OverlayStyles=true;
-  const style=document.createElement('style');
-  style.id='vc19313-live-video-score-style';
-  style.textContent=`
-  #v800-video-frame .v802-video-overlay.vc19313-live-score{left:10px;top:10px;right:auto;bottom:auto;z-index:6;display:block;max-width:min(235px,72%);padding:0;border-radius:8px;background:rgba(8,20,34,.90);color:#fff;border:1px solid rgba(161,198,233,.40);box-shadow:0 8px 22px rgba(0,0,0,.26);backdrop-filter:blur(6px);overflow:hidden}
-  #v800-video-frame .v802-video-overlay.vc19313-live-score.hidden{display:none!important}
-  #v800-video-frame .vc19313-score-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px;background:rgba(255,255,255,.06);border-bottom:1px solid rgba(163,201,235,.20);font-size:8px;font-weight:900;letter-spacing:.08em;color:#c4dbef;text-transform:uppercase}
-  #v800-video-frame .vc19313-source-badge{padding:1px 5px;border-radius:999px;background:rgba(255,255,255,.10);color:#f2f7fb;font-size:7px}
-  #v800-video-frame .vc19313-score-main{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;padding:6px 8px}
-  #v800-video-frame .vc19313-team{display:grid;gap:1px;min-width:0}
-  #v800-video-frame .vc19313-team.rival{text-align:right}
-  #v800-video-frame .vc19313-team span{font-size:8px;font-weight:800;color:#dce9f4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #v800-video-frame .vc19313-team strong{font-size:26px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;color:#fff}
-  #v800-video-frame .vc19313-score-mid{display:grid;place-items:center;gap:1px;min-width:42px}
-  #v800-video-frame .vc19313-score-mid b{font-size:9px;letter-spacing:.08em;color:#8cc7ff}
-  #v800-video-frame .vc19313-score-mid small{font-size:9px;font-weight:900;color:#eff7ff}
-  #v800-video-frame .vc19313-team.is-serving strong::before{content:'● ';color:#ff9f57;font-size:10px;vertical-align:middle}
-  #v800-video-frame .vc19313-score-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px 5px;border-top:1px solid rgba(163,201,235,.16);font-size:7.5px;color:#c5d7e5}
-  #v800-video-frame .vc19313-score-foot b{color:#fff;font-weight:800}
-  #v800-video-frame .vc19313-clock{font-variant-numeric:tabular-nums;color:#91c6f6}
-  @media(max-width:720px){
-    #v800-video-frame .v802-video-overlay.vc19313-live-score{left:6px;top:6px;max-width:78%;border-radius:7px}
-    #v800-video-frame .vc19313-score-head{padding:3px 6px;font-size:7px}
-    #v800-video-frame .vc19313-score-main{gap:6px;padding:5px 6px}
-    #v800-video-frame .vc19313-team span{font-size:7px}
-    #v800-video-frame .vc19313-team strong{font-size:20px}
-    #v800-video-frame .vc19313-score-mid b{font-size:8px}
-    #v800-video-frame .vc19313-score-mid small{font-size:8px}
-    #v800-video-frame .vc19313-score-foot{padding:3px 6px 4px;font-size:6.5px}
-  }`;
-  document.head.appendChild(style);
+// V19.3.13.1: use one read-only score model for LIVE and historically verified replay.
+const VC_SCORE_PREFERENCE='vc19312:score-overlay:v1';
+let vc193131Enabled=true;
+let vc193131LastContent='';
+try{vc193131Enabled=localStorage.getItem(VC_SCORE_PREFERENCE)!=='off'}catch(_){}
+function vc193131Escape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function vc193131Controls(){
+  const heading=$('v800-video-frame')?.parentElement?.querySelector('.v800-card-head .v802-video-badges');
+  if(!heading||heading.querySelector('#vc193131-toggle'))return;
+  const btn=document.createElement('button');btn.type='button';btn.id='vc193131-toggle';
+  btn.className='vc193131-toggle';btn.setAttribute('aria-label','Mostrar u ocultar el marcador del vídeo');
+  btn.addEventListener('click',()=>{
+    vc193131Enabled=!vc193131Enabled;
+    try{localStorage.setItem(VC_SCORE_PREFERENCE,vc193131Enabled?'on':'off')}catch(_){}
+    window.VC_VIDEO_SCORE_19312_STATE?.setEnabled?.(vc193131Enabled);
+    vc193131LastContent='';vc193131RenderVideoOverlay();
+  });
+  heading.prepend(btn);
 }
-function vc19313ShortName(name,fallback='EQ'){
-  const clean=String(name||'').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
-  if(!clean)return fallback;
-  const parts=clean.split(' ').filter(Boolean);
-  if(parts.length>=2)return (parts[0].slice(0,1)+parts[1].slice(0,1)).toUpperCase();
-  return clean.slice(0,3).toUpperCase();
-}
-function vc19313CurrentScoreMarkup(m){
-  const set=setOf(m)||null;
-  const setNo=Number(m?.currentSet||set?.number)||1;
-  const us=Number(set?.scoreUs)||0,op=Number(set?.scoreOpponent)||0;
-  const ourName=vc19313ShortName(teamName(),'VC');
-  const oppName=vc19313ShortName(m?.opponent,'RIV');
-  const serving=m?.servingTeam==='opponent'?'opponent':'ours';
-  const sourceLabel=media.videoMode==='delay'?'DELAY':media.source==='youtube'?'YOUTUBE':media.source==='local'?'ARCHIVO':'DIRECTO';
-  const rallyCount=(arr(set?.rallies).length||0)+1;
-  const clock=mediaIsReview()?formatMediaTime(mediaCurrent()):elapsed(m);
-  return `<div class="vc19313-score-head"><span>SET ${setNo}</span><span class="vc19313-source-badge">${sourceLabel}</span></div>
-  <div class="vc19313-score-main">
-    <div class="vc19313-team ours ${serving==='ours'?'is-serving':''}"><span>${ourName}</span><strong>${us}</strong></div>
-    <div class="vc19313-score-mid"><b>SCOUT</b><small>-</small></div>
-    <div class="vc19313-team rival ${serving==='opponent'?'is-serving':''}"><span>${oppName}</span><strong>${op}</strong></div>
-  </div>
-  <div class="vc19313-score-foot"><span>R${Number(m?.rotationNo)||1} · vs R${Number(m?.opponentRotationNo)||1} · <b>Rally ${rallyCount}</b></span><span class="vc19313-clock">${clock}</span></div>`;
-}
-function vc19313RenderVideoOverlay(){
-  vc19313InjectOverlayStyles();
-  const overlay=$('v802-video-overlay');
-  if(!overlay)return;
+function vc193131RenderVideoOverlay(){
+  const overlay=$('v802-video-overlay');if(!overlay)return;
+  vc193131Controls();
+  const control=$('vc193131-toggle');
+  if(control){control.textContent=vc193131Enabled?'Marcador · ON':'Marcador · OFF';control.setAttribute('aria-pressed',String(vc193131Enabled));}
   const m=match();
-  const visible=!!m && (mediaLoaded() || (media.source==='live' && mobileConnected()));
-  if(!visible){overlay.classList.add('hidden');overlay.classList.remove('vc19313-live-score');overlay.innerHTML='';return;}
-  overlay.classList.remove('hidden');
-  overlay.classList.add('vc19313-live-score');
-  overlay.innerHTML=vc19313CurrentScoreMarkup(m);
+  const visible=!!m&&vc193131Enabled&&!!mediaLoaded();
+  if(!visible){overlay.classList.add('hidden');overlay.classList.remove('vc193131-score-overlay');overlay.replaceChildren();vc193131LastContent='';return;}
+  const model=window.VC_SCOUT_SCORE_MODEL_193131;
+  if(!model){overlay.classList.add('hidden');return;}
+  const mode=model.modeOf(media);
+  const display=model.presentation({match:m,currentSet:setOf(m),media,
+    api:window.VC_VIDEO_SCORE_19312,seconds:mode==='live'||mode==='delay'?null:mediaCurrent(),ourName:teamName()});
+  const isScore=display.kind==='live'||display.kind==='history';
+  const clock=mode==='live'?elapsed(m):mode==='delay'?'—':model.formatTime(mediaCurrent());
+  let markup;
+  if(!isScore){
+    markup=`<div class="vc193131-unavailable"><strong>${vc193131Escape(display.source||'VÍDEO')}</strong><span>${vc193131Escape(display.reason||'Sin marcador verificado')}</span></div>`;
+  }else{
+    const own=vc193131Escape(display.ourName),opp=vc193131Escape(display.rivalName);
+    const r1=display.ownRotation==null?'—':display.ownRotation;
+    const r2=display.rivalRotation==null?'—':display.rivalRotation;
+    const service1=display.serving==='ours'?' is-serving':'',service2=display.serving==='opponent'?' is-serving':'';
+    const setWins=display.sets?`${display.sets.ours}–${display.sets.opponent} sets`:'Rally '+display.rally;
+    markup=`<div class="vc193131-head"><span>${display.source}</span><b>SET ${display.set}</b></div>
+     <div class="vc193131-main"><div class="vc193131-team${service1}"><small>${own}</small><strong>${display.ours}</strong></div><span class="vc193131-divider">:</span><div class="vc193131-team rival${service2}"><small>${opp}</small><strong>${display.opponent}</strong></div></div>
+     <div class="vc193131-bottom"><span>${setWins} · R${r1}/R${r2}</span><time class="vc193131-clock">${clock}</time></div>`;
+  }
+  overlay.classList.remove('hidden');overlay.classList.add('vc193131-score-overlay');
+  // Avoid recreating all DOM nodes on every periodic poll. Update only the clock.
+  if(markup!==vc193131LastContent){
+    const key=isScore?markup.replace(/(<time class="vc193131-clock">).*?(<\/time>)/,'$1$2'):markup;
+    if(key!==vc193131LastContent){overlay.innerHTML=markup;vc193131LastContent=key;return;}
+  }
+  const timeNode=overlay.querySelector('.vc193131-clock');if(timeNode&&timeNode.textContent!==clock)timeNode.textContent=clock;
 }
 
 let media={
@@ -419,7 +403,7 @@ function refreshMediaStatus(){
     sync.className=`v800-status ${hasExact?'exact':m?.video?.syncOffset!=null?'synced':''}`;
   }
   if(overlay){
-    vc19313RenderVideoOverlay();
+    vc193131RenderVideoOverlay();
   }
 }
 function formatMediaTime(sec){
@@ -706,7 +690,7 @@ function render(){
     $('v800-title').textContent=saved.length?'Scouting guardado disponible':'Sin partido activo';
     $('v800-meta').textContent=saved.length?`${saved.length} scouting(s) en curso guardado(s). Selecciona uno para continuar.`:'Abre o crea un scouting para empezar.';
     const resume=$('v800-resume-btn');if(resume)resume.classList.toggle('hidden',!saved.length);
-    vc19313RenderVideoOverlay();
+    vc193131RenderVideoOverlay();
     return;
   }
 
@@ -771,7 +755,7 @@ function render(){
   if(needVideo){
     syncVideo();renderREC();refreshMediaStatus();refreshMobileStatus();
   }
-  vc19313RenderVideoOverlay();
+  vc193131RenderVideoOverlay();
 }
 // Refresh the *existing* court elements when theater is first opened.
 // Render only six slots per team and do not write to local storage or cloud.
@@ -901,5 +885,6 @@ window.VC_MATCH_MODE_MEDIA={
   localName:()=>media.localFile?.name||null,
   youtubeId:()=>media.youtubeId||null
 };
+window.VC_SCOUT_SCORE_193131_VIEW={version:'19.3.13.1',refresh:vc193131RenderVideoOverlay,enabled:()=>vc193131Enabled};
 window.v800Diagnostics=()=>({version:VERSION,active:!!match(),matchId:match()?.id||null,openSaved:openMatches().map(m=>({id:m.id,opponent:m.opponent,status:m.status,manualSavedAt:m.manualSavedAt||null})),selectedId:Number($('v800-match-select')?.value)||null,set:match()?.currentSet||null,rotation:match()?.rotationNo||null,mediaSource:media.source,videoMode:media.videoMode||media.source,mediaLoaded:mediaLoaded(),mediaTime:mediaCurrent(),youtubeId:media.youtubeId||null,localFile:media.localFile?.name||null,mobileConnected:mobileConnected(),mobile:mobileDiagnostics(),liveVideo:!!$('live-delay-live')?.srcObject,recording:typeof window.vcRecordingDiagnostics==='function'?window.vcRecordingDiagnostics():null});
 })();
