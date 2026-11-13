@@ -2,9 +2,11 @@
 (()=>{
 'use strict';
 
-const VERSION='19.2.1';
+const VERSION='19.2.5';
 const DB_NAME='VolleyCoachRecordingsV770';
 const DB_VERSION=1;
+// Avoid allocating a second multi-hundred-MB Blob during long REC finalization.
+const MAX_AUTO_ASSEMBLE_BYTES=96*1024*1024;
 const $=id=>document.getElementById(id);
 
 const state={
@@ -58,6 +60,7 @@ function fmtBytes(bytes){
   if(bytes<1024*1024*1024)return `${(bytes/1024/1024).toFixed(1)} MB`;
   return `${(bytes/1024/1024/1024).toFixed(2)} GB`;
 }
+function htmlSafe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function safeName(v){
   return String(v||'Volley_Coach')
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -717,6 +720,21 @@ async function finalizeSession(){
       last.textContent=`✓ Vídeo guardado como archivo normal · ${state.filename}.${state.extension} · ${fmtTime(durationMs)} · ${fmtBytes(state.bytes)}`;
     }
   }else{
+    // A long match remains recoverable in IndexedDB. Exporting it in one Blob
+    // during stop could exhaust RAM, especially on iOS/Android. The existing
+    // Recording Pro exporter reads bounded batches and can write to disk.
+    if(!state.durableChunks||state.durableChunks!==state.chunkIndex){
+      throw new Error('El número de fragmentos guardados no coincide con REC. Conserva la sesión para recuperarla.');
+    }
+    if(state.durableBytes>MAX_AUTO_ASSEMBLE_BYTES){
+      finalBytes=state.durableBytes;
+      const last=$('vc-recording-last');
+      if(last){
+        last.classList.remove('v871-saved','v871-warn');last.classList.add('v871-warn');
+        last.textContent=`REC conservado localmente · ${fmtBytes(finalBytes)} · abre Vídeo > Videoteca para exportar el vídeo. No borres datos del navegador.`;
+      }
+      if(autoSave)downloadJSON(metadataPayload({...baseSession,bytes:finalBytes,chunkCount:state.durableChunks}),`${state.filename}_marcadores.json`);
+    }else{
     const chunks=await dbChunks(state.sessionId);
     if(!chunks.length)throw new Error('La grabación no contiene fragmentos recuperables.');
     const blob=new Blob(chunks.map(x=>x.blob),{type:state.mime||'video/webm'});
@@ -757,12 +775,13 @@ async function finalizeSession(){
           :`Vídeo preparado · usa “Guardar archivo de vídeo” · ${fmtTime(durationMs)} · ${fmtBytes(blob.size)}`;
       }
     }
+    } // Small files only: Blob assembly for native gallery/download.
   }
 
   if(state.writeError)throw new Error('Se produjo un error al escribir uno o más fragmentos. El vídeo puede estar incompleto.');
   if(state.recorderError)throw new Error('MediaRecorder informó de un error durante la grabación.');
 
-  const session={...baseSession,bytes:finalBytes,completed:true,error:null};
+  const session={...baseSession,bytes:finalBytes,chunkCount:state.mode==='disk'?0:state.durableChunks,completed:true,error:null};
   await dbPutSession(session);
   return session;
 }
@@ -787,7 +806,9 @@ window.vcRecordingStop=async function(silent=false){
     setState('GUARDADO','done');
     if(!silent){
       if(state.mode==='disk')alert(`Grabación guardada como vídeo normal del dispositivo.\n\n${state.filename}.${state.extension}`);
-      else if(state.mode==='gallery'){
+      else if(state.mode!=='disk'&&state.durableBytes>MAX_AUTO_ASSEMBLE_BYTES){
+        alert('Grabación conservada en este navegador. Por seguridad no se ha reunido el vídeo completo en memoria. Entra en Vídeo > Videoteca y pulsa Exportar vídeo. No elimines los datos del navegador.');
+      }else if(state.mode==='gallery'){
         if(state.lastGalleryFile)alert('Grabación finalizada. Si el sistema no la ha añadido todavía a Fotos/Galería, pulsa “Guardar en Fotos / Galería”.');
       }else if(autosaveEnabled())alert(`Grabación finalizada. Se ha preparado el archivo de vídeo.\n\n${state.filename}.${state.extension}`);
       else alert('Grabación finalizada. Puedes guardarla con “Guardar archivo de vídeo”.');
@@ -816,28 +837,40 @@ window.vcRecordingRecover=async function(){
     let modal=document.getElementById('vc-rec-recovery');
     if(modal)modal.remove();
     modal=document.createElement('div');modal.id='vc-rec-recovery';modal.className='vc-rec-recovery';
-    const rows=browserSessions.map(s=>`<div class="vc-rec-recovery-row">
-      <div><strong>${String(s.filename||s.id)}</strong><small>${String(s.startedAt||'')} · ${fmtTime(s.durationMs||0)} · ${fmtBytes(s.bytes||0)} · ${s.completed?'finalizada':'interrumpida / recuperable'}</small></div>
-      <div><button class="primary" onclick="vcRecordingExportRecovered('${s.id}')">Descargar</button><button class="danger" onclick="vcRecordingDeleteRecovered('${s.id}')">Eliminar</button></div>
+    const rows=browserSessions.map(s=>`<div class="vc-rec-recovery-row" data-vc-recovery-id="${htmlSafe(s.id)}">
+      <div><strong>${htmlSafe(s.filename||s.id)}</strong><small>${htmlSafe(s.startedAt||'')} · ${fmtTime(s.durationMs||0)} · ${fmtBytes(s.bytes||0)} · ${s.completed?'finalizada':'interrumpida / recuperable'}</small></div>
+      <div><button class="primary" data-vc-recovery-action="export">Descargar</button><button class="danger" data-vc-recovery-action="delete">Eliminar</button></div>
     </div>`).join('');
     modal.innerHTML=`<div class="vc-rec-recovery-card"><h3>Grabaciones recuperables</h3><p style="font-size:9px;color:#71818d">Fragmentos guardados en este navegador. Puedes descargar o eliminar cada sesión.</p><div class="vc-rec-recovery-list">${rows||'<div class="vc-recording-help">No hay grabaciones guardadas en el navegador.</div>'}</div><div style="margin-top:10px;text-align:right"><button class="ghost" id="vc-rec-recovery-close">Cerrar</button></div></div>`;
-    modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
+    modal.addEventListener('click',e=>{
+      if(e.target===modal){modal.remove();return}
+      const button=e.target.closest?.('[data-vc-recovery-action]');
+      const id=button?.closest?.('[data-vc-recovery-id]')?.dataset?.vcRecoveryId;
+      if(!id)return;
+      if(button.dataset.vcRecoveryAction==='export')void window.vcRecordingExportRecovered(id);
+      if(button.dataset.vcRecoveryAction==='delete')void window.vcRecordingDeleteRecovered(id);
+    });
     document.body.appendChild(modal);
     $('vc-rec-recovery-close')?.addEventListener('click',()=>modal.remove());
   }catch(err){alert('No se han podido leer las grabaciones recuperables.\n\n'+String(err?.message||err))}
 };
 window.vcRecordingExportRecovered=async function(id){
   try{
+    if(typeof window.VC_RECORDING_PRO?.export==='function'){
+      return await window.VC_RECORDING_PRO.export(id);
+    }
     const sessions=await dbSessions(),s=sessions.find(x=>x.id===id);
     if(!s)throw new Error('No se encuentra la sesión.');
     const chunks=await dbChunks(id);
     if(!chunks.length)throw new Error('No hay fragmentos guardados.');
+    if((s.bytes||0)>MAX_AUTO_ASSEMBLE_BYTES)throw new Error('Para esta grabación grande se necesita Recording Pro, que exporta los fragmentos por lotes.');
     const blob=new Blob(chunks.map(x=>x.blob),{type:s.mime||'video/webm'});
     offerDownload(blob,`${s.filename}.${extForMime(s.mime)}`);
     downloadJSON(metadataPayload({...s,bytes:blob.size}),`${s.filename}_marcadores.json`);
   }catch(err){alert('No se ha podido recuperar la grabación.\n\n'+String(err?.message||err))}
 };
 window.vcRecordingDeleteRecovered=async function(id){
+  if(state.active&&String(id)===String(state.sessionId)){alert('No se puede eliminar una grabación en curso. Finaliza REC antes.');return false;}
   if(!confirm('¿Eliminar definitivamente esta grabación recuperable del navegador?'))return;
   await dbDeleteSession(id);window.vcRecordingRecover();
 };
