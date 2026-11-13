@@ -9,8 +9,8 @@
  if(root&&root.document){root.VC_ANALYSIS_MAIN_1937=api;api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.8',SKILLS={A:'Ataque',R:'Recepción',S:'Saque',E:'Distribución',B:'Bloqueo',D:'Defensa'};
- const TABS=[['overview','Resumen'],['rotations','Rotaciones'],['distribution','Colocador'],['attack','Ataque'],['reception','Recepción'],['serve','Saque'],['defense','Defensa'],['video','Vídeo y rallies'],['data','Datos y posesiones']];
+ const VERSION='19.3.9',SKILLS={A:'Ataque',R:'Recepción',S:'Saque',E:'Distribución',B:'Bloqueo',D:'Defensa'};
+ const TABS=[['overview','Resumen'],['rotations','Rotaciones'],['distribution','Colocador'],['attack','Ataque'],['reception','Recepción'],['serve','Saque'],['defense','Defensa'],['video','Vídeo y rallies'],['data','Datos y posesiones'],['search','Buscar rallies']];
  const $=(doc,id)=>doc.getElementById(id);
  const arr=v=>Array.isArray(v)?v:[];
  const txt=v=>String(v??'').trim();
@@ -83,7 +83,7 @@
  function mount(win){const doc=win.document,view=$(doc,'scout-analysis');if(!view)return;
   let state={tab:'overview',zone:null,selectedRally:null,advanced:false};let attached=false,renderQueued=false,observer=null,matchObserver=null;
   function sync(){const studio=$(doc,'vc157-studio');if(!studio||!view.classList.contains('active')||view.classList.contains('vc1930-active'))return;
-   if(!attached){attached=true;view.classList.add('vc1937-primary');const bar=doc.createElement('header');bar.id='vc1937-head';bar.className='vc1937-head';bar.innerHTML='<div><small>VOLLEY COACH · V19.3.8</small><h2>ANALYSIS PRO WORKSPACE</h2><p>Datos · rotaciones · pista · rallies · vídeo</p></div><div class="vc1937-actions"><button type="button" data-vc1937-action="rival">Preparación de rivales</button><button type="button" data-vc1937-action="official">PDF oficial</button><button type="button" data-vc1937-action="csv">Exportar CSV</button><button type="button" data-vc1937-action="advanced">Herramientas avanzadas</button><label class="vc1937-tool-label">Sección avanzada <select id="vc1937-tool"><option value="overview:">Resumen del partido</option><option value="players:builder">Hojas configurables</option><option value="players:sheet">Hoja oficial</option><option value="lab:rotations">Rotaciones K1/K2</option><option value="lab:distribution">Distribución del colocador</option><option value="lab:zones">Zonas y direcciones</option><option value="lab:sequences">Secuencias</option><option value="athletes:profile">Ficha individual</option><option value="comparisons:matches">Comparar partidos</option><option value="reports:">Informes Pro</option></select></label></div>';studio.querySelector('.vc157-toolbar')?.before(bar);
+   if(!attached){attached=true;view.classList.add('vc1937-primary');const bar=doc.createElement('header');bar.id='vc1937-head';bar.className='vc1937-head';bar.innerHTML='<div><small>VOLLEY COACH · V19.3.9</small><h2>ANALYSIS PRO WORKSPACE</h2><p>Datos · rotaciones · pista · rallies · vídeo</p></div><div class="vc1937-actions"><button type="button" data-vc1937-action="rival">Preparación de rivales</button><button type="button" data-vc1937-action="official">PDF oficial</button><button type="button" data-vc1937-action="csv">Exportar CSV</button><button type="button" data-vc1937-action="advanced">Herramientas avanzadas</button><label class="vc1937-tool-label">Sección avanzada <select id="vc1937-tool"><option value="overview:">Resumen del partido</option><option value="players:builder">Hojas configurables</option><option value="players:sheet">Hoja oficial</option><option value="lab:rotations">Rotaciones K1/K2</option><option value="lab:distribution">Distribución del colocador</option><option value="lab:zones">Zonas y direcciones</option><option value="lab:sequences">Secuencias</option><option value="athletes:profile">Ficha individual</option><option value="comparisons:matches">Comparar partidos</option><option value="reports:">Informes Pro</option></select></label></div>';studio.querySelector('.vc157-toolbar')?.before(bar);
     const work=studio.querySelector('.vc157-work');if(work)work.prepend(build(doc));
     const sample=$(doc,'vc157-sample');if(sample){matchObserver=new win.MutationObserver(queue);matchObserver.observe(sample,{childList:true,characterData:true,subtree:true});}
     const switcher=$(doc,'vc157-tabs');if(switcher){const obs=new win.MutationObserver(()=>{if(!state.advanced)return;});obs.observe(switcher,{childList:true});}
@@ -96,7 +96,7 @@
    try{ctx=selectContext(win);}catch(err){console.warn('Analysis Main V19.3.7: solo lectura',err);}
    if(!ctx){panel.querySelector('.vc1937-kpis').innerHTML='<p class="vc1937-empty">Selecciona un scouting para empezar el análisis.</p>';panel.querySelector('.vc1937-left-body').innerHTML='';panel.querySelector('.vc1937-courtbody').innerHTML='';panel.querySelector('.vc1937-rallies').innerHTML='';return}
    panel.querySelectorAll('[data-vc1937-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.vc1937Tab===state.tab)));
-   if(state.tab!=='data'){
+   if(state.tab!=='data'&&state.tab!=='search'){
     const leftHead=panel.querySelector('.vc1937-left>header strong');if(leftHead)leftHead.textContent='ESTADÍSTICAS';
     const centerHead=panel.querySelector('.vc1937-center>header strong');if(centerHead)centerHead.textContent='PISTA TÁCTICA';
     const reset=panel.querySelector('.vc1937-center>header [data-vc1937-reset]');if(reset)reset.hidden=false;
@@ -108,16 +108,17 @@
    const cmap=courtData(ctx.data,state.tab,ctx.team);panel.querySelector('.vc1937-courtbody').innerHTML=courtHtml(cmap,state.zone);
    const selected=ctx.data.rallies.filter(r=>!state.zone||r.actions.some(a=>a.team===ctx.team&&a.skill===cmap.skill&&zone(a.a?.[cmap.skill==='E'?'setTarget':cmap.skill==='R'?'contactZone':cmap.skill==='D'?'contactZone':'endZone'])?.n===state.zone));
    const list=panel.querySelector('.vc1937-rallies');const rows=selected.slice(-150).reverse();
-   list.innerHTML=rows.length?rows.map((r,i)=>`<button type="button" class="vc1937-rally${state.selectedRally===`${r.set}:${r.id}`?' is-selected':''}" data-vc1937-rally="${esc(r.set+':'+r.id)}" role="option" aria-selected="${state.selectedRally===`${r.set}:${r.id}`}"><b>#${r.index} · Set ${r.set}</b><span>R${ctx.team==='ours'?r.rotation||'?':r.opponentRotation||'?'} · ${phaseFor(r,ctx.team)}</span><em class="${r.winning===ctx.team?'win':'lose'}">${r.winning===ctx.team?'Ganado':'Perdido'}</em></button>`).join(''):'<p class="vc1937-empty">Sin rallies con estos filtros y zona.</p>';
+   list.innerHTML=rows.length?rows.map((r,i)=>`<button type="button" class="vc1937-rally${state.selectedRally===`${r.set}:${r.id}`?' is-selected':''}" data-vc1937-rally="${esc(r.set+':'+r.id)}" role="option" aria-selected="${state.selectedRally===`${r.set}:${r.id}`}"><b>#${r.index} · Set ${r.set}</b><span>R${ctx.team==='ours'?r.rotation||'?':r.opponentRotation||'?'} · ${phaseFor(r,ctx.team)}</span><em class="${r.winning===ctx.team?'win':'lose'}">${!r.winning?'Sin cerrar':r.winning===ctx.team?'Ganado':'Perdido'}</em></button>`).join(''):'<p class="vc1937-empty">Sin rallies con estos filtros y zona.</p>';
    panel.querySelector('.vc1937-rally-count').textContent=`${selected.length} rallies`;
    panel._vc1937Ctx=ctx;panel._vc1937VisibleRallies=selected;
    const chosen=selected.find(r=>`${r.set}:${r.id}`===state.selectedRally)||selected[selected.length-1]||null;
    if(chosen){state.selectedRally=`${chosen.set}:${chosen.id}`;showRally(panel,ctx,chosen)}else{state.selectedRally=null;panel.querySelector('.vc1937-rally-detail').textContent='No hay jugadas en la selección.';panel.querySelector('.vc1937-open-video').disabled=true}
    win.VC_DATA_ENGINE_1938?.decorate?.(panel,ctx,state.tab);
+   win.VC_RALLY_SEARCH_1939?.decorate?.(panel,ctx,state.tab);
    const current=list.querySelector(`[data-vc1937-rally="${win.CSS?.escape?.(state.selectedRally||'')||''}"]`);if(current){current.classList.add('is-selected');current.setAttribute('aria-selected','true')}
   }
   function showRally(panel,ctx,r){const actions=r.actions.filter(a=>a.team===ctx.team),playable=actions.filter(a=>a.video&&a.key);
-   panel.querySelector('.vc1937-rally-detail').textContent=`Set ${r.set} · Rally ${r.index} · ${phaseFor(r,ctx.team)} · ${r.winning===ctx.team?'Punto nuestro':'Punto rival'} · ${actions.length} acciones · ${playable.length} con vídeo`;
+   panel.querySelector('.vc1937-rally-detail').textContent=`Set ${r.set} · Rally ${r.index} · ${phaseFor(r,ctx.team)} · ${!r.winning?'Rally sin cerrar':r.winning===ctx.team?'Punto nuestro':'Punto rival'} · ${actions.length} acciones · ${playable.length} con vídeo`;
    panel.querySelector('.vc1937-open-video').disabled=!playable.length||!win.VC_VIDEO_ANALYTICS_1612?.openKeys;
    panel._vc1937Video={id:ctx.match.id,keys:playable.map(a=>a.key)};
   }
