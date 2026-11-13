@@ -8463,6 +8463,7 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
   syncPromise=(async()=>{
     const expectedUserId=String(cloudUser?.id||'');
     if(manual)setStatus('Sincronizando…','syncing');
+    let requiresReview=false;
     try{
       let remoteApplied=false,mustWrite=false,wasConflict=false,confirmed=false;
       for(let attempt=0;attempt<MAX_CONFLICT_RETRIES;attempt++){
@@ -8503,11 +8504,10 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
           if(dirty&&(typeof conflictGuard?.prepare!=='function'||typeof conflictGuard?.mergeGuarded!=='function'))
             throw Error('V19.1.5: módulo de conflictos no disponible. Sin sincronizar cambios locales para evitar sobrescrituras.');
           const conflictPlan=dirty&&conflictGuard.prepare(localBefore,remote.state,stamp);
-          const deleteConflicts=dirty&&window.VC_V1917_UNIVERSAL?.deletionConflicts?.(
-            localBefore,remote.state,conflictGuard?.getBaseline?.(),conflictGuard?.pure?.digest)||[];
+          const deleteConflicts=dirty?(conflictPlan?.deletionConflicts||[]):[];
           if(deleteConflicts.length){
             const example=deleteConflicts[0];
-            const blocked=new Error(`V19.1.7: ${deleteConflicts.length} conflicto(s) entre edición y eliminación (${example.team}/${example.type}). Descarga JSON de ambos dispositivos antes de resolver. No se han sobrescrito datos.`);
+            const blocked=new Error(`V19.3.11.2: ${deleteConflicts.length} conflicto(s) entre edición y eliminación (${example.team}/${example.type}). Abre Conexión nube para comparar las versiones y resolver con copias de seguridad.`);
             blocked.code='VC1917_DELETE_CONFLICT';throw blocked;
           }
           if(conflictPlan?.conflicts?.length){
@@ -8558,8 +8558,8 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
       if(indicator)indicator.textContent=dirty?'◷ Guardado local · nube pendiente':confirmed?'✓ Confirmado por la nube':'✓ Guardado · nube al día';
       if(manual)alert(dirty?'Se han recibido cambios, pero quedan modificaciones por subir.':confirmed?'Datos fusionados y confirmados por la nube.':remoteApplied?'Cambios recibidos de la nube.':'Nube comprobada. No había cambios pendientes.');
       return remoteApplied||confirmed;
-    }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');console.warn('V15.3.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}else setStatus(err?.code==='VC1915_CONFLICT'?'Revisión necesaria · abre Nube para resolver conflictos':'Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty&&err?.code!=='VC1915_CONFLICT')scheduleDirty('retry');return false}
-    finally{syncPromise=null;if(dirty&&connected()&&!lastSyncError.includes('registros tienen cambios incompatibles'))scheduleDirty('revision-pending')}
+    }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');requiresReview=err?.code==='VC1915_CONFLICT'||err?.code==='VC1917_DELETE_CONFLICT';console.warn('V15.3.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}else setStatus(requiresReview?'Revisión necesaria · abre Nube para resolver conflictos':'Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty&&!requiresReview)scheduleDirty('retry');return false}
+    finally{syncPromise=null;if(dirty&&connected()&&!requiresReview&&!lastSyncError.includes('registros tienen cambios incompatibles'))scheduleDirty('revision-pending')}
   })();return syncPromise;
 }
 async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'){if(dirty)markDirty('force:'+reason)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
@@ -13363,9 +13363,9 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 
 <script id="vc1910-data-reliability" src="./171-vc1910-data-reliability.js?v=19.1.2" defer data-vc-module="true"></script>
 <script id="vc1912-match-consolidation" src="./172-vc1912-match-consolidation.js?v=19.1.3" defer data-vc-module="true"></script>
-<script id="vc1915-conflicts-recovery" src="./173-vc1915-conflicts-recovery.js?v=19.1.9" defer data-vc-module="true"></script>
+<script id="vc1915-conflicts-recovery" src="./173-vc1915-conflicts-recovery.js?v=19.3.11.2" defer data-vc-module="true"></script>
 <script id="vc1916-undo-realtime" src="./174-vc1916-scout-undo-realtime.js?v=19.1.6" defer data-vc-module="true"></script>
-<script id="vc1917-universal-sync" src="./175-vc1917-universal-sync.js?v=19.1.7" defer data-vc-module="true"></script>
+<script id="vc1917-universal-sync" src="./175-vc1917-universal-sync.js?v=19.3.11.2" defer data-vc-module="true"></script>
 <!-- V19.2.4 · Clip Studio definitivo: unify existing catalogue and playlists. -->
 <link rel="stylesheet" href="./vc1924-clip-studio.css?v=19.2.4">
 <!-- V19.2.0 · Connection Hub; presentation over V7.6 WebRTC and V18.4 capture. -->

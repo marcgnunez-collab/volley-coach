@@ -123,18 +123,45 @@
         for(const [id,record] of lhs){
           if(rhs.has(id)||!remoteT.has(id))continue;
           const base=getBaselineDigest(baseline,team,type,id);
-          if(!base||digest(record)!==base)issues.push({team,type,id,where:'nube',reason:'El dispositivo editó un registro que otro dispositivo eliminó.'});
+          if(!base||digest(record)!==base)issues.push({key:JSON.stringify(['delete',team,type,id]),team,type,id,where:'nube',editedDigest:digest(record),deletedAt:remoteT.get(id),label:String(record?.nombre||record?.titulo||record?.opponent||record?.rival||id).slice(0,120),uncertain:!base,reason:'El dispositivo editó un registro que otro dispositivo eliminó.'});
         }
         for(const [id,record] of rhs){
           if(lhs.has(id)||!localT.has(id))continue;
           const base=getBaselineDigest(baseline,team,type,id);
-          if(!base||digest(record)!==base)issues.push({team,type,id,where:'local',reason:'La nube editó un registro que este dispositivo eliminó.'});
+          if(!base||digest(record)!==base)issues.push({key:JSON.stringify(['delete',team,type,id]),team,type,id,where:'local',editedDigest:digest(record),deletedAt:localT.get(id),label:String(record?.nombre||record?.titulo||record?.opponent||record?.rival||id).slice(0,120),uncertain:!base,reason:'La nube editó un registro que este dispositivo eliminó.'});
         }
       }
     }
     return issues;
   }
-  const pure={VERSION,TYPES,LEGACY,stamp,tombMap,tombstones,mark,revive,filterList,mergeTeam,filterDeletedTeam,indexIds,diff,authorizedMassDelete,deletionConflicts};
+  // V19.3.11.2: la decisión se aplica sobre COPIAS de ambos estados para que
+  // el merge heredado no recupere un scouting eliminado ni pierda una edición.
+  // Solo acepta decisiones que prepare() ha comparado contra ambos estados.
+  function applyDeletionDecisions(local,remote,decisions){
+    const l=JSON.parse(JSON.stringify(local)),r=JSON.parse(JSON.stringify(remote));
+    for(const decision of arr(decisions)){
+      const {team,type,id,where,use}=decision;
+      if(!TYPES.includes(type)||!idOf({id})||!['nube','local'].includes(where)||!['edited','deleted'].includes(use))throw Error('Resolución de borrado no válida.');
+      const lt=l.equiposData?.[team],rt=r.equiposData?.[team];
+      if(!lt||!rt)throw Error('El equipo ya no coincide con el conflicto revisado.');
+      if(use==='edited'){
+        // La recuperación explícita elimina la marca de baja antigua de ambos
+        // lados; de otro modo la función filterDeletedTeam la descartaría.
+        revive(lt,type,id);revive(rt,type,id);
+      }else{
+        const record=arr((where==='nube'?lt:rt)[type]).find(x=>idOf(x)===Number(id));
+        if(!record)throw Error('La edición que se iba a descartar ya no está disponible.');
+        const at=Math.max(Date.now(),Number(decision.deletedAt)||0,stamp(record)+1);
+        for(const source of [lt,rt]){
+          source[type]=arr(source[type]).filter(x=>idOf(x)!==Number(id));
+          mark(source,type,id,at);
+          if(type==='scoutingMatches'&&Number(source.scoutingActiveId)===Number(id))source.scoutingActiveId=null;
+        }
+      }
+    }
+    return {local:l,remote:r};
+  }
+  const pure={VERSION,TYPES,LEGACY,stamp,tombMap,tombstones,mark,revive,filterList,mergeTeam,filterDeletedTeam,indexIds,diff,authorizedMassDelete,deletionConflicts,applyDeletionDecisions};
   function install(win){
     let previous=null,applying=false,tracked=0,lastChanges=[],error='';
     // equiposData se declara con `let` en el core: no existe como window.equiposData.

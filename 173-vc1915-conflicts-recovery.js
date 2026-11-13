@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='19.1.9',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
+ const VERSION='19.3.11.2',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];
@@ -268,7 +268,7 @@
    return result;
  }
  const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,isMatchingUndo,mergeGuarded,mergeIndependentFields,semanticDigest,conflictFields,conflictPreview,validateImport,recoveryPreview,mergeBackup,conflictKey};
- const context={lastConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:'',remoteState:null};
+ const context={lastConflicts:[],lastDeletionConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:'',remoteState:null};
  function install(win){
    const store=win.localStorage, doc=win.document;
    // V19.1.8: cloudUser vive en el ámbito léxico del núcleo, no en window.
@@ -285,14 +285,26 @@
      if(!user())return false;
      writeJSON(baselineKey(user()),makeManifest(state));
      store.removeItem(decisionsKey(user()));
-     context.lastConflicts=[];context.remoteState=null;notify();return true;
+     context.lastConflicts=[];context.lastDeletionConflicts=[];context.remoteState=null;notify();return true;
    }
    function notify(){try{win.dispatchEvent(new win.CustomEvent('vc1915:change'))}catch(_){} }
    function prepare(local,remote,remoteStamp=''){
      if(!user())throw Error('La cuenta de nube no está autenticada o el motor de identidad no está disponible. Vuelve a abrir Conexión nube; no se han aplicado cambios.');
-     const plan=planMerge(local,remote,getBaseline(),getChoices());
-     context.lastConflicts=plan.conflicts;context.remoteStamp=remoteStamp;context.account=user();
-     context.remoteState=plan.conflicts.length?clone(remote):null;notify();
+     const baseline=getBaseline(),choices=getChoices();
+     const plan=planMerge(local,remote,baseline,choices);
+     const deletionIssues=win.VC_V1917_UNIVERSAL?.deletionConflicts?.(local,remote,baseline,digest)||[];
+     const deletionDecisions=[],deletionConflicts=[];
+     for(const issue of deletionIssues){
+       const choice=choices[issue.key];
+       if(choice&&['edited','deleted'].includes(choice.use)&&choice.editedDigest===issue.editedDigest&&
+           choice.deletedAt===issue.deletedAt&&choice.where===issue.where){
+         deletionDecisions.push({...issue,use:choice.use});
+       }else deletionConflicts.push(issue);
+     }
+     plan.deletionDecisions=deletionDecisions;plan.deletionConflicts=deletionConflicts;
+     context.lastConflicts=plan.conflicts;context.lastDeletionConflicts=deletionConflicts;
+     context.remoteStamp=remoteStamp;context.account=user();
+     context.remoteState=(plan.conflicts.length||deletionConflicts.length)?clone(remote):null;notify();
      return plan;
    }
    function decide(key,use,local,remote){
@@ -304,21 +316,83 @@
      context.lastConflicts=context.lastConflicts.filter(c=>c.key!==key);notify();
      return true;
    }
-   function status(){return {version:VERSION,conflicts:context.lastConflicts.map(x=>({...x})),lastError:context.lastError,hasPreview:!!context.lastPreview};}
-   const api={version:VERSION,prepare,getBaseline,mergeGuarded:(local,remote,plan)=>mergeGuarded(local,remote,plan,win.VC_V191_RELIABILITY),captureBaseline,status,decide,pure};
+   function decideDeletion(key,use,editedDigest,deletedAt,where){
+     if(!['edited','deleted'].includes(use))throw Error('Elige conservar la edición o confirmar la eliminación.');
+     const conflict=context.lastDeletionConflicts.find(c=>c.key===key&&c.editedDigest===editedDigest&&c.deletedAt===deletedAt&&c.where===where);
+     if(!conflict||context.account!==user())throw Error('Las versiones del conflicto han cambiado. Sincroniza y revisa de nuevo.');
+     const choices=getChoices();choices[key]={use,editedDigest,deletedAt,where};
+     writeJSON(decisionsKey(user()),choices,100*1024);
+     context.lastDeletionConflicts=context.lastDeletionConflicts.filter(c=>c.key!==key);notify();
+     return true;
+   }
+   function mergeWithDeletionDecisions(local,remote,plan){
+     if(plan.deletionConflicts?.length)throw Error('Hay eliminaciones concurrentes sin resolver.');
+     const decisions=arr(plan.deletionDecisions);
+     if(!decisions.length)return mergeGuarded(local,remote,plan,win.VC_V191_RELIABILITY);
+     const universal=win.VC_V1917_UNIVERSAL;
+     if(typeof universal?.applyDeletionDecisions!=='function')throw Error('Protección de borrados no disponible.');
+     const parts=universal.applyDeletionDecisions(local,remote,decisions);
+     const merged=mergeGuarded(parts.local,parts.remote,plan,win.VC_V191_RELIABILITY);
+     if(!merged.equiposData)merged.equiposData={};
+     // El viejo mergePending no incluye altas locales de scoutingMatches.
+     // Preservarlas explícitamente evita que resolver UN conflicto descarte
+     // otros scoutings nuevos del mismo equipo. Las bajas con tombstone se
+     // siguen filtrando por el motor universal.
+     for(const [team,localTeam] of Object.entries(obj(parts.local.equiposData))){
+       const destination=merged.equiposData[team]||{};
+       merged.equiposData[team]=destination;
+       const matches=arr(destination.scoutingMatches).slice();
+       const ids=new Set(matches.map(recordId));
+       const tombs=universal.tombMap(universal.tombstones(destination,'scoutingMatches'));
+       for(const entry of arr(localTeam.scoutingMatches)){
+         const id=recordId(entry);
+         if(id===null||ids.has(id)||tombs.has(Number(id)))continue;
+         matches.push(clone(entry));ids.add(id);
+       }
+       destination.scoutingMatches=matches;
+     }
+     for(const decision of decisions){
+       const {team,type,id,where,use}=decision;
+       const mt=merged.equiposData[team]||{};
+       merged.equiposData[team]=mt;
+       const list=arr(mt[type]).filter(x=>recordId(x)!==String(id));
+       if(use==='edited'){
+         const from=where==='nube'?parts.local.equiposData[team]:parts.remote.equiposData[team];
+         const edited=arr(from?.[type]).find(x=>recordId(x)===String(id));
+         if(!edited)throw Error('No se encuentra la versión editada. Resolución cancelada.');
+         universal.revive(mt,type,id);
+         list.push(clone(edited));
+         if(type==='scoutingMatches'){
+           merged.__vc1915ScoutOverrides=merged.__vc1915ScoutOverrides||{};
+           merged.__vc1915ScoutOverrides[team]=merged.__vc1915ScoutOverrides[team]||{};
+           merged.__vc1915ScoutOverrides[team][String(id)]=clone(edited);
+         }
+       }else{
+         // Una marca verificable impide que el merge del core reintroduzca
+         // este registro desde el estado local que aún no se ha aplicado.
+         const deletedAt=Math.max(0,...[parts.local,parts.remote].map(st=>universal.tombMap(universal.tombstones(st.equiposData[team],type)).get(Number(id))||0));
+         universal.mark(mt,type,id,deletedAt);
+         if(type==='scoutingMatches'&&Number(mt.scoutingActiveId)===Number(id))mt.scoutingActiveId=null;
+       }
+       mt[type]=list;
+     }
+     return merged;
+   }
+   function status(){return {version:VERSION,conflicts:context.lastConflicts.map(x=>({...x})),deletionConflicts:context.lastDeletionConflicts.map(x=>({...x})),lastError:context.lastError,hasPreview:!!context.lastPreview};}
+   const api={version:VERSION,prepare,getBaseline,mergeGuarded:mergeWithDeletionDecisions,captureBaseline,status,decide,decideDeletion,pure};
    win.VC_V1915_RELIABILITY=api;
    function element(tag,text){const el=doc.createElement(tag);if(text!==undefined)el.textContent=String(text);return el;}
    let wrapper=null,summary=null,list=null,preview=null,fileInput=null,cloudReview=null;
    function row(parent,text){const p=element('p',text);parent.append(p);return p;}
    function render(){
      if(cloudReview){
-       const total=context.lastConflicts.length;
+       const total=context.lastConflicts.length+context.lastDeletionConflicts.length;
        cloudReview.hidden=!total;
        cloudReview.textContent=total?'Revisar '+total+' conflicto'+(total===1?'':'s')+' de sincronización':'';
      }
      if(!wrapper)return;
-     list.replaceChildren();const cs=context.lastConflicts;
-     summary.textContent=cs.length?cs.length+' edición(es) requieren revisión antes de sincronizar. La nube no se ha sobrescrito.':'Sin conflictos pendientes detectados en esta sesión.';
+     list.replaceChildren();const cs=context.lastConflicts,ds=context.lastDeletionConflicts;
+     summary.textContent=cs.length||ds.length?(cs.length+ds.length)+' conflicto(s) requieren revisión. No se han sobrescrito datos en la nube.':'Sin conflictos pendientes detectados en esta sesión.';
      for(const c of cs){
        const line=element('div');line.className='vc1915-item';
        row(line,c.team+' · '+c.type+' · '+c.label+' (ID '+c.id+')');
@@ -331,6 +405,13 @@
            catch(err){context.lastError=String(err.message||err);render()}
          });line.append(btn);
        }
+       list.append(line);
+     }
+     for(const c of ds){
+       const line=element('div');line.className='vc1915-item';
+       row(line,'EDICIÓN / ELIMINACIÓN · '+c.team+' · '+c.type+' · '+c.label+' (ID '+c.id+')');
+       row(line,c.where==='nube'?'La edición está EN ESTE DISPOSITIVO; la nube contiene la eliminación.':'La edición está EN LA NUBE; este dispositivo contiene la eliminación.');
+       row(line,'No se decidirá por fecha. Abre «Conexión nube» para crear copias de ambos estados y resolver.');
        list.append(line);
      }
      if(context.lastError)row(list,'Aviso: '+context.lastError);
@@ -383,13 +464,28 @@
      if(cloudStatus&&!doc.getElementById('vc1919-cloud-review')){
        cloudReview=element('button','Revisar conflictos de sincronización');
        cloudReview.id='vc1919-cloud-review';cloudReview.type='button';cloudReview.hidden=true;
+       function downloadStateCopy(state,label){
+         if(!state?.equiposData)throw Error('No hay un estado completo que descargar.');
+         const content=JSON.stringify({schema:'volley-coach-recovery',version:VERSION,exportedAt:new Date().toISOString(),state},null,2);
+         const url=win.URL.createObjectURL(new win.Blob([content],{type:'application/json;charset=utf-8'}));
+         const link=element('a');link.href=url;link.download='volley-coach-'+label+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+         doc.body.appendChild(link);link.click();link.remove();win.setTimeout(()=>win.URL.revokeObjectURL(url),30000);
+       }
        cloudReview.addEventListener('click',()=>{
          // El panel de Gestión también permanece disponible, pero en móviles
          // la revisión debe estar a un toque dentro de Conexión nube.
          const holder=doc.getElementById('vc1919-cloud-conflicts');
          if(holder){holder.hidden=false;holder.replaceChildren();
            holder.append(element('h3','Resolver conflictos antes de sincronizar'));
-           holder.append(element('p','Las copias locales permanecen guardadas. Revisa qué versión conservar; no se borrarán datos automáticamente.'));
+           holder.append(element('p','Revisa las dos versiones antes de elegir. No se resolverán conflictos por fecha ni se eliminarán datos automáticamente.'));
+           const backups=element('div');backups.className='vc1919-conflict-actions';
+           for(const [label,side] of [['Descargar JSON de este dispositivo','local'],['Descargar JSON de la nube','remote']]){
+             const btn=element('button',label);btn.type='button';btn.addEventListener('click',()=>{
+               try{downloadStateCopy(side==='local'?win.estadoLocal?.():context.remoteState,side+'-conflicto');}
+               catch(error){win.alert('No se ha descargado la copia: '+String(error?.message||error));}
+             });backups.append(btn);
+           }
+           holder.append(backups);
            for(const c of context.lastConflicts){
              const rowEl=element('section');rowEl.className='vc1919-conflict-row';
              rowEl.append(element('strong',c.team+' · '+c.type+' · '+c.label));
@@ -417,6 +513,36 @@
              }
              rowEl.append(actions);holder.append(rowEl);
            }
+           for(const c of context.lastDeletionConflicts){
+             const card=element('section');card.className='vc1919-conflict-row vc19110-delete-conflict';
+             card.append(element('strong','Edición frente a eliminación · '+c.team+' / '+c.type+' · '+c.label+' · ID '+c.id));
+             card.append(element('p',c.where==='nube'?'ESTE DISPOSITIVO conserva la edición. LA NUBE contiene la eliminación.':'LA NUBE conserva la edición. ESTE DISPOSITIVO contiene la eliminación.'));
+             card.append(element('p',c.uncertain?'No se ha identificado una versión común anterior. Debes decidir tras revisar las copias.':'El registro editado difiere de la última versión confirmada.'));
+             const actions=element('div');actions.className='vc1919-conflict-actions';
+             for(const [label,use] of [['Conservar edición / recuperar','edited'],['Confirmar eliminación','deleted']]){
+               const btn=element('button',label);btn.type='button';btn.addEventListener('click',async()=>{
+                 const message=use==='deleted'?'¿Confirmar la ELIMINACIÓN del registro seleccionado? Se guardarán copias de ambos estados antes.':'¿Conservar la EDICIÓN y restaurar el registro seleccionado? Se guardarán copias de ambos estados antes.';
+                 if(!win.confirm(message))return;
+                 btn.disabled=true;
+                 try{
+                   const safety=win.VC_V179_SYNC_SAFETY;
+                   if(typeof safety?.manualBackup!=='function'||typeof safety?.backupRemoteState!=='function'||!context.remoteState)throw Error('Falta la protección de ambas versiones. Operación cancelada.');
+                   await safety.manualBackup();
+                   await safety.backupRemoteState(context.remoteState,context.remoteStamp);
+                   decideDeletion(c.key,use,c.editedDigest,c.deletedAt,c.where);
+                   const result=await win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v19110-delete-resolution',allowWrite:true});
+                   if(result===false){
+                     const error=win.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().lastSyncError;
+                     throw Error(error||'La sincronización todavía no se ha confirmado. Revisa el estado de la nube.');
+                   }
+                   if(result!==true)throw Error('No se ha recibido confirmación de la nube.');
+                   cloudReview.click();
+                 }catch(error){win.alert('La nube no confirmó la resolución: '+String(error?.message||error));}
+                 finally{btn.disabled=false;}
+               });actions.append(btn);
+             }
+             card.append(actions);holder.append(card);
+           }
          }
          holder?.scrollIntoView?.({behavior:'smooth',block:'nearest'});
        });
@@ -424,7 +550,7 @@
        const holder=element('div');holder.id='vc1919-cloud-conflicts';holder.hidden=true;
        cloudReview.insertAdjacentElement('afterend',holder);
        const style=element('style');style.id='vc1919-cloud-style';
-       style.textContent='#vc1919-cloud-review{display:block;width:100%;min-height:44px;margin:10px 0;border:1px solid #af6d37;background:#fff4e5;color:#693c1e;border-radius:9px;font:700 13px system-ui;padding:10px}#vc1919-cloud-review[hidden],#vc1919-cloud-conflicts[hidden]{display:none!important}#vc1919-cloud-conflicts{margin:8px 0;padding:12px;border-radius:10px;border:1px solid #d5e1ea;background:#f7fbff;color:#1e405b;font:12px/1.5 system-ui}#vc1919-cloud-conflicts h3{font-size:16px;margin:4px 0 8px}#vc1919-cloud-conflicts p{margin:5px 0 10px}#vc1919-cloud-conflicts .vc1919-conflict-row{border-top:1px solid #d5e1ea;padding:10px 0}#vc1919-cloud-conflicts .vc1919-conflict-actions{display:flex;flex-wrap:wrap;gap:8px}#vc1919-cloud-conflicts button{min-height:44px;min-width:130px;padding:9px;border-radius:7px;border:1px solid #aec7d8;background:white;color:#1c4563;font:700 12px system-ui}';
+       style.textContent='#vc1919-cloud-review{display:block;width:100%;min-height:44px;margin:10px 0;border:1px solid #af6d37;background:#fff4e5;color:#693c1e;border-radius:9px;font:700 13px system-ui;padding:10px}#vc1919-cloud-review[hidden],#vc1919-cloud-conflicts[hidden]{display:none!important}#vc1919-cloud-conflicts{margin:8px 0;padding:12px;border-radius:10px;border:1px solid #d5e1ea;background:#f7fbff;color:#1e405b;font:12px/1.5 system-ui}#vc1919-cloud-conflicts h3{font-size:16px;margin:4px 0 8px}#vc1919-cloud-conflicts p{margin:5px 0 10px}#vc1919-cloud-conflicts .vc1919-conflict-row{border-top:1px solid #d5e1ea;padding:10px 0}#vc1919-cloud-conflicts .vc19110-delete-conflict{background:#fff8ef;border:1px solid #e8c7a1;border-radius:9px;padding:12px;margin:12px 0}#vc1919-cloud-conflicts .vc19110-delete-conflict strong{color:#793f1b}#vc1919-cloud-conflicts .vc1919-conflict-actions{display:flex;flex-wrap:wrap;gap:8px}#vc1919-cloud-conflicts button{min-height:44px;min-width:130px;padding:9px;border-radius:7px;border:1px solid #aec7d8;background:white;color:#1c4563;font:700 12px system-ui}';
        doc.head.append(style);
      }
      wrapper.append(summary,list,element('p','La restauración requiere una copia previa en IndexedDB. Guarda también una copia JSON en otro dispositivo.'),select,fileInput,preview);
