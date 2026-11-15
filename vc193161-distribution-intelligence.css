@@ -145,3 +145,62 @@
 @media(max-width:700px){#scout-analysis.vc19310-active .vc193161-filter-wrap>.vc193161-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193161-filter-wrap>.vc193161-toolbar>button{grid-column:1/-1}#scout-analysis.vc19310-active .vc193161-toolbar-extra{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193161-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193161-rotation-table{overflow:hidden}}
 
 #scout-analysis.vc19310-active .vc193161-bottom.is-call-details{display:block}
+
+/* V19.3.19.3 — Setter Distribution Pro: usable workspace, no duplicate charts. */
+#scout-analysis.vc19310-active .vc193193-redesign{--sd-ink:#12334f;--sd-line:#d4e1ed;--sd-blue:#176ab8;color:var(--sd-ink);max-width:100%;overflow:visible}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-head{border:1px solid #1d507a;border-bottom:3px solid #2f87df;margin-bottom:12px;box-shadow:0 3px 12px rgba(13,47,77,.06)}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-tabs{margin:0 0 9px;display:flex;flex-wrap:wrap;align-items:center;border-bottom:2px solid #d9e5f0;padding:0 0 6px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-tabs button{border-radius:6px 6px 3px 3px!important;min-height:40px!important;font-size:12px!important}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-filter-wrap>.vc193161-toolbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:end}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-filter-wrap>.vc193161-toolbar>button{min-width:0!important;white-space:normal!important}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-advanced>.vc193161-toolbar-extra{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-options{margin-top:0;border-radius:7px;padding:9px 12px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-metrics{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-main{display:grid;grid-template-columns:minmax(0,1fr)!important;min-width:0;gap:12px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-content{width:100%;min-width:0;display:grid;gap:11px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-seq-grid{display:grid;grid-template-columns:repeat(6,minmax(138px,1fr));gap:8px;overflow-x:auto;width:100%;min-width:0;padding:10px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-rotation{min-width:138px;box-shadow:0 1px 3px rgba(22,54,82,.07)}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-tiny{display:grid;grid-template-columns:1fr 1fr;gap:4px;text-align:center;padding:7px 4px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-tiny small{grid-column:1/-1}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-scrollhits{max-height:400px;overflow:auto;scrollbar-width:thin}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-rotation-table,#scout-analysis.vc19310-active .vc193193-redesign .vc193161-records{max-width:100%;min-width:0}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-bottom{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-bottom .vc193161-card{min-width:0}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-evidence{position:static!important;min-width:0;max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.54fr);gap:8px;align-items:start;padding:12px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-evidence>.vc19310-panelhead{grid-column:1/-1}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-evidence .vc19310-rallies{max-height:280px;overflow-y:auto;scrollbar-width:thin;min-width:0}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-evidence .vc19310-video-box{min-width:0}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table{max-width:100%;width:100%;overflow:auto;scrollbar-width:thin}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table table{border-collapse:collapse;width:100%;min-width:max-content;font-variant-numeric:tabular-nums}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table th,#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table td{padding:8px 9px;white-space:nowrap}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table thead th{background:#eaf2fa!important;color:#173d62;font-size:10px;position:sticky;top:0;z-index:1}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table tbody tr:nth-child(even){background:#f7fafe}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-table tbody tr:hover{background:#edf5fd}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-call-main{grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr);gap:12px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-call-main .vc193161-court-board{max-height:300px!important;min-height:190px!important}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193161-call-main .vc193161-court{max-width:680px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193193-optional-courts{margin-top:10px;border:1px solid #d2e1ee;border-radius:7px;background:#f8fbfe}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193193-optional-courts summary{padding:10px 12px;color:#275983;font-weight:800;cursor:pointer;font-size:11px}
+#scout-analysis.vc19310-active .vc193193-redesign .vc193193-optional-courts .vc193161-call-grids{border:0;border-top:1px solid #dce7f2}
+#scout-analysis.vc19310-active .vc193193-matrix-section{margin-top:11px;border:1px solid var(--sd-line);background:white;border-radius:8px;overflow:hidden}
+#scout-analysis.vc19310-active .vc193193-matrix-section>.vc193161-band{border:0;border-radius:0}
+#scout-analysis.vc19310-active .vc193193-matrix-tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid #e1ebf4;background:#f8fbfe}
+#scout-analysis.vc19310-active .vc193193-matrix-tabs button{border:1px solid #c9ddeb!important;background:#fff!important;color:#2b5f89!important;border-radius:5px!important;padding:8px 10px!important;min-height:32px!important;font-size:10px!important;font-weight:800!important}
+#scout-analysis.vc19310-active .vc193193-matrix-tabs button.is-active{background:#145da5!important;color:#fff!important;border-color:#145da5!important}
+#scout-analysis.vc19310-active .vc193193-cross-table{margin:12px;border:1px solid #dce6f0;padding:12px;overflow:hidden}
+#scout-analysis.vc19310-active .vc193193-cross-table .vc193161-table{max-height:420px}
+#scout-analysis.vc19310-active .vc193193-cross-table .vc193161-table th{font-size:10px}
+#scout-analysis.vc19310-active .vc193193-cross-table .vc193161-table tbody td{padding:4px 5px}
+#scout-analysis.vc19310-active .vc193193-cross-table .vc193161-table tbody th{padding:4px 9px}
+#scout-analysis.vc19310-active .vc193193-cross-table button.vc193193-matrix-value{min-width:59px!important;min-height:37px!important;border:1px solid transparent!important;background:transparent!important;padding:4px!important;display:grid!important;place-items:center;gap:1px!important;color:#153f63!important;border-radius:5px!important}
+#scout-analysis.vc19310-active .vc193193-cross-table button.vc193193-matrix-value:hover{border-color:#a0c6e9!important;background:#eaf5ff!important}
+#scout-analysis.vc19310-active .vc193193-cross-table button.vc193193-matrix-value.is-active{border-color:#206bb0!important;background:#d8edff!important}
+#scout-analysis.vc19310-active .vc193193-cross-table button.vc193193-matrix-value b{font-size:13px;font-weight:900}
+#scout-analysis.vc19310-active .vc193193-cross-table button.vc193193-matrix-value small{font-size:9px;color:#557e9b}
+#scout-analysis.vc19310-active .vc193193-focus{display:flex;gap:12px;justify-content:space-between;align-items:center;background:#e7f4ff;border:1px solid #b8d9f3;border-left:4px solid #1667ad;color:#16496f;padding:9px 12px;margin:9px 0;border-radius:6px;font-size:11px}
+#scout-analysis.vc19310-active .vc193193-focus button{border:1px solid #98c4e8!important;background:white!important;color:#17609c!important;border-radius:5px!important;padding:7px 11px!important;font-weight:800!important}
+#scout-analysis.vc19310-active .vc193193-redesign button:focus-visible{outline:3px solid #288bda!important;outline-offset:2px}
+@media(max-width:1380px){#scout-analysis.vc19310-active .vc193193-redesign .vc193161-filter-wrap>.vc193161-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193193-redesign .vc193161-advanced>.vc193161-toolbar-extra{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1060px){#scout-analysis.vc19310-active .vc193193-redesign .vc193161-seq-grid{grid-template-columns:repeat(3,minmax(140px,1fr))}#scout-analysis.vc19310-active .vc193193-redesign .vc193161-call-main,#scout-analysis.vc19310-active .vc193193-redesign .vc193161-bottom{grid-template-columns:1fr}#scout-analysis.vc19310-active .vc193193-redesign .vc193161-evidence{grid-template-columns:1fr}#scout-analysis.vc19310-active .vc193161-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){#scout-analysis.vc19310-active .vc193193-redesign .vc193161-seq-grid{grid-template-columns:repeat(2,minmax(135px,1fr))}#scout-analysis.vc19310-active .vc193193-redesign .vc193161-filter-wrap>.vc193161-toolbar,#scout-analysis.vc19310-active .vc193193-redesign .vc193161-advanced>.vc193161-toolbar-extra{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193193-redesign .vc193161-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193193-focus{flex-direction:column;align-items:flex-start}#scout-analysis.vc19310-active .vc193193-cross-table{margin:7px;padding:6px}}
+@media(max-width:365px){#scout-analysis.vc19310-active .vc193193-redesign .vc193161-seq-grid{grid-template-columns:minmax(0,1fr)}#scout-analysis.vc19310-active .vc193193-redesign .vc193161-metrics{grid-template-columns:1fr}}
