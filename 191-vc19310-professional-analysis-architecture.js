@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.17';
+ const VERSION='19.3.18';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['montage','Video Montage','Clips y anotaciones'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -153,7 +153,7 @@
    // V19.3.11 replaces only the professional views, not their data engines.
    // Fall back safely to V19.3.10 when an optional asset is unavailable.
    let enhanced=null;
-   try{enhanced=(state.space==='distribution'?win.VC_DISTRIBUTION_193161?.render?.({space:state.space,ctx,projection,state,win}):null)||win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
+   try{enhanced=(state.space==='distribution'?win.VC_DISTRIBUTION_193161?.render?.({space:state.space,ctx,projection,state,win}):null)||(state.space==='worksheets'?win.VC_WORKSHEETS_19318?.render?.({space:state.space,ctx,projection,state,win}):null)||win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
    catch(e){setStatus('La vista profesional no ha podido cargarse; se utiliza la vista anterior.');}
    if(enhanced)body.innerHTML=enhanced.html;
    else if(state.space==='match')body.innerHTML=matchView(ctx,projection);
@@ -199,6 +199,15 @@
     }
     if(distributionAction.repaint)paint();return;
    }
+   const wsAction=state.space==='worksheets'?win.VC_WORKSHEETS_19318?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus}):null;
+   if(wsAction?.handled){
+    if(wsAction.navigateVideo){
+     const key=wsAction.navigateVideo;
+     if(!filteredRallies.some(r=>r.key===key)){setStatus('El rally ya no pertenece al filtro actual.');return;}
+     state.selected=key;state.space='video';toggleLegacy(false);paint();selectRally(key,{play:true});return;
+    }
+    if(wsAction.repaint)paint();return;
+   }
    const enhancedAction=win.VC_ANALYSIS_SCREENS_19311?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus});
    if(enhancedAction?.handled){if(enhancedAction.repaint)paint();return;}
    if(b.dataset.vc19310Space){state.space=b.dataset.vc19310Space;state.zone=null;toggleLegacy(false);paint();return;}
@@ -236,9 +245,11 @@
   }},true);
   view.addEventListener('input',e=>{if(state.space==='video'&&e.target?.matches?.('[data-vc19314-search]'))win.VC_INTEGRATED_VIDEO_19314?.filterCodes?.(node,e.target.value);});
   view.addEventListener('change',e=>{const t=e.target;if(!t)return;
+   if(node?.contains(t)&&state.space==='worksheets'&&t.dataset?.vc19318Import!==undefined){win.VC_WORKSHEETS_19318?.handleFile?.({target:t,state,win,status:setStatus});return;}
    if(['vc157-match','vc157-team','vc157-set','vc157-phase','vc157-rotation'].includes(t.id)){state.zone=null;state.selected=null;delay();return;}
    if(t.dataset?.vc19310Preset!==undefined&&node?.contains(t)){state.searchPreset=t.value;return;}
    if(node?.contains(t)&&state.space==='montage'&&t.dataset?.vc19317Input!==undefined){win.VC_VIDEO_MONTAGE_19317?.change?.(win,t);return;}
+   if(node?.contains(t)&&state.space==='worksheets'&&win.VC_WORKSHEETS_19318?.handleChange?.({target:t,state})){paint();return;}
    if(node?.contains(t)&&state.space==='distribution'&&win.VC_DISTRIBUTION_193161?.handleChange?.({target:t,state})){paint();return;}
    if(node?.contains(t)&&win.VC_ANALYSIS_SCREENS_19311?.handleChange?.({target:t,state})){paint();return;}
    if(!node?.contains(t)||!t.dataset?.vc19310Filter)return;
