@@ -14,30 +14,30 @@
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const VERSION = '19.1.3';
+  const VERSION = '19.3.19.1';
   const GROUPS = Object.freeze([
     { id: 'home', label: 'Inicio', icon: '⌂', defaultView: 'dashboard', items: [] },
-    { id: 'training', label: 'Entrenamientos', icon: '◇', defaultView: 'entrenamiento', items: [
-      ['planificacion', 'Planificar'], ['entrenamiento', 'Sesión actual'],
-      ['ejercicios', 'Biblioteca'], ['historial', 'Evaluar'], ['estadisticas', 'Seguimiento']
+    { id: 'team', label: 'Club y equipos', icon: '◎', defaultView: 'jugadores', items: [
+      ['jugadores', 'Plantillas y jugadores'], ['scout-season', 'Temporada y rendimiento']
+    ] },
+    { id: 'training', label: 'Entrenamientos', icon: '◇', defaultView: 'planificacion', items: [
+      ['planificacion', 'Planificación'], ['entrenamiento', 'Sesión actual'],
+      ['ejercicios', 'Biblioteca'], ['historial', 'Historial y evaluación'], ['estadisticas', 'Seguimiento']
     ] },
     { id: 'matches', label: 'Partidos', icon: '◈', defaultView: 'scout-dashboard', items: [
       ['scout-dashboard', 'Centro de partidos'], ['competicion', 'Calendario'],
-      ['scout-plan', 'Preparar'], ['scout-match-mode', 'Scouting en directo'],
-      ['vc155-bench', 'Banquillo']
-    ] },
-    { id: 'video', label: 'Vídeo', icon: '▷', defaultView: 'scout-video-hub', items: [
-      ['scout-video-hub', 'Video Studio']
+      ['scout-plan', 'Preparar partido'], ['scout-match-mode', 'Match Workspace · Scouting'],
+      ['vc155-bench', 'Banquillo y Bench Client']
     ] },
     { id: 'analysis', label: 'Análisis', icon: '▥', defaultView: 'scout-analysis', items: [
-      ['scout-analysis', 'Análisis Pro'], ['v11-reports', 'Informes'],
-      ['scout-season', 'Temporada'], ['scout-matchup', 'Rivales']
+      ['scout-analysis', 'Análisis táctico y Worksheets'], ['v11-reports', 'Informes'],
+      ['scout-matchup', 'Rivales']
     ] },
-    { id: 'team', label: 'Equipo', icon: '◎', defaultView: 'jugadores', items: [
-      ['jugadores', 'Plantilla']
+    { id: 'video', label: 'Video Studio', icon: '▷', defaultView: 'scout-video-hub', items: [
+      ['scout-video-hub', 'Grabación, Delay y videoteca']
     ] },
     { id: 'settings', label: 'Configuración', icon: '⚙', defaultView: 'v11-management', items: [
-      ['v11-management', 'Gestión y ajustes'], ['scout-safe', 'Copias y recuperación']
+      ['v11-management', 'Gestión y arquitectura'], ['scout-safe', 'Copias y recuperación']
     ] }
   ].map(group => Object.freeze({ ...group, items: Object.freeze(group.items.map(item => Object.freeze(item))) })));
   const VIEW_GROUP = Object.freeze(Object.fromEntries(GROUPS.flatMap(g =>
@@ -119,7 +119,7 @@
     const heading = doc.createElement('h3');
     heading.textContent = 'V19 · Espacio de trabajo';
     const intro = doc.createElement('p');
-    intro.textContent = 'Siete áreas, una sola navegación. Esta comprobación no modifica datos ni sincronización.';
+    intro.textContent = 'Seis áreas operativas y configuración. Esta comprobación no modifica datos ni sincronización.';
     const btn = doc.createElement('button');
     btn.type = 'button'; btn.textContent = 'Comprobar estructura';
     const out = doc.createElement('p');

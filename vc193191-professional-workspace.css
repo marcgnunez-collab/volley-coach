@@ -1,0 +1,31 @@
+/* V19.3.19.1 · Unified navigation and architecture safety tools.
+ * Scoped rules only: the old interfaces remain untouched. */
+#vc193191-home,#vc193191-match,#vc193191-audit{font:13px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;color:#17304c;box-sizing:border-box}
+#vc193191-home *,#vc193191-match *,#vc193191-audit *{box-sizing:border-box}
+#vc193191-home{border:1px solid #dbe6f0;border-radius:12px;background:#fff;margin:18px 0;padding:19px;box-shadow:0 3px 12px rgba(14,43,70,.04)}
+#vc193191-home .vc193191-intro small,#vc193191-audit small{font-size:10px;letter-spacing:.12em;color:#55799a;font-weight:850}
+#vc193191-home h3,#vc193191-audit h3{font:800 19px/1.25 system-ui,sans-serif!important;margin:5px 0!important;padding:0!important;border:0!important;color:#142f4e!important}
+#vc193191-home p,#vc193191-audit p{color:#5c7590;margin:5px 0 13px;font-size:12px}
+#vc193191-home .vc193191-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#vc193191-home [data-vc193191-route]{background:#f6f9fd!important;border:1px solid #dae6f2!important;border-radius:8px!important;padding:14px!important;display:flex;flex-direction:column;gap:4px;min-height:75px;align-items:flex-start;justify-content:center;cursor:pointer;text-align:left;box-shadow:none!important;min-width:0}
+#vc193191-home [data-vc193191-route]:hover{background:#eaf3fc!important;border-color:#8cb6e4!important}
+#vc193191-home [data-vc193191-route] strong{font-size:13px;color:#183d63}
+#vc193191-home [data-vc193191-route] span{font-size:11px;color:#68809a}
+#vc193191-match{border:1px solid #d1e3f3;border-radius:10px;background:#f7fbff;margin:10px 0 13px;padding:10px 13px}
+#vc193191-match .vc193191-match-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+#vc193191-match .vc193191-match-title strong{font-size:13px;color:#164675}
+#vc193191-match .vc193191-match-title span{font-size:11px;color:#68839c}
+#vc193191-match nav{display:flex;gap:6px;flex-wrap:wrap}
+#vc193191-match button{border:1px solid #cadef0!important;border-radius:6px!important;background:#fff!important;color:#24517e!important;padding:7px 10px!important;font:750 11px system-ui!important;min-height:32px!important;box-shadow:none!important;cursor:pointer}
+#vc193191-match button[aria-current="page"]{background:#174d85!important;color:white!important;border-color:#174d85!important}
+#vc193191-match button:hover{border-color:#4c8eca!important}
+#vc193191-audit{margin:17px 0;padding:16px;border:1px solid #d3e1eb;border-radius:10px;background:#fff}
+#vc193191-audit .vc193191-audit-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0}
+#vc193191-audit button,#vc193191-audit .vc193191-file{font:750 12px system-ui!important;padding:9px 12px!important;min-height:36px;border:1px solid #adc7df!important;background:#edf5fc!important;border-radius:7px!important;color:#1b527e!important;box-shadow:none!important;cursor:pointer}
+#vc193191-audit .vc193191-file input{display:block;font-size:10px;max-width:200px;margin-top:5px;background:#fff}
+#vc193191-audit .vc193191-audit-output{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f8fc;color:#254664;border-radius:7px;padding:12px;max-height:240px;overflow:auto;line-height:1.7}
+#vc193191-audit .vc193191-note{margin:12px 0 0}
+@media(max-width:840px){#vc193191-home .vc193191-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){#vc193191-home .vc193191-links{grid-template-columns:1fr}#vc193191-home{padding:12px}#vc193191-match{padding:9px}#vc193191-match nav button{flex:1 1 30%}}
+
+#vc193191-home .vc193191-links.is-single{grid-template-columns:minmax(0,340px)}
