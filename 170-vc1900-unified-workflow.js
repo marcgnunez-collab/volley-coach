@@ -14,11 +14,11 @@
   }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const VERSION = '19.3.19.1';
+  const VERSION = '19.3.19.2';
   const GROUPS = Object.freeze([
     { id: 'home', label: 'Inicio', icon: '⌂', defaultView: 'dashboard', items: [] },
     { id: 'team', label: 'Club y equipos', icon: '◎', defaultView: 'jugadores', items: [
-      ['jugadores', 'Plantillas y jugadores'], ['scout-season', 'Temporada y rendimiento']
+      ['jugadores', 'Centro del club y plantilla'], ['scout-season', 'Temporada y rendimiento']
     ] },
     { id: 'training', label: 'Entrenamientos', icon: '◇', defaultView: 'planificacion', items: [
       ['planificacion', 'Planificación'], ['entrenamiento', 'Sesión actual'],
