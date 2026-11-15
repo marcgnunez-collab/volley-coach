@@ -115,3 +115,35 @@
 @media(max-width:1480px){#scout-analysis.vc19310-active .vc19311-dist-shell,#scout-analysis.vc19310-active .vc19311-analysis-shell{grid-template-columns:minmax(0,1fr)}#scout-analysis.vc19310-active .vc19311-dist-side,#scout-analysis.vc19310-active .vc19311-court-summary{order:2}#scout-analysis.vc19310-active .vc19311-direction-board{min-height:360px}}
 @media(max-width:950px){#scout-analysis.vc19310-active .vc19311-dist-court{min-height:430px}#scout-analysis.vc19310-active .vc19311-direction-board{min-height:300px}}
 @media(max-width:520px){#scout-analysis.vc19310-active .vc19311-direction-board{padding:8px;min-height:240px}#scout-analysis.vc19310-active .vc19311-direction-board::before{inset:10px}#scout-analysis.vc19310-active .vc19311-dist-court{min-height:360px}#scout-analysis.vc19310-active .vc19311-setter-hub{width:74px;height:48px;bottom:14px}#scout-analysis.vc19310-active .vc19311-mini-stat,#scout-analysis.vc19310-active .vc19311-zone-pill{grid-template-columns:auto 1fr;row-gap:4px;padding:8px}}
+
+
+/* V19.3.16.2 · Distribution Intelligence layout repair */
+#scout-analysis.vc19310-active .vc19311-dv-sequential{margin-bottom:14px}
+#scout-analysis.vc19310-active .vc19311-dv-rotgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+#scout-analysis.vc19310-active .vc19311-dv-rotcard{border:1px solid #d9e4ef;border-radius:8px;background:linear-gradient(180deg,#ffffff,#f6faff);padding:10px;min-width:0}
+#scout-analysis.vc19310-active .vc19311-dv-rothead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#scout-analysis.vc19310-active .vc19311-dv-rothead strong{font-size:18px;color:#102d4d;font-weight:900}
+#scout-analysis.vc19310-active .vc19311-dv-rothead span{font-size:11px;color:#557390;font-weight:800}
+#scout-analysis.vc19310-active .vc19311-dv-rotstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#scout-analysis.vc19310-active .vc19311-dv-rotstats span{border:1px solid #e3ebf3;background:#fff;border-radius:6px;padding:6px 7px;font-size:10px;color:#3d6286;display:grid;gap:2px}
+#scout-analysis.vc19310-active .vc19311-dv-rotstats b{display:block;font-size:9px;letter-spacing:.04em;color:#6c8197}
+#scout-analysis.vc19310-active .vc19311-dv-bases{margin-top:14px;border-top:1px solid #e6edf5;padding-top:12px}
+#scout-analysis.vc19310-active .vc19311-dv-bases-wrap{display:grid;gap:12px}
+#scout-analysis.vc19310-active .vc19311-dv-callbadges{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#scout-analysis.vc19310-active .vc19311-dv-badge{border:1px solid #d7e2ed;background:#fff;border-radius:8px;padding:10px;text-align:center;display:grid;gap:4px}
+#scout-analysis.vc19310-active .vc19311-dv-badge strong{font-size:18px;color:#183d63;font-weight:900}
+#scout-analysis.vc19310-active .vc19311-dv-badge span{font-size:13px;color:#0f3355;font-weight:900}
+#scout-analysis.vc19310-active .vc19311-dv-badge small{font-size:10px;color:#67829c;font-weight:800}
+#scout-analysis.vc19310-active .vc19311-dv-zonegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-width:540px;margin:0 auto}
+#scout-analysis.vc19310-active .vc19311-dv-zonebox{border:2px solid #142b44;background:#fff;border-radius:4px;min-height:86px;padding:8px;display:grid;align-content:start;justify-items:center;text-align:center;gap:2px}
+#scout-analysis.vc19310-active .vc19311-dv-zonebox small{font-size:10px;color:#6c8197;font-weight:900}
+#scout-analysis.vc19310-active .vc19311-dv-zonebox strong{font-size:24px;line-height:1;color:#122f50;font-weight:900}
+#scout-analysis.vc19310-active .vc19311-dv-zonebox span{font-size:13px;color:#144f95;font-weight:900}
+#scout-analysis.vc19310-active .vc19311-dv-zonebox em{font-style:normal;font-size:10px;color:#6c8197;font-weight:800}
+#scout-analysis.vc19310-active .vc19311-table-stack{display:grid;gap:16px}
+#scout-analysis.vc19310-active .vc19311-table-stack section h3{margin:0 0 8px;font-size:12px;color:#173e64;text-transform:uppercase;letter-spacing:.04em}
+#scout-analysis.vc19310-active .vc19311-split-tables{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#scout-analysis.vc19310-active .vc19311-dist-layout>.vc19310-panel:nth-child(2) .vc19310-scroll{max-height:220px}
+@media(max-width:1480px){#scout-analysis.vc19310-active .vc19311-dv-rotgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:950px){#scout-analysis.vc19310-active .vc19311-dv-callbadges{grid-template-columns:repeat(3,minmax(0,1fr))}#scout-analysis.vc19310-active .vc19311-split-tables{grid-template-columns:1fr}#scout-analysis.vc19310-active .vc19311-dv-rotgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#scout-analysis.vc19310-active .vc19311-dv-callbadges{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc19311-dv-rotgrid{grid-template-columns:1fr}#scout-analysis.vc19310-active .vc19311-dv-zonegrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
