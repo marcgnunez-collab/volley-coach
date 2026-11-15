@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.16';
+ const VERSION='19.3.16.1';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -152,7 +152,7 @@
    // V19.3.11 replaces only the professional views, not their data engines.
    // Fall back safely to V19.3.10 when an optional asset is unavailable.
    let enhanced=null;
-   try{enhanced=win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
+   try{enhanced=(state.space==='distribution'?win.VC_DISTRIBUTION_193161?.render?.({space:state.space,ctx,projection,state,win}):null)||win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
    catch(e){setStatus('La vista profesional no ha podido cargarse; se utiliza la vista anterior.');}
    if(enhanced)body.innerHTML=enhanced.html;
    else if(state.space==='match')body.innerHTML=matchView(ctx,projection);
@@ -186,6 +186,8 @@
     const integrated=win.VC_INTEGRATED_VIDEO_19314?.handleClick?.(win,b,{ctx,projection,node,state,selectRally});
     if(integrated?.handled)return;
    }
+   const distributionAction=state.space==='distribution'?win.VC_DISTRIBUTION_193161?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus}):null;
+   if(distributionAction?.handled){if(distributionAction.repaint)paint();return;}
    const enhancedAction=win.VC_ANALYSIS_SCREENS_19311?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus});
    if(enhancedAction?.handled){if(enhancedAction.repaint)paint();return;}
    if(b.dataset.vc19310Space){state.space=b.dataset.vc19310Space;state.zone=null;toggleLegacy(false);paint();return;}
@@ -222,6 +224,7 @@
   view.addEventListener('change',e=>{const t=e.target;if(!t)return;
    if(['vc157-match','vc157-team','vc157-set','vc157-phase','vc157-rotation'].includes(t.id)){state.zone=null;state.selected=null;delay();return;}
    if(t.dataset?.vc19310Preset!==undefined&&node?.contains(t)){state.searchPreset=t.value;return;}
+   if(node?.contains(t)&&state.space==='distribution'&&win.VC_DISTRIBUTION_193161?.handleChange?.({target:t,state})){paint();return;}
    if(node?.contains(t)&&win.VC_ANALYSIS_SCREENS_19311?.handleChange?.({target:t,state})){paint();return;}
    if(!node?.contains(t)||!t.dataset?.vc19310Filter)return;
    if(t.dataset.vc19310Filter==='Fundamento'){state.courtSkill=t.value;state.zone=null;paint();}
