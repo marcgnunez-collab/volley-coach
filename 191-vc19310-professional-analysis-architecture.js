@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.14';
+ const VERSION='19.3.15';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -181,6 +181,8 @@
   }
   view.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!node?.contains(b))return;
    if(state.space==='video'){
+    const editing=win.VC_SCOUTING_EDITOR_19315?.handleAnalysisClick?.(win,b,{ctx,projection,node,state});
+    if(editing?.handled)return;
     const integrated=win.VC_INTEGRATED_VIDEO_19314?.handleClick?.(win,b,{ctx,projection,node,state,selectRally});
     if(integrated?.handled)return;
    }

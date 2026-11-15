@@ -397,7 +397,7 @@ function timeline(m){
       copy:`R${r.rotationBefore||1} · ${r.servingBefore==='opponent'?'K1 / side-out':'K2 / break'} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · ${arr(r.actions).length} acciones`,r
     });
     arr(r.actions).forEach(a=>out.push({
-      key:`a:${s.number}:${r.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(s.number)||1,
+      key:`a:${s.number}:${r.id}:${a.id}`,type:'action',ms:a.scoutMs==null?null:Number(a.scoutMs)||0,set:Number(s.number)||1,
       team:a.team==='opponent'?'opponent':'ours',ownRotation:Number(r.rotationBefore)||1,opponentRotation:Number(r.opponentRotationBefore)||1,
       servingBefore:r.servingBefore==='opponent'?'opponent':'ours',winner:r.winner==='opponent'?'opponent':'ours',score,
       skill:a.skill||'',evaluation:a.evaluation||'',player:playerLabel(a),
@@ -408,15 +408,19 @@ function timeline(m){
   if(live&&arr(live.actions).length){
     const score=`${Number(cs?.scoreUs)||0}–${Number(cs?.scoreOpponent)||0}`;
     arr(live.actions).forEach(a=>out.push({
-      key:`a:${m.currentSet}:${live.id}:${a.id}`,type:'action',ms:Number(a.scoutMs)||0,set:Number(m.currentSet)||1,live:true,
+      key:`a:${m.currentSet}:${live.id}:${a.id}`,type:'action',ms:a.scoutMs==null?null:Number(a.scoutMs)||0,set:Number(m.currentSet)||1,live:true,
       team:a.team==='opponent'?'opponent':'ours',ownRotation:Number(m.rotationNo)||1,opponentRotation:Number(m.opponentRotationNo)||1,
       servingBefore:m.servingTeam==='opponent'?'opponent':'ours',winner:'',score,skill:a.skill||'',evaluation:a.evaluation||'',player:playerLabel(a),
       label:String(a.code||skillNames[a.skill]||'Acción'),copy:`Rally en curso · ${skillNames[a.skill]||a.skill||'Acción'} · ${playerLabel(a)} · ${a.evaluation||'!'} · R${m.rotationNo||1}`,a,r:live
     }));
   }
-  return out.sort((a,b)=>a.ms-b.ms);
+  return out.sort((a,b)=>(a.ms==null?Infinity:a.ms)-(b.ms==null?Infinity:b.ms));
 }
 function actionVideoTime(a,m=currentMatch()){
+  // V19.3.15: an analyst-confirmed mark is valid ONLY for the same source key.
+  // A different recording falls back to the original aligned scouting clock.
+  const explicit=window.VC_SCOUTING_EDITOR_19315?.videoTime?.(a,m,null);
+  if(explicit!=null)return explicit;
   // The original liveVideoTime belongs to the temporary Delay buffer, not REC.
   // Only the selected source's alignment is valid for stored-video playback.
   return a?.scoutMs!=null?mapped(m,a.scoutMs):null;
@@ -542,7 +546,7 @@ function renderSelection(){
   const row=selectedRow(),t=$('v780-selected-title'),c=$('v780-selected-copy');
   if(!row){if(t)t.textContent='Ningún elemento';if(c)c.textContent='Selecciona un rally o una acción de la lista.';return}
   if(t)t.textContent=row.label;
-  if(c)c.innerHTML=`${esc(row.copy)}<br><b>Scout:</b> ${fmt(row.ms/1000)}${row.type==='action'?` · <b>${esc(skillNames[row.skill]||row.skill||'')}</b> ${esc(row.evaluation||'')}`:''}`;
+  if(c)c.innerHTML=`${esc(row.copy)}<br><b>Scout:</b> ${row.ms==null?'Sin marca':fmt(row.ms/1000)}${row.type==='action'?` · <b>${esc(skillNames[row.skill]||row.skill||'')}</b> ${esc(row.evaluation||'')}`:''}`;
 }
 function presetRows(type){
   const rows=timeline(currentMatch());
@@ -578,7 +582,7 @@ function renderTimeline(){
     const range=rowRange(r),tm=r.type==='action'?actionVideoTime(r.a,currentMatch()):(range?.center??mapped(currentMatch(),r.ms)),playable=!!range&&mediaLoaded();
     const linked=r.type==='action'&&actionVideoTime(r.a,currentMatch())!=null;
     return `<article class="v780-row ${state.selectedKey===r.key?'selected':''} ${r.type==='action'?'skill-'+esc(r.skill||'X'):''}" data-key="${esc(r.key)}" onclick="v780Select('${esc(r.key)}')">
-      <div class="v780-time">${fmt(tm!=null?tm:r.ms/1000)}</div>
+      <div class="v780-time">${tm==null&&r.ms==null?'—':fmt(tm!=null?tm:r.ms/1000)}</div>
       <span class="v780-type ${r.team||''}">${r.type==='rally'?'RALLY':esc(r.skill||'ACC')}</span>
       <div class="v780-row-copy"><strong>${esc(r.label)}${linked?' <em class="v133-linked">VÍDEO</em>':''}</strong><small>${esc(r.copy)}${linked?` · ▶ ${fmt(actionVideoTime(r.a,currentMatch()))}`:''}</small></div>
       <div class="v780-row-actions"><button class="${playable?'primary':'ghost'}" ${playable?'':'disabled'} onclick="event.stopPropagation();v780PlayKey('${esc(r.key)}')">▶</button><button class="ghost" onclick="event.stopPropagation();v780CreateClip('${esc(r.key)}')">Clip −8/+5</button></div>
@@ -714,6 +718,7 @@ window.v780Fullscreen=async function(){const el=$('v780-video-frame'),v=video();
 window.v780RulerSeek=function(e){const box=$('v780-ruler'),duration=mediaDuration();if(!mediaLoaded()||duration<=0||!box)return;const r=box.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));mediaSeek(x*duration)};
 window.v780SyncSelected=function(){
   const m=currentMatch(),row=selectedRow();if(!m||!row){alert('Selecciona un rally o una acción.');return}if(!mediaLoaded()){alert('Carga primero el vídeo.');return}
+  if(row.ms==null){alert('Esta acción no tiene una marca del reloj de scouting válida.');return}
   const current=mediaCurrentTime(),x=meta(m),offset=anchorOffset(m,row.ms,current);
   if(offset==null){alert('Esta acción no pertenece al tramo grabado o cae durante una pausa de REC. Elige otra acción.');return}
   x.syncOffset=offset;x.syncedAt=new Date().toISOString();x.anchor={key:row.key,type:row.type,scoutMs:row.ms,videoTime:current};
@@ -726,7 +731,7 @@ window.v780SyncFromAnchor=function({key,videoTime}={}){
   if(!m||!row)return {ok:false,error:'Selecciona una acción del partido actual.'};
   if(!mediaLoaded())return {ok:false,error:'Carga el vídeo correspondiente a este partido.'};
   const t=Number(videoTime),ms=Number(row.ms);
-  if(videoTime==null||!Number.isFinite(t)||t<0||!Number.isFinite(ms)||ms<0)return {ok:false,error:'Marca un instante y una acción con tiempos válidos.'};
+  if(videoTime==null||row.ms==null||!Number.isFinite(t)||t<0||!Number.isFinite(ms)||ms<0)return {ok:false,error:'Marca un instante y una acción con tiempos válidos.'};
   const duration=mediaDuration();
   if(duration>0&&t>duration+.5)return {ok:false,error:'El instante marcado supera la duración del vídeo.'};
   const x=meta(m),offset=anchorOffset(m,ms,t);
