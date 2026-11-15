@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.16',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.19',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -13968,4 +13968,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <!-- V19.3.18 Worksheets & Reports Pro: read-only projection of the same scouting. -->
 <link rel="stylesheet" href="./vc19318-worksheets-reports-pro.css?v=19.3.18">
 <script id="vc19318-worksheets-reports" src="./200-vc19318-worksheets-reports-pro.js?v=19.3.18" defer data-vc-module="true"></script>
+<!-- V19.3.19 Bench Client Pro · read-only extension of the original bench. -->
+<link rel="stylesheet" href="./vc19319-bench-client-pro.css?v=19.3.19">
+<script id="vc19319-bench-client-pro" src="./201-vc19319-bench-client-pro.js?v=19.3.19" defer data-vc-module="true"></script>
 </body></html>
