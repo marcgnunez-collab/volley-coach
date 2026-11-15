@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.15';
+ const VERSION='19.3.16';
  const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['worksheets','Worksheets','Hojas e informes']];
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
@@ -164,7 +164,7 @@
    body.dataset.vc19314Signature=sig;
    const source=state.space==='search'?(win.VC_RALLY_SEARCH_1939?.query?.(projection.model,{...state.search,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase})?.rallies||[]):projection.base.rallies;
    const filtered=enhanced?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
-   filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);if(state.space==='video')win.VC_INTEGRATED_VIDEO_19314?.attach?.(win,node,ctx.match);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
+   filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);if(state.space==='video')win.VC_INTEGRATED_VIDEO_19314?.attach?.(win,node,ctx.match);if(state.space==='video')win.VC_SMART_SCOUTING_19316?.updateAudit?.(node,ctx.match,win.VC_DATA_ENGINE_1938,win);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
    else if(filtered.length)selectRally(filtered[filtered.length-1].key);
    else state.selected=null;
   }

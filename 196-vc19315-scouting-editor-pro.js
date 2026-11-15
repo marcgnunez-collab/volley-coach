@@ -7,7 +7,7 @@
  if(root){root.VC_SCOUTING_EDITOR_19315=api;if(root.document)api.install(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.15',SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
+ const VERSION='19.3.16',SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const EVALS=['#','+','!','-','/','='];
  const arr=x=>Array.isArray(x)?x:[];
  const str=x=>String(x??'').trim();
@@ -111,7 +111,9 @@
  let work=null,busy=false,winRef=null;
  const active=win=>win?.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null;
  function getCurrent(){const m=active(winRef);if(!work||!m||!same(m.id,work.ref.matchId))return {error:'El partido activo ha cambiado. No se guardará.'};if(str(m.status)==='finished')return {error:'Reabre el scouting finalizado desde Gestión antes de editar.'};const found=locate(m,work.ref);if(found.error)return found;
-  if(signature(found.rally.actions)!==work.initialSignature)return {error:'El rally cambió desde que se abrió el editor. Ciérralo y vuelve a abrirlo para evitar sobrescribir cambios.'};return {...found,match:m};
+  if(signature(found.rally.actions)!==work.initialSignature)return {error:'El rally cambió desde que se abrió el editor. Ciérralo y vuelve a abrirlo para evitar sobrescribir cambios.'};
+  if(str(m.updatedAt||'')!==str(work.revision||''))return {error:'El partido ha cambiado mientras editabas. Reabre el rally y comprueba los datos antes de guardar.'};
+  if(!scoreGuard(work.protectedRally,found.rally))return {error:'El marcador o el reloj del rally cambió. Reabre para no sobrescribirlo.'};return {...found,match:m};
  }
  function getModal(){return winRef?.document?.getElementById('vc19315-modal')}
  function note(value,error=false){const n=getModal()?.querySelector('[data-vc19315-note]');if(n){n.textContent=value;n.classList.toggle('is-error',error)}}
@@ -125,6 +127,7 @@
   const action=parsed.action,fields=advancedFields[action.skill]||[];
   panel.innerHTML=`<div class="vc19315-advanced-title"><strong>Contacto ${work.selected+1} · ${esc(SKILLS[action.skill]||action.skill)}</strong><button type="button" data-vc19315-cmd="video">Usar fotograma actual</button></div><p>La marca de vídeo se aplica solo al archivo o grabación actual; el tiempo original del scouting se conserva.</p>`+
    (fields.length?`<div class="vc19315-fields">${fields.map(k=>{const current=item.advanced?.[k]??action[k]??'';return `<label>${esc(captions[k]||k)}${allowed[k]?`<select data-vc19315-field="${esc(k)}">${allowed[k].map(v=>`<option value="${esc(v)}"${v===String(current)?' selected':''}>${esc(v||'—')}</option>`).join('')}</select>`:`<input data-vc19315-field="${esc(k)}" maxlength="6" value="${esc(current)}">`}</label>`}).join('')}</div>`:'<p>Este fundamento no dispone de campos avanzados específicos.</p>');
+  panel.insertAdjacentHTML('beforeend',winRef?.VC_SMART_SCOUTING_19316?.editorPanel?.(work,action)||'');
  }
  function show(){const modal=getModal();if(!modal||!work)return;const m=active(winRef);modal.hidden=false;modal.setAttribute('aria-hidden','false');modal.querySelector('[data-vc19315-title]').textContent=`Scouting Editor Pro · Set ${work.ref.set} / Rally ${work.ref.rallyIndex+1}`;
   modal.querySelector('[data-vc19315-cmd="save"]')?.removeAttribute('disabled');
@@ -140,7 +143,7 @@
   const found=locate(match,ref);if(found.error)return {ok:false,error:found.error};
   const original=copy(arr(found.rally.actions));let selected=0;
   if(contactKey){const c=projectionRally.contacts?.find(c=>c.key===contactKey);if(c){const ix=c.source.actionIndex;if(same(original[ix]?.id,c.nativeId))selected=ix;}}
-  work={ref,initialSignature:signature(found.rally.actions),original,draft:draftFrom(original),selected,team,score:{before:copy(found.rally.scoreBefore||{}),after:copy(found.rally.scoreAfter||{}),winner:found.rally.winner,rotation:found.rally.rotationBefore},revision:match.updatedAt||''};
+  work={ref,initialSignature:signature(found.rally.actions),protectedRally:copy(found.rally),original,draft:draftFrom(original),selected,team,score:{before:copy(found.rally.scoreBefore||{}),after:copy(found.rally.scoreAfter||{}),winner:found.rally.winner,rotation:found.rally.rotationBefore},revision:match.updatedAt||''};
   show();return {ok:true};
  }
  function close(){if(busy)return;const modal=getModal();if(modal){modal.hidden=true;modal.setAttribute('aria-hidden','true')}work=null;}
@@ -163,14 +166,16 @@
    const out={ok:true,before:pre,after:post,savedLocally:true};winRef.document?.dispatchEvent(new winRef.CustomEvent('vc19315:edited',{detail:{matchId:String(again.match.id),set:Number(again.set.number),rallyId:String(again.rally.id),before:pre,after:post}}));return out;
   }catch(e){return {ok:false,error:String(e?.message||e)}}finally{busy=false}
  }
- function onClick(event){const b=event.target.closest?.('[data-vc19315-cmd]');if(!b)return;const cmd=b.dataset.vc19315Cmd;event.preventDefault();
+ function onClick(event){const b=event.target.closest?.('[data-vc19315-cmd], [data-vc19316-grade], [data-vc19316-zone], [data-vc19316-mode]');if(!b)return;const cmd=b.dataset.vc19315Cmd;event.preventDefault();
   if(cmd==='close'){close();return;}if(!work||busy)return;
+  const smart=winRef?.VC_SMART_SCOUTING_19316?.editorAction?.({button:b,work,win:winRef,parseCode});
+  if(smart?.handled){if(smart.changed)renderRows();if(smart.error)note(smart.error,true);else if(smart.changed)note('Cambio aplicado al borrador; confirma con Guardar.');return;}
   const i=Number(b.dataset.index);
-  if(cmd==='pick'&&Number.isInteger(i)){work.selected=i;renderRows();return;}
+  if(cmd==='pick'&&Number.isInteger(i)){work.selected=i;work.vc19316Mode=null;renderRows();return;}
   if(cmd==='delete'&&Number.isInteger(i)){work.draft.splice(i,1);work.selected=Math.max(0,Math.min(work.selected,work.draft.length-1));renderRows();return;}
   if((cmd==='up'||cmd==='down')&&Number.isInteger(i)){const to=i+(cmd==='up'?-1:1);if(to<0||to>=work.draft.length)return;const [x]=work.draft.splice(i,1);work.draft.splice(to,0,x);work.selected=to;renderRows();return;}
   if(cmd==='add'){const input=getModal().querySelector('[data-vc19315-new]'),code=str(input?.value);if(!code)return;const result=parseCode(winRef,code,null,active(winRef));if(result.error){note(result.error,true);return;}
-   const id=newActionId(work.draft,Date.now()+Math.floor(Math.random()*1000));work.draft.push({originIndex:null,originId:null,newId:id,createdAt:new Date().toISOString(),code,advanced:{},videoMark:null});work.selected=work.draft.length-1;input.value='';renderRows();note('Acción añadida al borrador, sin marca de tiempo inventada.');return;}
+   const id=newActionId(work.draft,Date.now()+Math.floor(Math.random()*1000));work.draft.push({originIndex:null,originId:null,newId:id,createdAt:new Date().toISOString(),code,advanced:{},videoMark:null});work.selected=work.draft.length-1;work.vc19316Mode=null;input.value='';renderRows();note('Acción añadida al borrador, sin marca de tiempo inventada.');return;}
   if(cmd==='video'){const d=getCurrent();if(d.error){note(d.error,true);return;}const mark=exactMark(winRef,d.match);if(mark.error){note(mark.error,true);return;}const item=work.draft[work.selected];if(!item)return;item.videoMark=mark;renderRows();note('Fotograma vinculado a '+mark.sourceKey+' · '+mark.time.toFixed(3)+' s. Guarda para aplicar.');return;}
   if(cmd==='save'){b.disabled=true;commit().then(out=>{if(!out.ok){note(out.error,true);b.disabled=false;}else{const s=winRef?.document?.querySelector('#vc19314-status');if(s)s.textContent=`Rally corregido. Ataque EFF: ${out.before.efficiency??'—'} % → ${out.after.efficiency??'—'} %. Estadísticas recalculadas desde el scouting.`;}}).catch(e=>{note(String(e),true);b.disabled=false});return;}
  }
@@ -180,7 +185,10 @@
   doc.body.append(node);node.addEventListener('click',onClick);node.addEventListener('input',e=>{const target=e.target,idx=target.dataset?.vc19315Code;if(idx!==undefined&&work?.draft[Number(idx)]){target.value=target.value.toUpperCase();work.draft[Number(idx)].code=target.value;return;}if(target.dataset?.vc19315Field!==undefined&&work?.draft[work.selected]){work.draft[work.selected].advanced[target.dataset.vc19315Field]=target.value.toUpperCase();}});
   node.addEventListener('change',e=>{const t=e.target;if(t.dataset?.vc19315Field!==undefined&&work?.draft[work.selected])work.draft[work.selected].advanced[t.dataset.vc19315Field]=t.value.toUpperCase();});
   node.addEventListener('click',e=>{if(e.target===node)close()});
-  doc.addEventListener('keydown',e=>{if(getModal()?.hidden)return;if(e.key==='Escape'){e.preventDefault();close();}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();node.querySelector('[data-vc19315-cmd="save"]')?.click();}else if(e.key==='Enter'&&e.target?.matches?.('[data-vc19315-new]')){e.preventDefault();node.querySelector('[data-vc19315-cmd="add"]')?.click();}});
+  doc.addEventListener('keydown',e=>{if(getModal()?.hidden)return;
+   const quick=winRef?.VC_SMART_SCOUTING_19316?.keyboard?.({event:e,work,win:winRef,parseCode});
+   if(quick?.handled){e.preventDefault();if(quick.changed)renderRows();if(quick.error)note(quick.error,true);if(quick.focus){getModal()?.querySelector(`[data-vc19315-code="${work.selected}"]`)?.focus?.();}return;}
+   if(e.key==='Escape'){e.preventDefault();close();}else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();node.querySelector('[data-vc19315-cmd="save"]')?.click();}else if(e.key==='Enter'&&e.target?.matches?.('[data-vc19315-new]')){e.preventDefault();node.querySelector('[data-vc19315-cmd="add"]')?.click();}});
  }
  function handleAnalysisClick(win,button,{ctx,projection,node,state}={}){
   const contactKey=button?.dataset?.vc19315EditContact,command=button?.dataset?.vc19315Open;

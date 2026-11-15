@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.16',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -13930,7 +13930,9 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <script id="vc193131-scout-video-score" src="./194-vc193131-scout-video-score-model.js?v=19.3.13.1" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc19314-integrated-video.css?v=19.3.14">
 <link rel="stylesheet" href="./vc19315-scouting-editor.css?v=19.3.15">
-<script id="vc19314-integrated-video" src="./195-vc19314-integrated-video-workspace.js?v=19.3.14" defer data-vc-module="true"></script>
-<script id="vc19315-scouting-editor" src="./196-vc19315-scouting-editor-pro.js?v=19.3.15" defer data-vc-module="true"></script>
-<script id="vc19310-analysis-architecture" src="./191-vc19310-professional-analysis-architecture.js?v=19.3.15" defer data-vc-module="true"></script>
+<script id="vc19314-integrated-video" src="./195-vc19314-integrated-video-workspace.js?v=19.3.16" defer data-vc-module="true"></script>
+<script id="vc19315-scouting-editor" src="./196-vc19315-scouting-editor-pro.js?v=19.3.16" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc19316-smart-scouting.css?v=19.3.16">
+<script id="vc19316-smart-scouting" src="./197-vc19316-smart-scouting.js?v=19.3.16" defer data-vc-module="true"></script>
+<script id="vc19310-analysis-architecture" src="./191-vc19310-professional-analysis-architecture.js?v=19.3.16" defer data-vc-module="true"></script>
 </body></html>
