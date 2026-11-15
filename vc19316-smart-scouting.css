@@ -1,0 +1,33 @@
+/* V19.3.16 · uses the existing modal and integrated-video layout */
+.vc19316-editor{border-top:1px solid #d4e3ed;margin-top:14px;padding-top:13px}
+.vc19316-panel-heading,.vc19316-board-heading{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.vc19316-panel-heading strong,.vc19316-board-heading strong{color:#17486d;font-size:13px}
+.vc19316-panel-heading p,.vc19316-court-status{color:#617b8c;font-size:11px;line-height:1.4}
+.vc19316-panel-heading span{border:1px solid #d9e7ee;border-radius:16px;padding:4px 8px;background:#f6fafe;font-size:10px;font-weight:750}
+.vc19316-grades{display:grid;grid-template-columns:repeat(6,minmax(30px,1fr));gap:7px;margin:10px 0 14px}
+.vc19315-dialog .vc19316-grades button{font-size:16px;font-weight:900;padding:8px 0;border-radius:7px;background:#eaf3fa;color:#194b70}
+.vc19315-dialog .vc19316-grades button.is-current{background:#124f7e;color:white}
+.vc19316-board-heading{margin-bottom:10px}.vc19316-board-heading>div{display:flex;gap:6px}
+.vc19315-dialog .vc19316-board-heading button[aria-pressed="true"]{background:#155a90;color:#fff;border-color:#155a90}
+.vc19315-dialog .vc19316-board-heading button:disabled{opacity:.35;cursor:not-allowed}
+.vc19316-court{max-width:650px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:7px;background:#e7f0f6;border:2px solid #8cb1c9;border-radius:10px}
+.vc19316-zone{position:relative;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;min-height:65px;padding:2px;background:#d0e0ea;border-radius:6px}
+.vc19315-dialog .vc19316-zone button{border:0;border-radius:2px;background:#fff;font-size:12px;padding:2px;color:#5a809c}
+.vc19315-dialog .vc19316-zone button:hover{background:#d5ebfb}
+.vc19315-dialog .vc19316-zone button.is-marked{background:#76c7e8;color:#103752}
+.vc19316-zone>span{position:absolute;pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%);background:#fffdec;padding:1px 6px;border:1px solid #cbdce7;border-radius:3px;color:#123d5d;font-size:12px;font-weight:900}
+.vc19316-selection{margin-top:12px;padding-top:10px;border-top:1px solid #d7e3ed}
+.vc19316-selection h4{font-size:12px;margin:0 0 8px;color:#214e72}
+.vc19316-selection p,.vc19316-audit p{font-size:11px;line-height:1.45;color:#5b7488;margin:7px 0}
+.vc19316-links{display:grid;gap:4px;max-height:175px;overflow:auto}
+.vc19316-links>div{display:flex;flex-wrap:wrap;gap:8px;padding:6px 7px;background:#eef5f9;border-radius:5px;font-size:11px;min-width:0}
+.vc19316-links strong{min-width:45px;color:#124f7e}
+.vc19316-links span{font:700 11px ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.vc19316-links small{color:#a05b22}
+.vc19316-audit{padding:11px;border:1px solid #d7e3ed;border-radius:9px;background:#fff;margin-top:9px}
+.vc19316-audit-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.vc19316-audit-head strong{font-size:12px;color:#194b70}
+.vc19316-audit-head span{font-size:11px;font-weight:700;color:#476b86}
+.vc19316-audit-issues{max-height:130px;overflow:auto}.vc19316-audit-issues p{border-left:2px solid #bdb7a3;padding-left:7px}
+.vc19316-audit .vc19316-audit-note{font-style:italic;font-size:10px}
+@media(max-width:550px){.vc19316-zone{min-height:47px}.vc19316-court{gap:2px;padding:3px}.vc19316-board-heading{align-items:flex-start}}
