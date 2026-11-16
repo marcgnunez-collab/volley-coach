@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.20',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=20.1.0',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -8396,6 +8396,17 @@ let lastRemoteStamp=localStorage.getItem(REMOTE_STAMP_KEY)||'';
 let reads=Number(sessionStorage.getItem('v962_reads'))||0,writes=Number(sessionStorage.getItem('v962_writes'))||0,skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
 let failureCount=0,lastSyncError='',conflictCount=0,lastConfirmedRevision=-1,lastWriteConflict=null;
 let lastProtectedRemoteStamp='',lastProtectedLocalRevision=-1;
+/* V20.1: error backoff and manual-review states. This does NOT replace the CAS writer. */
+let retryAt=0,consecutiveFailures=0,blockedReason='',blockedCategory='',lastErrorCode='',lastFailureAt=0;
+function emitSyncState(){try{window.dispatchEvent(new CustomEvent('vc200:sync-state'))}catch(_){}}
+function errorPolicy(err){
+ const policy=window.VC_SYNC_200_POLICY?.retryPolicy;
+ if(typeof policy==='function')return policy({failures:consecutiveFailures,code:err?.code||err?.status||'',message:err?.message||String(err)});
+ return {retry:true,manualRequired:false,category:'transient',delayMs:Math.min(120000,2000*2**Math.min(6,Math.max(0,consecutiveFailures-1)))};
+}
+function explicitSync(reason){return /manual|resolv|recovery|protected-recovery/i.test(String(reason||''));}
+function resetRetry(){retryAt=0;consecutiveFailures=0;blockedReason='';blockedCategory='';lastErrorCode='';}
+
 function persistCounters(){try{sessionStorage.setItem('v962_reads',String(reads));sessionStorage.setItem('v962_writes',String(writes));sessionStorage.setItem('v962_skipped_writes',String(skippedWrites))}catch(_){}}
 function connected(){try{return !!cloudClient&&!!cloudUser}catch(_){return false}}
 function activeScouting(){try{return !!window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()}catch(_){return false}}
@@ -8425,8 +8436,17 @@ function assertAccount(expected){
   if(dirty&&dirtyAccount&&dirtyAccount!==String(expected))
     throw Error('Hay cambios pendientes de otra cuenta en este navegador. Descarga una copia JSON antes de cambiar de cuenta; se ha bloqueado la sincronización.');
 }
-function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);return true}
-function scheduleDirty(reason='change'){if(!dirty||!connected()||(dirtyAccount&&dirtyAccount!==String(cloudUser.id)))return;clearTimeout(dirtyTimer);const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS,elapsed=Math.max(0,Date.now()-dirtySince),delay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,allowWrite:true}),delay)}
+function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);emitSyncState();return true}
+function scheduleDirty(reason='change'){
+ if(!dirty||!connected()||blockedReason||(dirtyAccount&&dirtyAccount!==String(cloudUser.id)))return;
+ clearTimeout(dirtyTimer);
+ const scout=activeScouting(),quiet=scout?QUIET_SCOUT_MS:QUIET_NORMAL_MS,max=scout?MAX_DIRTY_SCOUT_MS:MAX_DIRTY_NORMAL_MS;
+ const elapsed=Math.max(0,Date.now()-dirtySince);
+ const normalDelay=Math.max(350,Math.min(quiet,Math.max(350,max-elapsed)));
+ // The same retry deadline governs the autosave timer and passive poller.
+ const delay=Math.max(normalDelay,Math.max(0,retryAt-Date.now()));
+ dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,allowWrite:true}),delay);
+}
 async function readRemote(expectedUserId){assertAccount(expectedUserId);const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',expectedUserId).maybeSingle();assertAccount(expectedUserId);reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
 function nextStamp(previous){const prev=Date.parse(previous||'')||0;return new Date(Math.max(Date.now(),prev+1)).toISOString()}
 async function writeRemote(state,remote,expectedUserId){
@@ -8456,10 +8476,17 @@ async function writeRemote(state,remote,expectedUserId){
   return {conflict:false,stamp:confirmed};
 }
 function renderVisible(){const id=document.querySelector('.view.active')?.id||'';try{if(id==='dashboard')renderDashboard?.();else if(id==='entrenamiento'){renderizarSesion?.();cargarMeta?.()}else if(id==='ejercicios')filtrarEjercicios?.();else if(id==='planificacion')renderPlanificacion?.();else if(id==='historial')renderHistorial?.();else if(id==='estadisticas')renderStats?.();else if(id==='jugadores'){renderPlayers?.();renderDashboardPlayers?.()}else if(id==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();window.v119RefreshPro?.()}else if(id==='scout-match-mode'){window.v800Render?.()}else if(id==='scout-analysis'){window.scoutRenderAnalysis?.()}else if(id==='scout-season'){window.VC_V151?.render?.()}}catch(err){console.warn('V15.3.3 render',err)}}
-async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}={}){
+async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,bypassBackoff=false}={}){
   if(syncPromise)return syncPromise;
   if(!connected()){if(manual)alert('La nube no está conectada. Los datos siguen guardados en este dispositivo.');return false}
+  if(navigator.onLine===false){setStatus('Sin Internet · datos locales conservados','offline');emitSyncState();return false;}
+  // Automatic attempts cannot hammer the API or override conflicts needing review.
+  if(!manual&&!bypassBackoff&&!explicitSync(reason)&&(blockedReason||retryAt>Date.now())){
+    if(dirty&&!blockedReason)scheduleDirty('retry-wait');
+    emitSyncState();return false;
+  }
   clearTimeout(dirtyTimer);dirtyTimer=null;
+  emitSyncState();
   syncPromise=(async()=>{
     const expectedUserId=String(cloudUser?.id||'');
     if(manual)setStatus('Sincronizando…','syncing');
@@ -8550,7 +8577,7 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
         try{window.VC_V1915_RELIABILITY?.captureBaseline?.(localState());}
         catch(manifestError){console.warn('V19.1.5: no se ha guardado el manifiesto de versiones; próxima edición concurrente necesitará revisión.',manifestError)}
       }
-      persistCounters();failureCount=0;lastSyncError='';renderVisible();
+      persistCounters();failureCount=0;lastSyncError='';resetRetry();emitSyncState();renderVisible();
       const status=document.getElementById('v956-scout-sync-status'),scoutCount=window.VC_SCOUT_VIDEO_BRIDGE?.getMatches?.()?.length||0;
       if(status)status.textContent=`${scoutCount} scouting${scoutCount===1?'':'s'} · ${dirty?'cambios pendientes':'sincronizados ✓'}`;
       setStatus(dirty?'Nube pendiente · cambios locales protegidos':(confirmed?'Nube sincronizada':remoteApplied?'Cambios recibidos ✓':'Nube al día'),dirty?'syncing':'online');
@@ -8558,13 +8585,27 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false}=
       if(indicator)indicator.textContent=dirty?'◷ Guardado local · nube pendiente':confirmed?'✓ Confirmado por la nube':'✓ Guardado · nube al día';
       if(manual)alert(dirty?'Se han recibido cambios, pero quedan modificaciones por subir.':confirmed?'Datos fusionados y confirmados por la nube.':remoteApplied?'Cambios recibidos de la nube.':'Nube comprobada. No había cambios pendientes.');
       return remoteApplied||confirmed;
-    }catch(err){failureCount++;lastSyncError=String(err?.message||err||'Error de sincronización');requiresReview=err?.code==='VC1915_CONFLICT'||err?.code==='VC1917_DELETE_CONFLICT';console.warn('V15.3.3 cloud sync',reason,err);if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}else setStatus(requiresReview?'Revisión necesaria · abre Nube para resolver conflictos':'Nube pendiente · '+lastSyncError.slice(0,95),'error');if(dirty&&!requiresReview)scheduleDirty('retry');return false}
-    finally{syncPromise=null;if(dirty&&connected()&&!requiresReview&&!lastSyncError.includes('registros tienen cambios incompatibles'))scheduleDirty('revision-pending')}
+    }catch(err){
+      failureCount++;consecutiveFailures++;lastFailureAt=Date.now();
+      lastSyncError=String(err?.message||err||'Error de sincronización');lastErrorCode=String(err?.code||err?.status||'').slice(0,32);
+      const policy=errorPolicy(err);
+      requiresReview=policy.manualRequired===true;
+      if(requiresReview){retryAt=0;blockedReason=lastSyncError;blockedCategory=policy.category;}
+      else{blockedReason='';blockedCategory='';retryAt=Date.now()+policy.delayMs;}
+      console.warn('V20.1 cloud sync',reason,err);
+      if(manual){setStatus('Error de sincronización','error');alert(`${lastSyncError}\n\nLos datos locales siguen protegidos.`)}
+      else setStatus(requiresReview?'Revisión necesaria · abre Nube para resolver conflictos':'Nube pendiente · reintento protegido','error');
+      emitSyncState();return false;
+    }finally{
+      syncPromise=null;
+      if(dirty&&connected()&&!blockedReason)scheduleDirty('revision-pending');
+      emitSyncState();
+    }
   })();return syncPromise;
 }
-async function forceSync(reason='manual'){if(reason==='manual'||reason==='button'){if(dirty)markDirty('force:'+reason)}return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true})}
+async function forceSync(reason='manual'){return sync({reason,manual:reason==='manual'||reason==='button',allowWrite:true,bypassBackoff:true})}
 function visibilitySync(){if(document.visibilityState!=='visible'||!connected())return;if(dirty)void sync({reason:'visible-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS)void sync({reason:'visible',allowWrite:false,pullOnly:true})}
-function onOnline(){if(!connected())return;if(dirty)void sync({reason:'online',allowWrite:true});else void sync({reason:'online-pull',allowWrite:false,pullOnly:true})}
+function onOnline(){if(!connected())return;if(!blockedReason)retryAt=0;if(dirty)void sync({reason:'online',allowWrite:true,bypassBackoff:!blockedReason});else void sync({reason:'online-pull',allowWrite:false,pullOnly:true,bypassBackoff:!blockedReason});emitSyncState()}
 const efficientSchedule=function(){return markDirty('autosave')};window.programarSubidaCloud=efficientSchedule;try{programarSubidaCloud=efficientSchedule}catch(_){}
 const efficientUpload=function(manual=false){if(manual){markDirty('manual-upload');return sync({reason:'manual-upload',manual:true,allowWrite:true})}markDirty('legacy-upload');return Promise.resolve(true)};window.subirNube=efficientUpload;try{subirNube=efficientUpload}catch(_){}
 const efficientDownload=function(manual=false){return sync({reason:'manual-download',manual:!!manual,allowWrite:false,pullOnly:true})};window.bajarNube=efficientDownload;try{bajarNube=efficientDownload}catch(_){}
@@ -8572,7 +8613,7 @@ window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNo
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);
 setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),fastRealtime:true,compareAndSet:true})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,fastRealtime:true,compareAndSet:true})};
 })();
 </script>
 
@@ -13995,4 +14036,6 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <!-- V19.3.20: non-destructive DVW inspection and format coverage audit. -->
 <link rel="stylesheet" href="./vc19320-compatibility-audit.css?v=19.3.20">
 <script id="vc19320-compat-audit" src="./208-vc19320-compatibility-audit.js?v=19.3.20" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc2001-sync-reliability.css?v=20.1.0">
+<script id="vc2001-sync-reliability" src="./209-vc2001-sync-reliability.js?v=20.1.0" defer data-vc-module="true"></script>
 </body></html>
