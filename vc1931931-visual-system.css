@@ -1,0 +1,237 @@
+/* Volley Coach V19.3.19.3.1 — Unified Visual Identity.
+ * Pure presentation layer: no JS handlers, routing, DOM removal, data or sync changes.
+ * Loaded LAST, scoped to vc-design-v1 so it is reversible.
+ */
+body.v11-shell.vc-design-v1 {
+  --vc-ui-font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --vc-ui-navy: #102a46;
+  --vc-ui-navy-deep: #081d35;
+  --vc-ui-blue: #146bcb;
+  --vc-ui-electric: #1682ef;
+  --vc-ui-blue-soft: #eaf3ff;
+  --vc-ui-ink: #15314d;
+  --vc-ui-muted: #617b95;
+  --vc-ui-bg: #f3f6fb;
+  --vc-ui-surface: #ffffff;
+  --vc-ui-surface-subtle: #f8fafd;
+  --vc-ui-line: #dce6f0;
+  --vc-ui-line-strong: #c2d4e7;
+  --vc-ui-shadow: 0 3px 14px rgba(14, 43, 73, .055);
+  --vc-ui-radius: 12px;
+  --vc-ui-radius-sm: 8px;
+  --vc17-navy: var(--vc-ui-navy);
+  --vc17-blue: var(--vc-ui-blue);
+  --vc17-muted: var(--vc-ui-muted);
+  --vc17-line: var(--vc-ui-line);
+  --vc17-bg: var(--vc-ui-bg);
+  font-family: var(--vc-ui-font) !important;
+  color: var(--vc-ui-ink);
+  background: var(--vc-ui-bg) !important;
+  font-size: 13px;
+  line-height: 1.48;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body.v11-shell.vc-design-v1 :is(h1,h2,h3,h4,h5,h6,p,small,label,button,input,select,textarea,th,td,summary,a,b,strong,code,output) {
+  font-family: var(--vc-ui-font) !important;
+}
+body.v11-shell.vc-design-v1 :is(button,select,input,textarea) { letter-spacing: normal; }
+body.v11-shell.vc-design-v1 :is(button,a,select,input,textarea):focus-visible {
+  outline: 3px solid rgba(22,130,239,.6) !important;
+  outline-offset: 2px;
+}
+body.v11-shell.vc-design-v1 :is(button,select) { cursor: pointer; }
+body.v11-shell.vc-design-v1 :is(button:disabled,select:disabled,input:disabled) { cursor: not-allowed; }
+
+/* The shell remains the same navigation; identity and visual rhythm converge. */
+body.v11-shell.vc-design-v1 #v11-sidebar {
+  background: linear-gradient(180deg,#091c34 0%,#102f53 100%) !important;
+  border-right: 1px solid #24415f !important;
+  scrollbar-color: #365672 transparent;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-brand-mark {
+  background: #0a5cb4 !important; border-radius: 12px !important;
+  border: 1px solid #3675bb !important; box-shadow: none !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-brand strong {
+  font-size: 17px !important; font-weight: 850 !important; letter-spacing: -.025em !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-brand span,
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-subnav button {
+  font-size: 11px !important; line-height: 1.35 !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar button.vc17-nav-main {
+  font-size: 12.5px !important; font-weight: 740 !important;
+  border-radius: 9px !important; min-height: 44px !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-nav-group.active>button.vc17-nav-main {
+  background: #146bcb !important; box-shadow: inset 3px 0 #8dcbff !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-subnav button.active {
+  background: #244b78 !important; border-left: 3px solid #7dc0ff !important;
+}
+body.v11-shell.vc-design-v1 #v11-topbar {
+  background: rgba(255,255,255,.985) !important;
+  border-bottom: 1px solid var(--vc-ui-line) !important;
+  box-shadow: 0 2px 12px rgba(16,42,70,.05) !important;
+}
+body.v11-shell.vc-design-v1 .v11-topbar-left h1 { color: var(--vc-ui-navy) !important; font-size: 18px !important; font-weight: 800 !important; }
+body.v11-shell.vc-design-v1 .v11-topbar-left span { color: var(--vc-ui-muted) !important; font-size: 10px !important; }
+body.v11-shell.vc-design-v1 #v11-main { background: var(--vc-ui-bg) !important; }
+body.v11-shell.vc-design-v1 #vc17-context {
+  border: 1px solid var(--vc-ui-line) !important; border-radius: var(--vc-ui-radius) !important;
+  box-shadow: var(--vc-ui-shadow) !important;
+}
+body.v11-shell.vc-design-v1 .vc17-context-title>span { color: var(--vc-ui-blue) !important; font-size: 10px !important; }
+body.v11-shell.vc-design-v1 .vc17-context-title>b { color: var(--vc-ui-ink) !important; }
+body.v11-shell.vc-design-v1 .vc17-context-links button.active { color: var(--vc-ui-blue) !important; background: var(--vc-ui-blue-soft) !important; }
+body.v11-shell.vc-design-v1 #vc17-team-select,
+body.v11-shell.vc-design-v1 #vc17-sync-button,
+body.v11-shell.vc-design-v1 #vc17-search-open {
+  border-radius: 9px !important; border-color: var(--vc-ui-line) !important;
+  background: var(--vc-ui-surface) !important;
+}
+
+/* Consistent hierarchy across the six core workspaces. */
+body.v11-shell.vc-design-v1 :is(#dashboard,#entrenamiento,#ejercicios,#planificacion,#jugadores,#scout-dashboard,#scout-match-mode,#scout-analysis,#scout-video-hub,#vc155-bench,#v11-reports,#v11-management) {
+  color: var(--vc-ui-ink); font-family: var(--vc-ui-font) !important;
+}
+body.v11-shell.vc-design-v1 :is(#dashboard,#entrenamiento,#ejercicios,#planificacion,#jugadores,#scout-dashboard,#scout-match-mode,#scout-analysis,#scout-video-hub,#vc155-bench,#v11-reports,#v11-management) :is(h2,h3,h4) {
+  font-family: var(--vc-ui-font) !important;
+  letter-spacing: -.02em !important;
+}
+body.v11-shell.vc-design-v1 :is(.pro-kicker,.vc155-eyebrow,.session-eyebrow,.dashboard-kicker,.vc193192-kicker) {
+  font-family: var(--vc-ui-font) !important;
+  letter-spacing: .085em !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+body.v11-shell.vc-design-v1 :is(.vc17-hero,.v780-hero,.v118-scout-head,.vc155-hero,.vc193192-heading,.vc193161-head,.vc19317-hero,.vc19318-title) {
+  border-radius: 13px !important;
+  background: linear-gradient(112deg,#102d4b,#195282) !important;
+  border-color: #315f89 !important;
+  box-shadow: 0 6px 22px rgba(12,45,79,.1) !important;
+}
+body.v11-shell.vc-design-v1 :is(.vc17-hero,.v780-hero,.v118-scout-head,.vc155-hero,.vc193192-heading,.vc193161-head,.vc19317-hero,.vc19318-title) :is(h2,h3) {
+  color: #fff !important;
+}
+body.v11-shell.vc-design-v1 .vc17-hero h2 { font-size: 28px !important; }
+body.v11-shell.vc-design-v1 :is(.v780-hero,.v118-scout-head,.vc155-hero,.vc193192-heading,.vc193161-head,.vc19317-hero,.vc19318-title) :is(h2,h3) {
+  font-size: clamp(19px, 1.65vw, 24px) !important;
+  line-height: 1.2 !important;
+}
+
+/* Shared cards and KPI surfaces: visual polish only, no grid or position changes. */
+body.v11-shell.vc-design-v1 :is(.vc17-workspace-card,.vc17-home-panel,.vc17-stat,.v11-home-panel,.planning-shell,.players-pro-shell,.v118-scout-card,.v780-card,.vc155-card,.vc19310-panel,.vc19311-dv-rotcard,.vc193161-panel,.vc19318-panel,.vc19317-panel,.vc19319-card,.vc193192-main,.vc193192-team-list,.vc193192-overviewstats>div,.vc193191-audit,.vc193191-home) {
+  border-color: var(--vc-ui-line) !important;
+  border-radius: var(--vc-ui-radius) !important;
+  box-shadow: var(--vc-ui-shadow) !important;
+}
+body.v11-shell.vc-design-v1 .vc17-workspace-card { border-radius: 13px !important; }
+body.v11-shell.vc-design-v1 :is(.vc17-stat,.vc19311-metrics>div,.vc193161-metrics>div,.vc193192-statgrid>div,.vc193192-overviewstats>div) {
+  border-color: var(--vc-ui-line) !important;
+  border-radius: 9px !important;
+}
+body.v11-shell.vc-design-v1 :is(.vc17-stat,.vc19311-metrics>div,.vc193161-metrics>div,.vc193192-statgrid>div,.vc193192-overviewstats>div) :is(b,strong) {
+  font-family: var(--vc-ui-font) !important; font-variant-numeric: tabular-nums;
+}
+body.v11-shell.vc-design-v1 #vc193191-home,
+body.v11-shell.vc-design-v1 #vc193191-match,
+body.v11-shell.vc-design-v1 #vc193191-audit { border-radius: var(--vc-ui-radius) !important; }
+
+/* Controls: maintain compact scouting controls, unify office forms and filters. */
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal,#vc193191-audit) :is(input[type="text"],input[type="number"],input[type="search"],input[type="date"],input[type="email"],input[type="password"],select,textarea) {
+  font-family: var(--vc-ui-font) !important;
+  font-size: 12px !important;
+  color: var(--vc-ui-ink) !important;
+  background-color: #fff !important;
+  border-color: var(--vc-ui-line-strong) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal,#vc193191-audit) :is(input[type="text"],input[type="number"],input[type="search"],select):focus-visible {
+  border-color: var(--vc-ui-electric) !important;
+}
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal) label { font-size: 11px !important; font-weight: 700 !important; }
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal) :is(button,.primary,.ghost) { font-family: var(--vc-ui-font) !important; }
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal) button:not(.vc193161-zone):not(.vc19311-cell):not(.vc19311-zone-action):not(.vc193161-court-cell) {
+  border-radius: 8px !important;
+}
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal) :is(button.primary,.primary,button.vc17-primary) {
+  background: var(--vc-ui-blue) !important;
+  border-color: var(--vc-ui-blue) !important;
+  color: #fff !important;
+}
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal) :is(button.primary,.primary,button.vc17-primary):hover:not(:disabled) {
+  background: #0b5db6 !important; border-color: #0b5db6 !important;
+}
+body.v11-shell.vc-design-v1 :is(.view,.cloud-modal) :is(button.ghost,button.vc17-secondary,button.vc19311-command) {
+  border-color: var(--vc-ui-line-strong) !important;
+}
+
+/* Real table typography: avoid the inherited 6–8 px statistical text. */
+body.v11-shell.vc-design-v1 :is(#scout-analysis,#scout-dashboard,#scout-match-mode,#vc155-bench,#jugadores,#entrenamiento,#planificacion,#v11-reports) table {
+  border-collapse: collapse; font-variant-numeric: tabular-nums;
+}
+body.v11-shell.vc-design-v1 :is(#scout-analysis,#scout-dashboard,#scout-match-mode,#vc155-bench,#jugadores,#entrenamiento,#planificacion,#v11-reports) table th {
+  font-size: 11px !important; font-weight: 800 !important;
+  line-height: 1.4 !important; letter-spacing: .015em !important;
+  color: #365a7b !important; background: #edf3f9 !important;
+  border-bottom: 1px solid var(--vc-ui-line) !important;
+}
+body.v11-shell.vc-design-v1 :is(#scout-analysis,#scout-dashboard,#scout-match-mode,#vc155-bench,#jugadores,#entrenamiento,#planificacion,#v11-reports) table td {
+  font-size: 11.5px !important; line-height: 1.45 !important;
+  border-bottom: 1px solid #e7eef5 !important;
+}
+body.v11-shell.vc-design-v1 :is(#scout-analysis,#scout-dashboard,#scout-match-mode,#vc155-bench,#jugadores,#entrenamiento,#planificacion,#v11-reports) table tr:hover td {
+  background-color: #f3f8fe;
+}
+/* Exempt video/screen overlays and dark tactical tables from a light header. */
+body.v11-shell.vc-design-v1 :is(.vc19319-dark,.vc19317-timeline,#v800-video-frame,.v135-evidence-modal) table th { background: revert !important; color: inherit !important; }
+
+/* Tabs within analysis and reporting: active tab always recognizable. */
+body.v11-shell.vc-design-v1 :is(.vc193161-tabs,.vc193192-tabs,.vc19311-tabs,.vc19318-tabs,.vc19317-tabs,.vc19310-nav) {
+  gap: 6px;
+}
+body.v11-shell.vc-design-v1 :is(.vc193161-tabs,.vc193192-tabs,.vc19311-tabs,.vc19318-tabs,.vc19317-tabs) button {
+  font-size: 11.5px !important; font-weight: 750 !important;
+  border-radius: 7px !important;
+}
+body.v11-shell.vc-design-v1 :is(.vc193161-tabs,.vc193192-tabs,.vc19311-tabs,.vc19318-tabs,.vc19317-tabs) button:is(.active,[aria-selected="true"],[aria-pressed="true"]) {
+  background-color: var(--vc-ui-blue-soft) !important;
+  color: #0b5dae !important;
+  border-color: #8cbae8 !important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis .vc193161-root,
+body.v11-shell.vc-design-v1 #scout-analysis .vc19318-root,
+body.v11-shell.vc-design-v1 #scout-analysis .vc19317-shell,
+body.v11-shell.vc-design-v1 #vc155-bench #vc19319-root,
+body.v11-shell.vc-design-v1 #jugadores #vc193192-club {
+  font-family: var(--vc-ui-font) !important;
+  color: var(--vc-ui-ink);
+}
+/* Some legacy analysis cards were authored at 6–8px; raise only their labels. */
+body.v11-shell.vc-design-v1 :is(.v135-kpi span,.v135-kpi small,.v135-rotation-metrics span,.v135-rotation-gp,.v135-insight span,.v135-evidence-table th,.v135-evidence-table td,.v135-evidence-kpis span,.v135-evidence-kpis b,.v135-card-head span,.v135-card-head p) {
+  font-size: 10.5px !important;
+}
+body.v11-shell.vc-design-v1 :is(.v135-kpi b,.v135-evidence-head h2) { font-size: 19px !important; }
+body.v11-shell.vc-design-v1 :is(.vc193161-table th,.vc193161-table td,.vc19310-panel table th,.vc19310-panel table td,.vc19318-root table th,.vc19318-root table td) {
+  font-size: 11.5px !important;
+}
+/* Preserve conventional navigation and court zone labels; improve readability. */
+body.v11-shell.vc-design-v1 #scout-analysis :is(.vc193161-toolbar,.vc19311-filterbar) label { font-size: 11px !important; }
+body.v11-shell.vc-design-v1 .vc193161-metrics strong { font-variant-numeric: tabular-nums; }
+
+@media(max-width:860px){
+  body.v11-shell.vc-design-v1 #v11-main { padding-left: 12px !important; padding-right: 12px !important; }
+  body.v11-shell.vc-design-v1 .vc17-hero h2 { font-size: 24px !important; }
+}
+@media(max-width:600px){
+  body.v11-shell.vc-design-v1 #v11-main { padding-left: 10px !important; padding-right: 10px !important; }
+  body.v11-shell.vc-design-v1 .vc17-context-title>b { font-size: 14px !important; }
+  body.v11-shell.vc-design-v1 .vc17-hero h2 { font-size: 22px !important; }
+  body.v11-shell.vc-design-v1 :is(.v780-hero,.v118-scout-head,.vc155-hero,.vc193192-heading,.vc193161-head,.vc19317-hero,.vc19318-title) :is(h2,h3) { font-size: 20px !important; }
+}
+@media(prefers-reduced-motion:reduce){
+  body.v11-shell.vc-design-v1 :is(button,.vc17-workspace-card) { transition: none !important; }
+}
