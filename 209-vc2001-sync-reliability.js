@@ -15,11 +15,12 @@
  const asText=v=>String(v??'').trim();
  function retryPolicy({failures=1,code='',message=''}={}){
   const c=asText(code).toUpperCase(),m=asText(message).toLowerCase();
+  const journal=['VC2011_JOURNAL','VC2011_CAPACITY','VC2011_ORPHAN'].includes(c);
   const review=['VC1915_CONFLICT','VC1917_DELETE_CONFLICT'].includes(c)||/registros tienen cambios incompatibles|conflicto\(s\) entre edición y eliminación|revisa conflictos/.test(m);
   const account=/otra cuenta|ha cambiado la cuenta|cuenta de nube durante|sesión verificada|pendingaccountmismatch/.test(m);
   const fatal=/protección .*no cargada|no se ha podido proteger el estado local|sin aplicar cambios remotos|no se ha podido guardar.*copia|revisión necesaria|borrado masivo/.test(m);
   const auth=['401','403','42501','PGRST301'].includes(c)||/permission denied|jwt expired|invalid jwt|unauthorized|forbidden|row-level security/.test(m);
-  if(review||account||fatal||auth)return {retry:false,manualRequired:true,category:review?'conflict':account?'account':auth?'permission':'protection',delayMs:null};
+  if(journal||review||account||fatal||auth)return {retry:false,manualRequired:true,category:review?'conflict':account?'account':auth?'permission':'protection',delayMs:null};
   const attempt=cap(failures,1,24);
   // 2 s, 4 s, 8 s... max 2 min. Deterministic, testable; manual retries bypass delay.
   return {retry:true,manualRequired:false,category:'transient',delayMs:Math.min(120000,2000*Math.pow(2,Math.min(7,attempt-1)))};

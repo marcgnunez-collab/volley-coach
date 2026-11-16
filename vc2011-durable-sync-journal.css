@@ -1,0 +1,11 @@
+/* V20.1.1: only the existing cloud diagnostics dialog; no scouting selectors. */
+#vc2011-journal-panel{margin-top:14px;padding:13px;border:1px solid #c9dae9;background:#f4f9ff;border-radius:10px;font:500 12px/1.5 system-ui,sans-serif;color:#183955;min-width:0}
+#vc2011-journal-panel .vc2011-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+#vc2011-journal-panel .vc2011-head strong{font-size:14px;color:#143759}
+#vc2011-journal-panel .vc2011-head span{color:#617c96;font-size:10px}
+#vc2011-journal-status{min-height:22px;overflow-wrap:anywhere;margin:9px 0;color:#234f76}
+#vc2011-journal-panel .vc2011-actions{display:flex;gap:8px;flex-wrap:wrap}
+#vc2011-journal-panel .vc2011-actions button{min-height:36px!important;padding:7px 11px!important;background:#fff!important;color:#154c82!important;border:1px solid #afcadf!important;border-radius:7px!important;font:700 12px system-ui!important;cursor:pointer}
+#vc2011-journal-panel .vc2011-actions button:disabled{opacity:.5;cursor:not-allowed}
+#vc2011-journal-panel .vc2011-hint{margin:10px 0 0;color:#637c90;font-size:11px}
+@media(max-width:520px){#vc2011-journal-panel .vc2011-actions{flex-direction:column}#vc2011-journal-panel .vc2011-actions button{width:100%}}

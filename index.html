@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=20.1.0',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=20.1.1',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -8376,6 +8376,9 @@ const badge=document.getElementById('scout-v753-pdf-ready');if(badge){badge.text
 
 <!-- V16.5.4 Recovery: módulo suspendido para restaurar sincronización V16.3.0 -->
 <!-- V16.5.4 Recovery: módulo suspendido para restaurar sincronización V16.3.0 -->
+<!-- V20.1.1: load journal before the single CAS writer. Failure blocks cloud writes, not local editing. -->
+<script id="vc2011-durable-journal" src="./210-vc2011-durable-sync-journal.js?v=20.1.1" data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc2011-durable-sync-journal.css?v=20.1.1">
 <script id="v962-cloud-efficient-runtime">
 (()=>{
 'use strict';
@@ -8400,6 +8403,9 @@ let lastProtectedRemoteStamp='',lastProtectedLocalRevision=-1;
 let retryAt=0,consecutiveFailures=0,blockedReason='',blockedCategory='',lastErrorCode='',lastFailureAt=0;
 function emitSyncState(){try{window.dispatchEvent(new CustomEvent('vc200:sync-state'))}catch(_){}}
 function errorPolicy(err){
+ // Journal errors must remain fail-closed even if the V20.1.0 policy script
+ // has not finished loading (or was omitted from a partial deployment).
+ if(/^VC2011_/.test(String(err?.code||'')))return {retry:false,manualRequired:true,category:'protection',delayMs:null};
  const policy=window.VC_SYNC_200_POLICY?.retryPolicy;
  if(typeof policy==='function')return policy({failures:consecutiveFailures,code:err?.code||err?.status||'',message:err?.message||String(err)});
  return {retry:true,manualRequired:false,category:'transient',delayMs:Math.min(120000,2000*2**Math.min(6,Math.max(0,consecutiveFailures-1)))};
@@ -8436,7 +8442,13 @@ function assertAccount(expected){
   if(dirty&&dirtyAccount&&dirtyAccount!==String(expected))
     throw Error('Hay cambios pendientes de otra cuenta en este navegador. Descarga una copia JSON antes de cambiar de cuenta; se ha bloqueado la sincronización.');
 }
-function markDirty(reason='change'){if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);scheduleDirty(reason);emitSyncState();return true}
+function markDirty(reason='change'){
+ if(typeof cloudApplying!=='undefined'&&cloudApplying)return false;
+ localRevision++;if(!dirty)dirtySince=Date.now();setDirty(true);
+ // Coalesced offline checkpoint. The full pre-upload checkpoint below is mandatory.
+ try{window.VC_SYNC_2011_JOURNAL?.noteDirty?.({accountId:dirtyAccount||(connected()?String(cloudUser.id):''),revision:localRevision,getState:localState,isStillDirty:()=>dirty});}catch(err){console.warn('V20.1.1 journal scheduling',err)}
+ scheduleDirty(reason);emitSyncState();return true;
+}
 function scheduleDirty(reason='change'){
  if(!dirty||!connected()||blockedReason||(dirtyAccount&&dirtyAccount!==String(cloudUser.id)))return;
  clearTimeout(dirtyTimer);
@@ -8492,6 +8504,13 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
     if(manual)setStatus('Sincronizando…','syncing');
     let requiresReview=false;
     try{
+      const journal=window.VC_SYNC_2011_JOURNAL;
+      if(!journal||typeof journal.prepare!=='function'||typeof journal.acknowledge!=='function'||typeof journal.guardCleanPull!=='function'){
+        const unavailable=new Error('No se ha cargado el diario durable V20.1.1. Se bloquea el acceso a la nube para proteger las ediciones.');unavailable.code='VC2011_JOURNAL';throw unavailable;
+      }
+      // A crash after a cloud ACK but before clearing the old marker must NOT
+      // trigger a clean pull that can erase a locally stored checkpoint.
+      await journal.guardCleanPull(expectedUserId,dirty);
       let remoteApplied=false,mustWrite=false,wasConflict=false,confirmed=false;
       for(let attempt=0;attempt<MAX_CONFLICT_RETRIES;attempt++){
         assertAccount(expectedUserId);
@@ -8553,7 +8572,11 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
         if(!mustWrite){skippedWrites++;break}
         const snapshotRevision=localRevision;
         const state=localState();
-        if(!state){mustWrite=false;break}
+        if(!state){const missing=new Error('No hay estado local para crear una copia durable; subida cancelada.');missing.code='VC2011_JOURNAL';throw missing;}
+        assertAccount(expectedUserId);
+        // This IndexedDB transaction must complete BEFORE any CAS write.
+        // If storage is unavailable, fail closed and keep the local dirty flag.
+        const staged=await journal.prepare({accountId:expectedUserId,revision:snapshotRevision,state});
         assertAccount(expectedUserId);
         const result=await writeRemote(state,remote,expectedUserId);
         assertAccount(expectedUserId);
@@ -8562,6 +8585,10 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
           if(!dirty)dirtySince=Date.now();setDirty(true);
           continue;
         }
+        // The cloud already acknowledged its CAS timestamp. Remove only
+        // the staged batch (and strictly older local snapshots) after the
+        // local confirmation transaction has committed.
+        await journal.acknowledge({accountId:expectedUserId,id:staged.id});
         confirmed=true;lastConfirmedRevision=snapshotRevision;
         try{window.VC_DEVICE_SYNC?.notifyWorkspaceChanged?.({stamp:result.stamp,revision:snapshotRevision,reason});}catch(_){}
         /* A user can edit while the HTTP request is in flight. Never clear
@@ -8613,7 +8640,7 @@ window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNo
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);
 setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,fastRealtime:true,compareAndSet:true})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,durableJournalLoaded:!!window.VC_SYNC_2011_JOURNAL,fastRealtime:true,compareAndSet:true})};
 })();
 </script>
 
