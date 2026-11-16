@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=20.1.1',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=20.1.2',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -8394,6 +8394,8 @@ let dirty=localStorage.getItem(DIRTY_KEY)==='1';
 let dirtyAccount=localStorage.getItem(DIRTY_ACCOUNT_KEY)||'';
 let localRevision=0,dirtySince=dirty?Date.now():0,dirtyTimer=null,syncPromise=null;
 let lastReadAt=Number(localStorage.getItem('v962_last_read_at'))||0;
+/* V20.1.2: delivery evidence is metadata only, not proof of peer acknowledgement. */
+let lastObservedRemoteStamp='',lastAppliedRemoteStamp='',lastConfirmedWriteStamp='',lastReadErrorAt=0;
 let lastWriteAt=Number(localStorage.getItem('v962_last_write_at'))||0;
 let lastRemoteStamp=localStorage.getItem(REMOTE_STAMP_KEY)||'';
 let reads=Number(sessionStorage.getItem('v962_reads'))||0,writes=Number(sessionStorage.getItem('v962_writes'))||0,skippedWrites=Number(sessionStorage.getItem('v962_skipped_writes'))||0;
@@ -8405,7 +8407,7 @@ function emitSyncState(){try{window.dispatchEvent(new CustomEvent('vc200:sync-st
 function errorPolicy(err){
  // Journal errors must remain fail-closed even if the V20.1.0 policy script
  // has not finished loading (or was omitted from a partial deployment).
- if(/^VC2011_/.test(String(err?.code||'')))return {retry:false,manualRequired:true,category:'protection',delayMs:null};
+ if(/^VC201[12]_/.test(String(err?.code||'')))return {retry:false,manualRequired:true,category:'protection',delayMs:null};
  const policy=window.VC_SYNC_200_POLICY?.retryPolicy;
  if(typeof policy==='function')return policy({failures:consecutiveFailures,code:err?.code||err?.status||'',message:err?.message||String(err)});
  return {retry:true,manualRequired:false,category:'transient',delayMs:Math.min(120000,2000*2**Math.min(6,Math.max(0,consecutiveFailures-1)))};
@@ -8459,7 +8461,21 @@ function scheduleDirty(reason='change'){
  const delay=Math.max(normalDelay,Math.max(0,retryAt-Date.now()));
  dirtyTimer=setTimeout(()=>void sync({reason:`dirty:${reason}`,allowWrite:true}),delay);
 }
-async function readRemote(expectedUserId){assertAccount(expectedUserId);const {data,error}=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',expectedUserId).maybeSingle();assertAccount(expectedUserId);reads++;persistCounters();lastReadAt=Date.now();try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){};if(error)throw error;return data||null}
+async function readRemote(expectedUserId){
+  assertAccount(expectedUserId);
+  let response;
+  try{response=await cloudClient.from('volley_state').select('state,updated_at').eq('user_id',expectedUserId).maybeSingle();assertAccount(expectedUserId);
+    if(!response||!Object.prototype.hasOwnProperty.call(response,'error')||!Object.prototype.hasOwnProperty.call(response,'data')){
+      const malformed=new Error('Respuesta remota incompleta; se cancela la lectura para proteger el estado local.');
+      malformed.code='VC2012_READ_INVALID';throw malformed;
+    }
+    if(response.error)throw response.error;
+  }catch(err){lastReadErrorAt=Date.now();throw err;}
+  reads++;persistCounters();lastReadAt=Date.now();
+  lastObservedRemoteStamp=String(response?.data?.updated_at||'');
+  try{localStorage.setItem('v962_last_read_at',String(lastReadAt))}catch(_){}
+  return response?.data||null;
+ }
 function nextStamp(previous){const prev=Date.parse(previous||'')||0;return new Date(Math.max(Date.now(),prev+1)).toISOString()}
 async function writeRemote(state,remote,expectedUserId){
   assertAccount(expectedUserId);
@@ -8483,7 +8499,7 @@ async function writeRemote(state,remote,expectedUserId){
   }
   if(!response?.data?.updated_at)return {conflict:true};
   const confirmed=String(response.data.updated_at);
-  lastWriteAt=Date.now();lastRemoteStamp=confirmed;
+  lastWriteAt=Date.now();lastRemoteStamp=confirmed;lastConfirmedWriteStamp=confirmed;
   try{localStorage.setItem('volleyCloudLastSync',confirmed);localStorage.setItem('v962_last_write_at',String(lastWriteAt));localStorage.setItem(REMOTE_STAMP_KEY,confirmed)}catch(_){}
   return {conflict:false,stamp:confirmed};
 }
@@ -8564,8 +8580,14 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
           const incoming=dirty&&conflictPlan&&conflictGuard?.mergeGuarded
             ?conflictGuard.mergeGuarded(localBefore,remote.state,conflictPlan)
             :dirty&&reliability?.mergePending?reliability.mergePending(localBefore,remote.state):remote.state;
-          window.aplicarEstadoCloud?.(incoming);
-          remoteApplied=true;lastRemoteStamp=stamp;
+          // Never claim delivery when the actual state-application bridge is missing.
+          if(typeof window.aplicarEstadoCloud!=='function'){
+            const missing=new Error('No está disponible el aplicador de estado remoto. No se ha confirmado la recepción.');
+            missing.code='VC2012_APPLY_MISSING';throw missing;
+          }
+          try{window.aplicarEstadoCloud(incoming);}
+          catch(cause){const applyError=new Error('Falló la aplicación del estado remoto; se conserva la versión local.');applyError.code='VC2012_APPLY_FAILED';throw applyError;}
+          remoteApplied=true;lastRemoteStamp=stamp;lastAppliedRemoteStamp=stamp;
           try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
         }
         mustWrite=allowWrite&&!pullOnly&&(dirty||!remote?.state||wasConflict);
@@ -8640,7 +8662,7 @@ window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNo
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);
 setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,durableJournalLoaded:!!window.VC_SYNC_2011_JOURNAL,fastRealtime:true,compareAndSet:true})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,lastObservedRemoteStamp,lastAppliedRemoteStamp,lastConfirmedWriteStamp,lastReadErrorAt:lastReadErrorAt||null,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,durableJournalLoaded:!!window.VC_SYNC_2011_JOURNAL,fastRealtime:true,compareAndSet:true})};
 })();
 </script>
 
@@ -14065,4 +14087,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <script id="vc19320-compat-audit" src="./208-vc19320-compatibility-audit.js?v=19.3.20" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2001-sync-reliability.css?v=20.1.0">
 <script id="vc2001-sync-reliability" src="./209-vc2001-sync-reliability.js?v=20.1.0" defer data-vc-module="true"></script>
+<!-- V20.1.2: read-only cross-device version diagnostic (no Supabase writes). -->
+<link rel="stylesheet" href="./vc2012-multi-device-validation.css?v=20.1.2">
+<script id="vc2012-multi-device-validation" src="./211-vc2012-multi-device-validation.js?v=20.1.2" defer data-vc-module="true"></script>
 </body></html>

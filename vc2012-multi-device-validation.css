@@ -1,0 +1,21 @@
+/* Volley Coach V20.1.2: scoped, readable and compact diagnostics. */
+#vc2012-multi-validation{font:inherit;color:#18344f;background:#f7faff;border:1px solid #caddef;border-radius:12px;padding:15px;margin:14px 0;min-width:0;max-width:100%;box-sizing:border-box}
+#vc2012-multi-validation *{box-sizing:border-box}
+#vc2012-multi-validation .vc2012-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
+#vc2012-multi-validation .vc2012-heading small{font-size:11px;color:#2b66a0;font-weight:800;letter-spacing:.04em}
+#vc2012-multi-validation h3{font-size:17px;line-height:1.3;margin:4px 0 10px;color:#143655}
+#vc2012-multi-validation .vc2012-heading span{font-size:11px;background:#e6f1ff;color:#225e91;padding:6px;border-radius:6px;font-weight:700}
+#vc2012-multi-validation p{font-size:12px;line-height:1.55;margin:9px 0;color:#435e75}
+#vc2012-multi-validation .vc2012-versions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#vc2012-multi-validation .vc2012-versions>div{background:#fff;border:1px solid #dce7f2;border-radius:8px;padding:10px;min-width:0}
+#vc2012-multi-validation .vc2012-versions span{display:block;font-size:11px;color:#5c7690;margin-bottom:4px}
+#vc2012-multi-validation .vc2012-versions b{font-size:12px;overflow-wrap:anywhere;color:#163e61;font-family:inherit}
+#vc2012-multi-validation .vc2012-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#vc2012-multi-validation button,#vc2012-multi-validation .vc2012-import{font-family:inherit;font-size:12px;font-weight:750;min-height:38px;padding:9px 12px;border-radius:7px;border:1px solid #bed4e9;background:#fff;color:#174d7a;cursor:pointer;display:inline-flex;align-items:center;max-width:100%}
+#vc2012-multi-validation #vc2012-export{color:#fff;background:#15599a;border-color:#15599a}
+#vc2012-multi-validation .vc2012-import input{display:none}
+#vc2012-multi-validation .vc2012-result{padding:10px;border-radius:8px;background:#eaf3ff;color:#225477;font-weight:700}
+#vc2012-multi-validation .vc2012-result[data-status="review"]{background:#fff2e5;color:#795119}
+#vc2012-multi-validation .vc2012-result[data-status="matched"]{background:#edf7f1;color:#255e40}
+#vc2012-multi-validation .vc2012-privacy{font-size:11px;color:#60768a}
+@media(max-width:680px){#vc2012-multi-validation{padding:10px}#vc2012-multi-validation .vc2012-versions{grid-template-columns:1fr}#vc2012-multi-validation .vc2012-heading{flex-wrap:wrap}#vc2012-multi-validation .vc2012-actions>*{width:100%;justify-content:center}}
