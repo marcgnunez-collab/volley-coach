@@ -10,7 +10,7 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.19.4';
+ const VERSION='19.3.19.4',WORKSPACE_VERSION='19.3.19.5';
  const SPACES=[['skills','Fundamentos','Acciones y jugadores'],['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['montage','Video Montage','Clips y anotaciones'],['worksheets','Worksheets','Hojas e informes']];
  const GROUPS=[
   {id:'overview',title:'Resumen',description:'Partido y rotaciones',spaces:['match']},
@@ -82,7 +82,7 @@
  }
  function createShell(doc){
   const node=doc.createElement('section');node.id='vc19310-workspace';node.className='vc19310-workspace vc193194-workspace';
-  node.innerHTML=`<header class="vc19310-head vc193194-head"><div class="vc193194-heading"><small>VOLLEY COACH PRO · V${VERSION}</small><h2>Centro de análisis</h2><p>El mismo scouting, del resumen al vídeo y a los informes.</p></div><div class="vc19310-actions"><button type="button" data-vc19310-command="refresh">Actualizar datos</button><button type="button" data-vc19310-command="official">PDF oficial</button><button type="button" data-vc19310-command="advanced">Herramientas anteriores</button></div></header>
+  node.innerHTML=`<header class="vc19310-head vc193194-head"><div class="vc193194-heading"><small>VOLLEY COACH PRO · V${WORKSPACE_VERSION}</small><h2>Centro de análisis</h2><p>El mismo scouting, del resumen al vídeo y a los informes.</p></div><div class="vc19310-actions"><button type="button" data-vc19310-command="refresh">Actualizar datos</button><button type="button" data-vc19310-command="official">PDF oficial</button><button type="button" data-vc19310-command="advanced">Herramientas anteriores</button></div></header>
    <nav class="vc19310-nav vc193194-main-nav" role="tablist" aria-label="Áreas del centro de análisis">${GROUPS.map((group,i)=>`<button type="button" role="tab" data-vc193194-group="${group.id}" aria-selected="${i===0}" aria-controls="vc19310-body"><strong>${group.title}</strong><small>${group.description}</small></button>`).join('')}</nav>
    <nav class="vc193194-subnav" role="tablist" aria-label="Herramientas del área" hidden></nav>
    <div class="vc19310-subbar vc193194-contextbar"><div><strong id="vc19310-match-label">Sin scouting seleccionado</strong><span id="vc19310-sample" aria-live="polite">Selecciona un partido para comenzar</span></div><span class="vc193194-readonly">Consulta en vivo del scouting · sin copias de estadísticas</span></div>
@@ -209,11 +209,18 @@
    win.VC_INTEGRATED_VIDEO_19314?.park?.(win);
    // V19.3.11 replaces only the professional views, not their data engines.
    // Fall back safely to V19.3.10 when an optional asset is unavailable.
-   let enhanced=null;
-   try{enhanced=(state.space==='distribution'?win.VC_DISTRIBUTION_193161?.render?.({space:state.space,ctx,projection,state,win}):null)||(state.space==='worksheets'?win.VC_WORKSHEETS_19318?.render?.({space:state.space,ctx,projection,state,win}):null)||win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
+   let tactical=null,enhanced=null;
+   if(state.space==='court'){
+    try{tactical=win.VC_TACTICAL_TABLES_193195?.render?.({space:state.space,ctx,projection,state,win})||null;}
+    catch(e){setStatus('No se pudo cargar Court Analysis Pro; se utiliza la vista anterior.');}
+   }
+   // Only render the legacy tactical view if the new one is unavailable.
+   // Avoid calculating two full court/statistical surfaces per refresh.
+   if(!tactical)try{enhanced=(state.space==='distribution'?win.VC_DISTRIBUTION_193161?.render?.({space:state.space,ctx,projection,state,win}):null)||(state.space==='worksheets'?win.VC_WORKSHEETS_19318?.render?.({space:state.space,ctx,projection,state,win}):null)||win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
    catch(e){setStatus('La vista profesional no ha podido cargarse; se utiliza la vista anterior.');}
    const skills=state.space==='skills'?skillsView(ctx,projection,state):null;
-   if(enhanced)body.innerHTML=enhanced.html;
+   if(tactical)body.innerHTML=tactical.html;
+   else if(enhanced)body.innerHTML=enhanced.html;
    else if(skills)body.innerHTML=skills.html;
    else if(state.space==='match')body.innerHTML=matchView(ctx,projection);
    else if(state.space==='distribution')body.innerHTML=distributionView(ctx,projection);
@@ -224,7 +231,7 @@
    else body.innerHTML=worksheetsView(ctx,projection);
    body.dataset.vc19314Signature=sig;
    const source=state.space==='search'?(win.VC_RALLY_SEARCH_1939?.query?.(projection.model,{...state.search,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase})?.rallies||[]):projection.base.rallies;
-   const filtered=enhanced?.rallies||skills?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
+   const filtered=tactical?.rallies||enhanced?.rallies||skills?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
    filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);if(['video','montage'].includes(state.space))win.VC_INTEGRATED_VIDEO_19314?.attach?.(win,node,ctx.match);if(state.space==='montage')win.VC_VIDEO_MONTAGE_19317?.mount?.(win,node.querySelector('.vc19317-shell'),ctx,projection);if(state.space==='video')win.VC_SMART_SCOUTING_19316?.updateAudit?.(node,ctx.match,win.VC_DATA_ENGINE_1938,win);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
    else if(filtered.length)selectRally(filtered[filtered.length-1].key);
    else state.selected=null;selectionDock();
@@ -248,6 +255,17 @@
     if(editing?.handled)return;
     const integrated=win.VC_INTEGRATED_VIDEO_19314?.handleClick?.(win,b,{ctx,projection,node,state,selectRally});
     if(integrated?.handled)return;
+   }
+   if(state.space==='court'){
+    const tacticalAction=win.VC_TACTICAL_TABLES_193195?.handleClick?.({button:b,state,ctx,projection,win,status:setStatus});
+    if(tacticalAction?.handled){
+     if(tacticalAction.navigateVideo){
+      const key=tacticalAction.navigateVideo;
+      if(!filteredRallies.some(r=>r.key===key)){setStatus('El rally ya no pertenece a la selección.');return;}
+      state.selected=key;state.selections.video=key;state.space='video';toggleLegacy(false);paint();selectRally(key,{play:true});return;
+     }
+     if(tacticalAction.repaint)paint();return;
+    }
    }
    if(b.dataset.vc193194Group){const group=b.dataset.vc193194Group;switchSpace(state.lastByGroup[group]||GROUP_DEFAULT[group]);return;}
    if(b.dataset.vc193194Skill){state.skill=b.dataset.vc193194Skill;paint();return;}
@@ -317,6 +335,7 @@
    if(t.dataset?.vc19310Preset!==undefined&&node?.contains(t)){state.searchPreset=t.value;return;}
    if(node?.contains(t)&&state.space==='montage'&&t.dataset?.vc19317Input!==undefined){win.VC_VIDEO_MONTAGE_19317?.change?.(win,t);return;}
    if(node?.contains(t)&&state.space==='worksheets'&&win.VC_WORKSHEETS_19318?.handleChange?.({target:t,state})){paint();return;}
+   if(node?.contains(t)&&state.space==='court'&&win.VC_TACTICAL_TABLES_193195?.handleChange?.({target:t,state})){paint();return;}
    if(node?.contains(t)&&state.space==='distribution'&&win.VC_DISTRIBUTION_193161?.handleChange?.({target:t,state})){paint();return;}
    if(node?.contains(t)&&win.VC_ANALYSIS_SCREENS_19311?.handleChange?.({target:t,state})){paint();return;}
    if(!node?.contains(t)||!t.dataset?.vc19310Filter)return;

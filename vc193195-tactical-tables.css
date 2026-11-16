@@ -1,0 +1,81 @@
+/* Volley Coach V19.3.19.5: shared tactical tables and compact court.
+ * Scoped to active Analysis Workspace only. All legacy engines are preserved. */
+#scout-analysis.vc19310-active .vc193195-root{--vct-ink:#173958;--vct-line:#d8e4f0;--vct-blue:#1769c3;--vct-muted:#647e96;font:500 12px/1.48 system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--vct-ink);max-width:100%;min-width:0;display:grid;gap:11px}
+#scout-analysis.vc19310-active .vc193195-root *,#scout-analysis.vc19310-active .vc193195-root *:before,#scout-analysis.vc19310-active .vc193195-root *:after{box-sizing:border-box}
+#scout-analysis.vc19310-active .vc193195-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--vct-line);border-radius:9px;padding:13px 16px}
+#scout-analysis.vc19310-active .vc193195-heading small{font-size:9px;color:#517aa1;font-weight:850;letter-spacing:.06em}
+#scout-analysis.vc19310-active .vc193195-heading h3{font-size:18px!important;line-height:1.2!important;font-weight:850!important;margin:3px 0!important;color:#143b61!important}
+#scout-analysis.vc19310-active .vc193195-heading p{margin:0;color:#667d95;font-size:11px}
+#scout-analysis.vc19310-active .vc193195-root button{cursor:pointer;font:750 11px system-ui,-apple-system,'Segoe UI',sans-serif;border:1px solid #cadbea!important;color:#215782!important;background:#fff!important;border-radius:6px!important;padding:7px 10px!important;min-height:32px!important;box-shadow:none!important}
+#scout-analysis.vc19310-active .vc193195-root button:hover{background:#ebf4ff!important;border-color:#85b7e8!important}
+#scout-analysis.vc19310-active .vc193195-root button[aria-pressed=true],#scout-analysis.vc19310-active .vc193195-root button.is-active{background:#1769c3!important;border-color:#1769c3!important;color:#fff!important}
+#scout-analysis.vc19310-active .vc193195-root button:focus-visible{outline:3px solid #72baff!important;outline-offset:2px!important}
+#scout-analysis.vc19310-active .vc193195-controls{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;padding:11px;background:#fff;border-radius:9px;border:1px solid var(--vct-line)}
+#scout-analysis.vc19310-active .vc193195-controls label,#scout-analysis.vc19310-active .vc193195-table-actions label{display:grid;gap:4px;font-size:10px;font-weight:750;color:#54708c;min-width:0}
+#scout-analysis.vc19310-active .vc193195-controls select,#scout-analysis.vc19310-active .vc193195-table-actions select{width:100%;max-width:100%;min-width:0;height:35px!important;border:1px solid #ceddea!important;background:#f9fbfe!important;border-radius:6px!important;padding:5px 8px!important;color:#173958!important;font:700 11px system-ui,-apple-system,'Segoe UI',sans-serif!important}
+#scout-analysis.vc19310-active .vc193195-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#scout-analysis.vc19310-active .vc193195-metrics>div{display:grid;gap:3px;padding:11px 13px;border:1px solid var(--vct-line);border-radius:8px;background:#fff;min-width:0}
+#scout-analysis.vc19310-active .vc193195-metrics small{font-size:10px;color:#6c849b;font-weight:750}
+#scout-analysis.vc19310-active .vc193195-metrics strong{font-size:22px;line-height:1.15;color:#143b61;font-weight:850}
+#scout-analysis.vc19310-active .vc193195-metrics span{font-size:10px;color:#637d95;overflow-wrap:anywhere}
+#scout-analysis.vc19310-active .vc193195-workbench{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(430px,1.55fr);gap:10px;align-items:start;min-width:0}
+#scout-analysis.vc19310-active .vc193195-card,#scout-analysis.vc19310-active .vc193195-evidence{border:1px solid var(--vct-line);background:#fff;border-radius:9px;box-shadow:0 2px 6px #163b5b08;padding:12px;min-width:0;overflow:hidden}
+#scout-analysis.vc19310-active .vc193195-panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:9px;flex-wrap:wrap;border-bottom:1px solid #e7eef6;padding-bottom:9px;margin-bottom:12px}
+#scout-analysis.vc19310-active .vc193195-panel-head strong{font-weight:850;font-size:12px;color:#153d63}
+#scout-analysis.vc19310-active .vc193195-panel-head span{font-size:10px;color:#728ba2}
+#scout-analysis.vc19310-active .vc193195-court{max-width:440px;margin:0 auto;border:2px solid #edbf8e;background:#f4ddbe;border-radius:7px;padding:10px}
+#scout-analysis.vc19310-active .vc193195-net{height:18px;border-bottom:4px solid #fff;text-align:center;font-size:9px;font-weight:900;letter-spacing:.08em;color:#794c26;margin-bottom:6px}
+#scout-analysis.vc19310-active .vc193195-zonegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(138px,1fr));gap:4px;min-width:0}
+#scout-analysis.vc19310-active .vc193195-zone{background:linear-gradient(180deg,rgba(18,103,194,var(--heat)),#fff);display:flex;flex-direction:column;gap:5px;padding:7px;border:1px solid #d5a474;border-radius:4px;min-width:0}
+#scout-analysis.vc19310-active .vc193195-zone.is-active{outline:3px solid #1769c3;outline-offset:-3px}
+#scout-analysis.vc19310-active .vc193195-zone-main{display:grid;gap:0;align-content:center;justify-items:center;min-height:47px;width:100%;padding:3px!important;background:#ffffffd9!important}
+#scout-analysis.vc19310-active .vc193195-zone-main span{font-size:10px;font-weight:850;color:#174b79}
+#scout-analysis.vc19310-active .vc193195-zone-main strong{font-size:18px;font-weight:900;line-height:1.1;color:#0e3155}
+#scout-analysis.vc19310-active .vc193195-zone-main small{font-size:10px;color:#496e91;font-weight:800}
+#scout-analysis.vc19310-active .vc193195-quads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;min-width:0}
+#scout-analysis.vc19310-active .vc193195-quad{padding:2px 4px!important;min-height:23px!important;font-size:9px!important;display:flex;justify-content:space-between;gap:3px;align-items:center;border-radius:3px!important;background:#fffdf9!important}
+#scout-analysis.vc19310-active .vc193195-quad b,#scout-analysis.vc19310-active .vc193195-quad small{font-size:9px!important}
+#scout-analysis.vc19310-active .vc193195-zone-eff{text-align:center;font-size:9px;color:#4b6680;font-weight:800;white-space:nowrap}
+#scout-analysis.vc19310-active .vc193195-micro{font-size:10px;color:#667f97;margin:8px 0 0;line-height:1.5}
+#scout-analysis.vc19310-active .vc193195-table-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+#scout-analysis.vc19310-active .vc193195-table-tabs button{padding:7px 10px!important;min-height:32px!important}
+#scout-analysis.vc19310-active .vc193195-table-actions{display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:8px}
+#scout-analysis.vc19310-active .vc193195-table-actions span{font-size:10px;color:#637d95}
+#scout-analysis.vc19310-active .vc193195-table-actions label{min-width:155px}
+#scout-analysis.vc19310-active .vc193195-table-scroll,#scout-analysis.vc19310-active .vc193195-evidence-table{overflow-x:auto;max-width:100%;scrollbar-width:thin}
+#scout-analysis.vc19310-active .vc193195-table{border-collapse:separate;border-spacing:0;width:100%;min-width:520px;background:#fff;font:500 11px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif!important}
+#scout-analysis.vc19310-active .vc193195-table th,#scout-analysis.vc19310-active .vc193195-table td{text-align:left;white-space:nowrap;font:650 11px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif!important;padding:9px 10px;border-bottom:1px solid #e8eef5;color:#254564}
+#scout-analysis.vc19310-active .vc193195-table thead th{font-weight:850!important;background:#eef4fb!important;color:#284c6e!important;font-size:10px!important;letter-spacing:.02em}
+#scout-analysis.vc19310-active .vc193195-table tbody tr:hover{background:#f4f9ff!important}
+#scout-analysis.vc19310-active .vc193195-table tbody tr.is-selected{background:#e4f1ff!important}
+#scout-analysis.vc19310-active .vc193195-table tbody tr>th button{padding:3px 7px!important;min-height:25px!important;background:transparent!important;border-color:transparent!important;font-weight:850!important;color:#1864a9!important}
+#scout-analysis.vc19310-active .vc193195-table tbody tr>th button[aria-pressed=true]{background:#1769c3!important;color:#fff!important}
+#scout-analysis.vc19310-active .vc193195-evidence header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+#scout-analysis.vc19310-active .vc193195-evidence h4{font:850 13px system-ui!important;color:#153d63!important;margin:0 0 2px!important}
+#scout-analysis.vc19310-active .vc193195-evidence p{font-size:11px;color:#71879b;margin:0}
+#scout-analysis.vc19310-active .vc193195-footnote{padding:6px 10px;border-left:3px solid #8fb4d8;background:#f5f9fe;font-size:10px;color:#607990;margin:0}
+/* Distribution: align existing matrices and court with the same table language.
+   Do not remap scores or create graphical trajectories. */
+#scout-analysis.vc19310-active .vc193161-root{min-width:0;max-width:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif!important}
+#scout-analysis.vc19310-active .vc193161-main{grid-template-columns:minmax(0,1fr) minmax(225px,260px);gap:10px;align-items:start}
+#scout-analysis.vc19310-active .vc193161-root .vc193161-card{border-radius:9px;border-color:#d8e4f0;box-shadow:0 2px 6px #163b5b07;min-width:0}
+#scout-analysis.vc19310-active .vc193161-table{max-width:100%;overflow-x:auto}
+#scout-analysis.vc19310-active .vc193161-table table{border-collapse:separate;border-spacing:0;font:650 11px/1.35 system-ui,-apple-system,'Segoe UI',sans-serif!important}
+#scout-analysis.vc19310-active .vc193161-table thead th{position:sticky;top:0;background:#edf4fb!important;font-weight:850!important;color:#264c72;padding:9px 8px!important}
+#scout-analysis.vc19310-active .vc193161-table td{padding:8px!important;border-bottom:1px solid #e5edf5!important}
+#scout-analysis.vc19310-active .vc193161-table tbody tr:hover{background:#f4f9ff}
+#scout-analysis.vc19310-active .vc193161-zonegrid{grid-template-rows:repeat(2,minmax(86px,1fr))!important;min-height:175px!important}
+#scout-analysis.vc19310-active .vc193161-court-board{max-height:320px!important;overflow:hidden!important}
+#scout-analysis.vc19310-active .vc193161-court{max-width:530px;margin:0 auto;min-width:0}
+#scout-analysis.vc19310-active .vc193195-dist-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+#scout-analysis.vc19310-active .vc193195-dist-tabs button{font-size:11px!important;font-weight:750!important;border:1px solid #cdddec!important;background:#fff!important;color:#2e597c!important;border-radius:6px!important;padding:6px 10px!important;box-shadow:none!important}
+#scout-analysis.vc19310-active .vc193195-dist-tabs button[aria-pressed=true]{background:#1769c3!important;color:#fff!important;border-color:#1769c3!important}
+#scout-analysis.vc19310-active .vc193195-dist-summary{min-width:0}
+#scout-analysis.vc19310-active .vc193195-dist-summary .vc193161-table{max-height:290px;overflow:auto}
+@media(max-width:1280px){#scout-analysis.vc19310-active .vc193195-workbench{grid-template-columns:minmax(250px,.85fr) minmax(380px,1.4fr)}#scout-analysis.vc19310-active .vc193195-controls{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1010px){#scout-analysis.vc19310-active .vc193195-workbench{grid-template-columns:minmax(0,1fr)}#scout-analysis.vc19310-active .vc193195-map-panel{max-width:none}#scout-analysis.vc19310-active .vc193195-controls{grid-template-columns:repeat(3,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193161-main{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:690px){#scout-analysis.vc19310-active .vc193195-controls{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193195-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#scout-analysis.vc19310-active .vc193195-zonegrid{grid-template-rows:repeat(2,minmax(126px,1fr))}#scout-analysis.vc19310-active .vc193195-evidence{padding:9px}#scout-analysis.vc19310-active .vc193195-table{min-width:520px}}
+@media(max-width:390px){#scout-analysis.vc19310-active .vc193195-controls{grid-template-columns:1fr 1fr}#scout-analysis.vc19310-active .vc193195-zone{padding:4px;gap:3px}#scout-analysis.vc19310-active .vc193195-quad{padding:2px!important}#scout-analysis.vc19310-active .vc193195-zonegrid{grid-template-rows:repeat(2,minmax(120px,1fr))}}
+/* Keep the evidence panel within the analysis workspace, not a page-long list. */
+#scout-analysis.vc19310-active .vc193195-evidence-table{max-height:350px;overflow:auto;scrollbar-width:thin;border:1px solid #e0e9f3;border-radius:6px}
+#scout-analysis.vc19310-active .vc193195-evidence .vc193195-table thead th{position:sticky;top:0;z-index:2}

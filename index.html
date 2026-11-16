@@ -3438,7 +3438,7 @@ renderCompetition();renderPlanificacion();
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)announce()});
   window.addEventListener('load',async()=>{
     try{
-      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.19',{updateViaCache:'none'});
+      const r=await navigator.serviceWorker.register('./service-worker.js?v=19.3.19.5',{updateViaCache:'none'});
       // The browser checks SW versions on register; do not also HEAD-fetch index.html.
       // register() already performs the initial update check; skip duplicate request.
       const POLL=6*60*60*1000;
@@ -13960,6 +13960,8 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 
 <link rel="stylesheet" href="./vc193161-distribution-intelligence.css?v=19.3.19.3">
 <script id="vc193161-distribution-intelligence" src="./198-vc193161-distribution-intelligence.js?v=19.3.19.3" defer data-vc-module="true"></script>
+<!-- V19.3.19.5: unified tactical tables, compact court and exact rally selection. -->
+<script id="vc193195-tactical-tables" src="./206-vc193195-professional-tactical-tables.js?v=19.3.19.5" defer data-vc-module="true"></script>
 <script id="vc19310-analysis-architecture" src="./191-vc19310-professional-analysis-architecture.js?v=19.3.19.4" defer data-vc-module="true"></script>
 
 <!-- V19.3.17 Video Montage Pro: retains the canonical Video Review player. -->
@@ -13984,4 +13986,5 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <link rel="stylesheet" href="./vc1931931-visual-system.css?v=19.3.19.3.1">
 <!-- V19.3.19.4: five analysis workspaces, shared filters and linked rally context. -->
 <link rel="stylesheet" href="./vc193194-analysis-workspace.css?v=19.3.19.4">
+<link rel="stylesheet" href="./vc193195-tactical-tables.css?v=19.3.19.5">
 </body></html>
