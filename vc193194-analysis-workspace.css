@@ -1,0 +1,205 @@
+/* Volley Coach V19.3.19.4 · Unified Analysis UX
+   Visual consolidation only. All selectors are scoped to the professional analysis
+   workspace. The underlying scouting selectors, video player, and storage owners
+   remain unchanged. */
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active:not(.vc19310-legacy):not(.vc1930-active){
+  --vc194-ink:#122d47;--vc194-navy:#102b49;--vc194-blue:#146bcb;
+  --vc194-line:#dce6f1;--vc194-muted:#607a96;
+  background:#f2f6fb!important;
+}
+/* Existing selectors are the global filter source. No duplicate form or state. */
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-toolbar{
+  position:relative;z-index:1;background:#fff!important;border:1px solid #dde7f1!important;
+  border-radius:10px 10px 0 0!important;padding:12px 15px!important;
+  margin:0!important;box-shadow:0 5px 18px rgba(12,47,80,.035)!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-toolbar::before{
+  content:'CONTEXTO COMPARTIDO · PARTIDO / EQUIPO / SET / ROTACIÓN / COMPLEJO';
+  display:block;color:#4c6f90;font-size:10px;font-weight:850;letter-spacing:.065em;margin:0 0 8px;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-toolbar .vc157-filterbar{
+  display:grid!important;grid-template-columns:minmax(200px,2fr) auto repeat(4,minmax(118px,1fr))!important;
+  gap:10px!important;align-items:end!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-filterbar>label{min-width:0!important;margin:0!important;font-size:11px!important;color:#4a6884!important;font-weight:750!important}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-filterbar select{
+  min-height:39px!important;width:100%!important;border:1px solid #d3e0ed!important;
+  border-radius:7px!important;background:#fff!important;padding:7px 9px!important;font-size:12px!important;
+  color:#173e62!important;box-shadow:none!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-filterbar #vc157-refresh-matches{
+  border:1px solid #c5dbef!important;background:#f1f7ff!important;color:#165fa4!important;
+  min-height:39px!important;border-radius:7px!important;padding:8px 10px!important;box-shadow:none!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-workspace{
+  padding:0!important;border:1px solid #dce6f1!important;border-top:0!important;
+  border-radius:0 0 12px 12px!important;background:#f2f6fb!important;
+  box-shadow:0 8px 20px rgba(13,47,82,.035);
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head{
+  background:#fff!important;border-bottom:1px solid #e2eaf3!important;padding:15px 18px!important;
+  color:#122e4c!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head small{
+  color:#2875b4!important;font-size:10px!important;letter-spacing:.08em!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head h2{
+  color:#102b49!important;font-size:20px!important;font-weight:850!important;letter-spacing:-.03em!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head p{
+  color:#678098!important;font-size:12px!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head .vc19310-actions button{
+  background:#f5f9fe!important;color:#285a88!important;border:1px solid #cfdfed!important;
+  border-radius:7px!important;min-height:35px!important;font-size:11px!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head .vc19310-actions button:first-child{
+  background:#166bc8!important;color:#fff!important;border-color:#166bc8!important;
+}
+/* Five main workspaces. Keep all eight engines reachable in contextual sub-tabs. */
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav{
+  display:grid!important;grid-template-columns:repeat(5,minmax(132px,1fr))!important;
+  gap:4px!important;background:#fff!important;padding:8px 10px!important;
+  border-bottom:1px solid #dce6f1!important;overflow-x:auto!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav button{
+  border:1px solid transparent!important;border-radius:8px!important;background:#fff!important;
+  padding:10px 12px!important;min-height:62px!important;display:flex!important;
+  gap:4px!important;align-items:flex-start!important;text-align:left!important;
+  white-space:normal!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav button strong{
+  font-size:12px!important;line-height:1.2!important;color:#345775!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav button small{
+  font-size:10px!important;color:#7b91a7!important;line-height:1.2!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav button[aria-selected="true"]{
+  background:#eaf3ff!important;border-color:#bdd5ee!important;box-shadow:inset 3px 0 #146bcb!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav button[aria-selected="true"] strong{
+  color:#165894!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-subnav{
+  display:flex;flex-wrap:wrap;gap:6px;padding:9px 16px;background:#f7faff;
+  border-bottom:1px solid #e2ebf4;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-subnav[hidden]{display:none!important}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-subnav button{
+  background:#fff!important;border:1px solid #d0dfef!important;color:#366184!important;
+  border-radius:7px!important;padding:7px 12px!important;min-height:33px!important;
+  font-size:11px!important;font-weight:750!important;box-shadow:none!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-subnav button[aria-selected="true"]{
+  background:#164e89!important;border-color:#164e89!important;color:#fff!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-contextbar{
+  padding:10px 16px!important;min-height:44px;display:flex!important;gap:12px;
+  align-items:center!important;justify-content:space-between!important;background:#fff!important;
+  border-bottom:1px solid #e0eaf3;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-contextbar>div{
+  min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-contextbar strong{
+  color:#153b60;font-size:12px;overflow-wrap:anywhere;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-contextbar span{
+  color:#6e849b!important;font-size:10px!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-readonly{
+  font-size:10px!important;white-space:nowrap;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 15px;background:#edf4fc;border-bottom:1px solid #dbe7f2;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock>div{display:grid;gap:2px;min-width:0}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock small{
+  color:#6d8299!important;font-size:9px!important;font-weight:800!important;letter-spacing:.045em;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock strong{
+  color:#174a79;font-size:12px;font-weight:850;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock button{
+  border:1px solid #b9d0e8!important;border-radius:7px!important;background:#fff!important;
+  color:#145a9c!important;min-height:35px!important;font-size:11px!important;
+  font-weight:800!important;padding:8px 12px!important;box-shadow:none!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock button:disabled{
+  color:#97a6b5!important;background:#f4f7fa!important;cursor:not-allowed!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active #vc19310-body{
+  padding:14px!important;max-width:100%;min-width:0;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active #vc19310-body .vc19310-panel{
+  padding:14px!important;border-radius:10px!important;box-shadow:0 3px 12px rgba(20,57,92,.045)!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc19310-scroll{max-height:480px;border-radius:7px!important}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc19310-scroll table{font-size:12px!important}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc19310-scroll table th,
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc19310-scroll table td{padding:9px 10px!important}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc19310-evidence{position:static!important}
+/* Fundamentos: read-only view of the existing contact projection. */
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-section-heading{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-section-heading small{
+  color:#2875b4;font-size:10px;letter-spacing:.06em;font-weight:850;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-section-heading h3{
+  font-size:19px!important;margin:4px 0!important;color:#173b5d!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-section-heading p{font-size:12px;color:#69839b;margin:0!important}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-section-heading>span{
+  background:#e4f0ff;color:#165994;border:1px solid #bdd7f0;border-radius:30px;
+  font-weight:750;font-size:11px;padding:6px 10px;white-space:nowrap;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-skills-nav{
+  display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-skills-nav button{
+  display:flex;align-items:center;gap:7px;border:1px solid #cddff0!important;
+  background:#fff!important;color:#285574!important;border-radius:7px!important;
+  padding:8px 12px!important;min-height:38px!important;box-shadow:none!important;
+  font-size:11px!important;font-weight:750!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-skills-nav button b{
+  font-weight:900;font-size:13px;color:inherit;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-skills-nav button[aria-pressed="true"]{
+  background:#155ea9!important;border-color:#155ea9!important;color:#fff!important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-data-grid{
+  display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.65fr);align-items:start;gap:12px;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-eval-row{
+  display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-eval-row span{
+  display:flex;gap:9px;align-items:center;background:#f1f7fd;border:1px solid #d8e7f4;
+  border-radius:7px;padding:7px 12px;font-size:12px;color:#2d5577;
+}
+body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-eval-row b{
+  color:#124c85;font-size:13px;
+}
+@media(max-width:1300px){
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-toolbar .vc157-filterbar{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav{grid-template-columns:repeat(5,minmax(132px,1fr))!important}
+}
+@media(max-width:950px){
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-data-grid{grid-template-columns:minmax(0,1fr)}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head{align-items:flex-start!important;flex-direction:column!important}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-contextbar{align-items:flex-start!important;flex-direction:column!important}
+}
+@media(max-width:650px){
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-toolbar{padding:10px!important}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-toolbar .vc157-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc157-match-field{grid-column:1/-1}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav{display:flex!important;gap:5px!important;scroll-snap-type:x mandatory}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-main-nav button{flex:0 0 143px!important;scroll-snap-align:start}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock{flex-wrap:wrap}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-selection-dock button{width:100%!important}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active #vc19310-body{padding:9px!important}
+ body.v11-shell.vc-design-v1 #scout-analysis.vc19310-active .vc193194-head h2{font-size:18px!important}
+}

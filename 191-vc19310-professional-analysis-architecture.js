@@ -10,8 +10,18 @@
  if(root){root.VC_PRO_ANALYSIS_19310=api;if(root.document)api.mount(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.18';
- const SPACES=[['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['montage','Video Montage','Clips y anotaciones'],['worksheets','Worksheets','Hojas e informes']];
+ const VERSION='19.3.19.4';
+ const SPACES=[['skills','Fundamentos','Acciones y jugadores'],['match','Match Analysis','Tablas y K1/K2'],['distribution','Distribution','Colocador y ataque'],['court','Court Analysis','Zonas y trayectorias'],['search','Rally Search','Búsquedas tácticas'],['video','Video Analysis','Rallies y vídeo'],['montage','Video Montage','Clips y anotaciones'],['worksheets','Worksheets','Hojas e informes']];
+ const GROUPS=[
+  {id:'overview',title:'Resumen',description:'Partido y rotaciones',spaces:['match']},
+  {id:'skills',title:'Fundamentos',description:'Jugadores y acciones',spaces:['skills']},
+  {id:'tactics',title:'Análisis táctico',description:'Colocadores y pistas',spaces:['distribution','court']},
+  {id:'review',title:'Búsqueda y vídeo',description:'Rallies y clips',spaces:['search','video','montage']},
+  {id:'reports',title:'Hojas e informes',description:'Estadísticas a medida',spaces:['worksheets']}
+ ];
+ const GROUP_DEFAULT={overview:'match',skills:'skills',tactics:'distribution',review:'search',reports:'worksheets'};
+ const GROUP_FOR_SPACE=Object.fromEntries(GROUPS.flatMap(group=>group.spaces.map(space=>[space,group.id])));
+ const SUBTAB_LABELS={distribution:'Distribución',court:'Análisis de pista',search:'Buscar rallies',video:'Vídeo y contactos',montage:'Video Montage'};
  const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const val=x=>String(x??'').trim();
  const esc=x=>val(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -71,13 +81,38 @@
   return `<svg class="vc19310-dist-svg" viewBox="0 0 400 250" role="img" aria-label="Distribución explícita del colocador a las zonas codificadas"><defs><marker id="vc19310-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0 L5 2.5 L0 5" fill="none" stroke="#146bb8" stroke-width="1.5"/></marker></defs><rect x="4" y="4" width="392" height="242" rx="4" fill="#f0c38e" stroke="#fff" stroke-width="3"/><path d="M4 82 H396 M4 164 H396 M135 4 V246 M265 4 V246" stroke="#fff" stroke-width="2"/>${lines}<circle cx="200" cy="190" r="16" fill="#133b65"/><text x="200" y="194" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">E</text>${stats.zones.map(z=>{const q=p[z.zone];return `<text x="${Math.round(q[0]*400)}" y="${Math.round(q[1]*250)+5}" font-size="11" text-anchor="middle" font-weight="700" fill="#153c60">Z${z.zone}</text>`}).join('')}</svg><p class="vc19310-note">Solo flechas con destino de colocación explícito: ${stats.coded}/${stats.total}. El grosor representa volumen, no trayectoria medida.</p>`;
  }
  function createShell(doc){
-  const node=doc.createElement('section');node.id='vc19310-workspace';node.className='vc19310-workspace';node.innerHTML=`<header class="vc19310-head"><div><small>VOLLEY COACH PROFESSIONAL · V${VERSION}</small><h2>Analysis Pro</h2><p>Estadísticas, distribuciones, pistas, búsquedas y vídeo · mismo scouting</p></div><div class="vc19310-actions"><button data-vc19310-command="refresh">Actualizar</button><button data-vc19310-command="official">PDF oficial</button><button data-vc19310-command="advanced">Herramientas originales</button></div></header><nav class="vc19310-nav" aria-label="Espacios de análisis">${SPACES.map(([id,title,description],i)=>`<button type="button" role="tab" data-vc19310-space="${id}" aria-selected="${i===0}"><strong>${title}</strong><small>${description}</small></button>`).join('')}</nav><div class="vc19310-subbar"><span id="vc19310-match-label">Sin scouting seleccionado</span><span id="vc19310-sample" aria-live="polite">Selecciona un partido para comenzar</span></div><div id="vc19310-body" role="tabpanel"></div><div class="vc19310-status" role="status" aria-live="polite"></div>`;
+  const node=doc.createElement('section');node.id='vc19310-workspace';node.className='vc19310-workspace vc193194-workspace';
+  node.innerHTML=`<header class="vc19310-head vc193194-head"><div class="vc193194-heading"><small>VOLLEY COACH PRO · V${VERSION}</small><h2>Centro de análisis</h2><p>El mismo scouting, del resumen al vídeo y a los informes.</p></div><div class="vc19310-actions"><button type="button" data-vc19310-command="refresh">Actualizar datos</button><button type="button" data-vc19310-command="official">PDF oficial</button><button type="button" data-vc19310-command="advanced">Herramientas anteriores</button></div></header>
+   <nav class="vc19310-nav vc193194-main-nav" role="tablist" aria-label="Áreas del centro de análisis">${GROUPS.map((group,i)=>`<button type="button" role="tab" data-vc193194-group="${group.id}" aria-selected="${i===0}" aria-controls="vc19310-body"><strong>${group.title}</strong><small>${group.description}</small></button>`).join('')}</nav>
+   <nav class="vc193194-subnav" role="tablist" aria-label="Herramientas del área" hidden></nav>
+   <div class="vc19310-subbar vc193194-contextbar"><div><strong id="vc19310-match-label">Sin scouting seleccionado</strong><span id="vc19310-sample" aria-live="polite">Selecciona un partido para comenzar</span></div><span class="vc193194-readonly">Consulta en vivo del scouting · sin copias de estadísticas</span></div>
+   <div class="vc193194-selection-dock" aria-label="Jugada seleccionada"><div><small>JUGADA SELECCIONADA</small><strong id="vc193194-current-rally" aria-live="polite">Ninguna</strong></div><button type="button" data-vc193194-action="open-video" disabled>Consultar vídeo de la jugada</button></div>
+   <div id="vc19310-body" role="tabpanel"></div><div class="vc19310-status" role="status" aria-live="polite"></div>`;
   return node;
  }
- function initialState(){return {space:'match',advanced:false,zone:null,courtSkill:'A',courtMode:'destination',searchMode:'codes',search:{status:'closed'},searchPreset:'',searchResults:[],selected:null,sort:'count'};}
+ function initialState(){return {space:'match',skill:'A',lastByGroup:{},selections:{},advanced:false,zone:null,courtSkill:'A',courtMode:'destination',searchMode:'codes',search:{status:'closed'},searchPreset:'',searchResults:[],selected:null,sort:'count'};}
  function tableHtml(columns,rows){return `<div class="vc19310-scroll"><table><thead><tr>${columns.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.join('')||`<tr><td colspan="${columns.length}">Sin datos codificados para este filtro</td></tr>`}</tbody></table></div>`;}
  function filterCourtRallies(rallies,contacts,skill,kind,zoneNo){if(!zoneNo)return rallies;const zoneField=kind==='origin'?'startZone':kind==='destination'?'endZone':skill==='E'?'setTarget':skill==='R'?'contactZone':'endZone';const keys=new Set(contacts.filter(c=>c.skill===skill&&c.fields?.[zoneField]?.zone===zoneNo).map(c=>c.rallyKey));return rallies.filter(r=>keys.has(r.key));}
  function evidenceHtml(rallies){const subset=rallies.slice(-80).reverse();return `<aside class="vc19310-panel vc19310-evidence"><div class="vc19310-panelhead"><strong>JUGADAS Y EVIDENCIA</strong><span>${rallies.length} rallies</span></div><div class="vc19310-rallies">${subset.map(r=>`<button type="button" class="vc19310-rally" data-vc19310-rally="${esc(r.key)}"><b>S${r.set} · #${r.index}</b><span>${r.winner==='ours'?'Punto propio':r.winner==='opponent'?'Punto rival':'Sin cerrar'} · ${r.serving==='ours'?'Saque propio':r.serving==='opponent'?'Saque rival':'Saque desconocido'}</span></button>`).join('')||'<p class="vc19310-note">No hay rallies con estos filtros.</p>'}</div><div class="vc19310-video-box"><div class="vc19310-screen"><span>▶</span><strong>VÍDEO VINCULADO</strong><small>Se abre en el reproductor de Video Studio</small></div><p data-vc19310-detail>Selecciona una jugada.</p><button type="button" data-vc19310-command="play" disabled>Abrir rally en vídeo</button></div></aside>`;}
+ function skillsView(ctx,projection,state){
+  const base=projection.base,skill=SKILLS[state.skill]?state.skill:'A',contacts=base.contacts.filter(c=>c.team===ctx.team&&c.skill===skill);
+  const rated=contacts.filter(c=>c.evaluation),counts=Object.fromEntries(['#','+','!','-','/','='].map(e=>[e,contacts.filter(c=>c.evaluation===e).length]));
+  const positive=contacts.filter(c=>['#','+'].includes(c.evaluation)).length;
+  const attack=attackEff(contacts);
+  const groups=groupContacts(contacts,c=>c.player||'Sin identificar');
+  const items=groups.map(([name,list])=>{
+   const n=list.length,e=list.filter(c=>c.evaluation),p=list.filter(c=>['#','+'].includes(c.evaluation)).length,k=list.filter(c=>c.evaluation==='#').length,err=list.filter(c=>c.evaluation==='='||c.evaluation==='/').length;
+   const eff=skill==='A'?attackEff(list).eff:null;
+   return `<tr><th>${esc(name)}</th><td>${n}</td><td>${e.length}</td><td>${k}</td><td>${p}</td><td>${err}</td><td>${format(pct(p,e.length))}</td><td>${skill==='A'?format(eff):'—'}</td></tr>`;
+  });
+  const keys=new Set(contacts.map(c=>c.rallyKey));const rallies=base.rallies.filter(r=>keys.has(r.key));
+  const buttons=Object.entries(SKILLS).map(([id,title])=>`<button type="button" data-vc193194-skill="${id}" aria-pressed="${id===skill}" class="${id===skill?'is-active':''}"><b>${id}</b>${title}</button>`).join('');
+  const html=`<section class="vc193194-skills"><header class="vc193194-section-heading"><div><small>ANÁLISIS POR FUNDAMENTO</small><h3>${esc(SKILLS[skill])}</h3><p>Consulta los contactos originales del scouting. Los datos sin valoración no cuentan como errores.</p></div><span>${contacts.length} contactos</span></header>
+   <div class="vc193194-skills-nav" aria-label="Seleccionar fundamento">${buttons}</div>
+   <div class="vc19310-kpis vc193194-kpis"><div><small>Contactos</small><strong>${contacts.length}</strong></div><div><small>Evaluados</small><strong>${rated.length}</strong><span>${contacts.length-rated.length} sin valorar</span></div><div><small>Positivas (#/+)</small><strong>${format(pct(positive,rated.length))}</strong><span>${positive}/${rated.length}</span></div><div><small>${skill==='A'?'Eficiencia de ataque':'Valoración #'}</small><strong>${skill==='A'?format(attack.eff):counts['#']}</strong><span>${skill==='A'?'(# − = − /) / evaluados':'Contactos valorados #'}</span></div></div>
+   <div class="vc193194-data-grid"><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>RENDIMIENTO POR JUGADOR</strong><span>${groups.length} grupos</span></div>${tableHtml(['Jugador','N','Eval.','#','#+','=/','% #+','EFF A'],items)}<p class="vc19310-note">El indicador de eficiencia solo se calcula para ataques. Para otros fundamentos, #/+ es un recuento descriptivo, no una equivalencia de puntos.</p><div class="vc193194-eval-row">${Object.entries(counts).map(([code,n])=>`<span><b>${esc(code)}</b>${n}</span>`).join('')}</div></section>${evidenceHtml(rallies)}</div></section>`;
+  return {html,rallies};
+ }
  function matchView(ctx,projection){
   const {base}=projection,points=pointSummary(base.rallies,ctx.team),summary=attackEff(base.contacts.filter(c=>c.team===ctx.team)),rotations=rotationReport(base.rallies,ctx.team),out=[];
   for(const [name,rows] of groupContacts(base.contacts.filter(c=>c.team===ctx.team&&c.skill==='A'),c=>c.player).slice(0,12)){
@@ -115,6 +150,28 @@
   view.dataset.vc19310Mounted='1';const state=initialState();let node=null,initialized=false,paintTimer=null,ctx=null,projection=null,filteredRallies=[],legacyRallies=[],watcher=null;
   const delay=()=>{win.clearTimeout(paintTimer);paintTimer=win.setTimeout(paint,80)};
   function setStatus(msg){const target=node?.querySelector('.vc19310-status');if(target)target.textContent=msg;}
+  function showNavigation(){
+   const group=GROUP_FOR_SPACE[state.space]||'overview';
+   node.querySelectorAll('[data-vc193194-group]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vc193194Group===group)));
+   const entries=GROUPS.find(g=>g.id===group)?.spaces||[];
+   const sub=node.querySelector('.vc193194-subnav');if(!sub)return;
+   sub.hidden=entries.length<2;
+   if(entries.length>=2)sub.innerHTML=entries.map(id=>`<button type="button" role="tab" data-vc19310-space="${id}" aria-selected="${id===state.space}" aria-controls="vc19310-body">${esc(SUBTAB_LABELS[id]||SPACES.find(s=>s[0]===id)?.[1]||id)}</button>`).join('');
+   else sub.innerHTML='';
+  }
+  function switchSpace(space){
+   if(!SPACES.some(s=>s[0]===space))return;
+   state.selections[state.space]=state.selected;
+   state.lastByGroup[GROUP_FOR_SPACE[space]||'overview']=space;
+   state.space=space;state.selected=state.selections[space]||null;
+   toggleLegacy(false);paint();
+  }
+  function selectionDock(){
+   const r=filteredRallies.find(x=>x.key===state.selected);
+   const el=node?.querySelector('#vc193194-current-rally'),button=node?.querySelector('[data-vc193194-action="open-video"]');
+   if(el)el.textContent=r?`Set ${r.set} · Rally ${r.index}${r.closed?'':' · sin cerrar'}`:'Ninguna';
+   if(button)button.disabled=!r;
+  }
   function findContext(){try{return win.VC_ANALYSIS_MAIN_1937?.selectContext?.(win)||null;}catch(e){setStatus('No se pudo acceder al contexto del partido.');return null}}
   function toggleLegacy(value){
    state.advanced=!!value;if(state.advanced){win.VC_VIDEO_MONTAGE_19317?.unmount?.(win);win.VC_INTEGRATED_VIDEO_19314?.park?.(win);}view.classList.toggle('vc19310-legacy',state.advanced);
@@ -133,11 +190,11 @@
    const source=doc.getElementById('vc157-sample');if(source){watcher=new win.MutationObserver(delay);watcher.observe(source,{childList:true,subtree:true,characterData:true});}
    return true;}
   function paint(){if(!view.classList.contains('active')){win.VC_VIDEO_MONTAGE_19317?.unmount?.(win);win.VC_INTEGRATED_VIDEO_19314?.park?.(win);return;}if(!build())return;if(state.advanced||view.classList.contains('vc1930-active')){win.VC_VIDEO_MONTAGE_19317?.unmount?.(win);win.VC_INTEGRATED_VIDEO_19314?.park?.(win);return;}
-   ctx=findContext();if(!ctx||!ctx.match){win.VC_VIDEO_MONTAGE_19317?.unmount?.(win);win.VC_INTEGRATED_VIDEO_19314?.park?.(win);node.querySelector('#vc19310-body').innerHTML='<div class="vc19310-panel"><p>Selecciona un scouting en la barra superior para comenzar.</p></div>';return;}
+   ctx=findContext();if(!ctx||!ctx.match){win.VC_VIDEO_MONTAGE_19317?.unmount?.(win);win.VC_INTEGRATED_VIDEO_19314?.park?.(win);node.querySelector('#vc19310-body').innerHTML='<div class="vc19310-panel"><p>Selecciona un scouting en la barra superior para comenzar.</p></div>';filteredRallies=[];state.selected=null;selectionDock();showNavigation();return;}
    projection=baseProjection(win.VC_DATA_ENGINE_1938,ctx.match,ctx);if(!projection){setStatus('Motor de datos no disponible');return;}
    const opts=ctx.team==='ours'?'Nuestro equipo':'Rival';node.querySelector('#vc19310-match-label').textContent=`${val(ctx.match.name||ctx.match.title||ctx.match.opponentName||ctx.match.id)} · ${opts}`;
    node.querySelector('#vc19310-sample').textContent=`${projection.base.rallies.length} rallies · ${projection.base.contacts.length} contactos · sin alterar el scouting`;
-   node.querySelectorAll('[data-vc19310-space]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vc19310Space===state.space)));
+   showNavigation();
    const body=node.querySelector('#vc19310-body');
    // Avoid undocking an active player on unrelated re-renders or clocks.
    // Rebuild only when the selection or the underlying scouting data changes.
@@ -155,7 +212,9 @@
    let enhanced=null;
    try{enhanced=(state.space==='distribution'?win.VC_DISTRIBUTION_193161?.render?.({space:state.space,ctx,projection,state,win}):null)||(state.space==='worksheets'?win.VC_WORKSHEETS_19318?.render?.({space:state.space,ctx,projection,state,win}):null)||win.VC_ANALYSIS_SCREENS_19311?.render?.({space:state.space,ctx,projection,state,win})||null;}
    catch(e){setStatus('La vista profesional no ha podido cargarse; se utiliza la vista anterior.');}
+   const skills=state.space==='skills'?skillsView(ctx,projection,state):null;
    if(enhanced)body.innerHTML=enhanced.html;
+   else if(skills)body.innerHTML=skills.html;
    else if(state.space==='match')body.innerHTML=matchView(ctx,projection);
    else if(state.space==='distribution')body.innerHTML=distributionView(ctx,projection);
    else if(state.space==='court')body.innerHTML=courtView(ctx,projection,state);
@@ -165,10 +224,10 @@
    else body.innerHTML=worksheetsView(ctx,projection);
    body.dataset.vc19314Signature=sig;
    const source=state.space==='search'?(win.VC_RALLY_SEARCH_1939?.query?.(projection.model,{...state.search,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase})?.rallies||[]):projection.base.rallies;
-   const filtered=enhanced?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
+   const filtered=enhanced?.rallies||skills?.rallies||(state.space==='court'?filterCourtRallies(source,projection.base.contacts.filter(c=>c.team===ctx.team),state.courtSkill,state.courtMode,state.zone):source);
    filteredRallies=filtered;legacyRallies=evidenceCandidates(ctx,filtered);if(['video','montage'].includes(state.space))win.VC_INTEGRATED_VIDEO_19314?.attach?.(win,node,ctx.match);if(state.space==='montage')win.VC_VIDEO_MONTAGE_19317?.mount?.(win,node.querySelector('.vc19317-shell'),ctx,projection);if(state.space==='video')win.VC_SMART_SCOUTING_19316?.updateAudit?.(node,ctx.match,win.VC_DATA_ENGINE_1938,win);const choice=filtered.find(r=>r.key===state.selected);if(choice)selectRally(choice.key);
    else if(filtered.length)selectRally(filtered[filtered.length-1].key);
-   else state.selected=null;
+   else state.selected=null;selectionDock();
   }
   function selectRally(key,{play:autoplay=false}={}){const r=filteredRallies.find(x=>x.key===key);if(!r)return;state.selected=key;node.querySelectorAll('[data-vc19310-rally]').forEach(b=>b.classList.toggle('is-selected',b.dataset.vc19310Rally===key));
    const legacy=legacyRallies.find(x=>x.set===r.set&&(r.nativeId!=null&&String(x.id)===String(r.nativeId)||x.index===r.index));
@@ -178,6 +237,7 @@
     play.disabled=!canRally&&(!actionKeys.length||typeof videoApi?.openKeys!=='function');play.dataset.keys=actionKeys.join(',');
    }
    const target=node.querySelector('[data-vc19310-detail]');if(target)target.textContent=`Set ${r.set} · Rally #${r.index} · ${r.contacts.length} contactos · ${actionKeys.length} acciones con vídeo`;
+   state.selections[state.space]=key;selectionDock();
    node._vc19310VideoKeys=actionKeys;
    if(state.space==='video'){win.VC_VIDEO_SCORE_19312?.updatePreview?.(node,r);if(win.VC_INTEGRATED_VIDEO_19314){const result=win.VC_INTEGRATED_VIDEO_19314.select?.(win,ctx?.match,r,{play:autoplay});win.VC_INTEGRATED_VIDEO_19314.selectionFeedback?.(node,r,result||{ok:false});}}
   }
@@ -189,12 +249,19 @@
     const integrated=win.VC_INTEGRATED_VIDEO_19314?.handleClick?.(win,b,{ctx,projection,node,state,selectRally});
     if(integrated?.handled)return;
    }
+   if(b.dataset.vc193194Group){const group=b.dataset.vc193194Group;switchSpace(state.lastByGroup[group]||GROUP_DEFAULT[group]);return;}
+   if(b.dataset.vc193194Skill){state.skill=b.dataset.vc193194Skill;paint();return;}
+   if(b.dataset.vc193194Action==='open-video'){
+    const key=state.selected;if(!key||!filteredRallies.some(r=>r.key===key)){setStatus('No hay un rally seleccionado.');return;}
+    if(state.space==='video'){selectRally(key,{play:true});return;}
+    state.selections[state.space]=key;state.selections.video=key;state.space='video';toggleLegacy(false);paint();selectRally(key,{play:true});return;
+   }
    const distributionAction=state.space==='distribution'?win.VC_DISTRIBUTION_193161?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus}):null;
    if(distributionAction?.handled){
     if(distributionAction.navigateVideo){
      const key=distributionAction.navigateVideo;
      if(!filteredRallies.some(r=>r.key===key)){setStatus('Rally no disponible en esta selección.');return;}
-     state.selected=key;state.space='video';toggleLegacy(false);paint();
+     state.selected=key;state.selections.video=key;state.space='video';toggleLegacy(false);paint();
      selectRally(key,{play:true});return;
     }
     if(distributionAction.repaint)paint();return;
@@ -210,7 +277,7 @@
    }
    const enhancedAction=win.VC_ANALYSIS_SCREENS_19311?.handleClick?.({button:b,state,node,ctx,projection,win,status:setStatus});
    if(enhancedAction?.handled){if(enhancedAction.repaint)paint();return;}
-   if(b.dataset.vc19310Space){state.space=b.dataset.vc19310Space;state.zone=null;toggleLegacy(false);paint();return;}
+   if(b.dataset.vc19310Space){switchSpace(b.dataset.vc19310Space);return;}
    if(b.dataset.vc19310Rot){const s=doc.getElementById('vc157-rotation');if(s){s.value=b.dataset.vc19310Rot;s.dispatchEvent(new win.Event('change',{bubbles:true}));delay();}return;}
    if(b.dataset.vc19310Zone){const n=Number(b.dataset.vc19310Zone);state.zone=state.zone===n?null:n;paint();return;}
    if(b.dataset.vc19310Rally){selectRally(b.dataset.vc19310Rally,{play:state.space==='video'});return;}
@@ -263,5 +330,5 @@
   if(view.classList.contains('active'))delay();
   win.VC_PRO_ANALYSIS_19310_STATE={get space(){return state.space},get mounted(){return initialized},show:space=>{if(SPACES.some(x=>x[0]===space)){state.space=space;toggleLegacy(false);paint();}},refresh:delay};
  }
- return {VERSION,SPACES,initialState,baseProjection,pointSummary,rotationReport,groupContacts,attackEff,collectZones,distribution,filterCourtRallies,evidenceCandidates,reportTable,distributionSvg,createShell,mount};
+ return {VERSION,SPACES,GROUPS,GROUP_DEFAULT,GROUP_FOR_SPACE,skillsView,initialState,baseProjection,pointSummary,rotationReport,groupContacts,attackEff,collectZones,distribution,filterCourtRallies,evidenceCandidates,reportTable,distributionSvg,createShell,mount};
 });
