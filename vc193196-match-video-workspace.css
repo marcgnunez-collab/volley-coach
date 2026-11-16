@@ -1,0 +1,259 @@
+/* Volley Coach V19.3.19.6 · Match & Video Workspace.
+ * Scoped presentation layer. The original player, camera, rally engine, scorer,
+ * live device status and court remain the only interactive sources of truth.
+ */
+body.v11-shell #scout-match-mode #v800-shell {
+  --vc196-navy:#102b49;--vc196-blue:#146bcb;--vc196-line:#dce6f0;
+  --vc196-bg:#f4f7fc;--vc196-muted:#607b98;--vc196-panel:#fff;
+}
+body.v11-shell #scout-match-mode #vc52-modes {
+  border:1px solid var(--vc196-line)!important;background:#fff!important;
+  border-radius:12px!important;display:flex!important;gap:5px!important;
+  padding:5px!important;margin:10px 0 0!important;scroll-margin-top:72px;
+}
+body.v11-shell #scout-match-mode #vc52-modes button {
+  min-height:41px!important;padding:8px 12px!important;font-size:12px!important;
+  font-weight:750!important;border-radius:8px!important;box-shadow:none!important;
+  white-space:nowrap;
+}
+body.v11-shell #scout-match-mode #vc52-modes button.selected {
+  background:var(--vc196-blue)!important;color:#fff!important;
+  box-shadow:0 2px 7px rgba(19,99,188,.15)!important;
+}
+body.v11-shell #scout-match-mode #v800-live>.v800-scoreboard {
+  background:#fff!important;border-radius:13px!important;
+  border:1px solid var(--vc196-line)!important;box-shadow:0 2px 12px rgba(14,47,81,.055)!important;
+  margin:8px 0!important;
+}
+/* The original vc54 operation strip had no common grid styling. */
+body.v11-shell #scout-match-mode #vc54-operation-bar{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;
+}
+body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-live-indicator{
+ display:inline-flex;align-items:center;gap:7px;background:#eaf4ff;color:#164d87;
+ font-size:10px;font-weight:850;letter-spacing:.045em;padding:7px 11px;border-radius:8px;
+}
+body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-live-indicator i{
+ display:inline-block;width:7px;height:7px;background:#e27242;border-radius:50%;
+}
+body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation{
+ display:flex;flex-direction:column;gap:2px;min-width:80px;flex:0 1 auto;
+ border-left:1px solid #e1eaf3;padding-left:10px;
+}
+body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation small{
+ font-size:9px!important;line-height:1.2!important;letter-spacing:.07em;font-weight:750;color:#66829d!important;
+}
+body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation strong{
+ color:#173f69!important;font-size:13px!important;font-weight:850!important;line-height:1.2!important;
+}
+body.v11-shell #scout-match-mode #vc54-operation-bar {
+  border:1px solid var(--vc196-line)!important;border-radius:12px!important;
+  background:#fff!important;box-shadow:0 2px 10px rgba(14,47,81,.04)!important;
+  margin:0 0 8px!important;padding:8px 11px!important;gap:9px!important;
+}
+body.v11-shell #scout-match-mode #vc52-mode-description {
+  margin:0!important;padding:7px 2px!important;color:var(--vc196-muted)!important;
+  font-size:11px!important;min-height:0!important;
+}
+/* Common workbench control strip: only presentation actions, no new scorer. */
+body.v11-shell #scout-match-mode .vc196-commandbar {
+  background:#fff;border:1px solid var(--vc196-line);border-top:none;
+  border-radius:0 0 12px 12px;margin:0 0 9px;padding:11px 13px;
+  box-shadow:0 4px 14px rgba(15,52,91,.055);color:var(--vc196-navy);
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:11px 18px;
+}
+body.v11-shell #scout-match-mode .vc196-head{display:flex;flex-direction:column;gap:3px;min-width:170px}
+body.v11-shell #scout-match-mode .vc196-head>div{display:grid;gap:2px}
+body.v11-shell #scout-match-mode .vc196-eyebrow{font-size:9px!important;font-weight:850;letter-spacing:.08em;color:var(--vc196-blue)}
+body.v11-shell #scout-match-mode .vc196-head strong{font-size:14px!important;line-height:1.25;color:var(--vc196-navy)!important}
+body.v11-shell #scout-match-mode #vc196-mode-label{font-size:11px!important;font-weight:600;color:var(--vc196-muted)!important}
+body.v11-shell #scout-match-mode .vc196-nondata-note{font-size:9px!important;color:#70899f;display:none}
+body.v11-shell #scout-match-mode .vc196-controls{display:flex;justify-content:flex-end;gap:8px;align-items:center;flex-wrap:wrap;min-width:0}
+body.v11-shell #scout-match-mode .vc196-view-options,
+body.v11-shell #scout-match-mode .vc196-quick-actions{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0}
+body.v11-shell #scout-match-mode .vc196-view-options{padding:3px;border-radius:10px;background:#edf3fa;border:1px solid #dce7f1}
+body.v11-shell #scout-match-mode .vc196-commandbar button{
+  width:auto!important;min-height:33px!important;margin:0!important;
+  border-radius:7px!important;padding:7px 10px!important;
+  border:1px solid #cedcea!important;background:#fff!important;color:#235074!important;
+  box-shadow:none!important;font-size:10.5px!important;line-height:1.2!important;
+  white-space:nowrap;font-weight:750!important;transition:border-color .14s,background .14s;
+}
+body.v11-shell #scout-match-mode .vc196-commandbar button:hover:not(:disabled){border-color:#92b7df!important;background:#f0f6ff!important}
+body.v11-shell #scout-match-mode .vc196-view-options button{border-color:transparent!important;background:transparent!important}
+body.v11-shell #scout-match-mode .vc196-view-options button[aria-pressed="true"]{
+  background:#176fcd!important;color:#fff!important;border-color:#176fcd!important;
+}
+body.v11-shell #scout-match-mode .vc196-commandbar button:disabled{opacity:.45;cursor:not-allowed}
+body.v11-shell #scout-match-mode .vc196-commandbar [data-vc196-command="focus"]{
+  background:#163d69!important;color:#fff!important;border-color:#163d69!important;
+}
+body.v11-shell #scout-match-mode .vc196-commandbar [data-vc196-command="focus"]:hover{background:#23598e!important}
+body.v11-shell #scout-match-mode .vc196-commandbar button[hidden]{display:none!important}
+/* Video cockpit: a single video+coding canvas, with the original interactive court. */
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater){
+  display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(330px,1fr)!important;
+  grid-template-rows:auto auto auto!important;gap:11px!important;
+  align-items:start!important;max-width:none!important;width:100%!important;
+  padding:11px!important;margin:0!important;background:#f2f6fb!important;
+  border:1px solid #d7e4f1!important;border-radius:13px 13px 0 0!important;
+  box-shadow:none!important;min-width:0!important;overflow:visible!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater)>.v112-video-drawer-head{
+  grid-column:1/-1!important;grid-row:1!important;display:flex!important;
+  align-items:center!important;justify-content:space-between!important;
+  margin:0!important;padding:0 1px 5px!important;min-width:0!important;
+  border:0!important;background:transparent!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{
+  grid-column:1!important;grid-row:2!important;min-width:0!important;max-width:100%!important;
+  width:100%!important;margin:0!important;position:relative!important;
+  padding:12px!important;border-radius:11px!important;
+  border:1px solid var(--vc196-line)!important;background:#fff!important;
+  box-shadow:0 2px 10px rgba(16,47,83,.045)!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{
+  grid-column:2!important;grid-row:2/4!important;min-width:0!important;
+  max-width:100%!important;width:100%!important;margin:0!important;
+  padding:13px!important;border:1px solid var(--vc196-line)!important;border-radius:11px!important;
+  background:#fff!important;box-shadow:0 2px 10px rgba(16,47,83,.05)!important;
+  position:relative!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;
+  height:auto!important;max-height:min(78vh,950px)!important;overflow-y:auto!important;overflow-x:hidden!important;
+  scrollbar-width:thin!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater)>#vc54-court-slot{
+  grid-column:1!important;grid-row:3!important;position:relative!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;margin:0!important;z-index:1!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"]
+ #v112-video-drawer:not(.vc1644-theater) #vc54-court-slot>.v800-court-card{
+  margin:0!important;border:1px solid var(--vc196-line)!important;
+  border-radius:10px!important;background:#fff!important;box-shadow:none!important;
+  padding:10px!important;min-height:0!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater) #v800-video-frame{
+  width:100%!important;max-width:100%!important;min-height:230px!important;
+  max-height:min(56vh,590px)!important;aspect-ratio:16/9!important;
+  height:auto!important;margin:8px 0!important;overflow:hidden!important;border-radius:9px!important;
+  background:#0a1e35!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater) .v113-video-code-entry :is(input,textarea){
+  min-height:42px!important;font-size:15px!important;font-weight:750!important;
+  letter-spacing:.035em!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"]
+ #v112-video-drawer:not(.vc1644-theater) :is(.vc54-video-settings,.v113-video-rally){
+  max-width:100%!important;min-width:0!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"]
+ #v112-video-drawer:not(.vc1644-theater) :is(.v113-video-points,.v113-video-presets,.vc54-code-keypad){
+  max-width:100%!important;min-width:0!important;
+}
+/* The existing rally, efficiency and set controls become a compact shared dock. */
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"] #vc54-bottom{
+  margin:0!important;padding:12px!important;border:1px solid #d7e4f1!important;
+  border-top:0!important;background:#f2f6fb!important;border-radius:0 0 13px 13px!important;
+  display:block!important;min-width:0!important;
+}
+body.v11-shell #scout-match-mode #vc54-bottom .vc54-bottom-head{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+  gap:6px;margin:0 0 10px;padding:0 2px 8px;border-bottom:1px solid #dce6f0;
+}
+body.v11-shell #scout-match-mode #vc54-bottom .vc54-bottom-head strong{font-size:12px!important;color:#183956!important}
+body.v11-shell #scout-match-mode #vc54-bottom .vc54-bottom-head span{font-size:10px!important;color:#69839a!important}
+body.v11-shell #scout-match-mode #vc54-bottom-grid{
+  display:grid!important;grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr))!important;
+  gap:11px!important;align-items:start!important;min-width:0!important;
+}
+body.v11-shell #scout-match-mode #vc54-bottom-grid>.vc54-bottom-col{min-width:0!important;overflow:visible!important}
+body.v11-shell #scout-match-mode #vc54-bottom-grid>.vc54-bottom-col> :is(.v113-video-rally,.v800-kpi-card,.v112-set-card){
+  width:100%!important;max-width:100%!important;margin:0!important;
+  background:#fff!important;border:1px solid var(--vc196-line)!important;
+  border-radius:10px!important;box-shadow:none!important;padding:10px!important;
+}
+body.v11-shell #scout-match-mode #vc54-bottom-grid .v113-video-rally{max-height:255px!important;overflow-y:auto!important;scrollbar-width:thin!important}
+body.v11-shell #scout-match-mode #vc54-bottom-grid .v800-kpi-card{max-height:270px!important;overflow-y:auto!important;scrollbar-width:thin!important}
+body.v11-shell #scout-match-mode #vc196-rally-shortcut{
+ min-height:160px;padding:13px;display:flex;flex-direction:column;justify-content:flex-start;gap:8px;
+ border:1px solid var(--vc196-line);border-radius:10px;background:#fff;
+}
+body.v11-shell #scout-match-mode #vc196-rally-shortcut strong{font-size:12px!important;color:#163d63!important}
+body.v11-shell #scout-match-mode #vc196-rally-shortcut p{font-size:11px!important;color:#617b95!important;margin:0!important;line-height:1.45!important}
+body.v11-shell #scout-match-mode #vc196-rally-shortcut button{
+ margin-top:auto!important;min-height:35px!important;padding:8px 10px!important;
+ border-radius:8px!important;border:1px solid #bad2ee!important;
+ background:#edf5ff!important;color:#155fa5!important;font-size:11px!important;font-weight:800!important;
+}
+/* Resizable work surface without ever touching media playback or saved data. */
+body.v11-shell #scout-match-mode #v800-shell[data-vc196-layout="video"][data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,2.2fr) minmax(305px,.83fr)!important}
+body.v11-shell #scout-match-mode #v800-shell[data-vc196-layout="coding"][data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr) minmax(385px,1.12fr)!important}
+/* Compact native direct scouting and visual builder share the same visual rhythm. */
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="directo"] .v800-live-grid{
+  display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr)!important;
+  gap:12px!important;align-items:start!important;
+}
+body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="directo"] .v800-live-grid>*{min-width:0!important}
+body.v11-shell #scout-match-mode #vc52-pro-host .v900-live-grid{gap:11px!important}
+body.v11-shell #scout-match-mode #v800-shell :is(.v112-control-card,.v800-court-card,.v900-card,.v112-video-card,.v113-video-code-panel){
+  border-color:var(--vc196-line)!important;border-radius:11px!important;
+}
+@media(max-width:1240px){
+ body.v11-shell #scout-match-mode .vc196-commandbar{grid-template-columns:1fr!important}
+ body.v11-shell #scout-match-mode .vc196-head{flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap}
+ body.v11-shell #scout-match-mode .vc196-controls{justify-content:flex-start}
+ body.v11-shell #scout-match-mode #vc54-bottom-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.v11-shell #scout-match-mode #vc54-bottom-grid>#vc54-rally-slot{grid-column:1/-1}
+}
+@media(max-width:950px){
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+  #v112-video-drawer:not(.vc1644-theater){display:flex!important;flex-direction:column!important;align-items:stretch!important}
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+  #v112-video-drawer:not(.vc1644-theater)>:is(.v112-video-card,#vc54-court-slot,#v113-video-code-panel){width:100%!important;max-width:100%!important;position:relative!important;top:auto!important;max-height:none!important;overflow:visible!important}
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+  #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{order:2!important}
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+  #v112-video-drawer:not(.vc1644-theater)>#vc54-court-slot{order:3!important}
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="directo"] .v800-live-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:620px){
+ body.v11-shell #scout-match-mode .vc196-commandbar{padding:9px!important;gap:9px!important}
+ body.v11-shell #scout-match-mode .vc196-head{display:grid;gap:4px}
+ body.v11-shell #scout-match-mode .vc196-controls{display:grid!important;gap:8px!important}
+ body.v11-shell #scout-match-mode .vc196-view-options{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important}
+ body.v11-shell #scout-match-mode .vc196-view-options button{white-space:normal!important;min-width:0!important;padding:8px 4px!important;font-size:10px!important}
+ body.v11-shell #scout-match-mode .vc196-quick-actions{display:flex;gap:5px}
+ body.v11-shell #scout-match-mode .vc196-quick-actions button{flex:1 1 auto;font-size:10px!important;padding:8px 6px!important}
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater){padding:8px!important;gap:9px!important}
+ body.v11-shell #scout-match-mode #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater) #v800-video-frame{min-height:180px!important}
+ body.v11-shell #scout-match-mode #vc54-bottom-grid{grid-template-columns:minmax(0,1fr)!important}
+ body.v11-shell #scout-match-mode #vc54-bottom-grid>#vc54-rally-slot{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){body.v11-shell #scout-match-mode .vc196-commandbar button{transition:none}}
+/* Mobile-width safety: old v800 grid min-content must not widen the whole page. */
+@media(max-width:950px){
+ body.v11-shell #scout-match-mode #v800-shell{
+  min-width:0!important;max-width:100%!important;grid-template-columns:minmax(0,1fr)!important;
+ }
+ body.v11-shell #scout-match-mode #v800-live{
+  min-width:0!important;max-width:100%!important;width:100%!important;overflow-x:clip!important;
+ }
+ body.v11-shell #scout-match-mode #v800-live>:is(.v800-scoreboard,#vc54-operation-bar,#vc52-modes,#vc196-commandbar,#vc52-mode-description,#vc52-presence-bar,#v112-video-drawer,#vc54-bottom){
+  min-width:0!important;max-width:100%!important;width:100%!important;
+ }
+ body.v11-shell #scout-match-mode #v800-live>.v800-scoreboard{
+  grid-template-columns:minmax(0,1fr) minmax(94px,.52fr) minmax(0,1fr)!important;
+ }
+ body.v11-shell #scout-match-mode #vc52-presence-bar{flex-wrap:wrap!important;justify-content:flex-start!important;gap:7px!important}
+ body.v11-shell #scout-match-mode #vc52-devices{margin-left:0!important}
+}
