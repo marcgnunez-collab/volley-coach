@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='19.3.11.2',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
+ const VERSION='20.2.5.1',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];
@@ -101,11 +101,11 @@
    return String(value).slice(0,140);
  }
  function conflictPreview(local,remote,fields){
-   return (fields||[]).slice(0,4).map(key=>({field:key,local:previewValue(local?.[key]),remote:previewValue(remote?.[key])}));
+   return (fields||[]).map(key=>({field:key,local:previewValue(local?.[key]),remote:previewValue(remote?.[key])}));
  }
  function conflictFields(local,remote){
    const fields=new Set([...Object.keys(obj(local)),...Object.keys(obj(remote))]);
-   return [...fields].filter(k=>!META_FIELDS.has(k)&&valueHash(obj(local),k)!==valueHash(obj(remote),k)).slice(0,14);
+   return [...fields].filter(k=>!META_FIELDS.has(k)&&valueHash(obj(local),k)!==valueHash(obj(remote),k)).sort().slice(0,80);
  }
 
  const conflictKey=(team,type,id)=>JSON.stringify([team,type,id]);
@@ -153,7 +153,13 @@
          if(lh===rh)continue;
          const localChanged=!bh||lh!==bh,remoteChanged=!bh||rh!==bh;
          const key=conflictKey(team,type,id),choice=selected[key];
-         const valid=choice&&choice.local===lh&&choice.remote===rh&&['local','remote'].includes(choice.use);
+         // A manual choice is bound to the exact SEMANTIC record on each side.
+         // Timestamps and save bookkeeping can change between clicking and the
+         // next CAS read. Their changes must not invalidate a legitimate choice;
+         // changes to ANY actual training/scouting field still invalidate it.
+         const valid=!!(choice&&['local','remote'].includes(choice.use)&&(
+           (choice.local===lh&&choice.remote===rh)||
+           (choice.localSemantic&&choice.remoteSemantic&&choice.localSemantic===semanticDigest(l)&&choice.remoteSemantic===semanticDigest(r))));
          const causalUndo=type==='scoutingMatches'&&!valid&&isMatchingUndo(l,r);
          // Los datos deportivos son idénticos: los sellos internos de guardado
          // no deben bloquear una sesión con dos dispositivos conectados.
@@ -166,6 +172,8 @@
            mergedFields=mergeIndependentFields(l,r,priorFields[id]);
            if(!mergedFields){
              conflicts.push({key,team,type,id,local:lh,remote:rh,
+               localSemantic:semanticDigest(l),remoteSemantic:semanticDigest(r),
+               staleDecision:!!choice,
                label:String(l?.nombre||l?.titulo||l?.opponent||r?.nombre||r?.titulo||r?.opponent||id).slice(0,120),
                uncertain:!bh,fields:conflictFields(l,r),preview:conflictPreview(l,r,conflictFields(l,r))});
              continue;
@@ -311,9 +319,12 @@
      if(!['local','remote'].includes(use))throw Error('Resolución inválida.');
      const conflict=context.lastConflicts.find(c=>c.key===key&&c.local===local&&c.remote===remote);
      if(!conflict||context.account!==user())throw Error('El conflicto ya no corresponde al estado actual. Repite la sincronización.');
-     const choices=getChoices();choices[key]={use,local,remote};
+     const choices=getChoices();choices[key]={use,local,remote,localSemantic:conflict.localSemantic,remoteSemantic:conflict.remoteSemantic};
      writeJSON(decisionsKey(user()),choices,100*1024);
-     context.lastConflicts=context.lastConflicts.filter(c=>c.key!==key);notify();
+     // Keep the review visible until the cloud has really confirmed the CAS.
+     // A failed upload must not make the only remaining resolution controls
+     // disappear before the user can retry safely.
+     notify();
      return true;
    }
    function decideDeletion(key,use,editedDigest,deletedAt,where){
@@ -396,7 +407,7 @@
      for(const c of cs){
        const line=element('div');line.className='vc1915-item';
        row(line,c.team+' · '+c.type+' · '+c.label+' (ID '+c.id+')');
-       row(line,c.uncertain?'Sin versión común conocida: es necesario elegir la versión correcta.':'Ambos dispositivos han cambiado este registro.');
+       row(line,c.staleDecision?'La versión de datos cambió desde la última elección. Comprueba las dos copias y vuelve a decidir.':c.uncertain?'Sin versión común conocida: es necesario elegir la versión correcta.':'Ambos dispositivos han cambiado este registro.');
        if(c.fields?.length)row(line,'Campos diferentes: '+c.fields.join(', '));
        for(const item of c.preview||[])row(line,item.field+' · este dispositivo: '+item.local+' · nube: '+item.remote);
        for(const [title,choice] of [['Conservar mi versión','local'],['Aceptar versión de nube','remote']]){
@@ -477,7 +488,7 @@
          const holder=doc.getElementById('vc1919-cloud-conflicts');
          if(holder){holder.hidden=false;holder.replaceChildren();
            holder.append(element('h3','Resolver conflictos antes de sincronizar'));
-           holder.append(element('p','Revisa las dos versiones antes de elegir. No se resolverán conflictos por fecha ni se eliminarán datos automáticamente.'));
+           holder.append(element('p','La cuenta está conectada, pero ESTOS CAMBIOS NO ESTÁN SINCRONIZADOS. Revisa las dos versiones antes de elegir. No se resolverán conflictos por fecha ni se eliminarán datos automáticamente.'));
            const backups=element('div');backups.className='vc1919-conflict-actions';
            for(const [label,side] of [['Descargar JSON de este dispositivo','local'],['Descargar JSON de la nube','remote']]){
              const btn=element('button',label);btn.type='button';btn.addEventListener('click',()=>{
@@ -489,6 +500,7 @@
            for(const c of context.lastConflicts){
              const rowEl=element('section');rowEl.className='vc1919-conflict-row';
              rowEl.append(element('strong',c.team+' · '+c.type+' · '+c.label));
+             if(c.staleDecision)rowEl.append(element('p','La versión cambió después de elegir. Debes revisar de nuevo; ninguna decisión anterior se aplicará sin coincidencia de datos.'));
              rowEl.append(element('p','Campos diferentes: '+(c.fields?.join(', ')||'contenido del registro')));
              for(const item of c.preview||[])rowEl.append(element('p',item.field+' · Este dispositivo: '+item.local+' · Nube: '+item.remote));
              const actions=element('div');actions.className='vc1919-conflict-actions';
@@ -504,10 +516,11 @@
                    await safety.backupRemoteState(context.remoteState,context.remoteStamp);
                    decide(c.key,choice,c.local,c.remote);
                    const result=await win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v1919-resolve',allowWrite:true});
-                   if(result===false&&win.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().lastSyncError)
-                     throw Error(win.VC_V962_CLOUD_EFFICIENT.diagnostics().lastSyncError);
+                   const diagnostics=win.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+                   if(result!==true||diagnostics.dirty||diagnostics.lastSyncError)
+                     throw Error(diagnostics.lastSyncError||'La nube todavía tiene cambios pendientes; los dos estados siguen protegidos y debes comprobar su confirmación.');
                    cloudReview.click();
-                 }catch(error){win.alert('No se ha aplicado una versión sin protección: '+String(error?.message||error));}
+                 }catch(error){win.alert('La resolución no se ha confirmado. Las copias de seguridad permanecen guardadas. '+String(error?.message||error));}
                  finally{button.disabled=false;}
                });actions.append(button);
              }
