@@ -1,0 +1,86 @@
+/* Volley Coach V20.2.3 · DV4-inspired desktop workbench.
+ * Presentation only: native video/scorer/code/zone board remain single owners. */
+body.v11-shell #scout-match-mode{--vc23-navy:#102941;--vc23-blue:#1468c8;--vc23-line:#d5e1ec;--vc23-muted:#637c96}
+body.v11-shell #scout-match-mode #vc2023-menubar{box-sizing:border-box;display:flex;align-items:stretch;gap:0;width:100%;min-width:0;background:#122d4a;color:#f4f8ff;border:1px solid #32597d;border-radius:9px 9px 0 0;padding:0 10px;position:relative;z-index:51;font:650 12px/1.3 system-ui,'Segoe UI',sans-serif}
+body.v11-shell #scout-match-mode #vc2023-menubar *{box-sizing:border-box}
+body.v11-shell #scout-match-mode .vc2023-brand{display:flex;align-items:center;white-space:nowrap;font-weight:950;font-size:17px;color:#fff;padding:0 13px 0 4px;margin-right:7px;border-right:1px solid #355779}
+body.v11-shell #scout-match-mode .vc2023-brand small{font-size:9px;letter-spacing:.07em;color:#a9cdef;margin-left:8px}
+body.v11-shell #scout-match-mode .vc2023-menulist{display:flex;align-items:stretch;gap:1px;min-width:0;flex-wrap:wrap;flex:1}
+body.v11-shell #scout-match-mode .vc2023-menu{position:relative;display:flex}
+body.v11-shell #scout-match-mode #vc2023-menubar button{box-sizing:border-box;font:750 11px/1.2 system-ui,'Segoe UI',sans-serif;box-shadow:none!important;margin:0!important;border:0!important;border-radius:0!important;cursor:pointer;min-height:42px!important;padding:9px 12px!important;white-space:nowrap;color:#e3edf8!important;background:transparent!important}
+body.v11-shell #scout-match-mode #vc2023-menubar button:hover,body.v11-shell #scout-match-mode #vc2023-menubar button[aria-expanded="true"]{background:#20609d!important;color:#fff!important}
+body.v11-shell #scout-match-mode #vc2023-menubar button>span{font-size:10px;margin-left:6px;opacity:.7}
+body.v11-shell #scout-match-mode #vc2023-menubar .vc2023-return{margin:auto 4px!important;align-self:center;min-height:30px!important;padding:7px 10px!important;border:1px solid #7290b0!important;border-radius:5px!important;color:#fff!important}
+body.v11-shell #scout-match-mode .vc2023-readonly{color:#9cb9d3;font-size:9px;font-weight:700;align-self:center;padding-left:8px}
+body.v11-shell #scout-match-mode .vc2023-dropdown{position:absolute;top:100%;left:0;display:grid;width:max-content;min-width:215px;max-width:min(88vw,320px);background:white;color:#233e59;border:1px solid #c4d7e9;box-shadow:0 14px 36px #0c233b36;border-radius:0 0 8px 8px;padding:5px;z-index:85}
+body.v11-shell #scout-match-mode .vc2023-dropdown[hidden]{display:none!important}
+body.v11-shell #scout-match-mode #vc2023-menubar .vc2023-dropdown button{color:#234564!important;display:block!important;width:100%!important;text-align:left!important;min-height:34px!important;background:white!important;padding:8px 10px!important;border-radius:5px!important;font-size:11px!important}
+body.v11-shell #scout-match-mode #vc2023-menubar .vc2023-dropdown button:hover{color:#124f8d!important;background:#eaf4ff!important}
+body.v11-shell #scout-match-mode .vc2023-status{background:#fff7dc;color:#80530e;border:1px solid #eccf82;padding:8px 12px;font-size:11px}
+body.v11-shell #scout-match-mode .vc2023-status[hidden]{display:none!important}
+/* Compact, sticky native scoreboard, not a second score authority. */
+body.v11-shell #scout-match-mode.vc2023-ready #v800-live>.v800-scoreboard{position:sticky;top:0;z-index:49;margin:7px 0 0!important;border-radius:8px 8px 0 0!important;padding:7px 10px!important;box-shadow:0 3px 10px rgba(10,40,69,.1)!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-live>.v800-scoreboard .v800-team strong{font-variant-numeric:tabular-nums}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar{margin:0 0 7px!important;border-radius:0 0 7px 7px!important;box-shadow:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-heading{padding:6px 12px!important;background:#eaf2fa!important;flex-flow:row wrap!important;gap:6px!important;color:#183f66!important;align-items:center!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-mark{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-identity small{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-identity strong{font-size:11px!important;color:#173f67!important;max-width:270px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar #vc2020-match-state{font-size:9px!important;color:#57728c!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-facts{gap:5px!important;justify-content:flex-start!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-facts>div{padding:3px 8px!important;min-width:55px!important;background:#fff!important;border-color:#ccdaea!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-facts small{font-size:8px!important;color:#68819a!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-facts strong{font-size:12px!important;color:#163f63!important}
+/* Secondary workflows moved to menus and windows; only presentation is hidden. */
+body.v11-shell #scout-match-mode.vc2023-ready .vc2020-modes,
+body.v11-shell #scout-match-mode.vc2023-ready .vc2020-secondary,
+body.v11-shell #scout-match-mode.vc2023-ready #vc196-commandbar,
+body.v11-shell #scout-match-mode.vc2023-ready #vc54-operation-bar,
+body.v11-shell #scout-match-mode.vc2023-ready #vc52-mode-description,
+body.v11-shell #scout-match-mode.vc2023-ready #v850-context-strip,
+body.v11-shell #scout-match-mode.vc2023-ready #vc1640-commandbar{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar #vc2021-dock{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc52-presence-bar{padding:3px 8px!important;margin:0 0 6px!important;background:#f2f7fb;border:1px solid #dce6f1;border-radius:5px}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc54-bottom,
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc54-court-slot,
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc52-pro-host,
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar + #vc2022-intelligence{display:none!important}
+/* Native video and coding layout: big video on left, code plus 9×4 board right. */
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(340px,1fr)!important;grid-template-rows:minmax(0,auto)!important;align-items:start!important;gap:8px!important;border:1px solid #d0ddeb!important;border-radius:8px!important;padding:8px!important;background:#f0f4f9!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>.v112-video-drawer-head{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{grid-column:1!important;grid-row:1!important;background:#fff!important;border:1px solid #cbd8e7!important;border-radius:7px!important;padding:8px!important;min-width:0!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{grid-column:2!important;grid-row:1!important;display:block!important;max-height:none!important;height:auto!important;overflow:visible!important;position:relative!important;padding:10px!important;margin:0!important;border:1px solid #cbd8e7!important;border-radius:7px!important;background:#fff!important;min-width:0!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater) #v800-video-frame{aspect-ratio:16/9!important;width:100%!important;max-height:62vh!important;min-height:260px!important;display:block!important;margin:7px 0!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v113-video-code-panel>.v113-video-score{display:none!important} /* native, unchanged, duplicated visually with fixed scoreboard */
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v113-video-code-panel>.v113-video-code-head{margin-bottom:6px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] .v113-video-code-label span{font-weight:900!important;color:#174b7c!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v113-video-code{font-size:20px!important;font-weight:900!important;min-height:45px!important;background:#f6faff!important;border:2px solid #a8c8e6!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc1613-board{margin:8px 0!important;background:#f5f9fe!important;padding:7px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc1613-board .vc1613-court-grid{gap:3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc1613-board .vc1613-quads button{min-height:22px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v113-video-code-panel>#vc2021-dock{display:block!important;min-width:0!important;margin:6px 0!important;max-width:100%!important;box-shadow:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc2021-dock .vc2021-head{padding:6px 8px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc2021-dock .vc2021-head small{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc2021-dock .vc2021-group{padding:5px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #vc2021-dock .vc2021-group button{min-height:28px!important;padding:4px 7px!important}
+/* Auxiliary windows: detached consultations, no live video/court duplication. */
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window{position:fixed;z-index:15020;top:15vh;right:5vw;width:min(650px,88vw);max-height:78vh;overflow:auto;background:white;color:#17324f;border:1px solid #9cb5cc;box-shadow:0 16px 50px #112c4680;border-radius:9px;font:500 12px/1.45 system-ui,'Segoe UI',sans-serif}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window[data-type="intelligence"]{width:min(750px,90vw);right:8vw;top:18vh}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window[hidden]{display:none!important}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window.vc2023-minimized>.vc2023-window-body,body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window.vc2023-minimized>.vc2023-window-tools{display:none!important}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#173957;color:#fff;cursor:move}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-head strong{font-size:12px!important;color:#fff!important}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-head button{font-size:18px!important;line-height:1!important;min-width:32px!important;min-height:27px!important;padding:2px 7px!important;margin-left:4px!important;background:#315b81!important;color:#fff!important;border:1px solid #6485a3!important;border-radius:4px!important}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-body{padding:10px;overflow:auto}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-tools{display:flex;gap:6px;flex-wrap:wrap;padding:9px 10px;border-bottom:1px solid #e0e8f0}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-tools button{padding:7px 10px!important;font-size:11px!important;border:1px solid #bdd4e7!important;border-radius:4px!important;background:#eaf4ff!important;color:#174772!important}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window-note{color:#647a8f;margin:0 0 9px;font-size:11px}
+body.v11-shell #scout-match-mode #vc2023-windows .vc2023-table-wrap{overflow:auto;max-height:50vh}
+body.v11-shell #scout-match-mode #vc2023-windows table{width:100%;border-collapse:collapse;min-width:430px;font-size:11px}
+body.v11-shell #scout-match-mode #vc2023-windows th,body.v11-shell #scout-match-mode #vc2023-windows td{padding:7px;text-align:left;border-bottom:1px solid #e1eaf2}
+body.v11-shell #scout-match-mode #vc2023-windows th{position:sticky;top:0;background:#e9f2fb;color:#193e63;font-weight:800}
+body.v11-shell #scout-match-mode #vc2023-windows #vc2022-intelligence{margin:0!important;border:0!important;box-shadow:none!important;display:block!important}
+body.v11-shell #scout-match-mode #vc2023-menubar :is(button,[role="menuitem"]):focus-visible,body.v11-shell #scout-match-mode #vc2023-windows button:focus-visible{outline:3px solid #edaf44!important;outline-offset:1px}
+@media(max-width:1050px){body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1.35fr) minmax(310px,1fr)!important}}
+@media(max-width:780px){body.v11-shell #scout-match-mode #vc2023-menubar{flex-wrap:wrap;padding:5px}body.v11-shell #scout-match-mode .vc2023-brand{min-height:30px}body.v11-shell #scout-match-mode .vc2023-menulist{order:3;flex:1 0 100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}body.v11-shell #scout-match-mode #vc2023-menubar button{min-height:35px!important;padding:7px 9px!important}body.v11-shell #scout-match-mode .vc2023-dropdown{position:fixed;top:auto;left:10px;right:10px;width:auto;min-width:0;max-width:calc(100vw - 20px)}body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto!important}body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{grid-column:1!important;grid-row:1!important}body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{grid-column:1!important;grid-row:2!important}body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window{left:4vw!important;top:9vh!important;right:auto!important;width:92vw!important;max-height:82vh}}
+@media(prefers-reduced-motion:reduce){body.v11-shell #scout-match-mode #vc2023-windows .vc2023-window,body.v11-shell #scout-match-mode #vc2023-menubar button{transition:none!important}}
