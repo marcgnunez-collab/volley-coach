@@ -1,0 +1,83 @@
+/* Volley Coach V20.2.3.1 · Refined professional layout; cosmetic only. */
+/* Desktop: the EXISTING left navigation remains available via the existing ☰ topbar button. */
+@media(min-width:861px){
+ body.vc17-shell.vc20231-nav-collapsed #v11-sidebar{transform:translateX(-102%)!important;pointer-events:none!important;visibility:hidden!important}
+ body.vc17-shell.vc20231-nav-collapsed #v11-main{margin-left:0!important;padding-left:12px!important;padding-right:12px!important}
+ body.vc17-shell.vc20231-nav-collapsed #v11-topbar{left:0!important;padding-left:12px!important}
+ body.vc17-shell.vc20231-nav-collapsed #vc17-context{max-width:none!important}
+ body.vc17-shell.vc20231-nav-collapsed #v11-main>.view{max-width:none!important;width:100%!important}
+ body.vc17-shell #v11-topbar .v11-menu-toggle{display:grid!important;place-items:center!important;min-width:37px!important;min-height:34px!important;font-weight:900!important;font-size:20px!important;cursor:pointer!important}
+}
+/* Live workspace: video and native speed editor remain side by side, not recreated. */
+body.v11-shell #scout-match-mode.vc2023-ready{max-width:none!important;width:100%!important}
+body.vc17-shell.vc20231-scouting-active #v11-main{padding-left:12px!important;padding-right:12px!important;padding-top:77px!important}
+body.vc17-shell.vc20231-scouting-active #vc17-context{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell>.v800-top{padding:6px 10px!important;gap:6px!important;margin:0 0 5px!important;background:#f7fafe!important;border:1px solid #dae5f1!important;border-radius:5px!important;align-items:center!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell>.v800-top .v800-match-title{min-width:0!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell>.v800-top .v800-match-title .pro-kicker,
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell>.v800-top .v800-match-title p{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell>.v800-top .v800-match-title h2{font-size:12px!important;margin:0!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell>.v800-top .v800-top-actions{gap:5px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar .vc2020-heading{padding:4px 9px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc2020-matchbar{margin-bottom:3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #vc52-presence-bar{padding:2px 6px!important;margin:0 0 3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-live>.v800-scoreboard{padding:5px 8px!important;margin-top:3px!important;z-index:49!important;border-radius:4px!important}
+body.v11-shell #scout-match-mode #vc2023-menubar{border-radius:4px 4px 0 0!important;padding:0 5px!important}
+body.v11-shell #scout-match-mode #vc2023-menubar button{min-height:30px!important;padding:6px 9px!important}
+body.v11-shell #scout-match-mode .vc2023-brand{font-size:12px!important;padding-right:6px!important}
+body.v11-shell #scout-match-mode .vc2023-brand small{font-size:8px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(345px,31%)!important;
+  grid-template-rows:auto auto!important;align-items:start!important;gap:5px!important;
+  padding:5px!important;border-radius:4px!important;background:#e9eff7!important;border:1px solid #c4d5e5!important;
+}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{
+ grid-column:1!important;grid-row:2!important;min-width:0!important;padding:5px!important;border-radius:3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{
+ grid-column:2!important;grid-row:2!important;min-width:0!important;padding:7px!important;border-radius:3px!important;max-height:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v800-video-frame{
+ aspect-ratio:16/9!important;width:100%!important;max-height:75vh!important;min-height:265px!important;margin:3px 0!important;background:#071c31!important}
+/* Dedicated presentation bar is full width, independent of the original video and code widgets. */
+body.v11-shell #scout-match-mode #vc20231-layoutbar{grid-column:1/-1!important;grid-row:1!important;display:flex!important;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;min-height:34px;padding:2px 5px;background:#102d4c;border:1px solid #244d76;border-radius:3px;color:#f1f7ff;font:650 11px/1.2 system-ui,"Segoe UI",sans-serif}
+#vc20231-layoutbar .vc20231-layout-label{display:flex;align-items:center;gap:10px;min-width:0}
+#vc20231-layoutbar .vc20231-layout-label b{font-size:11px;letter-spacing:.04em;color:#fff}
+#vc20231-layoutbar .vc20231-layout-label small{font-size:10px;color:#c2d8eb}
+#vc20231-layoutbar .vc20231-panel-controls{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+body.v11-shell #vc20231-layoutbar button{min-height:26px!important;min-width:33px!important;background:#244967!important;color:#e3eefc!important;border:1px solid #476b8e!important;border-radius:3px!important;box-shadow:none!important;padding:4px 8px!important;font:750 10px/1.2 system-ui,"Segoe UI",sans-serif!important;cursor:pointer}
+body.v11-shell #vc20231-layoutbar button.is-active{background:#096ad1!important;color:#fff!important;border-color:#51adff!important}
+body.v11-shell #vc20231-layoutbar button:focus-visible{outline:3px solid #f3ad43!important;outline-offset:2px!important}
+/* Compact: the code, points, and interactive zone board are still accessible. */
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"].vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr) 286px!important}
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel .v113-video-builder,
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel .v113-video-presets,
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel .v113-video-quick-actions,
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel #vc2021-dock{display:none!important}
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel #vc1613-board{padding:3px!important;margin:4px 0!important}
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel #vc1613-board .vc1613-quads button{min-height:19px!important;padding:2px!important}
+body.v11-shell #scout-match-mode[data-vc20231-panel="compact"] #v113-video-code-panel .v113-video-rally{padding:5px!important}
+/* Hidden: only the VIDEO expands; the native right panel is kept in the DOM with state preserved. */
+body.v11-shell #scout-match-mode[data-vc20231-panel="hidden"].vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important}
+body.v11-shell #scout-match-mode[data-vc20231-panel="hidden"].vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{display:none!important}
+/* Tighter source controls, but always retain original switching/recording buttons. */
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer .v116-source-selector{margin:0 0 4px!important;padding:3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer .v116-source-selector-head{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer .v802-source-tabs{gap:3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer .v802-source-tabs button{min-height:35px!important;padding:5px 7px!important;border-radius:3px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer .v802-source-tabs button small{display:none!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer #v802-video-help{font-size:10px!important;line-height:1.3!important;margin:2px 0!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v112-video-drawer #v113-video-code{font-size:17px!important;min-height:38px!important}
+body.v11-shell #scout-match-mode.vc2023-ready #v113-video-code-panel .v113-video-points button{min-height:38px!important}
+@media(max-width:1050px) and (min-width:781px){
+ body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr) minmax(310px,36%)!important}
+}
+@media(max-width:780px){
+ body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
+ body.v11-shell #scout-match-mode #vc20231-layoutbar{padding:5px!important}
+ body.v11-shell #scout-match-mode #vc20231-layoutbar .vc20231-layout-label small{display:none}
+ body.v11-shell #scout-match-mode #vc20231-layoutbar button span{display:none}
+ body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>.v112-video-card{grid-column:1!important;grid-row:2!important}
+ body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{grid-column:1!important;grid-row:3!important}
+ body.v11-shell #scout-match-mode[data-vc20231-panel="compact"].vc2023-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active #v112-video-drawer:not(.vc1644-theater){grid-template-columns:minmax(0,1fr)!important}
+ body.v11-shell #scout-match-mode.vc2023-ready #v800-shell[data-vc52-mode="video"] #v800-video-frame{min-height:180px!important;max-height:62vh!important}
+}
+@media(prefers-reduced-motion:reduce){body.vc17-shell #v11-sidebar{transition:none!important}}
