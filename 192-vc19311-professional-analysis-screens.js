@@ -104,65 +104,15 @@
    const n=zoneCounts.get(z)||0;return `<button type="button" data-vc19311-dist-zone="Z${z}" class="vc19311-cell" style="--intensity:${(n/top*.52+.09).toFixed(2)}"><small>Z${z}</small><strong>${n||'—'}</strong><span>${percentage(pct(n,totals))}</span></button>`;
   }).join('')}</div><div class="vc19311-setter-hub"><span>SET</span><strong>Z6</strong></div>${directionSvg(pathways,{mode:'distribution'})}</div><div class="vc19311-dist-side"><div class="vc19311-side-head"><strong>Resumen visual</strong><span>${totals} destinos codificados</span></div><div class="vc19311-mini-grid">${topTargets||'<p class="vc19311-help">Sin destinos codificados.</p>'}</div><p class="vc19311-help">Las flechas muestran la frecuencia de colocación desde la zona de distribución hacia el destino final. No representan una trayectoria física real.</p></div></div>`;
  }
- function distGroupRows(items,keyFn,denominator,missing='Sin codificar'){
-  const groups=new Map();
-  for(const x of arr(items)){const key=val(keyFn(x))||missing;const row=groups.get(key)||{label:key,items:[]};row.items.push(x);groups.set(key,row);}
-  return [...groups.values()].map(row=>{const outcome=attackOutcome(row.items);return {label:row.label,count:row.items.length,usage:pct(row.items.length,denominator),outcome};}).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'es',{numeric:true}));
- }
- function distTableRows(groups,kind='generic'){
-  return groups.map(row=>{
-   const c=kind==='zone'?`<button type="button" data-vc19311-dist-zone="${esc(row.label)}">${esc(row.label)}</button>`:esc(row.label);
-   return `<tr><td>${c}</td><td>${row.count}</td><td>${percentage(row.usage)}</td><td>${row.outcome.rated}/${row.outcome.attacks}</td><td>${percentage(row.outcome.eff)}</td></tr>`;
-  }).join('');
- }
- function distCallTableRows(groups){
-  return groups.map(row=>`<tr><td>${esc(row.label)}</td><td>${row.count}</td><td>${percentage(row.usage)}</td><td>${row.outcome.rated}/${row.outcome.attacks}</td><td>${percentage(row.outcome.eff)}</td></tr>`).join('');
- }
- function distRotationSummary(base,team,selected){
-  const out=[];
-  for(let rot=1;rot<=6;rot++){
-   const seq=selected.filter(c=>Number(c.rotation)===rot);
-   const outcome=attackOutcome(seq);
-   const k1Rallies=base.rallies.filter(r=>(team==='ours'?r.ownRotation:r.rivalRotation)===rot&&r.serving&&r.serving!==team);
-   const k2Rallies=base.rallies.filter(r=>(team==='ours'?r.ownRotation:r.rivalRotation)===rot&&r.serving===team);
-   const k1Win=k1Rallies.filter(r=>r.winner===team).length;
-   const k2Win=k2Rallies.filter(r=>r.winner===team).length;
-   out.push({rotation:rot,count:seq.length,k1n:k1Rallies.length,k2n:k2Rallies.length,k1pct:pct(k1Win,k1Rallies.length),k2pct:pct(k2Win,k2Rallies.length),outcome});
-  }
-  return out;
- }
- function distRotationCards(summary){
-  return `<div class="vc19311-dv-rotgrid">${summary.map(r=>`<article class="vc19311-dv-rotcard"><div class="vc19311-dv-rothead"><strong>P${r.rotation}</strong><span>${r.count} sec.</span></div><div class="vc19311-dv-rotstats"><span><b>K1</b>${percentage(r.k1pct)}</span><span><b>K2</b>${percentage(r.k2pct)}</span><span><b>Kill</b>${percentage(r.outcome.killPct)}</span><span><b>EFF</b>${percentage(r.outcome.eff)}</span></div></article>`).join('')}</div>`;
- }
- function distBaseMatrix(model){
-  const calls=distGroupRows(model.selected,x=>x.setter?.fields?.setterCall||x.setter?.fields?.subtype||'',model.selected.length,'Sin llamada');
-  const types=distGroupRows(model.selected,x=>x.setter?.fields?.setterCall||'',model.selected.length,'Sin llamada');
-  const callBadges=['F','C','B','P','S'].map(label=>{
-   const row=calls.find(x=>val(x.label).toUpperCase()===label)||{count:0,usage:null};
-   return `<div class="vc19311-dv-badge"><strong>${label}</strong><span>${percentage(row.usage)}</span><small>${row.count}</small></div>`;
-  }).join('');
-  const zoneCells=[4,3,2,5,6,1].map(z=>{
-   const row=model.zones.find(x=>x.zone===z)||{chains:[]};
-   const outcome=attackOutcome(row.chains||[]);
-   return `<div class="vc19311-dv-zonebox"><small>Z${z}</small><strong>${row.chains?.length||0}</strong><span>${percentage(pct((row.chains||[]).length,model.coded.length||0))}</span><em>${percentage(outcome.eff)}</em></div>`;
-  }).join('');
-  return `<section class="vc19311-dv-bases"><div class="vc19310-panelhead"><strong>DISTRIBUCIÓN SOBRE BASES</strong><span>Llamadas y destinos codificados</span></div><div class="vc19311-dv-bases-wrap"><div class="vc19311-dv-callbadges">${callBadges}</div><div class="vc19311-dv-zonegrid">${zoneCells}</div><p class="vc19311-help">Las llamadas F/C/B/P/S solo aparecen si están registradas explícitamente en la acción de colocación. No se asignan de forma automática.</p></div></section>`;
- }
  function distributionView(ctx,projection,state){
   const f=ensureState(state).dist,base=projection.base,model=distributionModel(projection,ctx.team,f);
   const fields=`${filterLabel('Colocador','dist.setter',unique(model.all.map(c=>c.setter?.player)),f.setter)}${filterLabel('Recepción previa','dist.reception',['#','+','!','-','/','='],f.reception)}${filterLabel('Tempo','dist.tempo',unique(model.all.map(c=>c.tempo||c.attack?.fields?.attackTempo)),f.tempo)}${filterLabel('Atacante','dist.attacker',unique(model.all.map(c=>c.attack?.player)),f.attacker)}${filterLabel('Combinación','dist.combo',unique(model.all.map(c=>c.combo)),f.combo)}${filterLabel('Destino','dist.target',unique([...Array.from({length:9},(_,i)=>'Z'+(i+1)),...model.all.map(c=>c.target?.code)]),f.target)}`;
-  const zoneGroups=model.zones.filter(z=>z.chains.length).map(z=>({label:'Z'+z.zone,count:z.chains.length,usage:pct(z.chains.length,model.coded.length),outcome:attackOutcome(z.chains)}));
-  const setterGroups=distGroupRows(model.selected,x=>x.setter?.player||'Sin identificar',model.selected.length,'Sin identificar');
-  const attackerGroups=distGroupRows(model.selected.filter(x=>x.attack),x=>x.attack?.player||'Sin identificar',model.selected.filter(x=>x.attack).length||0,'Sin identificar');
-  const tempoGroups=distGroupRows(model.selected,x=>x.tempo||x.attack?.fields?.attackTempo||'',model.selected.length,'Sin tempo');
-  const comboGroups=distGroupRows(model.selected,x=>x.combo,model.selected.length,'Sin combinación');
-  const callGroups=distGroupRows(model.selected,x=>x.setter?.fields?.setterCall||'',model.selected.length,'Sin llamada');
-  const rotationSummary=distRotationSummary(base,ctx.team,model.selected);
-  const hasUnknown=!!model.unknown;
-  const html=`<div class="vc19311-title"><div><small>V19.3.16.2 · DISTRIBUTION INTELLIGENCE PRO</small><h3>Distribución táctica del colocador</h3><span>Vista reorganizada al estilo Data Volley: resumen por rotaciones, bases y tablas operativas</span></div><button type="button" data-vc19311-command="dist-clear">Reiniciar filtros</button></div><div class="vc19311-filterbar">${fields}</div>
-  <div class="vc19311-metrics"><div><small>Colocaciones filtradas</small><strong>${model.selected.length}</strong></div><div><small>Destinos conocidos</small><strong>${model.coded.length}</strong></div><div><small>Sin destino codificado</small><strong>${model.unknown}</strong></div><div><small>EFF ataque posterior</small><strong>${percentage(model.outcome.eff)}</strong><span>${model.outcome.rated} ataques valorados</span></div></div>
-  <section class="vc19310-panel vc19311-dv-sequential"><div class="vc19310-panelhead"><strong>DISTRIBUCIÓN SECUENCIAL</strong><span>Resumen por rotación P1–P6</span></div>${distRotationCards(rotationSummary)}</section>
-  <div class="vc19311-workspace vc19311-dist-layout"><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>DISTRIBUCIÓN POR ZONA</strong><span>${model.coded.length} destinos válidos</span></div>${distributionCourt(model)}${distBaseMatrix(model)}</section><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>TABLAS DE DISTRIBUCIÓN</strong><span>Formato operativo similar a Data Volley</span></div><div class="vc19311-table-stack"><section><h3>Zonas de colocación</h3><div class="vc19310-scroll"><table><thead><tr><th>Zona</th><th>E</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${distTableRows(zoneGroups,'zone')||'<tr><td colspan="5">Sin destinos codificados</td></tr>'}</tbody></table></div></section><section><h3>Colocadores</h3><div class="vc19310-scroll"><table><thead><tr><th>Colocador</th><th>E</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${distTableRows(setterGroups)||'<tr><td colspan="5">Sin colocaciones</td></tr>'}</tbody></table></div></section><section><h3>Atacantes asociados</h3><div class="vc19310-scroll"><table><thead><tr><th>Atacante</th><th>E→A</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${distTableRows(attackerGroups)||'<tr><td colspan="5">Sin ataques asociados</td></tr>'}</tbody></table></div></section><section><h3>Tempo y combinación</h3><div class="vc19311-split-tables"><div class="vc19310-scroll"><table><thead><tr><th>Tempo</th><th>E</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${distTableRows(tempoGroups)||'<tr><td colspan="5">Sin tempos explícitos</td></tr>'}</tbody></table></div><div class="vc19310-scroll"><table><thead><tr><th>Combinación</th><th>E</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${distTableRows(comboGroups)||'<tr><td colspan="5">Sin combinaciones explícitas</td></tr>'}</tbody></table></div></div></section><section><h3>Llamadas del colocador</h3><div class="vc19310-scroll"><table><thead><tr><th>Llamada</th><th>E</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${distCallTableRows(callGroups)||'<tr><td colspan="5">Sin llamadas explícitas</td></tr>'}</tbody></table></div></section><p class="vc19311-help">EFF A = (# − = − /) / ataques valorados. Se excluyen ataques sin valoración. ${hasUnknown?'Hay destinos sin codificar. ':''}La visualización de “bases” resume solo datos realmente codificados, sin trayectorias ni movimientos inventados.</p></div></section>${evidence(teamRallies(base,model.keys),'RALLIES DEL FILTRO')}</div>`;
+  const rows=model.zones.filter(z=>z.chains.length).map(z=>{const s=attackOutcome(z.chains);return `<tr><td><button type="button" data-vc19311-dist-zone="Z${z.zone}">Z${z.zone}</button></td><td>${z.chains.length}</td><td>${percentage(pct(z.chains.length,model.coded.length))}</td><td>${s.rated}/${s.attacks}</td><td>${percentage(s.eff)}</td></tr>`}).join('');
+  const setterRows=model.perSetter.sort((a,b)=>b.chains.length-a.chains.length).map(x=>{const s=attackOutcome(x.chains);return `<tr><td>${esc(x.name)}</td><td>${x.chains.length}</td><td>${s.attacks}</td><td>${percentage(s.eff)}</td></tr>`}).join('');
+  const rotationRow=rotationCells(base,ctx.team,model.selected),hasUnknown=!!model.unknown;
+  const html=`<div class="vc19311-title"><div><small>SETTER DISTRIBUTION · PROFESSIONAL</small><h3>Distribución del colocador</h3><span>Datos vinculados a posesión y a los contactos reales</span></div><button type="button" data-vc19311-command="dist-clear">Reiniciar filtros</button></div><div class="vc19311-filterbar">${fields}</div>
+  <div class="vc19310-rot-cards vc19311-rot-row">${rotationRow}</div><div class="vc19311-metrics"><div><small>Colocaciones filtradas</small><strong>${model.selected.length}</strong></div><div><small>Destinos conocidos</small><strong>${model.coded.length}</strong></div><div><small>Sin destino codificado</small><strong>${model.unknown}</strong></div><div><small>EFF ataque posterior</small><strong>${percentage(model.outcome.eff)}</strong><span>${model.outcome.rated} ataques valorados</span></div></div>
+  <div class="vc19311-workspace vc19311-dist-layout"><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>DISTRIBUCIÓN POR ZONA</strong><span>${model.coded.length} destinos válidos</span></div>${distributionCourt(model)}</section><section class="vc19310-panel"><div class="vc19310-panelhead"><strong>FRECUENCIAS Y EFICIENCIA</strong><span>Por destino / por colocador</span></div><h3>Zonas de colocación</h3><div class="vc19310-scroll"><table><thead><tr><th>Zona</th><th>E</th><th>Uso</th><th>A val.</th><th>EFF A</th></tr></thead><tbody>${rows||'<tr><td colspan="5">Sin destinos codificados</td></tr>'}</tbody></table></div><h3>Colocadores</h3><div class="vc19310-scroll"><table><thead><tr><th>Colocador</th><th>E</th><th>A</th><th>EFF A</th></tr></thead><tbody>${setterRows||'<tr><td colspan="4">Sin colocaciones</td></tr>'}</tbody></table></div><p class="vc19311-help">EFF A = (# − = − /) / ataques valorados. Se excluyen ataques sin valoración. ${hasUnknown?'Hay destinos sin codificar.':''}</p></section>${evidence(teamRallies(base,model.keys),'RALLIES DEL FILTRO')}</div>`;
   return {html,rallies:teamRallies(base,model.keys)};
  }
  function courtModel(projection,team,filters){

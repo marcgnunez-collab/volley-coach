@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='20.2.5.1',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
+ const VERSION='20.2.5.2',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];
@@ -180,7 +180,9 @@
            }
          }
          const takeLocal=valid?choice.use==='local':causalUndo||(localChanged&&!remoteChanged);
-         operations.push({team,type,id,takeLocal,local:lh,remote:rh,...(mergedFields?{merged:mergedFields.merged,autoMerged:true}:{})});
+         operations.push({team,type,id,takeLocal,local:lh,remote:rh,
+           ...(valid?{manualDecision:{key,use:choice.use,expectedSemantic:choice.use==='local'?semanticDigest(l):semanticDigest(r)}}:{}),
+           ...(mergedFields?{merged:mergedFields.merged,autoMerged:true}:{})});
        }
      }
    }
@@ -276,7 +278,7 @@
    return result;
  }
  const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,isMatchingUndo,mergeGuarded,mergeIndependentFields,semanticDigest,conflictFields,conflictPreview,validateImport,recoveryPreview,mergeBackup,conflictKey};
- const context={lastConflicts:[],lastDeletionConflicts:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:'',remoteState:null};
+ const context={lastConflicts:[],lastDeletionConflicts:[],pendingResolutions:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:'',remoteState:null};
  function install(win){
    const store=win.localStorage, doc=win.document;
    // V19.1.8: cloudUser vive en el ámbito léxico del núcleo, no en window.
@@ -285,15 +287,33 @@
    const user=()=>String(win.VC_V962_CLOUD_EFFICIENT?.getAccountId?.()||'');
    const baselineKey=id=>'v1915_manifest_'+id;
    const decisionsKey=id=>'v1915_decisions_'+id;
+   const pendingKey=id=>'v20252_resolution_pending_'+id;
    function readJSON(key){try{return JSON.parse(store.getItem(key)||'null')}catch(_){return null}}
    function getBaseline(){return readJSON(baselineKey(user()))||{records:{}}}
    function getChoices(){return obj(readJSON(decisionsKey(user())))}
+   function getPending(){return arr(readJSON(pendingKey(user()))).filter(p=>p&&p.key&&p.expectedSemantic&&p.team&&p.type&&p.id!==undefined).slice(0,100)}
    function writeJSON(key,data,max=MAX_MANIFEST){const raw=JSON.stringify(data);if(raw.length>max)throw Error('El manifiesto excede el espacio seguro para guardar versiones.');store.setItem(key,raw);if(store.getItem(key)!==raw)throw Error('La versión de sincronización no se guardó correctamente.');}
+   function savePending(items){writeJSON(pendingKey(user()),items,100*1024);}
    function captureBaseline(state){
      if(!user())return false;
      writeJSON(baselineKey(user()),makeManifest(state));
      store.removeItem(decisionsKey(user()));
-     context.lastConflicts=[];context.lastDeletionConflicts=[];context.remoteState=null;notify();return true;
+     // The CAS ACK does not replace read-back verification of the specific
+     // chosen record. Survive a reload/network failure with a durable marker.
+     const pending=getPending();
+     context.lastConflicts=[];context.lastDeletionConflicts=[];context.pendingResolutions=pending;
+     if(!pending.length)context.remoteState=null;
+     notify();return true;
+   }
+   function finishConfirmedResolution({key,expectedSemantic}){
+     if(!user()||!key||!expectedSemantic)throw Error('Resolución sin identidad autenticada.');
+     const pending=getPending();
+     if(!pending.some(p=>p.key===key&&p.expectedSemantic===expectedSemantic))
+       throw Error('La elección ha cambiado y debe verificarse de nuevo.');
+     const remaining=pending.filter(p=>!(p.key===key&&p.expectedSemantic===expectedSemantic));
+     savePending(remaining);context.pendingResolutions=remaining;
+     if(!remaining.length)context.remoteState=null;
+     notify();return true;
    }
    function notify(){try{win.dispatchEvent(new win.CustomEvent('vc1915:change'))}catch(_){} }
    function prepare(local,remote,remoteStamp=''){
@@ -311,8 +331,17 @@
      }
      plan.deletionDecisions=deletionDecisions;plan.deletionConflicts=deletionConflicts;
      context.lastConflicts=plan.conflicts;context.lastDeletionConflicts=deletionConflicts;
+     // A resolved comparison is NOT yet a confirmed cloud upload. Keep its
+     // identity visible and retryable until a fresh authenticated read verifies
+     // that both copies contain the chosen version.
+     const savedPending=getPending();
+     const retained=savedPending.filter(p=>!plan.conflicts.some(c=>c.key===p.key));
+     const active=plan.operations.filter(op=>op.manualDecision).map(op=>({team:op.team,type:op.type,id:op.id,...op.manualDecision}));
+     context.pendingResolutions=[...new Map([...retained,...active].map(p=>[p.key,p])).values()];
+     // Migrate valid decisions saved by V20.2.5.1, and discard stale ones.
+     if(JSON.stringify(savedPending)!==JSON.stringify(context.pendingResolutions))savePending(context.pendingResolutions);
      context.remoteStamp=remoteStamp;context.account=user();
-     context.remoteState=(plan.conflicts.length||deletionConflicts.length)?clone(remote):null;notify();
+     context.remoteState=(plan.conflicts.length||deletionConflicts.length||context.pendingResolutions.length)?clone(remote):null;notify();
      return plan;
    }
    function decide(key,use,local,remote){
@@ -321,6 +350,10 @@
      if(!conflict||context.account!==user())throw Error('El conflicto ya no corresponde al estado actual. Repite la sincronización.');
      const choices=getChoices();choices[key]={use,local,remote,localSemantic:conflict.localSemantic,remoteSemantic:conflict.remoteSemantic};
      writeJSON(decisionsKey(user()),choices,100*1024);
+     const chosen={key,team:conflict.team,type:conflict.type,id:conflict.id,use,
+       expectedSemantic:use==='local'?conflict.localSemantic:conflict.remoteSemantic};
+     const pending=getPending().filter(p=>p.key!==key);pending.push(chosen);
+     savePending(pending);context.pendingResolutions=pending;
      // Keep the review visible until the cloud has really confirmed the CAS.
      // A failed upload must not make the only remaining resolution controls
      // disappear before the user can retry safely.
@@ -389,21 +422,21 @@
      }
      return merged;
    }
-   function status(){return {version:VERSION,conflicts:context.lastConflicts.map(x=>({...x})),deletionConflicts:context.lastDeletionConflicts.map(x=>({...x})),lastError:context.lastError,hasPreview:!!context.lastPreview};}
-   const api={version:VERSION,prepare,getBaseline,mergeGuarded:mergeWithDeletionDecisions,captureBaseline,status,decide,decideDeletion,pure};
+   function status(){return {version:VERSION,conflicts:context.lastConflicts.map(x=>({...x})),deletionConflicts:context.lastDeletionConflicts.map(x=>({...x})),pendingResolutions:context.pendingResolutions.map(x=>({...x})),lastError:context.lastError,hasPreview:!!context.lastPreview};}
+   const api={version:VERSION,prepare,getBaseline,mergeGuarded:mergeWithDeletionDecisions,captureBaseline,finishConfirmedResolution,status,decide,decideDeletion,pure};
    win.VC_V1915_RELIABILITY=api;
    function element(tag,text){const el=doc.createElement(tag);if(text!==undefined)el.textContent=String(text);return el;}
    let wrapper=null,summary=null,list=null,preview=null,fileInput=null,cloudReview=null;
    function row(parent,text){const p=element('p',text);parent.append(p);return p;}
    function render(){
      if(cloudReview){
-       const total=context.lastConflicts.length+context.lastDeletionConflicts.length;
+       const total=context.lastConflicts.length+context.lastDeletionConflicts.length+context.pendingResolutions.length;
        cloudReview.hidden=!total;
-       cloudReview.textContent=total?'Revisar '+total+' conflicto'+(total===1?'':'s')+' de sincronización':'';
+       cloudReview.textContent=total?'Revisar '+total+' conflicto'+(total===1?'':'s')+' / confirmación de sincronización':'';
      }
      if(!wrapper)return;
      list.replaceChildren();const cs=context.lastConflicts,ds=context.lastDeletionConflicts;
-     summary.textContent=cs.length||ds.length?(cs.length+ds.length)+' conflicto(s) requieren revisión. No se han sobrescrito datos en la nube.':'Sin conflictos pendientes detectados en esta sesión.';
+     summary.textContent=cs.length||ds.length?(cs.length+ds.length)+' conflicto(s) requieren revisión. No se han sobrescrito datos en la nube.':context.pendingResolutions.length?'Elección guardada; pendiente de comprobar en la nube.':'Sin conflictos pendientes detectados en esta sesión.';
      for(const c of cs){
        const line=element('div');line.className='vc1915-item';
        row(line,c.team+' · '+c.type+' · '+c.label+' (ID '+c.id+')');
@@ -468,7 +501,7 @@
      if(!doc.getElementById('vc1915-style')){
        const css=element('style');css.id='vc1915-style';css.textContent='#vc1915-panel{padding:14px;margin:12px 0;border:1px solid #c6d9ea;border-radius:11px;background:#f7fbfe;color:#1d4057;font:12px/1.5 system-ui}#vc1915-panel h4{margin:0 0 8px;font-size:15px}#vc1915-panel button{margin:5px 6px 4px 0;padding:9px 12px;border:1px solid #b4cfe2;border-radius:8px;background:white;color:#195377;font-size:12px;font-weight:700;cursor:pointer}#vc1915-panel .vc1915-item{border-top:1px solid #d3e3ee;padding:10px 0}#vc1915-panel p{margin:5px 0}';doc.head.append(css);
      }
-     wrapper=element('section');wrapper.id='vc1915-panel';wrapper.append(element('h4','V19.1.5 · Conflictos y restauración JSON'));
+     wrapper=element('section');wrapper.id='vc1915-panel';wrapper.append(element('h4','V20.2.5.2 · Conflictos protegidos y restauración JSON'));
      summary=element('p');list=element('div');preview=element('div');fileInput=element('input');fileInput.type='file';fileInput.accept='.json,application/json';fileInput.hidden=true;fileInput.addEventListener('change',openRecovery);
      const select=element('button','Examinar copia JSON');select.type='button';select.addEventListener('click',()=>fileInput.click());
      const cloudStatus=doc.getElementById('cloud-status');
@@ -481,6 +514,48 @@
          const url=win.URL.createObjectURL(new win.Blob([content],{type:'application/json;charset=utf-8'}));
          const link=element('a');link.href=url;link.download='volley-coach-'+label+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
          doc.body.appendChild(link);link.click();link.remove();win.setTimeout(()=>win.URL.revokeObjectURL(url),30000);
+       }
+       async function protectBothCopies(){
+         const safety=win.VC_V179_SYNC_SAFETY;
+         if(typeof safety?.manualBackup!=='function'||typeof safety?.backupRemoteState!=='function')
+           throw Error('No se pueden respaldar las versiones. No se ha enviado ningún cambio.');
+         await safety.manualBackup();
+         if(context.remoteState)await safety.backupRemoteState(context.remoteState,context.remoteStamp);
+         else if(!getPending().length)throw Error('No hay copia remota disponible ni elección respaldada. Detenido por seguridad.');
+       }
+       async function confirmChosenRecord({team,type,id,expectedSemantic}){
+         const cloud=win.VC_V962_CLOUD_EFFICIENT;
+         if(typeof cloud?.sync!=='function'||typeof cloud.verifyRecord!=='function')
+           throw Error('Falta la verificación de lectura de nube V20.2.5.2. Recarga la versión completa de la aplicación.');
+         const key=conflictKey(team,type,id);
+         // Once CAS has acknowledged the choice, the old decision is removed.
+         // Never start a new write with that obsolete choice if either side
+         // has since diverged. A read-back can finish it without another write.
+         if(!getChoices()[key]){
+           const previous=await cloud.verifyRecord({team,type,id,expectedSemantic});
+           if(previous.confirmed){finishConfirmedResolution({key,expectedSemantic});return true;}
+           if(!previous.localMatches||!previous.remoteMatches)
+             throw Error('Una versión cambió después de guardar la elección. Se requiere una nueva comparación antes de escribir de nuevo.');
+         }
+         let lastProof=null;
+         // A local migration may schedule one more protected save while the
+         // first CAS write is in flight. Bounded follow-ups are allowed; a
+         // missing ACK, altered choice or remote mismatch never counts as OK.
+         for(let attempt=0;attempt<3;attempt++){
+           await cloud.sync({reason:'v1919-resolve',allowWrite:true,bypassBackoff:true});
+           const diagnostics=cloud.diagnostics?.()||{};
+           if(diagnostics.lastSyncError)throw Error(String(diagnostics.lastSyncError));
+           lastProof=await cloud.verifyRecord({team,type,id,expectedSemantic});
+           if(lastProof.confirmed){
+             finishConfirmedResolution({key,expectedSemantic});
+             return true;
+           }
+           if(!lastProof.localMatches||!lastProof.remoteMatches)
+             throw Error('La versión elegida no coincide con ambos dispositivos. No se hará otra escritura sin revisar los datos.');
+           if(!lastProof.dirty)break;
+         }
+         const status=lastProof?.dirty?'Todavía quedan cambios locales pendientes.':'Los registros no coinciden con la versión elegida.';
+         throw Error(status+' La elección está guardada y las copias siguen protegidas; usa «Reintentar confirmación» después de revisar el estado.');
        }
        cloudReview.addEventListener('click',()=>{
          // El panel de Gestión también permanece disponible, pero en móviles
@@ -509,22 +584,34 @@
                  if(!win.confirm('Se conservarán copias de seguridad antes de aplicar esta elección. ¿Continuar?'))return;
                  button.disabled=true;
                  try{
-                   const safety=win.VC_V179_SYNC_SAFETY;
-                   if(typeof safety?.manualBackup!=='function')throw Error('No hay sistema de copia local; selección cancelada.');
-                   if(typeof safety.backupRemoteState!=='function'||!context.remoteState)throw Error('No se puede proteger la versión de la nube. Elección cancelada.');
-                   await safety.manualBackup();
-                   await safety.backupRemoteState(context.remoteState,context.remoteStamp);
+                   await protectBothCopies();
                    decide(c.key,choice,c.local,c.remote);
-                   const result=await win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v1919-resolve',allowWrite:true});
-                   const diagnostics=win.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
-                   if(result!==true||diagnostics.dirty||diagnostics.lastSyncError)
-                     throw Error(diagnostics.lastSyncError||'La nube todavía tiene cambios pendientes; los dos estados siguen protegidos y debes comprobar su confirmación.');
-                   cloudReview.click();
+                   await confirmChosenRecord({team:c.team,type:c.type,id:c.id,
+                     expectedSemantic:choice==='local'?c.localSemantic:c.remoteSemantic});
+                   win.alert('Resolución confirmada: se ha comprobado el registro en este dispositivo y en la nube.');
+                   const holder=doc.getElementById('vc1919-cloud-conflicts');
+                   if(holder){holder.hidden=true;holder.replaceChildren();}
                  }catch(error){win.alert('La resolución no se ha confirmado. Las copias de seguridad permanecen guardadas. '+String(error?.message||error));}
                  finally{button.disabled=false;}
                });actions.append(button);
              }
              rowEl.append(actions);holder.append(rowEl);
+           }
+           for(const pending of context.pendingResolutions){
+             const line=element('section');line.className='vc1919-conflict-row';
+             line.append(element('strong','Elección registrada · '+pending.team+' / '+pending.type+' · ID '+pending.id));
+             line.append(element('p','Pendiente de confirmación por lectura real de la nube. La decisión se mantiene y no hay que elegir otra vez mientras las versiones no cambien.'));
+             const retry=element('button','Reintentar confirmación');retry.type='button';retry.addEventListener('click',async()=>{
+               retry.disabled=true;
+               try{
+                 await protectBothCopies();
+                 await confirmChosenRecord(pending);
+                 win.alert('Resolución confirmada en este dispositivo y en la nube.');
+                 const holder=doc.getElementById('vc1919-cloud-conflicts');
+                 if(holder){holder.hidden=true;holder.replaceChildren();}
+               }catch(error){win.alert('La resolución sigue pendiente. Los respaldos permanecen guardados. '+String(error?.message||error));}
+               finally{retry.disabled=false;}
+             });line.append(retry);holder.append(line);
            }
            for(const c of context.lastDeletionConflicts){
              const card=element('section');card.className='vc1919-conflict-row vc19110-delete-conflict';
@@ -570,6 +657,14 @@
      host.append(wrapper);render();return true;
    }
    win.addEventListener('vc1915:change',render);
+   win.addEventListener('vc200:sync-state',()=>{
+     if(!user())return;
+     if(context.account!==user()){
+       context.account=user();context.lastConflicts=[];context.lastDeletionConflicts=[];
+       context.pendingResolutions=getPending();context.remoteState=null;
+     }
+     render();
+   });
    if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',()=>{
      if(!attach()){const timer=win.setInterval(()=>{if(attach())win.clearInterval(timer)},2000)}
    },{once:true});else if(!attach()){const timer=win.setInterval(()=>{if(attach())win.clearInterval(timer)},2000)}
