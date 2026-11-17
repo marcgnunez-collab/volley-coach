@@ -1,0 +1,107 @@
+/* V20.2.5 · Review floats above the native video-first scouting workspace. */
+body.v11-shell #scout-match-mode #vc2023-menubar #vc2025-launch {
+ margin:auto 3px!important;align-self:center;min-height:31px!important;padding:7px 12px!important;
+ border:1px solid #71a8d6!important;border-radius:5px!important;background:#185387!important;
+ color:#fff!important;font-weight:850!important;
+}
+body.v11-shell #scout-match-mode #vc2023-menubar #vc2025-launch:hover{background:#2775b7!important}
+body.v11-shell #scout-match-mode #vc2025-window {box-sizing:border-box;position:fixed;z-index:15150;
+ inset:6vh auto auto 50%;transform:translateX(-50%);width:min(1160px,96vw);max-height:88vh;
+ display:flex;flex-direction:column;overflow:hidden;border:1px solid #7496b5;border-radius:12px;
+ background:#f4f8fd;color:#18344e;box-shadow:0 22px 90px #0a223c9c;
+ font:500 12px/1.45 system-ui,'Segoe UI',sans-serif;
+}
+body.v11-shell #scout-match-mode #vc2025-window[hidden]{display:none!important}
+body.v11-shell #scout-match-mode #vc2025-window *{box-sizing:border-box}
+body.v11-shell #scout-match-mode #vc2025-window button{font:750 12px/1.3 system-ui,'Segoe UI',sans-serif;cursor:pointer;
+ border-radius:6px;border:1px solid #c5d6e5;padding:7px 10px;min-height:32px;
+ background:#fff;color:#244b70;box-shadow:none!important;margin:0!important}
+body.v11-shell #scout-match-mode #vc2025-window button:hover{background:#e1effc;border-color:#91bce1}
+body.v11-shell #scout-match-mode #vc2025-window button:focus-visible{outline:3px solid #ecaf44;outline-offset:2px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-head{display:flex;align-items:center;justify-content:space-between;
+ gap:16px;background:#102b48;color:#fff;padding:11px 17px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-head span{font-size:9px;font-weight:850;letter-spacing:.12em;color:#8ac2f5}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-head h2{color:#fff;margin:1px 0 0;font-size:21px;font-weight:850}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-head-actions{display:flex;gap:5px;align-items:center}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-head-actions button{color:#fff;background:#24496b;border-color:#547a9b}
+body.v11-shell #scout-match-mode #vc2025-window [data-vc2025="close"]{font-size:19px;min-width:37px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap;
+ padding:10px 15px;border-bottom:1px solid #dce6ef;background:white}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters label{display:flex;gap:4px;flex-direction:column;
+ font-size:10px;font-weight:800;color:#576d80;min-width:95px;flex:1}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters select{width:100%;height:34px;
+ border:1px solid #c7d9e6;border-radius:5px;padding:5px 6px;background:white;color:#193c5d;font-size:12px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-layout{display:grid;grid-template-columns:minmax(200px,28%) minmax(0,1fr);
+ gap:0;min-height:0;flex:1;overflow:hidden}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rallies{min-height:0;border-right:1px solid #d7e4ef;display:flex;flex-direction:column;background:white}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-pane-title{display:flex;align-items:center;justify-content:space-between;
+ gap:8px;padding:9px 11px;background:#eaf2f9;border-bottom:1px solid #d8e6f1;color:#2e5273;font-size:11px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-pane-title strong{font-size:11px;color:#173f62}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list{min-height:0;overflow:auto;flex:1;padding:7px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list button{display:flex;align-items:flex-start;flex-direction:column;
+ gap:2px;text-align:left;width:100%;margin-bottom:5px!important;background:#fff;border-color:#e2eaf1;min-height:71px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list button.is-selected{background:#dceefa;border-color:#3680b3;box-shadow:inset 3px 0 #1474b7!important}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list button>span{font-size:10px;color:#56738c}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list button strong{font-size:16px;color:#153b5c}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list button small{font-size:10px;color:#678199}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-detail{min-height:0;overflow:auto;padding:12px 15px 15px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-context{display:flex;justify-content:space-between;align-items:center;
+ gap:10px;background:#fff;border:1px solid #d9e5ef;border-radius:9px;padding:10px 12px;margin-bottom:10px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-context small{font-size:10px;font-weight:850;color:#5b819d}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-context h3{font-size:27px;margin:0;color:#143b5d;line-height:1.25}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-context h3 span{color:#7591a8}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-context p{margin:2px 0 0;color:#698198;font-size:11px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-context [data-vc2025="play-rally"]{
+ color:#fff;background:#1e679f;border-color:#1e679f;white-space:nowrap}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-actions{background:white;border:1px solid #dce6ee;
+ border-top:0;border-radius:0 0 7px 7px;max-height:230px;overflow:auto}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-action{display:grid;grid-template-columns:22px minmax(100px,1.1fr) minmax(90px,1fr) 36px 58px;
+ gap:5px;align-items:center;padding:6px 8px;border-bottom:1px solid #e8edf3}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-action .vc2025-order{font-weight:850;color:#7a90a5}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-action code{font:800 12px ui-monospace,Consolas,monospace;
+ white-space:nowrap;text-overflow:ellipsis;overflow:hidden;color:#0f4678}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-action>span:nth-child(3){color:#647d92;font-size:11px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-action button{padding:5px 6px;min-height:29px;font-size:11px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-audit{border:1px solid #d4e9df;border-radius:7px;
+ background:#eaf8f1;padding:9px 11px;margin:10px 0;color:#275b42;font-size:11px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-audit.has-warnings{border-color:#ecd4a0;background:#fff7e3;color:#73561f}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-audit ul{padding-left:17px;margin:4px 0}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-audit p{margin:2px 0 0}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-video{border:1px solid #d7e6f1;border-radius:7px;background:white;overflow:hidden}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-video .vc2025-pane-title{padding:7px 10px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-review-video{min-height:80px;background:#101c2a;color:#adc4d9;
+ display:grid;place-items:center;overflow:hidden}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-review-video p{padding:10px;text-align:center;margin:0;font-size:11px}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-review-video.has-video{display:block}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-review-video.has-video>p{display:none}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-review-video #v780-video-frame{width:100%;max-height:270px;min-height:150px;margin:0!important}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-feedback{color:#3f617f;font-size:11px;margin:8px 0 0}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-feedback.is-error{color:#a44c36}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-footer{display:flex;align-items:center;justify-content:space-between;
+ gap:8px;padding:9px 15px;border-top:1px solid #d6e4ef;background:#fff}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-footer span{font-size:10px;color:#788c9e}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-footer [data-vc2025="edit"]{background:#185b91;color:#fff;border-color:#185b91}
+body.v11-shell #scout-match-mode #vc2025-window .vc2025-empty{padding:12px;color:#73899c;font-size:12px}
+@media (max-width:850px){
+ body.v11-shell #scout-match-mode #vc2023-menubar #vc2025-launch{min-height:34px!important}
+ body.v11-shell #scout-match-mode #vc2025-window{width:98vw;max-height:90dvh;top:4dvh}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-layout{grid-template-columns:minmax(140px,35%) minmax(0,1fr)}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters{gap:5px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters label{min-width:90px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-action{grid-template-columns:20px 1fr 33px 54px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-action>span:nth-child(3){display:none}
+}
+@media (max-width:530px){
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-head{padding:8px;gap:6px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-head h2{font-size:15px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-head-actions button{font-size:10px;padding:5px!important}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-layout{display:block;overflow:auto}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-rallies{max-height:150px;border-right:0;border-bottom:1px solid #d8e4ee}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list{display:flex;gap:4px;min-height:90px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-rally-list button{min-width:148px;max-width:165px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-detail{overflow:visible;padding:8px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters{max-height:104px;overflow:auto;padding:5px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-filters label{min-width:80px}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-footer span{display:none}
+ body.v11-shell #scout-match-mode #vc2025-window .vc2025-footer button{width:100%}
+}
