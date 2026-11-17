@@ -20,3 +20,17 @@
 
 /* On a wide analyst workstation keep the original review player visible. */
 @media(min-width:1360px){.vc19315-modal{place-items:center end;background:rgba(5,21,34,.16);pointer-events:none}.vc19315-dialog{width:min(850px,59vw);height:min(94dvh,950px);pointer-events:auto;margin-right:6px}}
+
+/* V20.2.4 · Professional advanced-code editor inside the EXISTING protected modal */
+.vc2024-editor-nav{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0 10px;padding:4px;border:1px solid #d6e2ed;background:#edf3f8;border-radius:8px}
+.vc19315-dialog .vc2024-editor-nav button{flex:1 0 85px;padding:9px 13px;background:transparent;border-color:transparent;color:#284964;font-size:12px}
+.vc19315-dialog .vc2024-editor-nav button[aria-selected="true"]{background:#096dd3;border-color:#096dd3;color:#fff}
+.vc2024-editor-tabpanel{min-height:110px}
+.vc2024-editor-tabpanel>p{margin:10px 0}
+.vc2024-draft-tag{font-size:10px;font-weight:800;letter-spacing:.04em;border:1px solid #dca858;background:#fff7e8;color:#805b16;border-radius:99px;padding:4px 8px}
+.vc2024-grades{display:flex;gap:7px;flex-wrap:wrap}
+.vc19315-dialog .vc2024-grades button{font-size:18px;min-width:45px;padding:7px}
+.vc19315-dialog .vc2024-grades button.is-current{background:#116ad0;color:#fff;border-color:#116ad0}
+.vc2024-info{padding:9px 11px;border-left:3px solid #7c9ab5;background:#f0f5f9}
+.vc2024-editor-tabpanel code{font-size:15px;font-weight:800;color:#104e89;overflow-wrap:anywhere}
+@media(max-width:760px){.vc2024-editor-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}.vc19315-dialog .vc2024-editor-nav button{min-width:0;padding:9px 4px;font-size:11px}.vc2024-grades button{flex:1}}

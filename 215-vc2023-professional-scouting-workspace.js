@@ -18,7 +18,7 @@
  const MENUS=[
   {name:'Archivo',items:[['open','Abrir o reabrir scouting'],['new','Nuevo scouting'],['save','Guardar ahora'],['backup','Copia JSON'],['recovery','Recuperación de datos']]},
   {name:'Partido',items:[['lineup','Alineación'],['changes','Sustituciones y líberos'],['rotation','Control de rotación'],['event','Añadir evento'],['newset','Nuevo set'],['finishset','Finalizar set'],['result','Resultado final']]},
-  {name:'Scouting',items:[['focus','Enfocar código rápido'],['court','Pista interactiva'],['history','Historial de contactos'],['rallyedit','Editor de rallies'],['codes','Códigos Pro'],['cheatsheet','Chuleta de códigos'],['macros','Macros Alt+1–8']]},
+  {name:'Scouting',items:[['focus','Enfocar código rápido'],['court','Pista interactiva'],['history','Historial de contactos'],['advanced','Editor avanzado de contactos'],['rallyedit','Editor de rallies'],['codes','Códigos Pro'],['cheatsheet','Chuleta de códigos'],['macros','Macros Alt+1–8']]},
   {name:'Vídeo',items:[['source','Cámara / archivo / Delay'],['delay','Configurar Delay'],['review','Revisión de vídeo'],['note','Nota de vídeo']]},
   {name:'Análisis',items:[['intelligence','Inteligencia táctica (ventana)'],['analysis','Análisis completo']]},
   {name:'Vista',items:[['home','Pantalla principal'],['balanced','Vídeo y código equilibrados'],['bigvideo','Vídeo más grande'],['bigcode','Código más grande'],['history','Ventana de historial'],['intelligence','Ventana de inteligencia'],['closeall','Cerrar ventanas']]}
@@ -72,12 +72,12 @@
   const sets=Array.isArray(m.sets)?m.sets:[];
   const pending=Array.isArray(m.liveRally?.actions)?m.liveRally.actions:[];
   // The current, unfinished rally has no point or fabricated score.
-  for(let i=pending.length-1;i>=0&&entries.length<limit;i--){const a=pending[i];entries.push({set:'—',rally:'Actual',ordinal:i+1,code:text(a?.code||a?.raw),skill:text(a?.skill),number:text(a?.number),winner:'Pendiente'});}
+  for(let i=pending.length-1;i>=0&&entries.length<limit;i--){const a=pending[i];entries.push({set:'—',rally:'Actual',ordinal:i+1,editable:false,code:text(a?.code||a?.raw),skill:text(a?.skill),number:text(a?.number),winner:'Pendiente'});}
   for(let si=sets.length-1;si>=0&&entries.length<limit;si--){
    const set=sets[si],rallies=Array.isArray(set?.rallies)?set.rallies:[];
    for(let ri=rallies.length-1;ri>=0&&entries.length<limit;ri--){
     const r=rallies[ri],actions=Array.isArray(r?.actions)?r.actions:[];
-    for(let i=actions.length-1;i>=0&&entries.length<limit;i--){const a=actions[i];entries.push({set:text(set?.number)||'—',rally:String(ri+1),ordinal:i+1,code:text(a?.code||a?.raw),skill:text(a?.skill),number:text(a?.number),winner:r?.winner==='ours'?'Propio':r?.winner==='opponent'?'Rival':'—'});}
+    for(let i=actions.length-1;i>=0&&entries.length<limit;i--){const a=actions[i];entries.push({set:text(set?.number)||'—',rally:String(ri+1),ordinal:i+1,setIndex:si,rallyIndex:ri,actionIndex:i,editable:true,code:text(a?.code||a?.raw),skill:text(a?.skill),number:text(a?.number),winner:r?.winner==='ours'?'Propio':r?.winner==='opponent'?'Rival':'—'});}
    }
   }
   return entries;
@@ -87,8 +87,8 @@
   body.replaceChildren();const summary=doc().createElement('p');summary.className='vc2023-window-note';summary.textContent=`${rows.length} últimos contactos (máximo 80). Consulta y modifica los códigos con el editor original.`;body.appendChild(summary);
   if(!rows.length){const empty=doc().createElement('p');empty.textContent='No hay contactos registrados en este scouting.';body.appendChild(empty);return true;}
   const wrap=doc().createElement('div');wrap.className='vc2023-table-wrap';const table=doc().createElement('table');
-  const head=doc().createElement('thead');const header=doc().createElement('tr');for(const title of ['Set','Rally','Nº','Código','Jugador','Resultado']){const cell=doc().createElement('th');cell.textContent=title;header.appendChild(cell);}head.appendChild(header);table.appendChild(head);
-  const tbody=doc().createElement('tbody');for(const r of rows){const tr=doc().createElement('tr');for(const value of [r.set,r.rally,r.ordinal,r.code||r.skill||'—',r.number||'—',r.winner]){const td=doc().createElement('td');td.textContent=String(value);tr.appendChild(td);}tbody.appendChild(tr)}table.appendChild(tbody);wrap.appendChild(table);body.appendChild(wrap);return true;
+  const head=doc().createElement('thead');const header=doc().createElement('tr');for(const title of ['Set','Rally','Nº','Código','Jugador','Resultado','Editar']){const cell=doc().createElement('th');cell.textContent=title;header.appendChild(cell);}head.appendChild(header);table.appendChild(head);
+  const tbody=doc().createElement('tbody');for(const r of rows){const tr=doc().createElement('tr');for(const value of [r.set,r.rally,r.ordinal,r.code||r.skill||'—',r.number||'—',r.winner]){const td=doc().createElement('td');td.textContent=String(value);tr.appendChild(td);}const edit=doc().createElement('td');if(r.editable){const button=doc().createElement('button');button.type='button';button.textContent='Editar';button.setAttribute('aria-label',`Editar set ${r.set}, rally ${r.rally}, contacto ${r.ordinal}`);button.dataset.vc2023Edit=`${r.setIndex}:${r.rallyIndex}:${r.actionIndex}`;edit.appendChild(button);}else edit.textContent='En curso';tr.appendChild(edit);tbody.appendChild(tr)}table.appendChild(tbody);wrap.appendChild(table);body.appendChild(wrap);return true;
  }
  function makeWindow(type){if(!ALLOWED_WINDOWS.includes(type)||!doc())return null;
   let node=byId(`vc2023-window-${type}`);if(node)return node;
@@ -97,7 +97,7 @@
   const body=doc().createElement('div');body.className='vc2023-window-body';
   if(type==='history'){
    body.id='vc2023-history-body';
-   const toolbar=doc().createElement('div');toolbar.className='vc2023-window-tools';toolbar.innerHTML='<button type="button" data-vc2023-action="rallyedit">Editar rallies en herramienta original</button><button type="button" data-vc2023-action="codes">Editor de códigos Pro</button>';
+   const toolbar=doc().createElement('div');toolbar.className='vc2023-window-tools';toolbar.innerHTML='<button type="button" data-vc2023-action="rallyedit">Editar rallies en herramienta original</button><button type="button" data-vc2023-action="advanced">Editor avanzado del último rally</button><button type="button" data-vc2023-action="codes">Códigos Pro</button>';
    node.append(heading,toolbar,body);
   } else {body.id='vc2023-intelligence-body';node.append(heading,body);}
   byId('vc2023-windows')?.append(node);
@@ -123,12 +123,29 @@
  }
  function closeWindow(type){const node=byId(`vc2023-window-${type}`);if(!node)return false;node.hidden=true;windows.delete(type);return true;}
  function closeAll(){for(const type of ALLOWED_WINDOWS)closeWindow(type);return true;}
+ function openAdvanced(si,ri,ai){
+  const m=match(),editor=root?.VC_SCOUTING_EDITOR_19315;
+  if(!m||!editor?.openNative){status('Editor avanzado no disponible o sin scouting activo.');return false;}
+  const result=editor.openNative(root,m,si,ri,ai);
+  if(!result?.ok){status(result?.error||'No se pudo abrir el contacto.');return false;}
+  return true;
+ }
+ function openLatestAdvanced(){
+  const m=match(),sets=Array.isArray(m?.sets)?m.sets:[];
+  for(let si=sets.length-1;si>=0;si--){const rallies=Array.isArray(sets[si]?.rallies)?sets[si].rallies:[];
+   for(let ri=rallies.length-1;ri>=0;ri--){const actions=Array.isArray(rallies[ri]?.actions)?rallies[ri].actions:[];
+    if(actions.length)return openAdvanced(si,ri,actions.length-1);
+   }
+  }
+  status('No hay contactos en rallies finalizados. Registra primero un rally o edita el borrador con el código rápido.');return false;
+ }
  function runAction(id){if(!Object.hasOwn(ACTIONS,id))return false;
   if(!visible())return false;
   if(id==='home')return ensureHome();
   if(id==='focus')return focusCode();
   if(id==='court')return court();
   if(id==='history'||id==='intelligence')return openWindow(id);
+  if(id==='advanced')return openLatestAdvanced();
   if(id==='closeall')return closeAll();
   if(['balanced','bigvideo','bigcode'].includes(id))return ensureHome()&&layout(id);
   if(id==='source'){if(!ensureHome())return false;const details=byId('vc54-video-settings');if(!details)return false;details.open=true;details.scrollIntoView?.({block:'nearest'});return true;}
@@ -136,8 +153,9 @@
   const functions={open:'v122OpenMatchSwitcher',new:'scoutOpenNewMatch',save:'v117ProSave',backup:'scoutV680DownloadBackup',recovery:'scoutV892OpenRecoveryCenter',lineup:'scoutOpenLineup',changes:'v120OpenChanges',rotation:'v851OpenLineupControl',event:'v120OpenEvent',newset:'v121OpenNewSet',finishset:'v120OpenFinishSet',result:'v120OpenFinalResult',rallyedit:'v857OpenRallyEditor',codes:'v901OpenCodes',cheatsheet:'v841OpenCheatSheet',delay:'v116OpenDelay',review:'v117OpenVideoReview',note:'v851OpenVideoNote',analysis:'v1000GoAnalysis'};
   return functions[id]?safeFunction(functions[id]):false;
  }
- function onClick(event){const nav=byId('vc2023-menubar');const button=event.target.closest?.('[data-vc2023-menu],[data-vc2023-action],[data-vc2023-close],[data-vc2023-minimize]');
+ function onClick(event){const nav=byId('vc2023-menubar');const button=event.target.closest?.('[data-vc2023-menu],[data-vc2023-action],[data-vc2023-edit],[data-vc2023-close],[data-vc2023-minimize]');
   if(!button){if(nav&&!nav.contains(event.target))closeMenu();return;}
+  if(button.dataset.vc2023Edit!==undefined){const nums=button.dataset.vc2023Edit.split(':').map(Number);if(nums.length===3&&nums.every(n=>Number.isInteger(n)&&n>=0))openAdvanced(...nums);return;}
   if(button.dataset.vc2023Menu!==undefined){menu(button.dataset.vc2023Menu);return;}
   if(button.dataset.vc2023Close){closeWindow(button.dataset.vc2023Close);return;}
   if(button.dataset.vc2023Minimize){byId(`vc2023-window-${button.dataset.vc2023Minimize}`)?.classList.toggle('vc2023-minimized');return;}

@@ -4296,6 +4296,8 @@ window.VC_SCOUT_CORE={
   getActive:()=>scoutActive(),
   getSet:(m=scoutActive())=>scoutSet(m),
   parse:(raw,m=scoutActive(),oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction),
+  // V20.2.4: read-only bridge to the FINAL canonical code builder. No writes.
+  build:(action)=>scoutBuildCode(action),
   push:(action)=>scoutPushAction(action),
   register:(raw,m=scoutActive())=>v857RegisterRaw(raw,m),
   addFromFull:()=>window.scoutAddCode(),

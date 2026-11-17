@@ -7,15 +7,17 @@
  if(root){root.VC_SCOUTING_EDITOR_19315=api;if(root.document)api.install(root);}
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- const VERSION='19.3.16',SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
+ const VERSION='20.2.4',SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Control'};
  const EVALS=['#','+','!','-','/','='];
  const arr=x=>Array.isArray(x)?x:[];
  const str=x=>String(x??'').trim();
  const esc=x=>str(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const copy=x=>JSON.parse(JSON.stringify(x));
  const same=(a,b)=>String(a)===String(b);
- const editableFields=['code','team','playerId','playerLabel','playerNumberSnapshot','playerNameSnapshot','skill','evaluation','startZone','endZone','contactZone','setTarget','setTempo','setterCall','dvSetType','attackTempo','attackDirection','attackCombo','attackCode','blockers','phase','videoExactTime','videoExactSourceKey'];
- const signature=actions=>JSON.stringify(arr(actions).map(a=>[a?.id,...editableFields.map(k=>a?.[k]??null)]));
+ // The full source contact is used as the optimistic-concurrency fingerprint. This
+ // includes fields introduced by other historical scouting modules, not just the
+ // handful of advanced fields known to the editor when it was first written.
+ const signature=actions=>JSON.stringify(arr(actions));
  function locate(match,ref){
   if(!match||!ref||!same(match.id,ref.matchId))return {error:'Partido distinto del seleccionado.'};
   const si=Number(ref.setIndex),ri=Number(ref.rallyIndex);
@@ -39,22 +41,52 @@
   try{const value=parser(code,match,old||null);if(value?.error||!value?.action)return {error:value?.error||'Código no reconocido.'};return {action:value.action};}
   catch(e){return {error:'Código inválido: '+String(e?.message||e)};}
  }
- const advancedFields={E:['setTarget','setTempo','setterCall','dvSetType'],A:['attackCombo','attackTempo','attackDirection','attackCode','blockers','dvSetType']};
- const allowed={setTarget:['','Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'],attackCombo:['','Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'],
-  setTempo:['','Q','U','T','M','H','O'],attackTempo:['','Q','U','T','M','H','O'],attackDirection:['','LIN','DC','DL'],blockers:['','0','1','2','3'],dvSetType:['','F','C','B','P','S']};
- const captions={setTarget:'Destino colocación',setTempo:'Tempo colocación',setterCall:'Código colocador',dvSetType:'Tipo de colocación/ataque',attackCombo:'Combinación ataque',attackTempo:'Tempo ataque',attackDirection:'Dirección ataque',attackCode:'Código ataque',blockers:'Bloqueadores'};
+ // V20.2.4 extends the EXISTING protected rally editor. Encoded fields use
+ // scoutBuildCode; receptionFormation, receptionPosition and setterPosition are
+ // structured scouting metadata (not native .dvw tokens or inferred values).
+ const advancedFields={
+  S:['serveType','specialCode','customCode'],
+  R:['skillSubtype','receivedServeType','receptionFormation','receptionPosition','specialCode','customCode'],
+  E:['setTarget','setTempo','setterCall','dvSetType','skillSubtype','setterPosition','specialCode','customCode'],
+  A:['attackCombo','attackTempo','attackDirection','attackCode','blockers','dvSetType','skillSubtype','specialCode','customCode'],
+  B:['blockers','blockTargetNumber','skillSubtype','specialCode','customCode'],
+  D:['skillSubtype','specialCode','customCode'],
+  F:['specialCode','customCode'], C:['specialCode','customCode']
+ };
+ const allowed={
+  setTarget:['','Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'],
+  attackCombo:['','Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'],
+  setTempo:['','Q','U','T','M','H','O'],attackTempo:['','Q','U','T','M','H','O'],
+  attackDirection:['','LIN','DC','DL'],blockers:['','0','1','2','3'],
+  dvSetType:['','F','C','B','P','S'],serveType:['','F','JF','JP','U'],
+  receivedServeType:['','F','JF','JP','U'],
+  receptionFormation:['','2','3','4'],receptionPosition:['','L','C','R'],
+  setterPosition:['','1','2','3','4','5','6']
+ };
+ const subtypes={
+  R:['','L','R','LOW','OH','MID'],
+  E:['','1H','2H','BUMP','UND','OTH'],
+  A:['','HSP','SSP','TIP'],
+  B:['','AST','ATT','SOFT'],
+  D:['','COV','AB','EMG','TIP','SOFT']
+ };
+ const captions={setTarget:'Destino colocación',setTempo:'Tempo colocación',setterCall:'Llamada del colocador',dvSetType:'Tipo de colocación/ataque',attackCombo:'Combinación de ataque',attackTempo:'Tempo de ataque',attackDirection:'Dirección del ataque',attackCode:'Código de ataque',blockers:'Nº de bloqueadores',blockTargetNumber:'Dorsal atacante bloqueado',skillSubtype:'Tipo de contacto',serveType:'Tipo de saque',receivedServeType:'Saque recibido',receptionFormation:'Receptores en formación',receptionPosition:'Posición receptor en formación',setterPosition:'Posición del colocador (1–6)',specialCode:'Código especial',customCode:'Código personalizado'};
+ function fieldOptions(skill,key){return key==='skillSubtype'?(subtypes[skill]||['']):allowed[key]||null;}
  function applyAdvanced(win,action,patch){
   if(!patch||!Object.keys(patch).length)return {action};
   const permitted=advancedFields[action.skill]||[];
   const next={...action};
   for(const [key,raw] of Object.entries(patch)){
    if(!permitted.includes(key))return {error:'El campo '+key+' no corresponde al fundamento '+action.skill+'.'};
-   const value=str(raw).toUpperCase();
-   if(allowed[key]){if(!allowed[key].includes(value))return {error:'Valor no válido para '+key+'.'};}
-   else if(!/^[A-Z0-9]{0,6}$/.test(value))return {error:'El código '+key+' solo admite hasta 6 letras o números.'};
+   const value=str(raw).toUpperCase(),choices=fieldOptions(action.skill,key);
+   if(choices){if(!choices.includes(value))return {error:'Valor no válido para '+key+'.'};}
+   else if(key==='blockTargetNumber'&&!/^\d{0,3}$/.test(value))return {error:'El dorsal de bloqueo admite 0 a 3 cifras.'};
+   else if(key==='specialCode'&&!/^[A-Z0-9]{0,10}$/.test(value))return {error:'El código especial admite hasta 10 caracteres.'};
+   else if(key==='customCode'&&!/^[A-Z0-9]{0,5}$/.test(value))return {error:'El código personalizado admite hasta 5 caracteres.'};
+   else if(!choices&&key!=='blockTargetNumber'&&key!=='specialCode'&&key!=='customCode'&&!/^[A-Z0-9]{0,6}$/.test(value))return {error:'El campo '+key+' admite hasta 6 caracteres alfanuméricos.'};
    next[key]=value;
   }
-  try{if(typeof win?.scoutBuildCode!=='function')return {error:'No está disponible el generador oficial de códigos.'};next.code=win.scoutBuildCode(next);}
+  try{const build=win?.scoutBuildCode||win?.VC_SCOUT_CORE?.build;if(typeof build!=='function')return {error:'No está disponible el generador oficial de códigos.'};next.code=build(next);}
   catch(e){return {error:String(e?.message||e)}}
   return {action:next};
  }
@@ -121,13 +153,29 @@
   list.innerHTML=work.draft.map((a,i)=>`<div class="vc19315-action${i===work.selected?' selected':''}" data-vc19315-index="${i}"><span class="vc19315-idx">${i+1}</span><input aria-label="Código de acción ${i+1}" data-vc19315-code="${i}" spellcheck="false" maxlength="100" value="${esc(a.code)}"><button type="button" data-vc19315-cmd="pick" data-index="${i}">Avanzado</button><button type="button" data-vc19315-cmd="up" data-index="${i}" title="Subir acción" ${i===0?'disabled':''}>↑</button><button type="button" data-vc19315-cmd="down" data-index="${i}" title="Bajar acción" ${i===work.draft.length-1?'disabled':''}>↓</button><button type="button" data-vc19315-cmd="delete" data-index="${i}" title="Quitar acción">×</button>${a.videoMark?'<small>Vídeo '+a.videoMark.time.toFixed(2)+' s</small>':''}</div>`).join('')||'<p>Este rally no tiene acciones. Añade un código si necesitas reconstruirlo.</p>';
   renderAdvanced();
  }
- function renderAdvanced(){const panel=getModal()?.querySelector('[data-vc19315-advanced]');if(!panel||!work)return;const item=work.draft[work.selected];if(!item){panel.innerHTML='<span>Selecciona un contacto para editar los detalles técnicos.</span>';return;}
+ const TABS={principal:'Principal',zonas:'Zonas',tactica:'Táctica',video:'Vídeo'};
+ function renderAdvanced(){const panel=getModal()?.querySelector('[data-vc19315-advanced]');if(!panel||!work)return;
+  const item=work.draft[work.selected];if(!item){panel.innerHTML='<span>Selecciona un contacto para editar los detalles técnicos.</span>';return;}
   const parsed=parseCode(winRef,item.code,arr(work.original)[item.originIndex]||null,active(winRef));
   if(parsed.error){panel.textContent='Corrige el código para activar los campos técnicos: '+parsed.error;return;}
-  const action=parsed.action,fields=advancedFields[action.skill]||[];
-  panel.innerHTML=`<div class="vc19315-advanced-title"><strong>Contacto ${work.selected+1} · ${esc(SKILLS[action.skill]||action.skill)}</strong><button type="button" data-vc19315-cmd="video">Usar fotograma actual</button></div><p>La marca de vídeo se aplica solo al archivo o grabación actual; el tiempo original del scouting se conserva.</p>`+
-   (fields.length?`<div class="vc19315-fields">${fields.map(k=>{const current=item.advanced?.[k]??action[k]??'';return `<label>${esc(captions[k]||k)}${allowed[k]?`<select data-vc19315-field="${esc(k)}">${allowed[k].map(v=>`<option value="${esc(v)}"${v===String(current)?' selected':''}>${esc(v||'—')}</option>`).join('')}</select>`:`<input data-vc19315-field="${esc(k)}" maxlength="6" value="${esc(current)}">`}</label>`}).join('')}</div>`:'<p>Este fundamento no dispone de campos avanzados específicos.</p>');
-  panel.insertAdjacentHTML('beforeend',winRef?.VC_SMART_SCOUTING_19316?.editorPanel?.(work,action)||'');
+  const action=parsed.action,skill=action.skill,fields=advancedFields[skill]||[];
+  const tab=Object.hasOwn(TABS,work.activeTab)?work.activeTab:'principal';
+  const nav=`<div class="vc2024-editor-nav" role="tablist" aria-label="Apartados del editor">${Object.entries(TABS).map(([key,label])=>`<button type="button" role="tab" data-vc19315-tab="${key}" aria-selected="${key===tab}" class="${key===tab?'is-active':''}">${label}</button>`).join('')}</div>`;
+  const title=`<div class="vc19315-advanced-title"><strong>Contacto ${work.selected+1} · ${esc(SKILLS[skill]||skill)}</strong><span class="vc2024-draft-tag">BORRADOR · Sin guardar</span></div>`;
+  let content='';
+  if(tab==='principal'){
+   content=`<p>Código editado: <code>${esc(item.code)}</code>. Cambia aquí la valoración y utiliza la lista de arriba para editar la secuencia.</p><div class="vc2024-grades" role="group" aria-label="Valoración rápida">${EVALS.map((g,i)=>`<button type="button" data-vc19316-grade="${esc(g)}" class="${g===action.evaluation?'is-current':''}" title="Alt + ${i+1}">${esc(g)}</button>`).join('')}</div><p>Las acciones solo se guardan al confirmar. El ganador del rally, la rotación y el marcador están protegidos.</p>`;
+  } else if(tab==='zonas'){
+   content=winRef?.VC_SMART_SCOUTING_19316?.editorPanel?.(work,action)||'<p>La pista del editor no está disponible. Puedes corregir las zonas en el código.</p>';
+  } else if(tab==='tactica'){
+   content=`<p>Campos del fundamento ${esc(SKILLS[skill]||skill)}. Deja «—» si no has observado el dato; no se infiere del vídeo.</p>`+
+    (fields.length?`<div class="vc19315-fields">${fields.map(k=>{const current=item.advanced?.[k]??action[k]??'',opts=fieldOptions(skill,k);return `<label>${esc(captions[k]||k)}${opts?`<select data-vc19315-field="${esc(k)}">${opts.map(v=>`<option value="${esc(v)}"${v===String(current)?' selected':''}>${esc(v||'—')}</option>`).join('')}</select>`:`<input data-vc19315-field="${esc(k)}" maxlength="${k==='specialCode'?10:k==='blockTargetNumber'?3:k==='customCode'?5:6}" value="${esc(current)}" autocomplete="off">`}</label>`}).join('')}</div>`:'<p>Este fundamento no dispone de campos tácticos adicionales.</p>')+
+    `<p class="vc2024-info">La formación, la posición del receptor y la posición del colocador se guardan como metadatos estructurados de Volley Coach; no forman parte de la cadena de código DVW ni implican compatibilidad nativa de exportación.</p>`;
+  } else {
+   const original=arr(work.original)[item.originIndex],t=item.videoMark?.time??original?.videoExactTime,source=item.videoMark?.sourceKey??original?.videoExactSourceKey;
+   content=`<p>Se conserva el tiempo original del scouting. Para vincular un fotograma exacto necesitas tener abierto en Revisión un vídeo del mismo partido y una fuente identificada.</p><button type="button" data-vc19315-cmd="video">Vincular fotograma actual verificado</button><p><strong>Tiempo vinculado:</strong> ${t!=null?esc(Number(t).toFixed(3)+' s'):'Sin marca exacta'} · <strong>Fuente:</strong> ${esc(source||'No identificada')}</p>`;
+  }
+  panel.innerHTML=title+nav+`<div class="vc2024-editor-tabpanel" role="tabpanel">${content}</div>`;
  }
  function show(){const modal=getModal();if(!modal||!work)return;const m=active(winRef);modal.hidden=false;modal.setAttribute('aria-hidden','false');modal.querySelector('[data-vc19315-title]').textContent=`Scouting Editor Pro · Set ${work.ref.set} / Rally ${work.ref.rallyIndex+1}`;
   modal.querySelector('[data-vc19315-cmd="save"]')?.removeAttribute('disabled');
@@ -143,8 +191,17 @@
   const found=locate(match,ref);if(found.error)return {ok:false,error:found.error};
   const original=copy(arr(found.rally.actions));let selected=0;
   if(contactKey){const c=projectionRally.contacts?.find(c=>c.key===contactKey);if(c){const ix=c.source.actionIndex;if(same(original[ix]?.id,c.nativeId))selected=ix;}}
-  work={ref,initialSignature:signature(found.rally.actions),protectedRally:copy(found.rally),original,draft:draftFrom(original),selected,team,score:{before:copy(found.rally.scoreBefore||{}),after:copy(found.rally.scoreAfter||{}),winner:found.rally.winner,rotation:found.rally.rotationBefore},revision:match.updatedAt||''};
+  work={activeTab:'principal',ref,initialSignature:signature(found.rally.actions),protectedRally:copy(found.rally),original,draft:draftFrom(original),selected,team,score:{before:copy(found.rally.scoreBefore||{}),after:copy(found.rally.scoreAfter||{}),winner:found.rally.winner,rotation:found.rally.rotationBefore},revision:match.updatedAt||''};
   show();return {ok:true};
+ }
+ function openNative(win,match,setIndex,rallyIndex,actionIndex=0){
+  const si=Number(setIndex),ri=Number(rallyIndex),ai=Number(actionIndex);
+  if(![si,ri,ai].every(n=>Number.isInteger(n)&&n>=0))return {ok:false,error:'Referencia de contacto inválida.'};
+  const set=arr(match?.sets)[si],rally=arr(set?.rallies)[ri],action=arr(rally?.actions)[ai];
+  if(!set||!rally||!action||rally.id==null||action.id==null)return {ok:false,error:'No se encuentra el contacto en el scouting activo.'};
+  const key='native-contact-'+ai;
+  const projected={nativeId:rally.id,set:set.number,provenance:{setIndex:si,rallyIndex:ri},contacts:[{key,nativeId:action.id,source:{actionIndex:ai}}]};
+  return open(win,match,projected,key,action.team==='opponent'?'opponent':'ours');
  }
  function close(){if(busy)return;const modal=getModal();if(modal){modal.hidden=true;modal.setAttribute('aria-hidden','true')}work=null;}
  async function commit(){if(busy||!work)return {ok:false,error:'No hay una edición disponible.'};const cur=getCurrent();if(cur.error)return {ok:false,error:cur.error};
@@ -166,10 +223,11 @@
    const out={ok:true,before:pre,after:post,savedLocally:true};winRef.document?.dispatchEvent(new winRef.CustomEvent('vc19315:edited',{detail:{matchId:String(again.match.id),set:Number(again.set.number),rallyId:String(again.rally.id),before:pre,after:post}}));return out;
   }catch(e){return {ok:false,error:String(e?.message||e)}}finally{busy=false}
  }
- function onClick(event){const b=event.target.closest?.('[data-vc19315-cmd], [data-vc19316-grade], [data-vc19316-zone], [data-vc19316-mode]');if(!b)return;const cmd=b.dataset.vc19315Cmd;event.preventDefault();
+ function onClick(event){const b=event.target.closest?.('[data-vc19315-cmd], [data-vc19315-tab], [data-vc19316-grade], [data-vc19316-zone], [data-vc19316-mode]');if(!b)return;const cmd=b.dataset.vc19315Cmd;event.preventDefault();
   if(cmd==='close'){close();return;}if(!work||busy)return;
   const smart=winRef?.VC_SMART_SCOUTING_19316?.editorAction?.({button:b,work,win:winRef,parseCode});
   if(smart?.handled){if(smart.changed)renderRows();if(smart.error)note(smart.error,true);else if(smart.changed)note('Cambio aplicado al borrador; confirma con Guardar.');return;}
+  if(b.dataset.vc19315Tab!==undefined){const tab=b.dataset.vc19315Tab;if(Object.hasOwn(TABS,tab)){work.activeTab=tab;renderAdvanced();}return;}
   const i=Number(b.dataset.index);
   if(cmd==='pick'&&Number.isInteger(i)){work.selected=i;work.vc19316Mode=null;renderRows();return;}
   if(cmd==='delete'&&Number.isInteger(i)){work.draft.splice(i,1);work.selected=Math.max(0,Math.min(work.selected,work.draft.length-1));renderRows();return;}
@@ -199,5 +257,5 @@
   if(!result.ok){const status=node?.querySelector('#vc19314-status');if(status)status.textContent=result.error;}
   return {handled:true};
  }
- return Object.freeze({VERSION,reference,locate,signature,parseCode,applyAdvanced,validateDraft,draftFrom,scoreGuard,stats,calculate,exactMark,videoTime,open,close,commit,install,handleAnalysisClick});
+ return Object.freeze({VERSION,reference,locate,signature,parseCode,applyAdvanced,validateDraft,draftFrom,scoreGuard,stats,calculate,exactMark,videoTime,open,openNative,close,commit,install,handleAnalysisClick});
 });
