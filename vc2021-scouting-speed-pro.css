@@ -1,0 +1,47 @@
+/* Volley Coach V20.2.1: speed controls for the existing match editor only.
+   Never restyles the scorer, court keypad, recording or video element. */
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock{
+ display:grid;gap:9px;min-width:0;max-width:100%;padding:10px 14px 9px;
+ border-bottom:1px solid #dce7f2;background:linear-gradient(180deg,#f8fbff,#f2f7fe);
+ color:#173751;font:600 12px/1.35 system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock *{box-sizing:border-box}
+#scout-match-mode #vc2021-dock .vc2021-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+#scout-match-mode #vc2021-dock .vc2021-head>div:first-child{display:grid;gap:2px}
+#scout-match-mode #vc2021-dock .vc2021-head strong{font-size:10px;font-weight:900;letter-spacing:.07em;color:#144773}
+#scout-match-mode #vc2021-dock .vc2021-head small{color:#6d849a;font-size:10px;font-weight:600}
+#scout-match-mode #vc2021-dock .vc2021-head-actions{display:flex;gap:5px;flex-wrap:wrap}
+#scout-match-mode #vc2021-dock .vc2021-grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,1fr);gap:12px;min-width:0}
+#scout-match-mode #vc2021-dock .vc2021-group{min-width:0;display:grid;gap:5px}
+#scout-match-mode #vc2021-dock .vc2021-group>span{font-size:9px;color:#637f99;font-weight:850;letter-spacing:.065em}
+#scout-match-mode #vc2021-dock .vc2021-group>div{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
+#scout-match-mode #vc2021-dock .vc2021-group:nth-child(2)>div{grid-template-columns:repeat(6,minmax(0,1fr))}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock button{
+ min-width:0!important;min-height:34px!important;margin:0!important;padding:6px 8px!important;
+ border-radius:7px!important;border:1px solid #cadced!important;background:#fff!important;
+ color:#22577e!important;font:800 11px/1.2 system-ui,'Segoe UI',sans-serif!important;
+ box-shadow:none!important;cursor:pointer;white-space:normal!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock .vc2021-group button{font-size:13px!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock button:hover:not(:disabled){background:#e9f3ff!important;border-color:#84b5e4!important;color:#174f94!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock button:focus-visible{outline:3px solid #f0ad48!important;outline-offset:2px}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock button:disabled{opacity:.43!important;cursor:not-allowed!important}
+#scout-match-mode #vc2021-dock .vc2021-bottom{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+#scout-match-mode #vc2021-dock #vc2021-target{margin-left:auto;font-weight:800;color:#4d6e90;font-size:10px;white-space:nowrap}
+#scout-match-mode #vc2021-dock #vc2021-preview{font:750 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+ color:#165089;border:1px solid #c9daea;background:#fff;border-radius:6px;padding:8px;max-width:100%;overflow-wrap:anywhere;min-width:45px}
+#scout-match-mode #vc2021-dock #vc2021-status{margin:0;color:#5a7795;font-size:10px;min-height:15px;overflow-wrap:anywhere}
+#scout-match-mode #vc2021-dock #vc2021-status[data-kind="warning"]{color:#9b571e}
+#scout-match-mode #vc2021-dock #vc2021-status[data-kind="success"]{color:#216948}
+@media(max-width:1050px){#scout-match-mode #vc2021-dock .vc2021-grid{grid-template-columns:1fr}}
+@media(max-width:600px){
+ body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock{padding:9px 8px}
+ #scout-match-mode #vc2021-dock .vc2021-head-actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ #scout-match-mode #vc2021-dock .vc2021-grid{gap:9px}
+ #scout-match-mode #vc2021-dock .vc2021-group>div{gap:3px}
+ body.v11-shell #scout-match-mode.vc2020-ready #vc2021-dock .vc2021-group button{min-height:39px!important;padding:5px 2px!important;font-size:12px!important}
+ #scout-match-mode #vc2021-dock .vc2021-bottom{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ #scout-match-mode #vc2021-dock #vc2021-target{margin-left:0}
+ #scout-match-mode #vc2021-dock #vc2021-preview{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){#scout-match-mode #vc2021-dock button{transition:none!important}}
