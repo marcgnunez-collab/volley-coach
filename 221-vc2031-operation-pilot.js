@@ -99,18 +99,21 @@
   const [team,id]=JSON.parse(raw);
   return core.recordFrom(snapshot(),{team,type:'planificacion',id});
  }
- async function stage(){
+ async function stageRecord({team,id}={}){
   if(!available)throw Error('Comprueba primero el esquema SQL del piloto.');
   const user=account(),c=cloud(),diag=c?.diagnostics?.()||{};
   if(!user||!client())throw Error('Conecta Supabase antes de preparar una copia.');
   if(diag.dirty||diag.syncing||diag.blockedReason||diag.pendingAccountMismatch||diag.lastSyncError)
    throw Error('La sincronización principal tiene cambios pendientes o protegidos. No se permite preparar la copia.');
-  const picked=selection();
+  const picked=core.recordFrom(snapshot(),{team,type:'planificacion',id});
+  const duplicate=(await engine().pending(user)).find(row=>row.command.teamKey===picked.teamKey&&
+   row.command.entityType===picked.entityType&&row.command.entityId===picked.entityId);
+  if(duplicate)return duplicate;
   if(typeof c?.compareCurrentRecord!=='function')throw Error('El comparador de nube no está disponible.');
   const proof=await c.compareCurrentRecord({team:picked.teamKey,type:'planificacion',id:picked.entityId});
   if(proof.dirty||proof.lastSyncError||!proof.identical)
    throw Error('El entrenamiento no es idéntico en este dispositivo y en la nube principal. Sin copia piloto.');
-  const after=selection();
+  const after=core.recordFrom(snapshot(),{team,type:'planificacion',id});
   if(JSON.stringify(after)!==JSON.stringify(picked)||account()!==user)
    throw Error('El entrenamiento o la sesión cambiaron durante la comparación. Inténtalo otra vez.');
   const command=core.makeCommand({...picked,accountId:user,expectedRevision:0,operation:'put',commandId:unique()});
@@ -119,6 +122,7 @@
   report('Copia preparada y guardada en IndexedDB con ID '+row.command.commandId+'. No enviada a Supabase.','ok');
   await refresh();return row;
  }
+ async function stage(){const picked=selection();return stageRecord({team:picked.teamKey,id:picked.entityId})}
  async function send(commandId){
   if(!available)throw Error('El servidor piloto no está comprobado.');
   const user=account();if(!user)throw Error('Falta sesión autenticada.');
@@ -227,6 +231,6 @@
  }
  window.VC2031_PILOT={version:VERSION,capabilities,manifest:()=>core.manifest(snapshot()),
   status:async()=>({ready:available,description:lastCapability,...await engine().inspect(account())}),
-  stage,send,reconcile,refresh};
+  stage,stageRecord,send,reconcile,refresh};
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
