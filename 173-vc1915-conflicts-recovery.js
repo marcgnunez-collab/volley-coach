@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='20.2.5.2',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
+ const VERSION='20.2.5.3',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];
@@ -501,7 +501,7 @@
      if(!doc.getElementById('vc1915-style')){
        const css=element('style');css.id='vc1915-style';css.textContent='#vc1915-panel{padding:14px;margin:12px 0;border:1px solid #c6d9ea;border-radius:11px;background:#f7fbfe;color:#1d4057;font:12px/1.5 system-ui}#vc1915-panel h4{margin:0 0 8px;font-size:15px}#vc1915-panel button{margin:5px 6px 4px 0;padding:9px 12px;border:1px solid #b4cfe2;border-radius:8px;background:white;color:#195377;font-size:12px;font-weight:700;cursor:pointer}#vc1915-panel .vc1915-item{border-top:1px solid #d3e3ee;padding:10px 0}#vc1915-panel p{margin:5px 0}';doc.head.append(css);
      }
-     wrapper=element('section');wrapper.id='vc1915-panel';wrapper.append(element('h4','V20.2.5.2 · Conflictos protegidos y restauración JSON'));
+     wrapper=element('section');wrapper.id='vc1915-panel';wrapper.append(element('h4','V20.2.5.3 · Conflictos protegidos y restauración JSON'));
      summary=element('p');list=element('div');preview=element('div');fileInput=element('input');fileInput.type='file';fileInput.accept='.json,application/json';fileInput.hidden=true;fileInput.addEventListener('change',openRecovery);
      const select=element('button','Examinar copia JSON');select.type='button';select.addEventListener('click',()=>fileInput.click());
      const cloudStatus=doc.getElementById('cloud-status');
@@ -520,13 +520,14 @@
          if(typeof safety?.manualBackup!=='function'||typeof safety?.backupRemoteState!=='function')
            throw Error('No se pueden respaldar las versiones. No se ha enviado ningún cambio.');
          await safety.manualBackup();
-         if(context.remoteState)await safety.backupRemoteState(context.remoteState,context.remoteStamp);
-         else if(!getPending().length)throw Error('No hay copia remota disponible ni elección respaldada. Detenido por seguridad.');
+         const latest=await win.VC_V962_CLOUD_EFFICIENT?.readOnlyRemoteSnapshot?.();
+         if(!latest?.state)throw Error('No es posible descargar la versión actual de la nube. La operación se ha detenido.');
+         await safety.backupRemoteState(latest.state,latest.stamp);
        }
        async function confirmChosenRecord({team,type,id,expectedSemantic}){
          const cloud=win.VC_V962_CLOUD_EFFICIENT;
          if(typeof cloud?.sync!=='function'||typeof cloud.verifyRecord!=='function')
-           throw Error('Falta la verificación de lectura de nube V20.2.5.2. Recarga la versión completa de la aplicación.');
+           throw Error('Falta la verificación de lectura de nube V20.2.5.3. Recarga la versión completa de la aplicación.');
          const key=conflictKey(team,type,id);
          // Once CAS has acknowledged the choice, the old decision is removed.
          // Never start a new write with that obsolete choice if either side
@@ -562,12 +563,17 @@
          // la revisión debe estar a un toque dentro de Conexión nube.
          const holder=doc.getElementById('vc1919-cloud-conflicts');
          if(holder){holder.hidden=false;holder.replaceChildren();
-           holder.append(element('h3','Resolver conflictos antes de sincronizar'));
-           holder.append(element('p','La cuenta está conectada, pero ESTOS CAMBIOS NO ESTÁN SINCRONIZADOS. Revisa las dos versiones antes de elegir. No se resolverán conflictos por fecha ni se eliminarán datos automáticamente.'));
+           holder.append(element('h3','Revisar y confirmar la sincronización'));
+           holder.append(element('p',context.lastConflicts.length||context.lastDeletionConflicts.length?
+             'La cuenta está conectada, pero existen cambios incompatibles sin resolver. Revisa las dos versiones; no se elegirán por fecha.':
+             'No hay un conflicto nuevo detectado, pero queda una confirmación antigua pendiente. La nube puede estar ya al día; verifica el contenido antes de cerrar el aviso.'));
            const backups=element('div');backups.className='vc1919-conflict-actions';
            for(const [label,side] of [['Descargar JSON de este dispositivo','local'],['Descargar JSON de la nube','remote']]){
-             const btn=element('button',label);btn.type='button';btn.addEventListener('click',()=>{
-               try{downloadStateCopy(side==='local'?win.estadoLocal?.():context.remoteState,side+'-conflicto');}
+             const btn=element('button',label);btn.type='button';btn.addEventListener('click',async()=>{
+               try{
+                 const latest=side==='remote'?await win.VC_V962_CLOUD_EFFICIENT?.readOnlyRemoteSnapshot?.():null;
+                 downloadStateCopy(side==='local'?win.estadoLocal?.():latest?.state,side+'-conflicto');
+               }
                catch(error){win.alert('No se ha descargado la copia: '+String(error?.message||error));}
              });backups.append(btn);
            }
@@ -612,6 +618,31 @@
                }catch(error){win.alert('La resolución sigue pendiente. Los respaldos permanecen guardados. '+String(error?.message||error));}
                finally{retry.disabled=false;}
              });line.append(retry);holder.append(line);
+             const check=element('button','Comparar estados actuales');check.type='button';check.addEventListener('click',async()=>{
+               check.disabled=true;
+               try{
+                 const proof=await win.VC_V962_CLOUD_EFFICIENT?.compareCurrentRecord?.(pending);
+                 if(!proof)throw Error('No está disponible el comprobador V20.2.5.3. Actualiza todos los archivos.');
+                 if(proof.dirty||proof.lastSyncError)
+                   throw Error(proof.lastSyncError||'Todavía hay cambios locales sin confirmar. No se puede cerrar el aviso.');
+                 if(!proof.identical&&!proof.equivalentAfterNormalization)
+                   throw Error('Los registros actuales todavía difieren: '+(proof.changedFields||[]).join(', ')+'. Revisa las copias JSON.');
+                 const details=proof.summary||{};
+                 const info='Entrenamiento actual: '+(details.ejercicios??'?')+' ejercicios, '+(details.jugadores??'?')+
+                   ' jugadores y '+(details.duracion??'?')+' minutos.';
+                 const message='Se ha comprobado en la nube que los registros actuales '+
+                   (proof.identical?'son idénticos.':'contienen los mismos datos tras normalizar campos de visualización.')+
+                   '\n\n'+info+'\n\nEsto SOLO cerrará el aviso de confirmación antiguo. NO modificará ni subirá datos. '+
+                   'Revisa los JSON de seguridad si esperabas cifras diferentes. ¿Cerrar este aviso?';
+                 if(!win.confirm(message))return;
+                 await protectBothCopies();
+                 finishConfirmedResolution({key:pending.key,expectedSemantic:pending.expectedSemantic});
+                 win.alert('Confirmación antigua cerrada tras comparar el contenido actual. No se ha modificado la nube.');
+                 const holder=doc.getElementById('vc1919-cloud-conflicts');
+                 if(holder){holder.hidden=true;holder.replaceChildren();}
+               }catch(error){win.alert('No se ha cerrado el aviso. '+String(error?.message||error));}
+               finally{check.disabled=false;}
+             });line.append(check);
            }
            for(const c of context.lastDeletionConflicts){
              const card=element('section');card.className='vc1919-conflict-row vc19110-delete-conflict';

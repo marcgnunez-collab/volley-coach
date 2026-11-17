@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <!-- V17.5.0: scoped CSS cache and critical core preloads; script execution order unchanged. -->
-<link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=16.5.3">
+<link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=20.2.5.3">
 <link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=16.1.6">
 <script id="vc16060-performance-core">
 /* Performance Core V16.0.6.3: passive, local-only observability. No application state mutation. */
@@ -3020,7 +3020,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 </div>
 
 
-<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=16.5.3" data-vc-module="true"></script>
+<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=20.2.5.3" data-vc-module="true"></script>
 
 
 <script id="players-pro-v2-script" src="./003-players-pro-v2-script.js?v=16.0.2.1" data-vc-module="true"></script>
@@ -8598,8 +8598,11 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
             const missing=new Error('No está disponible el aplicador de estado remoto. No se ha confirmado la recepción.');
             missing.code='VC2012_APPLY_MISSING';throw missing;
           }
+          const wasReceiving=window.VC_SYNC_RECEIVING_CLOUD===true;
+          window.VC_SYNC_RECEIVING_CLOUD=true;
           try{window.aplicarEstadoCloud(incoming);}
           catch(cause){const applyError=new Error('Falló la aplicación del estado remoto; se conserva la versión local.');applyError.code='VC2012_APPLY_FAILED';throw applyError;}
+          finally{window.VC_SYNC_RECEIVING_CLOUD=wasReceiving;}
           remoteApplied=true;lastRemoteStamp=stamp;lastAppliedRemoteStamp=stamp;
           try{if(stamp)localStorage.setItem(REMOTE_STAMP_KEY,stamp)}catch(_){}
         }
@@ -8682,6 +8685,13 @@ function findSyncedRecord(state,team,type,id){
  const entries=state?.equiposData?.[team]?.[type];
  return Array.isArray(entries)?entries.find(row=>String(row?.id)===String(id)):undefined;
 }
+async function readOnlyRemoteSnapshot(){
+ if(!connected())throw Error('La cuenta de nube no está autenticada.');
+ if(syncPromise){try{await syncPromise;}catch(_){}}
+ const remote=await readRemote(String(cloudUser.id));
+ if(!remote?.state?.equiposData)throw Error('La nube no ha devuelto un estado completo para la copia.');
+ return {state:remote.state,stamp:String(remote.updated_at||'')};
+}
 async function verifyRecord({team,type,id,expectedSemantic}={}){
  if(!connected())throw Error('No hay sesión de nube autenticada para verificar esta resolución.');
  if(!team||!type||id===undefined||!expectedSemantic)throw Error('Falta la identidad del registro elegido.');
@@ -8698,6 +8708,29 @@ async function verifyRecord({team,type,id,expectedSemantic}={}){
    localMatches,remoteMatches,dirty:!!dirty,remoteStamp:String(remote?.updated_at||''),
    lastSyncError:lastSyncError||null};
 }
+async function compareCurrentRecord({team,type,id}={}){
+ if(!connected())throw Error('Conecta la misma cuenta para comparar los registros.');
+ if(!team||!type||id===undefined)throw Error('Falta identificar el registro a comparar.');
+ const reliability=window.VC_V1915_RELIABILITY?.pure;
+ if(typeof reliability?.semanticDigest!=='function')throw Error('El comparador seguro de registros no está disponible.');
+ if(syncPromise){try{await syncPromise;}catch(_){}}
+ const cloud=await readRemote(String(cloudUser.id));
+ const lhs=findSyncedRecord(localState(),team,type,id);
+ const rhs=findSyncedRecord(cloud?.state,team,type,id);
+ const same=!!lhs&&!!rhs&&reliability.semanticDigest(lhs)===reliability.semanticDigest(rhs);
+ const normalize=window.VC_TRAINING_SYNC_NORMALIZE_RECORD;
+ const equivalentAfterNormalization=!!lhs&&!!rhs&&['planificacion','historial'].includes(type)&&
+   typeof normalize==='function'&&
+   reliability.semanticDigest(normalize(lhs,type))===reliability.semanticDigest(normalize(rhs,type));
+ const selected=rhs||lhs||{};
+ return {identical:same,equivalentAfterNormalization,localPresent:!!lhs,remotePresent:!!rhs,
+   changedFields:typeof reliability.conflictFields==='function'?reliability.conflictFields(lhs,rhs):[],
+   dirty:!!dirty,lastSyncError:lastSyncError||null,
+   summary:{ejercicios:Array.isArray(selected.ejercicios)?selected.ejercicios.length:null,
+     jugadores:Array.isArray(selected.playerIds)?selected.playerIds.length:
+       (Number.isFinite(Number(selected.jugadores))?Number(selected.jugadores):null),
+     duracion:Number.isFinite(Number(selected.duracion))?Number(selected.duracion):null}};
+}
 function visibilitySync(){if(document.visibilityState!=='visible'||!connected())return;if(dirty)void sync({reason:'visible-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=VISIBLE_MIN_GAP_MS)void sync({reason:'visible',allowWrite:false,pullOnly:true})}
 function onOnline(){if(!connected())return;if(!blockedReason)retryAt=0;if(dirty)void sync({reason:'online',allowWrite:true,bypassBackoff:!blockedReason});else void sync({reason:'online-pull',allowWrite:false,pullOnly:true,bypassBackoff:!blockedReason});emitSyncState()}
 const efficientSchedule=function(){return markDirty('autosave')};window.programarSubidaCloud=efficientSchedule;try{programarSubidaCloud=efficientSchedule}catch(_){}
@@ -8707,7 +8740,7 @@ window.v962ForceSync=forceSync;window.v962CloudOnline=onOnline;window.v953SyncNo
 setInterval(()=>{if(document.visibilityState==='visible'&&connected()){if(dirty)void sync({reason:'passive-dirty',allowWrite:true});else if(Date.now()-lastReadAt>=PASSIVE_INTERVAL_MS)void sync({reason:'passive',allowWrite:false,pullOnly:true})}},PASSIVE_INTERVAL_MS);
 document.addEventListener('visibilitychange',visibilitySync);
 setTimeout(()=>{if(connected()){if(dirty)void sync({reason:'startup-dirty',allowWrite:true});else void sync({reason:'startup',allowWrite:false,pullOnly:true})}},1200);
-window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,verifyRecord,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,lastObservedRemoteStamp,lastAppliedRemoteStamp,lastConfirmedWriteStamp,lastReadErrorAt:lastReadErrorAt||null,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,durableJournalLoaded:!!window.VC_SYNC_2011_JOURNAL,fastRealtime:true,compareAndSet:true})};
+window.VC_V962_CLOUD_EFFICIENT={version:VERSION,markDirty,sync,forceSync,verifyRecord,compareCurrentRecord,readOnlyRemoteSnapshot,getAccountId:()=>connected()?String(cloudUser.id):'',diagnostics:()=>({version:VERSION,connected:connected(),dirty,dirtySince:dirtySince||null,localRevision,lastConfirmedRevision,lastObservedRemoteStamp,lastAppliedRemoteStamp,lastConfirmedWriteStamp,lastReadErrorAt:lastReadErrorAt||null,conflictCount,lastWriteConflict,syncing:!!syncPromise,lastReadAt:lastReadAt||null,lastWriteAt:lastWriteAt||null,readsThisSession:reads,writesThisSession:writes,skippedWritesThisSession:skippedWrites,passiveIntervalSeconds:PASSIVE_INTERVAL_MS/1000,scoutingQuietSeconds:QUIET_SCOUT_MS/1000,scoutingMaxBatchSeconds:MAX_DIRTY_SCOUT_MS/1000,failureCount,lastSyncError:lastSyncError||null,pendingAccountMismatch:!!(dirty&&dirtyAccount&&connected()&&dirtyAccount!==String(cloudUser.id)),retryAt:retryAt||null,consecutiveFailures,blockedReason,blockedCategory,lastErrorCode,lastFailureAt:lastFailureAt||null,protectionAvailable:!!window.VC_V179_SYNC_SAFETY?.beforeRemoteApply,durableJournalLoaded:!!window.VC_SYNC_2011_JOURNAL,fastRealtime:true,compareAndSet:true})};
 })();
 </script>
 
@@ -13498,7 +13531,7 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 
 <script id="vc1910-data-reliability" src="./171-vc1910-data-reliability.js?v=19.1.2" defer data-vc-module="true"></script>
 <script id="vc1912-match-consolidation" src="./172-vc1912-match-consolidation.js?v=19.1.3" defer data-vc-module="true"></script>
-<script id="vc1915-conflicts-recovery" src="./173-vc1915-conflicts-recovery.js?v=20.2.5.2" defer data-vc-module="true"></script>
+<script id="vc1915-conflicts-recovery" src="./173-vc1915-conflicts-recovery.js?v=20.2.5.3" defer data-vc-module="true"></script>
 <script id="vc1916-undo-realtime" src="./174-vc1916-scout-undo-realtime.js?v=19.1.6" defer data-vc-module="true"></script>
 <script id="vc1917-universal-sync" src="./175-vc1917-universal-sync.js?v=19.3.11.2" defer data-vc-module="true"></script>
 <!-- V19.2.4 · Clip Studio definitivo: unify existing catalogue and playlists. -->

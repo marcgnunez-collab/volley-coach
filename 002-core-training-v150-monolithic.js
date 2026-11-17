@@ -520,11 +520,20 @@ function cargarEquipoEnVariables(id){
   equiposData[id]=s;
   sesionActual=clonar(s.sesionActual||[]);
   meta=clonar(s.meta||estadoEquipoVacio(id).meta);meta.equipo=EQUIPOS[id].nombre;meta.seccionesEjercicios=normalizarMapaSecciones(meta.seccionesEjercicios||{});meta.notasBloques=normalizarNotasEntreno(meta.notasBloques||{},meta.calentamiento||'');meta.calentamiento=meta.notasBloques.activacion||meta.calentamiento||'';
-  historial=clonar(s.historial||[]);historial.forEach(h=>{h.notasBloques=normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||'');h.calentamiento=h.notasBloques.activacion||h.calentamiento||'';(h.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
-  planificacion=clonar(s.planificacion||[]);planificacion.forEach(p=>{p.seccionesEjercicios=normalizarMapaSecciones(p.seccionesEjercicios||{});p.notasBloques=normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||'');p.calentamiento=p.notasBloques.activacion||p.calentamiento||'';(p.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
+  historial=clonar(s.historial||[]);
+  planificacion=clonar(s.planificacion||[]);
+  // V20.2.5.3: a CAS-confirmed incoming record must not be edited simply by
+  // opening it. Normalizing the active view had added notasBloques and
+  // seccionSesion, then estadoLocal() flushed those changes back to the cloud
+  // and invalidated the exact manual resolution. Normal browsing retains the
+  // legacy normalization, while cloud reception preserves received records.
+  if(window.VC_SYNC_RECEIVING_CLOUD!==true){
+    historial.forEach(h=>{h.notasBloques=normalizarNotasEntreno(h.notasBloques||{},h.calentamiento||'');h.calentamiento=h.notasBloques.activacion||h.calentamiento||'';(h.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
+    planificacion.forEach(p=>{p.seccionesEjercicios=normalizarMapaSecciones(p.seccionesEjercicios||{});p.notasBloques=normalizarNotasEntreno(p.notasBloques||{},p.calentamiento||'');p.calentamiento=p.notasBloques.activacion||p.calentamiento||'';(p.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));});
+  }
   plantillas=clonar(s.plantillas||[]);
   jugadoresEquipo=clonar(s.jugadores||[]);
-  if(typeof sincronizarPlanesConHistorial==='function'&&sincronizarPlanesConHistorial()>0){
+  if(window.VC_SYNC_RECEIVING_CLOUD!==true&&typeof sincronizarPlanesConHistorial==='function'&&sincronizarPlanesConHistorial()>0){
     equiposData[id]={...s,sesionActual:clonar(sesionActual),meta:clonar(meta),historial:clonar(historial),planificacion:clonar(planificacion),plantillas:clonar(plantillas),jugadores:clonar(jugadoresEquipo)};
     guardarEstadoLocalSinCloud();
   }
@@ -629,6 +638,22 @@ function normalizarNotasEntreno(notas,calentamiento=''){
     juego:combinarNotasEntreno(notas.juego)
   };
 }
+// Read-only equivalence adapter for legacy plans. The active training view
+// historically added these derived fields when receiving a cloud record.
+// Applying the same deterministic normalization to BOTH copies allows the
+// verifier to distinguish a display-only migration from a lost exercise,
+// participant, duration or other actual edit. It never persists either copy.
+window.VC_TRAINING_SYNC_NORMALIZE_RECORD=(original,type)=>{
+  if(!original||typeof original!=='object')return null;
+  const copy=clonar(original);
+  if(type==='planificacion')copy.seccionesEjercicios=normalizarMapaSecciones(copy.seccionesEjercicios||{});
+  if(type==='planificacion'||type==='historial'){
+    copy.notasBloques=normalizarNotasEntreno(copy.notasBloques||{},copy.calentamiento||'');
+    copy.calentamiento=copy.notasBloques.activacion||copy.calentamiento||'';
+    (copy.ejercicios||[]).forEach(e=>e.seccionSesion=normalizarSeccionEntreno(e.seccionSesion,e));
+  }
+  return copy;
+};
 function mapaSeccionesSesion(){if(!meta.seccionesEjercicios||typeof meta.seccionesEjercicios!=='object')meta.seccionesEjercicios={};meta.seccionesEjercicios=normalizarMapaSecciones(meta.seccionesEjercicios);return meta.seccionesEjercicios}
 function mapaNotasBloques(){meta.notasBloques=normalizarNotasEntreno(meta.notasBloques,meta.calentamiento||'');return meta.notasBloques}
 /* V16.0.3.7 · Drafts are kept in meta immediately and persisted after a brief
