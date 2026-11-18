@@ -1,0 +1,5 @@
+# Vite/TypeScript generated files. Keep the GitHub source repository lean.
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
