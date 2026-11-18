@@ -14,7 +14,7 @@
   }
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
-  const VERSION = '20.5.0.1';
+  const VERSION = '20.5.0.2';
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
   function assets(doc) {
     const found = new Map();
@@ -92,14 +92,18 @@
     const doc=root.document;
     const host=doc.getElementById('v11-management') || doc.getElementById('vc60-diagnostics')?.parentElement;
     if(!host)return false;
-    if(doc.getElementById('vc2050-release-health'))return true;
-    const section=doc.createElement('section');
-    section.id='vc2050-release-health';section.className='vc2050-health';
-    section.innerHTML='<div class="vc20501-heading"><div><small>COMPROBACIÓN DEL SISTEMA · V20.5.0.1</small><h3>Integridad de instalación</h3><p>Comprueba que los archivos de interfaz están publicados. No lee ni modifica datos del club, vídeos ni la nube.</p></div><span class="vc20501-pill">Solo lectura</span></div><button type="button" class="vc2050-check">Comprobar archivos</button><div class="vc2050-result" role="status" aria-live="polite">Sin comprobar</div>';
-    const heading=host.querySelector('.v11-page-head');
-    if(heading)heading.insertAdjacentElement('afterend',section);
-    else host.prepend(section);
-    organize(doc,host,section);
+    let section=doc.getElementById('vc2050-release-health');
+    if(!section){
+      section=doc.createElement('section');
+      section.id='vc2050-release-health';section.className='vc2050-health';
+      section.innerHTML='<div class="vc20501-heading"><div><small>COMPROBACIÓN DEL SISTEMA · V20.5.0.2</small><h3>Integridad de instalación</h3><p>Comprueba que los archivos de interfaz están publicados. No lee ni modifica datos del club, vídeos ni la nube.</p></div><span class="vc20501-pill">Solo lectura</span></div><button type="button" class="vc2050-check">Comprobar archivos</button><div class="vc2050-result" role="status" aria-live="polite">Sin comprobar</div>';
+      const heading=host.querySelector('.v11-page-head');
+      if(heading)heading.insertAdjacentElement('afterend',section);
+      else host.prepend(section);
+    }
+    if(section.dataset.vc2050Bound==='1')return true;
+    section.dataset.vc2050Bound='1';
+    organize(doc,host,section); // No-op if the HTML already supplies the layout.
     const button=section.querySelector('button'),out=section.querySelector('.vc2050-result');
     button.addEventListener('click',async()=>{
       button.disabled=true;out.textContent='Comprobando archivos locales publicados…';

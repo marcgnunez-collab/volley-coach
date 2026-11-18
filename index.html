@@ -682,17 +682,40 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div><span>CLUB / GESTIÓN</span><h2>Gestión del entorno</h2><p>Equipos, plantilla, temporada, partidos, recuperación y sincronización.</p></div>
   </div>
 
+  <!-- V20.5.0.2: estructura real en HTML; visible sin depender de módulos de presentación. -->
+  <section id="vc2050-release-health" class="vc2050-health" aria-label="Integridad de instalación">
+    <div class="vc20501-heading"><div><small>COMPROBACIÓN DEL SISTEMA · V20.5.0.2</small><h3>Integridad de instalación</h3><p>Comprueba que los archivos de interfaz están publicados. No lee ni modifica datos del club, vídeos ni la nube.</p></div><span class="vc20501-pill">Solo lectura</span></div>
+    <button type="button" class="vc2050-check">Comprobar archivos</button>
+    <div class="vc2050-result" role="status" aria-live="polite">Listo para comprobar</div>
+  </section>
+
+  <div id="vc20501-management-groups" class="vc20501-groups">
+  <section class="vc20501-group" aria-label="Organización deportiva">
+    <div class="vc20501-group-head"><h3>Organización deportiva</h3><p>Equipo, partidos y planificación</p></div>
   <div class="v11-management-grid">
     <button onclick="v11Navigate('players')"><span>◎</span><div><b>Plantilla y jugadores</b><small>Estados, desarrollo y seguimiento</small></div><strong>→</strong></button>
     <button onclick="showView('competicion',botonVista('competicion'))"><span>◆</span><div><b>Partidos</b><small>Calendario y competición</small></div><strong>→</strong></button>
     <button onclick="showView('scout-season',botonVista('scout-season'))"><span>▦</span><div><b>Temporada</b><small>Histórico y contexto</small></div><strong>→</strong></button>
     <button onclick="showView('scout-plan',botonVista('scout-plan'))"><span>◇</span><div><b>Plan de partido</b><small>Preparación del rival</small></div><strong>→</strong></button>
+  </div>
+  </section>
+  <section class="vc20501-group" aria-label="Nube y protección de datos">
+    <div class="vc20501-group-head"><h3>Nube y protección de datos</h3><p>Sincronización, copias y recuperación</p></div>
+  <div class="v11-management-grid">
     <button onclick="scoutV892OpenRecoveryCenter()"><span>⌑</span><div><b>Recuperación</b><small>Copias y seguridad</small></div><strong>→</strong></button>
     <button onclick="abrirCloud()"><span>☁</span><div><b>Nube</b><small>Sincronización móvil / ordenador</small></div><strong>→</strong></button>
     <button onclick="vc1532ShowCloudDiagnostic()"><span>⊙</span><div><b>Diagnóstico nube</b><small>Conexión, errores y cambios pendientes</small></div><strong>→</strong></button>
+  </div>
+  </section>
+  <section class="vc20501-group" aria-label="Auditorías y mantenimiento">
+    <div class="vc20501-group-head"><h3>Auditorías y mantenimiento</h3><p>Diagnósticos locales sin modificar datos</p></div>
+  <div class="v11-management-grid">
     <button onclick="VC_PERFORMANCE_CORE.open()"><span>▤</span><div><b>Rendimiento</b><small>Arranque, bloqueos y módulos lentos</small></div><strong>→</strong></button>
     <button type="button" onclick="vc16158OpenAudit()"><span>✓</span><div><b>Auditoría de scoutings</b><small>Integridad, recuperación y copia del equipo</small></div><strong>→</strong></button>
     <button type="button" onclick="window.VC1703_AUDIT?.open?.()"><span>▣</span><div><b>Auditoría funcional V17</b><small>Entrenamientos, partidos, copias y navegación</small></div><strong>→</strong></button>
+    <button type="button" onclick="document.getElementById('vc2050-release-health')?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelector('#vc2050-release-health .vc2050-check')?.focus()"><span>◇</span><div><b>Integridad de instalación</b><small>Revisar archivos y módulos publicados</small></div><strong>→</strong></button>
+  </div>
+  </section>
   </div>
   <section id="vc60-diagnostics" hidden aria-label="Diagnóstico de rendimiento">
     <div class="vc60-header">
@@ -14230,7 +14253,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <script id="vc2041-stat-integrity" src="./227-vc2041-statistical-integrity.js?v=20.4.1" defer data-vc-module="true"></script>
 <script id="vc2042-rival-intelligence" src="./228-vc2042-rival-intelligence.js?v=20.4.2" defer data-vc-module="true"></script>
 <script id="vc2043-live-tactical" src="./229-vc2043-live-tactical-assistant.js?v=20.4.3" defer data-vc-module="true"></script>
-<!-- V20.5.0.1: visible installation checker and unified management cards; original handlers retained. -->
-<link rel="stylesheet" href="./vc2050-release-health.css?v=20.5.0.1">
-<script id="vc2050-release-health" src="./230-vc2050-release-health.js?v=20.5.0.1" defer data-vc-module="true"></script>
+<!-- V20.5.0.2: management layout embedded in HTML; JS only hydrates the file checker. -->
+<link rel="stylesheet" href="./vc2050-release-health.css?v=20.5.0.2">
+<script id="vc2050-release-health" src="./230-vc2050-release-health.js?v=20.5.0.2" defer data-vc-module="true"></script>
 </body></html>

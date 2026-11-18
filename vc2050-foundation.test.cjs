@@ -19,10 +19,10 @@ test('historically missing CSS are explicitly reported, not replaced by empty fi
 });
 test('new health module is versioned in HTML and precache',()=>{
  for(const file of ['230-vc2050-release-health.js','vc2050-release-health.css']){
-  assert.ok(html.includes('./'+file+'?v=20.5.0'));
+  assert.ok(html.includes('./'+file+'?v=20.5.0.2'));
   assert.ok(sw.includes("'./"+file+"'"));
  }
- assert.match(sw,/foundation-20\.5\.0/);
+ assert.match(sw,/foundation-20\.5\.0\.2/);
 });
 test('asset checker detects SPA fallback and missing responses',async()=>{
  const data=[{file:'./a.js',type:'js'},{file:'./b.css',type:'css'}];
@@ -38,4 +38,14 @@ test('asset checker does not request cross-origin assets',async()=>{
 test('new module does not rely on club data or Supabase',()=>{
  const source=fs.readFileSync(path.join(root,'230-vc2050-release-health.js'),'utf8');
  for(const term of ['localStorage','indexedDB','supabase','cloudClient','getMatches'])assert.ok(!source.includes(term));
+});
+test('management groups retain existing actions and prioritize the health panel',()=>{
+ const code=fs.readFileSync(path.join(root,'230-vc2050-release-health.js'),'utf8');
+ assert.ok(code.includes("heading.insertAdjacentElement('afterend',section)"));
+ assert.ok(code.includes('grid.appendChild(buttons[index])'));
+ for(const label of ['Organización deportiva','Nube y protección de datos','Auditorías y mantenimiento'])
+  assert.ok(code.includes(label));
+ assert.ok(html.includes('id="v11-management"'));
+ assert.ok(html.includes('id="vc2050-release-health"'));
+ assert.ok(html.includes('id="vc20501-management-groups"'));
 });
