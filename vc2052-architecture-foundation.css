@@ -1,0 +1,15 @@
+#v11-management .vc2052-foundation{margin:12px 0 18px;padding:16px;border:1px solid #cbddeb;background:#f8fbff;border-radius:10px;color:#203c5a;font:500 12px/1.45 system-ui}
+#v11-management .vc2052-title{display:flex;justify-content:space-between;align-items:start;gap:10px}
+#v11-management .vc2052-title h3{font-size:16px;margin:1px 0 5px}
+#v11-management .vc2052-title p{margin:0 0 10px}
+#v11-management .vc2052-title small{font-weight:800;color:#2465a6;font-size:10px;letter-spacing:.06em}
+#v11-management .vc2052-title>span{font-size:10px;white-space:nowrap;border-radius:20px;padding:5px 8px;background:#e6f3e9;color:#216441}
+#v11-management .vc2052-actions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+#v11-management .vc2052-actions button{padding:8px 12px;border-radius:6px;border:1px solid #b5cde5;background:#fff;color:#164b7c;font-weight:700;cursor:pointer}
+#v11-management .vc2052-actions button:first-child{background:#1567c0;border-color:#1567c0;color:#fff}
+#v11-management .vc2052-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0}
+#v11-management .vc2052-metrics>div{border:1px solid #e0e9f1;background:white;border-radius:5px;padding:10px;display:grid;gap:4px}
+#v11-management .vc2052-metrics small{font-size:10px;color:#586f85}
+#v11-management .vc2052-metrics strong{font-size:15px;font-variant-numeric:tabular-nums}
+#v11-management .vc2052-foot{font-size:11px;color:#64788a}
+@media(max-width:700px){#v11-management .vc2052-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc2052-title>span{display:none}}

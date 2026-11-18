@@ -1,0 +1,18 @@
+/* V20.5.3 · Compact, read-only ES-module diagnostic. */
+#v11-management .vc2053-core{margin:12px 0 18px;padding:15px;border:1px solid #a9c8e5;border-radius:8px;background:#f5f9fe;color:#163858;font:500 12px/1.5 system-ui}
+#v11-management .vc2053-core-heading{display:flex;align-items:start;justify-content:space-between;gap:12px}
+#v11-management .vc2053-core-heading small{color:#1e67ac;font-size:10px;font-weight:800;letter-spacing:.07em}
+#v11-management .vc2053-core-heading h3{margin:2px 0 5px;font-size:17px}
+#v11-management .vc2053-core-heading .vc2053-readonly{white-space:nowrap;padding:3px 8px;border-radius:20px;background:#e6f4eb;color:#216445;font-size:10px;font-weight:750}
+#v11-management .vc2053-core>p{margin:5px 0 9px}
+#v11-management .vc2053-status{color:#2769a3;font-weight:750}
+#v11-management .vc2053-core[data-state=connected] .vc2053-status{color:#226044}
+#v11-management .vc2053-counters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:10px 0}
+#v11-management .vc2053-counters>div{display:flex;flex-direction:column;gap:3px;padding:9px;border:1px solid #d6e4f0;border-radius:5px;background:#fff}
+#v11-management .vc2053-counters small{font-size:10px;color:#526b82}
+#v11-management .vc2053-counters strong{font:750 18px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums;color:#164a7d}
+#v11-management .vc2053-refresh{padding:8px 11px;border:1px solid #165b9d;border-radius:5px;background:#1767b5;color:#fff;font-weight:750;cursor:pointer}
+#v11-management .vc2053-core .vc2053-foot{margin-top:9px;color:#60788d;font-size:11px}
+#vc2020-matchbar .vc2053-live-indicator{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid #6383a0;border-radius:4px;color:#d9e8f7;background:#1e344d;font-size:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;font-variant-numeric:tabular-nums}
+#vc2020-matchbar .vc2053-live-indicator[data-state=connected]{border-color:#4f967d;color:#b8f1da}
+@media(max-width:800px){#v11-management .vc2053-counters{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc2053-core-heading .vc2053-readonly{display:none}}
