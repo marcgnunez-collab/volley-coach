@@ -2,6 +2,8 @@
 (()=>{
 'use strict';
 const VERSION='7.9.0';
+const STATS_INTEGRITY_VERSION='20.4.1';
+const EVALUATIONS=new Set(['#','+','!','-','/','=']);
 const $=id=>document.getElementById(id);
 const arr=v=>Array.isArray(v)?v:[];
 const SKILLS={S:'Saque',R:'Recepción',E:'Colocación',A:'Ataque',B:'Bloqueo',D:'Defensa',F:'Freeball',C:'Cobertura'};
@@ -51,32 +53,40 @@ function periodMatches(){
 function matchResult(m){
   let won=0,lost=0;
   arr(m?.sets).forEach(s=>{
-    const us=Number(s?.scoreUs??s?.score?.us??0),op=Number(s?.scoreOpponent??s?.score?.opponent??0);
-    if(us>op)won++;else if(op>us)lost++;
+    // A live set's partial score cannot be recorded as a won/lost set.
+    if(s?.finished!==true)return;
+    const usRaw=s?.scoreUs??s?.score?.us,opRaw=s?.scoreOpponent??s?.score?.opponent;
+    if(usRaw==null||opRaw==null||usRaw===''||opRaw==='')return;
+    const us=Number(usRaw),op=Number(opRaw);
+    if(!Number.isInteger(us)||!Number.isInteger(op)||us<0||op<0||us===op)return;
+    if((s.winner==='ours'&&us<op)||(s.winner==='opponent'&&op<us))return;
+    if(us>op)won++;else lost++;
   });
-  return {won,lost,result:won>lost?'W':lost>won?'L':'—'};
+  // A match cannot be called a victory merely because it leads 1–0 in sets.
+  const finished=m?.status==='finished';
+  return {won,lost,result:finished&&won>lost?'W':finished&&lost>won?'L':'—'};
 }
 function summarizeActions(items){
   const actions=items.map(x=>x.a||x).filter(Boolean);
-  const ours=actions.filter(a=>a.team!=='opponent');
+  const ours=actions.filter(a=>a.team==='ours');
   const g=ours.filter(a=>a.evaluation==='#').length;
   const p=ours.filter(a=>a.evaluation==='=').length;
-  const rec=ours.filter(a=>a.skill==='R'),recPos=rec.filter(a=>['#','+'].includes(a.evaluation)).length,recExc=rec.filter(a=>a.evaluation==='#').length;
-  const att=ours.filter(a=>a.skill==='A'),attPts=att.filter(a=>a.evaluation==='#').length,attErr=att.filter(a=>a.evaluation==='=').length,attBlk=att.filter(a=>a.evaluation==='/').length;
-  const serve=ours.filter(a=>a.skill==='S'),aces=serve.filter(a=>a.evaluation==='#').length,serveErr=serve.filter(a=>a.evaluation==='=').length;
+  const rec=ours.filter(a=>a.skill==='R'),recRated=rec.filter(a=>EVALUATIONS.has(a.evaluation)),recPos=recRated.filter(a=>['#','+'].includes(a.evaluation)).length,recExc=recRated.filter(a=>a.evaluation==='#').length;
+  const att=ours.filter(a=>a.skill==='A'),attRated=att.filter(a=>EVALUATIONS.has(a.evaluation)),attPts=attRated.filter(a=>a.evaluation==='#').length,attErr=attRated.filter(a=>a.evaluation==='=').length,attBlk=attRated.filter(a=>a.evaluation==='/').length;
+  const serve=ours.filter(a=>a.skill==='S'),serveRated=serve.filter(a=>EVALUATIONS.has(a.evaluation)),aces=serveRated.filter(a=>a.evaluation==='#').length,serveErr=serveRated.filter(a=>a.evaluation==='=').length;
   const blocks=ours.filter(a=>a.skill==='B'&&a.evaluation==='#').length;
   return {
     actions:ours.length,g,p,gp:g-p,
-    rec:rec.length,recPos,recExc,recPosPct:pct(recPos,rec.length),recExcPct:pct(recExc,rec.length),
-    att:att.length,attPts,attErr,attBlk,attEff:att.length?Math.round((attPts-attErr-attBlk)*100/att.length):0,
-    serve:serve.length,aces,serveErr,serveEff:serve.length?Math.round((aces-serveErr)*100/serve.length):0,
+    rec:rec.length,recRated:recRated.length,recPos,recExc,recPosPct:pct(recPos,recRated.length),recExcPct:pct(recExc,recRated.length),
+    att:att.length,attRated:attRated.length,attPts,attErr,attBlk,attEff:attRated.length?Math.round((attPts-attErr-attBlk)*100/attRated.length):0,
+    serve:serve.length,serveRated:serveRated.length,aces,serveErr,serveEff:serveRated.length?Math.round((aces-serveErr)*100/serveRated.length):0,
     blocks
   };
 }
 function filteredActionItems(){
   const ms=periodMatches(),player=$('v790-player')?.value||state.selectedPlayer||'',skill=$('v790-skill')?.value||'';
   return ms.flatMap(allActions).filter(x=>{
-    if(x.a?.team==='opponent')return false;
+    if(x.a?.team!=='ours')return false;
     if(player&&playerKey(x.a)!==player)return false;
     if(skill&&x.a?.skill!==skill)return false;
     return true;
@@ -96,7 +106,7 @@ function populatePlayers(){
     const k=p?.id!=null?`id:${p.id}`:(p?.number!=null?`num:${p.number}`:`name:${String(p?.name||'').toLowerCase()}`);
     map.set(k,{key:k,name:String(p?.name||'Jugador'),number:p?.number??''});
   });
-  periodMatches().flatMap(allActions).filter(x=>x.a?.team!=='opponent').forEach(x=>{
+  periodMatches().flatMap(allActions).filter(x=>x.a?.team==='ours').forEach(x=>{
     const k=playerKey(x.a);if(!map.has(k)){
       map.set(k,{key:k,name:String(x.a?.playerNameSnapshot||x.a?.playerLabel||'Jugador'),number:x.a?.playerNumberSnapshot??''});
     }
@@ -106,11 +116,16 @@ function populatePlayers(){
   if(old&&list.some(p=>p.key===old))sel.value=old;else if(state.selectedPlayer&&list.some(p=>p.key===state.selectedPlayer))sel.value=state.selectedPlayer;
 }
 function rotationSummary(no){
-  const rs=periodMatches().flatMap(allRallies).filter(x=>Number(x.r?.rotationBefore||1)===Number(no));
-  const won=rs.filter(x=>x.r?.winner==='ours').length,lost=rs.length-won;
-  const k1=rs.filter(x=>x.r?.servingBefore==='opponent'),k1w=k1.filter(x=>x.r?.winner==='ours').length;
-  const k2=rs.filter(x=>x.r?.servingBefore!=='opponent'),k2w=k2.filter(x=>x.r?.winner==='ours').length;
-  return {no,total:rs.length,won,lost,gp:won-lost,winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
+  const rotation=Number(no);
+  if(!Number.isInteger(rotation)||rotation<1||rotation>6)return null;
+  // Unknown or invalid rotations must remain unknown, never R1 by default.
+  const rs=periodMatches().flatMap(allRallies).filter(x=>x.r?.rotationBefore!=null&&x.r.rotationBefore!==''&&Number(x.r.rotationBefore)===rotation);
+  const decided=rs.filter(x=>x.r?.winner==='ours'||x.r?.winner==='opponent');
+  const won=decided.filter(x=>x.r.winner==='ours').length,lost=decided.filter(x=>x.r.winner==='opponent').length;
+  const k1=rs.filter(x=>x.r?.servingBefore==='opponent'),k1Decided=k1.filter(x=>x.r?.winner==='ours'||x.r?.winner==='opponent'),k1w=k1Decided.filter(x=>x.r.winner==='ours').length;
+  // Unknown serve possession is NOT a break-point opportunity.
+  const k2=rs.filter(x=>x.r?.servingBefore==='ours'),k2Decided=k2.filter(x=>x.r?.winner==='ours'||x.r?.winner==='opponent'),k2w=k2Decided.filter(x=>x.r.winner==='ours').length;
+  return {no:rotation,total:rs.length,decided:decided.length,unknown:rs.length-decided.length,won,lost,gp:won-lost,winPct:pct(won,decided.length),k1:k1.length,k1Decided:k1Decided.length,k1w,k1Pct:pct(k1w,k1Decided.length),k2:k2.length,k2Decided:k2Decided.length,k2w,k2Pct:pct(k2w,k2Decided.length),unknownServe:rs.length-k1.length-k2.length};
 }
 function renderKPIs(){
   const s=seasonSummary();
@@ -119,19 +134,19 @@ function renderKPIs(){
   $('v790-kpi-sets').textContent=String(s.sets);
   $('v790-kpi-sets-record').textContent=`${s.setsWon}–${s.setsLost}`;
   $('v790-kpi-gp').textContent=(s.gp>0?'+':'')+String(s.gp);
-  $('v790-kpi-actions').textContent=`${s.actions} acciones · G ${s.g} / P ${s.p}`;
-  $('v790-kpi-rec').textContent=s.rec?`${s.recPosPct}%`:'—';
-  $('v790-kpi-rec-exc').textContent=s.rec?`# ${s.recExcPct}% · ${s.rec} rec.`:'# —';
-  $('v790-kpi-att').textContent=s.att?`${s.attEff}%`:'—';
-  $('v790-kpi-att-points').textContent=`${s.attPts} puntos · ${s.att} ataques`;
-  $('v790-kpi-serve').textContent=s.serve?`${s.serveEff}%`:'—';
-  $('v790-kpi-serve-copy').textContent=`${s.aces} ace · ${s.serveErr} err`;
+  $('v790-kpi-actions').textContent=`${s.actions} acciones propias · códigos # ${s.g} / = ${s.p} (no tanteo)`;
+  $('v790-kpi-rec').textContent=s.recRated?`${s.recPosPct}%`:'—';
+  $('v790-kpi-rec-exc').textContent=s.recRated?`# ${s.recExcPct}% · ${s.recRated}/${s.rec} val.`:`${s.rec} rec. · sin evaluar`;
+  $('v790-kpi-att').textContent=s.attRated?`${s.attEff}%`:'—';
+  $('v790-kpi-att-points').textContent=`${s.attPts} puntos · ${s.attRated}/${s.att} ataques valorados`;
+  $('v790-kpi-serve').textContent=s.serveRated?`${s.serveEff}%`:'—';
+  $('v790-kpi-serve-copy').textContent=`${s.aces} ace · ${s.serveErr} err · ${s.serveRated}/${s.serve} val.`;
 }
 function renderTrend(){
   const box=$('v790-trend');if(!box)return;
   const player=$('v790-player')?.value||state.selectedPlayer||'',skill=$('v790-skill')?.value||'';
   const rows=periodMatches().map(m=>{
-    let items=allActions(m).filter(x=>x.a?.team!=='opponent');
+    let items=allActions(m).filter(x=>x.a?.team==='ours');
     if(player)items=items.filter(x=>playerKey(x.a)===player);
     if(skill)items=items.filter(x=>x.a?.skill===skill);
     const s=summarizeActions(items),res=matchResult(m);
@@ -152,12 +167,12 @@ function renderRotations(){
   const box=$('v790-rotations');if(!box)return;
   box.innerHTML=[1,2,3,4,5,6].map(n=>{
     const r=rotationSummary(n);
-    return `<article class="v790-rotation"><div class="v790-rotation-head"><b>R${n}</b><strong>${r.total?r.winPct+'%':'—'}</strong></div><small>${r.won}/${r.total} rallies · G-P ${r.gp>0?'+':''}${r.gp}</small><div class="v790-mini-bar"><i style="width:${r.winPct}%"></i></div><small>K1 ${r.k1?r.k1Pct+'%':'—'} · K2 ${r.k2?r.k2Pct+'%':'—'}</small></article>`;
+    return `<article class="v790-rotation"><div class="v790-rotation-head"><b>R${n}</b><strong>${r.decided?r.winPct+'%':'—'}</strong></div><small>${r.won}/${r.decided} rallies decididos · ${r.total} registrados${r.unknown?` · ${r.unknown} sin resultado`:''} · G-P ${r.gp>0?'+':''}${r.gp}</small><div class="v790-mini-bar"><i style="width:${r.decided?r.winPct:0}%"></i></div><small>K1 ${r.k1Decided?r.k1Pct+'%':'—'} (${r.k1Decided}) · K2 ${r.k2Decided?r.k2Pct+'%':'—'} (${r.k2Decided})${r.unknownServe?` · ${r.unknownServe} sin saque`:''}</small></article>`;
   }).join('');
 }
 function allPlayerRows(){
   const map=new Map();
-  periodMatches().flatMap(allActions).filter(x=>x.a?.team!=='opponent').forEach(x=>{
+  periodMatches().flatMap(allActions).filter(x=>x.a?.team==='ours').forEach(x=>{
     const key=playerKey(x.a);
     if(!map.has(key))map.set(key,{key,name:playerName(x.a),number:x.a?.playerNumberSnapshot??'',items:[]});
     map.get(key).items.push(x);
@@ -173,7 +188,7 @@ function renderPlayerTable(){
   const players=allPlayerRows(),active=$('v790-player')?.value||state.selectedPlayer||'';
   box.innerHTML=`<table><thead><tr><th>Jugador</th><th>Acc.</th><th>G</th><th>P</th><th>G-P</th><th>S ACE</th><th>S ERR</th><th>REC +/#</th><th>REC #</th><th>ATQ PTS</th><th>ATQ EFF</th><th>BLQ</th></tr></thead><tbody>${players.map(p=>{
     const s=p.stats;
-    return `<tr class="${active===p.key?'active':''}" onclick="v790SelectPlayer('${esc(p.key)}')"><td><div class="v790-player-name"><span class="v790-player-number">${p.number!==''?esc(p.number):'–'}</span><b>${esc(p.name)}</b></div></td><td>${s.actions}</td><td>${s.g}</td><td>${s.p}</td><td><b>${s.gp>0?'+':''}${s.gp}</b></td><td>${s.aces}</td><td>${s.serveErr}</td><td>${s.rec?s.recPosPct+'%':'—'}</td><td>${s.rec?s.recExcPct+'%':'—'}</td><td>${s.attPts}</td><td>${s.att?s.attEff+'%':'—'}</td><td>${s.blocks}</td></tr>`;
+    return `<tr class="${active===p.key?'active':''}" onclick="v790SelectPlayer('${esc(p.key)}')"><td><div class="v790-player-name"><span class="v790-player-number">${p.number!==''?esc(p.number):'–'}</span><b>${esc(p.name)}</b></div></td><td>${s.actions}</td><td>${s.g}</td><td>${s.p}</td><td><b>${s.gp>0?'+':''}${s.gp}</b></td><td>${s.aces}</td><td>${s.serveErr}</td><td>${s.recRated?s.recPosPct+'%':'—'}</td><td>${s.recRated?s.recExcPct+'%':'—'}</td><td>${s.attPts}</td><td>${s.attRated?s.attEff+'%':'—'}</td><td>${s.blocks}</td></tr>`;
   }).join('')}</tbody></table>`;
 }
 function selectedPlayerRow(){
@@ -185,21 +200,21 @@ function renderPlayerDetail(){
   const p=selectedPlayerRow();
   if(!p){
     const s=seasonSummary();title.textContent=teamName();
-    box.innerHTML=`<div class="v790-detail-kpis"><div><span>Acciones</span><b>${s.actions}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.rec?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.att?s.attEff+'%':'—'}</b></div></div><div class="v790-skill-grid"><div class="v790-skill-card"><strong>Saque</strong><small>${s.serve} acciones · ${s.aces} ace · ${s.serveErr} error</small></div><div class="v790-skill-card"><strong>Recepción</strong><small>${s.rec} acciones · +/# ${s.rec?s.recPosPct+'%':'—'} · # ${s.rec?s.recExcPct+'%':'—'}</small></div><div class="v790-skill-card"><strong>Ataque</strong><small>${s.att} acciones · ${s.attPts} pts · ${s.attErr} err · ${s.attBlk} blq</small></div><div class="v790-skill-card"><strong>Bloqueo</strong><small>${s.blocks} puntos de bloqueo</small></div></div>`;
+    box.innerHTML=`<div class="v790-detail-kpis"><div><span>Acciones</span><b>${s.actions}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.recRated?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.attRated?s.attEff+'%':'—'}</b></div></div><div class="v790-skill-grid"><div class="v790-skill-card"><strong>Saque</strong><small>${s.serve} acciones · ${s.aces} ace · ${s.serveErr} error · ${s.serveRated} valorados</small></div><div class="v790-skill-card"><strong>Recepción</strong><small>${s.rec} acciones · ${s.recRated} valoradas · +/# ${s.recRated?s.recPosPct+'%':'—'} · # ${s.recRated?s.recExcPct+'%':'—'}</small></div><div class="v790-skill-card"><strong>Ataque</strong><small>${s.att} acciones · ${s.attRated} valorados · ${s.attPts} pts · ${s.attErr} err · ${s.attBlk} blq</small></div><div class="v790-skill-card"><strong>Bloqueo</strong><small>${s.blocks} puntos de bloqueo</small></div></div>`;
     return;
   }
   const s=p.stats;title.textContent=`${p.number!==''?'#'+p.number+' · ':''}${p.name}`;
-  box.innerHTML=`<div class="v790-detail-kpis"><div><span>Acciones</span><b>${s.actions}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.rec?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.att?s.attEff+'%':'—'}</b></div></div><div class="v790-skill-grid"><div class="v790-skill-card"><strong>Saque</strong><small>${s.serve} · ${s.aces} ace · ${s.serveErr} error · índice ${s.serve?s.serveEff+'%':'—'}</small></div><div class="v790-skill-card"><strong>Recepción</strong><small>${s.rec} · +/# ${s.rec?s.recPosPct+'%':'—'} · excelente ${s.rec?s.recExcPct+'%':'—'}</small></div><div class="v790-skill-card"><strong>Ataque</strong><small>${s.att} · ${s.attPts} pts · ${s.attErr} err · ${s.attBlk} blq · eff ${s.att?s.attEff+'%':'—'}</small></div><div class="v790-skill-card"><strong>Bloqueo</strong><small>${s.blocks} puntos directos</small></div></div>`;
+  box.innerHTML=`<div class="v790-detail-kpis"><div><span>Acciones</span><b>${s.actions}</b></div><div><span>G-P</span><b>${s.gp>0?'+':''}${s.gp}</b></div><div><span>REC +/#</span><b>${s.recRated?s.recPosPct+'%':'—'}</b></div><div><span>ATQ EFF</span><b>${s.attRated?s.attEff+'%':'—'}</b></div></div><div class="v790-skill-grid"><div class="v790-skill-card"><strong>Saque</strong><small>${s.serve} · ${s.serveRated} valorados · ${s.aces} ace · ${s.serveErr} error · índice ${s.serveRated?s.serveEff+'%':'—'}</small></div><div class="v790-skill-card"><strong>Recepción</strong><small>${s.rec} · ${s.recRated} valoradas · +/# ${s.recRated?s.recPosPct+'%':'—'} · excelente ${s.recRated?s.recExcPct+'%':'—'}</small></div><div class="v790-skill-card"><strong>Ataque</strong><small>${s.att} · ${s.attRated} valorados · ${s.attPts} pts · ${s.attErr} err · ${s.attBlk} blq · eff ${s.attRated?s.attEff+'%':'—'}</small></div><div class="v790-skill-card"><strong>Bloqueo</strong><small>${s.blocks} puntos directos</small></div></div>`;
 }
 function renderMatchList(){
   const box=$('v790-match-list');if(!box)return;
   const player=$('v790-player')?.value||state.selectedPlayer||'',skill=$('v790-skill')?.value||'';
   box.innerHTML=periodMatches().slice().reverse().map(m=>{
-    let items=allActions(m).filter(x=>x.a?.team!=='opponent');
+    let items=allActions(m).filter(x=>x.a?.team==='ours');
     if(player)items=items.filter(x=>playerKey(x.a)===player);
     if(skill)items=items.filter(x=>x.a?.skill===skill);
     const s=summarizeActions(items),r=matchResult(m);
-    return `<article class="v790-match-row"><time>${fmtDate(matchDate(m))}</time><div><strong>${esc(teamName())} ${r.won}-${r.lost} ${esc(m.opponent||'Rival')}</strong><small>${items.length} acciones · G-P ${s.gp>0?'+':''}${s.gp} · REC ${s.rec?s.recPosPct+'%':'—'} · ATQ ${s.att?s.attEff+'%':'—'}</small></div><button class="ghost" onclick="v790OpenMatch(${Number(m.id)})">Abrir</button></article>`;
+    return `<article class="v790-match-row"><time>${fmtDate(matchDate(m))}</time><div><strong>${esc(teamName())} ${r.won}-${r.lost} ${esc(m.opponent||'Rival')}</strong><small>${items.length} acciones · G-P ${s.gp>0?'+':''}${s.gp} · REC ${s.recRated?s.recPosPct+'%':'—'} · ATQ ${s.attRated?s.attEff+'%':'—'}${r.result==='—'?' · Resultado pendiente':''}</small></div><button class="ghost" onclick="v790OpenMatch(${Number(m.id)})">Abrir</button></article>`;
   }).join('')||'<div class="match-empty">No hay partidos en este periodo.</div>';
 }
 window.v790SelectPlayer=function(key){state.selectedPlayer=String(key||'');const s=$('v790-player');if(s)s.value=state.selectedPlayer;window.v790RenderSeason()};
@@ -356,4 +371,6 @@ window.v790Diagnostics=()=>({
   periodMatches:periodMatches().length,selectedPlayer:$('v790-player')?.value||null,
   backupKeys:backupStorageKeys()
 });
+// Explicit read-only statistic projectors for invariant/regression tests.
+window.VC790_STAT_INTEGRITY=Object.freeze({version:STATS_INTEGRITY_VERSION,matchResult,summarizeActions,rotationSummary});
 })();

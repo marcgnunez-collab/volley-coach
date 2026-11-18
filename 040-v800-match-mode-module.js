@@ -132,8 +132,10 @@ function player(id){
   return `${p.number!==''&&p.number!=null?'#'+p.number+' · ':''}${p.name||'Jugador'}`;
 }
 function setsScore(m){
-  const done=arr(m?.sets).filter(s=>s.finished);
-  return {us:done.filter(s=>s.winner==='ours').length,op:done.filter(s=>s.winner==='opponent').length}
+  const done=arr(m?.sets).filter(s=>s?.finished===true&&s.scoreUs!=null&&s.scoreUs!==''&&s.scoreOpponent!=null&&s.scoreOpponent!=='');
+  const valid=done.filter(s=>Number.isInteger(Number(s.scoreUs))&&Number.isInteger(Number(s.scoreOpponent))&&Number(s.scoreUs)>=0&&Number(s.scoreOpponent)>=0&&Number(s.scoreUs)!==Number(s.scoreOpponent));
+  return {us:valid.filter(s=>Number(s.scoreUs)>Number(s.scoreOpponent)&&s.winner!=='opponent').length,
+   op:valid.filter(s=>Number(s.scoreOpponent)>Number(s.scoreUs)&&s.winner!=='ours').length};
 }
 function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s.rallies).map(r=>({s,r})))}
 function allActions(m){return allRallies(m).flatMap(x=>arr(x.r.actions).map(a=>({...x,a})))}
@@ -145,18 +147,21 @@ function elapsed(m){
   return h?`${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 function currentSetStats(m,s){
-  const rs=arr(s?.rallies),k1=rs.filter(r=>r.servingBefore==='opponent'),k2=rs.filter(r=>r.servingBefore==='ours');
+  const rs=arr(s?.rallies),decided=rs.filter(r=>r.winner==='ours'||r.winner==='opponent');
+  const k1=decided.filter(r=>r.servingBefore==='opponent'),k2=decided.filter(r=>r.servingBefore==='ours');
   const k1w=k1.filter(r=>r.winner==='ours').length,k2w=k2.filter(r=>r.winner==='ours').length;
   const acts=rs.flatMap(r=>arr(r.actions)).filter(a=>a.team==='ours');
   const g=acts.filter(a=>a.evaluation==='#').length,p=acts.filter(a=>a.evaluation==='=').length;
   return {rallies:rs.length,k1:k1.length,k1w,k1pct:pct(k1w,k1.length),k2:k2.length,k2w,k2pct:pct(k2w,k2.length),g,p,gp:g-p};
 }
 function rotationStats(m,no){
-  const rs=allRallies(m).map(x=>x.r).filter(r=>Number(r.rotationBefore||1)===Number(no));
-  const won=rs.filter(r=>r.winner==='ours').length;
-  const k1=rs.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
-  const k2=rs.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
-  return {total:rs.length,won,winPct:pct(won,rs.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
+  if(no==null||no===''||!Number.isInteger(Number(no))||Number(no)<1||Number(no)>6)return {total:0,decided:0,won:0,winPct:null,k1:0,k1w:0,k1Pct:null,k2:0,k2w:0,k2Pct:null};
+  const rs=allRallies(m).map(x=>x.r).filter(r=>r.rotationBefore!=null&&r.rotationBefore!==''&&Number(r.rotationBefore)===Number(no));
+  const known=rs.filter(r=>r.winner==='ours'||r.winner==='opponent');
+  const won=known.filter(r=>r.winner==='ours').length;
+  const k1=known.filter(r=>r.servingBefore==='opponent'),k1w=k1.filter(r=>r.winner==='ours').length;
+  const k2=known.filter(r=>r.servingBefore==='ours'),k2w=k2.filter(r=>r.winner==='ours').length;
+  return {total:rs.length,decided:known.length,won,winPct:pct(won,known.length),k1:k1.length,k1w,k1Pct:pct(k1w,k1.length),k2:k2.length,k2w,k2Pct:pct(k2w,k2.length)};
 }
 function lineupHealth(m){
   const ids=POS.map(p=>Number(m?.lineup?.ours?.[p]||m?.baseLineup?.ours?.[p])||0);
@@ -189,7 +194,7 @@ function quickEvents(m){
     .slice(-7).reverse();
 }
 function opponentTarget(m){
-  const actions=allActions(m).map(x=>x.a).filter(a=>a.team==='opponent'&&a.skill==='R');
+  const actions=allActions(m).map(x=>x.a).filter(a=>a.team==='opponent'&&a.skill==='R'&&['#','+','!','-','/','='].includes(a.evaluation));
   const map=new Map();
   actions.forEach(a=>{
     const key=String(a.playerNameSnapshot||a.playerLabel||a.playerNumberSnapshot||'Rival');
@@ -198,24 +203,24 @@ function opponentTarget(m){
     if(['-','/','='].includes(a.evaluation))x.bad++;
     if(a.evaluation==='=')x.err++;
   });
-  return [...map.values()].filter(x=>x.total>=2).sort((a,b)=>(b.bad/b.total)-(a.bad/a.total)||b.total-a.total)[0]||null;
+  return [...map.values()].filter(x=>x.total>=5).sort((a,b)=>(b.bad/b.total)-(a.bad/a.total)||b.total-a.total)[0]||null;
 }
 function decisionRows(m){
-  const rows=[],current=rotationStats(m,m.rotationNo||1);
-  if(current.total>=3){
-    rows.push({kind:current.winPct<45?'warn':current.winPct>=60?'good':'',title:`R${m.rotationNo} · ${current.winPct}% rallies ganados`,copy:`K1 ${current.k1?current.k1Pct+'%':'—'} · K2 ${current.k2?current.k2Pct+'%':'—'} · ${current.won}/${current.total} rallies.`});
-  } else rows.push({kind:'',title:`R${m.rotationNo} · muestra pequeña`,copy:`Solo ${current.total} rallies registrados en esta rotación.`});
-  const rotations=[1,2,3,4,5,6].map(n=>({n,...rotationStats(m,n)})).filter(x=>x.total>=3);
+  const rows=[],current=rotationStats(m,m.rotationNo);
+  if(current.decided>=5){
+    rows.push({kind:current.winPct<45?'warn':current.winPct>=60?'good':'',title:`R${m.rotationNo} · ${current.winPct}% rallies ganados`,copy:`K1 ${current.k1?current.k1Pct+'%':'—'} · K2 ${current.k2?current.k2Pct+'%':'—'} · ${current.won}/${current.decided} rallies decididos.`});
+  } else rows.push({kind:'',title:current.total?`R${m.rotationNo} · muestra pequeña`:'Rotación sin evidencia suficiente',copy:`${current.decided} rallies con resultado válido en la rotación registrada.`});
+  const rotations=[1,2,3,4,5,6].map(n=>({n,...rotationStats(m,n)})).filter(x=>x.decided>=5);
   if(rotations.length){
     const worst=rotations.slice().sort((a,b)=>a.winPct-b.winPct)[0];
-    if(worst.n!==Number(m.rotationNo))rows.push({kind:'warn',title:`Rotación a vigilar: R${worst.n}`,copy:`${worst.winPct}% de rallies ganados (${worst.won}/${worst.total}).`});
+    if(worst.n!==Number(m.rotationNo))rows.push({kind:'warn',title:`Rotación a vigilar: R${worst.n}`,copy:`${worst.winPct}% de rallies ganados (${worst.won}/${worst.decided} decididos).`});
   }
   const target=opponentTarget(m);
   if(target)rows.push({kind:target.bad/target.total>=.45?'good':'',title:`Objetivo de saque: ${target.name}`,copy:`${target.bad}/${target.total} recepciones negativas o error (${pct(target.bad,target.total)}%).`});
-  const recent=allRallies(m).map(x=>x.r).slice(-8);
+  const recent=allRallies(m).map(x=>x.r).slice(-8).filter(r=>r.winner==='ours'||r.winner==='opponent');
   if(recent.length>=5){
     const ours=recent.filter(r=>r.winner==='ours').length;
-    rows.push({kind:ours>=5?'good':ours<=2?'warn':'',title:`Últimos ${recent.length}: ${ours}-${recent.length-ours}`,copy:ours>=5?'Tramo favorable. Mantener la estructura actual.':ours<=2?'Tramo desfavorable. Revisar rotación, saque y recepción.':'Tramo equilibrado.'});
+    rows.push({kind:ours>=5?'good':ours<=2?'warn':'',title:`Últimos ${recent.length} decididos: ${ours}-${recent.length-ours}`,copy:ours>=5?'Tramo favorable dentro de la muestra disponible.':ours<=2?'Tramo desfavorable. Revisar rotación, saque y recepción.':'Tramo equilibrado.'});
   }
   return rows.slice(0,4);
 }
@@ -735,13 +740,13 @@ function render(){
 
     if(v910ViewMode==='lectura'||v910ViewMode==='todo'){
       const decisions=v910DecisionRows(m);
-      vc51SetMarkup($('v800-decisions'),decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${x.title}</b><span>${x.copy}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>');
+      vc51SetMarkup($('v800-decisions'),decisions.length?decisions.map(x=>`<div class="v800-decision ${x.kind}"><b>${vc193131Escape(x.title)}</b><span>${vc193131Escape(x.copy)}</span></div>`).join(''):'<div class="v800-decision"><b>Aún sin muestra</b><span>Registra varios rallies para generar lectura en directo.</span></div>');
     }
 
     const last=arr(s?.rallies).slice(-1)[0];
     if(last){
       $('v800-last-title').textContent=`${last.scoreAfter?.us??0}-${last.scoreAfter?.opponent??0} · ${last.winner==='ours'?'Punto nuestro':'Punto rival'}`;
-      vc51SetMarkup($('v800-last-rally'),`R${last.rotationBefore||1} · ${last.servingBefore==='ours'?'K2 / saque':'K1 / recepción'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||''))}</span>`).join('')}</div>`);
+      vc51SetMarkup($('v800-last-rally'),`${last.rotationBefore!=null&&last.rotationBefore!==''&&Number.isInteger(Number(last.rotationBefore))&&Number(last.rotationBefore)>=1&&Number(last.rotationBefore)<=6?'R'+last.rotationBefore:'Rotación sin dato'} · ${last.servingBefore==='ours'?'K2 / saque':last.servingBefore==='opponent'?'K1 / recepción':'Saque sin dato'} · ${arr(last.actions).length} acciones<div class="v800-last-actions">${arr(last.actions).slice(-7).map(a=>`<span>${vc193131Escape(a.code||((a.playerNumberSnapshot||'')+(a.skill||'')+(a.evaluation||'')))}</span>`).join('')}</div>`);
     }else{
       $('v800-last-title').textContent='Todavía sin rallies';$('v800-last-rally').textContent='El último rally aparecerá aquí cuando cierres el primer punto.';
     }
