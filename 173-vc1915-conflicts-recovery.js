@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='20.3.3',TYPES=['planificacion','historial','jugadores','scoutingMatches','partidos',
+ const VERSION='20.3.3.1',TYPES=['planificacion','historial','jugadores','scoutingMatches','partidos',
   'plantillas','seasonPlan','teamGoals','scoutingGamePlans','scoutLineupTemplatesV690','scoutRivalProfilesV6100'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
@@ -195,6 +195,24 @@
    }
    return {conflicts,operations};
  }
+ // Choosing one of several conflicts is NOT a CAS-acknowledged resolution.
+ // Every independent decision must be collected before attempting one safe
+ // write. A previous, now-stale decision is never counted as reviewed.
+ function decisionProgress(conflicts=[],deletions=[],choices={}){
+   const selected=obj(choices);
+   const unreviewed=arr(conflicts).filter(c=>{
+     const x=selected[c.key];return !x||!['local','remote'].includes(x.use)||
+       !((x.local===c.local&&x.remote===c.remote)||
+         (x.localSemantic&&x.remoteSemantic&&x.localSemantic===c.localSemantic&&x.remoteSemantic===c.remoteSemantic));
+   });
+   const unreviewedDeletions=arr(deletions).filter(c=>{
+     const x=selected[c.key];return !x||!['edited','deleted'].includes(x.use)||
+       x.editedDigest!==c.editedDigest||x.deletedAt!==c.deletedAt||x.where!==c.where;
+   });
+   return {unresolved:unreviewed.length+unreviewedDeletions.length,
+     chosen:arr(conflicts).length+arr(deletions).length-unreviewed.length-unreviewedDeletions.length,
+     total:arr(conflicts).length+arr(deletions).length};
+ }
 
  function mergeGuarded(local,remote,plan,legacy){
    if(plan.conflicts.length)throw Error('Conflictos de edición sin resolver; no se han mezclado los registros.');
@@ -284,7 +302,7 @@
    delete result.__vc1915ScoutOverrides;
    return result;
  }
- const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,isMatchingUndo,mergeGuarded,mergeIndependentFields,semanticDigest,conflictFields,conflictPreview,validateImport,recoveryPreview,mergeBackup,conflictKey};
+ const pure={VERSION,TYPES,digest,recordId,makeManifest,planMerge,decisionProgress,isMatchingUndo,mergeGuarded,mergeIndependentFields,semanticDigest,conflictFields,conflictPreview,validateImport,recoveryPreview,mergeBackup,conflictKey};
  const context={lastConflicts:[],lastDeletionConflicts:[],pendingResolutions:[],lastPreview:null,lastImport:null,lastError:'',account:'',remoteStamp:'',remoteState:null};
  function install(win){
    const store=win.localStorage, doc=win.document;
@@ -437,9 +455,18 @@
    function row(parent,text){const p=element('p',text);parent.append(p);return p;}
    function render(){
      if(cloudReview){
-       const total=context.lastConflicts.length+context.lastDeletionConflicts.length+context.pendingResolutions.length;
+       const progress=decisionProgress(context.lastConflicts,context.lastDeletionConflicts,getChoices());
+       // Chosen conflicts remain in the comparison until CAS confirmation;
+       // count each once even when it also has a durable pending receipt.
+       const keys=new Set([...context.lastConflicts,...context.lastDeletionConflicts,...context.pendingResolutions].map(x=>x.key));
+       for(const [key,choice] of Object.entries(getChoices())){
+         if(choice?.use==='deleted'||choice?.use==='edited')keys.add(key);
+       }
+       const total=keys.size;
        cloudReview.hidden=!total;
-       cloudReview.textContent=total?'Revisar '+total+' conflicto'+(total===1?'':'s')+' / confirmación de sincronización':'';
+       cloudReview.textContent=total?progress.unresolved?
+         'Revisar '+progress.unresolved+' conflicto'+(progress.unresolved===1?'':'s')+' · '+progress.chosen+' elección(es) guardada(s)':
+         'Confirmar '+total+' elección'+(total===1?'':'es')+' de sincronización':'';
      }
      if(!wrapper)return;
      list.replaceChildren();const cs=context.lastConflicts,ds=context.lastDeletionConflicts;
@@ -452,7 +479,7 @@
        for(const item of c.preview||[])row(line,item.field+' · este dispositivo: '+item.local+' · nube: '+item.remote);
        for(const [title,choice] of [['Conservar mi versión','local'],['Aceptar versión de nube','remote']]){
          const btn=element('button',title);btn.type='button';btn.addEventListener('click',()=>{
-           try{decide(c.key,choice,c.local,c.remote);win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v1915-manual-resolution',allowWrite:true});}
+           try{decide(c.key,choice,c.local,c.remote);render();}
            catch(err){context.lastError=String(err.message||err);render()}
          });line.append(btn);
        }
@@ -466,6 +493,12 @@
        list.append(line);
      }
      if(context.lastError)row(list,'Aviso: '+context.lastError);
+     if(cs.length||ds.length){
+       const progress=decisionProgress(cs,ds,getChoices());
+       row(list,progress.unresolved?
+         `Elecciones guardadas: ${progress.chosen}. Pendientes: ${progress.unresolved}. Elige todos los registros antes de confirmar la nube.`:
+         'Todas las elecciones están registradas. Abre «Conexión nube» y pulsa «Confirmar todas las elecciones».');
+     }
    }
    function openRecovery(event){
      const file=event.target.files?.[0];context.lastImport=null;context.lastPreview=null;preview.replaceChildren();
@@ -565,6 +598,29 @@
          const status=lastProof?.dirty?'Todavía quedan cambios locales pendientes.':'Los registros no coinciden con la versión elegida.';
          throw Error(status+' La elección está guardada y las copias siguen protegidas; usa «Reintentar confirmación» después de revisar el estado.');
        }
+       async function confirmDecisionBatch(){
+         const progress=decisionProgress(context.lastConflicts,context.lastDeletionConflicts,getChoices());
+         if(progress.unresolved)throw Error(`Quedan ${progress.unresolved} registros sin elegir. Las decisiones ya tomadas están guardadas; elige los restantes antes de subir nada.`);
+         const cloud=win.VC_V962_CLOUD_EFFICIENT;
+         if(typeof cloud?.sync!=='function'||typeof cloud.verifyRecord!=='function')
+           throw Error('El motor de confirmación de nube no está disponible. Recarga todos los módulos de esta versión.');
+         const pending=getPending();
+         // Exactly one CAS attempt for the whole set of choices. A single
+         // record must never be uploaded while sibling conflicts are open.
+         const result=await cloud.sync({reason:'v1919-resolve-batch',allowWrite:true,bypassBackoff:true});
+         const d=cloud.diagnostics?.()||{};
+         if(d.lastSyncError||d.blockedReason)throw Error(String(d.lastSyncError||d.blockedReason));
+         if(d.dirty)throw Error('Todavía hay cambios pendientes; no se han confirmado todas las elecciones.');
+         if(!pending.length&&result!==true)throw Error('No se ha obtenido confirmación de la nube para las eliminaciones elegidas.');
+         const failures=[];let confirmed=0;
+         for(const item of pending){
+           const proof=await cloud.verifyRecord({team:item.team,type:item.type,id:item.id,expectedSemantic:item.expectedSemantic});
+           if(proof?.confirmed){finishConfirmedResolution(item);confirmed++}
+           else failures.push(`${item.team}/${item.type} · ID ${item.id}`);
+         }
+         if(failures.length)throw Error(`${confirmed} de ${pending.length} elecciones verificadas. Sin confirmar: ${failures.join('; ')}. Las copias se mantienen y los avisos no se han eliminado.`);
+         return {confirmed,hadDeletions:!pending.length};
+       }
        cloudReview.addEventListener('click',()=>{
          // El panel de Gestión también permanece disponible, pero en móviles
          // la revisión debe estar a un toque dentro de Conexión nube.
@@ -585,12 +641,49 @@
              });backups.append(btn);
            }
            holder.append(backups);
+           const batchBar=element('div');batchBar.className='vc20331-batch-bar';
+           const batchNote=element('p');batchNote.setAttribute('role','status');batchNote.setAttribute('aria-live','polite');
+           const batchButton=element('button','Confirmar todas las elecciones');batchButton.type='button';
+           function refreshBatchControls(){
+             const progress=decisionProgress(context.lastConflicts,context.lastDeletionConflicts,getChoices());
+             const pending=getPending().length;
+             const hasDeletionChoice=Object.values(getChoices()).some(x=>x?.use==='deleted'||x?.use==='edited');
+             batchNote.textContent=progress.unresolved?
+               `${progress.chosen} elecciones guardadas. Faltan ${progress.unresolved}. No se enviará nada todavía.`:
+               pending||hasDeletionChoice?'Todas las elecciones están listas. Confírmalas juntas para sincronizar y comprobar los registros.':'No quedan elecciones nuevas que confirmar.';
+             batchButton.disabled=progress.unresolved>0||!(pending||hasDeletionChoice);
+           }
+           batchButton.addEventListener('click',async()=>{
+             if(batchButton.disabled)return;
+             if(!win.confirm('¿Confirmar todas las elecciones guardadas? Se volverán a proteger ambas versiones antes de una única subida y después se comprobarán los registros.'))return;
+             batchButton.disabled=true;
+             try{
+               await protectBothCopies();
+               const confirmed=await confirmDecisionBatch();
+               win.alert(`Sincronización confirmada. ${confirmed.confirmed} elección(es) verificadas por lectura real de nube.`);
+               holder.hidden=true;holder.replaceChildren();
+             }catch(error){
+               win.alert('La sincronización sigue pendiente. Las decisiones y las copias de seguridad se conservan. '+String(error?.message||error));
+               // A failed CAS attempt may have found a newer cloud version.
+               // Rebuild from the freshly checked conflict list, not the old
+               // on-screen comparison that could invite a futile retry.
+               cloudReview.click();
+             }
+           });
+           batchBar.append(batchNote,batchButton);holder.append(batchBar);
            for(const c of context.lastConflicts){
              const rowEl=element('section');rowEl.className='vc1919-conflict-row';
              rowEl.append(element('strong',c.team+' · '+c.type+' · '+c.label));
              if(c.staleDecision)rowEl.append(element('p','La versión cambió después de elegir. Debes revisar de nuevo; ninguna decisión anterior se aplicará sin coincidencia de datos.'));
              rowEl.append(element('p','Campos diferentes: '+(c.fields?.join(', ')||'contenido del registro')));
              for(const item of c.preview||[])rowEl.append(element('p',item.field+' · Este dispositivo: '+item.local+' · Nube: '+item.remote));
+             const choiceNote=element('p');choiceNote.className='vc20331-chosen-note';
+             function updateChoiceNote(){
+               const chosen=getChoices()[c.key];
+               choiceNote.textContent=chosen&&decisionProgress([c],[],{[c.key]:chosen}).unresolved===0?
+                 `✓ Elección guardada: ${chosen.use==='local'?'este dispositivo':'nube'}. Todavía no se ha subido.`:'';
+             }
+             updateChoiceNote();rowEl.append(choiceNote);
              const actions=element('div');actions.className='vc1919-conflict-actions';
              for(const [title,choice] of [['Conservar este dispositivo','local'],['Aceptar nube','remote']]){
                const button=element('button',title);button.type='button';button.addEventListener('click',async()=>{
@@ -599,11 +692,7 @@
                  try{
                    await protectBothCopies();
                    decide(c.key,choice,c.local,c.remote);
-                   await confirmChosenRecord({team:c.team,type:c.type,id:c.id,
-                     expectedSemantic:choice==='local'?c.localSemantic:c.remoteSemantic});
-                   win.alert('Resolución confirmada: se ha comprobado el registro en este dispositivo y en la nube.');
-                   const holder=doc.getElementById('vc1919-cloud-conflicts');
-                   if(holder){holder.hidden=true;holder.replaceChildren();}
+                   updateChoiceNote();refreshBatchControls();
                  }catch(error){win.alert('La resolución no se ha confirmado. Las copias de seguridad permanecen guardadas. '+String(error?.message||error));}
                  finally{button.disabled=false;}
                });actions.append(button);
@@ -611,6 +700,7 @@
              rowEl.append(actions);holder.append(rowEl);
            }
            for(const pending of context.pendingResolutions){
+             if(context.lastConflicts.some(c=>c.key===pending.key))continue;
              const line=element('section');line.className='vc1919-conflict-row';
              line.append(element('strong','Elección registrada · '+pending.team+' / '+pending.type+' · ID '+pending.id));
              line.append(element('p','Pendiente de confirmación por lectura real de la nube. La decisión se mantiene y no hay que elegir otra vez mientras las versiones no cambien.'));
@@ -618,8 +708,8 @@
                retry.disabled=true;
                try{
                  await protectBothCopies();
-                 await confirmChosenRecord(pending);
-                 win.alert('Resolución confirmada en este dispositivo y en la nube.');
+                 await confirmDecisionBatch();
+                 win.alert('Todas las decisiones pendientes se han comprobado en este dispositivo y en la nube.');
                  const holder=doc.getElementById('vc1919-cloud-conflicts');
                  if(holder){holder.hidden=true;holder.replaceChildren();}
                }catch(error){win.alert('La resolución sigue pendiente. Los respaldos permanecen guardados. '+String(error?.message||error));}
@@ -668,19 +758,16 @@
                    await safety.manualBackup();
                    await safety.backupRemoteState(context.remoteState,context.remoteStamp);
                    decideDeletion(c.key,use,c.editedDigest,c.deletedAt,c.where);
-                   const result=await win.VC_V962_CLOUD_EFFICIENT?.sync?.({reason:'v19110-delete-resolution',allowWrite:true});
-                   if(result===false){
-                     const error=win.VC_V962_CLOUD_EFFICIENT?.diagnostics?.().lastSyncError;
-                     throw Error(error||'La sincronización todavía no se ha confirmado. Revisa el estado de la nube.');
-                   }
-                   if(result!==true)throw Error('No se ha recibido confirmación de la nube.');
-                   cloudReview.click();
+                   card.append(element('p','✓ Elección guardada. Se aplicará junto con las restantes al confirmar el lote.'));
+                   actions.querySelectorAll('button').forEach(b=>b.disabled=true);
+                   refreshBatchControls();
                  }catch(error){win.alert('La nube no confirmó la resolución: '+String(error?.message||error));}
                  finally{btn.disabled=false;}
                });actions.append(btn);
              }
              card.append(actions);holder.append(card);
            }
+           refreshBatchControls();
          }
          holder?.scrollIntoView?.({behavior:'smooth',block:'nearest'});
        });
@@ -688,7 +775,7 @@
        const holder=element('div');holder.id='vc1919-cloud-conflicts';holder.hidden=true;
        cloudReview.insertAdjacentElement('afterend',holder);
        const style=element('style');style.id='vc1919-cloud-style';
-       style.textContent='#vc1919-cloud-review{display:block;width:100%;min-height:44px;margin:10px 0;border:1px solid #af6d37;background:#fff4e5;color:#693c1e;border-radius:9px;font:700 13px system-ui;padding:10px}#vc1919-cloud-review[hidden],#vc1919-cloud-conflicts[hidden]{display:none!important}#vc1919-cloud-conflicts{margin:8px 0;padding:12px;border-radius:10px;border:1px solid #d5e1ea;background:#f7fbff;color:#1e405b;font:12px/1.5 system-ui}#vc1919-cloud-conflicts h3{font-size:16px;margin:4px 0 8px}#vc1919-cloud-conflicts p{margin:5px 0 10px}#vc1919-cloud-conflicts .vc1919-conflict-row{border-top:1px solid #d5e1ea;padding:10px 0}#vc1919-cloud-conflicts .vc19110-delete-conflict{background:#fff8ef;border:1px solid #e8c7a1;border-radius:9px;padding:12px;margin:12px 0}#vc1919-cloud-conflicts .vc19110-delete-conflict strong{color:#793f1b}#vc1919-cloud-conflicts .vc1919-conflict-actions{display:flex;flex-wrap:wrap;gap:8px}#vc1919-cloud-conflicts button{min-height:44px;min-width:130px;padding:9px;border-radius:7px;border:1px solid #aec7d8;background:white;color:#1c4563;font:700 12px system-ui}';
+       style.textContent='#vc1919-cloud-review{display:block;width:100%;min-height:44px;margin:10px 0;border:1px solid #af6d37;background:#fff4e5;color:#693c1e;border-radius:9px;font:700 13px system-ui;padding:10px}#vc1919-cloud-review[hidden],#vc1919-cloud-conflicts[hidden]{display:none!important}#vc1919-cloud-conflicts{margin:8px 0;padding:12px;border-radius:10px;border:1px solid #d5e1ea;background:#f7fbff;color:#1e405b;font:12px/1.5 system-ui}#vc1919-cloud-conflicts h3{font-size:16px;margin:4px 0 8px}#vc1919-cloud-conflicts p{margin:5px 0 10px}#vc1919-cloud-conflicts .vc1919-conflict-row{border-top:1px solid #d5e1ea;padding:10px 0}#vc1919-cloud-conflicts .vc19110-delete-conflict{background:#fff8ef;border:1px solid #e8c7a1;border-radius:9px;padding:12px;margin:12px 0}#vc1919-cloud-conflicts .vc19110-delete-conflict strong{color:#793f1b}#vc1919-cloud-conflicts .vc1919-conflict-actions{display:flex;flex-wrap:wrap;gap:8px}#vc1919-cloud-conflicts button{min-height:44px;min-width:130px;padding:9px;border-radius:7px;border:1px solid #aec7d8;background:white;color:#1c4563;font:700 12px system-ui}#vc1919-cloud-conflicts button:disabled{opacity:.6;cursor:not-allowed}#vc1919-cloud-conflicts .vc20331-batch-bar{position:sticky;top:0;z-index:4;background:#e8f5ff;border:1px solid #b5d5ee;border-radius:9px;padding:10px;margin:10px 0}#vc1919-cloud-conflicts .vc20331-batch-bar p{font-weight:700;color:#225479}#vc1919-cloud-conflicts .vc20331-batch-bar button{width:100%;background:#1472bd;color:white;border-color:#1472bd}#vc1919-cloud-conflicts .vc20331-chosen-note{color:#216c49;font-weight:800}';
        doc.head.append(style);
      }
      wrapper.append(summary,list,element('p','La restauración requiere una copia previa en IndexedDB. Guarda también una copia JSON en otro dispositivo.'),select,fileInput,preview);
