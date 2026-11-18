@@ -1,0 +1,79 @@
+/* Volley Coach V20.5.0 · Deployment diagnostics.
+ * Read-only: never inspects scouting, accounts, IndexedDB or cloud state.
+ * Checks optional static assets only when the user explicitly requests it.
+ */
+(function (root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root && root.document) {
+    root.VC_RELEASE_HEALTH_2050 = api;
+    if (root.document.readyState === 'loading') {
+      root.document.addEventListener('DOMContentLoaded', () => api.mount(root), {once:true});
+    } else api.mount(root);
+  }
+})(typeof window !== 'undefined' ? window : null, function () {
+  'use strict';
+  const VERSION = '20.5.0';
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+  function assets(doc) {
+    const found = new Map();
+    for (const element of doc.querySelectorAll('link[rel="stylesheet"][href],script[src]')) {
+      const uri = element.getAttribute(element.tagName.toLowerCase() === 'link' ? 'href' : 'src');
+      if (!uri || !/^\.\//.test(uri)) continue;
+      const file = uri.split(/[?#]/)[0];
+      if (!found.has(file)) found.set(file, element.tagName.toLowerCase() === 'link' ? 'css' : 'js');
+    }
+    return [...found].map(([file,type]) => ({file,type}));
+  }
+  async function check(items, fetcher, base) {
+    const results=[];
+    // Small batches avoid flooding the deployment server and mobile radios.
+    for(let i=0;i<items.length;i+=4) {
+      const batch=items.slice(i,i+4);
+      results.push(...await Promise.all(batch.map(async item => {
+        try {
+          const url=new URL(item.file,base);
+          if(url.origin!==new URL(base).origin) return {...item,status:'error'};
+          const response=await fetcher(url.href,{method:'GET',cache:'no-store',redirect:'follow'});
+          // SPA fallback can return index.html as 200 for a missing asset.
+          const mime=response.headers?.get?.('content-type') || '';
+          const expected=item.type==='js' ? /javascript|ecmascript|text\/plain/i : /css|text\/plain/i;
+          const invalidMime=/text\/html/i.test(mime) || (!!mime && !expected.test(mime));
+          return {...item,status:response.ok&&!invalidMime?'ok':response.status===404?'missing':'error',http:response.status};
+        } catch (_) {return {...item,status:'offline'};}
+      })));
+    }
+    return results;
+  }
+  function summary(results) {
+    return {total:results.length,ok:results.filter(r=>r.status==='ok').length,
+      missing:results.filter(r=>r.status==='missing'),error:results.filter(r=>r.status==='error'),
+      offline:results.filter(r=>r.status==='offline')};
+  }
+  function mount(root) {
+    const doc=root.document;
+    const host=doc.getElementById('v11-management') || doc.getElementById('vc60-diagnostics')?.parentElement;
+    if(!host)return false;
+    if(doc.getElementById('vc2050-release-health'))return true;
+    const section=doc.createElement('section');
+    section.id='vc2050-release-health';section.className='vc2050-health';
+    section.innerHTML='<h3>Integridad de instalación · V20.5.0</h3><p>Comprueba que los archivos de interfaz están publicados. No lee ni modifica datos del club, vídeos ni la nube.</p><button type="button" class="vc2050-check">Comprobar archivos</button><div class="vc2050-result" role="status" aria-live="polite">Sin comprobar</div>';
+    host.appendChild(section);
+    const button=section.querySelector('button'),out=section.querySelector('.vc2050-result');
+    button.addEventListener('click',async()=>{
+      button.disabled=true;out.textContent='Comprobando archivos locales publicados…';
+      try {
+        const result=summary(await check(assets(doc),root.fetch.bind(root),doc.baseURI));
+        const problems=[...result.missing,...result.error,...result.offline];
+        out.innerHTML=`<strong>${result.ok}/${result.total} disponibles</strong> · ${result.missing.length} ausentes · ${result.error.length} con error · ${result.offline.length} sin conexión. `+
+          (problems.length?`<details><summary>Ver ${problems.length} incidencias</summary><ul>${problems.map(r=>`<li>${escape(r.file)} — ${escape(r.status)}</li>`).join('')}</ul></details>`:
+           '<span>Sin incidencias entre los archivos comprobados.</span>')+
+          '<p>La comprobación de archivos no sustituye las pruebas de scouting, vídeo o sincronización real.</p>';
+      } catch(_){out.textContent='No se pudo completar la comprobación. Inténtalo de nuevo con conexión.';}
+      finally{button.disabled=false;}
+    });
+    return true;
+  }
+  return {VERSION,assets,check,summary,mount};
+});

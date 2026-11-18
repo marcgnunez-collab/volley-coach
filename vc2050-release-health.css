@@ -1,0 +1,8 @@
+#vc2050-release-health{margin:14px 0;padding:14px;border:1px solid #c9d8e8;background:#f7faff;border-radius:10px;color:#183451;font:500 13px/1.45 system-ui,sans-serif}
+#vc2050-release-health h3{font-size:16px;margin:0 0 6px;color:#0b2745}
+#vc2050-release-health p{margin:6px 0 10px}
+#vc2050-release-health button{border:0;border-radius:7px;background:#1466c6;color:#fff;font-weight:700;padding:9px 14px;cursor:pointer}
+#vc2050-release-health button:disabled{opacity:.55;cursor:wait}
+#vc2050-release-health .vc2050-result{margin-top:10px;overflow-wrap:anywhere}
+#vc2050-release-health details{margin:9px 0}
+#vc2050-release-health ul{max-height:230px;overflow-y:auto;padding-left:22px}

@@ -1,0 +1,41 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=__dirname;
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
+const api=require('./230-vc2050-release-health.js');
+const references=[...html.matchAll(/(?:src|href)=["']\.\/([^"'?#]+)(?:\?[^"']*)?["']/g)].map(x=>x[1]);
+const absent=[...new Set(references)].filter(f=>!fs.existsSync(path.join(root,f)));
+
+test('all referenced JavaScript modules exist',()=>{
+ assert.deepEqual(absent.filter(f=>f.endsWith('.js')),[]);
+});
+test('historically missing CSS are explicitly reported, not replaced by empty files',()=>{
+ const known=['vc19-workflow.css','vc1924-clip-studio.css','vc1920-connection-hub.css','vc1922-live-delay.css','vc1923-video-scout-links.css','vc1925-library-health.css','vc1930-tactical-rivals.css','vc1937-analysis-main.css','vc1938-data-engine.css','vc1939-rally-search.css','vc19310-professional-analysis.css'];
+ assert.deepEqual(absent.slice().sort(),known.slice().sort());
+});
+test('new health module is versioned in HTML and precache',()=>{
+ for(const file of ['230-vc2050-release-health.js','vc2050-release-health.css']){
+  assert.ok(html.includes('./'+file+'?v=20.5.0'));
+  assert.ok(sw.includes("'./"+file+"'"));
+ }
+ assert.match(sw,/foundation-20\.5\.0/);
+});
+test('asset checker detects SPA fallback and missing responses',async()=>{
+ const data=[{file:'./a.js',type:'js'},{file:'./b.css',type:'css'}];
+ const result=await api.check(data,async url=>({ok:true,status:200,headers:{get:()=>url.endsWith('.css')?'text/html':'application/javascript'}}),'https://volley.example/');
+ assert.deepEqual(result.map(x=>x.status),['ok','error']);
+ assert.equal(api.summary(result).error.length,1);
+});
+test('asset checker does not request cross-origin assets',async()=>{
+ let requests=0;
+ const result=await api.check([{file:'https://other.example/x.js',type:'js'}],async()=>{requests++;return {ok:true,headers:{get:()=>''}};},'https://volley.example/');
+ assert.equal(requests,0);assert.equal(result[0].status,'error');
+});
+test('new module does not rely on club data or Supabase',()=>{
+ const source=fs.readFileSync(path.join(root,'230-vc2050-release-health.js'),'utf8');
+ for(const term of ['localStorage','indexedDB','supabase','cloudClient','getMatches'])assert.ok(!source.includes(term));
+});
