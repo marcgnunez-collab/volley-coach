@@ -9,7 +9,8 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='20.3.2.1',TYPES=['planificacion','historial','jugadores','scoutingMatches','partidos'];
+ const VERSION='20.3.3',TYPES=['planificacion','historial','jugadores','scoutingMatches','partidos',
+  'plantillas','seasonPlan','teamGoals','scoutingGamePlans','scoutLineupTemplatesV690','scoutRivalProfilesV6100'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];
@@ -25,10 +26,16 @@
    for(let i=0;i<source.length;i++){h^=source.charCodeAt(i);h=Math.imul(h,16777619)}
    return (h>>>0).toString(16).padStart(8,'0')+':'+source.length;
  }
- function recordId(record){const v=record?.id;return v===undefined||v===null||String(v)===''?null:String(v)}
- function indexed(list){
+ function recordId(record,type=''){
+   const v=record?.id;
+   if(v!==undefined&&v!==null&&String(v)!=='')return String(v);
+   if(type==='seasonPlan'&&record?.weekStart)return 'week:'+String(record.weekStart);
+   if(type==='scoutRivalProfilesV6100'&&record?.key)return 'rival:'+String(record.key);
+   return null;
+ }
+ function indexed(list,type=''){
    const map=new Map();
-   for(const r of arr(list)){const id=recordId(r);if(id!==null&&!map.has(id))map.set(id,r)}
+   for(const r of arr(list)){const id=recordId(r,type);if(id!==null&&!map.has(id))map.set(id,r)}
    return map;
  }
  // Los manifiestos anteriores solo tenían un hash por registro. Guardar también
@@ -50,7 +57,7 @@
      records[team]={};fields[team]={};
      for(const type of TYPES){
        const items={},fieldItems={};
-       for(const [id,r] of indexed(data[type])){
+       for(const [id,r] of indexed(data[type],type)){
          items[id]=digest(r);
          fieldItems[id]=Object.fromEntries(Object.keys(obj(r)).map(key=>[key,valueHash(r,key)]));
        }
@@ -144,7 +151,7 @@
    const teams=new Set([...Object.keys(obj(local?.equiposData)),...Object.keys(obj(remote?.equiposData))]);
    for(const team of teams){
      for(const type of TYPES){
-       const lm=indexed(local?.equiposData?.[team]?.[type]),rm=indexed(remote?.equiposData?.[team]?.[type]);
+       const lm=indexed(local?.equiposData?.[team]?.[type],type),rm=indexed(remote?.equiposData?.[team]?.[type],type);
        const prior=obj(base[team]?.[type]);
        const priorFields=obj(baseFields[team]?.[type]);
        for(const [id,l] of lm){
@@ -194,14 +201,14 @@
    const merged=legacy?legacy.mergePending(local,remote):clone(remote);
    const scoutOverrides={};
    for(const op of plan.operations){
-     const localItems=indexed(local?.equiposData?.[op.team]?.[op.type]);
-     const remoteItems=indexed(remote?.equiposData?.[op.team]?.[op.type]);
+     const localItems=indexed(local?.equiposData?.[op.team]?.[op.type],op.type);
+     const remoteItems=indexed(remote?.equiposData?.[op.team]?.[op.type],op.type);
      const source=op.merged||(op.takeLocal?localItems.get(op.id):remoteItems.get(op.id));
      if(!source)continue;
      if(!merged.equiposData)merged.equiposData={};
      if(!merged.equiposData[op.team])merged.equiposData[op.team]={};
      const dest=merged.equiposData[op.team],list=arr(dest[op.type]).slice();
-     const idx=list.findIndex(x=>recordId(x)===op.id);
+     const idx=list.findIndex(x=>recordId(x,op.type)===op.id);
      if(idx>=0)list[idx]=clone(source);else list.push(clone(source));
      dest[op.type]=list;
      // El motor de scoutings conserva su fusión histórica. Solo se permite
@@ -227,7 +234,7 @@
      for(const type of TYPES){
        const seen=new Set();
        for(const item of arr(value[type])){
-         const id=recordId(item);
+         const id=recordId(item,type);
          if(id===null)continue;
          if(seen.has(id))throw Error('La copia contiene ID duplicado en '+name+'/'+type+': '+id);
          seen.add(id);
@@ -240,8 +247,8 @@
    const rows=[];
    for(const [team,data] of Object.entries(obj(backup?.equiposData))){
      for(const type of TYPES){
-       const local=indexed(current?.equiposData?.[team]?.[type]);let added=0,replaced=0;
-       for(const [id,value] of indexed(data[type])){
+       const local=indexed(current?.equiposData?.[team]?.[type],type);let added=0,replaced=0;
+       for(const [id,value] of indexed(data[type],type)){
          if(!local.has(id))added++;else if(digest(local.get(id))!==digest(value))replaced++;
        }
        if(added||replaced)rows.push({team,type,added,replaced});
@@ -257,9 +264,9 @@
      const restored={...existing,...clone(from)};
      for(const type of TYPES){
        const merged=arr(existing[type]).map(clone);
-       const indexes=new Map(merged.map((r,i)=>[recordId(r),i]).filter(([id])=>id!==null));
+       const indexes=new Map(merged.map((r,i)=>[recordId(r,type),i]).filter(([id])=>id!==null));
        for(const record of arr(from[type])){
-         const id=recordId(record);
+         const id=recordId(record,type);
          if(id===null){merged.push(clone(record));continue}
          if(!indexes.has(id)){indexes.set(id,merged.length);merged.push(clone(record))}
          else if(type!=='scoutingMatches'){merged[indexes.get(id)]=clone(record)}
@@ -399,10 +406,10 @@
        const {team,type,id,where,use}=decision;
        const mt=merged.equiposData[team]||{};
        merged.equiposData[team]=mt;
-       const list=arr(mt[type]).filter(x=>recordId(x)!==String(id));
+       const list=arr(mt[type]).filter(x=>recordId(x,type)!==String(id));
        if(use==='edited'){
          const from=where==='nube'?parts.local.equiposData[team]:parts.remote.equiposData[team];
-         const edited=arr(from?.[type]).find(x=>recordId(x)===String(id));
+         const edited=arr(from?.[type]).find(x=>recordId(x,type)===String(id));
          if(!edited)throw Error('No se encuentra la versión editada. Resolución cancelada.');
          universal.revive(mt,type,id);
          list.push(clone(edited));

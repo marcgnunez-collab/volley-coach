@@ -81,7 +81,19 @@ async function syncRemote(reason='fallback'){
   render();return !after.lastSyncError&&!after.blockedReason;
  }catch(err){console.warn('V20.3.0 guarded cloud pull',err);return false}
 }
-function onRemote(payload){try{const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);if(meta?.deviceId===deviceId)return;clearTimeout(remoteSyncTimer);const recentFast=meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000;remoteSyncTimer=setTimeout(()=>void syncRemote(recentFast?'db-complete-after-fast':'db-change'),recentFast?700:350)}catch(err){console.warn('V15.2.6 postgres event',err)}}
+function onRemote(payload){try{
+ const meta=payload?.new?.state?.v138SyncMeta||null;ingestMeta(meta);
+ const confirmedStamp=String(payload?.new?.updated_at||'');
+ const evidence=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+ // v138SyncMeta can name a device that touched the workspace much earlier.
+ // Do not mistake that stale ID for proof that this row was written by us:
+ // otherwise updates from other devices would be silently ignored.
+ if(confirmedStamp&&!evidence.dirty&&
+   (confirmedStamp===String(evidence.lastAppliedRemoteStamp||'')||confirmedStamp===String(evidence.lastConfirmedWriteStamp||'')))return;
+ clearTimeout(remoteSyncTimer);
+ const recentFast=meta?.deviceId&&meta.deviceId===lastRemoteDevice&&now()-lastRemoteAt<6000;
+ remoteSyncTimer=setTimeout(()=>void syncRemote(recentFast?'db-complete-after-fast':'db-change'),recentFast?700:250);
+}catch(err){console.warn('V20.3.3 postgres event',err)}}
 let presencePeers=[];
 function syncPresence(){
   try{
@@ -168,6 +180,16 @@ function connectRealtime(){if(!cloudConnected()){disconnectRealtime();return fal
 function poll(){clearTimeout(pollTimer);const delay=active()?POLL_ACTIVE_MS:POLL_IDLE_MS;pollTimer=setTimeout(async()=>{if(document.visibilityState==='visible'&&cloudConnected()&&now()-lastPullAt>=delay)await syncRemote('safety');poll()},delay)}
 function hardenTouch(){if(!isMobile())return;document.documentElement.classList.add('v138-touch');document.querySelectorAll('[onclick]:not(button):not(input):not(select):not(textarea):not(a):not(summary)').forEach(el=>{if(!el.hasAttribute('role'))el.setAttribute('role','button');if(!el.hasAttribute('tabindex'))el.tabIndex=0})}
 async function resumeSync(reason='resume'){try{if((typeof cloudClient==='undefined'||!cloudClient||typeof cloudUser==='undefined'||!cloudUser)&&typeof window.actualizarEstadoCloud==='function')await window.actualizarEstadoCloud()}catch(_){}connectRealtime();setTimeout(()=>syncRemote(reason),300);render()}
-function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();if(!fastApplying)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
+function boot(){installStateMeta();ensureUI();hardenTouch();touchMeta('device-start');try{window.MatchState?.subscribe?.(d=>{render();if(!fastApplying&&window.VC_SYNC_RECEIVING_CLOUD!==true)window.VC_V962_CLOUD_EFFICIENT?.markDirty?.('matchstate')})}catch(_){};
+ // Record the origin of every persistent local edit before the next CAS upload.
+ // This metadata is diagnostic only; the CAS timestamp remains authoritative.
+ let seenRevision=0;
+ window.addEventListener('vc200:sync-state',()=>{
+  const d=window.VC_V962_CLOUD_EFFICIENT?.diagnostics?.()||{};
+  if(d.dirty&&Number(d.localRevision)>seenRevision&&window.VC_SYNC_RECEIVING_CLOUD!==true){
+   seenRevision=Number(d.localRevision);touchMeta('local-edit');
+  }
+ });
+ window.addEventListener('online',()=>resumeSync('online'));window.addEventListener('focus',()=>resumeSync('focus'));window.addEventListener('pageshow',()=>resumeSync('pageshow'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')resumeSync('visible')});setInterval(()=>{if(document.visibilityState==='visible'&&(!channel||rtState!=='SUBSCRIBED'))connectRealtime()},30000);setTimeout(()=>resumeSync('startup'),250);poll();render()}
 window.v138SyncNow=()=>syncRemote('manual');window.VC_DEVICE_SYNC={version:VERSION,deviceId,deviceName,sendBenchNote,notifyWorkspaceChanged,connect:connectRealtime,refreshPresence:trackPresence,sync:syncRemote,broadcast:queueFast,render,diagnostics:()=>({protectedLocalChanges,staleFastMessages,version:VERSION,deviceId,deviceName,realtimeState:rtState,cloudConnected:cloudConnected(),lastRemoteAt,lastRemoteDevice,lastRemoteName,lastPullAt,activeMatchId:Number(active()?.id)||null,knownDevices:Object.values(knownDevices),fallbackPollingMs:active()?POLL_ACTIVE_MS:POLL_IDLE_MS,fastBroadcast:false,confirmedBroadcast:true,compactPatches:false,durableCompletion:true,allTopLevelMatchFields:true,presencePeers:presencePeers.slice(),liveOtherDeviceCount:livePeers().length,lastLocalCommitId,receiptCount:acknowledgedBy.get(lastLocalCommitId)?.size||0,lastPeerReceiptAt,lastPeerReceiptName})};try{if(window.MatchState){window.MatchState.version=VERSION;window.MatchState.schema='vc.match-state/20.3.0'}}catch(_){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

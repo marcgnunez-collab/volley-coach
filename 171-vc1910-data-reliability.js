@@ -14,14 +14,17 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   const VERSION = '19.1.0';
-  const TRACKED = Object.freeze(['planificacion', 'historial', 'scoutingMatches', 'jugadores', 'partidos']);
+  const TRACKED = Object.freeze(['planificacion','historial','scoutingMatches','jugadores','plantillas','partidos',
+    'seasonPlan','teamGoals','scoutingGamePlans','scoutLineupTemplatesV690','scoutRivalProfilesV6100']);
   const monitor = {remoteRisk:null, checkedAt:null};
   function noteRemoteRisk(risk){monitor.remoteRisk=risk;monitor.checkedAt=new Date().toISOString();}
   const array = x => Array.isArray(x) ? x : [];
   const object = x => x && typeof x === 'object' && !Array.isArray(x) ? x : {};
   const clone = x => JSON.parse(JSON.stringify(x));
   const hasId = v => v != null && (typeof v === 'string' || typeof v === 'number') && String(v).length > 0;
-  const idOf = (record, index) => hasId(record?.id) ? String(record.id) : 'index-' + index;
+  const idOf = (record, index, type='') => hasId(record?.id) ? String(record.id) :
+    type==='seasonPlan'&&record?.weekStart?'week:'+String(record.weekStart):
+    type==='scoutRivalProfilesV6100'&&record?.key?'rival:'+String(record.key):'index-' + index;
 
   function foundations(exercise) {
     const list = Array.isArray(exercise?.fundamentos) ? exercise.fundamentos :
@@ -72,8 +75,8 @@
     const losses = [], severe = [];
     for (const [team, localTeam] of Object.entries(lhs)) {
       for (const key of TRACKED) {
-        const entries = array(localTeam?.[key]), remoteIds = new Set(array(rhs[team]?.[key]).map(idOf));
-        const missing = entries.map(idOf).filter(id => !remoteIds.has(id));
+        const entries = array(localTeam?.[key]), remoteIds = new Set(array(rhs[team]?.[key]).map((r,i)=>idOf(r,i,key)));
+        const missing = entries.map((r,i)=>idOf(r,i,key)).filter(id => !remoteIds.has(id));
         if (!missing.length) continue;
         const risk = {team, kind: key, local: entries.length, remote: array(rhs[team]?.[key]).length,
           missingCount: missing.length, sampleIds: missing.slice(0, 5)};
@@ -99,11 +102,11 @@
     }
     return 0;
   }
-  function mergeRecords(remoteEntries, localEntries) {
+  function mergeRecords(remoteEntries, localEntries, type='') {
     const combined = array(remoteEntries).map(clone);
-    const position = new Map(combined.map((entry, i) => [idOf(entry, i), i]));
+    const position = new Map(combined.map((entry, i) => [idOf(entry, i, type), i]));
     array(localEntries).forEach((entry, i) => {
-      const id = idOf(entry, i), idx = position.get(id);
+      const id = idOf(entry, i, type), idx = position.get(id);
       if (idx == null) {position.set(id, combined.length); combined.push(clone(entry)); return;}
       // Dos ediciones del mismo registro: solo sustituimos la nube si la edición
       // local tiene una marca temporal posterior. La copia V17.9 permite auditar.
@@ -119,8 +122,9 @@
     for (const [team, localTeam] of Object.entries(object(local?.equiposData))) {
       const base = object(merged.equiposData[team]);
       const result = {...base};
-      for (const key of ['planificacion', 'historial', 'jugadores', 'plantillas', 'partidos']) {
-        result[key] = mergeRecords(base[key], localTeam?.[key]);
+      for (const key of ['planificacion','historial','jugadores','plantillas','partidos',
+        'seasonPlan','teamGoals','scoutingGamePlans','scoutLineupTemplatesV690','scoutRivalProfilesV6100']) {
+        result[key] = mergeRecords(base[key], localTeam?.[key], key);
       }
       // Mantener la sesión en curso cuando el dispositivo tiene una edición posterior.
       if (localTeam?.meta && (!base.meta || recordTimestamp(localTeam.meta) > recordTimestamp(base.meta))) {
