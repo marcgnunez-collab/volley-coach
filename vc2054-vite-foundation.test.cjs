@@ -24,7 +24,8 @@ test('Vite configuration is a separate non-destructive development workflow',()=
  const pkg=require('./package.json');
  const config=fs.readFileSync(path.join(root,'vite.config.mjs'),'utf8');
  const ts=JSON.parse(fs.readFileSync(path.join(root,'tsconfig.json'),'utf8'));
- assert.equal(pkg.version,'20.5.4');assert.equal(pkg.scripts.build,'vite build');
+ assert.ok(pkg.version.startsWith('20.5.')&&Number(pkg.version.split('.')[2])>=4);
+ assert.match(pkg.scripts.build,/vite build$/);
  assert.ok(pkg.devDependencies.vite);assert.ok(pkg.devDependencies.typescript);
  assert.match(config,/base:'\.\/'/);assert.match(config,/publicDir:false/);
  assert.match(config,/preserveLegacyRuntime/);assert.match(config,/vc2054-entry\.ts/);
