@@ -7639,6 +7639,11 @@ if(typeof deleteHistoryBase==='function'&&!deleteHistoryBase.__v953){
 const applyBase=window.aplicarEstadoCloud;
 if(typeof applyBase==='function'&&!applyBase.__v953){
   const wrapped=function(state){
+    // The CAS writer has already merged local/remote data with explicit
+    // V19.1.5 choices. Merging again by timestamps here can silently undo
+    // a coach's selection (especially partidos) before the integrity check.
+    // Ordinary legacy calls still use the historical merge below.
+    if(window.VC_SYNC_RECEIVING_CLOUD===true)return applyBase.call(this,state);
     const merged=mergeRemoteState(state);
     return applyBase.call(this,merged);
   };
@@ -8596,6 +8601,18 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
           const incoming=dirty&&conflictPlan&&conflictGuard?.mergeGuarded
             ?conflictGuard.mergeGuarded(localBefore,remote.state,conflictPlan)
             :dirty&&reliability?.mergePending?reliability.mergePending(localBefore,remote.state):remote.state;
+          // Validate the prepared payload BEFORE touching the device. A
+          // regression in another merger must never destroy the selected
+          // version locally and only then discover the mismatch.
+          for(const operation of conflictPlan?.operations||[]){
+            if(!operation.manualDecision)continue;
+            const chosen=findSyncedRecord(incoming,operation.team,operation.type,operation.id);
+            const hash=window.VC_V1915_RELIABILITY?.pure?.semanticDigest;
+            if(!chosen||typeof hash!=='function'||hash(chosen)!==operation.manualDecision.expectedSemantic){
+              const integrity=new Error('La versión elegida de '+operation.team+'/'+operation.type+' (ID '+operation.id+') no coincide con el lote preparado. No se ha modificado este dispositivo ni se ha subido nada.');
+              integrity.code='VC1915_INTEGRITY';throw integrity;
+            }
+          }
           // Never claim delivery when the actual state-application bridge is missing.
           if(typeof window.aplicarEstadoCloud!=='function'){
             const missing=new Error('No está disponible el aplicador de estado remoto. No se ha confirmado la recepción.');
@@ -8625,7 +8642,7 @@ async function sync({reason='auto',manual=false,allowWrite=true,pullOnly=false,b
           const actual=findSyncedRecord(state,operation.team,operation.type,operation.id);
           const hash=window.VC_V1915_RELIABILITY?.pure?.semanticDigest;
           if(!actual||typeof hash!=='function'||hash(actual)!==operation.manualDecision.expectedSemantic){
-            const integrity=new Error('La versión elegida del registro cambió al aplicarse localmente. Se ha bloqueado la subida para conservar ambas copias. Revisa el entrenamiento y sus campos antes de continuar.');
+            const integrity=new Error('La versión elegida de '+operation.team+'/'+operation.type+' (ID '+operation.id+') cambió al aplicarse localmente. Se ha bloqueado la subida para conservar ambas copias. Revisa los campos de ese registro antes de continuar.');
             integrity.code='VC1915_INTEGRITY';throw integrity;
           }
         }
