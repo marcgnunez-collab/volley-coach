@@ -47,7 +47,11 @@
    return {state:rating?'ok':'caution',code,summary:`${side} · #${m[2]} · ${skill} · ${grade}`,
     message:rating?'Código aceptado por el motor. Pulsa Enter o Añadir para registrarlo.':
      'El motor acepta el código, pero falta una valoración explícita. Comprueba el resultado antes de añadir.',
-    extras,playerKnown:!!a.playerId||!!a.playerLabel||!!a.playerNumberSnapshot};
+    extras,playerKnown:!!a.playerId||!!a.playerLabel||!!a.playerNumberSnapshot,
+    // V20.5.6: the shadow module reuses this existing preview result. No second
+    // native parser call, player name, object reference or match data is sent.
+    nativeShape:Object.freeze({team:a.team,skill:a.skill,evaluation:a.evaluation,
+     playerNumberSnapshot:a.playerNumberSnapshot??'',startZone:a.startZone||'',endZone:a.endZone||''})};
   }catch(_){return {state:'warning',message:'No se pudo comprobar el borrador. El registro original sigue disponible.',code,summary};}
  }
  function mount(){
@@ -74,6 +78,7 @@
   if(mount.started)return true;
   mount.started=true;
   let pending=null;
+  const published=new Map();
   const refresh=()=>{
    if(!view.classList.contains('active'))return;
    const match=(()=>{try{return root.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||root.VC_SCOUT_REPORT_BRIDGE?.getActive?.()||null}catch(_){return null}})();
@@ -84,6 +89,18 @@
     const result=inspect(input.value,match,parser);
     status.dataset.state=result.state;
     status.querySelector('.vc2051-message').textContent=result.summary?`${result.summary} · ${result.message}`:result.message;
+    // Publish a bounded preflight fact, not a scouting action. Only complete
+    // head drafts are relevant; reset the dedupe key when an input is emptied.
+    if(!result.code){published.delete(id);continue;}
+    if(!/^(?:R)?\d+[SREABDFC]/.test(result.code)||result.code.length>140)continue;
+    const signature=JSON.stringify([match?.id??null,result.code,result.state,result.nativeShape||null]);
+    if(signature===published.get(id))continue;
+    published.set(id,signature);
+    try{
+     if(typeof root.CustomEvent==='function')doc.dispatchEvent(new root.CustomEvent('vc:scout-code-preflight',{
+      detail:{source:id,code:result.code,state:result.state,nativeShape:result.nativeShape||null}
+     }));
+    }catch(_){/* Diagnostic events must never affect the original registrar. */}
    }
   };
   const schedule=()=>{if(pending)root.clearTimeout(pending);pending=root.setTimeout(()=>{pending=null;refresh()},140);};

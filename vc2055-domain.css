@@ -14,3 +14,27 @@
 #v11-management .vc2055-refresh{border:1px solid #165b9d;background:#1667b5;color:white;border-radius:5px;padding:8px 12px;cursor:pointer;font-weight:750}
 #v11-management .vc2055-note{color:#647b90;font-size:11px}
 @media(max-width:850px){#v11-management .vc2055-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc2055-heading>span{display:none}}
+
+/* V20.5.6 · Passive code comparison panel; no scouting controls affected. */
+#v11-management .vc2056-shadow{margin:12px 0 18px;padding:15px;border:1px solid #a5c4e2;border-radius:8px;background:#f4f9ff;color:#193b59;font:500 12px/1.5 system-ui}
+#v11-management .vc2056-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
+#v11-management .vc2056-heading small{color:#286ba6;font-size:10px;font-weight:800;letter-spacing:.06em}
+#v11-management .vc2056-heading h3{font-size:17px;margin:2px 0 6px}
+#v11-management .vc2056-heading>span{font-size:10px;font-weight:800;color:#1b6848;background:#e6f4ec;border-radius:18px;padding:4px 8px;white-space:nowrap}
+#v11-management .vc2056-shadow p{margin:7px 0 11px}
+#v11-management .vc2056-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:10px 0}
+#v11-management .vc2056-stats>div{padding:8px;border:1px solid #d5e4f1;border-radius:5px;background:#fff;display:grid;gap:3px}
+#v11-management .vc2056-stats small{font-size:10px;color:#586f83}
+#v11-management .vc2056-stats strong{font:750 18px/1.2 ui-monospace,Consolas,monospace;color:#19537d;font-variant-numeric:tabular-nums}
+#v11-management .vc2056-shadow[data-state=review] .vc2056-stats>div:nth-child(4) strong{color:#b45309}
+#v11-management .vc2056-actions{display:flex;gap:7px;flex-wrap:wrap}
+#v11-management .vc2056-actions button{border:1px solid #aac7e0;background:white;border-radius:5px;color:#195e9f;font-weight:750;padding:8px 10px;cursor:pointer}
+#v11-management .vc2056-actions button:nth-child(2){border-color:#1e67ab;background:#1768b6;color:white}
+#v11-management .vc2056-actions button:last-child{color:#745969}
+#v11-management .vc2056-shadow h4{font-size:12px;margin:13px 0 7px}
+#v11-management .vc2056-recent{display:grid;gap:5px}
+#v11-management .vc2056-finding{display:flex;gap:9px;align-items:flex-start;background:#fff;border:1px solid #dce8f2;border-radius:4px;padding:7px;font-size:11px}
+#v11-management .vc2056-finding strong{white-space:nowrap;color:#265f8f;font:750 11px/1.5 ui-monospace,Consolas,monospace}
+#v11-management .vc2056-note{font-size:11px;color:#637c91}
+@media(max-width:950px){#v11-management .vc2056-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){#v11-management .vc2056-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc2056-heading>span{display:none}.vc2056-finding{flex-direction:column;gap:3px}}

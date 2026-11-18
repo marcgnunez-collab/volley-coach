@@ -50,7 +50,8 @@ export function compareNativeCode(input:unknown,nativeResult:unknown):Readonly<{
  const action=parsed.action&&typeof parsed.action==='object'?parsed.action as Record<string,unknown>:null;
  if(!action)return Object.freeze({state:'unknown',reason:'El motor original rechazó el código o no devolvió una acción.'});
  // Compare ONLY the fields encoded in the head. Native owns all other fields.
+ const dorsal=(value:unknown)=>String(value??'').trim().replace(/^0+(?=\d)/,'');
  const same=action.team===shape.team&&action.skill===shape.skill&&action.evaluation===shape.evaluation&&
-  String(action.playerNumberSnapshot??'')===shape.dorsal;
+  dorsal(action.playerNumberSnapshot)===dorsal(shape.dorsal);
  return Object.freeze({state:same?'agree':'disagree',reason:same?'Coinciden los campos básicos con el motor original.':'Diferencia en equipo, dorsal, fundamento o valoración.'});
 }

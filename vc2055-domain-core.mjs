@@ -169,10 +169,10 @@ function h(e, t) {
 		state: "unknown",
 		reason: "El motor original rechazó el código o no devolvió una acción."
 	});
-	let a = i.team === n.team && i.skill === n.skill && i.evaluation === n.evaluation && String(i.playerNumberSnapshot ?? "") === n.dorsal;
+	let a = (e) => String(e ?? "").trim().replace(/^0+(?=\d)/, ""), o = i.team === n.team && i.skill === n.skill && i.evaluation === n.evaluation && a(i.playerNumberSnapshot) === a(n.dorsal);
 	return Object.freeze({
-		state: a ? "agree" : "disagree",
-		reason: a ? "Coinciden los campos básicos con el motor original." : "Diferencia en equipo, dorsal, fundamento o valoración."
+		state: o ? "agree" : "disagree",
+		reason: o ? "Coinciden los campos básicos con el motor original." : "Diferencia en equipo, dorsal, fundamento o valoración."
 	});
 }
 // src/domain/substitutions.ts
@@ -316,9 +316,165 @@ function b(e) {
 	});
 	return e.VC_DOMAIN_2055 = O, O;
 }
+// src/domain/shadow-validation.ts
+var x = 80, S = (e) => e === "v800-code" ? "directo" : e === "v113-video-code" ? "video" : "otro", C = (e) => m(e);
+function w(t) {
+	let n = e(t), r = C(n?.code), i = S(n?.source), a = e(n?.nativeShape), o = {
+		source: i,
+		skill: r.skill || "—",
+		advanced: !!r.advanced
+	};
+	if (a) {
+		if (r.state !== "candidate") return Object.freeze({
+			kind: "coverage-gap",
+			...o,
+			reason: "El motor original reconoce una sintaxis aún no cubierta por el módulo TS."
+		});
+		let e = h(n?.code, { action: a });
+		if (e.state === "agree") return Object.freeze({
+			kind: "agree",
+			...o,
+			reason: "Coinciden equipo, dorsal, fundamento y valoración."
+		});
+		if (e.state === "disagree") return Object.freeze({
+			kind: "difference",
+			...o,
+			reason: "Difieren campos básicos frente al parser nativo."
+		});
+	}
+	return n?.state === "error" ? Object.freeze({
+		kind: "native-reject",
+		...o,
+		reason: "El motor original no aceptó el borrador; puede faltar un jugador o un campo."
+	}) : Object.freeze({
+		kind: "unverified",
+		...o,
+		reason: "No hay dos resultados completos para comparar."
+	});
+}
+function T() {
+	let e = 0, t = 0, n = 0, r = 0, i = 0, a = 0, o = [];
+	return Object.freeze({
+		record(s) {
+			let c = w(s);
+			return e++, c.kind === "agree" ? t++ : c.kind === "difference" ? n++ : c.kind === "coverage-gap" ? r++ : c.kind === "native-reject" ? i++ : a++, c.kind !== "agree" && (o.push(c), o.length > x && o.shift()), c;
+		},
+		snapshot: () => Object.freeze({
+			version: "20.5.6",
+			mode: "in-memory-read-only",
+			counters: Object.freeze({
+				total: e,
+				agree: t,
+				difference: n,
+				coverageGap: r,
+				nativeReject: i,
+				unverified: a
+			}),
+			recent: Object.freeze([...o]),
+			limitations: Object.freeze([
+				"Solo compara borradores vistos por la previsualización nativa; no acredita que se hayan registrado.",
+				"Una diferencia de sintaxis no prueba un error de puntuación.",
+				"No incluye códigos, dorsales, nombres, identificadores de partido ni datos de nube."
+			])
+		}),
+		clear() {
+			e = 0, t = 0, n = 0, r = 0, i = 0, a = 0, o.length = 0;
+		}
+	});
+}
+// src/domain/shadow-runtime.ts
+function E(e) {
+	let t = e.document, n = t.getElementById("v11-management");
+	if (!n) return null;
+	if (e.VC_SHADOW_2056) return e.VC_SHADOW_2056;
+	let r = T(), i = (e, n = "", r = "") => {
+		let i = t.createElement(e);
+		return i.className = n, i.textContent = r, i;
+	}, a = i("section", "vc2056-shadow");
+	a.id = "vc2056-shadow";
+	let o = i("div", "vc2056-heading"), s = i("div");
+	s.append(i("small", "", "VALIDACIÓN PARALELA · V20.5.6"), i("h3", "", "Comparación de códigos · sesión actual")), o.append(s, i("span", "", "Sin modificar scouting")), a.append(o, i("p", "", "Compara los borradores ya revisados por el motor nativo con el módulo TypeScript, sin volver a ejecutar el parser."));
+	let c = i("div", "vc2056-stats"), l = /* @__PURE__ */ new Map();
+	for (let [e, t] of [
+		["total", "Borradores vistos"],
+		["agree", "Coincidencias"],
+		["coverageGap", "Cobertura pendiente"],
+		["difference", "Diferencias"],
+		["nativeReject", "Rechazos nativos"],
+		["unverified", "Sin comparar"]
+	]) {
+		let n = i("div");
+		n.append(i("small", "", t));
+		let r = i("strong", "", "0");
+		l.set(e, r), n.append(r), c.append(n);
+	}
+	a.append(c);
+	let u = i("div", "vc2056-actions"), d = i("button", "", "Actualizar informe");
+	d.setAttribute("type", "button");
+	let f = i("button", "", "Descargar informe JSON");
+	f.setAttribute("type", "button");
+	let p = i("button", "", "Limpiar sesión");
+	p.setAttribute("type", "button"), u.append(d, f, p), a.append(u);
+	let m = i("h4", "", "Últimas incidencias de análisis"), h = i("div", "vc2056-recent");
+	a.append(m, h), a.append(i("p", "vc2056-note", "Solo se recopilan diferencias de previsualización; no se almacenan códigos, dorsales, nombres ni datos en la nube. Una cobertura pendiente no significa un código erróneo."));
+	let g = t.getElementById("vc2055-domain");
+	g?.parentNode === n ? g.insertAdjacentElement("afterend", a) : n.insertAdjacentElement("afterbegin", a);
+	let _ = () => {
+		let e = r.snapshot(), t = e.counters, n = {
+			total: t.total,
+			agree: t.agree,
+			coverageGap: t.coverageGap,
+			difference: t.difference,
+			nativeReject: t.nativeReject,
+			unverified: t.unverified
+		};
+		for (let [e, t] of Object.entries(n)) {
+			let n = l.get(e);
+			n && n.textContent !== String(t) && (n.textContent = String(t));
+		}
+		a.dataset.state = t.difference ? "review" : "normal", h.replaceChildren();
+		let o = e.recent.slice(-5).reverse();
+		if (!o.length) h.append(i("p", "", "Todavía no hay incidencias de previsualización."));
+		else for (let e of o) {
+			let t = i("div", "vc2056-finding");
+			t.append(i("strong", "", e.kind), i("span", "", `${e.source} · ${e.skill} · ${e.reason}`)), h.append(t);
+		}
+	}, v = !1, y = !1, b = () => {
+		y || v || !n.classList.contains("active") || (v = !0, Promise.resolve().then(() => {
+			v = !1, y || _();
+		}));
+	}, x = (e) => {
+		y || (r.record(e.detail), b());
+	};
+	t.addEventListener("vc:scout-code-preflight", x), d.addEventListener("click", _), p.addEventListener("click", () => {
+		r.clear(), _();
+	}), f.addEventListener("click", () => {
+		let n = r.snapshot(), i = new Blob([JSON.stringify(n, null, 2)], { type: "application/json" }), a = URL.createObjectURL(i), o = t.createElement("a");
+		o.href = a, o.download = "volley-coach-v2056-comparacion-codigos.json", t.body.appendChild(o), o.click(), o.remove(), e.setTimeout(() => URL.revokeObjectURL(a), 1e3);
+	});
+	let S = typeof MutationObserver == "function" ? new MutationObserver(b) : null;
+	S?.observe(n, {
+		attributes: !0,
+		attributeFilter: ["class"]
+	}), n.classList.contains("active") && _();
+	let C = Object.freeze({
+		version: "20.5.6",
+		readOnly: !0,
+		getReport: () => r.snapshot(),
+		clearReport: () => {
+			r.clear(), _();
+		},
+		dispose: () => {
+			y || (y = !0, S?.disconnect(), t.removeEventListener("vc:scout-code-preflight", x), a.remove(), e.VC_SHADOW_2056 === C && delete e.VC_SHADOW_2056);
+		}
+	});
+	return e.VC_SHADOW_2056 = C, C;
+}
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
-	let e = () => b(window);
+	let e = () => {
+		b(window), E(window);
+	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { l as attackEfficiency, o as auditMatchScores, h as compareNativeCode, m as inspectCodeShape, y as inspectMatchDomain, v as inspectSubstitution, b as mountDomainDiagnostic, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
+export { l as attackEfficiency, o as auditMatchScores, w as classifyPreflight, h as compareNativeCode, T as createShadowSession, m as inspectCodeShape, y as inspectMatchDomain, v as inspectSubstitution, b as mountDomainDiagnostic, E as mountShadowPanel, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
