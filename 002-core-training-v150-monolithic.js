@@ -1428,6 +1428,7 @@ function aplicarEstadoCloud(s){
   else if(activeView==='planificacion')renderPlanificacion?.();
   else if(activeView==='historial')renderHistorial?.();
   else if(activeView==='estadisticas')renderStats?.();
+  else if(activeView==='competicion'){renderCompetition?.();renderDashboardCompetition?.();}
   else if(activeView==='jugadores'){renderPlayers?.();renderDashboardPlayers?.();}
   else if(activeView==='scout-workspace-v900'){window.v900RenderFast?.();window.VC_V121?.render?.();window.VC_V123?.render?.();}
   else if(activeView==='scout-match-mode')window.v800Render?.();

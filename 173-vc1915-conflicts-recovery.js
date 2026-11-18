@@ -9,7 +9,7 @@
  if(root&&root.document){root.VC_V1915_RELIABILITY=api;api.install(root);}
 })(typeof globalThis!=='undefined'?globalThis:null,function(){
  'use strict';
- const VERSION='20.2.5.3',TYPES=['planificacion','historial','jugadores','scoutingMatches'];
+ const VERSION='20.3.2.1',TYPES=['planificacion','historial','jugadores','scoutingMatches','partidos'];
  const MAX_FILE=25*1024*1024,MAX_MANIFEST=400*1024;
  const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
  const arr=v=>Array.isArray(v)?v:[];

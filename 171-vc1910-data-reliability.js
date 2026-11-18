@@ -14,7 +14,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   const VERSION = '19.1.0';
-  const TRACKED = Object.freeze(['planificacion', 'historial', 'scoutingMatches', 'jugadores']);
+  const TRACKED = Object.freeze(['planificacion', 'historial', 'scoutingMatches', 'jugadores', 'partidos']);
   const monitor = {remoteRisk:null, checkedAt:null};
   function noteRemoteRisk(risk){monitor.remoteRisk=risk;monitor.checkedAt=new Date().toISOString();}
   const array = x => Array.isArray(x) ? x : [];
@@ -78,7 +78,7 @@
         const risk = {team, kind: key, local: entries.length, remote: array(rhs[team]?.[key]).length,
           missingCount: missing.length, sampleIds: missing.slice(0, 5)};
         losses.push(risk);
-        if ((key === 'planificacion' || key === 'historial' || key === 'scoutingMatches') &&
+        if ((key === 'planificacion' || key === 'historial' || key === 'scoutingMatches' || key === 'partidos') &&
             entries.length >= 2 && missing.length === entries.length) severe.push(risk);
       }
     }
@@ -119,7 +119,7 @@
     for (const [team, localTeam] of Object.entries(object(local?.equiposData))) {
       const base = object(merged.equiposData[team]);
       const result = {...base};
-      for (const key of ['planificacion', 'historial', 'jugadores', 'plantillas']) {
+      for (const key of ['planificacion', 'historial', 'jugadores', 'plantillas', 'partidos']) {
         result[key] = mergeRecords(base[key], localTeam?.[key]);
       }
       // Mantener la sesión en curso cuando el dispositivo tiene una edición posterior.
@@ -180,7 +180,7 @@
       const status = make('p');status.setAttribute('role','status');
       section.append(actions,result,status);container.appendChild(section);
       review.addEventListener('click',()=>{const d=currentReport();
-        result.textContent=Object.entries(d.teams).map(([name,v])=>`${name}: ${v.planificacion} planes · ${v.historial} entrenamientos · ${v.scoutingMatches} scoutings · ${v.jugadores} jugadores · ${v.sesionActual} ejercicios activos`).join('\n') || 'Sin equipos cargados';
+        result.textContent=Object.entries(d.teams).map(([name,v])=>`${name}: ${v.planificacion} planes · ${v.historial} entrenamientos · ${v.partidos} partidos y resultados · ${v.scoutingMatches} scoutings · ${v.jugadores} jugadores · ${v.sesionActual} ejercicios activos`).join('\n') || 'Sin equipos cargados';
         result.textContent+='\n\nNube: '+(!d.cloud.connected?'desconectada':d.cloud.error?'error: '+d.cloud.error:d.cloud.dirty?'pendiente':d.cloud.syncing?'comprobando':'sin cambios pendientes');
         if(d.remoteRisk?.losses?.length)result.textContent+='\nAviso: la última lectura remota no contenía '+d.remoteRisk.losses.map(x=>`${x.missingCount} registros de ${x.kind} (${x.team})`).join(', ');
         status.textContent=d.localError||'Revisión finalizada. Para recuperar información se necesita una copia externa o el historial de copias protegidas.';
