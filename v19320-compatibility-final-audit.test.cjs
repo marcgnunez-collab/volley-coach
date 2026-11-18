@@ -56,7 +56,7 @@ test('auditMatch counts only explicit data, does not fabricate points or mutate 
 });
 test('build references exactly the new module, CSS and versioned service worker',()=>{
  const html=read('index.html'),sw=read('service-worker.js');
- for(const x of ['208-vc19320-compatibility-audit.js?v=19.3.20','vc19320-compatibility-audit.css?v=19.3.20'])assert.equal(html.split(x).length-1,1);
+ for(const x of ['208-vc19320-compatibility-audit.js?v=20.5.0.3','vc19320-compatibility-audit.css?v=19.3.20'])assert.equal(html.split(x).length-1,1);
  assert.match(html,/service-worker\.js\?v=(?:19\.3\.20|20\.1\.0|20\.1\.1|20\.1\.2)/);
  assert.ok(sw.includes('compat-audit-19.3.20'));
  assert.ok(sw.includes('./208-vc19320-compatibility-audit.js'));
@@ -71,10 +71,10 @@ test('legacy importer preserves safe import and exposes a separate DVW inspectio
  assert.match(js,/requireSafeBackup/);
  assert.doesNotMatch(js,/Los archivos DVW binarios no son importables/);
 });
-test('missing CSS inventory matches real links of the release ZIP',()=>{
+test('CSS references no longer point to never-committed historical files',()=>{
  const html=read('index.html');
  const styles=[...html.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="\.\/([^"?]+)(?:\?[^" ]*)?"/g)].map(m=>m[1]);
  const missing=styles.filter(x=>!fs.existsSync(path.join(root,x))).sort();
- assert.equal(missing.length,11);
+ assert.equal(missing.length,0);
  assert.deepEqual([...api.assetIssues].sort(),missing);
 });

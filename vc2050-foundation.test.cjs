@@ -13,16 +13,20 @@ const absent=[...new Set(references)].filter(f=>!fs.existsSync(path.join(root,f)
 test('all referenced JavaScript modules exist',()=>{
  assert.deepEqual(absent.filter(f=>f.endsWith('.js')),[]);
 });
-test('historically missing CSS are explicitly reported, not replaced by empty files',()=>{
+test('historical uncommitted CSS paths are no longer requested',()=>{
  const known=['vc19-workflow.css','vc1924-clip-studio.css','vc1920-connection-hub.css','vc1922-live-delay.css','vc1923-video-scout-links.css','vc1925-library-health.css','vc1930-tactical-rivals.css','vc1937-analysis-main.css','vc1938-data-engine.css','vc1939-rally-search.css','vc19310-professional-analysis.css'];
- assert.deepEqual(absent.slice().sort(),known.slice().sort());
+ assert.deepEqual(absent,[]);
+ for(const name of known){
+  assert.ok(!html.includes('./'+name));
+  assert.ok(!sw.includes("'./"+name+"'"));
+ }
 });
 test('new health module is versioned in HTML and precache',()=>{
  for(const file of ['230-vc2050-release-health.js','vc2050-release-health.css']){
-  assert.ok(html.includes('./'+file+'?v=20.5.0.2'));
+  assert.ok(html.includes('./'+file+'?v=20.5.0.3'));
   assert.ok(sw.includes("'./"+file+"'"));
  }
- assert.match(sw,/foundation-20\.5\.0\.2/);
+ assert.match(sw,/foundation-20\.5\.0\.3/);
 });
 test('asset checker detects SPA fallback and missing responses',async()=>{
  const data=[{file:'./a.js',type:'js'},{file:'./b.css',type:'css'}];

@@ -128,11 +128,9 @@
   a.href=url;a.download=filename;win.document.body.appendChild(a);a.click();a.remove();
   win.setTimeout(()=>win.URL.revokeObjectURL(url),2000);
  }
- const assetIssues=[
-  'vc19-workflow.css','vc1924-clip-studio.css','vc1920-connection-hub.css','vc1922-live-delay.css',
-  'vc1923-video-scout-links.css','vc1925-library-health.css','vc1930-tactical-rivals.css',
-  'vc1937-analysis-main.css','vc1938-data-engine.css','vc1939-rally-search.css',
-  'vc19310-professional-analysis.css'];
+ // V20.5.0.3: the eleven legacy CSS names never existed in repository history;
+ // their dead HTML/SW references were removed. Do not report them as deployed 404s.
+ const assetIssues=[];
  function getMatch(win){try{return win.MatchState?.getActive?.()||win.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||win.VC_SCOUT_CORE?.getActive?.()||null}catch(_){return null}}
  function renderSummary(win,box,external){
   const a=auditMatch(getMatch(win));
@@ -143,7 +141,7 @@
    ${status}<div class="vc19320-actions"><button type="button" data-vc19320-export>Descargar informe JSON</button><label class="vc19320-file">Inspeccionar DVW / VCX / CSV <input type="file" accept=".dvw,.vcx,.json,.csv,.txt" data-vc19320-file hidden></label></div>
    <p class="vc19320-note">TXT de códigos y CSV no son exportaciones nativas DVW. Este lector DVW solo muestra estructura y cobertura, no importa partidos.</p>
    <div class="vc19320-table"><table><thead><tr><th>Funcionalidad</th><th>Estado</th><th>Observación</th></tr></thead><tbody>${features}</tbody></table></div>
-   <details><summary>Recursos que faltan en el ZIP distribuido (${assetIssues.length})</summary><p>Comprueba si estos CSS existen realmente en GitHub antes de modificarlos.</p><code>${assetIssues.map(esc).join(' · ')}</code></details>${ext}<p class="vc19320-statusline" role="status"></p>`;
+   <details><summary>Recursos estáticos pendientes (${assetIssues.length})</summary><p>Los 11 enlaces CSS históricos inexistentes se retiraron en V20.5.0.3 tras comprobar el historial de GitHub. Usa Gestión → Integridad de instalación para verificar los archivos publicados.</p></details>${ext}<p class="vc19320-statusline" role="status"></p>`;
  }
  function mount(dialog,win=typeof window==='undefined'?null:window){
   if(!dialog||!win||dialog.querySelector('#vc19320-compat'))return false;

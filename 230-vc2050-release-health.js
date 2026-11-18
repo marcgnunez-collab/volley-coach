@@ -14,7 +14,7 @@
   }
 })(typeof window !== 'undefined' ? window : null, function () {
   'use strict';
-  const VERSION = '20.5.0.2';
+  const VERSION = '20.5.0.3';
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
   function assets(doc) {
     const found = new Map();
@@ -96,7 +96,7 @@
     if(!section){
       section=doc.createElement('section');
       section.id='vc2050-release-health';section.className='vc2050-health';
-      section.innerHTML='<div class="vc20501-heading"><div><small>COMPROBACIÓN DEL SISTEMA · V20.5.0.2</small><h3>Integridad de instalación</h3><p>Comprueba que los archivos de interfaz están publicados. No lee ni modifica datos del club, vídeos ni la nube.</p></div><span class="vc20501-pill">Solo lectura</span></div><button type="button" class="vc2050-check">Comprobar archivos</button><div class="vc2050-result" role="status" aria-live="polite">Sin comprobar</div>';
+      section.innerHTML='<div class="vc20501-heading"><div><small>COMPROBACIÓN DEL SISTEMA · V20.5.0.3</small><h3>Integridad de instalación</h3><p>Comprueba que los archivos de interfaz están publicados. No lee ni modifica datos del club, vídeos ni la nube.</p></div><span class="vc20501-pill">Solo lectura</span></div><button type="button" class="vc2050-check">Comprobar archivos</button><div class="vc2050-result" role="status" aria-live="polite">Sin comprobar</div>';
       const heading=host.querySelector('.v11-page-head');
       if(heading)heading.insertAdjacentElement('afterend',section);
       else host.prepend(section);
