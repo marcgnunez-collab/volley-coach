@@ -4,6 +4,7 @@
 import {inspectPlayerBoxscore,type BoxscoreFilters,type PlayerBoxscore} from './player-boxscore';
 import type {Rotation,Team} from '../domain/model';
 import type {ObservableWindow} from './match-observable';
+import {readCanonicalMatch} from './match-state-contract';
 
 interface PlayerBoxscoreAPI{
  readonly version:'20.5.11';readonly readOnly:true;
@@ -44,13 +45,6 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
  const note=node('p','vc20511-note','Datos del scouting confirmado; no se infieren puntos a partir de códigos #. P1–P6 corresponde a la rotación del equipo seleccionado al inicio de cada rally.');
  host.append(header,controls,status,tableWrap,rotationHeading,rotationWrap,note);
  let disposed=false,pending=false,report:Readonly<PlayerBoxscore>|null=null;
- const active=()=>{
-  for(const reader of [win.MatchState,win.VC_MATCH_STATE,win.VC_SCOUT_VIDEO_BRIDGE,win.VC_SCOUT_REPORT_BRIDGE]){
-   try{const match=reader?.getActive?.();if(match&&typeof match==='object'&&!Array.isArray(match))return match;}
-   catch(_){/* A missing legacy reader must not interrupt scouting. */}
-  }
-  return null;
- };
  const visible=()=>workspace.classList.contains('active')&&!phase.classList.contains('hidden');
  const percent=(v:number|null)=>v===null?'—':`${v}%`;
  const cell=(row:HTMLElement,value:string,tag='td')=>row.append(node(tag,'',value));
@@ -99,7 +93,7 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
   const filters:BoxscoreFilters={team:team.value==='opponent'?'opponent':'ours' as Team,
    scope:scope.value==='match'?'match':'current',
    rotation:/^[1-6]$/.test(rotation.value)?Number(rotation.value) as Rotation:null};
-  const next=inspectPlayerBoxscore(active(),filters);report=next;
+  const next=inspectPlayerBoxscore(readCanonicalMatch(win),filters);report=next;
   if(visible())render(next);
   return next;
  };

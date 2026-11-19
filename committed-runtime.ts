@@ -2,13 +2,9 @@
  * Changes merely invalidate a report; no scan or parser runs on the live path.
  */
 import {auditCommittedMatch,type CommittedAuditReport} from './committed-audit';
-import {asRecord} from './model';
 import type {ObservableMatchStore} from '../state/match-observable';
+import {readCanonicalMatch,type CanonicalMatchWindow} from '../state/match-state-contract';
 
-interface ReadOnlyMatchSource{
- getActive?:()=>unknown;
- subscribe?:(callback:()=>void)=>(()=>void)|void;
-}
 interface CommittedAPI{
  readonly version:'20.5.7';
  readonly readOnly:true;
@@ -16,11 +12,7 @@ interface CommittedAPI{
  readonly runAudit:()=>Readonly<CommittedAuditReport>;
  readonly dispose:()=>void;
 }
-type CommittedWindow=Window&{
- MatchState?:ReadOnlyMatchSource;
- VC_MATCH_STATE?:ReadOnlyMatchSource;
- VC_SCOUT_VIDEO_BRIDGE?:ReadOnlyMatchSource;
- VC_SCOUT_REPORT_BRIDGE?:ReadOnlyMatchSource;
+type CommittedWindow=CanonicalMatchWindow&{
  VC_COMMITTED_2057?:Readonly<CommittedAPI>;
  VC_STATE_2059?:Readonly<ObservableMatchStore>;
 };
@@ -62,12 +54,7 @@ export function mountCommittedPanel(win:CommittedWindow):Readonly<CommittedAPI>|
  else host.insertAdjacentElement('afterbegin',section);
 
  let report:Readonly<CommittedAuditReport>|null=null,stale=false,disposed=false,generation=0;
- const currentMatch=()=>{
-  for(const reader of [win.MatchState,win.VC_MATCH_STATE,win.VC_SCOUT_VIDEO_BRIDGE,win.VC_SCOUT_REPORT_BRIDGE]){
-   try{const match=reader?.getActive?.();if(asRecord(match))return match;}catch(_){/* Legacy source unavailable. */}
-  }
-  return null;
- };
+ const currentMatch=()=>readCanonicalMatch(win);
  const render=()=>{
   if(disposed)return;
   if(!report){status.textContent='Pendiente de comprobar';section.dataset.state='waiting';}

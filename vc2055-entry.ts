@@ -9,6 +9,7 @@ import {inspectLiveSetStatistics} from './state/live-statistics';
 import {mountLiveStatisticsPanel} from './state/live-statistics-runtime';
 import {inspectPlayerBoxscore} from './state/player-boxscore';
 import {mountPlayerBoxscore} from './state/player-boxscore-runtime';
+import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 export {inspectCodeShape,compareNativeCode} from './domain/code-grammar';
 export {verifyRallyScore,auditMatchScores} from './domain/scoring';
 export {nextRotation,projectPoint} from './domain/rotation';
@@ -23,6 +24,7 @@ export {mountGrammarPanel};
 export {mountObservablePanel,createObservableMatchStore,projectObservableMatch};
 export {inspectLiveSetStatistics,mountLiveStatisticsPanel};
 export {inspectPlayerBoxscore,mountPlayerBoxscore};
+export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
  const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);};

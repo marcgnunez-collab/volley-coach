@@ -2,6 +2,7 @@
  * This is not a second match model, state writer, or persistence layer.
  */
 import {asList,asRecord,isRotation,isTeam,type Rotation,type Team} from '../domain/model';
+import {canonicalReaders,type CanonicalMatchWindow} from './match-state-contract';
 
 export type ObservableTopic='score'|'court'|'rally'|'status'|'change';
 export interface ObservableMatchSnapshot{
@@ -26,16 +27,7 @@ export interface ObservableMatchStore{
  diagnostics:()=>Readonly<ObservableDiagnostics>;
  dispose:()=>void;
 }
-interface MatchReader{
- getActive?:()=>unknown;
- getSet?:(match?:unknown)=>unknown;
- subscribe?:(callback:()=>void)=>(()=>void)|void;
-}
-export type ObservableWindow=Window&{
- MatchState?:MatchReader;
- VC_MATCH_STATE?:MatchReader;
- VC_SCOUT_VIDEO_BRIDGE?:MatchReader;
- VC_SCOUT_REPORT_BRIDGE?:MatchReader;
+export type ObservableWindow=CanonicalMatchWindow&{
  VC_STATE_2059?:Readonly<ObservableMatchStore>;
 };
 
@@ -64,9 +56,8 @@ export function createObservableMatchStore(win:ObservableWindow):Readonly<Observ
  const selectors:Exclude<ObservableTopic,'change'>[]=['score','court','rally','status'];
  const topics:ObservableTopic[]=[...selectors,'change'];
  const handlers=new Map(topics.map(topic=>[topic,new Set<(s:Readonly<ObservableMatchSnapshot>)=>void>()]));
- const readers=()=>[win.MatchState,win.VC_MATCH_STATE,win.VC_SCOUT_VIDEO_BRIDGE,win.VC_SCOUT_REPORT_BRIDGE];
  const sample=()=>{
-  for(const reader of readers()){
+  for(const reader of canonicalReaders(win)){
    try{
     const active=reader?.getActive?.();
     if(!asRecord(active))continue;

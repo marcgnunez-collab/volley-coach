@@ -3,6 +3,7 @@
  */
 import {inspectLiveSetStatistics,type LiveSetStatistics} from './live-statistics';
 import type {ObservableWindow} from './match-observable';
+import {readCanonicalMatch} from './match-state-contract';
 
 interface LiveStatisticsAPI{
  readonly version:'20.5.10';
@@ -34,13 +35,6 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
  const note=node('p','vc20510-note','SO y BP solo incluyen rallies cerrados. La recepción y el ataque muestran una vista provisional si hay acciones del rally abierto.');
  host.append(status,cards,open,note);
  let disposed=false,pending=false,report:Readonly<LiveSetStatistics>|null=null;
- const active=()=>{
-  for(const reader of [win.MatchState,win.VC_MATCH_STATE,win.VC_SCOUT_VIDEO_BRIDGE,win.VC_SCOUT_REPORT_BRIDGE]){
-   try{const match=reader?.getActive?.();if(match&&typeof match==='object'&&!Array.isArray(match))return match;}
-   catch(_){/* Leave native data and existing UI untouched. */}
-  }
-  return null;
- };
  const visible=()=>workspace.classList.contains('active')&&!phase.classList.contains('hidden');
  const setValue=(key:string,value:string,detail:string)=>{
   const target=output.get(key);if(!target)return;
@@ -64,7 +58,7 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
   open.textContent=`Rally abierto: ${data.provisional.actions} acciones · ${data.provisional.receptions} recepciones · ${data.provisional.attacks} ataques (sin cerrar)`;
  };
  const refresh=()=>{
-  const next=inspectLiveSetStatistics(active());report=next;
+  const next=inspectLiveSetStatistics(readCanonicalMatch(win));report=next;
   if(visible())render(next);
   return next;
  };

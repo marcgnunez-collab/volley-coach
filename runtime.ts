@@ -1,10 +1,11 @@
-import {asList,asRecord,isRotation,type MatchRecord} from './model';
+import {asList,asRecord,isRotation} from './model';
 import {auditMatchScores} from './scoring';
 import {nextRotation} from './rotation';
 import {sideOutBreakPoint,attackEfficiency} from './statistics';
 import {inspectCodeShape} from './code-grammar';
 import {inspectSubstitution} from './substitutions';
 import type {ObservableMatchStore} from '../state/match-observable';
+import {readCanonicalMatch,type CanonicalMatchWindow} from '../state/match-state-contract';
 
 export interface DomainOverview{
  readonly matchAvailable:boolean;
@@ -35,14 +36,7 @@ export function inspectMatchDomain(match:unknown):Readonly<DomainOverview>{
   attackEfficiencyPct:attackEfficiency(ourAttacks).efficiencyPct});
 }
 
-interface LegacyMatchState{
- getActive?:()=>MatchRecord|null;
- subscribe?:(callback:()=>void)=>(()=>void)|void;
-}
-type LegacyWindow=Window&{
- MatchState?:LegacyMatchState;
- VC_SCOUT_VIDEO_BRIDGE?:LegacyMatchState;
- VC_SCOUT_REPORT_BRIDGE?:LegacyMatchState;
+type LegacyWindow=CanonicalMatchWindow&{
  VC_DOMAIN_2055?:Readonly<DomainAPI>;
  VC_STATE_2059?:Readonly<ObservableMatchStore>;
 };
@@ -86,13 +80,7 @@ export function mountDomainDiagnostic(win:LegacyWindow):Readonly<DomainAPI>|null
  if(anchor?.parentNode===host)anchor.insertAdjacentElement('afterend',section);
  else host.insertAdjacentElement('afterbegin',section);
 
- const active=()=>{
-  for(const source of [win.MatchState,win.VC_SCOUT_VIDEO_BRIDGE,win.VC_SCOUT_REPORT_BRIDGE]){
-   try{const match=source?.getActive?.();if(match)return match;}catch(_){/* Try next existing reader. */}
-  }
-  return null;
- };
- const inspectCurrent=()=>inspectMatchDomain(active());
+ const inspectCurrent=()=>inspectMatchDomain(readCanonicalMatch(win));
  const format=(value:number|null)=>value===null?'—':`${value}%`;
  const render=()=>{
   const data=inspectCurrent();
