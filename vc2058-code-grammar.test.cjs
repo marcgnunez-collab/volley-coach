@@ -23,12 +23,10 @@ function nativeSyntaxHarness(lexerBridge,extensionsBridge){
   part('function scoutV6108ParseRaw(raw,m,oldAction=null){','// Quick-code console'),
   part('const v830ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
   part('const v840ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
-  part('const v20538ExtensionStats=','const v860ParseBase=scoutV6108ParseRaw;'),
-  part('const v860ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
-  part('function v870LegacyExtension(original){','const v870ParseBase=scoutV6108ParseRaw;'),
-  part('const v870ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
-  part('function v880LegacyExtension(original){','const v880ParseBase=scoutV6108ParseRaw;'),
-  part('const v880ParseBase=scoutV6108ParseRaw;','window.v680ParseCode')
+  part('const v20538ExtensionStats=','/* V20.5.39 · This former V8.6 parser wrapper'),
+  part('function v870LegacyExtension(original){','/* V20.5.39 · This former V8.7 parser wrapper'),
+  part('function v880LegacyExtension(original){','/* V20.5.39 · One canonical extension wrapper'),
+  part('const v20539ParserBase=scoutV6108ParseRaw;','window.v680ParseCode')
  ].join('\n');
  const ctx={
   window:{...(lexerBridge?{VC_SCOUT_LEXER_20537:lexerBridge}:{}),
@@ -197,10 +195,10 @@ test('versioned bundle, stylesheet and cache stay aligned with existing PWA publ
  const css=fs.readFileSync(path.join(root,'vc2055-domain.css'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.5.38');
+ assert.equal(pkg.version,'20.5.39');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2058-code-grammar.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.38'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.38'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.39'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.39'));
  assert.ok(css.includes('.vc2058-grammar'));
  assert.ok(sw.includes('code-grammar-20.5.8'));
  for(const file of ['src/domain/code-grammar.ts','src/domain/grammar-runtime.ts']){

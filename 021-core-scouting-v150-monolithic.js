@@ -4455,35 +4455,8 @@ function v860LegacyExtension(original){
     startZone:z1+s1,endZone:z2?(z2+s2):''};
 }
 
-/* Parser wrapper:
-   12A#.4B>5D... -> temporarily parse as .4>5 using the mature V8.4 parser,
-   then restore the exact alphanumeric zones before normalize/build. */
-const v860ParseBase=scoutV6108ParseRaw;
-scoutV6108ParseRaw=function(raw,m,oldAction=null){
-  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  const ext=v20538CheckedExtension('subzone',original,v860LegacyExtension(original));
-  if(ext.kind==='pass')return v860ParseBase(original,m,oldAction);
-  const parsed=v860ParseBase(ext.cleaned,m,oldAction);
-  if(parsed?.error||!parsed?.action)return parsed;
-
-  let a=parsed.action;
-  const full1=ext.startZone,full2=ext.endZone;
-  if(a.skill==='R'||a.skill==='D'){
-    if(full2){
-      a.startZone=full1;a.endZone=full2;a.contactZone=full2;a.sourceZone=full1;a.zoneInferred=false;
-    }else{
-      a.startZone='';a.endZone=full1;a.contactZone=full1;a.sourceZone='';a.zoneInferred=false;
-    }
-  }else if(a.skill==='B'){
-    a.startZone=full1;a.endZone='';a.contactZone=full1;
-  }else{
-    a.startZone=full1;a.endZone=full2;
-  }
-  a=scoutNormalizeAction(a);
-  a.code=scoutBuildCode(a);
-  return {action:a};
-};
-window.v680ParseCode=function(raw,m,oldAction=null){return scoutV6108ParseRaw(raw,m,oldAction)};
+/* V20.5.39 · This former V8.6 parser wrapper is now a phase of the single
+ * extension pipeline installed after the V8.8 grammar declarations. */
 
 /* Manual form: optional subzone selector is concatenated to the numeric zone. */
 window.scoutAddManualAction=function(){
@@ -4990,37 +4963,8 @@ function v870LegacyExtension(original){
   return {kind:'advanced',cleaned,skill,dvCode,tempo,subtype,setType,special,custom};
 }
 
-const v870ParseBase=scoutV6108ParseRaw;
-scoutV6108ParseRaw=function(raw,m,oldAction=null){
-  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  const {cleaned,dvCode,tempo,subtype,setType,special,custom}=
-    v20538CheckedExtension('advanced',original,v870LegacyExtension(original));
-
-  const parsed=v870ParseBase(cleaned,m,oldAction);
-  if(parsed?.error||!parsed?.action)return parsed;
-
-  let a=parsed.action;
-  if(a.skill==='A'){
-    a.attackCode=dvCode||String(oldAction?.attackCode||'');
-    a.attackTempo=tempo||String(oldAction?.attackTempo||'');
-  }else{
-    a.attackCode='';
-    if(a.skill==='E'){
-      a.setterCall=dvCode||String(oldAction?.setterCall||'');
-      a.setTempo=tempo||String(oldAction?.setTempo||'');
-    }else{
-      a.setterCall='';a.setTempo='';
-    }
-  }
-  a.skillSubtype=subtype||String(oldAction?.skillSubtype||'');
-  a.dvSetType=setType||String(oldAction?.dvSetType||'');
-  a.specialCode=special||String(oldAction?.specialCode||'');
-  a.customCode=custom||String(oldAction?.customCode||'');
-  a=scoutNormalizeAction(a);
-  a.code=scoutBuildCode(a);
-  return {action:a};
-};
-window.v680ParseCode=(raw,m,oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
+/* V20.5.39 · This former V8.7 parser wrapper is folded into the final
+ * extension pipeline; the typed/legacy modifier selectors remain unchanged. */
 
 function v870FillSubtype(skill){
   const sel=$('scout-action-subtype');if(!sel)return;
@@ -5274,14 +5218,64 @@ function v880LegacyExtension(original){
   if(!cm)return {kind:'pass'};
   return {kind:'cone',cleaned:cm[1]+cm[4],startZone:cm[2],endCone:Number(cm[3])};
 }
-const v880ParseBase=scoutV6108ParseRaw;
+/* V20.5.39 · One canonical extension wrapper replaces three chained parser
+ * reassignments (V8.6 subzones -> V8.7 modifiers -> V8.8 cones).
+ * The old action-building order is preserved: native V8.4 parse, optional
+ * subzone restoration, advanced fields, optional cone restoration. */
+window.VC_SCOUT_CANONICAL_20539=Object.freeze({
+  VERSION:'20.5.39',extensionWrappers:1,actionWriter:'native'
+});
+const v20539ParserBase=scoutV6108ParseRaw;
 scoutV6108ParseRaw=function(raw,m,oldAction=null){
   const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  const ext=v20538CheckedExtension('cone',original,v880LegacyExtension(original));
-  if(ext.kind==='pass')return v880ParseBase(original,m,oldAction);
-  const parsed=v880ParseBase(ext.cleaned,m,oldAction);if(parsed?.error||!parsed?.action)return parsed;
-  let a=parsed.action;a.startZone=ext.startZone;a.endZone='';a.contactZone='';a.locationMode='cones';a.endCone=ext.endCone;
-  a=scoutNormalizeAction({...a,...v880DataVolleyFields(a,m)});a.code=scoutBuildCode(a);return{action:a};
+  const cone=v20538CheckedExtension('cone',original,v880LegacyExtension(original));
+  const beforeAdvanced=cone.kind==='cone'?cone.cleaned:original;
+  const advanced=v20538CheckedExtension('advanced',beforeAdvanced,v870LegacyExtension(beforeAdvanced));
+  const subzone=v20538CheckedExtension('subzone',advanced.cleaned,v860LegacyExtension(advanced.cleaned));
+  const parsed=v20539ParserBase(subzone.kind==='subzone'?subzone.cleaned:advanced.cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+
+  let a=parsed.action;
+  if(subzone.kind==='subzone'){
+    const full1=subzone.startZone,full2=subzone.endZone;
+    if(a.skill==='R'||a.skill==='D'){
+      if(full2){
+        a.startZone=full1;a.endZone=full2;a.contactZone=full2;a.sourceZone=full1;a.zoneInferred=false;
+      }else{
+        a.startZone='';a.endZone=full1;a.contactZone=full1;a.sourceZone='';a.zoneInferred=false;
+      }
+    }else if(a.skill==='B'){
+      a.startZone=full1;a.endZone='';a.contactZone=full1;
+    }else{
+      a.startZone=full1;a.endZone=full2;
+    }
+    a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+  }
+
+  const {dvCode,tempo,subtype,setType,special,custom}=advanced;
+  if(a.skill==='A'){
+    a.attackCode=dvCode||String(oldAction?.attackCode||'');
+    a.attackTempo=tempo||String(oldAction?.attackTempo||'');
+  }else{
+    a.attackCode='';
+    if(a.skill==='E'){
+      a.setterCall=dvCode||String(oldAction?.setterCall||'');
+      a.setTempo=tempo||String(oldAction?.setTempo||'');
+    }else{
+      a.setterCall='';a.setTempo='';
+    }
+  }
+  a.skillSubtype=subtype||String(oldAction?.skillSubtype||'');
+  a.dvSetType=setType||String(oldAction?.dvSetType||'');
+  a.specialCode=special||String(oldAction?.specialCode||'');
+  a.customCode=custom||String(oldAction?.customCode||'');
+  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+
+  if(cone.kind==='cone'){
+    a.startZone=cone.startZone;a.endZone='';a.contactZone='';a.locationMode='cones';a.endCone=cone.endCone;
+    a=scoutNormalizeAction({...a,...v880DataVolleyFields(a,m)});a.code=scoutBuildCode(a);
+  }
+  return {action:a};
 };
 window.v680ParseCode=(raw,m,oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
 

@@ -237,7 +237,12 @@
   const extensions=byId('vc2021-extensions-engine'),extensionApi=root?.VC_SCOUT_EXTENSIONS_20538;
   const typedExtensions=extensionApi?.VERSION==='20.5.38'&&extensionApi?.grammarOnly===true;
   dock.dataset.vc20538Extensions=typedExtensions?'typescript':'classic';
-  if(extensions)extensions.textContent=typedExtensions?'Subzonas, conos y modificadores TypeScript':'Extensiones nativas (respaldo)';
+  const canonicalApi=root?.VC_SCOUT_CANONICAL_20539;
+  const hasCanonical=canonicalApi?.VERSION==='20.5.39'&&canonicalApi?.extensionWrappers===1;
+  dock.dataset.vc20539Canonical=hasCanonical?'consolidated':'historical';
+  if(extensions)extensions.textContent=hasCanonical
+   ?(typedExtensions?'Parser de extensiones único · TypeScript':'Parser único · extensiones nativas')
+   :(typedExtensions?'Subzonas, conos y modificadores TypeScript':'Extensiones nativas (respaldo)');
   if(preview&&preview.textContent!==(val||'—'))preview.textContent=val||'—';
   if(at&&at.textContent!==label)at.textContent=label;
   updates++;return true;

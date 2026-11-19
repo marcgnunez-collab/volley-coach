@@ -1,0 +1,67 @@
+/* Historical V20.5.38 parser wrappers; TEST FIXTURE ONLY, never loaded in production. */
+const v860ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const ext=v20538CheckedExtension('subzone',original,v860LegacyExtension(original));
+  if(ext.kind==='pass')return v860ParseBase(original,m,oldAction);
+  const parsed=v860ParseBase(ext.cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+
+  let a=parsed.action;
+  const full1=ext.startZone,full2=ext.endZone;
+  if(a.skill==='R'||a.skill==='D'){
+    if(full2){
+      a.startZone=full1;a.endZone=full2;a.contactZone=full2;a.sourceZone=full1;a.zoneInferred=false;
+    }else{
+      a.startZone='';a.endZone=full1;a.contactZone=full1;a.sourceZone='';a.zoneInferred=false;
+    }
+  }else if(a.skill==='B'){
+    a.startZone=full1;a.endZone='';a.contactZone=full1;
+  }else{
+    a.startZone=full1;a.endZone=full2;
+  }
+  a=scoutNormalizeAction(a);
+  a.code=scoutBuildCode(a);
+  return {action:a};
+};
+
+const v870ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const {cleaned,dvCode,tempo,subtype,setType,special,custom}=
+    v20538CheckedExtension('advanced',original,v870LegacyExtension(original));
+
+  const parsed=v870ParseBase(cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+
+  let a=parsed.action;
+  if(a.skill==='A'){
+    a.attackCode=dvCode||String(oldAction?.attackCode||'');
+    a.attackTempo=tempo||String(oldAction?.attackTempo||'');
+  }else{
+    a.attackCode='';
+    if(a.skill==='E'){
+      a.setterCall=dvCode||String(oldAction?.setterCall||'');
+      a.setTempo=tempo||String(oldAction?.setTempo||'');
+    }else{
+      a.setterCall='';a.setTempo='';
+    }
+  }
+  a.skillSubtype=subtype||String(oldAction?.skillSubtype||'');
+  a.dvSetType=setType||String(oldAction?.dvSetType||'');
+  a.specialCode=special||String(oldAction?.specialCode||'');
+  a.customCode=custom||String(oldAction?.customCode||'');
+  a=scoutNormalizeAction(a);
+  a.code=scoutBuildCode(a);
+  return {action:a};
+};
+
+const v880ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const ext=v20538CheckedExtension('cone',original,v880LegacyExtension(original));
+  if(ext.kind==='pass')return v880ParseBase(original,m,oldAction);
+  const parsed=v880ParseBase(ext.cleaned,m,oldAction);if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;a.startZone=ext.startZone;a.endZone='';a.contactZone='';a.locationMode='cones';a.endCone=ext.endCone;
+  a=scoutNormalizeAction({...a,...v880DataVolleyFields(a,m)});a.code=scoutBuildCode(a);return{action:a};
+};
