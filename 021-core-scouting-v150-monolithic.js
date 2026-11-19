@@ -4104,6 +4104,41 @@ function v857CheckedGuard(nativeError,conditions){
 }
 window.VC_SCOUT_REG_GUARD_DIAGNOSTICS_20535=()=>Object.freeze({...v857GuardStats});
 
+/* V20.5.36 · Preparation is a distinct phase, with the SINGLE native parser.
+   TS can orchestrate that call; only its identical original result is trusted.
+   It never receives authority to push, score, save or synchronize actions. */
+const v857PreparationStats={typed:0,classic:0,differences:0,exceptions:0,nativeCalls:0};
+function v857PrepareNativeOnce(raw,m){
+  let api;
+  try{api=window.VC_SCOUT_PREPARE_20536;}catch(_){v857PreparationStats.exceptions++;}
+  if(api?.VERSION!=='20.5.36'||api?.nativeOnly!==true||typeof api.prepare!=='function'){
+    v857PreparationStats.classic++;v857PreparationStats.nativeCalls++;
+    return scoutV6108ParseRaw(raw,m,null);
+  }
+  let called=false,nativeResult,parserFailed=false,parserError;
+  const nativeOnce=(code,match,oldAction)=>{
+    if(code!==raw||match!==m||oldAction!==null)throw Error('Preparación nativa: argumentos inesperados.');
+    if(called){if(parserFailed)throw parserError;return nativeResult;}
+    called=true;v857PreparationStats.nativeCalls++;
+    try{nativeResult=scoutV6108ParseRaw(code,match,oldAction);return nativeResult;}
+    catch(error){parserFailed=true;parserError=error;throw error;}
+  };
+  try{
+    const envelope=api.prepare(raw,m,nativeOnce);
+    if(!called){v857PreparationStats.classic++;return nativeOnce(raw,m,null);}
+    if(envelope?.mode==='native-once'&&envelope.nativeResult===nativeResult){
+      v857PreparationStats.typed++;return nativeResult;
+    }
+    v857PreparationStats.differences++;return nativeResult;
+  }catch(error){
+    v857PreparationStats.exceptions++;
+    if(parserFailed)throw parserError; // Never hide an error from the original parser.
+    if(called)return nativeResult; // Never parse the same action twice.
+    v857PreparationStats.classic++;return nativeOnce(raw,m,null);
+  }
+}
+window.VC_SCOUT_PREPARE_DIAGNOSTICS_20536=()=>Object.freeze({...v857PreparationStats});
+
 function v857RegisterRaw(raw,m=scoutActive()){
   raw=v857Preprocess(raw);
   if(!raw)return {ok:false,error:v857CheckedGuard('Código vacío.',
@@ -4117,7 +4152,7 @@ function v857RegisterRaw(raw,m=scoutActive()){
   if(guard)return {ok:false,error:guard};
 
   const before=v857LiveCount(m);
-  const parsed=scoutV6108ParseRaw(raw,m,null);
+  const parsed=v857PrepareNativeOnce(raw,m);
   if(parsed?.error||!parsed?.action){
     return {ok:false,error:parsed?.error||'Código no reconocido.',before,after:before};
   }
