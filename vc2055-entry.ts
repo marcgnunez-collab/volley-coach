@@ -18,6 +18,8 @@ export {planAwardPoint,planUndoLastRally,inspectClosedRally} from './domain/rall
 export {projectSetBoundary,inspectRallyRestoration} from './domain/rally-boundaries';
 export {compareConfirmedPoint,createRallyShadowSession} from './domain/rally-shadow';
 export {createRallyTransactionPilot} from './domain/rally-transaction-pilot';
+export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
+ from './domain/rally-recovery-evidence';
 export {mountRallyShadowPanel};
 export {attackEfficiency,sideOutBreakPoint} from './domain/statistics';
 export {inspectSubstitution} from './domain/substitutions';

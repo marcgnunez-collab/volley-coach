@@ -1,25 +1,36 @@
-/* V20.5.17 · Explicit, opt-in transaction pilot with partial native failure detection.
+/* V20.5.18 · Opt-in native pilot with read-only recovery evidence and gated resumption.
  * NOT installed in the live UI. No storage, cloud, DOM, global overrides or retry.
  * Its only mutation is a caller-supplied ORIGINAL native command, once per task.
  */
 import {asList,asRecord,asScore,isRotation,isTeam,type Score,type Team} from './model';
 import {planAwardPoint,planUndoLastRally,type RallyCommandPlan} from './rally-transition';
 import {compareConfirmedPoint,type ShadowArea,type ShadowVerdict} from './rally-shadow';
+import {captureRecoveryFrame,changedRecoveryAreas,classifyRecoveryEvidence,equalRecoveryFrames,
+ type RecoveryEvidence} from './rally-recovery-evidence';
 
 export interface NativeRallyPort{
  readonly readCurrent:()=>unknown;
  readonly awardPoint:(winner:Team)=>unknown|Promise<unknown>;
  readonly undoRally:()=>unknown|Promise<unknown>;
+ /** Optional authoritative LOCAL persisted read, supplied by the existing storage owner. */
+ readonly readDurableLocal?:()=>unknown|Promise<unknown>;
+}
+export interface PilotOptions{
+ /** Off by default. An observed native failure blocks all further native commands. */
+ readonly requireRecoveryAfterNativeFailure?:boolean;
+ /** A caller may restore a pending flag from the EXISTING durable journal after reload. */
+ readonly startBlockedForPendingRecovery?:boolean;
 }
 export type PilotOperation='point'|'undo';
-export type PilotVerdict=ShadowVerdict|'native-rejected'|'native-declined';
+export type PilotVerdict=ShadowVerdict|'native-rejected'|'native-declined'|'recovery-blocked';
 export interface PilotFinding{
  readonly operation:PilotOperation;
  readonly verdict:PilotVerdict;
  readonly areas:readonly ShadowArea[];
+ readonly durability:RecoveryEvidence;
 }
 export interface PilotReport{
- readonly version:'20.5.17';
+ readonly version:'20.5.18';
  readonly mode:'explicit-native-delegation-only';
  readonly installedInLiveUI:false;
  readonly submitted:number;
@@ -33,6 +44,12 @@ export interface PilotReport{
  readonly partialMutations:number;
  /** Failed commands whose state could not be inspected safely afterwards. */
  readonly uninspectedFailures:number;
+ readonly blockedCommands:number;
+ readonly recoveryGuard:Readonly<{
+  enabled:boolean;
+  blocked:boolean;
+  lastEvidence:RecoveryEvidence;
+ }>;
  readonly pending:number;
  readonly recent:readonly PilotFinding[];
 }
@@ -43,43 +60,9 @@ const currentSet=(match:unknown)=>{
  const m=asRecord(match);
  return m?asList(m.sets).map(asRecord).find(s=>s&&Number(s.number)===Number(m.currentSet)&&Number.isInteger(Number(m.currentSet)))||null:null;
 };
-const verdict=(operation:PilotOperation,result:PilotVerdict,areas:readonly ShadowArea[]=[]):Readonly<PilotFinding>=>
- Object.freeze({operation,verdict:result,areas:Object.freeze([...areas])});
-
-/** Compact, detached pre-command fingerprint; never retained in diagnostics.
- * Only the active set and live rally are inspected, never historical seasons.
- * An unreadable field is excluded: absence of a warning is not proof of a rollback.
- */
-type SafetyArea=Extract<ShadowArea,'score'|'service'|'rotation'|'set'|'match'|'actions'|'lineup'|'video'>;
-type SafetyFrame=Readonly<Partial<Record<SafetyArea,string>>>;
-const safeStringify=(value:unknown):string|undefined=>{
- try{return JSON.stringify(value);}catch(_){return undefined;}
-};
-const safetyFrame=(match:unknown):SafetyFrame|null=>{
- const m=asRecord(match);
- if(!m)return null;
- const s=currentSet(match),rallies=s&&Array.isArray(s.rallies)?s.rallies:null;
- const live=asRecord(m.liveRally),last=asRecord(rallies?.at(-1));
- const frames:Partial<Record<SafetyArea,string>>={
-  score:s?safeStringify([s.scoreUs,s.scoreOpponent]):undefined,
-  service:safeStringify(m.servingTeam),
-  rotation:safeStringify([m.rotationNo,m.opponentRotationNo]),
-  set:safeStringify([m.currentSet,asList(m.sets).length,s?.finished,s?.winner]),
-  match:safeStringify(m.status),
-  actions:rallies?safeStringify([rallies.length,last?.id,last?.actions,live?.id,live?.actions]):undefined,
-  lineup:safeStringify([m.lineup,m.baseLineup,m.lineupRoles,m.libero]),
-  video:safeStringify([last?.liveVideoSessionId,last?.liveVideoStart,last?.liveVideoEnd,
-   last?.liveVideoLinkedAt,live?.liveVideoSessionId,live?.liveVideoStart,live?.liveVideoEnd])
- };
- return Object.freeze(frames);
-};
-const changedAfterFailure=(before:SafetyFrame|null,after:SafetyFrame|null):readonly ShadowArea[]=>{
- if(!before||!after)return Object.freeze(['missing-data']);
- const areas:ShadowArea[]=[];
- const keys:SafetyArea[]=['score','service','rotation','set','match','actions','lineup','video'];
- for(const key of keys)if(before[key]!==undefined&&after[key]!==undefined&&before[key]!==after[key])areas.push(key);
- return Object.freeze(areas);
-};
+const verdict=(operation:PilotOperation,result:PilotVerdict,areas:readonly ShadowArea[]=[],
+ durability:RecoveryEvidence='not-checked'):Readonly<PilotFinding>=>
+ Object.freeze({operation,verdict:result,areas:Object.freeze([...areas]),durability});
 const compare=(operation:PilotOperation,plan:Readonly<RallyCommandPlan>,before:unknown,after:unknown,
  previousSet:Record<string,unknown>|null,previousRally:Record<string,unknown>|null,previousCount:number):Readonly<PilotFinding>=>{
  const match=asRecord(after),set=currentSet(after);
@@ -114,9 +97,12 @@ const compare=(operation:PilotOperation,plan:Readonly<RallyCommandPlan>,before:u
 };
 
 /** The caller must inject native commands; creating this API never patches or runs them. */
-export function createRallyTransactionPilot(port:NativeRallyPort){
+export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOptions={}){
  let chain:Promise<unknown>=Promise.resolve(),closed=false;
- let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,partialMutations=0,uninspectedFailures=0,pending=0;
+ const gated=options.requireRecoveryAfterNativeFailure===true;
+ let blocked=gated&&options.startBlockedForPendingRecovery===true;
+ let lastEvidence:RecoveryEvidence='not-checked';
+ let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,partialMutations=0,uninspectedFailures=0,blockedCommands=0,pending=0;
  const recent:PilotFinding[]=[];
  const record=(finding:Readonly<PilotFinding>)=>{
   completed++;
@@ -124,8 +110,10 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
   else if(finding.verdict==='difference')difference++;
   else if(finding.verdict==='native-rejected')nativeRejected++;
   else if(finding.verdict==='native-declined')nativeDeclined++;
+  else if(finding.verdict==='recovery-blocked')blockedCommands++;
   else unverified++;
   if(finding.verdict==='native-rejected'||finding.verdict==='native-declined'){
+   lastEvidence=finding.durability;
    if(finding.areas.some(area=>area!=='missing-data'))partialMutations++;
    if(finding.areas.includes('missing-data'))uninspectedFailures++;
   }
@@ -134,10 +122,20 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
   }
  };
  const safeRead=()=>{try{return port.readCurrent();}catch(_){return null;}};
- const safeFrame=()=>{try{return safetyFrame(safeRead());}catch(_){return null;}};
+ const safeFrame=()=>captureRecoveryFrame(safeRead());
+ const inspectDurable=async(before:ReturnType<typeof captureRecoveryFrame>,
+  after:ReturnType<typeof captureRecoveryFrame>):Promise<RecoveryEvidence>=>{
+  if(!port.readDurableLocal)return 'not-configured';
+  try{return classifyRecoveryEvidence(before,after,captureRecoveryFrame(await port.readDurableLocal()));}
+  catch(_){return 'unreadable';}
+ };
  const execute=async(operation:PilotOperation,winner?:Team):Promise<unknown>=>{
+  if(blocked){
+   record(verdict(operation,'recovery-blocked'));
+   throw new Error('Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.');
+  }
   const before=safeRead(),set=currentSet(before),rallies=asList(set?.rallies);
-  const safetyBefore=(()=>{try{return safetyFrame(before);}catch(_){return null;}})();
+  const safetyBefore=captureRecoveryFrame(before);
   const countBefore=rallies.length,last=asRecord(rallies.at(-1));
   let planned:Readonly<RallyCommandPlan>|null=null;
   try{planned=operation==='point'?planAwardPoint(before,winner):planUndoLastRally(before);}
@@ -147,11 +145,17 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
    // Exactly one dispatch. Never retry on a rejected or uncertain native result.
    nativeResult=operation==='point'?await port.awardPoint(winner!):await port.undoRally();
   }catch(error){
-   record(verdict(operation,'native-rejected',changedAfterFailure(safetyBefore,safeFrame())));
+   if(gated)blocked=true;
+   const safetyAfter=safeFrame();
+   const durable=await inspectDurable(safetyBefore,safetyAfter);
+   record(verdict(operation,'native-rejected',changedRecoveryAreas(safetyBefore,safetyAfter),durable));
    throw error;
   }
   if(nativeResult===false){
-   record(verdict(operation,'native-declined',changedAfterFailure(safetyBefore,safeFrame())));
+   if(gated)blocked=true;
+   const safetyAfter=safeFrame();
+   const durable=await inspectDurable(safetyBefore,safetyAfter);
+   record(verdict(operation,'native-declined',changedRecoveryAreas(safetyBefore,safetyAfter),durable));
    return nativeResult;
   }
   try{
@@ -169,15 +173,29 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
   return run.finally(()=>{pending--;});
  };
  const snapshot=():Readonly<PilotReport>=>Object.freeze({
-  version:'20.5.17',mode:'explicit-native-delegation-only',installedInLiveUI:false,
-  submitted,completed,agree,difference,unverified,nativeRejected,nativeDeclined,partialMutations,uninspectedFailures,pending,
+  version:'20.5.18',mode:'explicit-native-delegation-only',installedInLiveUI:false,
+  submitted,completed,agree,difference,unverified,nativeRejected,nativeDeclined,
+  partialMutations,uninspectedFailures,blockedCommands,pending,
+  recoveryGuard:Object.freeze({enabled:gated,blocked,lastEvidence}),
   recent:Object.freeze([...recent])
  });
  return Object.freeze({
-  readonlyVersion:'20.5.17' as const,installedInLiveUI:false as const,
+  readonlyVersion:'20.5.18' as const,installedInLiveUI:false as const,
   awardPoint:(winner:Team)=>submit('point',winner),
   undoRally:()=>submit('undo'),
   report:snapshot,
+  /** Opt-in operator step after reloading from the existing local persistence owner.
+   * Both independently read frames must match, including the real match identity.
+   * Cloud delivery still requires separate CAS/sync verification.
+   */
+  async resumeAfterVerifiedReload(){
+   if(!gated||!blocked||closed||pending!==0||!port.readDurableLocal)return false;
+   try{
+    const live=safeFrame(),durable=captureRecoveryFrame(await port.readDurableLocal());
+    if(!equalRecoveryFrames(live,durable))return false;
+    blocked=false;return true;
+   }catch(_){return false;}
+  },
   disable(){closed=true;}
  });
 }
