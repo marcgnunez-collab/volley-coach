@@ -1,4 +1,4 @@
-/* V20.5.16 · Explicit, opt-in transaction pilot for future native command migration.
+/* V20.5.17 · Explicit, opt-in transaction pilot with partial native failure detection.
  * NOT installed in the live UI. No storage, cloud, DOM, global overrides or retry.
  * Its only mutation is a caller-supplied ORIGINAL native command, once per task.
  */
@@ -19,7 +19,7 @@ export interface PilotFinding{
  readonly areas:readonly ShadowArea[];
 }
 export interface PilotReport{
- readonly version:'20.5.16';
+ readonly version:'20.5.17';
  readonly mode:'explicit-native-delegation-only';
  readonly installedInLiveUI:false;
  readonly submitted:number;
@@ -29,6 +29,10 @@ export interface PilotReport{
  readonly unverified:number;
  readonly nativeRejected:number;
  readonly nativeDeclined:number;
+ /** Proven in-memory change after a rejected or declined native command. */
+ readonly partialMutations:number;
+ /** Failed commands whose state could not be inspected safely afterwards. */
+ readonly uninspectedFailures:number;
  readonly pending:number;
  readonly recent:readonly PilotFinding[];
 }
@@ -41,6 +45,41 @@ const currentSet=(match:unknown)=>{
 };
 const verdict=(operation:PilotOperation,result:PilotVerdict,areas:readonly ShadowArea[]=[]):Readonly<PilotFinding>=>
  Object.freeze({operation,verdict:result,areas:Object.freeze([...areas])});
+
+/** Compact, detached pre-command fingerprint; never retained in diagnostics.
+ * Only the active set and live rally are inspected, never historical seasons.
+ * An unreadable field is excluded: absence of a warning is not proof of a rollback.
+ */
+type SafetyArea=Extract<ShadowArea,'score'|'service'|'rotation'|'set'|'match'|'actions'|'lineup'|'video'>;
+type SafetyFrame=Readonly<Partial<Record<SafetyArea,string>>>;
+const safeStringify=(value:unknown):string|undefined=>{
+ try{return JSON.stringify(value);}catch(_){return undefined;}
+};
+const safetyFrame=(match:unknown):SafetyFrame|null=>{
+ const m=asRecord(match);
+ if(!m)return null;
+ const s=currentSet(match),rallies=s&&Array.isArray(s.rallies)?s.rallies:null;
+ const live=asRecord(m.liveRally),last=asRecord(rallies?.at(-1));
+ const frames:Partial<Record<SafetyArea,string>>={
+  score:s?safeStringify([s.scoreUs,s.scoreOpponent]):undefined,
+  service:safeStringify(m.servingTeam),
+  rotation:safeStringify([m.rotationNo,m.opponentRotationNo]),
+  set:safeStringify([m.currentSet,asList(m.sets).length,s?.finished,s?.winner]),
+  match:safeStringify(m.status),
+  actions:rallies?safeStringify([rallies.length,last?.id,last?.actions,live?.id,live?.actions]):undefined,
+  lineup:safeStringify([m.lineup,m.baseLineup,m.lineupRoles,m.libero]),
+  video:safeStringify([last?.liveVideoSessionId,last?.liveVideoStart,last?.liveVideoEnd,
+   last?.liveVideoLinkedAt,live?.liveVideoSessionId,live?.liveVideoStart,live?.liveVideoEnd])
+ };
+ return Object.freeze(frames);
+};
+const changedAfterFailure=(before:SafetyFrame|null,after:SafetyFrame|null):readonly ShadowArea[]=>{
+ if(!before||!after)return Object.freeze(['missing-data']);
+ const areas:ShadowArea[]=[];
+ const keys:SafetyArea[]=['score','service','rotation','set','match','actions','lineup','video'];
+ for(const key of keys)if(before[key]!==undefined&&after[key]!==undefined&&before[key]!==after[key])areas.push(key);
+ return Object.freeze(areas);
+};
 const compare=(operation:PilotOperation,plan:Readonly<RallyCommandPlan>,before:unknown,after:unknown,
  previousSet:Record<string,unknown>|null,previousRally:Record<string,unknown>|null,previousCount:number):Readonly<PilotFinding>=>{
  const match=asRecord(after),set=currentSet(after);
@@ -77,7 +116,7 @@ const compare=(operation:PilotOperation,plan:Readonly<RallyCommandPlan>,before:u
 /** The caller must inject native commands; creating this API never patches or runs them. */
 export function createRallyTransactionPilot(port:NativeRallyPort){
  let chain:Promise<unknown>=Promise.resolve(),closed=false;
- let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,pending=0;
+ let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,partialMutations=0,uninspectedFailures=0,pending=0;
  const recent:PilotFinding[]=[];
  const record=(finding:Readonly<PilotFinding>)=>{
   completed++;
@@ -86,13 +125,19 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
   else if(finding.verdict==='native-rejected')nativeRejected++;
   else if(finding.verdict==='native-declined')nativeDeclined++;
   else unverified++;
+  if(finding.verdict==='native-rejected'||finding.verdict==='native-declined'){
+   if(finding.areas.some(area=>area!=='missing-data'))partialMutations++;
+   if(finding.areas.includes('missing-data'))uninspectedFailures++;
+  }
   if(finding.verdict!=='agree'){
    recent.push(finding);if(recent.length>MAX_FINDINGS)recent.shift();
   }
  };
  const safeRead=()=>{try{return port.readCurrent();}catch(_){return null;}};
+ const safeFrame=()=>{try{return safetyFrame(safeRead());}catch(_){return null;}};
  const execute=async(operation:PilotOperation,winner?:Team):Promise<unknown>=>{
   const before=safeRead(),set=currentSet(before),rallies=asList(set?.rallies);
+  const safetyBefore=(()=>{try{return safetyFrame(before);}catch(_){return null;}})();
   const countBefore=rallies.length,last=asRecord(rallies.at(-1));
   let planned:Readonly<RallyCommandPlan>|null=null;
   try{planned=operation==='point'?planAwardPoint(before,winner):planUndoLastRally(before);}
@@ -101,8 +146,14 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
   try{
    // Exactly one dispatch. Never retry on a rejected or uncertain native result.
    nativeResult=operation==='point'?await port.awardPoint(winner!):await port.undoRally();
-  }catch(error){record(verdict(operation,'native-rejected'));throw error;}
-  if(nativeResult===false){record(verdict(operation,'native-declined'));return nativeResult;}
+  }catch(error){
+   record(verdict(operation,'native-rejected',changedAfterFailure(safetyBefore,safeFrame())));
+   throw error;
+  }
+  if(nativeResult===false){
+   record(verdict(operation,'native-declined',changedAfterFailure(safetyBefore,safeFrame())));
+   return nativeResult;
+  }
   try{
    record(planned?compare(operation,planned,before,safeRead(),set,last,countBefore):
     verdict(operation,'unverified',['missing-data']));
@@ -118,12 +169,12 @@ export function createRallyTransactionPilot(port:NativeRallyPort){
   return run.finally(()=>{pending--;});
  };
  const snapshot=():Readonly<PilotReport>=>Object.freeze({
-  version:'20.5.16',mode:'explicit-native-delegation-only',installedInLiveUI:false,
-  submitted,completed,agree,difference,unverified,nativeRejected,nativeDeclined,pending,
+  version:'20.5.17',mode:'explicit-native-delegation-only',installedInLiveUI:false,
+  submitted,completed,agree,difference,unverified,nativeRejected,nativeDeclined,partialMutations,uninspectedFailures,pending,
   recent:Object.freeze([...recent])
  });
  return Object.freeze({
-  readonlyVersion:'20.5.16' as const,installedInLiveUI:false as const,
+  readonlyVersion:'20.5.17' as const,installedInLiveUI:false as const,
   awardPoint:(winner:Team)=>submit('point',winner),
   undoRally:()=>submit('undo'),
   report:snapshot,

@@ -717,7 +717,7 @@ function re(t, o = null) {
 	});
 }
 // src/domain/committed-audit.ts
-var ie = 2e4, ae = 6e4, oe = 80, z = /* @__PURE__ */ new Set([
+var ie = 2e4, ae = 6e4, oe = 80, se = /* @__PURE__ */ new Set([
 	"S",
 	"R",
 	"E",
@@ -726,7 +726,7 @@ var ie = 2e4, ae = 6e4, oe = 80, z = /* @__PURE__ */ new Set([
 	"D",
 	"F",
 	"C"
-]), B = (e) => typeof e == "string" && z.has(e) ? e : "—", se = {
+]), z = (e) => typeof e == "string" && se.has(e) ? e : "—", ce = {
 	difference: "El código guardado y los campos de la acción no coinciden.",
 	"coverage-gap": "El código guardado utiliza sintaxis todavía no cubierta por TypeScript.",
 	unverified: "Faltan campos del registro para comprobarlo con seguridad.",
@@ -735,8 +735,8 @@ var ie = 2e4, ae = 6e4, oe = 80, z = /* @__PURE__ */ new Set([
 	"score-sequence": "El tanteo final y el inicial del siguiente rally no coinciden.",
 	rotation: "La siguiente rotación o el turno de saque no concuerdan con la proyección básica."
 };
-function ce(t) {
-	let r = e(t), i = B(r?.skill);
+function le(t) {
+	let r = e(t), i = z(r?.skill);
 	if (!r) return Object.freeze({
 		kind: "unverified",
 		skill: i
@@ -749,9 +749,9 @@ function ce(t) {
 	let o = v(a);
 	if (o.state !== "candidate") return Object.freeze({
 		kind: "coverage-gap",
-		skill: B(o.skill) || i
+		skill: z(o.skill) || i
 	});
-	if (!n(r.team) || !z.has(String(r.skill)) || ![
+	if (!n(r.team) || !se.has(String(r.skill)) || ![
 		"#",
 		"+",
 		"!",
@@ -760,15 +760,15 @@ function ce(t) {
 		"="
 	].includes(String(r.evaluation)) || r.playerNumberSnapshot === null || r.playerNumberSnapshot === void 0 || String(r.playerNumberSnapshot).trim() === "") return Object.freeze({
 		kind: "unverified",
-		skill: B(o.skill)
+		skill: z(o.skill)
 	});
 	let s = y(a, { action: r });
 	return Object.freeze({
 		kind: s.state === "agree" ? "agree" : s.state === "disagree" ? "difference" : "unverified",
-		skill: B(o.skill)
+		skill: z(o.skill)
 	});
 }
-function le(n) {
+function ue(n) {
 	let r = e(n), i = {
 		actions: 0,
 		agree: 0,
@@ -788,13 +788,13 @@ function le(n) {
 		a.push(Object.freeze({
 			kind: e,
 			location: t,
-			skill: B(n),
-			reason: se[e]
+			skill: z(n),
+			reason: ce[e]
 		})), a.length > oe && a.shift();
 	}, c = (e, t) => {
 		if (i.actions >= ae) return o = !0, !1;
 		i.actions++;
-		let n = ce(e);
+		let n = le(e);
 		return n.kind === "agree" ? i.agree++ : n.kind === "difference" ? i.difference++ : n.kind === "coverage-gap" ? i.coverageGap++ : n.kind === "no-code" ? i.noCode++ : i.unverified++, n.kind !== "agree" && s(n.kind, t, n.skill), !0;
 	}, l = t(r?.sets);
 	main: for (let n = 0; n < l.length; n++) {
@@ -835,7 +835,7 @@ function le(n) {
 	});
 }
 // src/domain/committed-runtime.ts
-function ue(e) {
+function de(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_COMMITTED_2057) return e.VC_COMMITTED_2057;
@@ -889,7 +889,7 @@ function ue(e) {
 			e.append(r("strong", "", t.location), r("span", "", t.reason)), h.append(e);
 		}
 	}, C = () => {
-		let e = le(x());
+		let e = ue(x());
 		return _ = e, v = !1, S(), e;
 	}, T = () => {
 		y || (b++, _ && !v && (v = !0, c.textContent = "El partido ha cambiado. Repite la comprobación para actualizar el informe.", i.dataset.state = "stale", p.disabled = !0));
@@ -940,7 +940,7 @@ function ue(e) {
 	return e.VC_COMMITTED_2057 = k, k;
 }
 // src/domain/grammar-runtime.ts
-function de(e) {
+function fe(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_CODE_GRAMMAR_2058) return e.VC_CODE_GRAMMAR_2058;
@@ -1006,14 +1006,14 @@ function de(e) {
 	return e.VC_CODE_GRAMMAR_2058 = y, y;
 }
 // src/state/match-observable.ts
-var fe = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, pe = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, me = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
-function V(i, a) {
-	let o = e(i), s = pe(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
+var pe = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, me = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, he = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
+function B(i, a) {
+	let o = e(i), s = me(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
 	return Object.freeze({
 		score: Object.freeze({
 			set: s,
-			us: fe(l?.scoreUs),
-			opponent: fe(l?.scoreOpponent)
+			us: pe(l?.scoreUs),
+			opponent: pe(l?.scoreOpponent)
 		}),
 		court: Object.freeze({
 			serving: n(o?.servingTeam) ? o.servingTeam : null,
@@ -1030,7 +1030,7 @@ function V(i, a) {
 		})
 	});
 }
-function he(t) {
+function ge(t) {
 	let n = [
 		"score",
 		"court",
@@ -1044,12 +1044,12 @@ function he(t) {
 			try {
 				r = n?.getSet?.(t);
 			} catch {}
-			return V(t, r);
+			return B(t, r);
 		} catch {}
-		return V(null);
+		return B(null);
 	}, o = a(), s = !1, c = !1, l = !1, u = 0, d = 0, f = 0, p = (e = !1) => {
 		if (s) return;
-		let t = a(), r = n.filter((e) => !me(o[e], t[e]));
+		let t = a(), r = n.filter((e) => !he(o[e], t[e]));
 		r.length && (o = t, d++), (e || r.length) && r.push("change");
 		for (let e of r) for (let t of i.get(e) || []) {
 			f++;
@@ -1096,11 +1096,11 @@ function he(t) {
 	});
 }
 // src/state/runtime.ts
-function ge(e) {
+function _e(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_STATE_2059) return e.VC_STATE_2059;
-	let r = he(e), i = (e, n = "", r = "") => {
+	let r = ge(e), i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
 		return i.className = n, i.textContent = r, i;
 	}, a = i("section", "vc2059-observable");
@@ -1167,7 +1167,7 @@ function ge(e) {
 	return e.VC_STATE_2059 = S, S;
 }
 // src/state/live-statistics.ts
-var _e = 3e3, H = 25e3, U = (e, t) => t ? Math.round(e / t * 100) : null, ve = () => ({
+var ve = 3e3, V = 25e3, H = (e, t) => t ? Math.round(e / t * 100) : null, ye = () => ({
 	receptions: 0,
 	perfect: 0,
 	positive: 0,
@@ -1175,7 +1175,7 @@ var _e = 3e3, H = 25e3, U = (e, t) => t ? Math.round(e / t * 100) : null, ve = (
 	kills: 0,
 	errors: 0,
 	blocked: 0
-}), ye = (t, n) => {
+}), be = (t, n) => {
 	let r = e(n);
 	if (r?.team === "ours") {
 		if (r.skill === "R") {
@@ -1200,27 +1200,27 @@ var _e = 3e3, H = 25e3, U = (e, t) => t ? Math.round(e / t * 100) : null, ve = (
 			t.attacks++, r.evaluation === "#" && t.kills++, r.evaluation === "=" && t.errors++, r.evaluation === "/" && t.blocked++;
 		}
 	}
-}, be = (e) => Object.freeze({
+}, xe = (e) => Object.freeze({
 	attempts: e.receptions,
 	perfect: e.perfect,
 	positive: e.positive,
-	positivePct: U(e.positive, e.receptions),
-	perfectPct: U(e.perfect, e.receptions)
-}), xe = (e) => Object.freeze({
+	positivePct: H(e.positive, e.receptions),
+	perfectPct: H(e.perfect, e.receptions)
+}), Se = (e) => Object.freeze({
 	attempts: e.attacks,
 	kills: e.kills,
 	errors: e.errors,
 	blocked: e.blocked,
-	efficiencyPct: U(e.kills - e.errors - e.blocked, e.attacks)
-}), Se = (e, t) => Object.freeze({
+	efficiencyPct: H(e.kills - e.errors - e.blocked, e.attacks)
+}), Ce = (e, t) => Object.freeze({
 	attempts: e,
 	successes: t,
-	percent: U(t, e)
+	percent: H(t, e)
 });
-function Ce(r) {
-	let i = e(r), a = Number.isSafeInteger(i?.currentSet) && Number(i?.currentSet) > 0 ? Number(i?.currentSet) : null, o = e(t(i?.sets).find((t) => a !== null && e(t)?.number === a)), s = t(o?.rallies), c = ve(), l = ve(), u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, g = !1;
+function we(r) {
+	let i = e(r), a = Number.isSafeInteger(i?.currentSet) && Number(i?.currentSet) > 0 ? Number(i?.currentSet) : null, o = e(t(i?.sets).find((t) => a !== null && e(t)?.number === a)), s = t(o?.rallies), c = ye(), l = ye(), u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, g = !1;
 	if (o) for (let r of s) {
-		if (m >= _e) {
+		if (m >= ve) {
 			g = !0;
 			break;
 		}
@@ -1229,17 +1229,17 @@ function Ce(r) {
 		let a = i.winner, o = i.servingBefore;
 		n(a) && n(o) && (o === "opponent" ? (u++, a === "ours" && d++) : (f++, a === "ours" && p++));
 		for (let e of t(i.actions)) {
-			if (h >= H) {
+			if (h >= V) {
 				g = !0;
 				break;
 			}
-			h++, ye(c, e);
+			h++, be(c, e);
 		}
 		if (g) break;
 	}
 	let _ = t(e(i?.liveRally)?.actions);
-	for (let e of _.slice(0, H)) ye(l, e);
-	_.length > H && (g = !0);
+	for (let e of _.slice(0, V)) be(l, e);
+	_.length > V && (g = !0);
 	let v = {
 		receptions: c.receptions + l.receptions,
 		perfect: c.perfect + l.perfect,
@@ -1256,21 +1256,21 @@ function Ce(r) {
 		examinedRallies: m,
 		examinedActions: h,
 		truncated: g,
-		sideOut: Se(u, d),
-		breakPoint: Se(f, p),
-		reception: be(c),
-		attack: xe(c),
+		sideOut: Ce(u, d),
+		breakPoint: Ce(f, p),
+		reception: xe(c),
+		attack: Se(c),
 		provisional: Object.freeze({
 			actions: _.length,
 			receptions: l.receptions,
 			attacks: l.attacks,
-			reception: be(v),
-			attack: xe(v)
+			reception: xe(v),
+			attack: Se(v)
 		})
 	});
 }
 // src/state/live-statistics-runtime.ts
-function we(e) {
+function Te(e) {
 	let t = e.document, n = t.getElementById("vc20510-live-stats"), r = t.getElementById("scout-workspace-v900"), i = t.getElementById("v900-phase-scout"), a = e.VC_STATE_2059;
 	if (!n || !r || !i || !a) return null;
 	if (e.VC_LIVE_STATS_20510) return e.VC_LIVE_STATS_20510;
@@ -1303,7 +1303,7 @@ function we(e) {
 		let t = e.provisional.receptions > 0, r = e.provisional.attacks > 0, i = t ? e.provisional.reception : e.reception, a = r ? e.provisional.attack : e.attack;
 		g("receive", _(i.positivePct), `${i.positive}/${i.attempts} positivas${t ? " · PROVISIONAL" : ""}`), g("attack", _(a.efficiencyPct), `${a.kills} puntos · ${a.errors + a.blocked} errores/bloqueos · ${a.attempts} intentos${r ? " · PROVISIONAL" : ""}`), u.textContent = `Rally abierto: ${e.provisional.actions} acciones · ${e.provisional.receptions} recepciones · ${e.provisional.attacks} ataques (sin cerrar)`;
 	}, y = () => {
-		let t = Ce(w(e));
+		let t = we(w(e));
 		return m = t, h() && v(t), t;
 	}, b = a.subscribe("change", () => {
 		f || p || !h() || (p = !0, Promise.resolve().then(() => {
@@ -1331,14 +1331,14 @@ function we(e) {
 	return e.VC_LIVE_STATS_20510 = S, S;
 }
 // src/state/player-boxscore.ts
-var Te = 2e4, Ee = 6e4, W = 80, De = /* @__PURE__ */ new Set([
+var Ee = 2e4, De = 6e4, Oe = 80, ke = /* @__PURE__ */ new Set([
 	"#",
 	"+",
 	"!",
 	"-",
 	"/",
 	"="
-]), G = () => ({
+]), U = () => ({
 	actions: 0,
 	s: 0,
 	aces: 0,
@@ -1354,19 +1354,19 @@ var Te = 2e4, Ee = 6e4, W = 80, De = /* @__PURE__ */ new Set([
 	bPoints: 0,
 	d: 0,
 	e: 0
-}), K = (e, t) => t ? Math.round(e / t * 100) : null, q = (e) => {
+}), W = (e, t) => t ? Math.round(e / t * 100) : null, G = (e) => {
 	if (typeof e == "number" && Number.isSafeInteger(e) && e > 0) return e;
 	if (typeof e == "string" && /^\d{1,15}$/.test(e)) {
 		let t = Number(e);
 		return Number.isSafeInteger(t) && t > 0 ? t : null;
 	}
 	return null;
-}, Oe = (e) => {
+}, Ae = (e) => {
 	let t = typeof e == "number" && Number.isSafeInteger(e) ? String(e) : typeof e == "string" ? e.trim() : "";
 	return /^\d{1,3}$/.test(t) ? t : null;
-}, J = (e) => typeof e == "string" ? e.trim().slice(0, 50) : "";
-function ke(e, t) {
-	let n = q(e.playerId), r = J(e.opponentPlayerUid), i = Oe(e.playerNumberSnapshot), a = J(e.playerLabel), o = Oe((a.match(/^#?\s*(\d{1,3})(?:\D|$)/) || [])[1]), s = i || (t === "opponent" ? o : null), c = J(e.playerNameSnapshot) || a.replace(/^#?\s*\d{1,3}\s*[·-]?\s*/, "") || "", l = t === "ours" && n !== null ? `id:${n}` : t === "opponent" && r ? `uid:${r}` : s === null ? "unidentified" : `num:${s}`;
+}, K = (e) => typeof e == "string" ? e.trim().slice(0, 50) : "";
+function je(e, t) {
+	let n = G(e.playerId), r = K(e.opponentPlayerUid), i = Ae(e.playerNumberSnapshot), a = K(e.playerLabel), o = Ae((a.match(/^#?\s*(\d{1,3})(?:\D|$)/) || [])[1]), s = i || (t === "opponent" ? o : null), c = K(e.playerNameSnapshot) || a.replace(/^#?\s*\d{1,3}\s*[·-]?\s*/, "") || "", l = t === "ours" && n !== null ? `id:${n}` : t === "opponent" && r ? `uid:${r}` : s === null ? "unidentified" : `num:${s}`;
 	return {
 		key: l,
 		number: s,
@@ -1374,9 +1374,9 @@ function ke(e, t) {
 		identified: l !== "unidentified"
 	};
 }
-var Y = (e, t) => {
+var q = (e, t) => {
 	let n = t.skill, r = t.evaluation;
-	return !De.has(String(r)) || ![
+	return !ke.has(String(r)) || ![
 		"S",
 		"R",
 		"A",
@@ -1384,23 +1384,23 @@ var Y = (e, t) => {
 		"D",
 		"E"
 	].includes(String(n)) ? !1 : (e.actions++, n === "S" ? (e.s++, r === "#" && e.aces++, r === "=" && e.sErrors++) : n === "R" ? (e.r++, r === "#" && e.rPerfect++, (r === "#" || r === "+") && e.rPositive++) : n === "A" ? (e.a++, r === "#" && e.kills++, r === "=" && e.aErrors++, r === "/" && e.blocked++) : n === "B" ? (e.b++, r === "#" && e.bPoints++) : n === "D" ? e.d++ : n === "E" && e.e++, !0);
-}, Ae = (e) => Object.freeze({
+}, Me = (e) => Object.freeze({
 	attempts: e.a,
 	kills: e.kills,
 	errors: e.aErrors,
 	blocked: e.blocked,
-	efficiencyPct: K(e.kills - e.aErrors - e.blocked, e.a)
-}), je = (e, t) => Object.freeze({
+	efficiencyPct: W(e.kills - e.aErrors - e.blocked, e.a)
+}), Ne = (e, t) => Object.freeze({
 	attempts: e,
 	won: t,
-	percent: K(t, e)
+	percent: W(t, e)
 });
-function Me(i, a) {
+function Pe(i, a) {
 	let o = e(i), s = a.team === "opponent" ? "opponent" : "ours", c = a.scope === "match" ? "match" : "current", l = r(a.rotation) ? a.rotation : null, u = Object.freeze({
 		team: s,
 		scope: c,
 		rotation: l
-	}), d = q(o?.currentSet), f = t(o?.sets), p = c === "match" ? f : f.filter((t) => d !== null && q(e(t)?.number) === d), m = !!o && p.some((t) => !!e(t)), h = /* @__PURE__ */ new Map(), g = /* @__PURE__ */ new Map(), _ = G();
+	}), d = G(o?.currentSet), f = t(o?.sets), p = c === "match" ? f : f.filter((t) => d !== null && G(e(t)?.number) === d), m = !!o && p.some((t) => !!e(t)), h = /* @__PURE__ */ new Map(), g = /* @__PURE__ */ new Map(), _ = U();
 	for (let e of [
 		1,
 		2,
@@ -1409,7 +1409,7 @@ function Me(i, a) {
 		5,
 		6
 	]) g.set(e, {
-		...G(),
+		...U(),
 		rotation: e,
 		rallies: 0,
 		so: 0,
@@ -1421,7 +1421,7 @@ function Me(i, a) {
 	main: for (let i of p) {
 		let a = e(i);
 		if (a) for (let i of t(a.rallies)) {
-			if (v >= Te) {
+			if (v >= Ee) {
 				C = !0;
 				break main;
 			}
@@ -1434,22 +1434,22 @@ function Me(i, a) {
 				e.rallies++, n(a.servingBefore) && n(a.winner) && (a.servingBefore === s ? (e.bp++, a.winner === s && e.bpWon++) : (e.so++, a.winner === s && e.soWon++));
 			}
 			for (let n of t(a.actions)) {
-				if (y >= Ee) {
+				if (y >= De) {
 					C = !0;
 					break main;
 				}
 				y++;
 				let t = e(n);
-				if (!t || t.team !== s || (c === null && S++, c !== null && Y(g.get(c), t), l !== null && c !== l)) continue;
-				let r = ke(t, s), i = r.key, a = h.get(i);
-				!a && h.size >= W ? (w = !0, Y(_, t) && (b++, r.identified || x++)) : (a || (a = {
-					...G(),
+				if (!t || t.team !== s || (c === null && S++, c !== null && q(g.get(c), t), l !== null && c !== l)) continue;
+				let r = je(t, s), i = r.key, a = h.get(i);
+				!a && h.size >= Oe ? (w = !0, q(_, t) && (b++, r.identified || x++)) : (a || (a = {
+					...U(),
 					...r
-				}, h.set(i, a)), !a.number && r.number && (a.number = r.number), !a.name && r.name && (a.name = r.name), Y(a, t) && (b++, a.identified || x++));
+				}, h.set(i, a)), !a.number && r.number && (a.number = r.number), !a.name && r.name && (a.name = r.name), q(a, t) && (b++, a.identified || x++));
 			}
 		}
 	}
-	let T = [...h.values()].filter((e) => e.actions > 0).sort((e, t) => e.identified === t.identified ? (e.number === null ? Infinity : Number(e.number)) - (t.number === null ? Infinity : Number(t.number)) || e.name.localeCompare(t.name, "es") || e.key.localeCompare(t.key) : e.identified ? -1 : 1).slice(0, W).map((e) => Object.freeze({
+	let T = [...h.values()].filter((e) => e.actions > 0).sort((e, t) => e.identified === t.identified ? (e.number === null ? Infinity : Number(e.number)) - (t.number === null ? Infinity : Number(t.number)) || e.name.localeCompare(t.name, "es") || e.key.localeCompare(t.key) : e.identified ? -1 : 1).slice(0, Oe).map((e) => Object.freeze({
 		key: e.key,
 		number: e.number,
 		name: e.name || "Jugador sin nombre",
@@ -1464,10 +1464,10 @@ function Me(i, a) {
 			attempts: e.r,
 			perfect: e.rPerfect,
 			positive: e.rPositive,
-			positivePct: K(e.rPositive, e.r),
-			perfectPct: K(e.rPerfect, e.r)
+			positivePct: W(e.rPositive, e.r),
+			perfectPct: W(e.rPerfect, e.r)
 		}),
-		attack: Ae(e),
+		attack: Me(e),
 		block: Object.freeze({
 			attempts: e.b,
 			points: e.bPoints
@@ -1477,9 +1477,9 @@ function Me(i, a) {
 	})), E = [...g.values()].map((e) => Object.freeze({
 		rotation: e.rotation,
 		rallies: e.rallies,
-		sideOut: je(e.so, e.soWon),
-		breakPoint: je(e.bp, e.bpWon),
-		attack: Ae(e)
+		sideOut: Ne(e.so, e.soWon),
+		breakPoint: Ne(e.bp, e.bpWon),
+		attack: Me(e)
 	})), D = t(e(o?.liveRally)?.actions).filter((t) => e(t)?.team === s).length;
 	return Object.freeze({
 		available: m,
@@ -1497,7 +1497,7 @@ function Me(i, a) {
 	});
 }
 // src/state/player-boxscore-runtime.ts
-function Ne(e) {
+function Fe(e) {
 	let t = e.document, n = t.getElementById("vc20511-boxscore"), r = t.getElementById("scout-workspace-v900"), i = t.getElementById("v900-phase-analyze"), a = e.VC_STATE_2059;
 	if (!n || !r || !i || !a) return null;
 	if (e.VC_PLAYER_BOXSCORE_20511) return e.VC_PLAYER_BOXSCORE_20511;
@@ -1577,7 +1577,7 @@ function Ne(e) {
 			team: d.value === "opponent" ? "opponent" : "ours",
 			scope: f.value === "match" ? "match" : "current",
 			rotation: /^[1-6]$/.test(p.value) ? Number(p.value) : null
-		}, n = Me(w(e), t);
+		}, n = Pe(w(e), t);
 		return x = n, S() && D(n), n;
 	}, k = a.subscribe("change", () => {
 		y || b || !S() || (b = !0, Promise.resolve().then(() => {
@@ -1619,55 +1619,55 @@ function Ne(e) {
 	return e.VC_PLAYER_BOXSCORE_20511 = j, j;
 }
 // src/domain/rally-shadow.ts
-var Pe = 40, Fe = [
+var Ie = 40, Le = [
 	"p1",
 	"p2",
 	"p3",
 	"p4",
 	"p5",
 	"p6"
-], Ie = [
+], Re = [
 	"liveVideoSessionId",
 	"liveVideoStart",
 	"liveVideoEnd",
 	"liveVideoLinkedAt"
-], X = (e, t) => e.us === t.us && e.opponent === t.opponent, Z = (e, t, n = !1) => Object.freeze({
+], J = (e, t) => e.us === t.us && e.opponent === t.opponent, Y = (e, t, n = !1) => Object.freeze({
 	operation: e,
 	verdict: t.length ? "difference" : n ? "unverified" : "agree",
 	areas: Object.freeze(t.length ? [...t] : n ? ["missing-data"] : [])
-}), Le = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, Re = (t) => {
+}), ze = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, Be = (t) => {
 	let n = e(t), r = e(n?.ours), i = e(n?.opponent);
-	return !!r && !!i && Fe.every((e) => Object.hasOwn(r, e) && Object.hasOwn(i, e));
-}, ze = (t, n) => {
+	return !!r && !!i && Le.every((e) => Object.hasOwn(r, e) && Object.hasOwn(i, e));
+}, Ve = (t, n) => {
 	let r = e(t), i = e(n), a = e(r?.ours), o = e(i?.ours), s = e(r?.opponent), c = e(i?.opponent);
-	return !!a && !!o && !!s && !!c && Fe.every((e) => Object.is(a[e], o[e]) && Object.is(s[e], c[e]));
+	return !!a && !!o && !!s && !!c && Le.every((e) => Object.is(a[e], o[e]) && Object.is(s[e], c[e]));
 };
-function Q(o, s, l) {
+function X(o, s, l) {
 	let u = e(o), d = e(s), f = e(l), p = [];
-	if (!u || !d || !f) return Z("point", p, !0);
+	if (!u || !d || !f) return Y("point", p, !0);
 	let m = a(f);
-	if (!m.before || !m.after || !n(f.winner) || !n(f.servingBefore) || !r(f.rotationBefore) || !r(f.opponentRotationBefore)) return Z("point", p, !0);
+	if (!m.before || !m.after || !n(f.winner) || !n(f.servingBefore) || !r(f.rotationBefore) || !r(f.opponentRotationBefore)) return Y("point", p, !0);
 	let h = c({
 		score: m.before,
 		serving: f.servingBefore,
 		rotationUs: f.rotationBefore,
 		rotationOpponent: f.opponentRotationBefore
 	}, f.winner);
-	if (h.state !== "projected" || !h.score) return Z("point", p, !0);
-	m.state !== "inconsistent" && X(h.score, m.after) || p.push("score");
+	if (h.state !== "projected" || !h.score) return Y("point", p, !0);
+	m.state !== "inconsistent" && J(h.score, m.after) || p.push("score");
 	let g = i({
 		us: d.scoreUs,
 		opponent: d.scoreOpponent
 	}), _ = !g;
-	g && !X(g, m.after) && !p.includes("score") && p.push("score");
+	g && !J(g, m.after) && !p.includes("score") && p.push("score");
 	let v = e(u.liveRally);
 	v && t(v.actions).length === 0 && !e(v.startSnapshot) && (n(u.servingTeam) && u.servingTeam !== h.serving ? p.push("service") : n(u.servingTeam) || (_ = !0), r(u.rotationNo) && r(u.opponentRotationNo) ? (u.rotationNo !== h.rotationUs || u.opponentRotationNo !== h.rotationOpponent) && p.push("rotation") : _ = !0);
 	let y = N(u, m.after);
 	y.state === "projected" ? (typeof d.finished == "boolean" && d.finished !== y.setFinished ? p.push("set") : typeof d.finished != "boolean" && (_ = !0), y.setFinished && n(d.winner) && d.winner !== y.setWinner ? p.push("set") : y.setFinished && !n(d.winner) && (_ = !0), y.matchFinished === !0 && u.status !== "finished" && p.push("match")) : _ = !0;
 	let b = P(f);
-	return (b.lineup === "missing" || b.actionsCaptured === !1) && (_ = !0), Z("point", [...new Set(p)], _);
+	return (b.lineup === "missing" || b.actionsCaptured === !1) && (_ = !0), Y("point", [...new Set(p)], _);
 }
-var Be = (n, r) => {
+var He = (n, r) => {
 	let i = t(r.rallies), a = e(i.at(-1)), o = R(n);
 	return {
 		match: n,
@@ -1678,26 +1678,26 @@ var Be = (n, r) => {
 		expectedUndo: o.state === "projected" ? o.after : null
 	};
 };
-function Ve(t, a, o) {
+function Ue(t, a, o) {
 	let s = [], c = e(a.liveRally), l = t.lastRally, u = t.expectedUndo;
-	if (!l || !c || !u || l.id === void 0 || c.id !== l.id) return Z("undo", s, !0);
+	if (!l || !c || !u || l.id === void 0 || c.id !== l.id) return Y("undo", s, !0);
 	let d = i({
 		us: o.scoreUs,
 		opponent: o.scoreOpponent
 	}), f = !d;
-	d && !X(d, u.score) && s.push("score"), n(a.servingTeam) ? a.servingTeam !== u.serving && s.push("service") : f = !0, r(a.rotationNo) && r(a.opponentRotationNo) ? (a.rotationNo !== u.rotationUs || a.opponentRotationNo !== u.rotationOpponent) && s.push("rotation") : f = !0, Array.isArray(l.actions) && Array.isArray(c.actions) ? l.actions.length !== c.actions.length && s.push("actions") : f = !0, Re(l.lineupBefore) && Re(a.lineup) ? ze(l.lineupBefore, a.lineup) || s.push("lineup") : f = !0;
-	let p = Ie.filter((e) => l[e] !== void 0 && l[e] !== null);
-	return p.length && p.some((e) => !Object.is(l[e], c[e])) && s.push("video"), Z("undo", [...new Set(s)], f);
+	d && !J(d, u.score) && s.push("score"), n(a.servingTeam) ? a.servingTeam !== u.serving && s.push("service") : f = !0, r(a.rotationNo) && r(a.opponentRotationNo) ? (a.rotationNo !== u.rotationUs || a.opponentRotationNo !== u.rotationOpponent) && s.push("rotation") : f = !0, Array.isArray(l.actions) && Array.isArray(c.actions) ? l.actions.length !== c.actions.length && s.push("actions") : f = !0, Be(l.lineupBefore) && Be(a.lineup) ? Ve(l.lineupBefore, a.lineup) || s.push("lineup") : f = !0;
+	let p = Re.filter((e) => l[e] !== void 0 && l[e] !== null);
+	return p.length && p.some((e) => !Object.is(l[e], c[e])) && s.push("video"), Y("undo", [...new Set(s)], f);
 }
-function He() {
-	let t = null, n = !1, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = [], d = (e) => (r++, e.operation === "point" ? i++ : a++, e.verdict === "agree" ? o++ : e.verdict === "difference" ? s++ : c++, e.verdict !== "agree" && (u.push(e), u.length > Pe && u.shift()), e);
+function We() {
+	let t = null, n = !1, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = [], d = (e) => (r++, e.operation === "point" ? i++ : a++, e.verdict === "agree" ? o++ : e.verdict === "difference" ? s++ : c++, e.verdict !== "agree" && (u.push(e), u.length > Ie && u.shift()), e);
 	return Object.freeze({
 		observe(r) {
 			if (n) return null;
-			let i = e(r), a = i && Le(i);
+			let i = e(r), a = i && ze(i);
 			if (!i || !a) return t = null, null;
-			let o = Be(i, a), s = t;
-			return t = o, s ? s.match !== i || s.set !== a ? (l++, null) : o.count === s.count ? null : o.count === s.count + 1 ? d(Q(i, a, o.lastRally)) : o.count === s.count - 1 ? s.lastId === void 0 || e(i.liveRally)?.id !== s.lastId ? (l++, null) : d(Ve(s, i, a)) : (l++, null) : null;
+			let o = He(i, a), s = t;
+			return t = o, s ? s.match !== i || s.set !== a ? (l++, null) : o.count === s.count ? null : o.count === s.count + 1 ? d(X(i, a, o.lastRally)) : o.count === s.count - 1 ? s.lastId === void 0 || e(i.liveRally)?.id !== s.lastId ? (l++, null) : d(Ue(s, i, a)) : (l++, null) : null;
 		},
 		snapshot: () => Object.freeze({
 			version: "20.5.15",
@@ -1730,11 +1730,11 @@ function He() {
 	});
 }
 // src/domain/rally-shadow-runtime.ts
-function Ue(e) {
+function Ge(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_SHADOW_20515) return e.VC_SHADOW_20515;
-	let r = He();
+	let r = We();
 	r.observe(w(e));
 	let i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
@@ -1833,75 +1833,145 @@ function Ue(e) {
 	return e.VC_SHADOW_20515 = k, k;
 }
 // src/domain/rally-transaction-pilot.ts
-var We = 40, Ge = (e, t) => e.us === t.us && e.opponent === t.opponent, Ke = (n) => {
+var Ke = 40, qe = (e, t) => e.us === t.us && e.opponent === t.opponent, Z = (n) => {
 	let r = e(n);
 	return r && t(r.sets).map(e).find((e) => e && Number(e.number) === Number(r.currentSet) && Number.isInteger(Number(r.currentSet))) || null;
-}, $ = (e, t, n = []) => Object.freeze({
+}, Q = (e, t, n = []) => Object.freeze({
 	operation: e,
 	verdict: t,
 	areas: Object.freeze([...n])
-}), qe = (a, o, s, c, l, u, d) => {
-	let f = e(c), p = Ke(c);
-	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return $(a, "unverified", ["missing-data"]);
+}), $ = (e) => {
+	try {
+		return JSON.stringify(e);
+	} catch {
+		return;
+	}
+}, Je = (n) => {
+	let r = e(n);
+	if (!r) return null;
+	let i = Z(n), a = i && Array.isArray(i.rallies) ? i.rallies : null, o = e(r.liveRally), s = e(a?.at(-1)), c = {
+		score: i ? $([i.scoreUs, i.scoreOpponent]) : void 0,
+		service: $(r.servingTeam),
+		rotation: $([r.rotationNo, r.opponentRotationNo]),
+		set: $([
+			r.currentSet,
+			t(r.sets).length,
+			i?.finished,
+			i?.winner
+		]),
+		match: $(r.status),
+		actions: a ? $([
+			a.length,
+			s?.id,
+			s?.actions,
+			o?.id,
+			o?.actions
+		]) : void 0,
+		lineup: $([
+			r.lineup,
+			r.baseLineup,
+			r.lineupRoles,
+			r.libero
+		]),
+		video: $([
+			s?.liveVideoSessionId,
+			s?.liveVideoStart,
+			s?.liveVideoEnd,
+			s?.liveVideoLinkedAt,
+			o?.liveVideoSessionId,
+			o?.liveVideoStart,
+			o?.liveVideoEnd
+		])
+	};
+	return Object.freeze(c);
+}, Ye = (e, t) => {
+	if (!e || !t) return Object.freeze(["missing-data"]);
+	let n = [];
+	for (let r of [
+		"score",
+		"service",
+		"rotation",
+		"set",
+		"match",
+		"actions",
+		"lineup",
+		"video"
+	]) e[r] !== void 0 && t[r] !== void 0 && e[r] !== t[r] && n.push(r);
+	return Object.freeze(n);
+}, Xe = (a, o, s, c, l, u, d) => {
+	let f = e(c), p = Z(c);
+	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return Q(a, "unverified", ["missing-data"]);
 	let m = t(p.rallies).length;
 	if (a === "point") {
-		if (m !== d + 1) return $(a, "unverified", ["missing-data"]);
-		let e = Q(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
+		if (m !== d + 1) return Q(a, "unverified", ["missing-data"]);
+		let e = X(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
 			us: p.scoreUs,
 			opponent: p.scoreOpponent
 		});
-		return r && !Ge(r, o.after.score) && !n.includes("score") && n.push("score"), $("point", n.length ? "difference" : e.verdict, n);
+		return r && !qe(r, o.after.score) && !n.includes("score") && n.push("score"), Q("point", n.length ? "difference" : e.verdict, n);
 	}
 	let h = e(f.liveRally);
-	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return $("undo", "unverified", ["missing-data"]);
+	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return Q("undo", "unverified", ["missing-data"]);
 	let g = [], _ = i({
 		us: p.scoreUs,
 		opponent: p.scoreOpponent
 	}), v = !_;
-	return _ && !Ge(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, $("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
+	return _ && !qe(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, Q("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
 };
-function Je(n) {
-	let r = Promise.resolve(), i = !1, a = 0, o = 0, s = 0, c = 0, l = 0, u = 0, d = 0, f = 0, p = [], m = (e) => {
-		o++, e.verdict === "agree" ? s++ : e.verdict === "difference" ? c++ : e.verdict === "native-rejected" ? u++ : e.verdict === "native-declined" ? d++ : l++, e.verdict !== "agree" && (p.push(e), p.length > We && p.shift());
-	}, h = () => {
+function Ze(n) {
+	let r = Promise.resolve(), i = !1, a = 0, o = 0, s = 0, c = 0, l = 0, u = 0, d = 0, f = 0, p = 0, m = 0, h = [], g = (e) => {
+		o++, e.verdict === "agree" ? s++ : e.verdict === "difference" ? c++ : e.verdict === "native-rejected" ? u++ : e.verdict === "native-declined" ? d++ : l++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (e.areas.some((e) => e !== "missing-data") && f++, e.areas.includes("missing-data") && p++), e.verdict !== "agree" && (h.push(e), h.length > Ke && h.shift());
+	}, _ = () => {
 		try {
 			return n.readCurrent();
 		} catch {
 			return null;
 		}
-	}, g = async (r, i) => {
-		let a = h(), o = Ke(a), s = t(o?.rallies), c = s.length, l = e(s.at(-1)), u = null;
+	}, v = () => {
 		try {
-			u = r === "point" ? ne(a, i) : R(a);
-		} catch {}
-		let d;
-		try {
-			d = r === "point" ? await n.awardPoint(i) : await n.undoRally();
-		} catch (e) {
-			throw m($(r, "native-rejected")), e;
-		}
-		if (d === !1) return m($(r, "native-declined")), d;
-		try {
-			m(u ? qe(r, u, a, h(), o, l, c) : $(r, "unverified", ["missing-data"]));
+			return Je(_());
 		} catch {
-			m($(r, "unverified", ["missing-data"]));
+			return null;
 		}
-		return d;
-	}, _ = (e, t) => {
+	}, y = async (r, i) => {
+		let a = _(), o = Z(a), s = t(o?.rallies), c = (() => {
+			try {
+				return Je(a);
+			} catch {
+				return null;
+			}
+		})(), l = s.length, u = e(s.at(-1)), d = null;
+		try {
+			d = r === "point" ? ne(a, i) : R(a);
+		} catch {}
+		let f;
+		try {
+			f = r === "point" ? await n.awardPoint(i) : await n.undoRally();
+		} catch (e) {
+			throw g(Q(r, "native-rejected", Ye(c, v()))), e;
+		}
+		if (f === !1) return g(Q(r, "native-declined", Ye(c, v()))), f;
+		try {
+			g(d ? Xe(r, d, a, _(), o, u, l) : Q(r, "unverified", ["missing-data"]));
+		} catch {
+			g(Q(r, "unverified", ["missing-data"]));
+		}
+		return f;
+	}, b = (e, t) => {
 		if (i) return Promise.reject(/* @__PURE__ */ Error("El piloto ya está desactivado."));
-		a++, f++;
-		let n = r.then(() => g(e, t));
+		a++, m++;
+		let n = r.then(() => y(e, t));
 		return r = n.then(() => void 0, () => void 0), n.finally(() => {
-			f--;
+			m--;
 		});
 	};
 	return Object.freeze({
-		readonlyVersion: "20.5.16",
+		readonlyVersion: "20.5.17",
 		installedInLiveUI: !1,
-		awardPoint: (e) => _("point", e),
-		undoRally: () => _("undo"),
+		awardPoint: (e) => b("point", e),
+		undoRally: () => b("undo"),
 		report: () => Object.freeze({
-			version: "20.5.16",
+			version: "20.5.17",
 			mode: "explicit-native-delegation-only",
 			installedInLiveUI: !1,
 			submitted: a,
@@ -1911,8 +1981,10 @@ function Je(n) {
 			unverified: l,
 			nativeRejected: u,
 			nativeDeclined: d,
-			pending: f,
-			recent: Object.freeze([...p])
+			partialMutations: f,
+			uninspectedFailures: p,
+			pending: m,
+			recent: Object.freeze([...h])
 		}),
 		disable() {
 			i = !0;
@@ -1922,8 +1994,8 @@ function Je(n) {
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
 	let e = () => {
-		ge(window), E(window), ee(window), ue(window), de(window), we(window), Ne(window), Ue(window);
+		_e(window), E(window), ee(window), de(window), fe(window), Te(window), Fe(window), Ge(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { l as attackEfficiency, le as auditCommittedMatch, o as auditMatchScores, C as canonicalReaders, A as classifyPreflight, ce as classifyStoredAction, Q as compareConfirmedPoint, y as compareNativeCode, he as createObservableMatchStore, He as createRallyShadowSession, Je as createRallyTransactionPilot, j as createShadowSession, re as inspectClosedRally, v as inspectCodeShape, Ce as inspectLiveSetStatistics, T as inspectMatchDomain, Me as inspectPlayerBoxscore, P as inspectRallyRestoration, S as inspectSubstitution, ue as mountCommittedPanel, E as mountDomainDiagnostic, de as mountGrammarPanel, we as mountLiveStatisticsPanel, ge as mountObservablePanel, Ne as mountPlayerBoxscore, Ue as mountRallyShadowPanel, ee as mountShadowPanel, s as nextRotation, ne as planAwardPoint, R as planUndoLastRally, V as projectObservableMatch, c as projectPoint, N as projectSetBoundary, w as readCanonicalMatch, u as sideOutBreakPoint, a as verifyRallyScore };
+export { l as attackEfficiency, ue as auditCommittedMatch, o as auditMatchScores, C as canonicalReaders, A as classifyPreflight, le as classifyStoredAction, X as compareConfirmedPoint, y as compareNativeCode, ge as createObservableMatchStore, We as createRallyShadowSession, Ze as createRallyTransactionPilot, j as createShadowSession, re as inspectClosedRally, v as inspectCodeShape, we as inspectLiveSetStatistics, T as inspectMatchDomain, Pe as inspectPlayerBoxscore, P as inspectRallyRestoration, S as inspectSubstitution, de as mountCommittedPanel, E as mountDomainDiagnostic, fe as mountGrammarPanel, Te as mountLiveStatisticsPanel, _e as mountObservablePanel, Fe as mountPlayerBoxscore, Ge as mountRallyShadowPanel, ee as mountShadowPanel, s as nextRotation, ne as planAwardPoint, R as planUndoLastRally, B as projectObservableMatch, c as projectPoint, N as projectSetBoundary, w as readCanonicalMatch, u as sideOutBreakPoint, a as verifyRallyScore };

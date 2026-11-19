@@ -22,13 +22,13 @@ test('TypeScript domain compiles to stable ES module and Vite uses it in the pro
  const mod=await domain();
  for(const name of ['inspectCodeShape','verifyRallyScore','nextRotation','projectPoint','inspectSubstitution','sideOutBreakPoint','attackEfficiency','inspectMatchDomain'])
   assert.equal(typeof mod[name],'function',name);
- assert.ok(sourceHTML.includes('./vc2055-domain-core.mjs?v=20.5.16'));
- assert.ok(sourceHTML.includes('./vc2055-domain.css?v=20.5.16'));
+ assert.ok(sourceHTML.includes('./vc2055-domain-core.mjs?v=20.5.17'));
+ assert.ok(sourceHTML.includes('./vc2055-domain.css?v=20.5.17'));
  assert.ok(sw.includes("'./vc2055-domain-core.mjs'"));
  assert.ok(sw.includes('domain-20.5.5'));
  const built=fs.readFileSync(path.join(root,'dist/index.html'),'utf8');
  assert.ok(!built.includes('src/vc2055-entry.ts'));
- assert.ok(!built.includes('vc2055-domain-core.mjs?v=20.5.16'));
+ assert.ok(!built.includes('vc2055-domain-core.mjs?v=20.5.17'));
  assert.ok(fs.existsSync(path.join(root,'dist/vc2055-domain-core.mjs')));
 });
 
