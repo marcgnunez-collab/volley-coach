@@ -68,6 +68,8 @@ export {installRallySearchControls,readRallySearchPresets,RALLY_SEARCH_PRESETS_K
  from './state/rally-search-controls';
 export {parseScoutingDraftHead,applyScoutingDraftSkill,applyScoutingDraftRating,
  cycleScoutingDraftRating,recentScoutingDraftCodes} from './state/scouting-speed-draft';
+export {inspectScoutingSequence,MAX_SEQUENCE_CHARACTERS,MAX_SEQUENCE_CONTACTS}
+ from './state/scouting-sequence-check';
 export {installScoutingDraftBridge};
 export {readCanonicalMatch,canonicalReaders};
 

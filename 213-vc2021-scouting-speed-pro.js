@@ -176,8 +176,37 @@
    <div class="vc2021-group" role="group" aria-label="Valoraciones rápidas"><span>VALORACIÓN</span><div>${EVALS.map(code=>`<button type="button" data-vc2021-rating="${code}" title="Valorar como ${code} · Solo borrador">${code}</button>`).join('')}</div></div></div>
    <div class="vc2021-bottom"><button type="button" data-vc2021-command="repeat">Repetir último código</button><button type="button" data-vc2021-command="undo">Deshacer borrador</button>
     <span id="vc2021-target">Código directo</span><code id="vc2021-preview">—</code></div>
+   <details class="vc2021-sequence" id="vc2021-sequence-check"><summary>Comprobar secuencia de rally · experimental · solo lectura</summary>
+    <div class="vc2021-sequence-row"><label for="vc2021-sequence-input">Códigos separados por espacios</label>
+    <input id="vc2021-sequence-input" type="text" maxlength="512" autocomplete="off" spellcheck="false" placeholder="*12S+ .04R+ *10A#">
+    <button type="button" data-vc2021-command="sequence">Comprobar secuencia</button></div>
+    <p id="vc2021-sequence-status" role="status" aria-live="polite">Usa * para equipo propio y . para rival. No registra acciones ni aplica puntos.</p>
+   </details>
    <p id="vc2021-status" role="status" aria-live="polite">Alt+1–8: macros existentes · Alt+↑: recuperar código · Alt+.: siguiente valoración.</p>
   </section>`;}
+ function checkSequence(){
+  const field=byId('vc2021-sequence-input'),status=byId('vc2021-sequence-status');
+  if(!field||!status)return false;
+  const inspect=draftBridge()?.inspectSequence;
+  if(typeof inspect!=='function'){
+   status.dataset.state='unavailable';
+   status.textContent='El comprobador TypeScript no está disponible. No se ha modificado ningún dato.';
+   return false;
+  }
+  try{
+   const result=inspect(field.value);
+   if(!result||!['empty','ready','review','invalid'].includes(result.status)||!result.counts||!Array.isArray(result.issues))throw Error('invalid-result');
+   status.dataset.state=result.status;
+   const summary=result.status==='empty'?'Secuencia vacía.':
+    `${result.counts.contacts} contactos · ${result.counts.warnings} avisos · ${result.counts.errors} errores.`;
+   status.textContent=summary+' '+result.advice+' '+result.issues.map(item=>item.reason).join(' ');
+   return true;
+  }catch(_){
+   status.dataset.state='unavailable';
+   status.textContent='No se ha podido comprobar la secuencia. El scouting original sigue disponible.';
+   return false;
+  }
+ }
  function refresh(){
   if(!mounted||!active())return false;
   const target=selectedTarget(),input=target&&byId(target.input),ready=!!target&&canDraft();
@@ -206,8 +235,14 @@
   else if(button.dataset.vc2021Command==='macros')openMacroConfig();
   else if(button.dataset.vc2021Command==='repeat')repeatCode();
   else if(button.dataset.vc2021Command==='undo')undoDraft();
+  else if(button.dataset.vc2021Command==='sequence')checkSequence();
  }
  function onInput(event){
+  if(event.target?.id==='vc2021-sequence-input'){
+   const status=byId('vc2021-sequence-status');
+   if(status){status.dataset.state='empty';status.textContent='Secuencia modificada. Pulsa Comprobar secuencia para revisar.';}
+   return;
+  }
   if(!INPUTS.some(t=>t.input===event.target?.id)||!active())return;
   const input=event.target;
   if(!event.isComposing&&text(input.value)!==text(input.value).toUpperCase()){
@@ -242,6 +277,11 @@
    const bottom=matchbar.querySelector('.vc2020-secondary');
    if(bottom)matchbar.insertBefore(dock,bottom);else matchbar.append(dock);
    dock.addEventListener('click',click);
+   dock.addEventListener('keydown',event=>{
+    if(event.key==='Enter'&&event.target?.id==='vc2021-sequence-input'){
+     event.preventDefault();event.stopPropagation();checkSequence();
+    }
+   });
   }
   if(!mounted){
    mounted=true;
@@ -260,5 +300,5 @@
   refresh();return true;
  }
  function diagnostics(){return {version:VERSION,mounted,target:codeInputId,updates,stats:{...stats},draftEngine:draftBridge()?'typescript':'classic',draftBridge:{...draftBridgeStats},legacyKeyboardPresent:!!byId('vc1645-video'),originalCourtPresent:!!byId('vc1613-board')}}
- return {VERSION,SKILLS,EVALS,parseHead,applySkill,applyRating,cycleRating,recentCodes,markup,boot,refresh,changeSkill,changeRating,repeatCode,undoDraft,diagnostics};
+ return {VERSION,SKILLS,EVALS,parseHead,applySkill,applyRating,cycleRating,recentCodes,markup,boot,refresh,changeSkill,changeRating,repeatCode,undoDraft,checkSequence,diagnostics};
 });

@@ -3,6 +3,7 @@
  */
 import {parseScoutingDraftHead,applyScoutingDraftSkill,applyScoutingDraftRating,
  cycleScoutingDraftRating,recentScoutingDraftCodes} from './scouting-speed-draft';
+import {inspectScoutingSequence} from './scouting-sequence-check';
 
 export interface ScoutingDraftBridge{
  readonly VERSION:'20.5.32';readonly inputOnly:true;
@@ -11,6 +12,7 @@ export interface ScoutingDraftBridge{
  readonly applyRating:typeof applyScoutingDraftRating;
  readonly cycleRating:typeof cycleScoutingDraftRating;
  readonly recentCodes:typeof recentScoutingDraftCodes;
+ readonly inspectSequence:typeof inspectScoutingSequence;
 }
 export type ScoutingDraftWindow=Window&{VC_SCOUT_DRAFT_20532?:Readonly<ScoutingDraftBridge>};
 const installed=new WeakMap<Window,Readonly<ScoutingDraftBridge>>();
@@ -21,7 +23,7 @@ export function installScoutingDraftBridge(win:ScoutingDraftWindow):Readonly<Sco
   VERSION:'20.5.32',inputOnly:true,
   parseHead:parseScoutingDraftHead,applySkill:applyScoutingDraftSkill,
   applyRating:applyScoutingDraftRating,cycleRating:cycleScoutingDraftRating,
-  recentCodes:recentScoutingDraftCodes
+  recentCodes:recentScoutingDraftCodes,inspectSequence:inspectScoutingSequence
  });
  installed.set(win,bridge);
  // Existing pages may already have another bridge. Never replace unknown code.
