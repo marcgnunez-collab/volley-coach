@@ -7,6 +7,8 @@ import {mountObservablePanel} from './state/runtime';
 import {createObservableMatchStore,projectObservableMatch} from './state/match-observable';
 import {inspectLiveSetStatistics} from './state/live-statistics';
 import {mountLiveStatisticsPanel} from './state/live-statistics-runtime';
+import {inspectPlayerBoxscore} from './state/player-boxscore';
+import {mountPlayerBoxscore} from './state/player-boxscore-runtime';
 export {inspectCodeShape,compareNativeCode} from './domain/code-grammar';
 export {verifyRallyScore,auditMatchScores} from './domain/scoring';
 export {nextRotation,projectPoint} from './domain/rotation';
@@ -20,9 +22,10 @@ export {mountCommittedPanel};
 export {mountGrammarPanel};
 export {mountObservablePanel,createObservableMatchStore,projectObservableMatch};
 export {inspectLiveSetStatistics,mountLiveStatisticsPanel};
+export {inspectPlayerBoxscore,mountPlayerBoxscore};
 
 if(typeof window!=='undefined'&&window.document){
- const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);};
+ const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 }

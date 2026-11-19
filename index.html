@@ -2247,6 +2247,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
               <div id="vc20510-live-stats" class="vc20510-live-stats" aria-label="Resumen estadístico observable del set"></div>
               <div id="v900-intel" class="v900-intel"></div>
               <div class="v111-intel-actions">
+                <button class="ghost" type="button" onclick="v900SetPhase('analyze')">Boxscore por jugador</button>
                 <button class="ghost" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Análisis completo</button>
                 <button class="ghost" onclick="return scoutV752ExportAnalysisPDF()">PDF Pro</button>
               </div>
@@ -2287,6 +2288,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
           <div><span class="pro-kicker">LECTURA INMEDIATA</span><h3>Análisis sin abandonar el Workspace</h3><p>Resumen calculado a partir de las acciones originales. El análisis completo y los PDF siguen usando el motor existente.</p></div>
           <div class="v900-analysis-actions"><button class="primary" onclick="showView('scout-analysis',botonVista('scout-analysis'))">Abrir Análisis Pro</button><button class="ghost" onclick="return scoutV752ExportAnalysisPDF()">PDF análisis Pro</button><button class="ghost" onclick="return scoutV752ExportOfficialPDF()">PDF hoja oficial</button></div>
         </div>
+        <section id="vc20511-boxscore" class="vc20511-boxscore" aria-label="Boxscore profesional por jugador y rotación"></section>
         <div id="v900-analysis-kpis" class="v900-analysis-kpis"></div>
         <div class="v900-analysis-grid">
           <article class="v900-card"><div class="v900-card-head"><div><span class="pro-kicker">RECEPCIÓN</span><h3>Calidad</h3></div></div><div id="v900-analysis-reception"></div></article>
@@ -14262,7 +14264,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <link rel="stylesheet" href="./vc2053-modular-core.css?v=20.5.3">
 <script id="vc2053-modular-core" type="module" src="./vc2053-modular-core.mjs?v=20.5.3" data-vc-module="true"></script>
 <!-- V20.5.5 · TypeScript domain checks, compiled ES6; legacy writers remain authoritative. -->
-<!-- V20.5.10 · Typed domain, observable state and LIVE statistics share one ES6 bundle. -->
-<link rel="stylesheet" href="./vc2055-domain.css?v=20.5.10">
-<script id="vc2055-domain" type="module" src="./vc2055-domain-core.mjs?v=20.5.10" data-vc-module="true"></script>
+<!-- V20.5.11 · Typed domain, observable LIVE statistics and player/rotation boxscore share one ES6 bundle. -->
+<link rel="stylesheet" href="./vc2055-domain.css?v=20.5.11">
+<script id="vc2055-domain" type="module" src="./vc2055-domain-core.mjs?v=20.5.11" data-vc-module="true"></script>
 </body></html>
