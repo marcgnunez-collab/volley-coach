@@ -91,6 +91,15 @@
   return '\ufeff'+[header,...records].map(row=>row.map(csvEscape).join(';')).join('\r\n');
  }
  function readPresets(storage){try{const list=JSON.parse(storage?.getItem(STORAGE_KEY)||'[]');return arr(list).filter(x=>x&&typeof x.name==='string'&&x.name.length<=40&&x.filters&&typeof x.filters==='object').slice(-15).map(x=>({name:x.name,filters:normFilters(x.filters)}));}catch(_){return []}}
+ function readPresetsCompat(storage){
+  try{const typed=root?.VC_RALLY_CONTROLS_20531?.readPresets;
+   if(typeof typed==='function'){
+    const list=typed(storage);
+    if(Array.isArray(list)&&list.length<=15&&list.every(x=>x&&typeof x.name==='string'&&x.filters&&typeof x.filters==='object'))return list;
+   }
+  }catch(_){/* Preserve historic preset parsing if the typed bridge fails. */}
+  return readPresets(storage);
+ }
  function catalog(data){const unique=(values)=>[...new Set(values.map(val).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true})).slice(0,250);
   const contacts=arr(data?.contacts),chains=arr(data?.chains);
   return {players:unique(contacts.map(x=>x.player)),setters:unique(chains.map(x=>x.setter?.player)),attackers:unique(chains.map(x=>x.attack?.player)),
@@ -169,7 +178,7 @@
   const note=panel.querySelector('.vc1937-courtnote');if(note)note.textContent='Resultados procedentes del scouting original. No se infieren jugadores, posesiones, tiempos ni rotaciones ausentes.'+(engine==='typescript'?' · Consulta TypeScript.':'');
   for(const input of panel.querySelectorAll('[data-vc1939-filter]')){const name=input.dataset.vc1939Filter;input.value=session.filters[name]||((name==='status')?'closed':'');}
   if(activeFilter){const next=panel.querySelector('[data-vc1939-filter="'+activeFilter+'"]');if(next){next.focus();if(cursor!=null&&next.setSelectionRange)next.setSelectionRange(cursor,cursor);}}
-  const presets=panel.querySelector('[data-vc1939-preset]');if(presets){const old=session.preset||'';let saved=[];try{saved=readPresets(win.localStorage)}catch(_){}const presetsHTML='<option value="">Búsquedas guardadas</option>'+saved.map(p=>option(p.name)).join('');if(presets.innerHTML!==presetsHTML)presets.innerHTML=presetsHTML;presets.value=[...presets.options].some(o=>o.value===old)?old:'';}
+  const presets=panel.querySelector('[data-vc1939-preset]');if(presets){const old=session.preset||'';let saved=[];try{saved=readPresetsCompat(win.localStorage)}catch(_){}const presetsHTML='<option value="">Búsquedas guardadas</option>'+saved.map(p=>option(p.name)).join('');if(presets.innerHTML!==presetsHTML)presets.innerHTML=presetsHTML;presets.value=[...presets.options].some(o=>o.value===old)?old:'';}
   // Preserve source IDs: never map a synthetic index to a different rally.
   const selectedKeys=new Set(result.rallies.filter(r=>r.nativeId!=null).map(r=>`${r.set}:${r.nativeId}`));
   const mapped=ctx.data.rallies.filter(r=>r.id!=null&&selectedKeys.has(`${r.set}:${r.id}`));
@@ -179,7 +188,15 @@
    panel.querySelector('.vc1937-rally-count').textContent=`${mapped.length} rallies con referencia · ${result.rallies.length} encontrados`;
   }
   session.matchId=normalized.matchId;session.data=normalized;session.result=result;session.ctx=ctx;session.active=true;panel._vc1939=session;
-  if(!panel.dataset.vc1939Bound){panel.dataset.vc1939Bound='yes';panel.addEventListener('change',event=>{
+  // V20.5.31: delegated TypeScript controller owns new event binding when
+  // present. Existing panels and browser builds retain the classic handlers.
+  if(!panel.dataset.vc1939Bound){
+   try{if(win?.VC_RALLY_CONTROLS_20531?.bind?.(panel,{
+    refresh:()=>{if(panel._vc1939?.ctx)decorate(panel,panel._vc1939.ctx,'search')},toCSV
+   }))panel.dataset.vc20531Controls='typescript';}
+   catch(_){/* Existing V19.3.9 controller remains available below. */}
+  }
+  if(!panel.dataset.vc1939Bound){panel.dataset.vc1939Bound='yes';panel.dataset.vc20531Controls='classic';panel.addEventListener('change',event=>{
    const x=event.target;if(x.matches('select[data-vc1939-filter]')){const s=panel._vc1939;if(!s)return;s.filters[x.dataset.vc1939Filter]=x.value;win.clearTimeout(panel._vc1939Timer);panel._vc1939Timer=win.setTimeout(()=>{if(panel._vc1939?.ctx)decorate(panel,panel._vc1939.ctx,'search')},0);}
    if(x.matches('[data-vc1939-preset]')){panel._vc1939.preset=x.value;}
   });panel.addEventListener('input',event=>{

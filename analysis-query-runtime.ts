@@ -8,6 +8,7 @@ import type {AnalysisExportWindow} from './analysis-export-runtime';
 import type {RenderMetricsWindow,RenderArea} from './render-performance';
 import type {AnalysisViewWindow} from './analysis-view-runtime';
 import type {RallySearchViewWindow} from './rally-search-view-runtime';
+import type {RallySearchControlsWindow} from './rally-search-controls';
 
 export interface AnalysisQueryDiagnostics{
  readonly readOnly:true;
@@ -25,7 +26,7 @@ export interface AnalysisQueryBridge{
  query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
  diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
 }
-type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&RenderMetricsWindow&AnalysisViewWindow&RallySearchViewWindow&{
+type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&RenderMetricsWindow&AnalysisViewWindow&RallySearchViewWindow&RallySearchControlsWindow&{
  VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>;
 };
 export interface QueryPerformancePanel{
@@ -74,7 +75,7 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  };
  const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
  const heading=node('div','vc20523-heading'),title=node('div');
- title.append(node('small','','V20.5.30 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
+ title.append(node('small','','V20.5.31 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
  heading.append(title,node('span','','Solo lectura'));
  const description=node('p','',
   'Mediciones locales de normalización, filtros, índices y exportación CSV. La sección visual inferior mide solo actualizaciones de interfaz; no incluye vídeo, descargas ni sincronización.');
@@ -141,6 +142,16 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
   const box=node('div');box.append(node('small','',label));
   const value=node('strong','','—');box.append(value);rallyMetrics.append(box);rallyValues.set(key,value);
  }
+ const controlsHeading=node('h4','vc20524-subheading','Controles Rally Search Pro migrados a TypeScript');
+ const controlsDescription=node('p','',
+  'Controladores de filtros, presets y exportación; solo recuentos locales. Las búsquedas guardadas siguen en la misma clave del navegador.');
+ const controlsMetrics=node('div','vc20523-values'),controlsValues=new Map<string,HTMLElement>();
+ for(const [key,label] of [['bindings','Vistas conectadas'],['filters','Cambios de filtro'],
+  ['saved','Presets guardados'],['loaded','Presets cargados'],
+  ['deleted','Presets eliminados'],['exports','CSV exportados'],['failures','Errores de control']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);controlsMetrics.append(box);controlsValues.set(key,value);
+ }
  const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
  refreshButton.type='button';
  const note=node('p','vc20523-note',
@@ -149,6 +160,7 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
   normalizeHeading,normalizationMetrics,operationHeading,operationMetrics,
   exportHeading,exportMetrics,renderHeading,renderDescription,renderMetrics,
   viewHeading,viewDescription,viewMetrics,rallyHeading,rallyDescription,rallyMetrics,
+  controlsHeading,controlsDescription,controlsMetrics,
   refreshButton,note);
  const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
  if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
@@ -215,6 +227,11 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
    failures:String(rallyView?.failures??0)};
   for(const [key,value] of Object.entries(rallyTemplate)){
    const el=rallyValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+  const controls=win.VC_RALLY_CONTROLS_20531?.diagnostics?.();
+  for(const key of ['bindings','filters','saved','loaded','deleted','exports','failures'] as const){
+   const value=String(controls?.[key]??0),el=controlsValues.get(key);
+   if(el&&el.textContent!==value)el.textContent=value;
   }
  };
  refreshButton.addEventListener('click',refresh);refresh();

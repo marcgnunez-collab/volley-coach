@@ -17,6 +17,7 @@ import {installAnalysisExportBridge} from './state/analysis-export-runtime';
 import {installRenderMetricsBridge} from './state/render-performance';
 import {installAnalysisViewBridge} from './state/analysis-view-runtime';
 import {installRallySearchViewBridge} from './state/rally-search-view-runtime';
+import {installRallySearchControls} from './state/rally-search-controls';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -62,6 +63,8 @@ export {renderDataEngineView} from './state/analysis-view';
 export {installAnalysisViewBridge};
 export {renderRallySearchView,catalogRallySearch} from './state/rally-search-view';
 export {installRallySearchViewBridge};
+export {installRallySearchControls,readRallySearchPresets,RALLY_SEARCH_PRESETS_KEY}
+ from './state/rally-search-controls';
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -69,6 +72,7 @@ if(typeof window!=='undefined'&&window.document){
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);
  installRallySearchViewBridge(window);
+ installRallySearchControls(window);
  installAnalysisQueryBridge(window);
  installAnalysisNormalizeBridge(window);
  installAnalysisOperationsBridge(window);
