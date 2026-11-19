@@ -470,11 +470,252 @@ function E(e) {
 	});
 	return e.VC_SHADOW_2056 = C, C;
 }
+// src/domain/committed-audit.ts
+var D = 2e4, O = 6e4, k = 80, A = /* @__PURE__ */ new Set([
+	"S",
+	"R",
+	"E",
+	"A",
+	"B",
+	"D",
+	"F",
+	"C"
+]), j = (e) => typeof e == "string" && A.has(e) ? e : "—", M = {
+	difference: "El código guardado y los campos de la acción no coinciden.",
+	"coverage-gap": "El código guardado utiliza sintaxis todavía no cubierta por TypeScript.",
+	unverified: "Faltan campos del registro para comprobarlo con seguridad.",
+	"no-code": "La acción está registrada sin código original.",
+	score: "El ganador no concuerda con el cambio de marcador registrado.",
+	"score-sequence": "El tanteo final y el inicial del siguiente rally no coinciden.",
+	rotation: "La siguiente rotación o el turno de saque no concuerdan con la proyección básica."
+};
+function N(t) {
+	let r = e(t), i = j(r?.skill);
+	if (!r) return Object.freeze({
+		kind: "unverified",
+		skill: i
+	});
+	let a = typeof r.code == "string" ? r.code.trim() : "";
+	if (!a) return Object.freeze({
+		kind: "no-code",
+		skill: i
+	});
+	let o = m(a);
+	if (o.state !== "candidate") return Object.freeze({
+		kind: "coverage-gap",
+		skill: j(o.skill) || i
+	});
+	if (!n(r.team) || !A.has(String(r.skill)) || ![
+		"#",
+		"+",
+		"!",
+		"-",
+		"/",
+		"="
+	].includes(String(r.evaluation)) || r.playerNumberSnapshot === null || r.playerNumberSnapshot === void 0 || String(r.playerNumberSnapshot).trim() === "") return Object.freeze({
+		kind: "unverified",
+		skill: j(o.skill)
+	});
+	let s = h(a, { action: r });
+	return Object.freeze({
+		kind: s.state === "agree" ? "agree" : s.state === "disagree" ? "difference" : "unverified",
+		skill: j(o.skill)
+	});
+}
+function P(o) {
+	let s = e(o), l = {
+		actions: 0,
+		agree: 0,
+		difference: 0,
+		coverageGap: 0,
+		unverified: 0,
+		noCode: 0,
+		rallies: 0,
+		scoreVerified: 0,
+		scoreInconsistent: 0,
+		scoreUnknown: 0,
+		scoreLinksChecked: 0,
+		scoreLinksMismatch: 0,
+		rotationsChecked: 0,
+		rotationsMismatch: 0
+	}, u = [], d = !1, f = (e, t, n = "—") => {
+		u.push(Object.freeze({
+			kind: e,
+			location: t,
+			skill: j(n),
+			reason: M[e]
+		})), u.length > k && u.shift();
+	}, p = (e, t) => {
+		if (l.actions >= O) return d = !0, !1;
+		l.actions++;
+		let n = N(e);
+		return n.kind === "agree" ? l.agree++ : n.kind === "difference" ? l.difference++ : n.kind === "coverage-gap" ? l.coverageGap++ : n.kind === "no-code" ? l.noCode++ : l.unverified++, n.kind !== "agree" && f(n.kind, t, n.skill), !0;
+	}, m = t(s?.sets);
+	main: for (let o = 0; o < m.length; o++) {
+		let s = e(m[o]);
+		if (!s) continue;
+		let u = t(s.rallies);
+		for (let s = 0; s < u.length; s++) {
+			if (l.rallies >= D) {
+				d = !0;
+				break main;
+			}
+			let m = e(u[s]);
+			if (!m) continue;
+			l.rallies++;
+			let h = `S${o + 1} · R${s + 1}`, g = a(m);
+			g.state === "verified" ? l.scoreVerified++ : g.state === "inconsistent" ? (l.scoreInconsistent++, f("score", h)) : l.scoreUnknown++;
+			for (let [e, n] of t(m.actions).entries()) if (!p(n, `${h} · A${e + 1}`)) break main;
+			let _ = e(u[s + 1]);
+			if (!_) continue;
+			let v = i(m.scoreAfter), y = i(_.scoreBefore);
+			if (v && y && (l.scoreLinksChecked++, (v.us !== y.us || v.opponent !== y.opponent) && (l.scoreLinksMismatch++, f("score-sequence", `${h} → R${s + 2}`))), n(m.winner) && n(m.servingBefore) && r(m.rotationBefore) && r(m.opponentRotationBefore) && r(_.rotationBefore) && r(_.opponentRotationBefore) && n(_.servingBefore)) {
+				let e = c({
+					score: m.scoreBefore,
+					serving: m.servingBefore,
+					rotationUs: m.rotationBefore,
+					rotationOpponent: m.opponentRotationBefore
+				}, m.winner);
+				e.state === "projected" && (l.rotationsChecked++, (e.rotationUs !== _.rotationBefore || e.rotationOpponent !== _.opponentRotationBefore || e.serving !== _.servingBefore) && (l.rotationsMismatch++, f("rotation", `${h} → R${s + 2}`)));
+			}
+		}
+	}
+	if (!d && s) {
+		for (let [n, r] of t(e(s.liveRally)?.actions).entries()) if (!p(r, `En curso · A${n + 1}`)) break;
+	}
+	return Object.freeze({
+		version: "20.5.7",
+		mode: "canonical-local-read-only",
+		matchAvailable: !!s,
+		truncated: d,
+		counters: Object.freeze({ ...l }),
+		recent: Object.freeze([...u]),
+		limitations: Object.freeze([
+			"Examina el estado local del partido abierto; no demuestra escritura en IndexedDB ni recepción en otro dispositivo.",
+			"Los cotejos de rotación son estructurales, no sanciones oficiales ni verificación completa de sustituciones.",
+			"La sintaxis todavía no soportada y los datos ausentes se separan de las diferencias demostradas.",
+			"No se exportan códigos, dorsales, jugadores, identificadores de partido ni vídeos.",
+			"Se comprueban como máximo 20 000 rallies y 60 000 acciones en un informe."
+		])
+	});
+}
+// src/domain/committed-runtime.ts
+function F(t) {
+	let n = t.document, r = n.getElementById("v11-management");
+	if (!r) return null;
+	if (t.VC_COMMITTED_2057) return t.VC_COMMITTED_2057;
+	let i = (e, t = "", r = "") => {
+		let i = n.createElement(e);
+		return i.className = t, i.textContent = r, i;
+	}, a = i("section", "vc2057-committed");
+	a.id = "vc2057-committed";
+	let o = i("div", "vc2057-heading"), s = i("div");
+	s.append(i("small", "", "ACCIONES CONFIRMADAS · V20.5.7"), i("h3", "", "Auditoría del scouting registrado")), o.append(s, i("span", "", "Solo lectura"));
+	let c = i("p", "", "Comprueba códigos ya presentes en el partido, puntuación y continuidad de rotaciones. No añade ni corrige jugadas."), l = i("p", "vc2057-status", "Pendiente de comprobar");
+	l.setAttribute("role", "status");
+	let u = i("div", "vc2057-stats"), d = /* @__PURE__ */ new Map();
+	for (let [e, t] of [
+		["actions", "Acciones examinadas"],
+		["agree", "Coincidencias"],
+		["difference", "Diferencias"],
+		["coverageGap", "Cobertura pendiente"],
+		["unverified", "Sin verificar"],
+		["noCode", "Sin código"],
+		["rallies", "Rallies"],
+		["scoreInconsistent", "Marcadores inconsistentes"],
+		["scoreLinksMismatch", "Continuidad de tanteo"],
+		["rotationsMismatch", "Rotaciones a revisar"]
+	]) {
+		let n = i("div");
+		n.append(i("small", "", t));
+		let r = i("strong", "", "—");
+		d.set(e, r), n.append(r), u.append(n);
+	}
+	let f = i("div", "vc2057-actions"), p = i("button", "", "Comprobar partido");
+	p.setAttribute("type", "button");
+	let m = i("button", "", "Descargar informe JSON");
+	m.setAttribute("type", "button"), m.disabled = !0, f.append(p, m);
+	let h = i("h4", "", "Incidencias que conviene revisar"), g = i("div", "vc2057-recent");
+	a.append(o, c, l, u, f, h, g, i("p", "vc2057-note", "La lectura se realiza únicamente al pulsar «Comprobar partido». No valida la nube ni aplica reglas arbitrales completas. Los códigos y dorsales no aparecen en el informe."));
+	let _ = n.getElementById("vc2056-shadow") || n.getElementById("vc2055-domain");
+	_?.parentNode === r ? _.insertAdjacentElement("afterend", a) : r.insertAdjacentElement("afterbegin", a);
+	let v = null, y = !1, b = !1, x = 0, S = () => {
+		for (let n of [
+			t.MatchState,
+			t.VC_MATCH_STATE,
+			t.VC_SCOUT_VIDEO_BRIDGE,
+			t.VC_SCOUT_REPORT_BRIDGE
+		]) try {
+			let t = n?.getActive?.();
+			if (e(t)) return t;
+		} catch {}
+		return null;
+	}, C = () => {
+		if (b) return;
+		v ? y ? (l.textContent = "El partido ha cambiado. Repite la comprobación para actualizar el informe.", a.dataset.state = "stale") : v.matchAvailable ? v.truncated ? (l.textContent = "Comprobación parcial: se alcanzó el límite de seguridad.", a.dataset.state = "partial") : (l.textContent = "Acciones del estado local examinadas; no implica confirmación en nube.", a.dataset.state = v.counters.difference || v.counters.scoreInconsistent || v.counters.scoreLinksMismatch || v.counters.rotationsMismatch ? "review" : "available") : (l.textContent = "No hay un partido activo que comprobar.", a.dataset.state = "waiting") : (l.textContent = "Pendiente de comprobar", a.dataset.state = "waiting"), m.disabled = !v || y || !v.matchAvailable;
+		for (let [e, t] of d) {
+			let n = v?.counters[e], r = n === void 0 ? "—" : String(n);
+			t.textContent !== r && (t.textContent = r);
+		}
+		g.replaceChildren();
+		let e = v?.recent.slice(-8).reverse() || [];
+		if (!e.length) g.append(i("p", "", v ? "Sin incidencias en los registros examinados." : "Ejecuta la comprobación para revisar el partido abierto."));
+		else for (let t of e) {
+			let e = i("div", "vc2057-finding");
+			e.append(i("strong", "", t.location), i("span", "", t.reason)), g.append(e);
+		}
+	}, w = () => {
+		let e = P(S());
+		return v = e, y = !1, C(), e;
+	}, T = () => {
+		b || (x++, v && !y && (y = !0, l.textContent = "El partido ha cambiado. Repite la comprobación para actualizar el informe.", a.dataset.state = "stale", m.disabled = !0));
+	};
+	p.addEventListener("click", () => {
+		if (b) return;
+		let e = ++x;
+		l.textContent = "Comprobando los registros locales…", p.disabled = !0, t.setTimeout(() => {
+			if (b || e !== x) p.disabled = !1, C();
+			else try {
+				w();
+			} catch {
+				l.textContent = "No se pudo completar la comprobación; el partido permanece intacto.";
+			} finally {
+				p.disabled = !1;
+			}
+		}, 0);
+	}), m.addEventListener("click", () => {
+		if (b || !v || y || !v.matchAvailable) return;
+		let e = new Blob([JSON.stringify(v, null, 2)], { type: "application/json" }), r = URL.createObjectURL(e), i = n.createElement("a");
+		i.href = r, i.download = "volley-coach-v2057-auditoria-acciones.json", n.body.appendChild(i), i.click(), i.remove(), t.setTimeout(() => URL.revokeObjectURL(r), 1e3);
+	}), n.addEventListener("vc:matchstatechange", T);
+	let E = () => {};
+	try {
+		let e = (t.MatchState || t.VC_MATCH_STATE)?.subscribe?.(T);
+		typeof e == "function" && (E = e);
+	} catch {}
+	let D = typeof MutationObserver == "function" ? new MutationObserver(() => {
+		r.classList.contains("active") && C();
+	}) : null;
+	D?.observe(r, {
+		attributes: !0,
+		attributeFilter: ["class"]
+	}), r.classList.contains("active") && C();
+	let O = Object.freeze({
+		version: "20.5.7",
+		readOnly: !0,
+		getReport: () => v,
+		runAudit: w,
+		dispose() {
+			b || (b = !0, x++, D?.disconnect(), E(), n.removeEventListener("vc:matchstatechange", T), a.remove(), v = null, t.VC_COMMITTED_2057 === O && delete t.VC_COMMITTED_2057);
+		}
+	});
+	return t.VC_COMMITTED_2057 = O, O;
+}
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
 	let e = () => {
-		b(window), E(window);
+		b(window), E(window), F(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { l as attackEfficiency, o as auditMatchScores, w as classifyPreflight, h as compareNativeCode, T as createShadowSession, m as inspectCodeShape, y as inspectMatchDomain, v as inspectSubstitution, b as mountDomainDiagnostic, E as mountShadowPanel, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
+export { l as attackEfficiency, P as auditCommittedMatch, o as auditMatchScores, w as classifyPreflight, N as classifyStoredAction, h as compareNativeCode, T as createShadowSession, m as inspectCodeShape, y as inspectMatchDomain, v as inspectSubstitution, F as mountCommittedPanel, b as mountDomainDiagnostic, E as mountShadowPanel, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };

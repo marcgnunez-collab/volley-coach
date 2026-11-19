@@ -1,6 +1,6 @@
 {
   "name": "volley-coach",
-  "version": "20.5.6",
+  "version": "20.5.7",
   "private": true,
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -8,7 +8,7 @@
     "build:domain": "vite build --config vite.domain.config.mjs --logLevel error && node scripts/publish-domain.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test:foundation": "npm run typecheck && npm run build && node --test vc2050-foundation.test.cjs vc2051-scouting-expert.test.cjs vc2052-foundation.test.cjs vc2053-modular-core.test.cjs vc2054-vite-foundation.test.cjs vc2055-domain.test.cjs vc2056-shadow-validation.test.cjs"
+    "test:foundation": "npm run typecheck && npm run build && node --test vc2050-foundation.test.cjs vc2051-scouting-expert.test.cjs vc2052-foundation.test.cjs vc2053-modular-core.test.cjs vc2054-vite-foundation.test.cjs vc2055-domain.test.cjs vc2056-shadow-validation.test.cjs vc2057-committed-audit.test.cjs"
   },
   "devDependencies": {
     "typescript": "5.9.3",
