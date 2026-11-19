@@ -4,9 +4,9 @@
  * All selected evidence is resolved back to original match/set/rally IDs.
  */
 (function(root,factory){
- 'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;
+ 'use strict';const api=factory(root);if(typeof module==='object'&&module.exports)module.exports=api;
  if(root)root.VC_RALLY_SEARCH_1939=api;
-})(typeof window!=='undefined'?window:null,function(){
+})(typeof window!=='undefined'?window:null,function(root){
  'use strict';
  const VERSION='19.3.9',STORAGE_KEY='vc1939:search-presets:1';
  const val=x=>String(x??'').trim();
@@ -98,7 +98,19 @@
    startZones:unique(contacts.map(x=>x.fields?.startZone?.code)),endZones:unique(contacts.map(x=>x.fields?.endZone?.code))};
  }
  function field(label,id,items,active=''){return `<label>${esc(label)}<select data-vc1939-filter="${id}">${items.map(([k,v])=>option(k,v)).join('')}</select></label>`;}
- function renderPanel(data,result,filters){const c=catalog(data),f=normFilters(filters),selectOptions=(choices)=>[['','Todos'],...choices.map(x=>[x,x])];
+ function renderPanel(data,result,filters){
+  // V20.5.30: the Vite/TypeScript module owns HTML generation when available.
+  // The original rendering and every legacy interaction remain a safe fallback.
+  try{
+   const render=root?.VC_RALLY_VIEW_20530?.render;
+   if(typeof render==='function'){
+    const html=render(data,result,filters);
+    if(html&&typeof html.left==='string'&&typeof html.center==='string'&&
+     html.left.startsWith('<div class="vc1939-left">')&&
+     html.center.startsWith('<div class="vc1939-center-body">'))return html;
+   }
+  }catch(_){/* A missing or broken Vite view cannot block scouting search. */}
+  const c=catalog(data),f=normFilters(filters),selectOptions=(choices)=>[['','Todos'],...choices.map(x=>[x,x])];
   const filterBlock=`<div class="vc1939-search" aria-label="Buscar rallies con filtros cruzados"><div class="vc1939-intro"><strong>RALLY SEARCH PRO</strong><small>Todos los criterios se combinan · un contacto no hereda la valoración de otro</small></div>
   <div class="vc1939-grid vc1939-basic"><label>Código / texto<input data-vc1939-filter="code" maxlength="100" placeholder="Ej.: A4#, Z4 o código de scouting"></label>
   ${field('Fundamento','skill',selectors.skill)}${field('Jugador','player',selectOptions(c.players))}${field('Valoración','evaluation',selectors.evaluation)}</div>

@@ -18,6 +18,8 @@ interface SearchFields{
 export interface SearchContact{
  readonly key:string;
  readonly rallyKey:string;
+ readonly set?:unknown;
+ readonly rallyIndex?:unknown;
  readonly possessionKey?:string|null;
  readonly team?:unknown;
  readonly skill?:unknown;

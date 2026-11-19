@@ -7,6 +7,7 @@ import type {AnalysisOperationsWindow} from './analysis-operations-runtime';
 import type {AnalysisExportWindow} from './analysis-export-runtime';
 import type {RenderMetricsWindow,RenderArea} from './render-performance';
 import type {AnalysisViewWindow} from './analysis-view-runtime';
+import type {RallySearchViewWindow} from './rally-search-view-runtime';
 
 export interface AnalysisQueryDiagnostics{
  readonly readOnly:true;
@@ -24,7 +25,7 @@ export interface AnalysisQueryBridge{
  query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
  diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
 }
-type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&RenderMetricsWindow&AnalysisViewWindow&{
+type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&RenderMetricsWindow&AnalysisViewWindow&RallySearchViewWindow&{
  VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>;
 };
 export interface QueryPerformancePanel{
@@ -73,7 +74,7 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  };
  const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
  const heading=node('div','vc20523-heading'),title=node('div');
- title.append(node('small','','V20.5.29 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
+ title.append(node('small','','V20.5.30 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
  heading.append(title,node('span','','Solo lectura'));
  const description=node('p','',
   'Mediciones locales de normalización, filtros, índices y exportación CSV. La sección visual inferior mide solo actualizaciones de interfaz; no incluye vídeo, descargas ni sincronización.');
@@ -131,6 +132,15 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
   const box=node('div');box.append(node('small','',label));
   const value=node('strong','','—');box.append(value);viewMetrics.append(box);viewValues.set(key,value);
  }
+ const rallyHeading=node('h4','vc20524-subheading','Vista Rally Search Pro migrada a TypeScript');
+ const rallyDescription=node('p','',
+  'La plantilla de filtros, catálogos y secuencias se genera con Vite. Las búsquedas guardadas, los clips de vídeo y el CSV conservan sus controles históricos.');
+ const rallyMetrics=node('div','vc20523-values'),rallyValues=new Map<string,HTMLElement>();
+ for(const [key,label] of [['renders','Plantillas TypeScript'],['average','Media'],
+  ['slow','Más de 16 ms'],['failures','Errores de plantilla']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);rallyMetrics.append(box);rallyValues.set(key,value);
+ }
  const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
  refreshButton.type='button';
  const note=node('p','vc20523-note',
@@ -138,7 +148,8 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  section.append(heading,description,node('h4','vc20524-subheading','Búsqueda táctica'),metrics,
   normalizeHeading,normalizationMetrics,operationHeading,operationMetrics,
   exportHeading,exportMetrics,renderHeading,renderDescription,renderMetrics,
-  viewHeading,viewDescription,viewMetrics,refreshButton,note);
+  viewHeading,viewDescription,viewMetrics,rallyHeading,rallyDescription,rallyMetrics,
+  refreshButton,note);
  const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
  if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
  else container.append(section);
@@ -197,6 +208,13 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
    slow:String(view?.slowRenders??0),failures:String(view?.failures??0)};
   for(const [key,value] of Object.entries(template)){
    const el=viewValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+  const rallyView=win.VC_RALLY_VIEW_20530?.diagnostics?.();
+  const rallyTemplate={renders:String(rallyView?.renders??0),
+   average:ms(rallyView?.averageMs??0),slow:String(rallyView?.slowRenders??0),
+   failures:String(rallyView?.failures??0)};
+  for(const [key,value] of Object.entries(rallyTemplate)){
+   const el=rallyValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
   }
  };
  refreshButton.addEventListener('click',refresh);refresh();
