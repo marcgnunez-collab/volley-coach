@@ -144,3 +144,27 @@
 #scout-workspace-v900 .vc20511-selected{background:#e2f2fc!important;box-shadow:inset 3px 0 #2a74b9}
 #scout-workspace-v900 .vc20511-note{margin:10px 0 0;font-size:10px;line-height:1.5;color:#657f92}
 @media(max-width:600px){#scout-workspace-v900 .vc20511-boxscore{padding:10px}#scout-workspace-v900 .vc20511-head{flex-direction:column;gap:6px}#scout-workspace-v900 .vc20511-controls label{flex:1 1 100%}}
+
+/* V20.5.15 · Compact delayed, read-only comparator in Gestión. */
+#v11-management .vc20515-shadow{margin:12px 0 18px;padding:15px;border:1px solid #aac7dc;border-radius:7px;background:#f4f9fd;color:#173e5c;font:500 12px/1.5 system-ui}
+#v11-management .vc20515-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
+#v11-management .vc20515-heading small{font-size:10px;font-weight:850;color:#2369a6;letter-spacing:.06em}
+#v11-management .vc20515-heading h3{font-size:17px;margin:3px 0 6px;color:#153c58}
+#v11-management .vc20515-heading>span{padding:4px 8px;border-radius:10px;background:#e5f5ec;color:#246647;font-size:10px;font-weight:850;white-space:nowrap}
+#v11-management .vc20515-shadow p{margin:8px 0 10px}
+#v11-management .vc20515-status{font-weight:750;color:#216c99}
+#v11-management .vc20515-shadow[data-state=review] .vc20515-status{color:#b43838}
+#v11-management .vc20515-shadow[data-state=partial] .vc20515-status{color:#a0631c}
+#v11-management .vc20515-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:11px 0}
+#v11-management .vc20515-stats>div{min-width:0;padding:9px;border:1px solid #d1e2ee;border-radius:5px;background:#fff;display:flex;flex-direction:column;gap:4px}
+#v11-management .vc20515-stats small{font-size:10px;color:#54738a}
+#v11-management .vc20515-stats strong{font:850 19px/1.2 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;color:#175884}
+#v11-management .vc20515-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#v11-management .vc20515-actions button{padding:7px 11px;background:#e9f3fb;color:#195989;border:1px solid #a8c7df;border-radius:5px;font-weight:800;cursor:pointer}
+#v11-management .vc20515-actions button:hover{background:#daeefa}
+#v11-management .vc20515-shadow h4{font-size:12px;color:#173e5c;margin:12px 0 7px}
+#v11-management .vc20515-finding{display:flex;justify-content:space-between;gap:10px;padding:7px 9px;background:#fff;border:1px solid #d7e5ef;border-radius:5px;margin:5px 0}
+#v11-management .vc20515-finding strong{color:#a65328;font-size:11px}
+#v11-management .vc20515-finding span{font:650 10px/1.35 ui-monospace,Consolas,monospace;color:#43667d;text-align:right}
+#v11-management .vc20515-note{font-size:10px;color:#627f93}
+@media(max-width:700px){#v11-management .vc20515-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc20515-heading>span{display:none}}

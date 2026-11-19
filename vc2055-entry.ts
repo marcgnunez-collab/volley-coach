@@ -10,11 +10,14 @@ import {mountLiveStatisticsPanel} from './state/live-statistics-runtime';
 import {inspectPlayerBoxscore} from './state/player-boxscore';
 import {mountPlayerBoxscore} from './state/player-boxscore-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
+import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 export {inspectCodeShape,compareNativeCode} from './domain/code-grammar';
 export {verifyRallyScore,auditMatchScores} from './domain/scoring';
 export {nextRotation,projectPoint} from './domain/rotation';
 export {planAwardPoint,planUndoLastRally,inspectClosedRally} from './domain/rally-transition';
 export {projectSetBoundary,inspectRallyRestoration} from './domain/rally-boundaries';
+export {compareConfirmedPoint,createRallyShadowSession} from './domain/rally-shadow';
+export {mountRallyShadowPanel};
 export {attackEfficiency,sideOutBreakPoint} from './domain/statistics';
 export {inspectSubstitution} from './domain/substitutions';
 export {inspectMatchDomain,mountDomainDiagnostic};
@@ -29,7 +32,7 @@ export {inspectPlayerBoxscore,mountPlayerBoxscore};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
- const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);};
+ const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 }
