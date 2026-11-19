@@ -7,7 +7,7 @@ import {performance} from 'node:perf_hooks';
 import {deepStrictEqual} from 'node:assert/strict';
 import {normalizeAnalysisMatch,filterAnalysis,evaluateAnalysisContacts,
  calculateAnalysisPoints,inspectAnalysisCoverage,reconcileAnalysisPoints,
- exportAnalysisCSV,invalidateAnalysisIndex} from '../vc2055-domain-core.mjs';
+ exportAnalysisCSV,invalidateAnalysisIndex,inspectAnalysisIndexDiagnostics} from '../vc2055-domain-core.mjs';
 
 const require=createRequire(import.meta.url);
 const historical=require('../189-vc1938-professional-data-engine.js');
@@ -70,16 +70,33 @@ const historicalSelectiveMs=measure(oldSelective);
 invalidateAnalysisIndex(newData);
 typedSelective(); // warm the scoped index before measuring repeated filter lookups
 const indexedSelectiveMs=measure(typedSelective);
+const multidimensionalFilters=[{team:'ours',skill:'A',evaluation:'#'},
+ {team:'opponent',skill:'R',player:'4'},
+ {team:'opponent',skill:'A',endZone:'1A'},
+ {team:'ours',skill:'D',evaluation:'+'},
+ {team:'opponent',skill:'E',setter:'1'},
+ {team:'ours',skill:'S',evaluation:'='}];
+const oldMultidimensional=()=>multidimensionalFilters.map(f=>historical.filter(expectedData,f));
+const typedMultidimensional=()=>multidimensionalFilters.map(f=>filterAnalysis(newData,f));
+deepStrictEqual(typedMultidimensional(),oldMultidimensional());
+const historicalMultidimensionalMs=measure(oldMultidimensional);
+typedMultidimensional();
+const indexedMultidimensionalMs=measure(typedMultidimensional);
 const csvSource={...expectedData,contacts:historical.filter(expectedData,{team:'ours',skill:'A'}).contacts};
 deepStrictEqual(exportAnalysisCSV(csvSource),historical.toCSV(csvSource));
 const historicalCsvMs=measure(()=>historical.toCSV(csvSource));
 const typescriptCsvMs=measure(()=>exportAnalysisCSV(csvSource));
-const result={version:'20.5.26',synthetic:true,rallies,actions:rallies*6,
+const indexStats=inspectAnalysisIndexDiagnostics();
+const result={version:'20.5.27',synthetic:true,rallies,actions:rallies*6,
  historicalMs,typescriptMs,baseline:'Median of five warm Node.js runs per implementation',
  operations:{historicalMs:historicalOperationsMs,typescriptMs:typescriptOperationsMs,
   filters:engineFilters.length,includes:['filter','evaluate','points','coverage','reconcile']},
  selectiveFilters:{count:selectiveFilters.length,historicalMs:historicalSelectiveMs,
   indexedMs:indexedSelectiveMs},
+ multidimensional:{count:multidimensionalFilters.length,
+  historicalMs:historicalMultidimensionalMs,indexedMs:indexedMultidimensionalMs,
+  avoidedContactScans:indexStats.avoidedContactScans,
+  estimatedReferenceKiB:Number((indexStats.lastEstimatedReferenceBytes/1024).toFixed(1))},
  csv:{rows:csvSource.contacts.length,historicalMs:historicalCsvMs,typescriptMs:typescriptCsvMs},
  note:'No DOM, vídeo, red ni persistencia: no es una garantía de rendimiento en directo.'};
 process.stdout.write(`${JSON.stringify(result,null,2)}\n`);

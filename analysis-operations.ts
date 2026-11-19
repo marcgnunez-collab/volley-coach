@@ -4,7 +4,7 @@
 import type {Team} from '../domain/model';
 import {normalizeAnalysisZone,type NormalizedAnalysis,type NormalizedContact,
  type NormalizedRally,type NormalizedPossession,type NormalizedChain} from './analysis-normalizer';
-import {readIndexedRallies} from './analysis-index';
+import {readIndexedRallies,readIndexedContactCandidates} from './analysis-index';
 
 const val=(x:unknown)=>String(x??'').trim();
 const present=(x:unknown)=>x!==null&&x!==undefined&&val(x)!=='';
@@ -61,7 +61,10 @@ export function filterAnalysis(data:NormalizedAnalysis,f:AnalysisEngineFilters={
  const indexed=readIndexedRallies(data,rallyBase);
  const candidates=new Set(rallyBase.map(r=>r.key));
  const actionFiltered=!!(skill||evalCode||player||start||end||f.video===true);
- const contacts=(indexed?.contacts||data.contacts).filter(c=>candidates.has(c.rallyKey)&&(!target||c.team===target)&&
+ const contactSource=readIndexedContactCandidates(data,{team:target,skill,evaluation:evalCode,
+  player,startZone:start?.code,endZone:end?.code,video:f.video===true},
+  indexed?.contacts.length??data.contacts.length)||indexed?.contacts||data.contacts;
+ const contacts=contactSource.filter(c=>candidates.has(c.rallyKey)&&(!target||c.team===target)&&
   (!skill||c.skill===skill)&&(!evalCode||c.evaluation===evalCode)&&
   (!player||c.player?.toLocaleLowerCase('es')===player)&&
   (!start||c.fields.startZone?.code===start.code)&&(!end||c.fields.endZone?.code===end.code)&&

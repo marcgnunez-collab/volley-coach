@@ -51,7 +51,8 @@ export {filterAnalysis,evaluateAnalysisContacts,calculateAnalysisPoints,
  inspectAnalysisCoverage,reconcileAnalysisPoints} from './state/analysis-operations';
 export {installAnalysisOperationsBridge};
 export {exportAnalysisCSV,escapeAnalysisCSVCell} from './state/analysis-export';
-export {invalidateAnalysisIndex,inspectAnalysisIndexDiagnostics} from './state/analysis-index';
+export {invalidateAnalysisIndex,inspectAnalysisIndexDiagnostics,MAX_INDEXED_CONTACTS}
+ from './state/analysis-index';
 export {installAnalysisExportBridge};
 export {readCanonicalMatch,canonicalReaders};
 
