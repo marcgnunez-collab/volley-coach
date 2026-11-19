@@ -20,6 +20,7 @@ export {compareConfirmedPoint,createRallyShadowSession} from './domain/rally-sha
 export {createRallyTransactionPilot} from './domain/rally-transaction-pilot';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
+export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
 export {mountRallyShadowPanel};
 export {attackEfficiency,sideOutBreakPoint} from './domain/statistics';
 export {inspectSubstitution} from './domain/substitutions';

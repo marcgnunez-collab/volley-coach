@@ -1,6 +1,6 @@
 {
   "name": "volley-coach",
-  "version": "20.5.18",
+  "version": "20.5.19",
   "private": true,
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -8,7 +8,8 @@
     "build:domain": "vite build --config vite.domain.config.mjs --logLevel error && node scripts/publish-domain.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test:foundation": "npm run typecheck && npm run build && node --test vc2050-foundation.test.cjs vc2051-scouting-expert.test.cjs vc2052-foundation.test.cjs vc2053-modular-core.test.cjs vc2054-vite-foundation.test.cjs vc2055-domain.test.cjs vc2056-shadow-validation.test.cjs vc2057-committed-audit.test.cjs vc2058-code-grammar.test.cjs vc2059-observable-state.test.cjs vc20510-live-statistics.test.cjs vc20511-player-boxscore.test.cjs vc20512-scouting-consolidation.test.cjs vc20513-rally-transition.test.cjs vc20514-rally-boundaries.test.cjs vc20515-rally-shadow.test.cjs vc20516-rally-transaction-pilot.test.cjs vc20517-native-safety-integration.test.cjs vc20518-recovery-guard.test.cjs"
+    "test:foundation": "npm run typecheck && npm run build && node --test vc2050-foundation.test.cjs vc2051-scouting-expert.test.cjs vc2052-foundation.test.cjs vc2053-modular-core.test.cjs vc2054-vite-foundation.test.cjs vc2055-domain.test.cjs vc2056-shadow-validation.test.cjs vc2057-committed-audit.test.cjs vc2058-code-grammar.test.cjs vc2059-observable-state.test.cjs vc20510-live-statistics.test.cjs vc20511-player-boxscore.test.cjs vc20512-scouting-consolidation.test.cjs vc20513-rally-transition.test.cjs vc20514-rally-boundaries.test.cjs vc20515-rally-shadow.test.cjs vc20516-rally-transaction-pilot.test.cjs vc20517-native-safety-integration.test.cjs vc20518-recovery-guard.test.cjs vc20519-journal-recovery.test.cjs",
+    "test:browser-recovery": "node --test test-audit/vc20519-browser-recovery.test.cjs"
   },
   "devDependencies": {
     "typescript": "5.9.3",
