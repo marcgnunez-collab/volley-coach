@@ -4,6 +4,7 @@ import {nextRotation} from './rotation';
 import {sideOutBreakPoint,attackEfficiency} from './statistics';
 import {inspectCodeShape} from './code-grammar';
 import {inspectSubstitution} from './substitutions';
+import type {ObservableMatchStore} from '../state/match-observable';
 
 export interface DomainOverview{
  readonly matchAvailable:boolean;
@@ -43,6 +44,7 @@ type LegacyWindow=Window&{
  VC_SCOUT_VIDEO_BRIDGE?:LegacyMatchState;
  VC_SCOUT_REPORT_BRIDGE?:LegacyMatchState;
  VC_DOMAIN_2055?:Readonly<DomainAPI>;
+ VC_STATE_2059?:Readonly<ObservableMatchStore>;
 };
 interface DomainAPI{
  readonly version:string;
@@ -111,14 +113,21 @@ export function mountDomainDiagnostic(win:LegacyWindow):Readonly<DomainAPI>|null
   Promise.resolve().then(()=>{pending=false;if(!disposed)render();});
  };
  button.addEventListener('click',render);
- doc.addEventListener('vc:matchstatechange',schedule);
  let unsubscribe=()=>{};
- try{const stop=win.MatchState?.subscribe?.(schedule);if(typeof stop==='function')unsubscribe=stop;}catch(_){/* DOM event fallback. */}
+ let legacyDom=false;
+ if(win.VC_STATE_2059){
+  const stops=[win.VC_STATE_2059.subscribe('score',schedule),win.VC_STATE_2059.subscribe('court',schedule),
+   win.VC_STATE_2059.subscribe('rally',schedule),win.VC_STATE_2059.subscribe('status',schedule)];
+  unsubscribe=()=>stops.forEach(stop=>stop());
+ }else{
+  legacyDom=true;doc.addEventListener('vc:matchstatechange',schedule);
+  try{const stop=win.MatchState?.subscribe?.(schedule);if(typeof stop==='function')unsubscribe=stop;}catch(_){/* DOM event fallback. */}
+ }
  const observer=typeof MutationObserver==='function'?new MutationObserver(schedule):null;
  observer?.observe(host,{attributes:true,attributeFilter:['class']});
  if(host.classList.contains('active'))render();
  const api=Object.freeze({version:'20.5.5',readOnly:true as const,inspectCodeShape,inspectSubstitution,nextRotation,inspectCurrent,
-  dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();doc.removeEventListener('vc:matchstatechange',schedule);section.remove();if(win.VC_DOMAIN_2055===api)delete win.VC_DOMAIN_2055;}});
+  dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();if(legacyDom)doc.removeEventListener('vc:matchstatechange',schedule);section.remove();if(win.VC_DOMAIN_2055===api)delete win.VC_DOMAIN_2055;}});
  win.VC_DOMAIN_2055=api;
  return api;
 }

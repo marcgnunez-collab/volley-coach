@@ -3,6 +3,7 @@
  */
 import {auditCommittedMatch,type CommittedAuditReport} from './committed-audit';
 import {asRecord} from './model';
+import type {ObservableMatchStore} from '../state/match-observable';
 
 interface ReadOnlyMatchSource{
  getActive?:()=>unknown;
@@ -21,6 +22,7 @@ type CommittedWindow=Window&{
  VC_SCOUT_VIDEO_BRIDGE?:ReadOnlyMatchSource;
  VC_SCOUT_REPORT_BRIDGE?:ReadOnlyMatchSource;
  VC_COMMITTED_2057?:Readonly<CommittedAPI>;
+ VC_STATE_2059?:Readonly<ObservableMatchStore>;
 };
 
 export function mountCommittedPanel(win:CommittedWindow):Readonly<CommittedAPI>|null{
@@ -116,16 +118,20 @@ export function mountCommittedPanel(win:CommittedWindow):Readonly<CommittedAPI>|
   doc.body.appendChild(link);link.click();link.remove();
   win.setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
- doc.addEventListener('vc:matchstatechange',invalidate);
  let unsubscribe=()=>{};
- try{const stop=(win.MatchState||win.VC_MATCH_STATE)?.subscribe?.(invalidate);if(typeof stop==='function')unsubscribe=stop;}
- catch(_){/* DOM event fallback. */}
+ let legacyDom=false;
+ if(win.VC_STATE_2059)unsubscribe=win.VC_STATE_2059.subscribe('change',invalidate);
+ else{
+  legacyDom=true;doc.addEventListener('vc:matchstatechange',invalidate);
+  try{const stop=(win.MatchState||win.VC_MATCH_STATE)?.subscribe?.(invalidate);if(typeof stop==='function')unsubscribe=stop;}
+  catch(_){/* DOM event fallback. */}
+ }
  const observer=typeof MutationObserver==='function'?new MutationObserver(()=>{if(host.classList.contains('active'))render();}):null;
  observer?.observe(host,{attributes:true,attributeFilter:['class']});
  if(host.classList.contains('active'))render();
  const api:Readonly<CommittedAPI>=Object.freeze({version:'20.5.7',readOnly:true,getReport:()=>report,runAudit,
   dispose(){if(disposed)return;disposed=true;generation++;observer?.disconnect();unsubscribe();
-   doc.removeEventListener('vc:matchstatechange',invalidate);section.remove();report=null;
+   if(legacyDom)doc.removeEventListener('vc:matchstatechange',invalidate);section.remove();report=null;
    if(win.VC_COMMITTED_2057===api)delete win.VC_COMMITTED_2057;}
  });
  win.VC_COMMITTED_2057=api;

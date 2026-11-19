@@ -385,18 +385,29 @@ function w(e) {
 			x = !1, w || b();
 		}));
 	};
-	p.addEventListener("click", b), t.addEventListener("vc:matchstatechange", T);
-	let E = () => {};
-	try {
-		let t = e.MatchState?.subscribe?.(T);
-		typeof t == "function" && (E = t);
-	} catch {}
-	let D = typeof MutationObserver == "function" ? new MutationObserver(T) : null;
-	D?.observe(n, {
+	p.addEventListener("click", b);
+	let E = () => {}, D = !1;
+	if (e.VC_STATE_2059) {
+		let t = [
+			e.VC_STATE_2059.subscribe("score", T),
+			e.VC_STATE_2059.subscribe("court", T),
+			e.VC_STATE_2059.subscribe("rally", T),
+			e.VC_STATE_2059.subscribe("status", T)
+		];
+		E = () => t.forEach((e) => e());
+	} else {
+		D = !0, t.addEventListener("vc:matchstatechange", T);
+		try {
+			let t = e.MatchState?.subscribe?.(T);
+			typeof t == "function" && (E = t);
+		} catch {}
+	}
+	let O = typeof MutationObserver == "function" ? new MutationObserver(T) : null;
+	O?.observe(n, {
 		attributes: !0,
 		attributeFilter: ["class"]
 	}), n.classList.contains("active") && b();
-	let O = Object.freeze({
+	let k = Object.freeze({
 		version: "20.5.5",
 		readOnly: !0,
 		inspectCodeShape: v,
@@ -404,10 +415,10 @@ function w(e) {
 		nextRotation: s,
 		inspectCurrent: _,
 		dispose() {
-			w || (w = !0, D?.disconnect(), E(), t.removeEventListener("vc:matchstatechange", T), i.remove(), e.VC_DOMAIN_2055 === O && delete e.VC_DOMAIN_2055);
+			w || (w = !0, O?.disconnect(), E(), D && t.removeEventListener("vc:matchstatechange", T), i.remove(), e.VC_DOMAIN_2055 === k && delete e.VC_DOMAIN_2055);
 		}
 	});
-	return e.VC_DOMAIN_2055 = O, O;
+	return e.VC_DOMAIN_2055 = k, k;
 }
 // src/domain/shadow-validation.ts
 var T = 80, E = (e) => e === "v800-code" ? "directo" : e === "v113-video-code" ? "video" : "otro", D = (e) => v(e);
@@ -780,29 +791,33 @@ function z(t) {
 		if (b || !v || y || !v.matchAvailable) return;
 		let e = new Blob([JSON.stringify(v, null, 2)], { type: "application/json" }), r = URL.createObjectURL(e), i = n.createElement("a");
 		i.href = r, i.download = "volley-coach-v2057-auditoria-acciones.json", n.body.appendChild(i), i.click(), i.remove(), t.setTimeout(() => URL.revokeObjectURL(r), 1e3);
-	}), n.addEventListener("vc:matchstatechange", T);
-	let E = () => {};
-	try {
-		let e = (t.MatchState || t.VC_MATCH_STATE)?.subscribe?.(T);
-		typeof e == "function" && (E = e);
-	} catch {}
-	let D = typeof MutationObserver == "function" ? new MutationObserver(() => {
+	});
+	let E = () => {}, D = !1;
+	if (t.VC_STATE_2059) E = t.VC_STATE_2059.subscribe("change", T);
+	else {
+		D = !0, n.addEventListener("vc:matchstatechange", T);
+		try {
+			let e = (t.MatchState || t.VC_MATCH_STATE)?.subscribe?.(T);
+			typeof e == "function" && (E = e);
+		} catch {}
+	}
+	let O = typeof MutationObserver == "function" ? new MutationObserver(() => {
 		r.classList.contains("active") && C();
 	}) : null;
-	D?.observe(r, {
+	O?.observe(r, {
 		attributes: !0,
 		attributeFilter: ["class"]
 	}), r.classList.contains("active") && C();
-	let O = Object.freeze({
+	let k = Object.freeze({
 		version: "20.5.7",
 		readOnly: !0,
 		getReport: () => v,
 		runAudit: w,
 		dispose() {
-			b || (b = !0, x++, D?.disconnect(), E(), n.removeEventListener("vc:matchstatechange", T), a.remove(), v = null, t.VC_COMMITTED_2057 === O && delete t.VC_COMMITTED_2057);
+			b || (b = !0, x++, O?.disconnect(), E(), D && n.removeEventListener("vc:matchstatechange", T), a.remove(), v = null, t.VC_COMMITTED_2057 === k && delete t.VC_COMMITTED_2057);
 		}
 	});
-	return t.VC_COMMITTED_2057 = O, O;
+	return t.VC_COMMITTED_2057 = k, k;
 }
 // src/domain/grammar-runtime.ts
 function B(e) {
@@ -870,11 +885,177 @@ function B(e) {
 	});
 	return e.VC_CODE_GRAMMAR_2058 = y, y;
 }
+// src/state/match-observable.ts
+var V = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, H = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, U = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
+function W(i, a) {
+	let o = e(i), s = H(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
+	return Object.freeze({
+		score: Object.freeze({
+			set: s,
+			us: V(l?.scoreUs),
+			opponent: V(l?.scoreOpponent)
+		}),
+		court: Object.freeze({
+			serving: n(o?.servingTeam) ? o.servingTeam : null,
+			rotationUs: r(o?.rotationNo) ? o.rotationNo : null,
+			rotationOpponent: r(o?.opponentRotationNo) ? o.opponentRotationNo : null
+		}),
+		rally: Object.freeze({
+			completed: l ? t(l.rallies).length : null,
+			liveActions: e(o?.liveRally) ? t(e(o?.liveRally)?.actions).length : null
+		}),
+		status: Object.freeze({
+			matchAvailable: !!o,
+			phase: u
+		})
+	});
+}
+function G(t) {
+	let n = [
+		"score",
+		"court",
+		"rally",
+		"status"
+	], r = [...n, "change"], i = new Map(r.map((e) => [e, /* @__PURE__ */ new Set()])), a = () => [
+		t.MatchState,
+		t.VC_MATCH_STATE,
+		t.VC_SCOUT_VIDEO_BRIDGE,
+		t.VC_SCOUT_REPORT_BRIDGE
+	], o = () => {
+		for (let t of a()) try {
+			let n = t?.getActive?.();
+			if (!e(n)) continue;
+			let r;
+			try {
+				r = t?.getSet?.(n);
+			} catch {}
+			return W(n, r);
+		} catch {}
+		return W(null);
+	}, s = o(), c = !1, l = !1, u = !1, d = 0, f = 0, p = 0, m = (e = !1) => {
+		if (c) return;
+		let t = o(), r = n.filter((e) => !U(s[e], t[e]));
+		r.length && (s = t, f++), (e || r.length) && r.push("change");
+		for (let e of r) for (let t of i.get(e) || []) {
+			p++;
+			try {
+				t(s);
+			} catch {}
+		}
+	}, h = () => {
+		c || (d++, u = !0, l || (l = !0, Promise.resolve().then(() => {
+			l = !1;
+			let e = u;
+			u = !1, m(e);
+		})));
+	}, g = () => (m(), s), _ = t.MatchState || t.VC_MATCH_STATE, v = () => {};
+	try {
+		let e = _?.subscribe?.(h);
+		typeof e == "function" && (v = e);
+	} catch {}
+	return t.document.addEventListener("vc:matchstatechange", h), Object.freeze({
+		version: "20.5.9",
+		readOnly: !0,
+		getSnapshot: () => s,
+		subscribe(e, t) {
+			if (c || !i.has(e) || typeof t != "function") return () => {};
+			let n = i.get(e);
+			return n.add(t), () => {
+				n.delete(t);
+			};
+		},
+		refresh: g,
+		diagnostics: () => Object.freeze({
+			readOnly: !0,
+			signals: d,
+			updates: f,
+			notifications: p,
+			subscribers: [...i.values()].reduce((e, t) => e + t.size, 0)
+		}),
+		dispose() {
+			if (!c) {
+				c = !0, v(), t.document.removeEventListener("vc:matchstatechange", h);
+				for (let e of i.values()) e.clear();
+			}
+		}
+	});
+}
+// src/state/runtime.ts
+function K(e) {
+	let t = e.document, n = t.getElementById("v11-management");
+	if (!n) return null;
+	if (e.VC_STATE_2059) return e.VC_STATE_2059;
+	let r = G(e), i = (e, n = "", r = "") => {
+		let i = t.createElement(e);
+		return i.className = n, i.textContent = r, i;
+	}, a = i("section", "vc2059-observable");
+	a.id = "vc2059-observable";
+	let o = i("div", "vc2059-heading"), s = i("div");
+	s.append(i("small", "", "ESTADO OBSERVABLE · V20.5.9"), i("h3", "", "Lectura unificada del partido")), o.append(s, i("span", "", "Solo lectura"));
+	let c = i("p", "", "Marcador, saque y rotaciones proceden del partido original. Las actualizaciones se agrupan y solo se avisa a cada consumidor cuando cambian sus datos."), l = i("p", "vc2059-status", "Esperando partido activo");
+	l.setAttribute("role", "status");
+	let u = i("div", "vc2059-metrics"), d = /* @__PURE__ */ new Map();
+	for (let [e, t] of [
+		["score", "Marcador del set"],
+		["serve", "Saque"],
+		["court", "Rotaciones"],
+		["rallies", "Rallies del set"],
+		["actions", "Acciones del rally"],
+		["updates", "Actualizaciones selectivas"]
+	]) {
+		let n = i("div");
+		n.append(i("small", "", t));
+		let r = i("strong", "", "—");
+		n.append(r), u.append(n), d.set(e, r);
+	}
+	let f = i("button", "vc2059-refresh", "Actualizar lectura");
+	f.type = "button", a.append(o, c, l, u, f, i("p", "vc2059-note", "Esta vista no corrige el tanteo, no controla sustituciones y no confirma la recepción en la nube. No contiene otro motor de partido."));
+	let p = t.getElementById("vc2058-grammar") || t.getElementById("vc2057-committed");
+	p?.parentNode === n ? p.insertAdjacentElement("afterend", a) : n.append(a);
+	let m = !1, h = !1, g = (e, t) => {
+		let n = d.get(e);
+		n && n.textContent !== t && (n.textContent = t);
+	}, _ = () => {
+		if (m) return;
+		let e = r.getSnapshot(), t = r.diagnostics();
+		a.dataset.state = e.status.matchAvailable ? "available" : "waiting", l.textContent = e.status.matchAvailable ? `Partido activo · set ${e.score.set ?? "—"}` : "No hay partido activo", g("score", e.score.us === null || e.score.opponent === null ? "—" : `${e.score.us} : ${e.score.opponent}`), g("serve", e.court.serving === "ours" ? "Propio" : e.court.serving === "opponent" ? "Rival" : "—"), g("court", e.court.rotationUs === null || e.court.rotationOpponent === null ? "—" : `R${e.court.rotationUs} · Rival R${e.court.rotationOpponent}`), g("rallies", e.rally.completed === null ? "—" : String(e.rally.completed)), g("actions", e.rally.liveActions === null ? "—" : String(e.rally.liveActions)), g("updates", String(t.updates));
+	}, v = () => {
+		m || h || !n.classList.contains("active") || (h = !0, Promise.resolve().then(() => {
+			h = !1, _();
+		}));
+	}, y = [
+		r.subscribe("score", v),
+		r.subscribe("court", v),
+		r.subscribe("rally", v),
+		r.subscribe("status", v)
+	];
+	f.addEventListener("click", () => {
+		r.refresh(), _();
+	});
+	let b = typeof MutationObserver == "function" ? new MutationObserver(() => {
+		n.classList.contains("active") && (r.refresh(), _());
+	}) : null;
+	b?.observe(n, {
+		attributes: !0,
+		attributeFilter: ["class"]
+	}), n.classList.contains("active") && _();
+	let x = r.dispose, S = Object.freeze({
+		...r,
+		dispose() {
+			if (!m) {
+				m = !0, b?.disconnect();
+				for (let e of y) e();
+				a.remove(), x(), e.VC_STATE_2059 === S && delete e.VC_STATE_2059;
+			}
+		}
+	});
+	return e.VC_STATE_2059 = S, S;
+}
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
 	let e = () => {
-		w(window), A(window), z(window), B(window);
+		K(window), w(window), A(window), z(window), B(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { l as attackEfficiency, R as auditCommittedMatch, o as auditMatchScores, O as classifyPreflight, L as classifyStoredAction, y as compareNativeCode, k as createShadowSession, v as inspectCodeShape, C as inspectMatchDomain, S as inspectSubstitution, z as mountCommittedPanel, w as mountDomainDiagnostic, B as mountGrammarPanel, A as mountShadowPanel, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
+export { l as attackEfficiency, R as auditCommittedMatch, o as auditMatchScores, O as classifyPreflight, L as classifyStoredAction, y as compareNativeCode, G as createObservableMatchStore, k as createShadowSession, v as inspectCodeShape, C as inspectMatchDomain, S as inspectSubstitution, z as mountCommittedPanel, w as mountDomainDiagnostic, B as mountGrammarPanel, K as mountObservablePanel, A as mountShadowPanel, s as nextRotation, W as projectObservableMatch, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
