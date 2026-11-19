@@ -6,6 +6,7 @@
 import {asList,asRecord,asScore,isRotation,isTeam,type Rotation,type Score,type Team} from './model';
 import {projectPoint} from './rotation';
 import {verifyRallyScore,type TraceResult} from './scoring';
+import {projectSetBoundary,inspectRallyRestoration,type SetBoundary,type RallyRestorationCoverage} from './rally-boundaries';
 
 export interface RallyPointState{
  readonly score:Score;
@@ -22,6 +23,8 @@ export interface RallyCommandPlan{
  readonly reason:CommandPlanReason;
  readonly before:Readonly<RallyPointState>|null;
  readonly after:Readonly<RallyPointState>|null;
+ readonly setBoundary:Readonly<SetBoundary>|null;
+ readonly restoration:Readonly<RallyRestorationCoverage>|null;
  readonly includesLineups:false;
  readonly readOnly:true;
 }
@@ -31,8 +34,9 @@ const pointState=(score:unknown,serving:unknown,rotationUs:unknown,rotationOppon
  return parsed&&isTeam(serving)&&isRotation(rotationUs)&&isRotation(rotationOpponent)?
   Object.freeze({score:parsed,serving,rotationUs,rotationOpponent}):null;
 };
-const plan=(kind:CommandPlanKind,reason:CommandPlanReason,before:Readonly<RallyPointState>|null=null,after:Readonly<RallyPointState>|null=null):Readonly<RallyCommandPlan>=>
- Object.freeze({kind,state:reason==='ready'?'projected':reason==='finished'?'blocked':'unknown',reason,before,after,includesLineups:false,readOnly:true});
+const plan=(kind:CommandPlanKind,reason:CommandPlanReason,before:Readonly<RallyPointState>|null=null,after:Readonly<RallyPointState>|null=null,
+ setBoundary:Readonly<SetBoundary>|null=null,restoration:Readonly<RallyRestorationCoverage>|null=null):Readonly<RallyCommandPlan>=>
+ Object.freeze({kind,state:reason==='ready'?'projected':reason==='finished'?'blocked':'unknown',reason,before,after,setBoundary,restoration,includesLineups:false,readOnly:true});
 const activeSet=(match:Record<string,unknown>)=>
  asList(match.sets).map(asRecord).find(set=>set&&Number(set.number)===Number(match.currentSet)&&Number.isInteger(Number(match.currentSet)))||null;
 const sameScore=(a:Score,b:Score)=>a.us===b.us&&a.opponent===b.opponent;
@@ -60,7 +64,7 @@ export function planAwardPoint(input:unknown,winner:unknown):Readonly<RallyComma
  const projected=projectPoint({score:before.score,serving:before.serving,
   rotationUs:before.rotationUs,rotationOpponent:before.rotationOpponent},winner);
  const after=pointState(projected.score,projected.serving,projected.rotationUs,projected.rotationOpponent);
- return after?plan('award-point','ready',before,after):plan('award-point','invalid-data',before);
+ return after?plan('award-point','ready',before,after,projectSetBoundary(match,after.score)):plan('award-point','invalid-data',before);
 }
 
 /** Dry-run only. Models scoutUndoRally's restoration of the last closed rally. */
@@ -78,7 +82,7 @@ export function planUndoLastRally(input:unknown):Readonly<RallyCommandPlan>{
  if(!before||!after||verifyRallyScore(last).state!=='verified')return plan('undo-last-rally','invalid-data',before);
  const recordedAfter=asScore(last.scoreAfter);
  if(!recordedAfter||!sameScore(recordedAfter,before.score))return plan('undo-last-rally','stale-score',before);
- return plan('undo-last-rally','ready',before,after);
+ return plan('undo-last-rally','ready',before,after,null,inspectRallyRestoration(last));
 }
 
 export type LinkState='match'|'mismatch'|'unknown';
