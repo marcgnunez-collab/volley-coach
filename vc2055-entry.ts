@@ -22,6 +22,7 @@ import {installScoutingDraftBridge} from './state/scouting-speed-draft-runtime';
 import {installScoutingPreflightBridge} from './state/scouting-preflight-runtime';
 import {installRegistrationGuardBridge} from './domain/scout-registration-guard-runtime';
 import {installScoutingPreparationBridge} from './domain/scout-action-preparation-runtime';
+import {installScoutingLexerBridge} from './domain/scout-code-lexer-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -80,6 +81,8 @@ export {inspectRegistrationConditions} from './domain/scout-registration-guard';
 export {installRegistrationGuardBridge};
 export {prepareNativeScoutingAction,inspectNativePreparation} from './domain/scout-action-preparation';
 export {installScoutingPreparationBridge};
+export {lexScoutingCode} from './domain/scout-code-lexer';
+export {installScoutingLexerBridge};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -87,6 +90,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutingPreflightBridge(window);
  installRegistrationGuardBridge(window);
  installScoutingPreparationBridge(window);
+ installScoutingLexerBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

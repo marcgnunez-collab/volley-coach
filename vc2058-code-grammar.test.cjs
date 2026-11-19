@@ -11,7 +11,7 @@ const compiled=()=>import('./vc2055-domain-core.mjs');
  * wrappers, stubbing only roster lookup and unrelated normalization/rendering.
  * This is a syntax fixture, NOT a full native gameplay integration test.
  */
-function nativeSyntaxHarness(){
+function nativeSyntaxHarness(lexerBridge){
  const legacy=fs.readFileSync(path.join(root,'021-core-scouting-v150-monolithic.js'),'utf8');
  const part=(start,end)=>{
   const a=legacy.indexOf(start);assert.ok(a>=0,start);
@@ -19,6 +19,7 @@ function nativeSyntaxHarness(){
   return legacy.slice(a,b);
  };
  const source=[
+  part('function v6108NativeLex(raw){','function scoutV6108ParseRaw(raw,m,oldAction=null){'),
   part('function scoutV6108ParseRaw(raw,m,oldAction=null){','// Quick-code console'),
   part('const v830ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
   part('const v840ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
@@ -27,6 +28,7 @@ function nativeSyntaxHarness(){
   part('const v880ParseBase=scoutV6108ParseRaw;','window.v680ParseCode')
  ].join('\n');
  const ctx={
+  window:lexerBridge?{VC_SCOUT_LEXER_20537:lexerBridge}:{},
   scoutV6108IsContactSkill:skill=>skill==='R'||skill==='D',
   scoutV6108NormalizeZoneInput:(skill,start,end)=>({startZone:start||'',endZone:end||'',contactZone:end||start||''}),
   scoutV6108InferSource:()=>{},
@@ -42,6 +44,22 @@ function nativeSyntaxHarness(){
  vm.runInNewContext(source+'\nthis.parseNative=scoutV6108ParseRaw;',ctx,{timeout:1000});
  return code=>ctx.parseNative(code,{id:42,status:'live'});
 }
+
+test('V20.5.37 lexer survives all native parser wrapper layers without changing action fields',async()=>{
+ const {installScoutingLexerBridge}=await compiled();
+ const typed=nativeSyntaxHarness(installScoutingLexerBridge({}));
+ const classic=nativeSyntaxHarness();
+ const cases=['7A#','R7R+.6','3D+.5','4S+.1>5~JF^K1',
+  '12A#.4B>5D::K1~T','3B#.4&12','12A#.4B>C5',
+  '12A#.4>5*DC','12A#.4>5@2:PIPE',
+  '7E+::31~Q|F%RAP?S1$X','R12S=~JP','12S#~U',
+  '12A#.4','4S#.1>C5','12A#~XX'];
+ for(const code of cases){
+  const after=JSON.parse(JSON.stringify(typed(code)));
+  const before=JSON.parse(JSON.stringify(classic(code)));
+  assert.deepStrictEqual(after,before,'wrapper parity '+code);
+ }
+});
 
 test('grammar V20.5.8 recognizes the historical native wrappers on representative inputs',async()=>{
  const native=nativeSyntaxHarness(),{inspectCodeShape}=await compiled();
@@ -158,10 +176,10 @@ test('versioned bundle, stylesheet and cache stay aligned with existing PWA publ
  const css=fs.readFileSync(path.join(root,'vc2055-domain.css'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.5.36');
+ assert.equal(pkg.version,'20.5.37');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2058-code-grammar.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.36'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.36'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.37'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.37'));
  assert.ok(css.includes('.vc2058-grammar'));
  assert.ok(sw.includes('code-grammar-20.5.8'));
  for(const file of ['src/domain/code-grammar.ts','src/domain/grammar-runtime.ts']){

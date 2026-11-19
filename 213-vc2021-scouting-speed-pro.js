@@ -170,7 +170,7 @@
   config.click();return true;
  }
  function markup(){return `<section id="vc2021-dock" class="vc2021-dock" aria-label="Scouting Speed Pro">
-   <div class="vc2021-head"><div><strong>SCOUTING SPEED PRO</strong><small>Completar borrador · nunca registra automáticamente</small><small id="vc2021-draft-engine">Borrador clásico (respaldo)</small><small id="vc2021-register-guard">Precondiciones clásicas</small><small id="vc2021-preparation-engine">Preparación nativa</small></div>
+   <div class="vc2021-head"><div><strong>SCOUTING SPEED PRO</strong><small>Completar borrador · nunca registra automáticamente</small><small id="vc2021-draft-engine">Borrador clásico (respaldo)</small><small id="vc2021-register-guard">Precondiciones clásicas</small><small id="vc2021-preparation-engine">Preparación nativa</small><small id="vc2021-lexer-engine">Sintaxis nativa</small></div>
    <div class="vc2021-head-actions"><button type="button" data-vc2021-command="focus">Foco código</button><button type="button" data-vc2021-command="court">Ir a pista</button><button type="button" data-vc2021-command="macros">Atajos</button></div></div>
    <div class="vc2021-grid"><div class="vc2021-group" role="group" aria-label="Fundamentos rápidos"><span>FUNDAMENTO</span><div>${SKILLS.map(([id,label])=>`<button type="button" data-vc2021-skill="${id}" title="${safeHtml(label)} · Solo borrador">${id}</button>`).join('')}</div></div>
    <div class="vc2021-group" role="group" aria-label="Valoraciones rápidas"><span>VALORACIÓN</span><div>${EVALS.map(code=>`<button type="button" data-vc2021-rating="${code}" title="Valorar como ${code} · Solo borrador">${code}</button>`).join('')}</div></div></div>
@@ -230,6 +230,10 @@
   const typedPreparation=preparationApi?.VERSION==='20.5.36'&&preparationApi?.nativeOnly===true;
   dock.dataset.vc20536Preparation=typedPreparation?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation?'Preparación TypeScript · parser y escritura nativos':'Preparación nativa (respaldo)';
+  const lexer=byId('vc2021-lexer-engine'),lexerApi=root?.VC_SCOUT_LEXER_20537;
+  const typedLexer=lexerApi?.VERSION==='20.5.37'&&lexerApi?.syntaxOnly===true;
+  dock.dataset.vc20537Lexer=typedLexer?'typescript':'classic';
+  if(lexer)lexer.textContent=typedLexer?'Sintaxis TypeScript · jugadores y escritura nativos':'Sintaxis nativa (respaldo)';
   if(preview&&preview.textContent!==(val||'—'))preview.textContent=val||'—';
   if(at&&at.textContent!==label)at.textContent=label;
   updates++;return true;

@@ -2183,18 +2183,45 @@ scoutPushAction=function(action){
   return v6108PushActionBase(action);
 };
 
-function scoutV6108ParseRaw(raw,m,oldAction=null){
-  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  // One zone is accepted syntactically; below it is restricted to R/D.
+/* V20.5.37 · Lexical grammar is now available from a pure Vite/TS module.
+ * Keep this narrow reference lexer as a parity and offline fallback. It does
+ * not resolve a player or create an action; no second parser/writer exists. */
+function v6108NativeLex(raw){
   const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])(?:>([1-9]))?)?(.*)$/);
-  if(!mt)return {error:'Código no reconocido.'};
+  if(!mt)return {kind:'error',error:'Código no reconocido.'};
   let rest=mt[7]||'';
-  const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');
+  const serveType=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');
   const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');
   const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');
   const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');
-  if(rest)return {error:'Parte avanzada no reconocida: '+rest};
-  const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',z1=mt[5]||'',z2=mt[6]||'';
+  if(rest)return {kind:'error',error:'Parte avanzada no reconocida: '+rest};
+  return {kind:'code',rival:!!mt[1],number:mt[2],skill:mt[3],evaluation:mt[4]||'!',
+    startZone:mt[5]||'',endZone:mt[6]||'',serveType,combo,phase,blockers};
+}
+const v6108LexerStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v6108CheckedLex(raw){
+  const native=v6108NativeLex(raw);
+  try{
+    const bridge=window.VC_SCOUT_LEXER_20537;
+    if(bridge?.VERSION==='20.5.37'&&bridge.syntaxOnly===true&&typeof bridge.lex==='function'){
+      const typed=bridge.lex(raw);
+      if(JSON.stringify(typed)===JSON.stringify(native)){
+        v6108LexerStats.typed++;return typed;
+      }
+      v6108LexerStats.mismatches++;
+    }
+  }catch(_){v6108LexerStats.exceptions++;}
+  v6108LexerStats.native++;return native;
+}
+window.VC_SCOUT_LEXER_DIAGNOSTICS_20537=()=>Object.freeze({...v6108LexerStats});
+
+function scoutV6108ParseRaw(raw,m,oldAction=null){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const lexical=v6108CheckedLex(raw);
+  if(lexical.kind==='error')return {error:lexical.error};
+  const rival=lexical.rival,num=lexical.number,skill=lexical.skill,
+    evaluation=lexical.evaluation,z1=lexical.startZone,z2=lexical.endZone,
+    serve=lexical.serveType,combo=lexical.combo,phase=lexical.phase,blockers=lexical.blockers;
   if(z1&&!z2&&!scoutV6108IsContactSkill(skill))return {error:'La zona única (.6) solo se usa en recepción o defensa. Para saque/ataque usa origen>destino, por ejemplo .1>6.'};
   const zones=scoutV6108NormalizeZoneInput(skill,z1,z2);
   const base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,...zones,serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};
