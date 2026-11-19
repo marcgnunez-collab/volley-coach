@@ -886,9 +886,9 @@ function B(e) {
 	return e.VC_CODE_GRAMMAR_2058 = y, y;
 }
 // src/state/match-observable.ts
-var V = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, H = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, U = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
-function W(i, a) {
-	let o = e(i), s = H(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
+var V = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, ee = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, te = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
+function H(i, a) {
+	let o = e(i), s = ee(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
 	return Object.freeze({
 		score: Object.freeze({
 			set: s,
@@ -910,7 +910,7 @@ function W(i, a) {
 		})
 	});
 }
-function G(t) {
+function U(t) {
 	let n = [
 		"score",
 		"court",
@@ -929,12 +929,12 @@ function G(t) {
 			try {
 				r = t?.getSet?.(n);
 			} catch {}
-			return W(n, r);
+			return H(n, r);
 		} catch {}
-		return W(null);
+		return H(null);
 	}, s = o(), c = !1, l = !1, u = !1, d = 0, f = 0, p = 0, m = (e = !1) => {
 		if (c) return;
-		let t = o(), r = n.filter((e) => !U(s[e], t[e]));
+		let t = o(), r = n.filter((e) => !te(s[e], t[e]));
 		r.length && (s = t, f++), (e || r.length) && r.push("change");
 		for (let e of r) for (let t of i.get(e) || []) {
 			p++;
@@ -981,11 +981,11 @@ function G(t) {
 	});
 }
 // src/state/runtime.ts
-function K(e) {
+function W(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_STATE_2059) return e.VC_STATE_2059;
-	let r = G(e), i = (e, n = "", r = "") => {
+	let r = U(e), i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
 		return i.className = n, i.textContent = r, i;
 	}, a = i("section", "vc2059-observable");
@@ -1051,11 +1051,186 @@ function K(e) {
 	});
 	return e.VC_STATE_2059 = S, S;
 }
+// src/state/live-statistics.ts
+var ne = 3e3, G = 25e3, K = (e, t) => t ? Math.round(e / t * 100) : null, q = () => ({
+	receptions: 0,
+	perfect: 0,
+	positive: 0,
+	attacks: 0,
+	kills: 0,
+	errors: 0,
+	blocked: 0
+}), J = (t, n) => {
+	let r = e(n);
+	if (r?.team === "ours") {
+		if (r.skill === "R") {
+			if (![
+				"#",
+				"+",
+				"!",
+				"-",
+				"/",
+				"="
+			].includes(String(r.evaluation))) return;
+			t.receptions++, r.evaluation === "#" && t.perfect++, (r.evaluation === "#" || r.evaluation === "+") && t.positive++;
+		} else if (r.skill === "A") {
+			if (![
+				"#",
+				"+",
+				"!",
+				"-",
+				"/",
+				"="
+			].includes(String(r.evaluation))) return;
+			t.attacks++, r.evaluation === "#" && t.kills++, r.evaluation === "=" && t.errors++, r.evaluation === "/" && t.blocked++;
+		}
+	}
+}, Y = (e) => Object.freeze({
+	attempts: e.receptions,
+	perfect: e.perfect,
+	positive: e.positive,
+	positivePct: K(e.positive, e.receptions),
+	perfectPct: K(e.perfect, e.receptions)
+}), X = (e) => Object.freeze({
+	attempts: e.attacks,
+	kills: e.kills,
+	errors: e.errors,
+	blocked: e.blocked,
+	efficiencyPct: K(e.kills - e.errors - e.blocked, e.attacks)
+}), Z = (e, t) => Object.freeze({
+	attempts: e,
+	successes: t,
+	percent: K(t, e)
+});
+function Q(r) {
+	let i = e(r), a = Number.isSafeInteger(i?.currentSet) && Number(i?.currentSet) > 0 ? Number(i?.currentSet) : null, o = e(t(i?.sets).find((t) => a !== null && e(t)?.number === a)), s = t(o?.rallies), c = q(), l = q(), u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, g = !1;
+	if (o) for (let r of s) {
+		if (m >= ne) {
+			g = !0;
+			break;
+		}
+		let i = e(r);
+		if (m++, !i) continue;
+		let a = i.winner, o = i.servingBefore;
+		n(a) && n(o) && (o === "opponent" ? (u++, a === "ours" && d++) : (f++, a === "ours" && p++));
+		for (let e of t(i.actions)) {
+			if (h >= G) {
+				g = !0;
+				break;
+			}
+			h++, J(c, e);
+		}
+		if (g) break;
+	}
+	let _ = t(e(i?.liveRally)?.actions);
+	for (let e of _.slice(0, G)) J(l, e);
+	_.length > G && (g = !0);
+	let v = {
+		receptions: c.receptions + l.receptions,
+		perfect: c.perfect + l.perfect,
+		positive: c.positive + l.positive,
+		attacks: c.attacks + l.attacks,
+		kills: c.kills + l.kills,
+		errors: c.errors + l.errors,
+		blocked: c.blocked + l.blocked
+	};
+	return Object.freeze({
+		available: !!o,
+		set: o ? a : null,
+		completeRallies: s.length,
+		examinedRallies: m,
+		examinedActions: h,
+		truncated: g,
+		sideOut: Z(u, d),
+		breakPoint: Z(f, p),
+		reception: Y(c),
+		attack: X(c),
+		provisional: Object.freeze({
+			actions: _.length,
+			receptions: l.receptions,
+			attacks: l.attacks,
+			reception: Y(v),
+			attack: X(v)
+		})
+	});
+}
+// src/state/live-statistics-runtime.ts
+function $(e) {
+	let t = e.document, n = t.getElementById("vc20510-live-stats"), r = t.getElementById("scout-workspace-v900"), i = t.getElementById("v900-phase-scout"), a = e.VC_STATE_2059;
+	if (!n || !r || !i || !a) return null;
+	if (e.VC_LIVE_STATS_20510) return e.VC_LIVE_STATS_20510;
+	let o = (e, n = "", r = "") => {
+		let i = t.createElement(e);
+		return i.className = n, i.textContent = r, i;
+	}, s = o("div", "vc20510-status", "Esperando partido activo");
+	s.setAttribute("role", "status");
+	let c = o("div", "vc20510-grid"), l = /* @__PURE__ */ new Map();
+	for (let [e, t] of [
+		["so", "SIDE-OUT"],
+		["bp", "BREAK POINT"],
+		["receive", "RECEPCIÓN (+/#)"],
+		["attack", "EFICIENCIA ATAQUE"]
+	]) {
+		let n = o("div", "vc20510-metric"), r = o("small", "", t), i = o("strong", "", "—"), a = o("span", "vc20510-metric-detail", "Sin datos");
+		n.append(r, i, a), c.append(n), l.set(e, {
+			value: i,
+			detail: a
+		});
+	}
+	let u = o("div", "vc20510-open", "Rally abierto: sin acciones"), d = o("p", "vc20510-note", "SO y BP solo incluyen rallies cerrados. La recepción y el ataque muestran una vista provisional si hay acciones del rally abierto.");
+	n.append(s, c, u, d);
+	let f = !1, p = !1, m = null, h = () => {
+		for (let t of [
+			e.MatchState,
+			e.VC_MATCH_STATE,
+			e.VC_SCOUT_VIDEO_BRIDGE,
+			e.VC_SCOUT_REPORT_BRIDGE
+		]) try {
+			let e = t?.getActive?.();
+			if (e && typeof e == "object" && !Array.isArray(e)) return e;
+		} catch {}
+		return null;
+	}, g = () => r.classList.contains("active") && !i.classList.contains("hidden"), _ = (e, t, n) => {
+		let r = l.get(e);
+		r && (r.value.textContent !== t && (r.value.textContent = t), r.detail.textContent !== n && (r.detail.textContent = n));
+	}, v = (e) => e === null ? "—" : `${e}%`, y = (e) => {
+		if (f) return;
+		n.dataset.state = e.available ? e.truncated ? "partial" : e.provisional.receptions || e.provisional.attacks ? "provisional" : "available" : "waiting", s.textContent = e.available ? `SET ${e.set} · ${e.completeRallies} rallies cerrados${e.truncated ? " · CÁLCULO PARCIAL" : ""}` : "No hay un set activo con datos", _("so", v(e.sideOut.percent), `${e.sideOut.successes} ganados / ${e.sideOut.attempts} recepciones de saque`), _("bp", v(e.breakPoint.percent), `${e.breakPoint.successes} ganados / ${e.breakPoint.attempts} saques propios`);
+		let t = e.provisional.receptions > 0, r = e.provisional.attacks > 0, i = t ? e.provisional.reception : e.reception, a = r ? e.provisional.attack : e.attack;
+		_("receive", v(i.positivePct), `${i.positive}/${i.attempts} positivas${t ? " · PROVISIONAL" : ""}`), _("attack", v(a.efficiencyPct), `${a.kills} puntos · ${a.errors + a.blocked} errores/bloqueos · ${a.attempts} intentos${r ? " · PROVISIONAL" : ""}`), u.textContent = `Rally abierto: ${e.provisional.actions} acciones · ${e.provisional.receptions} recepciones · ${e.provisional.attacks} ataques (sin cerrar)`;
+	}, b = () => {
+		let e = Q(h());
+		return m = e, g() && y(e), e;
+	}, x = a.subscribe("change", () => {
+		f || p || !g() || (p = !0, Promise.resolve().then(() => {
+			p = !1, !f && g() && b();
+		}));
+	}), S = typeof MutationObserver == "function" ? new MutationObserver(() => {
+		g() && b();
+	}) : null;
+	S?.observe(r, {
+		attributes: !0,
+		attributeFilter: ["class"]
+	}), S?.observe(i, {
+		attributes: !0,
+		attributeFilter: ["class"]
+	}), g() && b();
+	let C = Object.freeze({
+		version: "20.5.10",
+		readOnly: !0,
+		getReport: () => m,
+		refresh: b,
+		dispose() {
+			f || (f = !0, S?.disconnect(), x(), n.replaceChildren(), m = null, e.VC_LIVE_STATS_20510 === C && delete e.VC_LIVE_STATS_20510);
+		}
+	});
+	return e.VC_LIVE_STATS_20510 = C, C;
+}
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
 	let e = () => {
-		K(window), w(window), A(window), z(window), B(window);
+		W(window), w(window), A(window), z(window), B(window), $(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { l as attackEfficiency, R as auditCommittedMatch, o as auditMatchScores, O as classifyPreflight, L as classifyStoredAction, y as compareNativeCode, G as createObservableMatchStore, k as createShadowSession, v as inspectCodeShape, C as inspectMatchDomain, S as inspectSubstitution, z as mountCommittedPanel, w as mountDomainDiagnostic, B as mountGrammarPanel, K as mountObservablePanel, A as mountShadowPanel, s as nextRotation, W as projectObservableMatch, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
+export { l as attackEfficiency, R as auditCommittedMatch, o as auditMatchScores, O as classifyPreflight, L as classifyStoredAction, y as compareNativeCode, U as createObservableMatchStore, k as createShadowSession, v as inspectCodeShape, Q as inspectLiveSetStatistics, C as inspectMatchDomain, S as inspectSubstitution, z as mountCommittedPanel, w as mountDomainDiagnostic, B as mountGrammarPanel, $ as mountLiveStatisticsPanel, W as mountObservablePanel, A as mountShadowPanel, s as nextRotation, H as projectObservableMatch, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
