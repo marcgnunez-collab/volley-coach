@@ -21,8 +21,8 @@ function createParser(legacy=false,lexer,extensions){
  const bits=[
   part('function v6108NativeLex(raw){','function scoutV6108ParseRaw(raw,m,oldAction=null){'),
   part('function scoutV6108ParseRaw(raw,m,oldAction=null){','// Quick-code console'),
-  part('const v830ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
-  part('const v840ParseBase=scoutV6108ParseRaw;','window.v680ParseCode'),
+  legacy?read('test-audit/fixtures/v20539-direction-block-wrappers.txt'):
+   part('const v20540ParserBase=scoutV6108ParseRaw;','window.v680ParseCode'),
   part('const v20538ExtensionStats=','/* V20.5.39 · This former V8.6 parser wrapper'),
   part('function v870LegacyExtension(original){','/* V20.5.39 · This former V8.7 parser wrapper'),
   part('function v880LegacyExtension(original){','/* V20.5.39 · One canonical extension wrapper'),
@@ -114,8 +114,8 @@ test('missing or mismatching TypeScript selectors keep the same single wrapper o
 
 test('V20.5.39 removes two active wrapper layers without modifying protected writers',()=>{
  const source=read('021-core-scouting-v150-monolithic.js');
- assert.equal((source.match(/scoutV6108ParseRaw=function\(/g)||[]).length,3,
-  'V8.3, V8.4 and the canonical extension wrapper remain');
+ assert.equal((source.match(/scoutV6108ParseRaw=function\(/g)||[]).length,2,
+  'V8.4 direction/blocking and the canonical extension wrapper remain');
  assert.equal((source.match(/function scoutV6108ParseRaw\(/g)||[]).length,1);
  for(const old of ['v860ParseBase','v870ParseBase','v880ParseBase'])
   assert.equal(source.includes(old),false,old);
@@ -129,10 +129,10 @@ test('V20.5.39 removes two active wrapper layers without modifying protected wri
 
 test('V20.5.39 sources, assets and service worker are versioned together',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.39');
+ assert.equal(pkg.version,'20.5.40');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20539-parser-consolidation.test.cjs'));
  for(const script of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(script+'?v=20.5.39'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(script+'?v=20.5.40'));
  assert.ok(sw.includes('canonical-parser-20.5.39'));
  assert.ok(read('GUIA_V20.5.39_PARSER_CANONICO.md').includes('V20.5.39'));
 });

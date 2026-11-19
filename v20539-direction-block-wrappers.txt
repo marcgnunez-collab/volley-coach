@@ -1,0 +1,47 @@
+/* Historical V20.5.39 direction/blocking wrappers; TEST FIXTURE ONLY. */
+const v830ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const direction=raw.match(/\*(LIN|DC|DL)/)?.[1]||'';
+  raw=raw.replace(/\*(LIN|DC|DL)/,'');
+  const parsed=v830ParseBase(raw,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;
+  if(a.skill==='R'){
+    a.receivedServeType=a.receivedServeType||a.serveType||'';
+    a.serveType='';
+    v830InferReceptionMeta(a,m);
+  }
+  if(a.skill==='A')a.attackDirection=direction||String(oldAction?.attackDirection||'');
+  else a.attackDirection='';
+  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+  return {action:a};
+};
+
+const v840ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const target=original.match(/&(\d{1,3})/)?.[1]||'';
+  const blockSize=original.match(/@([1-3])/)?.[1]||'';
+  let cleaned=original.replace(/&\d{1,3}/,'');
+  let singleBlockZone='';
+  const bz=cleaned.match(/^(R)?(\d+)B([#\+!\-\/=])?\.([1-9])(?!>)/);
+  if(bz){
+    singleBlockZone=bz[4];
+    cleaned=cleaned.replace(`.${singleBlockZone}`,`.${singleBlockZone}>${singleBlockZone}`);
+  }
+  const parsed=v840ParseBase(cleaned,m,oldAction);
+  if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;
+  if(a.skill==='B'){
+    if(singleBlockZone){a.startZone=singleBlockZone;a.endZone='';a.contactZone=singleBlockZone}
+    a.blockers=blockSize||String(oldAction?.blockers||'');
+    a.blockTargetNumber=target||String(oldAction?.blockTargetNumber||'');
+    if(!a.blockTargetNumber)v840InferBlockTarget(a,m);
+  }else{
+    a.blockTargetNumber='';
+    a.blockTargetLabel='';
+  }
+  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+  return {action:a};
+};

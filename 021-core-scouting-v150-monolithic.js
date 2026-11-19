@@ -2215,6 +2215,33 @@ function v6108CheckedLex(raw){
 }
 window.VC_SCOUT_LEXER_DIAGNOSTICS_20537=()=>Object.freeze({...v6108LexerStats});
 
+/* V20.5.40 · Resolve one roster lookup and let pure TS select the unchanged
+ * player reference or an exact previous-action fallback. Native result wins
+ * if the bridge differs; no second roster lookup or mutation is introduced. */
+const v6108PlayerStats={typed:0,native:0,mismatches:0,exceptions:0,lookups:0};
+function v6108ChooseOwnPlayer(num,oldAction){
+  v6108PlayerStats.lookups++;
+  const candidate=scoutFindOwnByNumber(num);
+  let legacy=candidate;
+  if(!legacy&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num)){
+    legacy={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};
+  }
+  try{
+    const bridge=window.VC_SCOUT_PLAYER_RESOLVER_20540;
+    if(bridge?.VERSION==='20.5.40'&&bridge.pureOnly===true&&typeof bridge.resolveOwn==='function'){
+      const selected=bridge.resolveOwn(num,candidate,oldAction),modern=selected?.player;
+      const valid=candidate?selected.found===true&&selected.fromPreviousAction===false&&modern===candidate:
+        legacy?selected?.found===true&&selected.fromPreviousAction===true&&
+          modern?.id===legacy.id&&modern?.name===legacy.name&&modern?.number===legacy.number:
+          selected?.found===false&&modern==null;
+      if(valid){v6108PlayerStats.typed++;return modern;}
+      v6108PlayerStats.mismatches++;
+    }
+  }catch(_){v6108PlayerStats.exceptions++;}
+  v6108PlayerStats.native++;return legacy;
+}
+window.VC_SCOUT_PLAYER_DIAGNOSTICS_20540=()=>Object.freeze({...v6108PlayerStats});
+
 function scoutV6108ParseRaw(raw,m,oldAction=null){
   raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
   const lexical=v6108CheckedLex(raw);
@@ -2228,7 +2255,7 @@ function scoutV6108ParseRaw(raw,m,oldAction=null){
   if(rival){
     base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'');
   }else{
-    let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};
+    const p=v6108ChooseOwnPlayer(num,oldAction);
     if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};
     base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num;
   }
@@ -2748,25 +2775,8 @@ scoutBuildCode=function(a){
   return token;
 };
 
-const v830ParseBase=scoutV6108ParseRaw;
-scoutV6108ParseRaw=function(raw,m,oldAction=null){
-  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  const direction=raw.match(/\*(LIN|DC|DL)/)?.[1]||'';
-  raw=raw.replace(/\*(LIN|DC|DL)/,'');
-  const parsed=v830ParseBase(raw,m,oldAction);
-  if(parsed?.error||!parsed?.action)return parsed;
-  let a=parsed.action;
-  if(a.skill==='R'){
-    a.receivedServeType=a.receivedServeType||a.serveType||'';
-    a.serveType='';
-    v830InferReceptionMeta(a,m);
-  }
-  if(a.skill==='A')a.attackDirection=direction||String(oldAction?.attackDirection||'');
-  else a.attackDirection='';
-  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
-  return {action:a};
-};
-window.v680ParseCode=function(raw,m,oldAction=null){return scoutV6108ParseRaw(raw,m,oldAction)};
+/* V20.5.40 · The V8.3 directional parser wrapper is now the first phase of
+ * the single V8.4 direction/blocking wrapper installed below. */
 
 /* ---------- Manual form ---------- */
 window.scoutAddManualAction=function(){
@@ -3037,7 +3047,10 @@ scoutBuildCode=function(a){
   return code;
 };
 
-const v840ParseBase=scoutV6108ParseRaw;
+/* V20.5.40 · Consolidates V8.3 directional and V8.4 blocking wrappers.
+ * Both historical action-enrichment/normalization passes remain ordered,
+ * but only ONE parser wrapper remains on top of the native base parser. */
+const v20540ParserBase=scoutV6108ParseRaw;
 scoutV6108ParseRaw=function(raw,m,oldAction=null){
   const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
   const target=original.match(/&(\d{1,3})/)?.[1]||'';
@@ -3049,9 +3062,20 @@ scoutV6108ParseRaw=function(raw,m,oldAction=null){
     singleBlockZone=bz[4];
     cleaned=cleaned.replace(`.${singleBlockZone}`,`.${singleBlockZone}>${singleBlockZone}`);
   }
-  const parsed=v840ParseBase(cleaned,m,oldAction);
+  const direction=cleaned.match(/\*(LIN|DC|DL)/)?.[1]||'';
+  cleaned=cleaned.replace(/\*(LIN|DC|DL)/,'');
+  const parsed=v20540ParserBase(cleaned,m,oldAction);
   if(parsed?.error||!parsed?.action)return parsed;
   let a=parsed.action;
+  if(a.skill==='R'){
+    a.receivedServeType=a.receivedServeType||a.serveType||'';
+    a.serveType='';
+    v830InferReceptionMeta(a,m);
+  }
+  if(a.skill==='A')a.attackDirection=direction||String(oldAction?.attackDirection||'');
+  else a.attackDirection='';
+  a=scoutNormalizeAction(a);a.code=scoutBuildCode(a);
+
   if(a.skill==='B'){
     if(singleBlockZone){a.startZone=singleBlockZone;a.endZone='';a.contactZone=singleBlockZone}
     a.blockers=blockSize||String(oldAction?.blockers||'');

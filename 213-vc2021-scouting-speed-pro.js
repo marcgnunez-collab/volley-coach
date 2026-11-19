@@ -229,7 +229,12 @@
   const preparation=byId('vc2021-preparation-engine'),preparationApi=root?.VC_SCOUT_PREPARE_20536;
   const typedPreparation=preparationApi?.VERSION==='20.5.36'&&preparationApi?.nativeOnly===true;
   dock.dataset.vc20536Preparation=typedPreparation?'typescript':'classic';
-  if(preparation)preparation.textContent=typedPreparation?'Preparación TypeScript · parser y escritura nativos':'Preparación nativa (respaldo)';
+  const playerResolver=root?.VC_SCOUT_PLAYER_RESOLVER_20540;
+  const typedPlayer=playerResolver?.VERSION==='20.5.40'&&playerResolver?.pureOnly===true;
+  dock.dataset.vc20540PlayerResolver=typedPlayer?'typescript':'classic';
+  if(preparation)preparation.textContent=typedPreparation
+   ?(typedPlayer?'Preparación y dorsal TypeScript · escritura nativa':'Preparación TypeScript · parser y escritura nativos')
+   :'Preparación nativa (respaldo)';
   const lexer=byId('vc2021-lexer-engine'),lexerApi=root?.VC_SCOUT_LEXER_20537;
   const typedLexer=lexerApi?.VERSION==='20.5.37'&&lexerApi?.syntaxOnly===true;
   dock.dataset.vc20537Lexer=typedLexer?'typescript':'classic';
