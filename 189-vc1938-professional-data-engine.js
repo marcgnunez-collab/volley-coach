@@ -200,6 +200,18 @@
   const rows=data.contacts.map(c=>{const r=rByKey.get(c.rallyKey);return [data.matchId,c.set,c.rallyIndex,r?.nativeId||'',c.possessionKey||'',c.actionIndex+1,c.nativeId||'',c.team||'',c.skill||c.skillRaw,c.player||'',c.evaluation||'',c.fields.startZone?.code||'',c.fields.endZone?.code||'',c.fields.contactZone?.code||'',c.fields.setTarget?.code||'',c.fields.tempo,c.fields.combo,c.video?'Sí':'No']});
   return '\ufeff'+[header,...rows].map(row=>row.map(csvEscape).join(';')).join('\r\n');
  }
+ // V20.5.26: CSV export delegates to the typed, read-only module when loaded.
+ // The exact historical quoting, columns, BOM and formula guard remain fallback.
+ function toCSVCompat(data){
+  try{
+   const typed=root?.VC_ANALYSIS_CSV_20526?.toCSV;
+   if(typeof typed==='function'){
+    const csv=typed(data);
+    if(typeof csv==='string'&&csv.startsWith('\ufeff"Partido";"Set";"Rally"'))return csv;
+   }
+  }catch(_){/* Export fallback never changes the scouting record. */}
+  return toCSV(data);
+ }
  function panelHTML(data,selection,legacy){
   const c=coverageCompat(data),stats=evaluateCompat(selection.contacts),comparison=reconcileCompat({rallies:selection.rallies},legacy,selection.target);
   const rows=c.bySkill.map(row=>`<tr><td><b>${esc(row.skill)}</b></td><td>${row.n}</td><td>${row.properties.team}/${row.n}</td><td>${row.properties.player}/${row.n}</td><td>${row.properties.evaluation}/${row.n}</td><td>${row.properties.zone}/${row.n}</td><td>${row.properties.video}/${row.n}</td></tr>`).join('');
@@ -245,7 +257,7 @@
    panel.addEventListener('click',event=>{
     const b=event.target.closest?.('[data-vc1938-export]');if(!b)return;
     const s=panel._vc1938;if(!s)return;
-    const source=toCSV({...s.data,contacts:s.selection.contacts}),win=panel.ownerDocument.defaultView;
+    const source=toCSVCompat({...s.data,contacts:s.selection.contacts}),win=panel.ownerDocument.defaultView;
     const blob=new win.Blob([source],{type:'text/csv;charset=utf-8'});
     const url=win.URL.createObjectURL(blob),link=panel.ownerDocument.createElement('a');link.href=url;link.download='volley-coach-contactos-'+s.data.matchId.replace(/[^a-zA-Z0-9_-]/g,'_')+'.csv';
     panel.ownerDocument.body.append(link);link.click();link.remove();win.setTimeout(()=>win.URL.revokeObjectURL(url),1000);
@@ -254,5 +266,5 @@
  }
  return {VERSION,SKILLS,EVALS,zone,team,normalize:normalizeCompat,
   filter:filterCompat,evaluate:evaluateCompat,points:pointsCompat,coverage:coverageCompat,
-  reconcile:reconcileCompat,toCSV,panelHTML,decorate};
+  reconcile:reconcileCompat,toCSV:toCSVCompat,panelHTML,decorate};
 });

@@ -6,7 +6,8 @@ import {createRequire} from 'node:module';
 import {performance} from 'node:perf_hooks';
 import {deepStrictEqual} from 'node:assert/strict';
 import {normalizeAnalysisMatch,filterAnalysis,evaluateAnalysisContacts,
- calculateAnalysisPoints,inspectAnalysisCoverage,reconcileAnalysisPoints} from '../vc2055-domain-core.mjs';
+ calculateAnalysisPoints,inspectAnalysisCoverage,reconcileAnalysisPoints,
+ exportAnalysisCSV,invalidateAnalysisIndex} from '../vc2055-domain-core.mjs';
 
 const require=createRequire(import.meta.url);
 const historical=require('../189-vc1938-professional-data-engine.js');
@@ -58,9 +59,27 @@ const typedOperations=()=>{
 deepStrictEqual(typedOperations(),historicOperations(),
  'The benchmark must compare equivalent filters, metrics, K1/K2 and coverage.');
 const historicalOperationsMs=measure(historicOperations),typescriptOperationsMs=measure(typedOperations);
-const result={version:'20.5.25',synthetic:true,rallies,actions:rallies*6,
+const selectiveFilters=[{team:'ours',rotation:1,skill:'A'},
+ {team:'opponent',rotation:2,skill:'R'},
+ {team:'ours',rotation:3,phase:'K2'},
+ {team:'opponent',rotation:4,skill:'E',evaluation:'+'}];
+const oldSelective=()=>selectiveFilters.map(f=>historical.filter(expectedData,f));
+const typedSelective=()=>selectiveFilters.map(f=>filterAnalysis(newData,f));
+deepStrictEqual(typedSelective(),oldSelective());
+const historicalSelectiveMs=measure(oldSelective);
+invalidateAnalysisIndex(newData);
+typedSelective(); // warm the scoped index before measuring repeated filter lookups
+const indexedSelectiveMs=measure(typedSelective);
+const csvSource={...expectedData,contacts:historical.filter(expectedData,{team:'ours',skill:'A'}).contacts};
+deepStrictEqual(exportAnalysisCSV(csvSource),historical.toCSV(csvSource));
+const historicalCsvMs=measure(()=>historical.toCSV(csvSource));
+const typescriptCsvMs=measure(()=>exportAnalysisCSV(csvSource));
+const result={version:'20.5.26',synthetic:true,rallies,actions:rallies*6,
  historicalMs,typescriptMs,baseline:'Median of five warm Node.js runs per implementation',
  operations:{historicalMs:historicalOperationsMs,typescriptMs:typescriptOperationsMs,
   filters:engineFilters.length,includes:['filter','evaluate','points','coverage','reconcile']},
+ selectiveFilters:{count:selectiveFilters.length,historicalMs:historicalSelectiveMs,
+  indexedMs:indexedSelectiveMs},
+ csv:{rows:csvSource.contacts.length,historicalMs:historicalCsvMs,typescriptMs:typescriptCsvMs},
  note:'No DOM, vídeo, red ni persistencia: no es una garantía de rendimiento en directo.'};
 process.stdout.write(`${JSON.stringify(result,null,2)}\n`);

@@ -4,6 +4,7 @@
 import type {Team} from '../domain/model';
 import {normalizeAnalysisZone,type NormalizedAnalysis,type NormalizedContact,
  type NormalizedRally,type NormalizedPossession,type NormalizedChain} from './analysis-normalizer';
+import {readIndexedRallies} from './analysis-index';
 
 const val=(x:unknown)=>String(x??'').trim();
 const present=(x:unknown)=>x!==null&&x!==undefined&&val(x)!=='';
@@ -57,14 +58,15 @@ export function filterAnalysis(data:NormalizedAnalysis,f:AnalysisEngineFilters={
  const rallyBase=data.rallies.filter(r=>r.closed&&(!set||r.set===set)&&
   (!rotation||(!target?false:(target==='ours'?r.ownRotation:r.rivalRotation)===rotation))&&
   (!phase||!!r.serving&&(!target?false:phase==='K1'?r.serving!==target:phase==='K2'?r.serving===target:false)));
+ const indexed=readIndexedRallies(data,rallyBase);
  const candidates=new Set(rallyBase.map(r=>r.key));
  const actionFiltered=!!(skill||evalCode||player||start||end||f.video===true);
- const contacts=data.contacts.filter(c=>candidates.has(c.rallyKey)&&(!target||c.team===target)&&
+ const contacts=(indexed?.contacts||data.contacts).filter(c=>candidates.has(c.rallyKey)&&(!target||c.team===target)&&
   (!skill||c.skill===skill)&&(!evalCode||c.evaluation===evalCode)&&
   (!player||c.player?.toLocaleLowerCase('es')===player)&&
   (!start||c.fields.startZone?.code===start.code)&&(!end||c.fields.endZone?.code===end.code)&&
   (f.video!==true||c.video));
- const chains=data.chains.filter(c=>candidates.has(c.rallyKey)&&(!target||c.team===target)&&
+ const chains=(indexed?.chains||data.chains).filter(c=>candidates.has(c.rallyKey)&&(!target||c.team===target)&&
   (!setter||c.setter.player?.toLocaleLowerCase('es')===setter));
  // A setter AND action must belong to the same possession.
  const allowedPossessions=setter?new Set(chains.map(c=>c.possessionKey)):null;
@@ -73,7 +75,7 @@ export function filterAnalysis(data:NormalizedAnalysis,f:AnalysisEngineFilters={
   setter?chains.map(c=>c.rallyKey):rallyBase.map(r=>r.key));
  const rallies=rallyBase.filter(r=>chosen.has(r.key)),keys=new Set(rallies.map(r=>r.key));
  return {rallies,contacts:matchingContacts.filter(c=>keys.has(c.rallyKey)),
-  possessions:data.possessions.filter(p=>keys.has(p.rallyKey)&&(!target||p.team===target)&&
+  possessions:(indexed?.possessions||data.possessions).filter(p=>keys.has(p.rallyKey)&&(!target||p.team===target)&&
    (!allowedPossessions||allowedPossessions.has(p.key))),
   chains:chains.filter(c=>keys.has(c.rallyKey)),target,filters:f};
 }

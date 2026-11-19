@@ -4,6 +4,7 @@
 import {queryRallies,type SearchData,type SearchFilters,type SearchResult} from './analysis-query';
 import type {AnalysisNormalizeWindow} from './analysis-normalize-runtime';
 import type {AnalysisOperationsWindow} from './analysis-operations-runtime';
+import type {AnalysisExportWindow} from './analysis-export-runtime';
 
 export interface AnalysisQueryDiagnostics{
  readonly readOnly:true;
@@ -21,7 +22,7 @@ export interface AnalysisQueryBridge{
  query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
  diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
 }
-type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&{
+type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&{
  VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>;
 };
 export interface QueryPerformancePanel{
@@ -70,10 +71,10 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  };
  const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
  const heading=node('div','vc20523-heading'),title=node('div');
- title.append(node('small','','V20.5.25 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
+ title.append(node('small','','V20.5.26 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
  heading.append(title,node('span','','Solo lectura'));
  const description=node('p','',
-  'Mediciones locales de normalización, operaciones de análisis y búsqueda táctica. No incluyen vídeo, descarga, renderizado ni sincronización.');
+  'Mediciones locales de normalización, filtros, índices, exportación CSV y búsqueda táctica. No incluyen vídeo, descarga, renderizado ni sincronización.');
  const metrics=node('div','vc20523-values'),values=new Map<string,HTMLElement>();
  for(const [key,label] of [['queries','Consultas'],['last','Última'],['average','Media'],
   ['max','Máxima'],['slow','Más de 16 ms'],['failures','Errores']]){
@@ -96,12 +97,23 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
   const value=node('strong','','—');box.append(value);operationMetrics.append(box);
   operationValues.set(key,value);
  }
+ const exportHeading=node('h4','vc20524-subheading','Exportación CSV e índices temporales');
+ const exportMetrics=node('div','vc20523-values'),exportValues=new Map<string,HTMLElement>();
+ for(const [key,label] of [['exports','CSV generados'],['last','Último CSV'],
+  ['average','Media CSV'],['failures','Errores CSV'],['builds','Índices creados'],
+  ['hits','Índices reutilizados'],['invalidations','Índices invalidados'],
+  ['unsupported','Datos no indexables']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);exportMetrics.append(box);
+  exportValues.set(key,value);
+ }
  const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
  refreshButton.type='button';
  const note=node('p','vc20523-note',
   'El umbral de 16 ms es orientativo: no garantiza respuesta en tiempo real. No se guardan códigos, nombres, partidos ni resultados en este diagnóstico.');
  section.append(heading,description,node('h4','vc20524-subheading','Búsqueda táctica'),metrics,
-  normalizeHeading,normalizationMetrics,operationHeading,operationMetrics,refreshButton,note);
+  normalizeHeading,normalizationMetrics,operationHeading,operationMetrics,
+  exportHeading,exportMetrics,refreshButton,note);
  const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
  if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
  else container.append(section);
@@ -130,6 +142,15 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
    failures:String(o?.failures??0)};
   for(const [key,value] of Object.entries(operational)){
    const el=operationValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+  const e=win.VC_ANALYSIS_CSV_20526?.diagnostics?.(),
+   i=win.VC_ANALYSIS_CSV_20526?.indexDiagnostics?.();
+  const exported={exports:String(e?.exports??0),last:ms(e?.lastMs??0),
+   average:ms(e?.averageMs??0),failures:String(e?.failures??0),
+   builds:String(i?.builds??0),hits:String(i?.hits??0),
+   invalidations:String(i?.invalidations??0),unsupported:String(i?.unsupported??0)};
+  for(const [key,value] of Object.entries(exported)){
+   const el=exportValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
   }
  };
  refreshButton.addEventListener('click',refresh);refresh();
