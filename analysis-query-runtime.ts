@@ -6,6 +6,7 @@ import type {AnalysisNormalizeWindow} from './analysis-normalize-runtime';
 import type {AnalysisOperationsWindow} from './analysis-operations-runtime';
 import type {AnalysisExportWindow} from './analysis-export-runtime';
 import type {RenderMetricsWindow,RenderArea} from './render-performance';
+import type {AnalysisViewWindow} from './analysis-view-runtime';
 
 export interface AnalysisQueryDiagnostics{
  readonly readOnly:true;
@@ -23,7 +24,7 @@ export interface AnalysisQueryBridge{
  query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
  diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
 }
-type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&RenderMetricsWindow&{
+type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&AnalysisExportWindow&RenderMetricsWindow&AnalysisViewWindow&{
  VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>;
 };
 export interface QueryPerformancePanel{
@@ -72,7 +73,7 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  };
  const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
  const heading=node('div','vc20523-heading'),title=node('div');
- title.append(node('small','','V20.5.28 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
+ title.append(node('small','','V20.5.29 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
  heading.append(title,node('span','','Solo lectura'));
  const description=node('p','',
   'Mediciones locales de normalización, filtros, índices y exportación CSV. La sección visual inferior mide solo actualizaciones de interfaz; no incluye vídeo, descargas ni sincronización.');
@@ -121,13 +122,23 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
   const box=node('div');box.append(node('small','',label));
   const value=node('strong','','—');box.append(value);renderMetrics.append(box);renderValues.set(key,value);
  }
+ const viewHeading=node('h4','vc20524-subheading','Vista Data Engine migrada a TypeScript');
+ const viewDescription=node('p','',
+  'Plantilla de lectura sin cambios de datos. La interfaz histórica sigue disponible si el módulo nuevo falla.');
+ const viewMetrics=node('div','vc20523-values'),viewValues=new Map<string,HTMLElement>();
+ for(const [key,label] of [['renders','Plantillas TypeScript'],['average','Media'],
+  ['slow','Más de 16 ms'],['failures','Errores de plantilla']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);viewMetrics.append(box);viewValues.set(key,value);
+ }
  const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
  refreshButton.type='button';
  const note=node('p','vc20523-note',
   'El umbral de 16 ms es orientativo. La memoria del índice es una estimación mínima de referencias, NO memoria real atribuible al módulo. El heap JS, cuando exista, corresponde al navegador completo. No se guardan códigos, nombres ni partidos en este diagnóstico.');
  section.append(heading,description,node('h4','vc20524-subheading','Búsqueda táctica'),metrics,
   normalizeHeading,normalizationMetrics,operationHeading,operationMetrics,
-  exportHeading,exportMetrics,renderHeading,renderDescription,renderMetrics,refreshButton,note);
+  exportHeading,exportMetrics,renderHeading,renderDescription,renderMetrics,
+  viewHeading,viewDescription,viewMetrics,refreshButton,note);
  const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
  if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
  else container.append(section);
@@ -180,6 +191,12 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
     `${d.rendered} dibujadas · ${d.skipped} evitadas · media ${ms(d.averageMs)} · ${d.failures} errores`:
     'Sin mediciones todavía';
    const el=renderValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+  const view=win.VC_ANALYSIS_VIEW_20529?.diagnostics?.();
+  const template={renders:String(view?.renders??0),average:ms(view?.averageMs??0),
+   slow:String(view?.slowRenders??0),failures:String(view?.failures??0)};
+  for(const [key,value] of Object.entries(template)){
+   const el=viewValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
   }
  };
  refreshButton.addEventListener('click',refresh);refresh();

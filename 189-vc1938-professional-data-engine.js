@@ -214,6 +214,17 @@
  }
  function panelHTML(data,selection,legacy){
   const c=coverageCompat(data),stats=evaluateCompat(selection.contacts),comparison=reconcileCompat({rallies:selection.rallies},legacy,selection.target);
+  // V20.5.29: TypeScript owns the real Data Engine view when the Vite module
+  // is present. The original markup below remains the exact offline fallback.
+  try{
+   const render=root?.VC_ANALYSIS_VIEW_20529?.renderDataEngine;
+   if(typeof render==='function'){
+    const html=render({data,selection,coverage:c,attack:stats,comparison});
+    if(html&&typeof html.left==='string'&&typeof html.center==='string'&&
+     typeof html.notice==='string'&&Array.isArray(html.badges)&&html.badges.length===5&&
+     html.left.includes('vc1938-audit')&&html.center.includes('vc1938-audit'))return html;
+   }
+  }catch(_){/* A broken or unavailable Vite renderer cannot block analysis. */}
   const rows=c.bySkill.map(row=>`<tr><td><b>${esc(row.skill)}</b></td><td>${row.n}</td><td>${row.properties.team}/${row.n}</td><td>${row.properties.player}/${row.n}</td><td>${row.properties.evaluation}/${row.n}</td><td>${row.properties.zone}/${row.n}</td><td>${row.properties.video}/${row.n}</td></tr>`).join('');
   const chains=selection.chains.slice(-45).reverse().map(link=>`<tr><td>${esc(link.setter.set)} · ${esc(link.setter.rallyIndex)}</td><td>${esc(link.setter.player||'—')}</td><td>${esc(link.reception?.evaluation||'—')}</td><td>${esc(link.target?.code||'—')}</td><td>${esc(link.tempo||'—')}</td><td>${esc(link.attack?.player||'Sin ataque')}</td><td>${esc(link.attack?.evaluation||'—')}</td></tr>`).join('');
   return {left:`<div class="vc1938-audit"><h3>Professional Data Engine · Contactos</h3><p>Modelo común de solo lectura. Los contactos sin equipo o valoración se mantienen como desconocidos, sin asignaciones automáticas.</p><div class="vc1938-filters"><label>Fundamento<select data-vc1938-filter="skill"><option value="">Todos</option>${['S','R','E','A','B','D','F','C'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select></label><label>Valoración<select data-vc1938-filter="evaluation"><option value="">Todas</option>${['#','+','!','-','/','='].map(s=>`<option>${esc(s)}</option>`).join('')}</select></label><button type="button" data-vc1938-export>Exportar selección CSV</button></div><div class="vc1938-metrics"><span><strong>${selection.rallies.length}</strong>rallies filtrados</span><span><strong>${selection.contacts.length}</strong>contactos filtrados</span><span><strong>${selection.possessions.length}</strong>posesiones</span><span><strong>${selection.chains.length}</strong>colocaciones</span></div><div class="vc1938-scroll"><table><thead><tr><th>Fund.</th><th>Total</th><th>Equipo</th><th>Jugador</th><th>Eval.</th><th>Zona</th><th>Vídeo</th></tr></thead><tbody>${rows}</tbody></table></div><small>Los denominadores de cobertura son los contactos de cada fundamento en todo el scouting, antes de filtros.</small></div>`,
