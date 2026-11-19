@@ -6,6 +6,7 @@ import type {Rotation,Team} from '../domain/model';
 import type {ObservableWindow} from './match-observable';
 import {readCanonicalMatch} from './match-state-contract';
 import type {ScoutingProjectionWindow} from './scouting-projections';
+import {createReadOnlyRenderGate,installRenderMetricsBridge} from './render-performance';
 
 interface PlayerBoxscoreAPI{
  readonly version:'20.5.11';readonly readOnly:true;
@@ -46,6 +47,9 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
  const note=node('p','vc20511-note','Datos del scouting confirmado; no se infieren puntos a partir de códigos #. P1–P6 corresponde a la rotación del equipo seleccionado al inicio de cada rally.');
  host.append(header,controls,status,tableWrap,rotationHeading,rotationWrap,note);
  let disposed=false,pending=false,report:Readonly<PlayerBoxscore>|null=null;
+ const renderMetrics=installRenderMetricsBridge(win);
+ const gate=createReadOnlyRenderGate({now:()=>win.performance?.now?.()??Date.now(),
+  report:(outcome,ms)=>renderMetrics.observe('scouting-boxscore',outcome,ms)});
  const visible=()=>workspace.classList.contains('active')&&!phase.classList.contains('hidden');
  const percent=(v:number|null)=>v===null?'—':`${v}%`;
  const cell=(row:HTMLElement,value:string,tag='td')=>row.append(node(tag,'',value));
@@ -56,8 +60,9 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
   const tbody=node('tbody');grid.append(tbody);
   return {grid,tbody};
  };
- const render=(next:Readonly<PlayerBoxscore>)=>{
+ const render=(next:Readonly<PlayerBoxscore>,force=false)=>{
   if(disposed)return;
+  gate.render(JSON.stringify(next),()=>{
   host.dataset.state=!next.available?'waiting':next.truncated||next.playersTruncated?'partial':'available';
   status.textContent=!next.available?'No hay datos confirmados del periodo seleccionado.':
    `${next.players.length} jugadores · ${next.selectedActions} acciones evaluadas · ${next.ralliesExamined} rallies examinados`+
@@ -89,6 +94,7 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
    rotations.tbody.append(row);
   }
   rotationWrap.replaceChildren(rotations.grid);
+  },force);
  };
  const readReport=(force=false)=>{
   const filters:BoxscoreFilters={team:team.value==='opponent'?'opponent':'ours' as Team,
@@ -97,7 +103,7 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
   const shared=win.VC_SCOUT_PROJECTIONS_20522;
   if(force)shared?.invalidate();
   const next=shared?shared.getPlayerBoxscore(filters):inspectPlayerBoxscore(readCanonicalMatch(win),filters);report=next;
-  if(visible())render(next);
+  if(visible())render(next,force);
   return next;
  };
  const refresh=()=>readReport(true);
@@ -106,7 +112,7 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
   pending=true;Promise.resolve().then(()=>{pending=false;if(!disposed&&visible())readReport();});
  };
  const unsubscribe=store.subscribe('change',schedule);
- const onFilterChange=()=>readReport();
+ const onFilterChange=()=>readReport(true);
  for(const select of [team,scope,rotation])select.addEventListener('change',onFilterChange);
  const observer=typeof MutationObserver==='function'?new MutationObserver(()=>{if(visible())readReport();}):null;
  observer?.observe(workspace,{attributes:true,attributeFilter:['class']});
@@ -115,7 +121,7 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
  const api:Readonly<PlayerBoxscoreAPI>=Object.freeze({version:'20.5.11',readOnly:true,getReport:()=>report,refresh,
   dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();
    for(const select of [team,scope,rotation])select.removeEventListener('change',onFilterChange);
-   host.replaceChildren();report=null;
+   gate.invalidate();host.replaceChildren();report=null;
    if(win.VC_PLAYER_BOXSCORE_20511===api)delete win.VC_PLAYER_BOXSCORE_20511;}
  });
  win.VC_PLAYER_BOXSCORE_20511=api;

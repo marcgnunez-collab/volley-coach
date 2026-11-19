@@ -137,23 +137,33 @@
   panel.dataset.vc20523QueryEngine=engine;
   const html=renderPanel(normalized,result,session.filters);
   const left=panel.querySelector('.vc1937-left-body'),center=panel.querySelector('.vc1937-courtbody');if(!left||!center)return;
-  left.innerHTML=html.left;center.innerHTML=html.center;
+  // V20.5.28: retain the active search controls on an identical redraw.
+  // A different tab may reuse these containers, so validate their live markers.
+  const start=win?.performance?.now?.()??Date.now(),prior=panel._vc1939Rendered||{};
+  const leftChanged=prior.left!==html.left||!left.firstElementChild?.classList?.contains('vc1939-left');
+  const centerChanged=prior.center!==html.center||!center.firstElementChild?.classList?.contains('vc1939-center-body');
+  if(leftChanged)left.innerHTML=html.left;
+  if(centerChanged)center.innerHTML=html.center;
+  panel._vc1939Rendered={left:html.left,center:html.center};
+  win?.VC_RENDER_METRICS_20528?.observe?.('rally-search',leftChanged||centerChanged?'render':'skip',
+   (win?.performance?.now?.()??Date.now())-start);
   const advanced=panel.querySelector('.vc1939-advanced');if(advanced)advanced.open=advancedOpen;
   const leftHead=panel.querySelector('.vc1937-left>header strong');if(leftHead)leftHead.textContent='BÚSQUEDA TÁCTICA';
   const centerHead=panel.querySelector('.vc1937-center>header strong');if(centerHead)centerHead.textContent='RESULTADOS DE LA BÚSQUEDA';
   const reset=panel.querySelector('.vc1937-center>header [data-vc1937-reset]');if(reset)reset.hidden=true;
   const detail=panel.querySelector('.vc1937-details-hint');if(detail)detail.hidden=true;
   const timeline=panel.querySelector('.vc1937-timeline');if(timeline)timeline.hidden=true;
-  const badges=panel.querySelector('.vc1937-kpis');if(badges)badges.innerHTML=[['Rallies',result.statistics.rallies],['Contactos',result.statistics.contacts],['Con vídeo',result.statistics.videoContacts],['Colocaciones',result.statistics.chains],['Sin evaluar',result.statistics.missingEvaluation]].map(([k,n])=>`<div class="vc1937-kpi"><span>${k}</span><strong>${n}</strong></div>`).join('');
+  const badges=panel.querySelector('.vc1937-kpis');if(badges){const badgesHTML=[['Rallies',result.statistics.rallies],['Contactos',result.statistics.contacts],['Con vídeo',result.statistics.videoContacts],['Colocaciones',result.statistics.chains],['Sin evaluar',result.statistics.missingEvaluation]].map(([k,n])=>`<div class="vc1937-kpi"><span>${k}</span><strong>${n}</strong></div>`).join('');if(badges.innerHTML!==badgesHTML)badges.innerHTML=badgesHTML;}
   const note=panel.querySelector('.vc1937-courtnote');if(note)note.textContent='Resultados procedentes del scouting original. No se infieren jugadores, posesiones, tiempos ni rotaciones ausentes.'+(engine==='typescript'?' · Consulta TypeScript.':'');
   for(const input of panel.querySelectorAll('[data-vc1939-filter]')){const name=input.dataset.vc1939Filter;input.value=session.filters[name]||((name==='status')?'closed':'');}
   if(activeFilter){const next=panel.querySelector('[data-vc1939-filter="'+activeFilter+'"]');if(next){next.focus();if(cursor!=null&&next.setSelectionRange)next.setSelectionRange(cursor,cursor);}}
-  const presets=panel.querySelector('[data-vc1939-preset]');if(presets){const old=session.preset||'';let saved=[];try{saved=readPresets(win.localStorage)}catch(_){}presets.innerHTML='<option value="">Búsquedas guardadas</option>'+saved.map(p=>option(p.name)).join('');presets.value=[...presets.options].some(o=>o.value===old)?old:'';}
+  const presets=panel.querySelector('[data-vc1939-preset]');if(presets){const old=session.preset||'';let saved=[];try{saved=readPresets(win.localStorage)}catch(_){}const presetsHTML='<option value="">Búsquedas guardadas</option>'+saved.map(p=>option(p.name)).join('');if(presets.innerHTML!==presetsHTML)presets.innerHTML=presetsHTML;presets.value=[...presets.options].some(o=>o.value===old)?old:'';}
   // Preserve source IDs: never map a synthetic index to a different rally.
   const selectedKeys=new Set(result.rallies.filter(r=>r.nativeId!=null).map(r=>`${r.set}:${r.nativeId}`));
   const mapped=ctx.data.rallies.filter(r=>r.id!=null&&selectedKeys.has(`${r.set}:${r.id}`));
   panel._vc1937VisibleRallies=mapped;
-  const list=panel.querySelector('.vc1937-rallies');if(list){list.innerHTML=mapped.slice(-150).reverse().map(r=>`<button type="button" class="vc1937-rally" data-vc1937-rally="${esc(r.set+':'+r.id)}" role="option" aria-selected="false"><b>Set ${r.set} · #${r.index}</b><span>${esc(r.winning==='ours'?'Punto nuestro':r.winning==='opponent'?'Punto rival':'Sin resultado')}</span></button>`).join('')||'<p class="vc1937-empty">Sin rallies con ID válido, o sin coincidencias.</p>';
+  const list=panel.querySelector('.vc1937-rallies');if(list){const listHTML=mapped.slice(-150).reverse().map(r=>`<button type="button" class="vc1937-rally" data-vc1937-rally="${esc(r.set+':'+r.id)}" role="option" aria-selected="false"><b>Set ${r.set} · #${r.index}</b><span>${esc(r.winning==='ours'?'Punto nuestro':r.winning==='opponent'?'Punto rival':'Sin resultado')}</span></button>`).join('')||'<p class="vc1937-empty">Sin rallies con ID válido, o sin coincidencias.</p>';
+   if(list.innerHTML!==listHTML)list.innerHTML=listHTML;
    panel.querySelector('.vc1937-rally-count').textContent=`${mapped.length} rallies con referencia · ${result.rallies.length} encontrados`;
   }
   session.matchId=normalized.matchId;session.data=normalized;session.result=result;session.ctx=ctx;session.active=true;panel._vc1939=session;

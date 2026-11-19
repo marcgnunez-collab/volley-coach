@@ -231,20 +231,31 @@
   const selection=filterCompat(data,f),visual=panelHTML(data,selection,ctx.data);
   const left=panel.querySelector('.vc1937-left-body'),center=panel.querySelector('.vc1937-courtbody');
   if(!left||!center)return;
-  left.innerHTML=visual.left;center.innerHTML=visual.center;
+  // V20.5.28: avoid destroying filters and result nodes on an unchanged redraw.
+  // Check the mounted marker too: other historic tabs can replace the same host.
+  const win=panel.ownerDocument.defaultView,start=win?.performance?.now?.()??Date.now();
+  const prior=panel._vc1938Rendered||{};
+  const leftChanged=prior.left!==visual.left||!left.firstElementChild?.classList?.contains('vc1938-audit');
+  const centerChanged=prior.center!==visual.center||!center.firstElementChild?.classList?.contains('vc1938-audit');
+  if(leftChanged)left.innerHTML=visual.left;
+  if(centerChanged)center.innerHTML=visual.center;
+  panel._vc1938Rendered={left:visual.left,center:visual.center};
+  win?.VC_RENDER_METRICS_20528?.observe?.('data-engine',leftChanged||centerChanged?'render':'skip',
+   (win?.performance?.now?.()??Date.now())-start);
   const leftHead=panel.querySelector('.vc1937-left>header strong');if(leftHead)leftHead.textContent='AUDITORÍA DE CONTACTOS';
   const centerHead=panel.querySelector('.vc1937-center>header strong');if(centerHead)centerHead.textContent='POSESIONES Y SECUENCIAS';
   const reset=panel.querySelector('.vc1937-center>header [data-vc1937-reset]');if(reset)reset.hidden=true;
   const legacyHint=panel.querySelector('.vc1937-details-hint');if(legacyHint)legacyHint.hidden=true;
   const timeline=panel.querySelector('.vc1937-timeline');if(timeline)timeline.hidden=true;
-  const metrics=panel.querySelector('.vc1937-kpis');if(metrics)metrics.innerHTML=visual.badges.map(([k,n])=>`<div class="vc1937-kpi"><span>${esc(k)}</span><strong>${n}</strong></div>`).join('');
+  const metrics=panel.querySelector('.vc1937-kpis');if(metrics){const badgesHTML=visual.badges.map(([k,n])=>`<div class="vc1937-kpi"><span>${esc(k)}</span><strong>${n}</strong></div>`).join('');if(metrics.innerHTML!==badgesHTML)metrics.innerHTML=badgesHTML;}
   const note=panel.querySelector('.vc1937-courtnote');if(note)note.textContent=visual.notice;
   for(const select of panel.querySelectorAll('[data-vc1938-filter]'))select.value=state[select.dataset.vc1938Filter]||'';
   const matching=new Set(selection.rallies.map(r=>`${r.set}:${r.nativeId}`));
   const mapped=ctx.data.rallies.filter(r=>matching.has(`${r.set}:${r.id}`));
   panel._vc1937VisibleRallies=mapped;
   const list=panel.querySelector('.vc1937-rallies');if(list){
-   list.innerHTML=mapped.slice(-100).reverse().map(r=>`<button type="button" class="vc1937-rally" data-vc1937-rally="${esc(r.set+':'+r.id)}" role="option" aria-selected="false"><b>S${r.set} · #${r.index}</b><span>${esc(r.winning||'Sin ganador')}</span></button>`).join('')||'<p class="vc1937-empty">Sin rallies con estos filtros o sin ID estable.</p>';
+   const listHTML=mapped.slice(-100).reverse().map(r=>`<button type="button" class="vc1937-rally" data-vc1937-rally="${esc(r.set+':'+r.id)}" role="option" aria-selected="false"><b>S${r.set} · #${r.index}</b><span>${esc(r.winning||'Sin ganador')}</span></button>`).join('')||'<p class="vc1937-empty">Sin rallies con estos filtros o sin ID estable.</p>';
+   if(list.innerHTML!==listHTML)list.innerHTML=listHTML;
    panel.querySelector('.vc1937-rally-count').textContent=`${mapped.length} rallies con referencia original`;
   }
   panel._vc1938={...state,data,ctx,selection};

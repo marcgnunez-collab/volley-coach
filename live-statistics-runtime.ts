@@ -5,6 +5,7 @@ import {inspectLiveSetStatistics,type LiveSetStatistics} from './live-statistics
 import type {ObservableWindow} from './match-observable';
 import {readCanonicalMatch} from './match-state-contract';
 import type {ScoutingProjectionWindow} from './scouting-projections';
+import {createReadOnlyRenderGate,installRenderMetricsBridge} from './render-performance';
 
 interface LiveStatisticsAPI{
  readonly version:'20.5.10';
@@ -36,6 +37,9 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
  const note=node('p','vc20510-note','SO y BP solo incluyen rallies cerrados. La recepción y el ataque muestran una vista provisional si hay acciones del rally abierto.');
  host.append(status,cards,open,note);
  let disposed=false,pending=false,report:Readonly<LiveSetStatistics>|null=null;
+ const renderMetrics=installRenderMetricsBridge(win);
+ const gate=createReadOnlyRenderGate({now:()=>win.performance?.now?.()??Date.now(),
+  report:(outcome,ms)=>renderMetrics.observe('scouting-live',outcome,ms)});
  const visible=()=>workspace.classList.contains('active')&&!phase.classList.contains('hidden');
  const setValue=(key:string,value:string,detail:string)=>{
   const target=output.get(key);if(!target)return;
@@ -43,8 +47,10 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
   if(target.detail.textContent!==detail)target.detail.textContent=detail;
  };
  const percentage=(value:number|null)=>value===null?'—':`${value}%`;
- const render=(data:Readonly<LiveSetStatistics>)=>{
+ const render=(data:Readonly<LiveSetStatistics>,force=false)=>{
   if(disposed)return;
+  const signature=JSON.stringify(data);
+  gate.render(signature,()=>{
   host.dataset.state=!data.available?'waiting':data.truncated?'partial':
    data.provisional.receptions||data.provisional.attacks?'provisional':'available';
   status.textContent=!data.available?'No hay un set activo con datos':
@@ -57,12 +63,13 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
   setValue('receive',percentage(r.positivePct),`${r.positive}/${r.attempts} positivas${liveReceive?' · PROVISIONAL':''}`);
   setValue('attack',percentage(a.efficiencyPct),`${a.kills} puntos · ${a.errors+a.blocked} errores/bloqueos · ${a.attempts} intentos${liveAttack?' · PROVISIONAL':''}`);
   open.textContent=`Rally abierto: ${data.provisional.actions} acciones · ${data.provisional.receptions} recepciones · ${data.provisional.attacks} ataques (sin cerrar)`;
+  },force);
  };
  const readReport=(force=false)=>{
   const shared=win.VC_SCOUT_PROJECTIONS_20522;
   if(force)shared?.invalidate();
   const next=shared?shared.getLiveStatistics():inspectLiveSetStatistics(readCanonicalMatch(win));report=next;
-  if(visible())render(next);
+  if(visible())render(next,force);
   return next;
  };
  const refresh=()=>readReport(true);
@@ -79,7 +86,7 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
  observer?.observe(phase,{attributes:true,attributeFilter:['class']});
  if(visible())readReport();
  const api:Readonly<LiveStatisticsAPI>=Object.freeze({version:'20.5.10',readOnly:true,getReport:()=>report,refresh,
-  dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();host.replaceChildren();report=null;
+  dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();gate.invalidate();host.replaceChildren();report=null;
    if(win.VC_LIVE_STATS_20510===api)delete win.VC_LIVE_STATS_20510;}
  });
  win.VC_LIVE_STATS_20510=api;
