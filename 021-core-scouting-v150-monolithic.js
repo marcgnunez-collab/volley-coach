@@ -4430,22 +4430,44 @@ function v860SplitZone(token){
 function v860BaseZone(token){return v860SplitZone(token).zone}
 function v860SubZone(token){return v860SplitZone(token).sub}
 
+/* V20.5.38 · Native reference selectors remain as a parity/offline fallback.
+ * Grammar-only TypeScript cannot resolve players or write any scouting data. */
+const v20538ExtensionStats={subzone:0,advanced:0,cone:0,native:0,mismatches:0,exceptions:0};
+function v20538CheckedExtension(method,raw,reference){
+  try{
+    const bridge=window.VC_SCOUT_EXTENSIONS_20538;
+    if(bridge?.VERSION==='20.5.38'&&bridge.grammarOnly===true&&typeof bridge[method]==='function'){
+      const modern=bridge[method](raw);
+      if(JSON.stringify(modern)===JSON.stringify(reference)){
+        v20538ExtensionStats[method]++;return modern;
+      }
+      v20538ExtensionStats.mismatches++;
+    }
+  }catch(_){v20538ExtensionStats.exceptions++;}
+  v20538ExtensionStats.native++;return reference;
+}
+window.VC_SCOUT_EXTENSIONS_DIAGNOSTICS_20538=()=>Object.freeze({...v20538ExtensionStats});
+function v860LegacyExtension(original){
+  const zm=original.match(/^((?:R)?\d+(?:S|R|E|A|B|D|F|C)(?:[#\+!\-\/=])?)\.([1-9])([A-D]?)(?:>([1-9])([A-D]?))?(.*)$/);
+  if(!zm||(!zm[3]&&!zm[5]))return {kind:'pass'};
+  const prefix=zm[1],z1=zm[2],s1=zm[3]||'',z2=zm[4]||'',s2=zm[5]||'',rest=zm[6]||'';
+  return {kind:'subzone',cleaned:prefix+'.'+z1+(z2?('>'+z2):'')+rest,
+    startZone:z1+s1,endZone:z2?(z2+s2):''};
+}
+
 /* Parser wrapper:
    12A#.4B>5D... -> temporarily parse as .4>5 using the mature V8.4 parser,
    then restore the exact alphanumeric zones before normalize/build. */
 const v860ParseBase=scoutV6108ParseRaw;
 scoutV6108ParseRaw=function(raw,m,oldAction=null){
   const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  const zm=original.match(/^((?:R)?\d+(?:S|R|E|A|B|D|F|C)(?:[#\+!\-\/=])?)\.([1-9])([A-D]?)(?:>([1-9])([A-D]?))?(.*)$/);
-  if(!zm||(!zm[3]&&!zm[5]))return v860ParseBase(original,m,oldAction);
-
-  const prefix=zm[1],z1=zm[2],s1=zm[3]||'',z2=zm[4]||'',s2=zm[5]||'',rest=zm[6]||'';
-  const cleaned=prefix+'.'+z1+(z2?('>'+z2):'')+rest;
-  const parsed=v860ParseBase(cleaned,m,oldAction);
+  const ext=v20538CheckedExtension('subzone',original,v860LegacyExtension(original));
+  if(ext.kind==='pass')return v860ParseBase(original,m,oldAction);
+  const parsed=v860ParseBase(ext.cleaned,m,oldAction);
   if(parsed?.error||!parsed?.action)return parsed;
 
   let a=parsed.action;
-  const full1=z1+s1,full2=z2?(z2+s2):'';
+  const full1=ext.startZone,full2=ext.endZone;
   if(a.skill==='R'||a.skill==='D'){
     if(full2){
       a.startZone=full1;a.endZone=full2;a.contactZone=full2;a.sourceZone=full1;a.zoneInferred=false;
@@ -4932,9 +4954,7 @@ scoutBuildCode=function(a){
   return code;
 };
 
-const v870ParseBase=scoutV6108ParseRaw;
-scoutV6108ParseRaw=function(raw,m,oldAction=null){
-  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+function v870LegacyExtension(original){
   const skill=v870SkillFromRaw(original);
   let cleaned=original;
 
@@ -4967,6 +4987,14 @@ scoutV6108ParseRaw=function(raw,m,oldAction=null){
 
   const custom=cleaned.match(/\$([A-Z0-9]{1,5})/)?.[1]||'';
   if(custom)cleaned=cleaned.replace(/\$[A-Z0-9]{1,5}/,'');
+  return {kind:'advanced',cleaned,skill,dvCode,tempo,subtype,setType,special,custom};
+}
+
+const v870ParseBase=scoutV6108ParseRaw;
+scoutV6108ParseRaw=function(raw,m,oldAction=null){
+  const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const {cleaned,dvCode,tempo,subtype,setType,special,custom}=
+    v20538CheckedExtension('advanced',original,v870LegacyExtension(original));
 
   const parsed=v870ParseBase(cleaned,m,oldAction);
   if(parsed?.error||!parsed?.action)return parsed;
@@ -5241,13 +5269,18 @@ scoutBuildCode=function(a){
   return code;
 };
 
+function v880LegacyExtension(original){
+  const cm=original.match(/^((?:R)?\d+A[#\+!\-\/=]?)\.([1-9][A-D]?)>C([1-8])(.*)$/);
+  if(!cm)return {kind:'pass'};
+  return {kind:'cone',cleaned:cm[1]+cm[4],startZone:cm[2],endCone:Number(cm[3])};
+}
 const v880ParseBase=scoutV6108ParseRaw;
 scoutV6108ParseRaw=function(raw,m,oldAction=null){
   const original=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
-  const cm=original.match(/^((?:R)?\d+A[#\+!\-\/=]?)\.([1-9][A-D]?)>C([1-8])(.*)$/);
-  if(!cm)return v880ParseBase(original,m,oldAction);
-  const parsed=v880ParseBase(cm[1]+cm[4],m,oldAction);if(parsed?.error||!parsed?.action)return parsed;
-  let a=parsed.action;a.startZone=cm[2];a.endZone='';a.contactZone='';a.locationMode='cones';a.endCone=Number(cm[3]);
+  const ext=v20538CheckedExtension('cone',original,v880LegacyExtension(original));
+  if(ext.kind==='pass')return v880ParseBase(original,m,oldAction);
+  const parsed=v880ParseBase(ext.cleaned,m,oldAction);if(parsed?.error||!parsed?.action)return parsed;
+  let a=parsed.action;a.startZone=ext.startZone;a.endZone='';a.contactZone='';a.locationMode='cones';a.endCone=ext.endCone;
   a=scoutNormalizeAction({...a,...v880DataVolleyFields(a,m)});a.code=scoutBuildCode(a);return{action:a};
 };
 window.v680ParseCode=(raw,m,oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
