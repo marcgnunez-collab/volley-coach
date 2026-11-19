@@ -1,10 +1,9 @@
 /* V20.5.7 · Pure inspection of actions already present in canonical scouting.
  * Never invokes the native parser, registers an action, or claims cloud delivery.
  */
-import {asList,asRecord,asScore,isRotation,isTeam} from './model';
+import {asList,asRecord,isTeam} from './model';
 import {inspectCodeShape,compareNativeCode} from './code-grammar';
-import {verifyRallyScore} from './scoring';
-import {projectPoint} from './rotation';
+import {inspectClosedRally} from './rally-transition';
 
 export type StoredActionKind='agree'|'difference'|'coverage-gap'|'unverified'|'no-code';
 export type CommittedFindingKind=Exclude<StoredActionKind,'agree'>|'score'|'score-sequence'|'rotation';
@@ -105,33 +104,25 @@ export function auditCommittedMatch(input:unknown):Readonly<CommittedAuditReport
    const rally=asRecord(rallies[ri]);if(!rally)continue;
    counts.rallies++;
    const prefix=`S${si+1} · R${ri+1}`;
-   const result=verifyRallyScore(rally);
-   if(result.state==='verified')counts.scoreVerified++;
-   else if(result.state==='inconsistent'){counts.scoreInconsistent++;add('score',prefix);}
+   const next=asRecord(rallies[ri+1]);
+   const result=inspectClosedRally(rally,next);
+   if(result.score.state==='verified')counts.scoreVerified++;
+   else if(result.score.state==='inconsistent'){counts.scoreInconsistent++;add('score',prefix);}
    else counts.scoreUnknown++;
    for(const [ai,action] of asList(rally.actions).entries()){
     if(!inspectAction(action,`${prefix} · A${ai+1}`))break main;
    }
-   const next=asRecord(rallies[ri+1]);
    if(!next)continue;
-   const after=asScore(rally.scoreAfter),before=asScore(next.scoreBefore);
-   if(after&&before){
+   if(result.scoreLink!=='unknown'){
     counts.scoreLinksChecked++;
-    if(after.us!==before.us||after.opponent!==before.opponent){
+    if(result.scoreLink==='mismatch'){
      counts.scoreLinksMismatch++;add('score-sequence',`${prefix} → R${ri+2}`);
     }
    }
-   if(isTeam(rally.winner)&&isTeam(rally.servingBefore)&&
-    isRotation(rally.rotationBefore)&&isRotation(rally.opponentRotationBefore)&&
-    isRotation(next.rotationBefore)&&isRotation(next.opponentRotationBefore)&&isTeam(next.servingBefore)){
-    const projected=projectPoint({score:rally.scoreBefore,serving:rally.servingBefore,
-     rotationUs:rally.rotationBefore,rotationOpponent:rally.opponentRotationBefore},rally.winner);
-    if(projected.state==='projected'){
-     counts.rotationsChecked++;
-     if(projected.rotationUs!==next.rotationBefore||projected.rotationOpponent!==next.opponentRotationBefore||
-      projected.serving!==next.servingBefore){
-      counts.rotationsMismatch++;add('rotation',`${prefix} → R${ri+2}`);
-     }
+   if(result.rotationLink!=='unknown'){
+    counts.rotationsChecked++;
+    if(result.rotationLink==='mismatch'){
+     counts.rotationsMismatch++;add('rotation',`${prefix} → R${ri+2}`);
     }
    }
   }

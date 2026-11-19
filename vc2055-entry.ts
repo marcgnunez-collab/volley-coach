@@ -13,6 +13,7 @@ import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract'
 export {inspectCodeShape,compareNativeCode} from './domain/code-grammar';
 export {verifyRallyScore,auditMatchScores} from './domain/scoring';
 export {nextRotation,projectPoint} from './domain/rotation';
+export {planAwardPoint,planUndoLastRally,inspectClosedRally} from './domain/rally-transition';
 export {attackEfficiency,sideOutBreakPoint} from './domain/statistics';
 export {inspectSubstitution} from './domain/substitutions';
 export {inspectMatchDomain,mountDomainDiagnostic};
