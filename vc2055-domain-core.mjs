@@ -110,8 +110,98 @@ function u(r, i = "ours") {
 	});
 }
 // src/domain/code-grammar.ts
-var d = /^(R?)(\d+)([SREABDFC])([#+!\-/=]?)(.*)$/, f = /^\.([1-9][A-D]?)(?:>([1-9][A-D]?|C[1-8]))?/, p = /^(?:(?:~[A-Z0-9]{1,6})|(?:::?[A-Z0-9]{1,10})|(?:\*[A-Z0-9]{1,3})|(?:\^[A-Z0-9]{1,3})|(?:@[0-3])|(?:&\d{1,3})|(?:%[A-Z0-9]{1,8})|(?:\|[A-Z0-9]{1,3})|(?:\?[A-Z0-9]{1,10})|(?:\$[A-Z0-9]{1,5}))*$/;
-function m(e) {
+var d = /^(R?)(\d+)([SREABDFC])([#+!\-/=]?)(.*)$/, f = /^\.([1-9][A-D]?)(?:>([1-9][A-D]?|C[1-8]))?/, p = /* @__PURE__ */ new Set([
+	"Z4",
+	"Z2",
+	"Z1",
+	"Z6",
+	"1T",
+	"31",
+	"BACK",
+	"PIPE",
+	"2T",
+	"OTR"
+]), m = /* @__PURE__ */ new Set([
+	"JF",
+	"JP",
+	"F",
+	"U"
+]), h = /* @__PURE__ */ new Set([
+	"Q",
+	"U",
+	"T",
+	"M",
+	"H",
+	"O"
+]), g = () => ({
+	serveType: null,
+	combination: null,
+	dvCall: null,
+	phase: null,
+	blockers: null,
+	blockTarget: null,
+	direction: null,
+	tempo: null,
+	subtype: null,
+	setType: null,
+	special: null,
+	custom: null
+});
+function _(e, t) {
+	let n = g(), r = e, i = !0, a = (e, t) => {
+		n[e] === null ? n[e] = t : i = !1;
+	};
+	for (; i && r;) {
+		let e = 0;
+		if (r.startsWith("::")) {
+			let t = r.match(/^::([A-Z0-9]{1,6})(?![A-Z0-9])/);
+			t && (a("dvCall", t[1]), e = t[0].length);
+		} else if (r.startsWith(":")) {
+			let n = r.match(/^:([A-Z0-9]{1,6})(?![A-Z0-9])/);
+			n && (p.has(n[1]) ? a("combination", n[1]) : t === "A" || t === "E" ? a("dvCall", n[1]) : i = !1, e = n[0].length);
+		} else if (r.startsWith("~")) {
+			let n = r.match(/^~([A-Z0-9]{1,6})(?![A-Z0-9])/);
+			if (n) {
+				let r = n[1];
+				(t === "A" || t === "E") && h.has(r) ? a("tempo", r) : m.has(r) ? a("serveType", r) : i = !1, e = n[0].length;
+			}
+		} else if (r.startsWith("^")) {
+			let t = r.match(/^\^(K1|K2|FB|TR)(?![A-Z0-9])/);
+			t && (a("phase", t[1]), e = t[0].length);
+		} else if (r.startsWith("@")) {
+			let t = r.match(/^@([0-3])(?![A-Z0-9])/);
+			t && (a("blockers", t[1]), e = t[0].length);
+		} else if (r.startsWith("&")) {
+			let n = r.match(/^&(\d{1,3})(?![A-Z0-9])/);
+			n && t === "B" && (a("blockTarget", n[1]), e = n[0].length);
+		} else if (r.startsWith("*")) {
+			let n = r.match(/^\*(LIN|DC|DL)(?![A-Z0-9])/);
+			n && t === "A" && (a("direction", n[1]), e = n[0].length);
+		} else if (r.startsWith("%")) {
+			let t = r.match(/^%([A-Z0-9]{1,8})(?![A-Z0-9])/);
+			t && (a("subtype", t[1]), e = t[0].length);
+		} else if (r.startsWith("|")) {
+			let t = r.match(/^\|([FCBPS])(?![A-Z0-9])/);
+			t && (a("setType", t[1]), e = t[0].length);
+		} else if (r.startsWith("?")) {
+			let t = r.match(/^\?([A-Z0-9]{1,10})(?![A-Z0-9])/);
+			t && (a("special", t[1]), e = t[0].length);
+		} else if (r.startsWith("$")) {
+			let t = r.match(/^\$([A-Z0-9]{1,5})(?![A-Z0-9])/);
+			t && (a("custom", t[1]), e = t[0].length);
+		}
+		if (!e) {
+			i = !1;
+			break;
+		}
+		r = r.slice(e);
+	}
+	return Object.freeze({
+		ok: i && r.length === 0,
+		values: Object.freeze({ ...n })
+	});
+}
+function v(e) {
 	let t = String(e ?? "").trim().toUpperCase().replace(/\s+/g, ""), n = () => Object.freeze({
 		state: "empty",
 		normalized: t,
@@ -122,6 +212,7 @@ function m(e) {
 		startZone: null,
 		endZone: null,
 		advanced: "",
+		modifiers: Object.freeze(g()),
 		reason: "Sin código."
 	});
 	if (!t) return n();
@@ -136,17 +227,18 @@ function m(e) {
 		startZone: null,
 		endZone: null,
 		advanced: "",
-		reason: "No coincide con la sintaxis de un código nativo."
+		modifiers: Object.freeze(g()),
+		reason: "No coincide con la estructura de un código nativo."
 	});
-	let i = r[1] ? "opponent" : "ours", a = r[2], o = r[3], s = r[4] || "!", c = r[5], l = null, u = null, m = c.match(f);
-	m && (l = m[1], u = m[2] || null, c = c.slice(m[0].length));
-	let h = !!l && !u && ![
+	let i = r[1] ? "opponent" : "ours", a = r[2], o = r[3], s = r[4] || "!", c = r[5], l = null, u = null, p = c.match(f);
+	p && (l = p[1], u = p[2] || null, c = c.slice(p[0].length), u || o !== "R" && o !== "D" || (u = l, l = null));
+	let m = !!p && !p[2] && ![
 		"R",
 		"D",
 		"B"
-	].includes(o), g = !!u && u.startsWith("C") && o !== "A", _ = p.test(c), v = !h && !g && _ && !c.startsWith(".");
+	].includes(o), h = !!u && u.startsWith("C") && o !== "A", v = _(c, o), y = !m && !h && v.ok && !c.startsWith(".");
 	return Object.freeze({
-		state: v ? "candidate" : "unsupported",
+		state: y ? "candidate" : "unsupported",
 		normalized: t,
 		team: i,
 		dorsal: a,
@@ -155,11 +247,12 @@ function m(e) {
 		startZone: l,
 		endZone: u,
 		advanced: c,
-		reason: v ? "Estructura reconocida; la plantilla y las reglas siguen pendientes del parser original." : h ? "El fundamento requiere origen y destino; solo R, D y B admiten una zona única." : g ? "El destino en cono solo corresponde a un ataque." : "Hay un sufijo que requiere el validador original."
+		modifiers: v.values,
+		reason: y ? "Estructura reconocida; la plantilla y las reglas siguen pendientes del parser original." : m ? "El fundamento requiere origen y destino; solo R, D y B admiten una zona única." : h ? "El destino en cono solo corresponde a un ataque." : "El sufijo no está cubierto de forma segura por la gramática TypeScript."
 	});
 }
-function h(e, t) {
-	let n = m(e), r = typeof t == "object" && t ? t : null;
+function y(e, t) {
+	let n = v(e), r = typeof t == "object" && t ? t : null;
 	if (n.state !== "candidate" || !r) return Object.freeze({
 		state: "unknown",
 		reason: "Comparación no disponible."
@@ -176,7 +269,7 @@ function h(e, t) {
 	});
 }
 // src/domain/substitutions.ts
-var g = /* @__PURE__ */ new Set([
+var b = /* @__PURE__ */ new Set([
 	"p1",
 	"p2",
 	"p3",
@@ -184,18 +277,18 @@ var g = /* @__PURE__ */ new Set([
 	"p5",
 	"p6"
 ]);
-function _(e) {
+function x(e) {
 	return typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : typeof e == "string" && /^\d+$/.test(e) && Number(e) > 0 ? Number(e) : null;
 }
-function v(t) {
-	let n = [], r = String(t.position ?? ""), i = _(t.outgoingPlayer), a = _(t.incomingPlayer), o = e(t.lineup);
-	if (t.matchStatus === "finished" && n.push("Partido finalizado."), g.has(r) || n.push("Posición de pista no reconocida."), r === t.liberoActivePosition && n.push("El líbero ocupa esa posición."), i !== null && a !== null && i === a && n.push("El jugador entrante coincide con el saliente."), a !== null && o) {
-		for (let [e, t] of Object.entries(o)) if (e !== r && g.has(e) && _(t) === a) {
+function S(t) {
+	let n = [], r = String(t.position ?? ""), i = x(t.outgoingPlayer), a = x(t.incomingPlayer), o = e(t.lineup);
+	if (t.matchStatus === "finished" && n.push("Partido finalizado."), b.has(r) || n.push("Posición de pista no reconocida."), r === t.liberoActivePosition && n.push("El líbero ocupa esa posición."), i !== null && a !== null && i === a && n.push("El jugador entrante coincide con el saliente."), a !== null && o) {
+		for (let [e, t] of Object.entries(o)) if (e !== r && b.has(e) && x(t) === a) {
 			n.push("El jugador entrante ya ocupa otra posición.");
 			break;
 		}
 	}
-	let s = g.has(r) && o ? _(o[r]) : null;
+	let s = b.has(r) && o ? x(o[r]) : null;
 	i !== null && s !== null && s !== i && n.push("El dorsal saliente no coincide con la posición actual.");
 	let c = n.length ? "blocked" : i === null || a === null || !o || s === null ? "unknown" : "plausible";
 	return Object.freeze({
@@ -205,7 +298,7 @@ function v(t) {
 	});
 }
 // src/domain/runtime.ts
-function y(n) {
+function C(n) {
 	let i = e(n), a = o(n), s = [], c = [];
 	for (let n of t(i?.sets)) for (let r of t(e(n)?.rallies)) {
 		let n = e(r);
@@ -227,7 +320,7 @@ function y(n) {
 		attackEfficiencyPct: l(c).efficiencyPct
 	});
 }
-function b(e) {
+function w(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_DOMAIN_2055) return e.VC_DOMAIN_2055;
@@ -257,11 +350,11 @@ function b(e) {
 	}
 	let p = r("button", "vc2055-refresh", "Comprobar reglas");
 	p.setAttribute("type", "button");
-	let h = r("p", "vc2055-note", "Una traza sin datos no es un error. Las comprobaciones no sustituyen la validación oficial de líberos y sustituciones ni confirman la sincronización en otro dispositivo.");
-	i.append(a, c, l, u, p, h);
-	let g = t.getElementById("vc2053-modular-core");
-	g?.parentNode === n ? g.insertAdjacentElement("afterend", i) : n.insertAdjacentElement("afterbegin", i);
-	let _ = () => {
+	let m = r("p", "vc2055-note", "Una traza sin datos no es un error. Las comprobaciones no sustituyen la validación oficial de líberos y sustituciones ni confirman la sincronización en otro dispositivo.");
+	i.append(a, c, l, u, p, m);
+	let h = t.getElementById("vc2053-modular-core");
+	h?.parentNode === n ? h.insertAdjacentElement("afterend", i) : n.insertAdjacentElement("afterbegin", i);
+	let g = () => {
 		for (let t of [
 			e.MatchState,
 			e.VC_SCOUT_VIDEO_BRIDGE,
@@ -271,28 +364,28 @@ function b(e) {
 			if (e) return e;
 		} catch {}
 		return null;
-	}, b = () => y(_()), x = (e) => e === null ? "—" : `${e}%`, S = () => {
-		let e = b();
+	}, _ = () => C(g()), y = (e) => e === null ? "—" : `${e}%`, b = () => {
+		let e = _();
 		l.textContent = e.matchAvailable ? "Datos del partido original examinados" : "Sin partido activo", i.dataset.state = e.matchAvailable ? "available" : "waiting";
 		let t = {
 			verified: String(e.score.verified),
 			inconsistent: String(e.score.inconsistent),
 			unknown: String(e.score.unknown),
 			rotation: e.rotation,
-			so: x(e.sideOutPct),
-			bp: x(e.breakPointPct),
-			attack: x(e.attackEfficiencyPct)
+			so: y(e.sideOutPct),
+			bp: y(e.breakPointPct),
+			attack: y(e.attackEfficiencyPct)
 		};
 		for (let [e, n] of Object.entries(t)) {
 			let t = f.get(e);
 			t && t.textContent !== n && (t.textContent = n);
 		}
-	}, C = !1, w = !1, T = () => {
-		w || C || !n.classList.contains("active") || (C = !0, Promise.resolve().then(() => {
-			C = !1, w || S();
+	}, x = !1, w = !1, T = () => {
+		w || x || !n.classList.contains("active") || (x = !0, Promise.resolve().then(() => {
+			x = !1, w || b();
 		}));
 	};
-	p.addEventListener("click", S), t.addEventListener("vc:matchstatechange", T);
+	p.addEventListener("click", b), t.addEventListener("vc:matchstatechange", T);
 	let E = () => {};
 	try {
 		let t = e.MatchState?.subscribe?.(T);
@@ -302,14 +395,14 @@ function b(e) {
 	D?.observe(n, {
 		attributes: !0,
 		attributeFilter: ["class"]
-	}), n.classList.contains("active") && S();
+	}), n.classList.contains("active") && b();
 	let O = Object.freeze({
 		version: "20.5.5",
 		readOnly: !0,
-		inspectCodeShape: m,
-		inspectSubstitution: v,
+		inspectCodeShape: v,
+		inspectSubstitution: S,
 		nextRotation: s,
-		inspectCurrent: b,
+		inspectCurrent: _,
 		dispose() {
 			w || (w = !0, D?.disconnect(), E(), t.removeEventListener("vc:matchstatechange", T), i.remove(), e.VC_DOMAIN_2055 === O && delete e.VC_DOMAIN_2055);
 		}
@@ -317,9 +410,9 @@ function b(e) {
 	return e.VC_DOMAIN_2055 = O, O;
 }
 // src/domain/shadow-validation.ts
-var x = 80, S = (e) => e === "v800-code" ? "directo" : e === "v113-video-code" ? "video" : "otro", C = (e) => m(e);
-function w(t) {
-	let n = e(t), r = C(n?.code), i = S(n?.source), a = e(n?.nativeShape), o = {
+var T = 80, E = (e) => e === "v800-code" ? "directo" : e === "v113-video-code" ? "video" : "otro", D = (e) => v(e);
+function O(t) {
+	let n = e(t), r = D(n?.code), i = E(n?.source), a = e(n?.nativeShape), o = {
 		source: i,
 		skill: r.skill || "—",
 		advanced: !!r.advanced
@@ -330,7 +423,7 @@ function w(t) {
 			...o,
 			reason: "El motor original reconoce una sintaxis aún no cubierta por el módulo TS."
 		});
-		let e = h(n?.code, { action: a });
+		let e = y(n?.code, { action: a });
 		if (e.state === "agree") return Object.freeze({
 			kind: "agree",
 			...o,
@@ -352,12 +445,12 @@ function w(t) {
 		reason: "No hay dos resultados completos para comparar."
 	});
 }
-function T() {
+function k() {
 	let e = 0, t = 0, n = 0, r = 0, i = 0, a = 0, o = [];
 	return Object.freeze({
 		record(s) {
-			let c = w(s);
-			return e++, c.kind === "agree" ? t++ : c.kind === "difference" ? n++ : c.kind === "coverage-gap" ? r++ : c.kind === "native-reject" ? i++ : a++, c.kind !== "agree" && (o.push(c), o.length > x && o.shift()), c;
+			let c = O(s);
+			return e++, c.kind === "agree" ? t++ : c.kind === "difference" ? n++ : c.kind === "coverage-gap" ? r++ : c.kind === "native-reject" ? i++ : a++, c.kind !== "agree" && (o.push(c), o.length > T && o.shift()), c;
 		},
 		snapshot: () => Object.freeze({
 			version: "20.5.6",
@@ -383,11 +476,11 @@ function T() {
 	});
 }
 // src/domain/shadow-runtime.ts
-function E(e) {
+function A(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_SHADOW_2056) return e.VC_SHADOW_2056;
-	let r = T(), i = (e, n = "", r = "") => {
+	let r = k(), i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
 		return i.className = n, i.textContent = r, i;
 	}, a = i("section", "vc2056-shadow");
@@ -471,7 +564,7 @@ function E(e) {
 	return e.VC_SHADOW_2056 = C, C;
 }
 // src/domain/committed-audit.ts
-var D = 2e4, O = 6e4, k = 80, A = /* @__PURE__ */ new Set([
+var j = 2e4, M = 6e4, N = 80, P = /* @__PURE__ */ new Set([
 	"S",
 	"R",
 	"E",
@@ -480,7 +573,7 @@ var D = 2e4, O = 6e4, k = 80, A = /* @__PURE__ */ new Set([
 	"D",
 	"F",
 	"C"
-]), j = (e) => typeof e == "string" && A.has(e) ? e : "—", M = {
+]), F = (e) => typeof e == "string" && P.has(e) ? e : "—", I = {
 	difference: "El código guardado y los campos de la acción no coinciden.",
 	"coverage-gap": "El código guardado utiliza sintaxis todavía no cubierta por TypeScript.",
 	unverified: "Faltan campos del registro para comprobarlo con seguridad.",
@@ -489,8 +582,8 @@ var D = 2e4, O = 6e4, k = 80, A = /* @__PURE__ */ new Set([
 	"score-sequence": "El tanteo final y el inicial del siguiente rally no coinciden.",
 	rotation: "La siguiente rotación o el turno de saque no concuerdan con la proyección básica."
 };
-function N(t) {
-	let r = e(t), i = j(r?.skill);
+function L(t) {
+	let r = e(t), i = F(r?.skill);
 	if (!r) return Object.freeze({
 		kind: "unverified",
 		skill: i
@@ -500,12 +593,12 @@ function N(t) {
 		kind: "no-code",
 		skill: i
 	});
-	let o = m(a);
+	let o = v(a);
 	if (o.state !== "candidate") return Object.freeze({
 		kind: "coverage-gap",
-		skill: j(o.skill) || i
+		skill: F(o.skill) || i
 	});
-	if (!n(r.team) || !A.has(String(r.skill)) || ![
+	if (!n(r.team) || !P.has(String(r.skill)) || ![
 		"#",
 		"+",
 		"!",
@@ -514,15 +607,15 @@ function N(t) {
 		"="
 	].includes(String(r.evaluation)) || r.playerNumberSnapshot === null || r.playerNumberSnapshot === void 0 || String(r.playerNumberSnapshot).trim() === "") return Object.freeze({
 		kind: "unverified",
-		skill: j(o.skill)
+		skill: F(o.skill)
 	});
-	let s = h(a, { action: r });
+	let s = y(a, { action: r });
 	return Object.freeze({
 		kind: s.state === "agree" ? "agree" : s.state === "disagree" ? "difference" : "unverified",
-		skill: j(o.skill)
+		skill: F(o.skill)
 	});
 }
-function P(o) {
+function R(o) {
 	let s = e(o), l = {
 		actions: 0,
 		agree: 0,
@@ -542,13 +635,13 @@ function P(o) {
 		u.push(Object.freeze({
 			kind: e,
 			location: t,
-			skill: j(n),
-			reason: M[e]
-		})), u.length > k && u.shift();
+			skill: F(n),
+			reason: I[e]
+		})), u.length > N && u.shift();
 	}, p = (e, t) => {
-		if (l.actions >= O) return d = !0, !1;
+		if (l.actions >= M) return d = !0, !1;
 		l.actions++;
-		let n = N(e);
+		let n = L(e);
 		return n.kind === "agree" ? l.agree++ : n.kind === "difference" ? l.difference++ : n.kind === "coverage-gap" ? l.coverageGap++ : n.kind === "no-code" ? l.noCode++ : l.unverified++, n.kind !== "agree" && f(n.kind, t, n.skill), !0;
 	}, m = t(s?.sets);
 	main: for (let o = 0; o < m.length; o++) {
@@ -556,7 +649,7 @@ function P(o) {
 		if (!s) continue;
 		let u = t(s.rallies);
 		for (let s = 0; s < u.length; s++) {
-			if (l.rallies >= D) {
+			if (l.rallies >= j) {
 				d = !0;
 				break main;
 			}
@@ -600,7 +693,7 @@ function P(o) {
 	});
 }
 // src/domain/committed-runtime.ts
-function F(t) {
+function z(t) {
 	let n = t.document, r = n.getElementById("v11-management");
 	if (!r) return null;
 	if (t.VC_COMMITTED_2057) return t.VC_COMMITTED_2057;
@@ -665,7 +758,7 @@ function F(t) {
 			e.append(i("strong", "", t.location), i("span", "", t.reason)), g.append(e);
 		}
 	}, w = () => {
-		let e = P(S());
+		let e = R(S());
 		return v = e, y = !1, C(), e;
 	}, T = () => {
 		b || (x++, v && !y && (y = !0, l.textContent = "El partido ha cambiado. Repite la comprobación para actualizar el informe.", a.dataset.state = "stale", m.disabled = !0));
@@ -711,11 +804,77 @@ function F(t) {
 	});
 	return t.VC_COMMITTED_2057 = O, O;
 }
+// src/domain/grammar-runtime.ts
+function B(e) {
+	let t = e.document, n = t.getElementById("v11-management");
+	if (!n) return null;
+	if (e.VC_CODE_GRAMMAR_2058) return e.VC_CODE_GRAMMAR_2058;
+	let r = (e, n = "", r = "") => {
+		let i = t.createElement(e);
+		return i.className = n, i.textContent = r, i;
+	}, i = r("section", "vc2058-grammar");
+	i.id = "vc2058-grammar";
+	let a = r("div", "vc2058-heading"), o = r("div");
+	o.append(r("small", "", "GRAMÁTICA DE CÓDIGOS · V20.5.8"), r("h3", "", "Referencia de código rápido")), a.append(o, r("span", "", "No registra acciones"));
+	let s = r("p", "", "Comprueba la estructura de un código localmente. Es una ayuda sintáctica: no verifica jugadores, rotaciones ni aceptación por el motor original."), c = r("div", "vc2058-entry"), l = r("label", "", "Código de prueba");
+	l.setAttribute("for", "vc2058-code");
+	let u = r("input");
+	u.id = "vc2058-code", u.maxLength = 160, u.placeholder = "12A#.4B>5D*DC~T::31", u.setAttribute("autocomplete", "off"), u.setAttribute("spellcheck", "false");
+	let d = r("button", "", "Comprobar estructura");
+	d.type = "button", c.append(l, u, d);
+	let f = r("p", "vc2058-status", "Escribe un código para consultar la sintaxis.");
+	f.setAttribute("role", "status");
+	let p = r("div", "vc2058-result"), m = r("p", "vc2058-examples", "Ejemplos: 7R#.6 · 12A#.4B>5D*DC · 3B#.4&12 · 12A#.4B>C5::31~T");
+	i.append(a, s, c, f, p, m, r("p", "vc2058-note", "Los códigos introducidos no se guardan en el informe, en el historial ni en la nube. No se incorpora todavía la sintaxis completa DV4 (.dvw)."));
+	let h = t.getElementById("vc2057-committed") || t.getElementById("vc2056-shadow");
+	h?.parentNode === n ? h.insertAdjacentElement("afterend", i) : n.insertAdjacentElement("afterbegin", i);
+	let g = !1, _ = () => {
+		if (g) return;
+		let e = v(u.value);
+		if (i.dataset.state = e.state, f.textContent = e.state === "candidate" ? "Estructura reconocida; aceptación del parser nativo no comprobada." : e.state === "empty" ? "Escribe un código para consultar la sintaxis." : e.reason, p.replaceChildren(), e.state === "empty") return;
+		let t = [
+			["Equipo", e.team === "ours" ? "Propio" : e.team === "opponent" ? "Rival" : "—"],
+			["Fundamento", e.skill],
+			["Valoración", e.evaluation],
+			["Origen", e.startZone],
+			["Destino", e.endZone],
+			["Saque", e.modifiers.serveType],
+			["Combinación", e.modifiers.combination],
+			["Llamada", e.modifiers.dvCall],
+			["Fase", e.modifiers.phase],
+			["Bloqueadores", e.modifiers.blockers],
+			["Objetivo bloqueo", e.modifiers.blockTarget],
+			["Dirección", e.modifiers.direction],
+			["Tempo", e.modifiers.tempo],
+			["Subtipo", e.modifiers.subtype],
+			["Tipo colocación", e.modifiers.setType],
+			["Especial", e.modifiers.special],
+			["Personalizado", e.modifiers.custom]
+		];
+		for (let [e, n] of t) {
+			if (!n || n === "—") continue;
+			let t = r("span", "vc2058-token");
+			t.append(r("small", "", e), r("b", "", n)), p.append(t);
+		}
+	};
+	d.addEventListener("click", _), u.addEventListener("keydown", (e) => {
+		e.key === "Enter" && (e.preventDefault(), _());
+	});
+	let y = Object.freeze({
+		version: "20.5.8",
+		readOnly: !0,
+		inspect: v,
+		dispose() {
+			g || (g = !0, i.remove(), e.VC_CODE_GRAMMAR_2058 === y && delete e.VC_CODE_GRAMMAR_2058);
+		}
+	});
+	return e.VC_CODE_GRAMMAR_2058 = y, y;
+}
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
 	let e = () => {
-		b(window), E(window), F(window);
+		w(window), A(window), z(window), B(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { l as attackEfficiency, P as auditCommittedMatch, o as auditMatchScores, w as classifyPreflight, N as classifyStoredAction, h as compareNativeCode, T as createShadowSession, m as inspectCodeShape, y as inspectMatchDomain, v as inspectSubstitution, F as mountCommittedPanel, b as mountDomainDiagnostic, E as mountShadowPanel, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
+export { l as attackEfficiency, R as auditCommittedMatch, o as auditMatchScores, O as classifyPreflight, L as classifyStoredAction, y as compareNativeCode, k as createShadowSession, v as inspectCodeShape, C as inspectMatchDomain, S as inspectSubstitution, z as mountCommittedPanel, w as mountDomainDiagnostic, B as mountGrammarPanel, A as mountShadowPanel, s as nextRotation, c as projectPoint, u as sideOutBreakPoint, a as verifyRallyScore };
