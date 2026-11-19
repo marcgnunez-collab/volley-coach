@@ -3,6 +3,7 @@
  */
 import {queryRallies,type SearchData,type SearchFilters,type SearchResult} from './analysis-query';
 import type {AnalysisNormalizeWindow} from './analysis-normalize-runtime';
+import type {AnalysisOperationsWindow} from './analysis-operations-runtime';
 
 export interface AnalysisQueryDiagnostics{
  readonly readOnly:true;
@@ -20,7 +21,9 @@ export interface AnalysisQueryBridge{
  query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
  diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
 }
-type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&{VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>};
+type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&AnalysisOperationsWindow&{
+ VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>;
+};
 export interface QueryPerformancePanel{
  readonly readOnly:true;
  readonly refresh:()=>void;
@@ -67,10 +70,10 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  };
  const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
  const heading=node('div','vc20523-heading'),title=node('div');
- title.append(node('small','','V20.5.24 · ANÁLISIS'),node('h3','','Rendimiento de normalización y búsquedas'));
+ title.append(node('small','','V20.5.25 · ANÁLISIS'),node('h3','','Rendimiento del Data Engine y búsquedas'));
  heading.append(title,node('span','','Solo lectura'));
  const description=node('p','',
-  'Mediciones locales de normalización y búsqueda táctica. No incluyen vídeo, descarga, renderizado ni sincronización.');
+  'Mediciones locales de normalización, operaciones de análisis y búsqueda táctica. No incluyen vídeo, descarga, renderizado ni sincronización.');
  const metrics=node('div','vc20523-values'),values=new Map<string,HTMLElement>();
  for(const [key,label] of [['queries','Consultas'],['last','Última'],['average','Media'],
   ['max','Máxima'],['slow','Más de 16 ms'],['failures','Errores']]){
@@ -84,12 +87,21 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
   const box=node('div');box.append(node('small','',label));
   const value=node('strong','','—');box.append(value);normalizationMetrics.append(box);normalizedValues.set(key,value);
  }
+ const operationHeading=node('h4','vc20524-subheading','Filtros, métricas, K1/K2 y cobertura');
+ const operationMetrics=node('div','vc20523-values'),operationValues=new Map<string,HTMLElement>();
+ for(const [key,label] of [['operations','Operaciones'],['filters','Filtros'],
+  ['evaluations','Evaluaciones'],['points','K1/K2'],['coverage','Cobertura'],
+  ['reconciliations','Conciliaciones'],['average','Media'],['slow','Más de 16 ms'],['failures','Errores']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);operationMetrics.append(box);
+  operationValues.set(key,value);
+ }
  const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
  refreshButton.type='button';
  const note=node('p','vc20523-note',
   'El umbral de 16 ms es orientativo: no garantiza respuesta en tiempo real. No se guardan códigos, nombres, partidos ni resultados en este diagnóstico.');
  section.append(heading,description,node('h4','vc20524-subheading','Búsqueda táctica'),metrics,
-  normalizeHeading,normalizationMetrics,refreshButton,note);
+  normalizeHeading,normalizationMetrics,operationHeading,operationMetrics,refreshButton,note);
  const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
  if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
  else container.append(section);
@@ -109,6 +121,15 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
    slow:String(n?.slowNormalizations??0),failures:String(n?.failures??0)};
   for(const [key,value] of Object.entries(normalized)){
    const el=normalizedValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+  const o=win.VC_ANALYSIS_OPERATIONS_20525?.diagnostics?.();
+  const operational={operations:String(o?.operations??0),filters:String(o?.filters??0),
+   evaluations:String(o?.evaluations??0),points:String(o?.points??0),
+   coverage:String(o?.coverage??0),reconciliations:String(o?.reconciliations??0),
+   average:ms(o?.averageMs??0),slow:String(o?.slowOperations??0),
+   failures:String(o?.failures??0)};
+  for(const [key,value] of Object.entries(operational)){
+   const el=operationValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
   }
  };
  refreshButton.addEventListener('click',refresh);refresh();

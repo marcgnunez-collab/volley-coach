@@ -12,6 +12,7 @@ import {mountPlayerBoxscore} from './state/player-boxscore-runtime';
 import {createScoutingProjectionStore,mountScoutingProjectionStore} from './state/scouting-projections';
 import {installAnalysisQueryBridge,mountAnalysisQueryPerformance} from './state/analysis-query-runtime';
 import {installAnalysisNormalizeBridge} from './state/analysis-normalize-runtime';
+import {installAnalysisOperationsBridge} from './state/analysis-operations-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -45,12 +46,16 @@ export {queryRallies,normalizeRallySearchFilters,SEARCH_FILTERS} from './state/a
 export {installAnalysisQueryBridge,mountAnalysisQueryPerformance};
 export {normalizeAnalysisMatch,normalizeAnalysisZone} from './state/analysis-normalizer';
 export {installAnalysisNormalizeBridge};
+export {filterAnalysis,evaluateAnalysisContacts,calculateAnalysisPoints,
+ inspectAnalysisCoverage,reconcileAnalysisPoints} from './state/analysis-operations';
+export {installAnalysisOperationsBridge};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
  installMultiDeviceAPI(window);
  installAnalysisQueryBridge(window);
  installAnalysisNormalizeBridge(window);
+ installAnalysisOperationsBridge(window);
  const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountAnalysisQueryPerformance(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();

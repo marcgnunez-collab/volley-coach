@@ -171,6 +171,29 @@
    agrees:previous.k1?.n===ours.k1.n&&previous.k2?.n===ours.k2.n,
    note:'La comparación es de denominadores, no sustituye los cálculos oficiales.'};
  }
+ // V20.5.25: the actual Data Engine UI invokes the typed operations when loaded.
+ // All five historical pure functions remain as a no-write fallback.
+ const typedOperation=(name,args,valid,fallback)=>{
+  try{
+   const operation=root?.VC_ANALYSIS_OPERATIONS_20525?.[name];
+   if(typeof operation==='function'){
+    const result=operation(...args);
+    if(valid(result))return result;
+   }
+  }catch(_){/* No data changes: safely re-run the historical pure operation. */}
+  return fallback(...args);
+ };
+ const filterCompat=(data,f={})=>typedOperation('filter',[data,f],
+  x=>!!x&&Array.isArray(x.rallies)&&Array.isArray(x.contacts)&&
+   Array.isArray(x.possessions)&&Array.isArray(x.chains),filter);
+ const evaluateCompat=(contacts,skill='A')=>typedOperation('evaluate',[contacts,skill],
+  x=>!!x&&Number.isInteger(x.recorded)&&Number.isInteger(x.rated)&&'efficiency'in x,evaluate);
+ const pointsCompat=(rows,teamId)=>typedOperation('points',[rows,teamId],
+  x=>x===null||!!x&&Number.isInteger(x.closed)&&Number.isInteger(x.k1?.n)&&Number.isInteger(x.k2?.n),points);
+ const coverageCompat=data=>typedOperation('coverage',[data],
+  x=>!!x&&Array.isArray(x.bySkill)&&Number.isInteger(x.unknownTeams),coverage);
+ const reconcileCompat=(data,legacy,teamId)=>typedOperation('reconcile',[data,legacy,teamId],
+  x=>x===null||!!x&&typeof x.agrees==='boolean'&&Number.isInteger(x.newK1),reconcile);
  function csvEscape(x){let text=val(x);if(/^[\s\u0000-\u001f]*[=+\-@]/.test(text)&&!/^[-+]?\d+(?:[.,]\d+)?$/.test(text.trim()))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}
  function toCSV(data){const header=['Partido','Set','Rally','ID rally estable','Posesión','Acción','ID acción estable','Equipo','Fundamento','Jugador','Evaluación','Zona origen','Zona destino','Zona contacto','Destino E','Tempo E','Combinación','Referencia vídeo'];
   const rByKey=new Map(data.rallies.map(r=>[r.key,r]));
@@ -178,7 +201,7 @@
   return '\ufeff'+[header,...rows].map(row=>row.map(csvEscape).join(';')).join('\r\n');
  }
  function panelHTML(data,selection,legacy){
-  const c=coverage(data),stats=evaluate(selection.contacts),comparison=reconcile({rallies:selection.rallies},legacy,selection.target);
+  const c=coverageCompat(data),stats=evaluateCompat(selection.contacts),comparison=reconcileCompat({rallies:selection.rallies},legacy,selection.target);
   const rows=c.bySkill.map(row=>`<tr><td><b>${esc(row.skill)}</b></td><td>${row.n}</td><td>${row.properties.team}/${row.n}</td><td>${row.properties.player}/${row.n}</td><td>${row.properties.evaluation}/${row.n}</td><td>${row.properties.zone}/${row.n}</td><td>${row.properties.video}/${row.n}</td></tr>`).join('');
   const chains=selection.chains.slice(-45).reverse().map(link=>`<tr><td>${esc(link.setter.set)} · ${esc(link.setter.rallyIndex)}</td><td>${esc(link.setter.player||'—')}</td><td>${esc(link.reception?.evaluation||'—')}</td><td>${esc(link.target?.code||'—')}</td><td>${esc(link.tempo||'—')}</td><td>${esc(link.attack?.player||'Sin ataque')}</td><td>${esc(link.attack?.evaluation||'—')}</td></tr>`).join('');
   return {left:`<div class="vc1938-audit"><h3>Professional Data Engine · Contactos</h3><p>Modelo común de solo lectura. Los contactos sin equipo o valoración se mantienen como desconocidos, sin asignaciones automáticas.</p><div class="vc1938-filters"><label>Fundamento<select data-vc1938-filter="skill"><option value="">Todos</option>${['S','R','E','A','B','D','F','C'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select></label><label>Valoración<select data-vc1938-filter="evaluation"><option value="">Todas</option>${['#','+','!','-','/','='].map(s=>`<option>${esc(s)}</option>`).join('')}</select></label><button type="button" data-vc1938-export>Exportar selección CSV</button></div><div class="vc1938-metrics"><span><strong>${selection.rallies.length}</strong>rallies filtrados</span><span><strong>${selection.contacts.length}</strong>contactos filtrados</span><span><strong>${selection.possessions.length}</strong>posesiones</span><span><strong>${selection.chains.length}</strong>colocaciones</span></div><div class="vc1938-scroll"><table><thead><tr><th>Fund.</th><th>Total</th><th>Equipo</th><th>Jugador</th><th>Eval.</th><th>Zona</th><th>Vídeo</th></tr></thead><tbody>${rows}</tbody></table></div><small>Los denominadores de cobertura son los contactos de cada fundamento en todo el scouting, antes de filtros.</small></div>`,
@@ -193,7 +216,7 @@
   const data=api?.normalize(original);if(!data)return;
   const state=panel._vc1938||{skill:'',evaluation:''};
   const f={team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase,skill:state.skill,evaluation:state.evaluation};
-  const selection=filter(data,f),visual=panelHTML(data,selection,ctx.data);
+  const selection=filterCompat(data,f),visual=panelHTML(data,selection,ctx.data);
   const left=panel.querySelector('.vc1937-left-body'),center=panel.querySelector('.vc1937-courtbody');
   if(!left||!center)return;
   left.innerHTML=visual.left;center.innerHTML=visual.center;
@@ -229,5 +252,7 @@
    });
   }
  }
- return {VERSION,SKILLS,EVALS,zone,team,normalize:normalizeCompat,filter,evaluate,points,coverage,reconcile,toCSV,panelHTML,decorate};
+ return {VERSION,SKILLS,EVALS,zone,team,normalize:normalizeCompat,
+  filter:filterCompat,evaluate:evaluateCompat,points:pointsCompat,coverage:coverageCompat,
+  reconcile:reconcileCompat,toCSV,panelHTML,decorate};
 });

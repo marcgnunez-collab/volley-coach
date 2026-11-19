@@ -5,7 +5,8 @@
 import {createRequire} from 'node:module';
 import {performance} from 'node:perf_hooks';
 import {deepStrictEqual} from 'node:assert/strict';
-import {normalizeAnalysisMatch} from '../vc2055-domain-core.mjs';
+import {normalizeAnalysisMatch,filterAnalysis,evaluateAnalysisContacts,
+ calculateAnalysisPoints,inspectAnalysisCoverage,reconcileAnalysisPoints} from '../vc2055-domain-core.mjs';
 
 const require=createRequire(import.meta.url);
 const historical=require('../189-vc1938-professional-data-engine.js');
@@ -36,7 +37,30 @@ function measure(fn){
  return Number(samples[2].toFixed(2));
 }
 const historicalMs=measure(historical.normalize),typescriptMs=measure(normalizeAnalysisMatch);
-const result={version:'20.5.24',synthetic:true,rallies,actions:rallies*6,
+const engineFilters=[{team:'ours',skill:'A'},{team:'opponent',phase:'K1',rotation:3},
+ {team:'opponent',setter:'1',evaluation:'#'},{team:'ours',video:true,endZone:'6D'}];
+const expectedData=historical.normalize(sample),newData=normalizeAnalysisMatch(sample);
+const previous={points:historical.points(expectedData.rallies,'ours')};
+const historicOperations=()=>{
+ const selections=engineFilters.map(f=>historical.filter(expectedData,f));
+ return {selections,evaluation:historical.evaluate(selections[0].contacts),
+  points:historical.points(expectedData.rallies,'ours'),
+  coverage:historical.coverage(expectedData),
+  reconcile:historical.reconcile(expectedData,previous,'ours')};
+};
+const typedOperations=()=>{
+ const selections=engineFilters.map(f=>filterAnalysis(newData,f));
+ return {selections,evaluation:evaluateAnalysisContacts(selections[0].contacts),
+  points:calculateAnalysisPoints(newData.rallies,'ours'),
+  coverage:inspectAnalysisCoverage(newData),
+  reconcile:reconcileAnalysisPoints(newData,previous,'ours')};
+};
+deepStrictEqual(typedOperations(),historicOperations(),
+ 'The benchmark must compare equivalent filters, metrics, K1/K2 and coverage.');
+const historicalOperationsMs=measure(historicOperations),typescriptOperationsMs=measure(typedOperations);
+const result={version:'20.5.25',synthetic:true,rallies,actions:rallies*6,
  historicalMs,typescriptMs,baseline:'Median of five warm Node.js runs per implementation',
+ operations:{historicalMs:historicalOperationsMs,typescriptMs:typescriptOperationsMs,
+  filters:engineFilters.length,includes:['filter','evaluate','points','coverage','reconcile']},
  note:'No DOM, vídeo, red ni persistencia: no es una garantía de rendimiento en directo.'};
 process.stdout.write(`${JSON.stringify(result,null,2)}\n`);
