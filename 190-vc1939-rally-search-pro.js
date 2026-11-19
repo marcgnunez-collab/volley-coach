@@ -126,7 +126,16 @@
   const currentInput=panel.ownerDocument.activeElement;const activeFilter=currentInput?.dataset?.vc1939Filter||'';const cursor=activeFilter&&currentInput.tagName==='INPUT'?currentInput.selectionStart:null;
   const advancedOpen=panel.querySelector('.vc1939-advanced')?.open||false;
   const merged={...session.filters,team:ctx.team,set:ctx.set,rotation:ctx.rotation,phase:ctx.phase};
-  const result=query(normalized,merged),html=renderPanel(normalized,result,session.filters);
+  // V20.5.23: the proven UI, presets, exports and video mappings stay here.
+  // Only the pure multi-filter query delegates to the typed Vite module.
+  // The historical query remains a safe fallback if the new module is absent.
+  let result,engine='classic';
+  try{const typed=win?.VC_ANALYSIS_QUERY_20523;
+   if(typeof typed?.query==='function'){result=typed.query(normalized,merged);engine='typescript';}}
+  catch(_){engine='classic';}
+  if(!result)result=query(normalized,merged);
+  panel.dataset.vc20523QueryEngine=engine;
+  const html=renderPanel(normalized,result,session.filters);
   const left=panel.querySelector('.vc1937-left-body'),center=panel.querySelector('.vc1937-courtbody');if(!left||!center)return;
   left.innerHTML=html.left;center.innerHTML=html.center;
   const advanced=panel.querySelector('.vc1939-advanced');if(advanced)advanced.open=advancedOpen;
@@ -136,7 +145,7 @@
   const detail=panel.querySelector('.vc1937-details-hint');if(detail)detail.hidden=true;
   const timeline=panel.querySelector('.vc1937-timeline');if(timeline)timeline.hidden=true;
   const badges=panel.querySelector('.vc1937-kpis');if(badges)badges.innerHTML=[['Rallies',result.statistics.rallies],['Contactos',result.statistics.contacts],['Con vídeo',result.statistics.videoContacts],['Colocaciones',result.statistics.chains],['Sin evaluar',result.statistics.missingEvaluation]].map(([k,n])=>`<div class="vc1937-kpi"><span>${k}</span><strong>${n}</strong></div>`).join('');
-  const note=panel.querySelector('.vc1937-courtnote');if(note)note.textContent='Resultados procedentes del scouting original. No se infieren jugadores, posesiones, tiempos ni rotaciones ausentes.';
+  const note=panel.querySelector('.vc1937-courtnote');if(note)note.textContent='Resultados procedentes del scouting original. No se infieren jugadores, posesiones, tiempos ni rotaciones ausentes.'+(engine==='typescript'?' · Consulta TypeScript.':'');
   for(const input of panel.querySelectorAll('[data-vc1939-filter]')){const name=input.dataset.vc1939Filter;input.value=session.filters[name]||((name==='status')?'closed':'');}
   if(activeFilter){const next=panel.querySelector('[data-vc1939-filter="'+activeFilter+'"]');if(next){next.focus();if(cursor!=null&&next.setSelectionRange)next.setSelectionRange(cursor,cursor);}}
   const presets=panel.querySelector('[data-vc1939-preset]');if(presets){const old=session.preset||'';let saved=[];try{saved=readPresets(win.localStorage)}catch(_){}presets.innerHTML='<option value="">Búsquedas guardadas</option>'+saved.map(p=>option(p.name)).join('');presets.value=[...presets.options].some(o=>o.value===old)?old:'';}

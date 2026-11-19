@@ -168,3 +168,19 @@
 #v11-management .vc20515-finding span{font:650 10px/1.35 ui-monospace,Consolas,monospace;color:#43667d;text-align:right}
 #v11-management .vc20515-note{font-size:10px;color:#627f93}
 @media(max-width:700px){#v11-management .vc20515-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc20515-heading>span{display:none}}
+
+/* V20.5.23 · Compact, on-demand local timing diagnostics for tactical queries. */
+#v11-management .vc20523-query-metrics{margin:12px 0 18px;padding:14px;border:1px solid #acc7db;border-radius:7px;background:#f3f8fc;color:#163951;font:500 12px/1.5 system-ui}
+#v11-management .vc20523-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#v11-management .vc20523-heading small{font-size:10px;font-weight:850;letter-spacing:.075em;color:#286d9c}
+#v11-management .vc20523-heading h3{margin:3px 0 7px;font-size:17px;color:#153b58}
+#v11-management .vc20523-heading>span{white-space:nowrap;font-size:10px;font-weight:800;border:1px solid #b6d6c7;background:#e8f6ed;color:#23654d;border-radius:9px;padding:4px 9px}
+#v11-management .vc20523-query-metrics p{margin:6px 0 10px;color:#507088}
+#v11-management .vc20523-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+#v11-management .vc20523-values>div{min-width:0;padding:9px;background:#fff;border:1px solid #d3e2ec;border-radius:5px;display:flex;flex-direction:column;gap:4px}
+#v11-management .vc20523-values small{font-size:10px;color:#557389}
+#v11-management .vc20523-values strong{font:850 17px/1.2 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;color:#195985;overflow-wrap:anywhere}
+#v11-management .vc20523-refresh{padding:8px 12px;border:1px solid #2274b3;border-radius:5px;background:#1464a8;color:#fff;font-weight:800;cursor:pointer}
+#v11-management .vc20523-refresh:hover{background:#0d537e}
+#v11-management .vc20523-note{font-size:10px;color:#667f91}
+@media(max-width:640px){#v11-management .vc20523-values{grid-template-columns:repeat(2,minmax(0,1fr))}#v11-management .vc20523-heading>span{display:none}}

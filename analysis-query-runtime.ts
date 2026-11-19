@@ -1,0 +1,104 @@
+/* V20.5.23 · Compatibility bridge and opt-in, read-only query timings in Gestión.
+ * Does not observe or write the match, cloud, IndexedDB or scouting editor.
+ */
+import {queryRallies,type SearchData,type SearchFilters,type SearchResult} from './analysis-query';
+
+export interface AnalysisQueryDiagnostics{
+ readonly readOnly:true;
+ readonly queries:number;
+ readonly failures:number;
+ readonly slowQueries:number;
+ readonly lastMs:number;
+ readonly averageMs:number;
+ readonly maxMs:number;
+ readonly budgetMs:16;
+}
+export interface AnalysisQueryBridge{
+ readonly VERSION:'20.5.23';
+ readonly readOnly:true;
+ query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
+ diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
+}
+type AnalysisQueryWindow=Window&{VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>};
+export interface QueryPerformancePanel{
+ readonly readOnly:true;
+ readonly refresh:()=>void;
+ readonly dispose:()=>void;
+}
+const bridges=new WeakMap<Window,Readonly<AnalysisQueryBridge>>();
+const panels=new WeakMap<Window,Readonly<QueryPerformancePanel>>();
+
+/** Install before page initialization so the historic UI can delegate on first use. */
+export function installAnalysisQueryBridge(win:AnalysisQueryWindow):Readonly<AnalysisQueryBridge>{
+ const existing=bridges.get(win);if(existing)return existing;
+ let queries=0,failures=0,slowQueries=0,lastMs=0,averageMs=0,maxMs=0;
+ const clock=()=>{
+  try{const n=win.performance?.now?.();return Number.isFinite(n)?n!:Date.now();}
+  catch(_){return Date.now();}
+ };
+ const api:Readonly<AnalysisQueryBridge>=Object.freeze({
+  VERSION:'20.5.23',readOnly:true,
+  query(data:SearchData|null|undefined,filters:SearchFilters={}){
+   const start=clock();
+   try{return queryRallies(data,filters);}
+   catch(error){failures++;throw error;}
+   finally{
+    const elapsed=clock()-start;
+    lastMs=Number.isFinite(elapsed)&&elapsed>=0?Math.round(elapsed*100)/100:0;
+    queries++;averageMs+=((lastMs-averageMs)/queries);
+    maxMs=Math.max(maxMs,lastMs);if(lastMs>16)slowQueries++;
+   }
+  },
+  diagnostics:()=>Object.freeze({readOnly:true as const,queries,failures,slowQueries,
+   lastMs,averageMs:Math.round(averageMs*100)/100,maxMs,budgetMs:16 as const})
+ });
+ bridges.set(win,api);win.VC_ANALYSIS_QUERY_20523=api;return api;
+}
+
+/** Manual-only metrics: no polling, player names, codes, match IDs or native listeners. */
+export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<QueryPerformancePanel>|null{
+ const old=panels.get(win);if(old)return old;
+ const doc=win.document,host=doc.getElementById('v11-management');if(!host)return null;
+ const performance=doc.getElementById('vc60-diagnostics'),container=performance||host;
+ const engine=win.VC_ANALYSIS_QUERY_20523||installAnalysisQueryBridge(win);
+ const node=(tag:string,klass='',value='')=>{
+  const el=doc.createElement(tag);el.className=klass;el.textContent=value;return el;
+ };
+ const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
+ const heading=node('div','vc20523-heading'),title=node('div');
+ title.append(node('small','','V20.5.23 · ANÁLISIS'),node('h3','','Rendimiento de búsquedas tácticas'));
+ heading.append(title,node('span','','Solo lectura'));
+ const description=node('p','',
+  'Medición local de la consulta del buscador de rallies. No incluye vídeo, descarga, renderizado ni sincronización.');
+ const metrics=node('div','vc20523-values'),values=new Map<string,HTMLElement>();
+ for(const [key,label] of [['queries','Consultas'],['last','Última'],['average','Media'],
+  ['max','Máxima'],['slow','Más de 16 ms'],['failures','Errores']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);metrics.append(box);values.set(key,value);
+ }
+ const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
+ refreshButton.type='button';
+ const note=node('p','vc20523-note',
+  'El umbral de 16 ms es orientativo, no garantiza velocidad de respuesta en un partido real. Las búsquedas guardadas siguen en el módulo anterior.');
+ section.append(heading,description,metrics,refreshButton,note);
+ const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
+ if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
+ else container.append(section);
+ let disposed=false;
+ const ms=(value:number)=>`${value.toFixed(2)} ms`;
+ const refresh=()=>{
+  if(disposed)return;
+  const d=engine.diagnostics();
+  const data={queries:String(d.queries),last:ms(d.lastMs),average:ms(d.averageMs),
+   max:ms(d.maxMs),slow:String(d.slowQueries),failures:String(d.failures)};
+  for(const [key,value] of Object.entries(data)){
+   const el=values.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+ };
+ refreshButton.addEventListener('click',refresh);refresh();
+ const api:Readonly<QueryPerformancePanel>=Object.freeze({readOnly:true,refresh,
+  dispose(){if(disposed)return;disposed=true;refreshButton.removeEventListener('click',refresh);
+   section.remove();panels.delete(win);}
+ });
+ panels.set(win,api);return api;
+}
