@@ -18,6 +18,7 @@ import {installRenderMetricsBridge} from './state/render-performance';
 import {installAnalysisViewBridge} from './state/analysis-view-runtime';
 import {installRallySearchViewBridge} from './state/rally-search-view-runtime';
 import {installRallySearchControls} from './state/rally-search-controls';
+import {installScoutingDraftBridge} from './state/scouting-speed-draft-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -65,9 +66,13 @@ export {renderRallySearchView,catalogRallySearch} from './state/rally-search-vie
 export {installRallySearchViewBridge};
 export {installRallySearchControls,readRallySearchPresets,RALLY_SEARCH_PRESETS_KEY}
  from './state/rally-search-controls';
+export {parseScoutingDraftHead,applyScoutingDraftSkill,applyScoutingDraftRating,
+ cycleScoutingDraftRating,recentScoutingDraftCodes} from './state/scouting-speed-draft';
+export {installScoutingDraftBridge};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
+ installScoutingDraftBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

@@ -1,4 +1,4 @@
-/* Volley Coach V20.2.1 · Scouting Speed Pro.
+/* Volley Coach V20.2.1 · Scouting Speed Pro, with V20.5.32 typed draft bridge.
  * An input-only enhancement to the existing code entry fields and court.
  * Never submits actions, changes points, saves matches or writes to cloud.
  */
@@ -27,45 +27,64 @@
  const clean=x=>text(x).trim().toUpperCase().replace(/\s+/g,'');
  const safeHtml=x=>text(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let mounted=false,observer=null,revision=null,codeInputId='',recentIndex=-1,updates=0;
+ const draftBridgeStats={accepted:0,classic:0,differences:0,errors:0};
  const stats={skillEdits:0,ratingEdits:0,repeats:0,undos:0,uppercases:0};
- function parseHead(raw){
+ function draftBridge(){
+  const api=root?.VC_SCOUT_DRAFT_20532;
+  return api?.VERSION==='20.5.32'&&api?.inputOnly===true?api:null;
+ }
+ // Always compare against the proven V20.2.1 result before using a typed value.
+ // If Vite is absent, incomplete or disagrees, the classic input stays intact.
+ function typedOrClassic(method,args,legacy){
+  const result=legacy(),api=draftBridge();
+  if(!api||typeof api[method]!=='function'){draftBridgeStats.classic++;return result;}
+  try{
+   const candidate=api[method](...args);
+   if(JSON.stringify(candidate)===JSON.stringify(result)){
+    draftBridgeStats.accepted++;return candidate;
+   }
+   draftBridgeStats.differences++;
+  }catch(_){draftBridgeStats.errors++;}
+  draftBridgeStats.classic++;return result;
+ }
+ function parseHeadLegacy(raw){
   const code=clean(raw),m=code.match(CODE);
   if(!m)return null;
   // Never rewrite unknown/malformed text following the recognized header.
   if(m[5]&&!VALID_START.test(m[5]))return null;
   return {code,side:m[1],number:m[2],skill:m[3],rating:m[4],tail:m[5]};
  }
- function contextPrefix(context){
+ function contextPrefixLegacy(context){
   const number=text(context?.number||'').trim();
   if(!/^\d{1,3}$/.test(number))return null;
   if(context?.team!=='ours'&&context?.team!=='opponent')return null;
   return (context.team==='opponent'?'R':'')+number;
  }
- function applySkill(raw,skill,context){
+ function applySkillLegacy(raw,skill,context){
   if(!SKILLS.some(x=>x[0]===skill))return null;
   const code=clean(raw);
-  if(!code){const prefix=contextPrefix(context);return prefix?prefix+skill:null;}
-  const head=parseHead(code);if(!head)return null;
+  if(!code){const prefix=contextPrefixLegacy(context);return prefix?prefix+skill:null;}
+  const head=parseHeadLegacy(code);if(!head)return null;
   return head.side+head.number+skill+(head.rating||'')+head.tail;
  }
- function applyRating(raw,rating){
+ function applyRatingLegacy(raw,rating){
   if(!EVALS.includes(rating))return null;
-  const head=parseHead(raw);if(!head||!head.skill)return null;
+  const head=parseHeadLegacy(raw);if(!head||!head.skill)return null;
   return head.side+head.number+head.skill+rating+head.tail;
  }
- function cycleRating(raw,step=1){
-  const head=parseHead(raw);if(!head||!head.skill)return null;
+ function cycleRatingLegacy(raw,step=1){
+  const head=parseHeadLegacy(raw);if(!head||!head.skill)return null;
   const i=EVALS.indexOf(head.rating);
   const next=EVALS[(i+(step>0?1:EVALS.length-1)+EVALS.length)%EVALS.length];
-  return applyRating(raw,next);
+  return applyRatingLegacy(raw,next);
  }
- function recentCodes(match,limit=8){
+ function recentCodesLegacy(match,limit=8){
   if(!match)return [];
   const result=[];
   const collect=list=>{
    for(let i=(Array.isArray(list)?list.length:0)-1;i>=0&&result.length<limit;i--){
     const code=clean(list[i]?.code);
-    if(code.length<=140&&parseHead(code)?.skill&&!result.includes(code))result.push(code);
+    if(code.length<=140&&parseHeadLegacy(code)?.skill&&!result.includes(code))result.push(code);
    }
   };
   collect(match.liveRally?.actions);
@@ -76,6 +95,11 @@
   }
   return result;
  }
+ function parseHead(raw){return typedOrClassic('parseHead',[raw],()=>parseHeadLegacy(raw));}
+ function applySkill(raw,skill,context){return typedOrClassic('applySkill',[raw,skill,context],()=>applySkillLegacy(raw,skill,context));}
+ function applyRating(raw,rating){return typedOrClassic('applyRating',[raw,rating],()=>applyRatingLegacy(raw,rating));}
+ function cycleRating(raw,step=1){return typedOrClassic('cycleRating',[raw,step],()=>cycleRatingLegacy(raw,step));}
+ function recentCodes(match,limit=8){return typedOrClassic('recentCodes',[match,limit],()=>recentCodesLegacy(match,limit));}
  function getMatch(){try{return root?.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||root?.VC_SCOUT_REPORT_BRIDGE?.getActive?.()||null}catch(_){return null}}
  function active(){return !!byId('scout-match-mode')?.classList?.contains('active')}
  function isFinished(){return getMatch()?.status==='finished'}
@@ -146,7 +170,7 @@
   config.click();return true;
  }
  function markup(){return `<section id="vc2021-dock" class="vc2021-dock" aria-label="Scouting Speed Pro">
-   <div class="vc2021-head"><div><strong>SCOUTING SPEED PRO</strong><small>Completar borrador · nunca registra automáticamente</small></div>
+   <div class="vc2021-head"><div><strong>SCOUTING SPEED PRO</strong><small>Completar borrador · nunca registra automáticamente</small><small id="vc2021-draft-engine">Borrador clásico (respaldo)</small></div>
    <div class="vc2021-head-actions"><button type="button" data-vc2021-command="focus">Foco código</button><button type="button" data-vc2021-command="court">Ir a pista</button><button type="button" data-vc2021-command="macros">Atajos</button></div></div>
    <div class="vc2021-grid"><div class="vc2021-group" role="group" aria-label="Fundamentos rápidos"><span>FUNDAMENTO</span><div>${SKILLS.map(([id,label])=>`<button type="button" data-vc2021-skill="${id}" title="${safeHtml(label)} · Solo borrador">${id}</button>`).join('')}</div></div>
    <div class="vc2021-group" role="group" aria-label="Valoraciones rápidas"><span>VALORACIÓN</span><div>${EVALS.map(code=>`<button type="button" data-vc2021-rating="${code}" title="Valorar como ${code} · Solo borrador">${code}</button>`).join('')}</div></div></div>
@@ -166,6 +190,9 @@
   });
   const val=clean(input?.value);const label=target?.input==='v113-video-code'?'Vídeo + código':'Código directo';
   const preview=byId('vc2021-preview'),at=byId('vc2021-target');
+  const engine=byId('vc2021-draft-engine'),typed=!!draftBridge();
+  dock.dataset.vc20532Draft=typed?'typescript':'classic';
+  if(engine)engine.textContent=typed?'Borrador TypeScript (comprobación de equivalencia)':'Borrador clásico (respaldo)';
   if(preview&&preview.textContent!==(val||'—'))preview.textContent=val||'—';
   if(at&&at.textContent!==label)at.textContent=label;
   updates++;return true;
@@ -232,6 +259,6 @@
   }
   refresh();return true;
  }
- function diagnostics(){return {version:VERSION,mounted,target:codeInputId,updates,stats:{...stats},legacyKeyboardPresent:!!byId('vc1645-video'),originalCourtPresent:!!byId('vc1613-board')}}
+ function diagnostics(){return {version:VERSION,mounted,target:codeInputId,updates,stats:{...stats},draftEngine:draftBridge()?'typescript':'classic',draftBridge:{...draftBridgeStats},legacyKeyboardPresent:!!byId('vc1645-video'),originalCourtPresent:!!byId('vc1613-board')}}
  return {VERSION,SKILLS,EVALS,parseHead,applySkill,applyRating,cycleRating,recentCodes,markup,boot,refresh,changeSkill,changeRating,repeatCode,undoDraft,diagnostics};
 });
