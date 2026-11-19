@@ -273,10 +273,11 @@ test('comparison refuses to declare sync success with a dirty, blocked or unveri
  assert.equal(v2012.compareReports(a,b).status,'matched');
 });
 
-test('V20.1.2 is cache-busted, adds a read-only validation module and keeps one CAS writer',()=>{
+test('V20.5.21 keeps the historical read-only module for parity, while Vite owns the UI',()=>{
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
- assert.match(html,/211-vc2012-multi-device-validation\.js\?v=20\.1\.2/);
+ assert.doesNotMatch(html,/<script[^>]+src="\.\/211-vc2012-multi-device-validation\.js/);
+ assert.match(html,/vc2055-domain-core\.mjs\?v=20\.5\.21/);
  assert.match(html,/vc2012-multi-device-validation\.css\?v=20\.1\.2/);
  assert.match(html,/service-worker\.js\?v=20\.1\.2/);
  assert.match(sw,/two-device-20\.1\.2/);

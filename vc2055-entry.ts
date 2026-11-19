@@ -11,6 +11,7 @@ import {inspectPlayerBoxscore} from './state/player-boxscore';
 import {mountPlayerBoxscore} from './state/player-boxscore-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
+import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
 export {inspectCodeShape,compareNativeCode} from './domain/code-grammar';
 export {verifyRallyScore,auditMatchScores} from './domain/scoring';
 export {nextRotation,projectPoint} from './domain/rotation';
@@ -21,6 +22,9 @@ export {createRallyTransactionPilot} from './domain/rally-transaction-pilot';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
+export {reportDeviceValidation,parseDeviceValidation,compareDeviceValidation}
+ from './domain/multi-device-validation';
+export {installMultiDeviceAPI,mountMultiDevicePanel};
 export {mountRallyShadowPanel};
 export {attackEfficiency,sideOutBreakPoint} from './domain/statistics';
 export {inspectSubstitution} from './domain/substitutions';
@@ -36,7 +40,8 @@ export {inspectPlayerBoxscore,mountPlayerBoxscore};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
- const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);};
+ installMultiDeviceAPI(window);
+ const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 }
