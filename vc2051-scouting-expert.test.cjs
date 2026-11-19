@@ -37,7 +37,7 @@ test('native parser cannot mutate caller input via the preview',()=>{
  assert.equal(JSON.stringify(match),before);
 });
 test('module loads after existing registrar and does not replace it',()=>{
- assert.ok(html.includes('231-vc2051-scouting-expert.js?v=20.5.1'));
+ assert.ok(html.includes('231-vc2051-scouting-expert.js?v=20.5.34'));
  assert.ok(sw.includes("'./231-vc2051-scouting-expert.js'"));
  for(const forbidden of ['scoutPushAction(', 'v857RegisterRaw(', 'scoutSave(', 'awardPoint(', 'cloudClient.', 'localStorage.', 'indexedDB.'])
   assert.ok(!code.includes(forbidden),forbidden);

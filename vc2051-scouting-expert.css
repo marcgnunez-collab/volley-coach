@@ -1,5 +1,7 @@
 #scout-match-mode .vc2051-preflight{display:flex;align-items:start;gap:7px;border:1px solid #d2e0ed;border-radius:7px;background:#f8fbfe;padding:7px 9px;margin:5px 0;color:#35516e;font:600 11px/1.35 system-ui,sans-serif;overflow-wrap:anywhere}
 #scout-match-mode .vc2051-preflight .vc2051-indicator{flex:0 0 8px;height:8px;margin-top:3px;border-radius:50%;background:#91a7bc}
+#scout-match-mode .vc2051-preflight .vc2051-message{flex:1;min-width:0}
+#scout-match-mode .vc2051-preflight .vc2051-engine{flex:none;font:800 9px/1.25 system-ui,sans-serif;color:#416b94;border:1px solid #c5d8e8;background:#fff;border-radius:4px;padding:2px 4px;white-space:nowrap}
 #scout-match-mode .vc2051-preflight[data-state="ok"]{background:#edf8f0;border-color:#b9dfc5;color:#206540}
 #scout-match-mode .vc2051-preflight[data-state="ok"] .vc2051-indicator{background:#29a065}
 #scout-match-mode .vc2051-preflight[data-state="error"]{background:#fff4f3;border-color:#e9c2bd;color:#9a372c}

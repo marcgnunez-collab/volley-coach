@@ -1,4 +1,4 @@
-/* Volley Coach V20.5.1 · Scouting Expert preflight.
+/* Volley Coach V20.5.1 · Scouting Expert preflight; V20.5.34 TypeScript classification.
  * No writing, parsing replacement, scoreboard changes or cloud traffic.
  * The existing native code registrar remains the only action writer.
  */
@@ -22,7 +22,9 @@
  const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const label=x=>String(x??'').slice(0,180);
  const byId=id=>root?.document?.getElementById(id)||null;
- function inspect(raw,match,nativeParser){
+ const classification={typed:0,classic:0,differences:0,errors:0,nativeCalls:0};
+ let lastEngine='classic';
+ function inspectLegacy(raw,match,nativeParser){
   const code=clean(raw);
   if(!code)return {state:'idle',message:'Escribe un código: 7A# · 3R+ · R12S=.',code};
   if(code.length>140)return {state:'error',message:'Código demasiado largo para previsualizar.',code};
@@ -54,6 +56,31 @@
      playerNumberSnapshot:a.playerNumberSnapshot??'',startZone:a.startZone||'',endZone:a.endZone||''})};
   }catch(_){return {state:'warning',message:'No se pudo comprobar el borrador. El registro original sigue disponible.',code,summary};}
  }
+ function typedBridge(){
+  const bridge=root?.VC_SCOUT_PREFLIGHT_20534;
+  return bridge?.VERSION==='20.5.34'&&bridge?.previewOnly===true&&typeof bridge.classify==='function'?bridge:null;
+ }
+ function inspect(raw,match,nativeParser){
+  const bridge=typedBridge();
+  if(!bridge){lastEngine='classic';classification.classic++;return inspectLegacy(raw,match,nativeParser);}
+  // Capture the one result already requested by the classic preview. TS never
+  // invokes the native parser a second time, so live previews remain safe.
+  let nativeResult,parserThrew=false;
+  const captured=typeof nativeParser==='function'?(code,current,old)=>{
+   classification.nativeCalls++;
+   try{nativeResult=nativeParser(code,current,old);return nativeResult;}
+   catch(error){parserThrew=true;throw error;}
+  }:nativeParser;
+  const fallback=inspectLegacy(raw,match,captured);
+  try{
+   const typed=bridge.classify(raw,!!match,match?.status,typeof nativeParser==='function',nativeResult,parserThrew);
+   if(JSON.stringify(typed)===JSON.stringify(fallback)){
+    lastEngine='typescript';classification.typed++;return typed;
+   }
+   classification.differences++;
+  }catch(_){classification.errors++;}
+  lastEngine='classic';classification.classic++;return fallback;
+ }
  function mount(){
   const doc=root?.document,view=byId('scout-match-mode');
   if(!doc||!view)return false;
@@ -61,7 +88,7 @@
    const input=byId(id);if(!input||byId('vc2051-'+id))continue;
    const host=doc.createElement('div');host.id='vc2051-'+id;host.className='vc2051-preflight';
    host.setAttribute('role','status');host.setAttribute('aria-live','polite');
-   host.innerHTML='<span class="vc2051-indicator"></span><span class="vc2051-message">Previsualización antes de registrar</span>';
+   host.innerHTML='<span class="vc2051-indicator"></span><span class="vc2051-message">Previsualización antes de registrar</span><small class="vc2051-engine">Clásico</small>';
    const row=input.closest('.v800-code-row, .v113-video-code-row')||input.parentElement;
    row?.insertAdjacentElement('afterend',host);
   }
@@ -88,6 +115,9 @@
     if(!input||!status)continue;
     const result=inspect(input.value,match,parser);
     status.dataset.state=result.state;
+    status.dataset.vc20534Engine=lastEngine;
+    const engine=status.querySelector('.vc2051-engine');
+    if(engine)engine.textContent=lastEngine==='typescript'?'TypeScript':'Clásico';
     status.querySelector('.vc2051-message').textContent=result.summary?`${result.summary} · ${result.message}`:result.message;
     // Publish a bounded preflight fact, not a scouting action. Only complete
     // head drafts are relevant; reset the dedupe key when an input is emptied.
@@ -125,5 +155,6 @@
   if(typeof root.scoutOpenSubstitution==='function'){root.scoutOpenSubstitution();return true;}
   return false;
  }
- return {VERSION,inspect,mount,openSubstitution};
+ function diagnostics(){return {version:VERSION,lastEngine,classification:{...classification}};}
+ return {VERSION,inspect,mount,openSubstitution,diagnostics};
 });
