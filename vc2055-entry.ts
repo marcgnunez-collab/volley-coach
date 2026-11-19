@@ -20,6 +20,7 @@ import {installRallySearchViewBridge} from './state/rally-search-view-runtime';
 import {installRallySearchControls} from './state/rally-search-controls';
 import {installScoutingDraftBridge} from './state/scouting-speed-draft-runtime';
 import {installScoutingPreflightBridge} from './state/scouting-preflight-runtime';
+import {installRegistrationGuardBridge} from './domain/scout-registration-guard-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -74,11 +75,14 @@ export {inspectScoutingSequence,MAX_SEQUENCE_CHARACTERS,MAX_SEQUENCE_CONTACTS}
 export {installScoutingDraftBridge};
 export {classifyScoutingPreflight} from './state/scouting-preflight';
 export {installScoutingPreflightBridge};
+export {inspectRegistrationConditions} from './domain/scout-registration-guard';
+export {installRegistrationGuardBridge};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
  installScoutingDraftBridge(window);
  installScoutingPreflightBridge(window);
+ installRegistrationGuardBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

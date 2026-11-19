@@ -4087,12 +4087,34 @@ function v857Preprocess(raw){
   return String(raw||'').trim();
 }
 
+/* V20.5.35 · The original writer still owns every command and score change.
+   TypeScript may decide ONLY the same three precondition messages, after a
+   strict agreement check. Missing/failed/differing modules use native text. */
+const v857GuardStats={typed:0,classic:0,differences:0,exceptions:0};
+function v857CheckedGuard(nativeError,conditions){
+  try{
+    const api=window.VC_SCOUT_REG_GUARD_20535;
+    if(api?.VERSION==='20.5.35'&&api?.preconditionsOnly===true&&typeof api.inspect==='function'){
+      const outcome=api.inspect(conditions);
+      if(outcome===nativeError){v857GuardStats.typed++;return outcome;}
+      v857GuardStats.differences++;
+    }
+  }catch(_){v857GuardStats.exceptions++;}
+  v857GuardStats.classic++;return nativeError;
+}
+window.VC_SCOUT_REG_GUARD_DIAGNOSTICS_20535=()=>Object.freeze({...v857GuardStats});
+
 function v857RegisterRaw(raw,m=scoutActive()){
   raw=v857Preprocess(raw);
-  if(!raw)return {ok:false,error:'Código vacío.'};
-  if(!m||m.status==='finished')return {ok:false,error:'No hay un scouting activo.'};
+  if(!raw)return {ok:false,error:v857CheckedGuard('Código vacío.',
+    {hasCode:false,hasMatch:!!m,matchFinished:false,hasSet:false,setFinished:false})};
+  if(!m||m.status==='finished')return {ok:false,error:v857CheckedGuard('No hay un scouting activo.',
+    {hasCode:true,hasMatch:!!m,matchFinished:!!m,hasSet:false,setFinished:false})};
   const s=scoutSet(m);
-  if(!s||s.finished)return {ok:false,error:'El set está cerrado.'};
+  const setFinished=!!s&&!!s.finished;
+  const guard=v857CheckedGuard(!s||setFinished?'El set está cerrado.':null,
+    {hasCode:true,hasMatch:true,matchFinished:false,hasSet:!!s,setFinished});
+  if(guard)return {ok:false,error:guard};
 
   const before=v857LiveCount(m);
   const parsed=scoutV6108ParseRaw(raw,m,null);
