@@ -12,6 +12,16 @@ const script=fs.readFileSync(path.join(root,'index.html'),'utf8').match(/<script
 assert.ok(script,'must exercise the production CAS writer');
 const clone=x=>JSON.parse(JSON.stringify(x));
 const state=value=>({equiposData:{cadete:{jugadores:[{id:'p1',number:7,value}],scoutingMatches:[]}},updatedAt:'2026-11-16T08:00:00.000Z'});
+const scoutingState=points=>{
+ const snapshot=state(points);
+ snapshot.equiposData.cadete.scoutingMatches=[{
+  id:12345,status:'live',currentSet:1,servingTeam:'ours',rotationNo:1,opponentRotationNo:2,
+  lineup:{ours:{p1:1},opponent:{p1:11}},baseLineup:{ours:{p1:1},opponent:{p1:11}},
+  lineupRoles:{},libero:{},sets:[{number:1,scoreUs:points,scoreOpponent:0,rallies:[],finished:false}],
+  liveRally:{id:98,actions:[]}
+ }];
+ return snapshot;
+};
 const storage=seed=>{const map=new Map(Object.entries(seed||{}));return {getItem:key=>map.has(key)?map.get(key):null,setItem:(key,v)=>map.set(key,String(v)),removeItem:key=>map.delete(key)};};
 function journalStore(){
  const map=new Map();return {list:async()=>[...map.values()].map(clone),put:async r=>{map.set(r.id,clone(r));},removeMany:async ids=>{ids.forEach(id=>map.delete(id));}};
@@ -77,7 +87,10 @@ function device(server,{local=state(0),stamp='',noApplier=false,throwsOnApply=fa
   localStorage:values,sessionStorage:storage(),cloudClient:server.client(),cloudUser:{id:'same-user'},cloudApplying:false,
   estadoLocal:()=>clone(current),setCloudUI(){},setTimeout(){return 1},clearTimeout(){},setInterval(){},alert(){}};
  vm.runInNewContext(script,env,{timeout:3000});
- return {api:win.VC_V962_CLOUD_EFFICIENT,journal:j,win,read:()=>clone(current),edit:v=>{current=state(v);win.VC_V962_CLOUD_EFFICIENT.markDirty('edit')},getBaseline:()=>clone(baseline)};
+ return {api:win.VC_V962_CLOUD_EFFICIENT,journal:j,win,read:()=>clone(current),
+  edit:v=>{current=state(v);win.VC_V962_CLOUD_EFFICIENT.markDirty('edit')},
+  replaceState:s=>{current=clone(s);win.VC_V962_CLOUD_EFFICIENT.markDirty('scouting-test')},
+  getBaseline:()=>clone(baseline)};
 }
 
 test('successful and failed reads produce distinct telemetry; errors do not claim a delivered version',async()=>{
@@ -160,6 +173,80 @@ test('offline edit on B remains pending and is not marked received after A syncs
  assert.equal(await b.api.sync({reason:'manual',bypassBackoff:true}),false);
  assert.equal(server.row.state.equiposData.cadete.jugadores[0].value,11);
  assert.equal(b.read().equiposData.cadete.jugadores[0].value,22);
+ assert.equal(b.api.diagnostics().dirty,true);
+});
+
+test('recovery checkpoint-before on A, confirmed CAS on A and actual apply on B remain separate evidence',async()=>{
+ const {inspectJournalRecovery}=await import('../vc2055-domain-core.mjs');
+ const stamp='2026-11-16T10:00:00.000Z',before=scoutingState(0),after=scoutingState(1);
+ const server=new CasServer({state:before,updated_at:stamp});
+ const a=device(server,{local:before,stamp}),b=device(server,{local:before,stamp});
+ await a.journal.prepare({accountId:'same-user',state:before,revision:0,mode:'draft'});
+ a.replaceState(after);
+ const comparison=await inspectJournalRecovery({journal:a.journal,accountId:'same-user',
+  teamId:'cadete',matchId:12345,before:before.equiposData.cadete.scoutingMatches[0],
+  after:after.equiposData.cadete.scoutingMatches[0]});
+ assert.equal(comparison.status,'checkpoint-before');
+ assert.equal(comparison.autoResumeAllowed,false,'pending journal cannot confirm delivery');
+ const notYet=v2012.compareReports(
+  v2012.report({cloud:a.api.diagnostics(),journal:await a.journal.inspect('same-user')}),
+  v2012.report({cloud:b.api.diagnostics(),journal:await b.journal.inspect('same-user')}));
+ assert.equal(notYet.status,'review');
+ assert.equal(await a.api.sync({reason:'manual',bypassBackoff:true}),true);
+ assert.equal(server.row.state.equiposData.cadete.scoutingMatches[0].sets[0].scoreUs,1);
+ assert.equal((await a.journal.inspect('same-user')).pendingCount,0);
+ assert.equal(await b.api.sync({reason:'manual',pullOnly:true,allowWrite:false,bypassBackoff:true}),true);
+ assert.equal(b.read().equiposData.cadete.scoutingMatches[0].sets[0].scoreUs,1);
+ assert.equal(server.writes,1,'only A writes to the CAS owner');
+ const confirmed=v2012.compareReports(
+  v2012.report({cloud:a.api.diagnostics(),journal:await a.journal.inspect('same-user')}),
+  v2012.report({cloud:b.api.diagnostics(),journal:await b.journal.inspect('same-user')}));
+ assert.equal(confirmed.status,'matched');
+});
+
+test('device B divergent offline scout remains pending after A CAS win without a second cloud write',async()=>{
+ const {inspectJournalRecovery}=await import('../vc2055-domain-core.mjs');
+ const stamp='2026-11-16T10:00:00.000Z',initial=scoutingState(0),
+  aState=scoutingState(1),bState=scoutingState(2);
+ const server=new CasServer({state:initial,updated_at:stamp});
+ const a=device(server,{local:initial,stamp}),b=device(server,{local:initial,stamp});
+ a.replaceState(aState);b.replaceState(bState);
+ // Simulate the already-committed rolling draft made by the original
+ // browser journal before the offline edit is submitted for CAS.
+ await b.journal.prepare({accountId:'same-user',state:bState,revision:1,mode:'draft'});
+ assert.equal(await a.api.sync({reason:'manual',bypassBackoff:true}),true);
+ assert.equal(await b.api.sync({reason:'manual',bypassBackoff:true}),false);
+ assert.equal(server.row.state.equiposData.cadete.scoutingMatches[0].sets[0].scoreUs,1);
+ assert.equal(b.read().equiposData.cadete.scoutingMatches[0].sets[0].scoreUs,2);
+ assert.ok((await b.journal.inspect('same-user')).pendingCount>=1);
+ const inspection=await inspectJournalRecovery({journal:b.journal,accountId:'same-user',
+  teamId:'cadete',matchId:12345,before:initial.equiposData.cadete.scoutingMatches[0],
+  after:bState.equiposData.cadete.scoutingMatches[0]});
+ assert.equal(inspection.status,'checkpoint-after');
+ assert.equal(inspection.autoResumeAllowed,false,'a pending B copy is not remote receipt');
+ const result=v2012.compareReports(
+  v2012.report({cloud:a.api.diagnostics(),journal:await a.journal.inspect('same-user')}),
+  v2012.report({cloud:b.api.diagnostics(),journal:await b.journal.inspect('same-user')}));
+ assert.equal(result.status,'review');
+});
+
+test('an immediate conflict without a checkpoint remains unverified, never called recoverable',async()=>{
+ const {inspectJournalRecovery}=await import('../vc2055-domain-core.mjs');
+ const stamp='2026-11-16T10:00:00.000Z',initial=scoutingState(0),
+  bState=scoutingState(2);
+ const server=new CasServer({state:initial,updated_at:stamp});
+ const a=device(server,{local:initial,stamp}),b=device(server,{local:initial,stamp});
+ a.replaceState(scoutingState(1));b.replaceState(bState);
+ await a.api.sync({reason:'manual',bypassBackoff:true});
+ assert.equal(await b.api.sync({reason:'manual',bypassBackoff:true}),false);
+ // This harness has no debounced noteDirty timer. Without a committed draft,
+ // a conflict does NOT magically create a recovery copy.
+ assert.equal((await b.journal.inspect('same-user')).pendingCount,0);
+ const result=await inspectJournalRecovery({journal:b.journal,accountId:'same-user',
+  teamId:'cadete',matchId:12345,before:initial.equiposData.cadete.scoutingMatches[0],
+  after:bState.equiposData.cadete.scoutingMatches[0]});
+ assert.equal(result.status,'no-checkpoint');
+ assert.equal(result.autoResumeAllowed,false);
  assert.equal(b.api.diagnostics().dirty,true);
 });
 

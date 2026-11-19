@@ -1,0 +1,59 @@
+name: Volley Coach · Recuperación y navegador real
+
+on:
+  push:
+    paths:
+      - ".github/workflows/volley-coach-recovery.yml"
+      - "src/**"
+      - "test-audit/**"
+      - "vc205*.test.cjs"
+      - "vc2055-domain-core.mjs"
+      - "index.html"
+      - "service-worker.js"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: volley-coach-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  foundation-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Instalar dependencias bloqueadas
+        run: npm ci
+      - name: TypeScript, Vite y pruebas de arquitectura
+        run: npm run test:foundation
+      - name: Diario duradero, conflictos CAS y dos dispositivos simulados
+        run: >-
+          node --test
+          test-audit/v2012-multi-device-validation.test.cjs
+          test-audit/v2001-sync-engine-reliability.test.cjs
+          test-audit/v2011-durable-sync-journal.test.cjs
+          test-audit/v19320-compatibility-final-audit.test.cjs
+      - name: Exigir navegador Chromium o Chrome instalado
+        shell: bash
+        run: |
+          BROWSER_BIN="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$BROWSER_BIN" ]; then
+            echo "::error::No hay Chrome o Chromium disponible. No se puede declarar aprobado el ensayo de IndexedDB."
+            exit 1
+          fi
+          echo "VC_CHROMIUM=$BROWSER_BIN" >> "$GITHUB_ENV"
+      - name: IndexedDB real y cierre forzoso de Chromium
+        env:
+          VC_BROWSER_REQUIRED: "1"
+        run: npm run test:browser-recovery

@@ -11,7 +11,9 @@ const path=require('node:path');
 const http=require('node:http');
 const {spawn}=require('node:child_process');
 const ROOT=path.resolve(__dirname,'..');
-const CHROMIUM=[process.env.VC_CHROMIUM,'/usr/bin/chromium','/usr/bin/chromium-browser','/usr/bin/google-chrome']
+const REQUIRED=process.env.VC_BROWSER_REQUIRED==='1';
+const CHROMIUM=[process.env.VC_CHROMIUM,'/usr/bin/chromium','/usr/bin/chromium-browser',
+ '/usr/bin/google-chrome','/usr/bin/google-chrome-stable']
  .find(file=>file&&fs.existsSync(file));
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const fixtures={
@@ -56,7 +58,8 @@ async function socket(url){
 async function launch(profile,origin){
  const flags=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage',
   '--no-first-run','--no-default-browser-check','--disable-background-networking',
-  '--disable-extensions','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'];
+  '--disable-extensions','--remote-debugging-port=0','--remote-debugging-address=127.0.0.1',
+  '--remote-allow-origins=*','--user-data-dir='+profile,'about:blank'];
  const processChild=spawn(CHROMIUM,flags,{detached:true,stdio:['ignore','ignore','pipe']});
  let stderr='';
  processChild.stderr.on('data',chunk=>{stderr=(stderr+String(chunk)).slice(-3000);});
@@ -115,7 +118,8 @@ async function serve(){
 }
 
 test('real IndexedDB checkpoint survives SIGKILL and a second Chromium process inspects it read-only',
- {skip:!CHROMIUM,timeout:80000},async t=>{
+ {skip:!CHROMIUM&&!REQUIRED,timeout:80000},async t=>{
+  if(!CHROMIUM)throw Error('VC_BROWSER_REQUIRED: Chrome/Chromium no está instalado.');
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),'vc20519-idb-'));
   const httpServer=await serve();
   let first=null,second=null;
@@ -123,7 +127,7 @@ test('real IndexedDB checkpoint survives SIGKILL and a second Chromium process i
    const data=JSON.stringify(fixtures);
    try{first=await launch(profile,httpServer.origin);}
    catch(error){
-    if(/socket\(\) failed: Operation not permitted|Operation not permitted.*socket/i.test(String(error.message))){
+    if(!REQUIRED&&/socket\(\) failed: Operation not permitted|Operation not permitted.*socket/i.test(String(error.message))){
      t.skip('Chromium bloqueado por restricciones del entorno (socket EPERM); prueba real pendiente.');
      return;
     }
