@@ -9,6 +9,7 @@ import {inspectLiveSetStatistics} from './state/live-statistics';
 import {mountLiveStatisticsPanel} from './state/live-statistics-runtime';
 import {inspectPlayerBoxscore} from './state/player-boxscore';
 import {mountPlayerBoxscore} from './state/player-boxscore-runtime';
+import {createScoutingProjectionStore,mountScoutingProjectionStore} from './state/scouting-projections';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -37,11 +38,12 @@ export {mountGrammarPanel};
 export {mountObservablePanel,createObservableMatchStore,projectObservableMatch};
 export {inspectLiveSetStatistics,mountLiveStatisticsPanel};
 export {inspectPlayerBoxscore,mountPlayerBoxscore};
+export {createScoutingProjectionStore,mountScoutingProjectionStore};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
  installMultiDeviceAPI(window);
- const start=()=>{mountObservablePanel(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);};
+ const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 }

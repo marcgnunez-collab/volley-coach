@@ -4,6 +4,7 @@
 import {inspectLiveSetStatistics,type LiveSetStatistics} from './live-statistics';
 import type {ObservableWindow} from './match-observable';
 import {readCanonicalMatch} from './match-state-contract';
+import type {ScoutingProjectionWindow} from './scouting-projections';
 
 interface LiveStatisticsAPI{
  readonly version:'20.5.10';
@@ -12,7 +13,7 @@ interface LiveStatisticsAPI{
  refresh:()=>Readonly<LiveSetStatistics>;
  dispose:()=>void;
 }
-type LiveWindow=ObservableWindow&{VC_LIVE_STATS_20510?:Readonly<LiveStatisticsAPI>};
+type LiveWindow=ObservableWindow&ScoutingProjectionWindow&{VC_LIVE_STATS_20510?:Readonly<LiveStatisticsAPI>};
 
 export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatisticsAPI>|null{
  const doc=win.document,host=doc.getElementById('vc20510-live-stats'),workspace=doc.getElementById('scout-workspace-v900'),
@@ -57,23 +58,26 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
   setValue('attack',percentage(a.efficiencyPct),`${a.kills} puntos · ${a.errors+a.blocked} errores/bloqueos · ${a.attempts} intentos${liveAttack?' · PROVISIONAL':''}`);
   open.textContent=`Rally abierto: ${data.provisional.actions} acciones · ${data.provisional.receptions} recepciones · ${data.provisional.attacks} ataques (sin cerrar)`;
  };
- const refresh=()=>{
-  const next=inspectLiveSetStatistics(readCanonicalMatch(win));report=next;
+ const readReport=(force=false)=>{
+  const shared=win.VC_SCOUT_PROJECTIONS_20522;
+  if(force)shared?.invalidate();
+  const next=shared?shared.getLiveStatistics():inspectLiveSetStatistics(readCanonicalMatch(win));report=next;
   if(visible())render(next);
   return next;
  };
+ const refresh=()=>readReport(true);
  const schedule=()=>{
   if(disposed||pending||!visible())return;
   pending=true;
-  Promise.resolve().then(()=>{pending=false;if(!disposed&&visible())refresh();});
+  Promise.resolve().then(()=>{pending=false;if(!disposed&&visible())readReport();});
  };
  const unsubscribe=store.subscribe('change',schedule);
  const observer=typeof MutationObserver==='function'?new MutationObserver(()=>{
-  if(visible())refresh();
+  if(visible())readReport();
  }):null;
  observer?.observe(workspace,{attributes:true,attributeFilter:['class']});
  observer?.observe(phase,{attributes:true,attributeFilter:['class']});
- if(visible())refresh();
+ if(visible())readReport();
  const api:Readonly<LiveStatisticsAPI>=Object.freeze({version:'20.5.10',readOnly:true,getReport:()=>report,refresh,
   dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();host.replaceChildren();report=null;
    if(win.VC_LIVE_STATS_20510===api)delete win.VC_LIVE_STATS_20510;}

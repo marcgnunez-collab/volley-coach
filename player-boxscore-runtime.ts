@@ -5,6 +5,7 @@ import {inspectPlayerBoxscore,type BoxscoreFilters,type PlayerBoxscore} from './
 import type {Rotation,Team} from '../domain/model';
 import type {ObservableWindow} from './match-observable';
 import {readCanonicalMatch} from './match-state-contract';
+import type {ScoutingProjectionWindow} from './scouting-projections';
 
 interface PlayerBoxscoreAPI{
  readonly version:'20.5.11';readonly readOnly:true;
@@ -12,7 +13,7 @@ interface PlayerBoxscoreAPI{
  refresh:()=>Readonly<PlayerBoxscore>;
  dispose:()=>void;
 }
-type BoxscoreWindow=ObservableWindow&{VC_PLAYER_BOXSCORE_20511?:Readonly<PlayerBoxscoreAPI>};
+type BoxscoreWindow=ObservableWindow&ScoutingProjectionWindow&{VC_PLAYER_BOXSCORE_20511?:Readonly<PlayerBoxscoreAPI>};
 
 export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreAPI>|null{
  const doc=win.document,host=doc.getElementById('vc20511-boxscore'),workspace=doc.getElementById('scout-workspace-v900'),
@@ -89,27 +90,31 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
   }
   rotationWrap.replaceChildren(rotations.grid);
  };
- const refresh=()=>{
+ const readReport=(force=false)=>{
   const filters:BoxscoreFilters={team:team.value==='opponent'?'opponent':'ours' as Team,
    scope:scope.value==='match'?'match':'current',
    rotation:/^[1-6]$/.test(rotation.value)?Number(rotation.value) as Rotation:null};
-  const next=inspectPlayerBoxscore(readCanonicalMatch(win),filters);report=next;
+  const shared=win.VC_SCOUT_PROJECTIONS_20522;
+  if(force)shared?.invalidate();
+  const next=shared?shared.getPlayerBoxscore(filters):inspectPlayerBoxscore(readCanonicalMatch(win),filters);report=next;
   if(visible())render(next);
   return next;
  };
+ const refresh=()=>readReport(true);
  const schedule=()=>{
   if(disposed||pending||!visible())return;
-  pending=true;Promise.resolve().then(()=>{pending=false;if(!disposed&&visible())refresh();});
+  pending=true;Promise.resolve().then(()=>{pending=false;if(!disposed&&visible())readReport();});
  };
  const unsubscribe=store.subscribe('change',schedule);
- for(const select of [team,scope,rotation])select.addEventListener('change',refresh);
- const observer=typeof MutationObserver==='function'?new MutationObserver(()=>{if(visible())refresh();}):null;
+ const onFilterChange=()=>readReport();
+ for(const select of [team,scope,rotation])select.addEventListener('change',onFilterChange);
+ const observer=typeof MutationObserver==='function'?new MutationObserver(()=>{if(visible())readReport();}):null;
  observer?.observe(workspace,{attributes:true,attributeFilter:['class']});
  observer?.observe(phase,{attributes:true,attributeFilter:['class']});
- if(visible())refresh();
+ if(visible())readReport();
  const api:Readonly<PlayerBoxscoreAPI>=Object.freeze({version:'20.5.11',readOnly:true,getReport:()=>report,refresh,
   dispose(){if(disposed)return;disposed=true;observer?.disconnect();unsubscribe();
-   for(const select of [team,scope,rotation])select.removeEventListener('change',refresh);
+   for(const select of [team,scope,rotation])select.removeEventListener('change',onFilterChange);
    host.replaceChildren();report=null;
    if(win.VC_PLAYER_BOXSCORE_20511===api)delete win.VC_PLAYER_BOXSCORE_20511;}
  });
