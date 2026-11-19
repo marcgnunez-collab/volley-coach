@@ -2,6 +2,7 @@
  * Does not observe or write the match, cloud, IndexedDB or scouting editor.
  */
 import {queryRallies,type SearchData,type SearchFilters,type SearchResult} from './analysis-query';
+import type {AnalysisNormalizeWindow} from './analysis-normalize-runtime';
 
 export interface AnalysisQueryDiagnostics{
  readonly readOnly:true;
@@ -19,7 +20,7 @@ export interface AnalysisQueryBridge{
  query:(data:SearchData|null|undefined,filters?:SearchFilters)=>SearchResult;
  diagnostics:()=>Readonly<AnalysisQueryDiagnostics>;
 }
-type AnalysisQueryWindow=Window&{VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>};
+type AnalysisQueryWindow=Window&AnalysisNormalizeWindow&{VC_ANALYSIS_QUERY_20523?:Readonly<AnalysisQueryBridge>};
 export interface QueryPerformancePanel{
  readonly readOnly:true;
  readonly refresh:()=>void;
@@ -66,21 +67,29 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
  };
  const section=node('section','vc20523-query-metrics');section.id='vc20523-query-metrics';
  const heading=node('div','vc20523-heading'),title=node('div');
- title.append(node('small','','V20.5.23 · ANÁLISIS'),node('h3','','Rendimiento de búsquedas tácticas'));
+ title.append(node('small','','V20.5.24 · ANÁLISIS'),node('h3','','Rendimiento de normalización y búsquedas'));
  heading.append(title,node('span','','Solo lectura'));
  const description=node('p','',
-  'Medición local de la consulta del buscador de rallies. No incluye vídeo, descarga, renderizado ni sincronización.');
+  'Mediciones locales de normalización y búsqueda táctica. No incluyen vídeo, descarga, renderizado ni sincronización.');
  const metrics=node('div','vc20523-values'),values=new Map<string,HTMLElement>();
  for(const [key,label] of [['queries','Consultas'],['last','Última'],['average','Media'],
   ['max','Máxima'],['slow','Más de 16 ms'],['failures','Errores']]){
   const box=node('div');box.append(node('small','',label));
   const value=node('strong','','—');box.append(value);metrics.append(box);values.set(key,value);
  }
+ const normalizeHeading=node('h4','vc20524-subheading','Normalización del Data Engine');
+ const normalizationMetrics=node('div','vc20523-values'),normalizedValues=new Map<string,HTMLElement>();
+ for(const [key,label] of [['normalizations','Normalizaciones'],['last','Última'],['average','Media'],
+  ['max','Máxima'],['slow','Más de 16 ms'],['failures','Errores']]){
+  const box=node('div');box.append(node('small','',label));
+  const value=node('strong','','—');box.append(value);normalizationMetrics.append(box);normalizedValues.set(key,value);
+ }
  const refreshButton=node('button','vc20523-refresh','Actualizar medición') as HTMLButtonElement;
  refreshButton.type='button';
  const note=node('p','vc20523-note',
-  'El umbral de 16 ms es orientativo, no garantiza velocidad de respuesta en un partido real. Las búsquedas guardadas siguen en el módulo anterior.');
- section.append(heading,description,metrics,refreshButton,note);
+  'El umbral de 16 ms es orientativo: no garantiza respuesta en tiempo real. No se guardan códigos, nombres, partidos ni resultados en este diagnóstico.');
+ section.append(heading,description,node('h4','vc20524-subheading','Búsqueda táctica'),metrics,
+  normalizeHeading,normalizationMetrics,refreshButton,note);
  const anchor=doc.getElementById(performance?'vc60-stat-grid':'vc2059-observable');
  if(anchor?.parentNode===container)anchor.insertAdjacentElement('afterend',section);
  else container.append(section);
@@ -93,6 +102,13 @@ export function mountAnalysisQueryPerformance(win:AnalysisQueryWindow):Readonly<
    max:ms(d.maxMs),slow:String(d.slowQueries),failures:String(d.failures)};
   for(const [key,value] of Object.entries(data)){
    const el=values.get(key);if(el&&el.textContent!==value)el.textContent=value;
+  }
+  const n=win.VC_ANALYSIS_NORMALIZE_20524?.diagnostics?.();
+  const normalized={normalizations:String(n?.normalizations??0),last:ms(n?.lastMs??0),
+   average:ms(n?.averageMs??0),max:ms(n?.maxMs??0),
+   slow:String(n?.slowNormalizations??0),failures:String(n?.failures??0)};
+  for(const [key,value] of Object.entries(normalized)){
+   const el=normalizedValues.get(key);if(el&&el.textContent!==value)el.textContent=value;
   }
  };
  refreshButton.addEventListener('click',refresh);refresh();

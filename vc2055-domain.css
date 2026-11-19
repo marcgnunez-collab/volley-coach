@@ -174,6 +174,7 @@
 #v11-management .vc20523-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 #v11-management .vc20523-heading small{font-size:10px;font-weight:850;letter-spacing:.075em;color:#286d9c}
 #v11-management .vc20523-heading h3{margin:3px 0 7px;font-size:17px;color:#153b58}
+#v11-management .vc20524-subheading{font-size:12px;letter-spacing:.02em;color:#2c5b79;margin:12px 0 6px}
 #v11-management .vc20523-heading>span{white-space:nowrap;font-size:10px;font-weight:800;border:1px solid #b6d6c7;background:#e8f6ed;color:#23654d;border-radius:9px;padding:4px 9px}
 #v11-management .vc20523-query-metrics p{margin:6px 0 10px;color:#507088}
 #v11-management .vc20523-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}

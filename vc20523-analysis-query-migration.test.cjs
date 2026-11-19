@@ -167,11 +167,11 @@ test('Gestión has a manually refreshed performance panel with no timers, identi
  assert.ok(panel);assert.equal(panel.readOnly,true);
  assert.strictEqual(mountAnalysisQueryPerformance(win),panel);
  assert.equal(performance.children[1].id,'vc20523-query-metrics');
- assert.equal(performance.children[1].children[2].children[0].children[1].textContent,'0');
+ assert.equal(performance.children[1].children[3].children[0].children[1].textContent,'0');
  query.query(legacyData.normalize(nativeFixture()),{team:'ours'});
  panel.refresh();
- assert.equal(performance.children[1].children[2].children[0].children[1].textContent,'1');
- assert.equal(performance.children[1].children[2].children[1].children[1].textContent,'2.00 ms');
+ assert.equal(performance.children[1].children[3].children[0].children[1].textContent,'1');
+ assert.equal(performance.children[1].children[3].children[1].children[1].textContent,'2.00 ms');
  assert.ok(!JSON.stringify(performance.children[1].textContent).includes('PRIVATE-MATCH'));
  panel.dispose();assert.equal(performance.children.length,1);assert.equal(host.children.length,2);
  assert.ok(mountAnalysisQueryPerformance(win));
@@ -180,9 +180,9 @@ test('Gestión has a manually refreshed performance panel with no timers, identi
 test('V20.5.23 publishes a typed query, stable legacy adapter and no new scoring writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js'),
   entry=read('src/vc2055-entry.ts'),legacy=read('190-vc1939-rally-search-pro.js');
- assert.equal(pkg.version,'20.5.23');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.23'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.23'));
+ assert.equal(pkg.version,'20.5.24');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.24'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.24'));
  assert.ok(sw.includes('analysis-query-migration-20.5.23'));
  assert.ok(entry.includes('installAnalysisQueryBridge(window)'));
  assert.ok(entry.includes('mountAnalysisQueryPerformance(window)'));

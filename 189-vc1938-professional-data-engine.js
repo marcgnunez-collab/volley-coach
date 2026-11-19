@@ -5,10 +5,10 @@
  */
 (function(root,factory){
  'use strict';
- const api=factory();
+ const api=factory(root);
  if(typeof module==='object'&&module.exports)module.exports=api;
  if(root)root.VC_DATA_ENGINE_1938=api;
-})(typeof window!=='undefined'?window:null,function(){
+})(typeof window!=='undefined'?window:null,function(root){
  'use strict';
  const VERSION='19.3.8',SKILLS=new Set(['S','R','E','A','B','D','F','C']);
  const EVALS=new Set(['#','+','!','-','/','=']);
@@ -103,6 +103,17 @@
   }
   return {version:VERSION,matchId,rallies,contacts,possessions,chains,issues,
    count:{rallies:rallies.length,closed:rallies.filter(x=>x.closed).length,contacts:contacts.length,possessions:possessions.length,chains:chains.length}};
+ }
+ // V20.5.24: the exported normalization delegates to the typed Vite engine.
+ // The historic pure function remains a compatible fallback for old deployments.
+ function normalizeCompat(match){
+  try{const typed=root?.VC_ANALYSIS_NORMALIZE_20524;
+   if(typeof typed?.normalize==='function'){
+    const projected=typed.normalize(match);
+    if(projected&&projected.version===VERSION&&Array.isArray(projected.rallies)&&Array.isArray(projected.contacts))return projected;
+   }
+  }catch(_){/* Read-only fallback: no change to original match. */}
+  return normalize(match);
  }
  function filter(data,f={}){
   const target=team(f.team),set=present(f.set)?Number(f.set):null,rotation=present(f.rotation)?Number(f.rotation):null;
@@ -218,5 +229,5 @@
    });
   }
  }
- return {VERSION,SKILLS,EVALS,zone,team,normalize,filter,evaluate,points,coverage,reconcile,toCSV,panelHTML,decorate};
+ return {VERSION,SKILLS,EVALS,zone,team,normalize:normalizeCompat,filter,evaluate,points,coverage,reconcile,toCSV,panelHTML,decorate};
 });

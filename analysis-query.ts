@@ -3,9 +3,8 @@
  * continue owning their projections, presets, video jumps and exports.
  */
 
-type UnknownFields=Readonly<Record<string,unknown>>;
 interface SearchZone{readonly code?:unknown;}
-interface SearchFields extends UnknownFields{
+interface SearchFields{
  readonly attackCode?:unknown;
  readonly specialCode?:unknown;
  readonly startZone?:SearchZone|null;
