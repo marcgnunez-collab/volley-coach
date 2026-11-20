@@ -41,6 +41,7 @@ import {installRallyVideoBoundsBridge} from './domain/scout-rally-video-bounds-r
 import {installMatchFinalizationBridge} from './domain/scout-match-finalization-runtime';
 import {installLiveRallyWriterBridge} from './domain/rally-writer-runtime';
 import {installRallyRecordBridge} from './domain/rally-record-runtime';
+import {installLocalSaveReceiptBridge} from './domain/scout-local-save-receipt-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -54,6 +55,8 @@ export {createRallyTransactionPilot} from './domain/rally-transaction-pilot';
 export {installLiveRallyWriterBridge,RALLY_WRITER_VERSION} from './domain/rally-writer-runtime';
 export {assembleClosedRally,assembleRestoredLiveRally,sameRallyRecord} from './domain/rally-record';
 export {installRallyRecordBridge} from './domain/rally-record-runtime';
+export {classifyLocalSaveReceipt} from './domain/scout-local-save-receipt';
+export {installLocalSaveReceiptBridge} from './domain/scout-local-save-receipt-runtime';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
@@ -165,6 +168,7 @@ if(typeof window!=='undefined'&&window.document){
  installMatchFinalizationBridge(window);
  installLiveRallyWriterBridge(window);
  installRallyRecordBridge(window);
+ installLocalSaveReceiptBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);
