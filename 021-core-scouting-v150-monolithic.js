@@ -1833,6 +1833,83 @@ function v20551SelectVideoOverlay(m,x){
 }
 window.VC_SCOUT_VIDEO_OVERLAY_DIAGNOSTICS_20551=()=>Object.freeze({...v20551VideoOverlayStats,
   videoEnabled:v20551VideoOverlayReady});
+/* V20.5.52 · V8.6.1 manual results now share this match normalizer. */
+let v20552ManualResultReady=false;
+let v20552ManualResultVersion='';
+const v20552ManualResultStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20552NativeManualResult(m,x){
+  const rawSets=scoutArr(m?.sets);
+  const sets=scoutArr(x.sets).map((s,i)=>{
+    const raw=rawSets.find(r=>Number(r?.number)===Number(s.number))||rawSets[i]||{};
+    return {
+      manualFinished:!!raw?.manualFinished,
+      manualFinishedAt:raw?.manualFinishedAt?String(raw.manualFinishedAt):null,
+      manualScorePrevious:raw?.manualScorePrevious&&typeof raw.manualScorePrevious==='object'
+        ? {us:Number(raw.manualScorePrevious.us)||0,opponent:Number(raw.manualScorePrevious.opponent)||0}
+        : null
+    };
+  });
+  const manualFinalResult=m?.manualFinalResult&&typeof m.manualFinalResult==='object'
+    ? {
+        active:!!m.manualFinalResult.active,
+        us:Math.max(0,Number(m.manualFinalResult.us)||0),
+        opponent:Math.max(0,Number(m.manualFinalResult.opponent)||0),
+        savedAt:m.manualFinalResult.savedAt?String(m.manualFinalResult.savedAt):null,
+        finalizedAt:m.manualFinalResult.finalizedAt?String(m.manualFinalResult.finalizedAt):null,
+        clearedAt:m.manualFinalResult.clearedAt?String(m.manualFinalResult.clearedAt):null
+      }
+    : null;
+  return {sets,manualFinalResult};
+}
+function v20552HasAccessor(record){
+  return !!record&&typeof record==='object'&&
+    Object.values(Object.getOwnPropertyDescriptors(record)).some(d=>!('value' in d));
+}
+function v20552ManualResultEqual(a,b){
+  if(!b||typeof b!=='object'||Object.keys(b).length!==2||
+    !Array.isArray(b.sets)||a.sets.length!==b.sets.length)return false;
+  const equal=(left,right,fields)=>{
+    if(left==null||right==null)return left===right;
+    return typeof right==='object'&&Object.keys(right).length===fields.length&&
+      fields.every(field=>Object.prototype.hasOwnProperty.call(right,field)&&
+        Object.is(left[field],right[field]));
+  };
+  for(let i=0;i<a.sets.length;i++){
+    const left=a.sets[i],right=b.sets[i];
+    if(!left&&!right)continue;
+    if(!left||!right||!Object.is(left.manualFinished,right.manualFinished)||
+      !Object.is(left.manualFinishedAt,right.manualFinishedAt)||
+      !equal(left.manualScorePrevious,right.manualScorePrevious,['us','opponent'])||
+      Object.keys(right).length!==3)return false;
+  }
+  return equal(a.manualFinalResult,b.manualFinalResult,
+    ['active','us','opponent','savedAt','finalizedAt','clearedAt']);
+}
+function v20552SelectManualResult(m,x){
+  const native=v20552NativeManualResult(m,x);
+  try{
+    const api=window.VC_SCOUT_MANUAL_RESULT_20552;
+    if(api?.VERSION==='20.5.52'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if(v20552HasAccessor(m)||v20552HasAccessor(x)){
+        v20552ManualResultStats.native++;return native;
+      }
+      const rawSets=scoutArr(m?.sets),normalizedSets=scoutArr(x.sets);
+      if(v20552HasAccessor(m?.manualFinalResult)||
+        rawSets.some(s=>v20552HasAccessor(s)||v20552HasAccessor(s?.manualScorePrevious))||
+        normalizedSets.some(v20552HasAccessor)){
+        v20552ManualResultStats.native++;return native;
+      }
+      const typed=api.normalize(m,x);
+      if(v20552ManualResultEqual(native,typed)){
+        v20552ManualResultStats.typed++;return typed;
+      }
+      v20552ManualResultStats.mismatches++;
+    }
+  }catch(_){v20552ManualResultStats.exceptions++;}
+  v20552ManualResultStats.native++;return native;
+}
+window.VC_SCOUT_MANUAL_RESULT_DIAGNOSTICS_20552=()=>Object.freeze({...v20552ManualResultStats,
+  manualEnabled:v20552ManualResultReady});
 const v6102NormMatchBase=scoutNormalizeMatch;
 scoutNormalizeMatch=function(m){
   const x=v6102NormMatchBase(m);
@@ -1845,6 +1922,17 @@ scoutNormalizeMatch=function(m){
   if(v20551VideoOverlayReady){
     x.dataVersion=v20551VideoOverlayVersion;
     x.video={...x.video,...v20551SelectVideoOverlay(m,x)};
+  }
+  if(v20552ManualResultReady){
+    const overlay=v20552SelectManualResult(m,x);
+    scoutArr(x.sets).forEach((s,i)=>{
+      const fields=overlay.sets[i];
+      s.manualFinished=fields.manualFinished;
+      s.manualFinishedAt=fields.manualFinishedAt;
+      s.manualScorePrevious=fields.manualScorePrevious;
+    });
+    x.manualFinalResult=overlay.manualFinalResult;
+    x.dataVersion=v20552ManualResultVersion;
   }
   return x;
 };
@@ -4932,31 +5020,8 @@ function v861ClearManualResult(m){
 }
 
 /* Preserve manual result metadata through every later normalization/reload. */
-const v861NormBase=scoutNormalizeMatch;
-scoutNormalizeMatch=function(m){
-  const x=v861NormBase(m);
-  const rawSets=scoutArr(m?.sets);
-  scoutArr(x.sets).forEach((s,i)=>{
-    const raw=rawSets.find(r=>Number(r?.number)===Number(s.number))||rawSets[i]||{};
-    s.manualFinished=!!raw?.manualFinished;
-    s.manualFinishedAt=raw?.manualFinishedAt?String(raw.manualFinishedAt):null;
-    s.manualScorePrevious=raw?.manualScorePrevious&&typeof raw.manualScorePrevious==='object'
-      ? {us:Number(raw.manualScorePrevious.us)||0,opponent:Number(raw.manualScorePrevious.opponent)||0}
-      : null;
-  });
-  x.manualFinalResult=m?.manualFinalResult&&typeof m.manualFinalResult==='object'
-    ? {
-        active:!!m.manualFinalResult.active,
-        us:Math.max(0,Number(m.manualFinalResult.us)||0),
-        opponent:Math.max(0,Number(m.manualFinalResult.opponent)||0),
-        savedAt:m.manualFinalResult.savedAt?String(m.manualFinalResult.savedAt):null,
-        finalizedAt:m.manualFinalResult.finalizedAt?String(m.manualFinalResult.finalizedAt):null,
-        clearedAt:m.manualFinalResult.clearedAt?String(m.manualFinalResult.clearedAt):null
-      }
-    : null;
-  x.dataVersion=V861_VERSION;
-  return x;
-};
+v20552ManualResultVersion=V861_VERSION;
+v20552ManualResultReady=true;
 
 /* Result override affects match result only. Technical stats still read actual
    rallies/actions and actual set objects. */

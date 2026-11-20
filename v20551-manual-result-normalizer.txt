@@ -1,0 +1,26 @@
+/* V8.6.1 · Historical manual-result wrapper from V20.5.51. */
+const v861NormBase=scoutNormalizeMatch;
+scoutNormalizeMatch=function(m){
+  const x=v861NormBase(m);
+  const rawSets=scoutArr(m?.sets);
+  scoutArr(x.sets).forEach((s,i)=>{
+    const raw=rawSets.find(r=>Number(r?.number)===Number(s.number))||rawSets[i]||{};
+    s.manualFinished=!!raw?.manualFinished;
+    s.manualFinishedAt=raw?.manualFinishedAt?String(raw.manualFinishedAt):null;
+    s.manualScorePrevious=raw?.manualScorePrevious&&typeof raw.manualScorePrevious==='object'
+      ? {us:Number(raw.manualScorePrevious.us)||0,opponent:Number(raw.manualScorePrevious.opponent)||0}
+      : null;
+  });
+  x.manualFinalResult=m?.manualFinalResult&&typeof m.manualFinalResult==='object'
+    ? {
+        active:!!m.manualFinalResult.active,
+        us:Math.max(0,Number(m.manualFinalResult.us)||0),
+        opponent:Math.max(0,Number(m.manualFinalResult.opponent)||0),
+        savedAt:m.manualFinalResult.savedAt?String(m.manualFinalResult.savedAt):null,
+        finalizedAt:m.manualFinalResult.finalizedAt?String(m.manualFinalResult.finalizedAt):null,
+        clearedAt:m.manualFinalResult.clearedAt?String(m.manualFinalResult.clearedAt):null
+      }
+    : null;
+  x.dataVersion=V861_VERSION;
+  return x;
+};

@@ -154,11 +154,11 @@ test('accessor-backed video inputs stay native with the same getter access count
 
 test('V20.5.51 removes only the V7.0 match wrapper, preserving V7.0 video and score paths',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.51');
+ assert.equal(pkg.version,'20.5.52');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20551-video-overlay-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.51'),file);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.52'),file);
  assert.ok(sw.includes('match-video-overlay-20.5.51'));
  assert.ok(source.includes('const v6102NormMatchBase=scoutNormalizeMatch'));
  assert.ok(!source.includes('const v700NormMatchBase=scoutNormalizeMatch'));
@@ -166,7 +166,8 @@ test('V20.5.51 removes only the V7.0 match wrapper, preserving V7.0 video and sc
  assert.ok(source.includes('v20551VideoOverlayReady=true'));
  assert.ok(source.includes('const v700NormRallyBase=scoutNormalizeRally'));
  assert.ok(source.includes('const v700SaveBase=scoutSave'));
- assert.ok(source.includes('const v861NormBase=scoutNormalizeMatch'));
+ assert.ok(!source.includes('const v861NormBase=scoutNormalizeMatch'));
+ assert.ok(source.includes('v20552ManualResultReady=true'));
  assert.ok(source.includes('const pushed=scoutPushAction(parsed.action)'));
  assert.ok(read('src/vc2055-entry.ts').includes('installMatchVideoOverlayBridge(window)'));
  assert.ok(read('213-vc2021-scouting-speed-pro.js').includes('vc20551VideoOverlay'));
