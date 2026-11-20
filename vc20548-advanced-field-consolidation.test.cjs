@@ -143,11 +143,11 @@ test('coordinate cloning, integer cones and legacy tempos retain native corner c
 
 test('advanced normalizer is published once without replacing the scorer, video or sync writers',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.49');
+ assert.equal(pkg.version,'20.5.50');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20548-advanced-field-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(file+'?v=20.5.49'),file);
+  assert.ok(html.includes(file+'?v=20.5.50'),file);
  assert.ok(sw.includes('advanced-fields-consolidation-20.5.48'));
  assert.ok(source.includes('const v20548NormBase=scoutNormalizeAction'));
  assert.ok(!source.includes('const v870NormalizeBase=scoutNormalizeAction'));

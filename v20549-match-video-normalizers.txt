@@ -1,0 +1,6 @@
+/* V6.9 · Historical workflow normalization from V20.5.49. */
+const v690NormMatchBase=scoutNormalizeMatch;
+scoutNormalizeMatch=function(m){const x=v690NormMatchBase(m);x.workflow=v690NormalizeWorkflow(m?.workflow);x.dataVersion=V690_VERSION;return x};
+
+/* V6.10.0 · Historical video/rally normalization from V20.5.49. */
+const v6100NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v6100NormMatchBase(m);x.dataVersion=V6100_VERSION;x.video={syncOffset:m?.video?.syncOffset==null?null:Number(m.video.syncOffset),source:String(m?.video?.source||''),clips:scoutArr(m?.video?.clips)};scoutArr(x.sets).forEach(s=>scoutArr(s.rallies).forEach(r=>{r.videoStart=r?.videoStart==null?null:Number(r.videoStart);r.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd)}));return x};

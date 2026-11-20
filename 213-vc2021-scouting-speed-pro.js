@@ -250,8 +250,12 @@
   const identityApi=root?.VC_SCOUT_IDENTITY_FIELDS_20549;
   const typedIdentity=identityApi?.VERSION==='20.5.49'&&identityApi?.pureOnly===true;
   dock.dataset.vc20549Identity=typedIdentity?'typescript':'classic';
+  const matchVideoApi=root?.VC_SCOUT_MATCH_VIDEO_20550;
+  const typedMatchVideo=matchVideoApi?.VERSION==='20.5.50'&&matchVideoApi?.pureOnly===true;
+  dock.dataset.vc20550MatchVideo=typedMatchVideo?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity?'Registro, identidad y vídeo · TypeScript · escritura nativa':
+   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo?'Registro y vídeo de partido · TypeScript · escritura nativa':
+     typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity?'Registro, identidad y vídeo · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced?'Registro y códigos avanzados · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical?'Registro, recepción y bloqueo · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize?'Registro y normalización · TypeScript · escritura nativa':

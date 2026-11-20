@@ -4071,31 +4071,52 @@ function di(e) {
 	});
 	return ui.set(e, n), e.VC_SCOUT_IDENTITY_FIELDS_20549 ||= n, n;
 }
+// src/domain/scout-match-video-container.ts
+function fi(e) {
+	let t = e?.video;
+	return {
+		syncOffset: t?.syncOffset == null ? null : Number(t.syncOffset),
+		source: String(t?.source || ""),
+		clips: Array.isArray(t?.clips) ? t.clips : []
+	};
+}
+// src/domain/scout-match-video-container-runtime.ts
+var pi = /* @__PURE__ */ new WeakMap();
+function mi(e) {
+	let t = pi.get(e);
+	if (t) return t;
+	let n = Object.freeze({
+		VERSION: "20.5.50",
+		pureOnly: !0,
+		normalize: fi
+	});
+	return pi.set(e, n), e.VC_SCOUT_MATCH_VIDEO_20550 ||= n, n;
+}
 // src/domain/rally-shadow.ts
-var fi = 40, pi = [
+var hi = 40, gi = [
 	"p1",
 	"p2",
 	"p3",
 	"p4",
 	"p5",
 	"p6"
-], mi = [
+], _i = [
 	"liveVideoSessionId",
 	"liveVideoStart",
 	"liveVideoEnd",
 	"liveVideoLinkedAt"
-], hi = (e, t) => e.us === t.us && e.opponent === t.opponent, Y = (e, t, n = !1) => Object.freeze({
+], vi = (e, t) => e.us === t.us && e.opponent === t.opponent, Y = (e, t, n = !1) => Object.freeze({
 	operation: e,
 	verdict: t.length ? "difference" : n ? "unverified" : "agree",
 	areas: Object.freeze(t.length ? [...t] : n ? ["missing-data"] : [])
-}), gi = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, _i = (t) => {
+}), yi = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, bi = (t) => {
 	let n = e(t), r = e(n?.ours), i = e(n?.opponent);
-	return !!r && !!i && pi.every((e) => Object.hasOwn(r, e) && Object.hasOwn(i, e));
-}, vi = (t, n) => {
+	return !!r && !!i && gi.every((e) => Object.hasOwn(r, e) && Object.hasOwn(i, e));
+}, xi = (t, n) => {
 	let r = e(t), i = e(n), a = e(r?.ours), o = e(i?.ours), s = e(r?.opponent), c = e(i?.opponent);
-	return !!a && !!o && !!s && !!c && pi.every((e) => Object.is(a[e], o[e]) && Object.is(s[e], c[e]));
+	return !!a && !!o && !!s && !!c && gi.every((e) => Object.is(a[e], o[e]) && Object.is(s[e], c[e]));
 };
-function yi(o, s, l) {
+function Si(o, s, l) {
 	let u = e(o), d = e(s), f = e(l), p = [];
 	if (!u || !d || !f) return Y("point", p, !0);
 	let m = a(f);
@@ -4107,12 +4128,12 @@ function yi(o, s, l) {
 		rotationOpponent: f.opponentRotationBefore
 	}, f.winner);
 	if (h.state !== "projected" || !h.score) return Y("point", p, !0);
-	m.state !== "inconsistent" && hi(h.score, m.after) || p.push("score");
+	m.state !== "inconsistent" && vi(h.score, m.after) || p.push("score");
 	let g = i({
 		us: d.scoreUs,
 		opponent: d.scoreOpponent
 	}), _ = !g;
-	g && !hi(g, m.after) && !p.includes("score") && p.push("score");
+	g && !vi(g, m.after) && !p.includes("score") && p.push("score");
 	let v = e(u.liveRally);
 	v && t(v.actions).length === 0 && !e(v.startSnapshot) && (n(u.servingTeam) && u.servingTeam !== h.serving ? p.push("service") : n(u.servingTeam) || (_ = !0), r(u.rotationNo) && r(u.opponentRotationNo) ? (u.rotationNo !== h.rotationUs || u.opponentRotationNo !== h.rotationOpponent) && p.push("rotation") : _ = !0);
 	let y = M(u, m.after);
@@ -4120,7 +4141,7 @@ function yi(o, s, l) {
 	let b = re(f);
 	return (b.lineup === "missing" || b.actionsCaptured === !1) && (_ = !0), Y("point", [...new Set(p)], _);
 }
-var bi = (n, r) => {
+var Ci = (n, r) => {
 	let i = t(r.rallies), a = e(i.at(-1)), o = oe(n);
 	return {
 		match: n,
@@ -4131,26 +4152,26 @@ var bi = (n, r) => {
 		expectedUndo: o.state === "projected" ? o.after : null
 	};
 };
-function xi(t, a, o) {
+function wi(t, a, o) {
 	let s = [], c = e(a.liveRally), l = t.lastRally, u = t.expectedUndo;
 	if (!l || !c || !u || l.id === void 0 || c.id !== l.id) return Y("undo", s, !0);
 	let d = i({
 		us: o.scoreUs,
 		opponent: o.scoreOpponent
 	}), f = !d;
-	d && !hi(d, u.score) && s.push("score"), n(a.servingTeam) ? a.servingTeam !== u.serving && s.push("service") : f = !0, r(a.rotationNo) && r(a.opponentRotationNo) ? (a.rotationNo !== u.rotationUs || a.opponentRotationNo !== u.rotationOpponent) && s.push("rotation") : f = !0, Array.isArray(l.actions) && Array.isArray(c.actions) ? l.actions.length !== c.actions.length && s.push("actions") : f = !0, _i(l.lineupBefore) && _i(a.lineup) ? vi(l.lineupBefore, a.lineup) || s.push("lineup") : f = !0;
-	let p = mi.filter((e) => l[e] !== void 0 && l[e] !== null);
+	d && !vi(d, u.score) && s.push("score"), n(a.servingTeam) ? a.servingTeam !== u.serving && s.push("service") : f = !0, r(a.rotationNo) && r(a.opponentRotationNo) ? (a.rotationNo !== u.rotationUs || a.opponentRotationNo !== u.rotationOpponent) && s.push("rotation") : f = !0, Array.isArray(l.actions) && Array.isArray(c.actions) ? l.actions.length !== c.actions.length && s.push("actions") : f = !0, bi(l.lineupBefore) && bi(a.lineup) ? xi(l.lineupBefore, a.lineup) || s.push("lineup") : f = !0;
+	let p = _i.filter((e) => l[e] !== void 0 && l[e] !== null);
 	return p.length && p.some((e) => !Object.is(l[e], c[e])) && s.push("video"), Y("undo", [...new Set(s)], f);
 }
-function Si() {
-	let t = null, n = !1, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = [], d = (e) => (r++, e.operation === "point" ? i++ : a++, e.verdict === "agree" ? o++ : e.verdict === "difference" ? s++ : c++, e.verdict !== "agree" && (u.push(e), u.length > fi && u.shift()), e);
+function Ti() {
+	let t = null, n = !1, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = [], d = (e) => (r++, e.operation === "point" ? i++ : a++, e.verdict === "agree" ? o++ : e.verdict === "difference" ? s++ : c++, e.verdict !== "agree" && (u.push(e), u.length > hi && u.shift()), e);
 	return Object.freeze({
 		observe(r) {
 			if (n) return null;
-			let i = e(r), a = i && gi(i);
+			let i = e(r), a = i && yi(i);
 			if (!i || !a) return t = null, null;
-			let o = bi(i, a), s = t;
-			return t = o, s ? s.match !== i || s.set !== a ? (l++, null) : o.count === s.count ? null : o.count === s.count + 1 ? d(yi(i, a, o.lastRally)) : o.count === s.count - 1 ? s.lastId === void 0 || e(i.liveRally)?.id !== s.lastId ? (l++, null) : d(xi(s, i, a)) : (l++, null) : null;
+			let o = Ci(i, a), s = t;
+			return t = o, s ? s.match !== i || s.set !== a ? (l++, null) : o.count === s.count ? null : o.count === s.count + 1 ? d(Si(i, a, o.lastRally)) : o.count === s.count - 1 ? s.lastId === void 0 || e(i.liveRally)?.id !== s.lastId ? (l++, null) : d(wi(s, i, a)) : (l++, null) : null;
 		},
 		snapshot: () => Object.freeze({
 			version: "20.5.15",
@@ -4183,11 +4204,11 @@ function Si() {
 	});
 }
 // src/domain/rally-shadow-runtime.ts
-function Ci(e) {
+function Ei(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_SHADOW_20515) return e.VC_SHADOW_20515;
-	let r = Si();
+	let r = Ti();
 	r.observe(w(e));
 	let i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
@@ -4286,35 +4307,35 @@ function Ci(e) {
 	return e.VC_SHADOW_20515 = k, k;
 }
 // src/domain/multi-device-validation.ts
-var wi = "20.1.2", Ti = "vc-multi-device-validation", Ei = (e) => String(e ?? "").trim(), Di = (e) => {
+var Di = "20.1.2", Oi = "vc-multi-device-validation", ki = (e) => String(e ?? "").trim(), Ai = (e) => {
 	let t = Number(e);
 	return Number.isSafeInteger(t) && t >= 0 ? t : 0;
-}, Oi = (e) => {
-	let t = Ei(e);
+}, ji = (e) => {
+	let t = ki(e);
 	return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/.test(t) && Number.isFinite(Date.parse(t)) ? t : "";
 };
-function ki({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
+function Mi({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
 	let a = e(t) || {}, o = e(n) || {}, s = e(r) || {};
 	return {
-		schema: Ti,
-		version: wi,
+		schema: Oi,
+		version: Di,
 		createdAt: new Date(i).toISOString(),
 		connected: !!a.connected,
 		dirty: !!a.dirty,
 		blocked: !!a.blockedReason,
 		realtimeSubscribed: o.realtimeState === "SUBSCRIBED",
-		lastReadAt: Di(a.lastReadAt),
-		lastWriteAt: Di(a.lastWriteAt),
-		lastReadErrorAt: Di(a.lastReadErrorAt),
-		lastObservedRemoteStamp: Oi(a.lastObservedRemoteStamp),
-		lastAppliedRemoteStamp: Oi(a.lastAppliedRemoteStamp),
-		lastConfirmedWriteStamp: Oi(a.lastConfirmedWriteStamp),
-		pendingJournal: typeof s.pendingCount == "number" ? Di(s.pendingCount) : null,
+		lastReadAt: Ai(a.lastReadAt),
+		lastWriteAt: Ai(a.lastWriteAt),
+		lastReadErrorAt: Ai(a.lastReadErrorAt),
+		lastObservedRemoteStamp: ji(a.lastObservedRemoteStamp),
+		lastAppliedRemoteStamp: ji(a.lastAppliedRemoteStamp),
+		lastConfirmedWriteStamp: ji(a.lastConfirmedWriteStamp),
+		pendingJournal: typeof s.pendingCount == "number" ? Ai(s.pendingCount) : null,
 		journalError: !!s.lastError,
 		warning: "Mismo origen y cuenta deben comprobarse manualmente. La igualdad de marcas CAS no verifica contenido ni entrega de vídeo."
 	};
 }
-function Ai(t) {
+function Ni(t) {
 	let n = e(typeof t == "string" ? JSON.parse(t) : t);
 	if (!n || n.schema !== "vc-multi-device-validation" || n.version !== "20.1.2") throw Error("Informe incompatible: deben ser diagnósticos V20.1.2.");
 	if (!Number.isFinite(Date.parse(String(n.createdAt)))) throw Error("Informe sin fecha válida.");
@@ -4325,7 +4346,7 @@ function Ai(t) {
 		"realtimeSubscribed"
 	]) if (typeof n[e] != "boolean") throw Error("Campo inválido: " + e);
 	if (n.pendingJournal !== null && (!Number.isInteger(n.pendingJournal) || Number(n.pendingJournal) < 0)) throw Error("Diario inválido.");
-	return ki({
+	return Mi({
 		cloud: n,
 		device: { realtimeState: n.realtimeSubscribed ? "SUBSCRIBED" : "" },
 		journal: {
@@ -4335,8 +4356,8 @@ function Ai(t) {
 		now: Date.parse(String(n.createdAt))
 	});
 }
-function ji(e, t) {
-	let n = Ai(e), r = Ai(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
+function Pi(e, t) {
+	let n = Ni(e), r = Ni(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
 	if (!i(n) || !i(r)) return {
 		status: "review",
 		message: "Alguno de los dispositivos tiene cambios pendientes, está bloqueado o no puede comprobar su diario. No se confirma una entrega."
@@ -4351,19 +4372,19 @@ function ji(e, t) {
 	};
 }
 // src/domain/multi-device-runtime.ts
-var Mi = /* @__PURE__ */ new WeakMap(), Ni = Object.freeze({
-	VERSION: wi,
-	SCHEMA: Ti,
-	report: ki,
-	parseReport: Ai,
-	compareReports: ji,
-	mount: Fi
+var Fi = /* @__PURE__ */ new WeakMap(), Ii = Object.freeze({
+	VERSION: Di,
+	SCHEMA: Oi,
+	report: Mi,
+	parseReport: Ni,
+	compareReports: Pi,
+	mount: Ri
 });
-function Pi(e) {
-	return e.VC_SYNC_2012 = Ni, Ni;
+function Li(e) {
+	return e.VC_SYNC_2012 = Ii, Ii;
 }
-function Fi(e) {
-	let t = Mi.get(e);
+function Ri(e) {
+	let t = Fi.get(e);
 	if (t) return t;
 	let n = e.document;
 	if (!n) return null;
@@ -4372,7 +4393,7 @@ function Fi(e) {
 		return r.textContent = t, r;
 	}, a = null, o = !1, s = !1, c = !1, l = null, u = "", d = null, f = async () => {
 		let t = e.VC_V962_CLOUD_EFFICIENT?.diagnostics?.() || {}, n = e.VC_DEVICE_SYNC?.diagnostics?.() || {}, r = e.VC_V962_CLOUD_EFFICIENT?.getAccountId?.() || "";
-		return ki({
+		return Mi({
 			cloud: t,
 			device: n,
 			journal: await e.VC_SYNC_2011_JOURNAL?.inspect?.(r) || {
@@ -4391,7 +4412,7 @@ function Fi(e) {
 					n && n.textContent !== t && (n.textContent = t);
 				};
 				t("vc2012-observed", e.lastObservedRemoteStamp || "Sin lectura confirmada"), t("vc2012-applied", e.lastAppliedRemoteStamp || "Sin recepción procesada"), t("vc2012-uploaded", e.lastConfirmedWriteStamp || "Sin subida confirmada"), t("vc2012-pending", e.pendingJournal === null ? "Sin comprobar" : String(e.pendingJournal));
-				let n = l ? ji(e, l) : null, i = r("vc2012-feedback");
+				let n = l ? Pi(e, l) : null, i = r("vc2012-feedback");
 				i && (i.textContent = n ? n.message : u || "Sin comparación. No se han modificado datos.", i.dataset.status = n?.status || "idle");
 			} catch {
 				if (!s) {
@@ -4421,7 +4442,7 @@ function Fi(e) {
 			if (t.size > 65536) u = "Archivo demasiado grande para un informe de validación.", p();
 			else {
 				try {
-					l = Ai(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
+					l = Ni(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
 				} catch {
 					l = null, u = "El archivo no es un informe V20.1.2 válido.";
 				}
@@ -4462,13 +4483,13 @@ function Fi(e) {
 		readOnly: !0,
 		refresh: p,
 		dispose() {
-			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, Mi.delete(e));
+			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, Fi.delete(e));
 		}
 	});
-	return Mi.set(e, C), C;
+	return Fi.set(e, C), C;
 }
 // src/domain/rally-recovery-evidence.ts
-var Ii = Object.freeze([
+var zi = Object.freeze([
 	"score",
 	"service",
 	"rotation",
@@ -4483,12 +4504,12 @@ var Ii = Object.freeze([
 	} catch {
 		return;
 	}
-}, Li = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null;
+}, Bi = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null;
 function Z(n) {
 	try {
 		let r = e(n);
 		if (!r) return null;
-		let i = Li(r), a = i && Array.isArray(i.rallies) ? i.rallies : null, o = e(a?.at(-1)), s = e(r.liveRally), c = typeof r.id == "string" && r.id.length > 0 || typeof r.id == "number" && Number.isFinite(r.id) ? X([r.id, r.currentSet]) : void 0, l = {
+		let i = Bi(r), a = i && Array.isArray(i.rallies) ? i.rallies : null, o = e(a?.at(-1)), s = e(r.liveRally), c = typeof r.id == "string" && r.id.length > 0 || typeof r.id == "number" && Number.isFinite(r.id) ? X([r.id, r.currentSet]) : void 0, l = {
 			score: i ? X([i.scoreUs, i.scoreOpponent]) : void 0,
 			service: X(r.servingTeam),
 			rotation: X([r.rotationNo, r.opponentRotationNo]),
@@ -4534,20 +4555,20 @@ function Z(n) {
 		return null;
 	}
 }
-function Ri(e, t) {
+function Vi(e, t) {
 	if (!e || !t) return Object.freeze(["missing-data"]);
 	let n = [], r = !1;
-	for (let i of Ii) e.fields[i] === void 0 || t.fields[i] === void 0 ? r = !0 : e.fields[i] !== t.fields[i] && n.push(i);
+	for (let i of zi) e.fields[i] === void 0 || t.fields[i] === void 0 ? r = !0 : e.fields[i] !== t.fields[i] && n.push(i);
 	return r && n.push("missing-data"), Object.freeze(n);
 }
-function zi(e, t) {
-	return !!e && !!t && !!e.identity && e.identity === t.identity && Ii.every((n) => e.fields[n] !== void 0 && t.fields[n] !== void 0 && e.fields[n] === t.fields[n]);
+function Hi(e, t) {
+	return !!e && !!t && !!e.identity && e.identity === t.identity && zi.every((n) => e.fields[n] !== void 0 && t.fields[n] !== void 0 && e.fields[n] === t.fields[n]);
 }
-function Bi(e, t, n) {
-	return !e || !t || !n || !e.identity || !t.identity || !n.identity || e.identity !== t.identity || e.identity !== n.identity || [...Ii].some((r) => e.fields[r] === void 0 || t.fields[r] === void 0 || n.fields[r] === void 0) ? "unreadable" : zi(e, t) ? zi(e, n) ? "unchanged-observed" : "divergent" : zi(n, t) ? "durable-after" : zi(n, e) ? "durable-before" : "divergent";
+function Ui(e, t, n) {
+	return !e || !t || !n || !e.identity || !t.identity || !n.identity || e.identity !== t.identity || e.identity !== n.identity || [...zi].some((r) => e.fields[r] === void 0 || t.fields[r] === void 0 || n.fields[r] === void 0) ? "unreadable" : Hi(e, t) ? Hi(e, n) ? "unchanged-observed" : "divergent" : Hi(n, t) ? "durable-after" : Hi(n, e) ? "durable-before" : "divergent";
 }
 // src/domain/rally-transaction-pilot.ts
-var Vi = 40, Hi = (e, t) => e.us === t.us && e.opponent === t.opponent, Ui = (n) => {
+var Wi = 40, Gi = (e, t) => e.us === t.us && e.opponent === t.opponent, Ki = (n) => {
 	let r = e(n);
 	return r && t(r.sets).map(e).find((e) => e && Number(e.number) === Number(r.currentSet) && Number.isInteger(Number(r.currentSet))) || null;
 }, Q = (e, t, n = [], r = "not-checked") => Object.freeze({
@@ -4555,17 +4576,17 @@ var Vi = 40, Hi = (e, t) => e.us === t.us && e.opponent === t.opponent, Ui = (n)
 	verdict: t,
 	areas: Object.freeze([...n]),
 	durability: r
-}), Wi = (a, o, s, c, l, u, d) => {
-	let f = e(c), p = Ui(c);
+}), qi = (a, o, s, c, l, u, d) => {
+	let f = e(c), p = Ki(c);
 	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return Q(a, "unverified", ["missing-data"]);
 	let m = t(p.rallies).length;
 	if (a === "point") {
 		if (m !== d + 1) return Q(a, "unverified", ["missing-data"]);
-		let e = yi(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
+		let e = Si(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
 			us: p.scoreUs,
 			opponent: p.scoreOpponent
 		});
-		return r && !Hi(r, o.after.score) && !n.includes("score") && n.push("score"), Q("point", n.length ? "difference" : e.verdict, n);
+		return r && !Gi(r, o.after.score) && !n.includes("score") && n.push("score"), Q("point", n.length ? "difference" : e.verdict, n);
 	}
 	let h = e(f.liveRally);
 	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return Q("undo", "unverified", ["missing-data"]);
@@ -4573,11 +4594,11 @@ var Vi = 40, Hi = (e, t) => e.us === t.us && e.opponent === t.opponent, Ui = (n)
 		us: p.scoreUs,
 		opponent: p.scoreOpponent
 	}), v = !_;
-	return _ && !Hi(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, Q("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
+	return _ && !Gi(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, Q("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
 };
-function Gi(n, r = {}) {
+function Ji(n, r = {}) {
 	let i = Promise.resolve(), a = !1, o = r.requireRecoveryAfterNativeFailure === !0, s = o && r.startBlockedForPendingRecovery === !0, c = "not-checked", l = 0, u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, g = 0, _ = 0, v = 0, y = 0, b = [], x = (e) => {
-		u++, e.verdict === "agree" ? d++ : e.verdict === "difference" ? f++ : e.verdict === "native-rejected" ? m++ : e.verdict === "native-declined" ? h++ : e.verdict === "recovery-blocked" ? v++ : p++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (c = e.durability, e.areas.some((e) => e !== "missing-data") && g++, e.areas.includes("missing-data") && _++), e.verdict !== "agree" && (b.push(e), b.length > Vi && b.shift());
+		u++, e.verdict === "agree" ? d++ : e.verdict === "difference" ? f++ : e.verdict === "native-rejected" ? m++ : e.verdict === "native-declined" ? h++ : e.verdict === "recovery-blocked" ? v++ : p++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (c = e.durability, e.areas.some((e) => e !== "missing-data") && g++, e.areas.includes("missing-data") && _++), e.verdict !== "agree" && (b.push(e), b.length > Wi && b.shift());
 	}, S = () => {
 		try {
 			return n.readCurrent();
@@ -4587,13 +4608,13 @@ function Gi(n, r = {}) {
 	}, C = () => Z(S()), w = async (e, t) => {
 		if (!n.readDurableLocal) return "not-configured";
 		try {
-			return Bi(e, t, Z(await n.readDurableLocal()));
+			return Ui(e, t, Z(await n.readDurableLocal()));
 		} catch {
 			return "unreadable";
 		}
 	}, T = async (r, i) => {
 		if (s) throw x(Q(r, "recovery-blocked")), Error("Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.");
-		let a = S(), c = Ui(a), l = t(c?.rallies), u = Z(a), d = l.length, f = e(l.at(-1)), p = null;
+		let a = S(), c = Ki(a), l = t(c?.rallies), u = Z(a), d = l.length, f = e(l.at(-1)), p = null;
 		try {
 			p = r === "point" ? ae(a, i) : oe(a);
 		} catch {}
@@ -4603,15 +4624,15 @@ function Gi(n, r = {}) {
 		} catch (e) {
 			o && (s = !0);
 			let t = C(), n = await w(u, t);
-			throw x(Q(r, "native-rejected", Ri(u, t), n)), e;
+			throw x(Q(r, "native-rejected", Vi(u, t), n)), e;
 		}
 		if (m === !1) {
 			o && (s = !0);
 			let e = C(), t = await w(u, e);
-			return x(Q(r, "native-declined", Ri(u, e), t)), m;
+			return x(Q(r, "native-declined", Vi(u, e), t)), m;
 		}
 		try {
-			x(p ? Wi(r, p, a, S(), c, f, d) : Q(r, "unverified", ["missing-data"]));
+			x(p ? qi(r, p, a, S(), c, f, d) : Q(r, "unverified", ["missing-data"]));
 		} catch {
 			x(Q(r, "unverified", ["missing-data"]));
 		}
@@ -4654,7 +4675,7 @@ function Gi(n, r = {}) {
 		async resumeAfterVerifiedReload() {
 			if (!o || !s || a || y !== 0 || !n.readDurableLocal) return !1;
 			try {
-				return zi(C(), Z(await n.readDurableLocal())) ? (s = !1, !0) : !1;
+				return Hi(C(), Z(await n.readDurableLocal())) ? (s = !1, !0) : !1;
 			} catch {
 				return !1;
 			}
@@ -4665,7 +4686,7 @@ function Gi(n, r = {}) {
 	});
 }
 // src/domain/journal-recovery-inspector.ts
-var Ki = 27262976, $ = (e, t) => Object.freeze({
+var Yi = 27262976, $ = (e, t) => Object.freeze({
 	version: "20.5.19",
 	source: "existing-v2011-pending-checkpoint",
 	status: e,
@@ -4673,7 +4694,7 @@ var Ki = 27262976, $ = (e, t) => Object.freeze({
 	requiresManualReview: !0,
 	autoResumeAllowed: !1
 });
-async function qi(n) {
+async function Xi(n) {
 	if (!n || !n.journal || typeof n.journal.inspect != "function" || typeof n.journal.newest != "function" || !n.accountId || !n.teamId || n.matchId === null || n.matchId === void 0 || !String(n.matchId)) return $("unavailable", null);
 	let r = String(n.accountId).trim(), i = String(n.teamId);
 	if (!r) return $("unavailable", null);
@@ -4684,12 +4705,12 @@ async function qi(n) {
 		if (a = s, s === 0) return $("no-checkpoint", 0);
 		if (s !== 1 || o?.hasOtherAccounts === !0 || o?.lastError) return $("ambiguous", s);
 		let c = e(await n.journal.newest(r));
-		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > Ki) return $("unavailable", s);
+		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > Yi) return $("unavailable", s);
 		let l = e(e(e(JSON.parse(c.stateJson))?.equiposData)?.[i]);
 		if (!l || !Array.isArray(l.scoutingMatches)) return $("missing-match", s);
 		let u = t(l.scoutingMatches).map(e).filter((e) => e && String(e.id) === String(n.matchId));
 		if (u.length !== 1) return $(u.length ? "ambiguous" : "missing-match", s);
-		let d = Bi(Z(n.before), Z(n.after), Z(u[0]));
+		let d = Ui(Z(n.before), Z(n.after), Z(u[0]));
 		return $(d === "durable-before" ? "checkpoint-before" : d === "durable-after" ? "checkpoint-after" : d === "unchanged-observed" ? "checkpoint-unchanged" : d === "divergent" ? "checkpoint-divergent" : "unavailable", s);
 	} catch {
 		return $("unavailable", a);
@@ -4697,10 +4718,10 @@ async function qi(n) {
 }
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
-	Pn(window), Hn(window), Gn(window), Zn(window), ar(window), mr(window), _r(window), Sr(window), Er(window), Nr(window), Ir(window), Ur(window), Zr(window), ei(window), ci(window), di(window), Pi(window), Ie(window), rn(window), dn(window), gn(window), ut(window), vt(window), Jt(window), $t(window);
+	Pn(window), Hn(window), Gn(window), Zn(window), ar(window), mr(window), _r(window), Sr(window), Er(window), Nr(window), Ir(window), Ur(window), Zr(window), ei(window), ci(window), di(window), mi(window), Li(window), Ie(window), rn(window), dn(window), gn(window), ut(window), vt(window), Jt(window), $t(window);
 	let e = () => {
-		Se(window), nt(window), dt(window), D(window), ne(window), he(window), ge(window), Re(window), $e(window), Ci(window), Fi(window);
+		Se(window), nt(window), dt(window), D(window), ne(window), he(window), ge(window), Re(window), $e(window), Ei(window), Ri(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { kt as MAX_INDEXED_CONTACTS, Dn as MAX_SEQUENCE_CHARACTERS, On as MAX_SEQUENCE_CONTACTS, fn as RALLY_SEARCH_PRESETS_KEY, rt as SEARCH_FILTERS, wn as applyScoutingDraftRating, Cn as applyScoutingDraftSkill, l as attackEfficiency, me as auditCommittedMatch, o as auditMatchScores, wr as buildScoutCodeV830, vr as buildScoutingActionBase, Wt as calculateAnalysisPoints, C as canonicalReaders, Z as captureRecoveryFrame, cn as catalogRallySearch, Ri as changedRecoveryAreas, ee as classifyPreflight, Bi as classifyRecoveryEvidence, Bn as classifyScoutingPreflight, pe as classifyStoredAction, yi as compareConfirmedPoint, ji as compareDeviceValidation, y as compareNativeCode, xe as createObservableMatchStore, Si as createRallyShadowSession, Gi as createRallyTransactionPilot, Le as createReadOnlyRenderGate, tt as createScoutingProjectionStore, te as createShadowSession, Tn as cycleScoutingDraftRating, zi as equalRecoveryFrames, Xt as escapeAnalysisCSVCell, Ut as evaluateAnalysisContacts, Zt as exportAnalysisCSV, Ht as filterAnalysis, jr as finishScoutingCode, Gt as inspectAnalysisCoverage, It as inspectAnalysisIndexDiagnostics, se as inspectClosedRally, v as inspectCodeShape, qi as inspectJournalRecovery, je as inspectLiveSetStatistics, E as inspectMatchDomain, Jn as inspectNativePreparation, Qe as inspectPlayerBoxscore, re as inspectRallyRestoration, Un as inspectRegistrationConditions, Mn as inspectScoutingSequence, S as inspectSubstitution, $t as installAnalysisExportBridge, vt as installAnalysisNormalizeBridge, Jt as installAnalysisOperationsBridge, ut as installAnalysisQueryBridge, rn as installAnalysisViewBridge, Pi as installMultiDeviceAPI, gn as installRallySearchControls, dn as installRallySearchViewBridge, Gn as installRegistrationGuardBridge, Ie as installRenderMetricsBridge, Sr as installScoutActionBuilderBridge, Ur as installScoutActionMetadataBridge, Zr as installScoutActionNormalizerBridge, ci as installScoutAdvancedFieldsBridge, Nr as installScoutCodeBuilderBridge, Er as installScoutCodeFormatBridge, di as installScoutIdentityFieldsBridge, _r as installScoutPlayerResolverBridge, Ir as installScoutRegistrationBridge, ei as installScoutTacticalFieldsBridge, Pn as installScoutingDraftBridge, mr as installScoutingExtensionsBridge, ar as installScoutingLexerBridge, Hn as installScoutingPreflightBridge, Zn as installScoutingPreparationBridge, Ft as invalidateAnalysisIndex, rr as lexScoutingCode, dt as mountAnalysisQueryPerformance, he as mountCommittedPanel, D as mountDomainDiagnostic, ge as mountGrammarPanel, Re as mountLiveStatisticsPanel, Fi as mountMultiDevicePanel, Se as mountObservablePanel, $e as mountPlayerBoxscore, Ci as mountRallyShadowPanel, nt as mountScoutingProjectionStore, ne as mountShadowPanel, s as nextRotation, Vr as normalizeActionVideoTimestamp, oi as normalizeAdvancedScoutingFields, gt as normalizeAnalysisMatch, V as normalizeAnalysisZone, Cr as normalizeContactMetadata, ot as normalizeRallySearchFilters, Yr as normalizeScoutingActionBase, li as normalizeScoutingIdentityFields, Qr as normalizeTacticalActionFields, br as opponentScoutingPlayerFields, yr as ownScoutingPlayerFields, Ai as parseDeviceValidation, q as parseScoutingDraftHead, ae as planAwardPoint, oe as planUndoLastRally, Pr as prepareContactRegistration, Yn as prepareNativeScoutingAction, Ar as prepareScoutingCodeInput, zr as projectDataVolleyFields, be as projectObservableMatch, c as projectPoint, M as projectSetBoundary, st as queryRallies, Br as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, mn as readRallySearchPresets, En as recentScoutingDraftCodes, Kt as reconcileAnalysisPoints, tn as renderDataEngineView, ln as renderRallySearchView, ki as reportDeviceValidation, hr as resolveOwnScoutingPlayer, fr as scanAdvancedExtension, dr as scanConeExtension, ur as scanSubzoneExtension, u as sideOutBreakPoint, a as verifyRallyScore };
+export { kt as MAX_INDEXED_CONTACTS, Dn as MAX_SEQUENCE_CHARACTERS, On as MAX_SEQUENCE_CONTACTS, fn as RALLY_SEARCH_PRESETS_KEY, rt as SEARCH_FILTERS, wn as applyScoutingDraftRating, Cn as applyScoutingDraftSkill, l as attackEfficiency, me as auditCommittedMatch, o as auditMatchScores, wr as buildScoutCodeV830, vr as buildScoutingActionBase, Wt as calculateAnalysisPoints, C as canonicalReaders, Z as captureRecoveryFrame, cn as catalogRallySearch, Vi as changedRecoveryAreas, ee as classifyPreflight, Ui as classifyRecoveryEvidence, Bn as classifyScoutingPreflight, pe as classifyStoredAction, Si as compareConfirmedPoint, Pi as compareDeviceValidation, y as compareNativeCode, xe as createObservableMatchStore, Ti as createRallyShadowSession, Ji as createRallyTransactionPilot, Le as createReadOnlyRenderGate, tt as createScoutingProjectionStore, te as createShadowSession, Tn as cycleScoutingDraftRating, Hi as equalRecoveryFrames, Xt as escapeAnalysisCSVCell, Ut as evaluateAnalysisContacts, Zt as exportAnalysisCSV, Ht as filterAnalysis, jr as finishScoutingCode, Gt as inspectAnalysisCoverage, It as inspectAnalysisIndexDiagnostics, se as inspectClosedRally, v as inspectCodeShape, Xi as inspectJournalRecovery, je as inspectLiveSetStatistics, E as inspectMatchDomain, Jn as inspectNativePreparation, Qe as inspectPlayerBoxscore, re as inspectRallyRestoration, Un as inspectRegistrationConditions, Mn as inspectScoutingSequence, S as inspectSubstitution, $t as installAnalysisExportBridge, vt as installAnalysisNormalizeBridge, Jt as installAnalysisOperationsBridge, ut as installAnalysisQueryBridge, rn as installAnalysisViewBridge, Li as installMultiDeviceAPI, gn as installRallySearchControls, dn as installRallySearchViewBridge, Gn as installRegistrationGuardBridge, Ie as installRenderMetricsBridge, Sr as installScoutActionBuilderBridge, Ur as installScoutActionMetadataBridge, Zr as installScoutActionNormalizerBridge, ci as installScoutAdvancedFieldsBridge, Nr as installScoutCodeBuilderBridge, Er as installScoutCodeFormatBridge, di as installScoutIdentityFieldsBridge, mi as installScoutMatchVideoContainerBridge, _r as installScoutPlayerResolverBridge, Ir as installScoutRegistrationBridge, ei as installScoutTacticalFieldsBridge, Pn as installScoutingDraftBridge, mr as installScoutingExtensionsBridge, ar as installScoutingLexerBridge, Hn as installScoutingPreflightBridge, Zn as installScoutingPreparationBridge, Ft as invalidateAnalysisIndex, rr as lexScoutingCode, dt as mountAnalysisQueryPerformance, he as mountCommittedPanel, D as mountDomainDiagnostic, ge as mountGrammarPanel, Re as mountLiveStatisticsPanel, Ri as mountMultiDevicePanel, Se as mountObservablePanel, $e as mountPlayerBoxscore, Ei as mountRallyShadowPanel, nt as mountScoutingProjectionStore, ne as mountShadowPanel, s as nextRotation, Vr as normalizeActionVideoTimestamp, oi as normalizeAdvancedScoutingFields, gt as normalizeAnalysisMatch, V as normalizeAnalysisZone, Cr as normalizeContactMetadata, ot as normalizeRallySearchFilters, Yr as normalizeScoutingActionBase, li as normalizeScoutingIdentityFields, fi as normalizeScoutingMatchVideoContainer, Qr as normalizeTacticalActionFields, br as opponentScoutingPlayerFields, yr as ownScoutingPlayerFields, Ni as parseDeviceValidation, q as parseScoutingDraftHead, ae as planAwardPoint, oe as planUndoLastRally, Pr as prepareContactRegistration, Yn as prepareNativeScoutingAction, Ar as prepareScoutingCodeInput, zr as projectDataVolleyFields, be as projectObservableMatch, c as projectPoint, M as projectSetBoundary, st as queryRallies, Br as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, mn as readRallySearchPresets, En as recentScoutingDraftCodes, Kt as reconcileAnalysisPoints, tn as renderDataEngineView, ln as renderRallySearchView, Mi as reportDeviceValidation, hr as resolveOwnScoutingPlayer, fr as scanAdvancedExtension, dr as scanConeExtension, ur as scanSubzoneExtension, u as sideOutBreakPoint, a as verifyRallyScore };
