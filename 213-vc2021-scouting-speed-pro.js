@@ -238,8 +238,12 @@
   const registerApi=root?.VC_SCOUT_REGISTRATION_20544;
   const typedRegistration=registerApi?.VERSION==='20.5.44'&&registerApi?.pureOnly===true;
   dock.dataset.vc20544Registration=typedRegistration?'typescript':'classic';
+  const baseNormalizeApi=root?.VC_SCOUT_ACTION_NORMALIZER_20546;
+  const typedBaseNormalize=baseNormalizeApi?.VERSION==='20.5.46'&&baseNormalizeApi?.pureOnly===true;
+  dock.dataset.vc20546Normalize=typedBaseNormalize?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedRegistration?'Preparación de registro unificada · TypeScript · escritura nativa':
+   ?(typedRegistration&&typedBaseNormalize?'Registro y normalización · TypeScript · escritura nativa':
+     typedRegistration?'Preparación de registro unificada · TypeScript · escritura nativa':
      typedBuilder?'Construcción y jugadores TypeScript · escritura nativa':
      typedPlayer?'Preparación y dorsal TypeScript · escritura nativa':'Preparación TypeScript · parser y escritura nativos')
    :'Preparación nativa (respaldo)';

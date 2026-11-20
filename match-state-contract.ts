@@ -27,3 +27,10 @@ export function readCanonicalMatch(win:CanonicalMatchWindow):Record<string,unkno
  }
  return null;
 }
+
+/** V20.5.46: existing live action array, by identity; never a second store. */
+export function readCanonicalLiveActions(win:CanonicalMatchWindow):readonly unknown[]{
+ const match=readCanonicalMatch(win);
+ const live=asRecord(match?.liveRally);
+ return Array.isArray(live?.actions)?live.actions:[];
+}

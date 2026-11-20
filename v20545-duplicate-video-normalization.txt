@@ -1,0 +1,3 @@
+/* Exact V7.0 video-action normalizer, removed after verifying V6.9 parity. */
+const v700NormActionBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){const x=v700NormActionBase(a);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};

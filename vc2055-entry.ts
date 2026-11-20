@@ -30,7 +30,8 @@ import {installScoutCodeFormatBridge} from './domain/scout-code-format-runtime';
 import {installScoutCodeBuilderBridge} from './domain/scout-code-builder-runtime';
 import {installScoutRegistrationBridge} from './domain/scout-action-registration-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
-import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
+import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
+import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
 export {inspectCodeShape,compareNativeCode} from './domain/code-grammar';
@@ -107,7 +108,9 @@ export {installScoutRegistrationBridge};
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
-export {readCanonicalMatch,canonicalReaders};
+export {normalizeScoutingActionBase} from './domain/scout-action-normalizer';
+export {installScoutActionNormalizerBridge};
+export {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
  installScoutingDraftBridge(window);
@@ -122,6 +125,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutCodeBuilderBridge(window);
  installScoutRegistrationBridge(window);
  installScoutActionMetadataBridge(window);
+ installScoutActionNormalizerBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

@@ -29,6 +29,34 @@ function scoutNormalizeAction(a){return {...(a&&typeof a==='object'&&!Array.isAr
 function scoutNormalizeRally(r){return {...(r&&typeof r==='object'&&!Array.isArray(r)?r:{}),id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)}}
 function scoutNormalizeSet(s,i=0){return {...(s&&typeof s==='object'&&!Array.isArray(s)?s:{}),number:Number(s?.number)||i+1,scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,finished:!!s?.finished,winner:s?.winner==='opponent'?'opponent':s?.winner==='ours'?'ours':null,rallies:scoutArr(s?.rallies).map(scoutNormalizeRally),startedAt:String(s?.startedAt||scoutNow()),endedAt:s?.endedAt?String(s.endedAt):null}}
 function scoutNormalizeMatch(m){const sets=scoutArr(m?.sets).map(scoutNormalizeSet);return {...(m&&typeof m==='object'&&!Array.isArray(m)?m:{}),dataVersion:String(m?.dataVersion||'6.8.0'),id:Number(m?.id)||Date.now(),linkedMatchId:m?.linkedMatchId?Number(m.linkedMatchId):null,date:String(m?.date||fechaLocalISO()),opponent:String(m?.opponent||'Rival'),competition:String(m?.competition||''),status:m?.status==='finished'?'finished':'live',currentSet:Math.max(1,Number(m?.currentSet)||1),servingTeam:m?.servingTeam==='opponent'?'opponent':'ours',rotationNo:Math.min(6,Math.max(1,Number(m?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(m?.opponentRotationNo)||1)),lineup:scoutNormalizeLineup(m?.lineup),baseLineup:scoutNormalizeLineup(m?.baseLineup||m?.lineup),lineupRoles:scoutNormalizeRoles(m?.lineupRoles),libero:scoutNormalizeLibero(m?.libero),sets:sets.length?sets:[scoutEmptySet(1)],events:scoutArr(m?.events).map(e=>({...(e&&typeof e==='object'&&!Array.isArray(e)?e:{}),id:Number(e?.id)||Date.now(),type:['libero','libero_auto','substitution','timeout_ours','timeout_opponent','challenge_ours','challenge_opponent','card','injury','interruption','note'].includes(e?.type)?e.type:'substitution',team:e?.team==='opponent'?'opponent':'ours',setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,position:String(e?.position||''),uid:String(e?.uid||''),action:String(e?.action||''),rallyId:e?.rallyId!=null?(Number(e.rallyId)||null):null,rotationNo:Number(e?.rotationNo)||null,opponentRotationNo:Number(e?.opponentRotationNo)||null,videoTime:e?.videoTime==null?null:Number(e.videoTime),videoSource:String(e?.videoSource||''),videoExact:!!e?.videoExact,outPlayerId:e?.outPlayerId!=null?Number(e.outPlayerId):null,inPlayerId:e?.inPlayerId!=null?Number(e.inPlayerId):null,outLabel:String(e?.outLabel||''),inLabel:String(e?.inLabel||''),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0)})),clockStartedAt:String(m?.clockStartedAt||m?.createdAt||scoutNow()),clockAccumulatedMs:Math.max(0,Number(m?.clockAccumulatedMs)||0),clockMode:'active-only',liveRally:{...(m?.liveRally&&typeof m.liveRally==='object'&&!Array.isArray(m.liveRally)?m.liveRally:{}),id:Number(m?.liveRally?.id)||Date.now(),actions:scoutArr(m?.liveRally?.actions).map(scoutNormalizeAction),startedAt:String(m?.liveRally?.startedAt||scoutNow()),scoutStartMs:Math.max(0,Number(m?.liveRally?.scoutStartMs)||0),startSnapshot:m?.liveRally?.startSnapshot?scoutClone(m.liveRally.startSnapshot):null},createdAt:String(m?.createdAt||scoutNow()),updatedAt:String(m?.updatedAt||scoutNow()),endedAt:m?.endedAt?String(m.endedAt):null}}
+/* V20.5.46 · The existing V6.8 normalizer owns IDs and timestamps exactly
+ * once. A pure TypeScript projection may replace its result only after every
+ * field agrees; all V6.9–V8.8 enrichments and MatchState writers stay native. */
+const v20546NativeNormalizeAction=scoutNormalizeAction;
+const v20546BaseNormalizeStats={typed:0,native:0,mismatches:0,exceptions:0};
+scoutNormalizeAction=function(a){
+  const native=v20546NativeNormalizeAction(a);
+  try{
+    const api=window.VC_SCOUT_ACTION_NORMALIZER_20546;
+    if(api?.VERSION==='20.5.46'&&api.pureOnly===true&&typeof api.normalizeBase==='function'){
+      if(a&&typeof a==='object'&&Object.values(Object.getOwnPropertyDescriptors(a)).some(d=>!('value' in d))){
+        v20546BaseNormalizeStats.native++;return native;
+      }
+      const typed=api.normalizeBase(a,native.id,native.createdAt);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          (typed[key]===native[key]||(Number.isNaN(typed[key])&&Number.isNaN(native[key]))||
+            (key==='validationWarnings'&&Array.isArray(typed[key])&&Array.isArray(native[key])&&
+              typed[key].length===native[key].length&&
+              typed[key].every((value,i)=>value===native[key][i]))))){
+        v20546BaseNormalizeStats.typed++;return typed;
+      }
+      v20546BaseNormalizeStats.mismatches++;
+    }
+  }catch(_){v20546BaseNormalizeStats.exceptions++;}
+  v20546BaseNormalizeStats.native++;return native;
+};
+window.VC_SCOUT_ACTION_NORMALIZER_DIAGNOSTICS_20546=()=>Object.freeze({...v20546BaseNormalizeStats});
 let scoutingMatches=scoutArr(equiposData?.[equipoActivo]?.scoutingMatches).map(scoutNormalizeMatch);
 let scoutingActiveId=Number(equiposData?.[equipoActivo]?.scoutingActiveId)||null;
 function scoutActive(){return scoutingMatches.find(m=>Number(m.id)===Number(scoutingActiveId))||null}
@@ -2699,8 +2727,10 @@ window.scoutV700PlayRally=function(setNo,rallyId){const m=v700Match()||scoutActi
 function v700OnTimeUpdate(){const v=v700Video();if(!v)return;if(v700$('scout-v700-current-time'))v700$('scout-v700-current-time').textContent=v700Fmt(v.currentTime);if(v700StopAt!=null&&v.currentTime>=v700StopAt-.04){v.pause();v700StopAt=null}}
 setTimeout(()=>{const v=v700Video();if(v){v.addEventListener('timeupdate',v700OnTimeUpdate);v.addEventListener('seeking',()=>{if(v700StopAt!=null&&v.currentTime>v700StopAt+1)v700StopAt=null})}},0);
 
-// Preserve video fields during every normalization pass.
-const v700NormActionBase=scoutNormalizeAction;scoutNormalizeAction=function(a){const x=v700NormActionBase(a);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};
+/* V20.5.46 · Removed the duplicate V7.0 action-video normalization:
+ * V6.9 already projects videoStart/videoAction/videoEnd/clipId identically,
+ * and intermediate action enrichments do not overwrite these properties.
+ * Rally and match video normalization below remain untouched. */
 const v700NormRallyBase=scoutNormalizeRally;scoutNormalizeRally=function(r){const x=v700NormRallyBase(r);x.videoStart=r?.videoStart==null?null:Number(r.videoStart);x.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);return x};
 const v700NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v700NormMatchBase(m),raw=m?.video&&typeof m.video==='object'?m.video:{};x.dataVersion=V700_VERSION;x.video={...x.video,syncOffset:raw.syncOffset==null?x.video?.syncOffset??null:Number(raw.syncOffset),source:String(raw.source||x.video?.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll??2)),postRoll:Math.max(0,Number(raw.postRoll??2)),clips:scoutArr(raw.clips||x.video?.clips)};return x};
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutingMatches.forEach(m=>{if(m.video?.syncOffset!=null)v700ApplyMapping(m)});
