@@ -232,8 +232,12 @@
   const playerResolver=root?.VC_SCOUT_PLAYER_RESOLVER_20540;
   const typedPlayer=playerResolver?.VERSION==='20.5.40'&&playerResolver?.pureOnly===true;
   dock.dataset.vc20540PlayerResolver=typedPlayer?'typescript':'classic';
+  const builder=root?.VC_SCOUT_ACTION_BUILDER_20541;
+  const typedBuilder=builder?.VERSION==='20.5.41'&&builder?.pureOnly===true;
+  dock.dataset.vc20541ActionBuilder=typedBuilder?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedPlayer?'Preparación y dorsal TypeScript · escritura nativa':'Preparación TypeScript · parser y escritura nativos')
+   ?(typedBuilder?'Construcción y jugadores TypeScript · escritura nativa':
+     typedPlayer?'Preparación y dorsal TypeScript · escritura nativa':'Preparación TypeScript · parser y escritura nativos')
    :'Preparación nativa (respaldo)';
   const lexer=byId('vc2021-lexer-engine'),lexerApi=root?.VC_SCOUT_LEXER_20537;
   const typedLexer=lexerApi?.VERSION==='20.5.37'&&lexerApi?.syntaxOnly===true;

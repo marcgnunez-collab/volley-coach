@@ -1,0 +1,21 @@
+/* Verbatim V20.5.40 native action construction; TEST FIXTURE ONLY. */
+function scoutV6108ParseRaw(raw,m,oldAction=null){
+  raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  const lexical=v6108CheckedLex(raw);
+  if(lexical.kind==='error')return {error:lexical.error};
+  const rival=lexical.rival,num=lexical.number,skill=lexical.skill,
+    evaluation=lexical.evaluation,z1=lexical.startZone,z2=lexical.endZone,
+    serve=lexical.serveType,combo=lexical.combo,phase=lexical.phase,blockers=lexical.blockers;
+  if(z1&&!z2&&!scoutV6108IsContactSkill(skill))return {error:'La zona única (.6) solo se usa en recepción o defensa. Para saque/ataque usa origen>destino, por ejemplo .1>6.'};
+  const zones=scoutV6108NormalizeZoneInput(skill,z1,z2);
+  const base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,...zones,serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};
+  if(rival){
+    base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'');
+  }else{
+    const p=v6108ChooseOwnPlayer(num,oldAction);
+    if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};
+    base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num;
+  }
+  scoutV6108InferSource(base,m);
+  const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a};
+}

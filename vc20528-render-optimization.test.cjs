@@ -140,8 +140,8 @@ test('historic Data Engine and Rally Search preserve unchanged DOM but invalidat
 
 test('V20.5.28 integrates telemetry in Gestión without changing the native scoring writers',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.5.40');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.40'));
+ assert.equal(pkg.version,'20.5.41');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.41'));
  assert.ok(read('service-worker.js').includes('render-optimization-20.5.28'));
  assert.ok(read('src/state/analysis-query-runtime.ts').includes('Actualizaciones visuales de Scouting y Análisis'));
  assert.ok(read('src/vc2055-entry.ts').includes('installRenderMetricsBridge(window)'));

@@ -2242,6 +2242,42 @@ function v6108ChooseOwnPlayer(num,oldAction){
 }
 window.VC_SCOUT_PLAYER_DIAGNOSTICS_20540=()=>Object.freeze({...v6108PlayerStats});
 
+/* V20.5.41 · Match original base/identity fields before trusting the pure TS
+ * builder. This is a single action draft, still passed to the SINGLE native
+ * infer/normalize/build pipeline and the existing rally writer. */
+const v6108BuildStats={base:0,own:0,opponent:0,native:0,mismatches:0,exceptions:0};
+function v6108SameDraft(a,b){
+  if(!a||!b||typeof a!=='object'||typeof b!=='object')return false;
+  const left=Object.keys(a),right=Object.keys(b);
+  if(left.length!==right.length)return false;
+  for(let i=0;i<left.length;i++){
+    if(left[i]!==right[i])return false;
+    if(left[i]==='validationWarnings'){
+      if(!Array.isArray(a[left[i]])||!Array.isArray(b[right[i]])||
+        a[left[i]].length!==0||b[right[i]].length!==0)return false;
+    }else if(a[left[i]]!==b[right[i]])return false;
+  }
+  return true;
+}
+function v6108SelectDraft(phase,args,native){
+  try{
+    const bridge=window.VC_SCOUT_ACTION_BUILDER_20541;
+    const method=phase==='base'?'buildBase':phase==='own'?'ownFields':'opponentFields';
+    if(bridge?.VERSION==='20.5.41'&&bridge.pureOnly===true&&typeof bridge[method]==='function'){
+      // An edited action may have accessors; do not evaluate those twice.
+      if(phase==='base'&&args[0]&&typeof args[0]==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(args[0])).some(d=>!('value' in d))){
+        v6108BuildStats.native++;return native;
+      }
+      const typed=bridge[method](...args);
+      if(v6108SameDraft(native,typed)){v6108BuildStats[phase]++;return typed;}
+      v6108BuildStats.mismatches++;
+    }
+  }catch(_){v6108BuildStats.exceptions++;}
+  v6108BuildStats.native++;return native;
+}
+window.VC_SCOUT_ACTION_BUILD_DIAGNOSTICS_20541=()=>Object.freeze({...v6108BuildStats});
+
 function scoutV6108ParseRaw(raw,m,oldAction=null){
   raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
   const lexical=v6108CheckedLex(raw);
@@ -2251,13 +2287,19 @@ function scoutV6108ParseRaw(raw,m,oldAction=null){
     serve=lexical.serveType,combo=lexical.combo,phase=lexical.phase,blockers=lexical.blockers;
   if(z1&&!z2&&!scoutV6108IsContactSkill(skill))return {error:'La zona única (.6) solo se usa en recepción o defensa. Para saque/ataque usa origen>destino, por ejemplo .1>6.'};
   const zones=scoutV6108NormalizeZoneInput(skill,z1,z2);
-  const base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,...zones,serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};
+  const nativeBase={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,...zones,serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};
+  const base=v6108SelectDraft('base',[oldAction,{rival,skill,evaluation,zones,serve,phase,combo,blockers}],nativeBase);
   if(rival){
-    base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'');
+    const label=scoutFindOpponentByNumber(m,num);
+    const opponent={playerId:null,playerLabel:label,playerNumberSnapshot:num,
+      playerNameSnapshot:base.playerNameSnapshot||String(label||'').replace(/^#?\d+\s*[·-]?\s*/,'')};
+    Object.assign(base,v6108SelectDraft('opponent',[label,base.playerNameSnapshot,num],opponent));
   }else{
     const p=v6108ChooseOwnPlayer(num,oldAction);
     if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};
-    base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num;
+    const own={playerId:p.id,playerLabel:'',playerNameSnapshot:p.name||base.playerNameSnapshot||'',
+      playerNumberSnapshot:p.number??num};
+    Object.assign(base,v6108SelectDraft('own',[p,base.playerNameSnapshot,num],own));
   }
   scoutV6108InferSource(base,m);
   const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a};

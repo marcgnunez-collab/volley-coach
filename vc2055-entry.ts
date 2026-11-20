@@ -25,6 +25,7 @@ import {installScoutingPreparationBridge} from './domain/scout-action-preparatio
 import {installScoutingLexerBridge} from './domain/scout-code-lexer-runtime';
 import {installScoutingExtensionsBridge} from './domain/scout-grammar-extensions-runtime';
 import {installScoutPlayerResolverBridge} from './domain/scout-player-resolution-runtime';
+import {installScoutActionBuilderBridge} from './domain/scout-action-builder-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -90,6 +91,9 @@ export {scanSubzoneExtension,scanConeExtension,scanAdvancedExtension}
 export {installScoutingExtensionsBridge};
 export {resolveOwnScoutingPlayer} from './domain/scout-player-resolution';
 export {installScoutPlayerResolverBridge};
+export {buildScoutingActionBase,ownScoutingPlayerFields,opponentScoutingPlayerFields}
+ from './domain/scout-action-builder';
+export {installScoutActionBuilderBridge};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -100,6 +104,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutingLexerBridge(window);
  installScoutingExtensionsBridge(window);
  installScoutPlayerResolverBridge(window);
+ installScoutActionBuilderBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);
