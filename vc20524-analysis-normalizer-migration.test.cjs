@@ -129,9 +129,9 @@ test('normalization diagnostics collect only numeric timing data',async()=>{
 test('V20.5.24 preserves legacy writers, module ordering and the published assets',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js'),engine=read('189-vc1938-professional-data-engine.js');
- assert.equal(pkg.version,'20.5.58');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.58'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.58'));
+ assert.equal(pkg.version,'20.5.59');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.59'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.59'));
  assert.ok(sw.includes('analysis-normalizer-20.5.24'));
  assert.ok(entry.includes('installAnalysisNormalizeBridge(window)'));
  assert.ok(entry.includes('normalizeAnalysisMatch'));
