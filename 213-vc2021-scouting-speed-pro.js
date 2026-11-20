@@ -250,13 +250,18 @@
    :'Sintaxis nativa (respaldo)';
   const extensions=byId('vc2021-extensions-engine'),extensionApi=root?.VC_SCOUT_EXTENSIONS_20538;
   const typedExtensions=extensionApi?.VERSION==='20.5.38'&&extensionApi?.grammarOnly===true;
+  const builderApi=root?.VC_SCOUT_CODE_BUILDER_20543;
+  const typedBuilderExtensions=builderApi?.VERSION==='20.5.43'&&builderApi?.pureOnly===true;
+  dock.dataset.vc20543CodeBuilder=typedBuilderExtensions?'typescript':'classic';
   dock.dataset.vc20538Extensions=typedExtensions?'typescript':'classic';
   const canonicalApi=root?.VC_SCOUT_CANONICAL_20539;
   const hasCanonical=canonicalApi?.VERSION==='20.5.39'&&canonicalApi?.extensionWrappers===1;
   dock.dataset.vc20539Canonical=hasCanonical?'consolidated':'historical';
-  if(extensions)extensions.textContent=hasCanonical
-   ?(typedExtensions?'Parser de extensiones único · TypeScript':'Parser único · extensiones nativas')
-   :(typedExtensions?'Subzonas, conos y modificadores TypeScript':'Extensiones nativas (respaldo)');
+  if(extensions)extensions.textContent=typedBuilderExtensions&&hasCanonical
+   ?'Parser único y generador de códigos único · TypeScript'
+   :hasCanonical
+    ?(typedExtensions?'Parser de extensiones único · TypeScript':'Parser único · extensiones nativas')
+    :(typedExtensions?'Subzonas, conos y modificadores TypeScript':'Extensiones nativas (respaldo)');
   if(preview&&preview.textContent!==(val||'—'))preview.textContent=val||'—';
   if(at&&at.textContent!==label)at.textContent=label;
   updates++;return true;

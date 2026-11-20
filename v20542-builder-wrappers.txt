@@ -1,0 +1,38 @@
+/* Exact V20.5.42 code wrappers, archived before V20.5.43 consolidation. */
+const v840BuildBase=scoutBuildCode;
+scoutBuildCode=function(a){
+  if(a?.skill!=='B')return v840BuildBase(a);
+  const z=String(a.startZone||a.contactZone||'');
+  const copy={...a,startZone:z,endZone:z||''};
+  let code=v840BuildBase(copy);
+  if(z)code=code.replace(`.${z}>${z}`,`.${z}`);
+  if(a.blockTargetNumber)code+=`&${String(a.blockTargetNumber).replace(/\D/g,'').slice(0,3)}`;
+  return code;
+};
+const V870_TEMPO={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other'};
+const V870_SETTYPE={F:'Front',C:'Centre',B:'Back',P:'Pipe',S:'Setter dump'};
+function v870CleanToken(v,max=10){
+  return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,max);
+}
+const v870BuildBase=scoutBuildCode;
+scoutBuildCode=function(a){
+  let code=v870BuildBase(a);
+  const dvCode=a?.skill==='A'?a.attackCode:(a?.skill==='E'?a.setterCall:'');
+  const tempo=a?.skill==='A'?a.attackTempo:(a?.skill==='E'?a.setTempo:'');
+  if(dvCode)code+=`::${v870CleanToken(dvCode,6)}`;
+  if(tempo&&V870_TEMPO[tempo])code+=`~${tempo}`;
+  if(a?.skillSubtype)code+=`%${v870CleanToken(a.skillSubtype,8)}`;
+  if(a?.dvSetType&&V870_SETTYPE[a.dvSetType])code+=`|${a.dvSetType}`;
+  if(a?.specialCode)code+=`?${v870CleanToken(a.specialCode,10)}`;
+  if(a?.customCode)code+=`$${v870CleanToken(a.customCode,5)}`;
+  return code;
+};
+const v880BuildBase=scoutBuildCode;
+scoutBuildCode=function(a){
+  let code=v880BuildBase(a);
+  if(a?.skill==='A'&&a?.endCone&&a?.startZone){
+    const loc=`.${a.startZone}>C${a.endCone}`,prefixRe=/^((?:R)?(?:\d+|P)(?:S|R|E|A|B|D|F|C)[#\+!\-\/=])/;
+    if(!code.includes('>C'+a.endCone))code=code.replace(prefixRe,`$1${loc}`);
+  }
+  return code;
+};

@@ -3116,16 +3116,8 @@ scoutPushAction=function(action){
   return v840PushBase(action);
 };
 
-const v840BuildBase=scoutBuildCode;
-scoutBuildCode=function(a){
-  if(a?.skill!=='B')return v840BuildBase(a);
-  const z=String(a.startZone||a.contactZone||'');
-  const copy={...a,startZone:z,endZone:z||''};
-  let code=v840BuildBase(copy);
-  if(z)code=code.replace(`.${z}>${z}`,`.${z}`);
-  if(a.blockTargetNumber)code+=`&${String(a.blockTargetNumber).replace(/\D/g,'').slice(0,3)}`;
-  return code;
-};
+/* V20.5.43 · Block code preparation and target formatting are now handled
+ * together with DV modifiers and cones by the final single code builder. */
 
 /* V20.5.40 · Consolidates V8.3 directional and V8.4 blocking wrappers.
  * Both historical action-enrichment/normalization passes remain ordered,
@@ -5017,19 +5009,8 @@ scoutNormalizeAction=function(a){
   return x;
 };
 
-const v870BuildBase=scoutBuildCode;
-scoutBuildCode=function(a){
-  let code=v870BuildBase(a);
-  const dvCode=a?.skill==='A'?a.attackCode:(a?.skill==='E'?a.setterCall:'');
-  const tempo=a?.skill==='A'?a.attackTempo:(a?.skill==='E'?a.setTempo:'');
-  if(dvCode)code+=`::${v870CleanToken(dvCode,6)}`;
-  if(tempo&&V870_TEMPO[tempo])code+=`~${tempo}`;
-  if(a?.skillSubtype)code+=`%${v870CleanToken(a.skillSubtype,8)}`;
-  if(a?.dvSetType&&V870_SETTYPE[a.dvSetType])code+=`|${a.dvSetType}`;
-  if(a?.specialCode)code+=`?${v870CleanToken(a.specialCode,10)}`;
-  if(a?.customCode)code+=`$${v870CleanToken(a.customCode,5)}`;
-  return code;
-};
+/* V20.5.43 · DV code, tempo, subtype, set type and custom modifiers are
+ * appended by the final single code builder below. */
 
 function v870LegacyExtension(original){
   const skill=v870SkillFromRaw(original);
@@ -5307,15 +5288,66 @@ scoutPushAction=function(action){
   return out;
 };
 
-const v880BuildBase=scoutBuildCode;
-scoutBuildCode=function(a){
-  let code=v880BuildBase(a);
+/* V20.5.43 · Consolidated V8.4 -> V8.7 -> V8.8 final code builder.
+ * Retains the V8.3 code builder and player resolution, with one invocation.
+ * The TypeScript decisions are checked against the historical operations;
+ * native output wins if a bridge is missing, throws or differs. */
+const v20543BuildBase=scoutBuildCode;
+const v20543CodeStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20543NativeInput(a){
+  if(a?.skill!=='B')return a;
+  const z=String(a.startZone||a.contactZone||'');
+  return {...a,startZone:z,endZone:z||''};
+}
+function v20543NativeFinish(base,a){
+  let code=base;
+  if(a?.skill==='B'){
+    const z=String(a.startZone||a.contactZone||'');
+    if(z)code=code.replace(`.${z}>${z}`,`.${z}`);
+    if(a.blockTargetNumber)code+=`&${String(a.blockTargetNumber).replace(/\D/g,'').slice(0,3)}`;
+  }
+  const dvCode=a?.skill==='A'?a.attackCode:(a?.skill==='E'?a.setterCall:'');
+  const tempo=a?.skill==='A'?a.attackTempo:(a?.skill==='E'?a.setTempo:'');
+  if(dvCode)code+=`::${v870CleanToken(dvCode,6)}`;
+  if(tempo&&V870_TEMPO[tempo])code+=`~${tempo}`;
+  if(a?.skillSubtype)code+=`%${v870CleanToken(a.skillSubtype,8)}`;
+  if(a?.dvSetType&&V870_SETTYPE[a.dvSetType])code+=`|${a.dvSetType}`;
+  if(a?.specialCode)code+=`?${v870CleanToken(a.specialCode,10)}`;
+  if(a?.customCode)code+=`$${v870CleanToken(a.customCode,5)}`;
   if(a?.skill==='A'&&a?.endCone&&a?.startZone){
     const loc=`.${a.startZone}>C${a.endCone}`,prefixRe=/^((?:R)?(?:\d+|P)(?:S|R|E|A|B|D|F|C)[#\+!\-\/=])/;
     if(!code.includes('>C'+a.endCone))code=code.replace(prefixRe,`$1${loc}`);
   }
   return code;
+}
+scoutBuildCode=function(a){
+  const api=window.VC_SCOUT_CODE_BUILDER_20543;
+  const active=api?.VERSION==='20.5.43'&&api.pureOnly===true&&
+    typeof api.prepare==='function'&&typeof api.finish==='function';
+  const nativeInput=v20543NativeInput(a);
+  let chosen=nativeInput;
+  if(active){
+    try{
+      const typedInput=api.prepare(a);
+      const nativeFields=Object.keys(nativeInput),typedFields=Object.keys(typedInput);
+      if(nativeFields.length===typedFields.length&&nativeFields.every(k=>Object.prototype.hasOwnProperty.call(typedInput,k)&&typedInput[k]===nativeInput[k])){
+        chosen=typedInput;
+      }else v20543CodeStats.mismatches++;
+    }catch(_){v20543CodeStats.exceptions++;}
+  }
+  const base=v20543BuildBase(chosen);
+  const nativeCode=v20543NativeFinish(base,a);
+  if(active){
+    try{
+      const typedCode=api.finish(base,a);
+      if(typedCode===nativeCode){v20543CodeStats.typed++;return typedCode;}
+      v20543CodeStats.mismatches++;
+    }catch(_){v20543CodeStats.exceptions++;}
+  }
+  v20543CodeStats.native++;
+  return nativeCode;
 };
+window.VC_SCOUT_CODE_BUILDER_DIAGNOSTICS_20543=()=>Object.freeze({...v20543CodeStats});
 
 function v880LegacyExtension(original){
   const cm=original.match(/^((?:R)?\d+A[#\+!\-\/=]?)\.([1-9][A-D]?)>C([1-8])(.*)$/);

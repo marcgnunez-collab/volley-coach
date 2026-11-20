@@ -90,10 +90,10 @@ test('literal dorsal comparison retains legacy distinction between 8 and 08',asy
 
 test('V20.5.40 ships one directional/block wrapper, new player bridge and protected writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.42');
+ assert.equal(pkg.version,'20.5.43');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20540-player-direction-consolidation.test.cjs'));
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.42'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.43'));
  assert.ok(sw.includes('direction-block-consolidation-20.5.40'));
  const source=read('021-core-scouting-v150-monolithic.js');
  assert.equal((source.match(/scoutV6108ParseRaw=function\(/g)||[]).length,2);
