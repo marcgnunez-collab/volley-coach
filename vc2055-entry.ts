@@ -37,6 +37,7 @@ import {installScoutIdentityFieldsBridge} from './domain/scout-action-identity-f
 import {installScoutMatchVideoContainerBridge} from './domain/scout-match-video-container-runtime';
 import {installMatchVideoOverlayBridge} from './domain/scout-match-video-overlay-runtime';
 import {installMatchManualResultBridge} from './domain/scout-match-manual-result-runtime';
+import {installRallyVideoBoundsBridge} from './domain/scout-rally-video-bounds-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -128,6 +129,8 @@ export {normalizeMatchVideoOverlay} from './domain/scout-match-video-overlay';
 export {installMatchVideoOverlayBridge};
 export {normalizeMatchManualResult} from './domain/scout-match-manual-result';
 export {installMatchManualResultBridge};
+export {normalizeRallyVideoBounds} from './domain/scout-rally-video-bounds';
+export {installRallyVideoBoundsBridge};
 export {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -150,6 +153,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutMatchVideoContainerBridge(window);
  installMatchVideoOverlayBridge(window);
  installMatchManualResultBridge(window);
+ installRallyVideoBoundsBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

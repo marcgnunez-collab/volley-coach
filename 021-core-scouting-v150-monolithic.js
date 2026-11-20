@@ -7,6 +7,34 @@ const SCOUT_POS=['p1','p2','p3','p4','p5','p6'];
 const scoutClone=v=>{try{return JSON.parse(JSON.stringify(v))}catch(_){return v}};
 const scoutArr=v=>Array.isArray(v)?v:[];
 const scoutNow=()=>new Date().toISOString();
+/* V20.5.53 · One rally normalizer, with the historical V7.0 video phase. */
+let v20553RallyVideoReady=false;
+const v20553RallyVideoStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20553SelectRallyVideoBounds(r){
+  const native={videoStart:r?.videoStart==null?null:Number(r.videoStart),
+    videoEnd:r?.videoEnd==null?null:Number(r.videoEnd)};
+  try{
+    const api=window.VC_SCOUT_RALLY_VIDEO_20553;
+    if(api?.VERSION==='20.5.53'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if(r&&typeof r==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(r)).some(d=>!('value' in d))){
+        v20553RallyVideoStats.native++;return native;
+      }
+      const typed=api.normalize(r);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===2&&
+        Object.prototype.hasOwnProperty.call(typed,'videoStart')&&
+        Object.prototype.hasOwnProperty.call(typed,'videoEnd')&&
+        Object.is(typed.videoStart,native.videoStart)&&
+        Object.is(typed.videoEnd,native.videoEnd)){
+        v20553RallyVideoStats.typed++;return typed;
+      }
+      v20553RallyVideoStats.mismatches++;
+    }
+  }catch(_){v20553RallyVideoStats.exceptions++;}
+  v20553RallyVideoStats.native++;return native;
+}
+window.VC_SCOUT_RALLY_VIDEO_DIAGNOSTICS_20553=()=>Object.freeze({...v20553RallyVideoStats,
+  videoEnabled:v20553RallyVideoReady});
 function scoutEmptyLineup(){return {ours:{p1:null,p2:null,p3:null,p4:null,p5:null,p6:null},opponent:{p1:'',p2:'',p3:'',p4:'',p5:'',p6:''}}}
 function scoutEmptySet(n){return {number:n,scoreUs:0,scoreOpponent:0,finished:false,winner:null,rallies:[],startedAt:scoutNow(),endedAt:null}}
 function scoutNormalizeLineup(raw){const base=scoutEmptyLineup();SCOUT_POS.forEach(p=>{base.ours[p]=raw?.ours?.[p]!=null&&raw?.ours?.[p]!==''?Number(raw.ours[p]):null;base.opponent[p]=String(raw?.opponent?.[p]||'')});return base}
@@ -26,7 +54,7 @@ function scoutNormalizeLibero(raw){
   };
 }
 function scoutNormalizeAction(a){return {...(a&&typeof a==='object'&&!Array.isArray(a)?a:{}),id:Number(a?.id)||Date.now(),seq:Number(a?.seq)||1,team:a?.team==='opponent'?'opponent':'ours',playerId:a?.playerId!=null&&a?.playerId!==''?Number(a.playerId):null,playerLabel:String(a?.playerLabel||''),playerNameSnapshot:String(a?.playerNameSnapshot||''),playerNumberSnapshot:a?.playerNumberSnapshot??'',skill:SCOUT_SKILLS[a?.skill]?a.skill:'S',evaluation:['#','+','!','-','/','='].includes(a?.evaluation)?a.evaluation:'!',startZone:String(a?.startZone||''),endZone:String(a?.endZone||''),serveType:['F','JF','JP','U'].includes(a?.serveType)?a.serveType:'',phase:['K1','K2','FB','TR'].includes(a?.phase)?a.phase:'',setTarget:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.setTarget)?a.setTarget:'',attackCombo:['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR'].includes(a?.attackCombo)?a.attackCombo:'',attackTempo:['RAP','MED','ALT'].includes(a?.attackTempo)?a.attackTempo:'',blockers:['0','1','2','3'].includes(String(a?.blockers))?String(a.blockers):'',code:String(a?.code||''),validationWarnings:scoutArr(a?.validationWarnings).map(String).slice(0,8),createdAt:String(a?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(a?.scoutMs)||0),videoTime:a?.videoTime==null?null:Number(a.videoTime),videoSource:String(a?.videoSource||'')}}
-function scoutNormalizeRally(r){return {...(r&&typeof r==='object'&&!Array.isArray(r)?r:{}),id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)}}
+function scoutNormalizeRally(r){const x={...(r&&typeof r==='object'&&!Array.isArray(r)?r:{}),id:Number(r?.id)||Date.now(),setNumber:Number(r?.setNumber)||1,servingBefore:r?.servingBefore==='opponent'?'opponent':'ours',rotationBefore:Math.min(6,Math.max(1,Number(r?.rotationBefore)||1)),opponentRotationBefore:Math.min(6,Math.max(1,Number(r?.opponentRotationBefore)||1)),lineupBefore:scoutNormalizeLineup(r?.lineupBefore),baseLineupBefore:r?.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):null,liberoBefore:r?.liberoBefore?scoutNormalizeLibero(r.liberoBefore):null,lineupRolesBefore:r?.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):null,scoreBefore:{us:Number(r?.scoreBefore?.us)||0,opponent:Number(r?.scoreBefore?.opponent)||0},scoreAfter:{us:Number(r?.scoreAfter?.us)||0,opponent:Number(r?.scoreAfter?.opponent)||0},winner:r?.winner==='opponent'?'opponent':'ours',actions:scoutArr(r?.actions).map(scoutNormalizeAction),startedAt:String(r?.startedAt||scoutNow()),endedAt:String(r?.endedAt||scoutNow()),scoutStartMs:Math.max(0,Number(r?.scoutStartMs)||0),scoutEndMs:Math.max(0,Number(r?.scoutEndMs)||0),editedAt:r?.editedAt?String(r.editedAt):null,editCount:Math.max(0,Number(r?.editCount)||0)};if(v20553RallyVideoReady){const video=v20553SelectRallyVideoBounds(r);x.videoStart=video.videoStart;x.videoEnd=video.videoEnd}return x}
 function scoutNormalizeSet(s,i=0){return {...(s&&typeof s==='object'&&!Array.isArray(s)?s:{}),number:Number(s?.number)||i+1,scoreUs:Number(s?.scoreUs)||0,scoreOpponent:Number(s?.scoreOpponent)||0,finished:!!s?.finished,winner:s?.winner==='opponent'?'opponent':s?.winner==='ours'?'ours':null,rallies:scoutArr(s?.rallies).map(scoutNormalizeRally),startedAt:String(s?.startedAt||scoutNow()),endedAt:s?.endedAt?String(s.endedAt):null}}
 function scoutNormalizeMatch(m){const sets=scoutArr(m?.sets).map(scoutNormalizeSet);return {...(m&&typeof m==='object'&&!Array.isArray(m)?m:{}),dataVersion:String(m?.dataVersion||'6.8.0'),id:Number(m?.id)||Date.now(),linkedMatchId:m?.linkedMatchId?Number(m.linkedMatchId):null,date:String(m?.date||fechaLocalISO()),opponent:String(m?.opponent||'Rival'),competition:String(m?.competition||''),status:m?.status==='finished'?'finished':'live',currentSet:Math.max(1,Number(m?.currentSet)||1),servingTeam:m?.servingTeam==='opponent'?'opponent':'ours',rotationNo:Math.min(6,Math.max(1,Number(m?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(m?.opponentRotationNo)||1)),lineup:scoutNormalizeLineup(m?.lineup),baseLineup:scoutNormalizeLineup(m?.baseLineup||m?.lineup),lineupRoles:scoutNormalizeRoles(m?.lineupRoles),libero:scoutNormalizeLibero(m?.libero),sets:sets.length?sets:[scoutEmptySet(1)],events:scoutArr(m?.events).map(e=>({...(e&&typeof e==='object'&&!Array.isArray(e)?e:{}),id:Number(e?.id)||Date.now(),type:['libero','libero_auto','substitution','timeout_ours','timeout_opponent','challenge_ours','challenge_opponent','card','injury','interruption','note'].includes(e?.type)?e.type:'substitution',team:e?.team==='opponent'?'opponent':'ours',setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,position:String(e?.position||''),uid:String(e?.uid||''),action:String(e?.action||''),rallyId:e?.rallyId!=null?(Number(e.rallyId)||null):null,rotationNo:Number(e?.rotationNo)||null,opponentRotationNo:Number(e?.opponentRotationNo)||null,videoTime:e?.videoTime==null?null:Number(e.videoTime),videoSource:String(e?.videoSource||''),videoExact:!!e?.videoExact,outPlayerId:e?.outPlayerId!=null?Number(e.outPlayerId):null,inPlayerId:e?.inPlayerId!=null?Number(e.inPlayerId):null,outLabel:String(e?.outLabel||''),inLabel:String(e?.inLabel||''),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0)})),clockStartedAt:String(m?.clockStartedAt||m?.createdAt||scoutNow()),clockAccumulatedMs:Math.max(0,Number(m?.clockAccumulatedMs)||0),clockMode:'active-only',liveRally:{...(m?.liveRally&&typeof m.liveRally==='object'&&!Array.isArray(m.liveRally)?m.liveRally:{}),id:Number(m?.liveRally?.id)||Date.now(),actions:scoutArr(m?.liveRally?.actions).map(scoutNormalizeAction),startedAt:String(m?.liveRally?.startedAt||scoutNow()),scoutStartMs:Math.max(0,Number(m?.liveRally?.scoutStartMs)||0),startSnapshot:m?.liveRally?.startSnapshot?scoutClone(m.liveRally.startSnapshot):null},createdAt:String(m?.createdAt||scoutNow()),updatedAt:String(m?.updatedAt||scoutNow()),endedAt:m?.endedAt?String(m.endedAt):null}}
 /* V20.5.46 · The existing V6.8 normalizer owns IDs and timestamps exactly
@@ -2946,11 +2974,9 @@ window.scoutV700PlayRally=function(setNo,rallyId){const m=v700Match()||scoutActi
 function v700OnTimeUpdate(){const v=v700Video();if(!v)return;if(v700$('scout-v700-current-time'))v700$('scout-v700-current-time').textContent=v700Fmt(v.currentTime);if(v700StopAt!=null&&v.currentTime>=v700StopAt-.04){v.pause();v700StopAt=null}}
 setTimeout(()=>{const v=v700Video();if(v){v.addEventListener('timeupdate',v700OnTimeUpdate);v.addEventListener('seeking',()=>{if(v700StopAt!=null&&v.currentTime>v700StopAt+1)v700StopAt=null})}},0);
 
-/* V20.5.46 · Removed the duplicate V7.0 action-video normalization:
- * V6.9 already projects videoStart/videoAction/videoEnd/clipId identically,
- * and intermediate action enrichments do not overwrite these properties.
- * Rally and match video normalization below remain untouched. */
-const v700NormRallyBase=scoutNormalizeRally;scoutNormalizeRally=function(r){const x=v700NormRallyBase(r);x.videoStart=r?.videoStart==null?null:Number(r.videoStart);x.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);return x};
+/* V20.5.53 · Enable V7.0 rally video timestamps at their original installation
+ * point; the base rally normalizer is now the only writer of these two fields. */
+v20553RallyVideoReady=true;
 /* V20.5.51 · Preserve V7.0's installation moment without another wrapper.
  * V700_VERSION is private to this video runtime; pass its value to the shared layer. */
 v20551VideoOverlayVersion=V700_VERSION;

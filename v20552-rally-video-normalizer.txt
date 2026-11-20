@@ -1,0 +1,8 @@
+/* V7.0 · Historical rally video wrapper archived from V20.5.52. */
+const v700NormRallyBase=scoutNormalizeRally;
+scoutNormalizeRally=function(r){
+  const x=v700NormRallyBase(r);
+  x.videoStart=r?.videoStart==null?null:Number(r.videoStart);
+  x.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);
+  return x;
+};

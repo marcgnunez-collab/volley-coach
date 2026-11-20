@@ -164,17 +164,18 @@ test('root accessors do not cause extra match or final-result property reads',as
 
 test('V20.5.52 removes only V8.6.1 normalization wrapper and keeps manual score writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.52');
+ assert.equal(pkg.version,'20.5.53');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20552-manual-result-consolidation.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(name+'?v=20.5.52'),name);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(name+'?v=20.5.53'),name);
  assert.ok(sw.includes('manual-result-20.5.52'));
  assert.ok(!source.includes('const v861NormBase=scoutNormalizeMatch'));
  assert.ok(source.includes('v20552ManualResultVersion=V861_VERSION'));
  assert.ok(source.includes('v20552ManualResultReady=true'));
  assert.ok(source.includes('const v861SetsScoreBase=scoutSetsScore'));
  assert.ok(source.includes('window.scoutV861OpenFinishSet=function()'));
- assert.ok(source.includes('const v700NormRallyBase=scoutNormalizeRally'));
+ assert.ok(!source.includes('const v700NormRallyBase=scoutNormalizeRally'));
+ assert.ok(source.includes('v20553RallyVideoReady=true'));
  assert.ok(source.includes('const v700SaveBase=scoutSave'));
  assert.ok(source.includes('const v6102NormMatchBase=scoutNormalizeMatch'));
  assert.ok(read('src/vc2055-entry.ts').includes('installMatchManualResultBridge(window)'));
