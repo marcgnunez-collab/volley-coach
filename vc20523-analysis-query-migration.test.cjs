@@ -180,9 +180,9 @@ test('Gestión has a manually refreshed performance panel with no timers, identi
 test('V20.5.23 publishes a typed query, stable legacy adapter and no new scoring writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js'),
   entry=read('src/vc2055-entry.ts'),legacy=read('190-vc1939-rally-search-pro.js');
- assert.equal(pkg.version,'20.5.55');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.55'));
+ assert.equal(pkg.version,'20.5.56');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.56'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.56'));
  assert.ok(sw.includes('analysis-query-migration-20.5.23'));
  assert.ok(entry.includes('installAnalysisQueryBridge(window)'));
  assert.ok(entry.includes('mountAnalysisQueryPerformance(window)'));
@@ -196,6 +196,6 @@ test('V20.5.23 publishes a typed query, stable legacy adapter and no new scoring
    assert.equal(text.includes(forbidden),false,`${file}: ${forbidden}`);
  }
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

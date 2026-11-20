@@ -160,11 +160,11 @@ test('finalization getters preserve historical read counts with native fallback'
 
 test('V20.5.54 keeps score, video and cloud writers without secondary match wrapper',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.55');
+ assert.equal(pkg.version,'20.5.56');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20554-match-finalization-unification.test.cjs'));
  for(const file of ['021-core-scouting-v150-monolithic.js',
   '213-vc2021-scouting-speed-pro.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(file+'?v=20.5.55'),file);
+  assert.ok(html.includes(file+'?v=20.5.56'),file);
  assert.ok(sw.includes('match-finalization-20.5.54'));
  assert.equal((source.match(/scoutNormalizeMatch=function\(/g)||[]).length,1);
  assert.ok(source.includes('v20554FinalizationReady=true'));
@@ -183,6 +183,6 @@ test('V20.5.54 keeps score, video and cloud writers without secondary match wrap
   'scoutPushAction(', 'scoutSave(', 'v121AwardPoint','window.MatchState='])
   assert.ok(!pure.includes(forbidden)&&!runtime.includes(forbidden),forbidden);
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

@@ -142,10 +142,10 @@ test('write rejection and missing match preserve native return value and no phan
 
 test('V20.5.44 replaces three scouting preparation wrappers with one, leaving writers intact',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.55');
+ assert.equal(pkg.version,'20.5.56');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20544-action-registration-consolidation.test.cjs'));
  for(const asset of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(asset+'?v=20.5.55'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(asset+'?v=20.5.56'));
  assert.ok(sw.includes('registration-preparation-consolidation-20.5.44'));
  assert.ok(!source.includes('const v6108PushActionBase='));
  assert.ok(!source.includes('const v830PushBase='));
@@ -160,6 +160,6 @@ test('V20.5.44 replaces three scouting preparation wrappers with one, leaving wr
   'scoutPushAction(', 'scoutPlayer(', 'v121AwardPoint'])
   assert.equal(pure.includes(forbidden)||runtime.includes(forbidden),false,forbidden);
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

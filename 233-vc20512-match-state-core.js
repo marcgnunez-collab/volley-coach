@@ -51,6 +51,13 @@ async function persistSelection(){
 async function select(id,{saveCurrent=true,openWorkspace=true}={}){
   id=Number(id)||0;const target=byId(id);if(!target)throw new Error('No se encuentra el scouting seleccionado.');
   const current=active();if(Number(current?.id)===id){refreshReadonly();return target}
+  /* V20.5.56: do not switch the active match during an unfinished native rally
+     save. Pending queued commands are discarded by the same typed coordinator. */
+  let releaseSelection=()=>{};
+  try{
+    const prepare=window.MatchState?.commands?.prepareMatchSwitch;
+    if(typeof prepare==='function')releaseSelection=await prepare();
+    if(!byId(id))throw new Error('El scouting seleccionado ya no está disponible.');
   if(saveCurrent&&current){try{await window.scoutV902Flush?.()}catch(_){try{window.scoutSave?.(false)}catch(__){}}}
   if(current&&String(current.status||'')!=='finished'){try{window.VC_SCOUT_VIDEO_BRIDGE?.pauseClock?.(current)}catch(_){}}
   let selected=null;
@@ -67,6 +74,7 @@ async function select(id,{saveCurrent=true,openWorkspace=true}={}){
   if(openWorkspace){try{window.showView?.('scout-workspace-v900',window.botonVista?.('scout-workspace-v900')||null)}catch(_){} }
   refreshProfessionalUi();
   return selected;
+  }finally{try{releaseSelection()}catch(_){}}
 }
 function mutate(mutator,reason='mutation',{save=true}={}){
   const m=active();if(!m)throw new Error('No hay scouting activo.');if(isReadonly(m))throw new Error('Este scouting está finalizado y se ha abierto en modo solo lectura.');

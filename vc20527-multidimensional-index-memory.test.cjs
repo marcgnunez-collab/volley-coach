@@ -109,9 +109,9 @@ test('memory diagnostic is an estimate of references, never a promise of module 
 test('V20.5.27 bundles typed indexes without native writes or legacy removals',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.55');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.55'));
+ assert.equal(pkg.version,'20.5.56');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.56'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.56'));
  assert.ok(sw.includes('multi-filter-memory-20.5.27'));
  assert.ok(entry.includes('installAnalysisExportBridge(window)'));
  assert.ok(pkg.scripts['test:foundation'].includes('vc20527-multidimensional-index-memory.test.cjs'));
@@ -121,6 +121,6 @@ test('V20.5.27 bundles typed indexes without native writes or legacy removals',(
    'scoutPushAction(','v121AwardPoint=','window.MatchState='])
    assert.equal(read(file).includes(forbidden),false,`${file}: ${forbidden}`);
  const sha=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(sha('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(sha('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(sha('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(sha('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

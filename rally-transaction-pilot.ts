@@ -22,9 +22,11 @@ export interface PilotOptions{
  readonly startBlockedForPendingRecovery?:boolean;
  /** Marks a caller-owned live binding; standalone test pilots stay detached. */
  readonly installedInLiveUI?:boolean;
+ /** V20.5.56: discard queued commands after a match selection or reload. */
+ readonly requireStableMatchForCommands?:boolean;
 }
 export type PilotOperation='point'|'undo';
-export type PilotVerdict=ShadowVerdict|'native-rejected'|'native-declined'|'recovery-blocked';
+export type PilotVerdict=ShadowVerdict|'native-rejected'|'native-declined'|'recovery-blocked'|'context-discarded';
 export interface PilotFinding{
  readonly operation:PilotOperation;
  readonly verdict:PilotVerdict;
@@ -47,6 +49,8 @@ export interface PilotReport{
  /** Failed commands whose state could not be inspected safely afterwards. */
  readonly uninspectedFailures:number;
  readonly blockedCommands:number;
+ readonly contextDiscarded:number;
+ readonly selectionPending:boolean;
  readonly recoveryGuard:Readonly<{
   enabled:boolean;
   blocked:boolean;
@@ -103,9 +107,11 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
  let chain:Promise<unknown>=Promise.resolve(),closed=false;
  const gated=options.requireRecoveryAfterNativeFailure===true;
  const liveBinding=options.installedInLiveUI===true;
+ const scoped=options.requireStableMatchForCommands===true;
+ let selectionHolders=0,selectionEpoch=0;
  let blocked=gated&&options.startBlockedForPendingRecovery===true;
  let lastEvidence:RecoveryEvidence='not-checked';
- let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,partialMutations=0,uninspectedFailures=0,blockedCommands=0,pending=0;
+ let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,partialMutations=0,uninspectedFailures=0,blockedCommands=0,contextDiscarded=0,pending=0;
  const recent:PilotFinding[]=[];
  const record=(finding:Readonly<PilotFinding>)=>{
   completed++;
@@ -114,6 +120,7 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
   else if(finding.verdict==='native-rejected')nativeRejected++;
   else if(finding.verdict==='native-declined')nativeDeclined++;
   else if(finding.verdict==='recovery-blocked')blockedCommands++;
+  else if(finding.verdict==='context-discarded')contextDiscarded++;
   else unverified++;
   if(finding.verdict==='native-rejected'||finding.verdict==='native-declined'){
    lastEvidence=finding.durability;
@@ -132,7 +139,12 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
   try{return classifyRecoveryEvidence(before,after,captureRecoveryFrame(await port.readDurableLocal()));}
   catch(_){return 'unreadable';}
  };
- const execute=async(operation:PilotOperation,winner?:Team):Promise<unknown>=>{
+ const execute=async(operation:PilotOperation,winner?:Team,expected?:unknown,epoch?:number):Promise<unknown>=>{
+  // No retry or implicit retargeting: the identity is the actual canonical object,
+  // so a restored copy with the same ID is NOT the same writable session.
+  if(scoped&&(selectionHolders>0||epoch!==selectionEpoch||!expected||safeRead()!==expected)){
+   record(verdict(operation,'context-discarded'));return false;
+  }
   if(blocked){
    record(verdict(operation,'recovery-blocked'));
    throw new Error('Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.');
@@ -169,8 +181,14 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
  };
  const submit=(operation:PilotOperation,winner?:Team)=>{
   if(closed)return Promise.reject(new Error('El piloto ya está desactivado.'));
-  submitted++;pending++;
-  const run=chain.then(()=>execute(operation,winner));
+  submitted++;
+  if(scoped&&selectionHolders>0){
+   record(verdict(operation,'context-discarded'));
+   return Promise.resolve(false);
+  }
+  pending++;
+  const expected=scoped?safeRead():null,epoch=selectionEpoch;
+  const run=chain.then(()=>execute(operation,winner,expected,epoch));
   // A failure does not poison the FIFO; the next task still runs exactly once.
   chain=run.then(()=>undefined,()=>undefined);
   return run.finally(()=>{pending--;});
@@ -179,6 +197,7 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
   version:'20.5.18',mode:'explicit-native-delegation-only',installedInLiveUI:liveBinding,
   submitted,completed,agree,difference,unverified,nativeRejected,nativeDeclined,
   partialMutations,uninspectedFailures,blockedCommands,pending,
+  contextDiscarded,selectionPending:selectionHolders>0,
   recoveryGuard:Object.freeze({enabled:gated,blocked,lastEvidence}),
   recent:Object.freeze([...recent])
  });
@@ -187,6 +206,17 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
   awardPoint:(winner:Team)=>submit('point',winner),
   undoRally:()=>submit('undo'),
   report:snapshot,
+  /** Mark queued commands stale immediately, then await all in-flight native work.
+   * The caller MUST release after finishing the match selection (even on error).
+   * No native write is cancelled mid-commit or replayed against another match.
+   */
+  async beginMatchSelection(){
+   if(!scoped||closed)return()=>{};
+   selectionHolders++;selectionEpoch++;
+   await chain;
+   let released=false;
+   return ()=>{if(released)return;released=true;selectionHolders=Math.max(0,selectionHolders-1);};
+  },
   /** Opt-in operator step after reloading from the existing local persistence owner.
    * Both independently read frames must match, including the real match identity.
    * Cloud delivery still requires separate CAS/sync verification.

@@ -132,6 +132,6 @@ test('legacy V20.1.2 script stays for regression, but exactly one active UI is l
  assert.ok(read('211-vc2012-multi-device-validation.js').includes('VC_SYNC_2012'));
  assert.ok(sw.includes('domain-20.5.5'));
  const sha=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(sha('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(sha('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(sha('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(sha('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

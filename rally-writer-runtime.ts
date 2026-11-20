@@ -23,7 +23,7 @@ export function installLiveRallyWriterBridge(win:object):Readonly<LiveRallyWrite
     throw new TypeError('El coordinador requiere los escritores nativos originales.');
    // Observation first. Never retry or substitute the native writer; recovery blocking
    // remains separately opt-in until a durable, acknowledged recovery UI is available.
-   return createRallyTransactionPilot(port,{installedInLiveUI:true});
+   return createRallyTransactionPilot(port,{installedInLiveUI:true,requireStableMatchForCommands:true});
   }
  });
  installed.set(win,bridge);

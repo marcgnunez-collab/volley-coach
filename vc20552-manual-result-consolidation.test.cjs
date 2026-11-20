@@ -166,10 +166,10 @@ test('root accessors do not cause extra match or final-result property reads',as
 
 test('V20.5.52 removes only V8.6.1 normalization wrapper and keeps manual score writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.55');
+ assert.equal(pkg.version,'20.5.56');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20552-manual-result-consolidation.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(name+'?v=20.5.55'),name);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(name+'?v=20.5.56'),name);
  assert.ok(sw.includes('manual-result-20.5.52'));
  assert.ok(!source.includes('const v861NormBase=scoutNormalizeMatch'));
  assert.ok(source.includes('v20552ManualResultVersion=V861_VERSION'));
@@ -188,6 +188,6 @@ test('V20.5.52 removes only V8.6.1 normalization wrapper and keeps manual score 
   'scoutPushAction(', 'scoutSave(', 'v121AwardPoint','window.MatchState='])
   assert.ok(!pure.includes(forbidden)&&!runtime.includes(forbidden),forbidden);
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

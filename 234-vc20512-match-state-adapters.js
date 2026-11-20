@@ -26,7 +26,7 @@ let operationSeq=0,lastOperation='boot',renderQueued=false;
  * The existing V12.1 commands stay as the only persistence/video owners.
  * If the bundle has not loaded, the captured original command still works.
  */
-let rallyCoordinator=null,rallyCoordinatorStatus='awaiting-module';
+let rallyCoordinator=null,rallyCoordinatorStatus='awaiting-module',notifiedContextDrops=0;
 function getRallyCoordinator(){
   if(rallyCoordinator)return rallyCoordinator;
   const bridge=window.VC_RALLY_WRITER_20555;
@@ -42,9 +42,17 @@ function getRallyCoordinator(){
     rallyCoordinator=next;rallyCoordinatorStatus='active';return rallyCoordinator;
   }catch(error){rallyCoordinatorStatus='module-error';console.warn('V20.5.55 coordinator unavailable',error);return null}
 }
-function delegateRallyCommand(operation,winner){
+async function delegateRallyCommand(operation,winner){
   const coordinator=getRallyCoordinator();
-  if(coordinator)return operation==='point'?coordinator.awardPoint(winner):coordinator.undoRally();
+  if(coordinator){
+    const result=operation==='point'?await coordinator.awardPoint(winner):await coordinator.undoRally();
+    const discarded=coordinator.report().contextDiscarded||0;
+    if(discarded>notifiedContextDrops){
+      notifiedContextDrops=discarded;
+      window.alert?.('No se ha registrado la acción porque se estaba cambiando de partido. Comprueba el marcador antes de continuar.');
+    }
+    return result;
+  }
   // Fallback is only for an ABSENT coordinator, never for a failed native call.
   return operation==='point'?captured.point(winner):captured.undo();
 }
@@ -81,6 +89,10 @@ async function throughState(name,fn,args=[],opts={}){
   finally{if(seq===operationSeq)$('v131-state-chip')?.classList.remove('busy')}
 }
 const commands={
+  prepareMatchSwitch:async()=>{
+    const coordinator=getRallyCoordinator();
+    return typeof coordinator?.beginMatchSelection==='function'?coordinator.beginMatchSelection():()=>{};
+  },
   awardPoint:winner=>throughState('score:point',()=>delegateRallyCommand('point',winner)),
   undoRally:()=>throughState('score:undo',()=>delegateRallyCommand('undo')),
   saveLineup:()=>throughState('lineup:save',captured.lineup,[]),

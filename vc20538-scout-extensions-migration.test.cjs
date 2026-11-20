@@ -123,11 +123,11 @@ test('extension runtime is idempotent and failures fall back without changing ou
 
 test('V20.5.38 source integration keeps action writer, video and sync boundaries protected',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.55');
+ assert.equal(pkg.version,'20.5.56');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20538-scout-extensions-migration.test.cjs'));
  for(const src of ['vc2055-domain-core.mjs','021-core-scouting-v150-monolithic.js',
   '213-vc2021-scouting-speed-pro.js'])
-  assert.ok(html.includes(src+'?v=20.5.55'),src);
+  assert.ok(html.includes(src+'?v=20.5.56'),src);
  assert.ok(sw.includes('scout-extensions-20.5.38'));
  assert.ok(read('src/vc2055-entry.ts').includes('installScoutingExtensionsBridge(window)'));
  const ts=read('src/domain/scout-grammar-extensions.ts'),
@@ -141,6 +141,6 @@ test('V20.5.38 source integration keeps action writer, video and sync boundaries
  assert.ok(native.includes("v20538CheckedExtension('cone'"));
  assert.ok(native.includes('const pushed=scoutPushAction(parsed.action)'));
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });

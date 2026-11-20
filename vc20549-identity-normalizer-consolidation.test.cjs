@@ -139,11 +139,11 @@ test('accessor-bearing actions use the native branch without extra getter reads'
 
 test('one early wrapper keeps both normalization boundaries and leaves writers unchanged',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.55');
+ assert.equal(pkg.version,'20.5.56');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20549-identity-normalizer-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.55'),file);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.56'),file);
  assert.ok(sw.includes('identity-video-consolidation-20.5.49'));
  assert.ok(source.includes('const v690NormActionBase=scoutNormalizeAction'));
  assert.ok(source.includes('v20549OpponentIdentityReady=true'));
@@ -161,6 +161,6 @@ test('one early wrapper keeps both normalization boundaries and leaves writers u
   'scoutPushAction(', 'scoutSave(', 'v121AwardPoint','window.MatchState='])
   assert.equal(pure.includes(prohibited)||runtime.includes(prohibited),false,prohibited);
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
- assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
+ assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
 });
