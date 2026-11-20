@@ -124,15 +124,15 @@ test('V20.5.39 removes two active wrapper layers without modifying protected wri
  assert.ok(source.includes('a=scoutNormalizeAction({...a,...v880DataVolleyFields(a,m)})'));
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
 });
 
 test('V20.5.39 sources, assets and service worker are versioned together',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.54');
+ assert.equal(pkg.version,'20.5.55');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20539-parser-consolidation.test.cjs'));
  for(const script of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(script+'?v=20.5.54'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(script+'?v=20.5.55'));
  assert.ok(sw.includes('canonical-parser-20.5.39'));
  assert.ok(read('GUIA_V20.5.39_PARSER_CANONICO.md').includes('V20.5.39'));
 });

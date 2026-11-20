@@ -41,16 +41,16 @@ test('two-device regression exercises recovered checkpoint, CAS acknowledgement 
 
 test('V20.5.20 release does not mount an alternative point writer or alter native CAS and journal modules',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.54');
+ assert.equal(pkg.version,'20.5.55');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20520-ci-recovery.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.54'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.54'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.55'));
  assert.ok(sw.includes('ci-recovery-20.5.20'));
  assert.ok(!html.includes('createRallyTransactionPilot('));
  assert.ok(!html.includes('inspectJournalRecovery('));
  const sha=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(sha('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(sha('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(sha('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
  const journal=read('210-vc2011-durable-sync-journal.js');
  assert.ok(journal.includes('vc2011-sync-journal-v1'));
  assert.ok(journal.includes('guardCleanPull'));

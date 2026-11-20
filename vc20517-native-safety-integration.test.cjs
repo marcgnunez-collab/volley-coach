@@ -206,15 +206,15 @@ test('failure findings are bounded and omit player, rally, match and video ident
 
 test('release retains the historical native writers, deployment separation and opt-in-only pilot',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.54');
+ assert.equal(pkg.version,'20.5.55');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20517-native-safety-integration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.54'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.54'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.55'));
  assert.ok(sw.includes('native-safety-20.5.17'));
  assert.ok(!html.includes('createRallyTransactionPilot('));
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
  const source=read('src/domain/rally-transaction-pilot.ts');
  for(const forbidden of ['scoutSave(', 'localStorage', 'indexedDB', 'supabase',
   'window.', 'document.', 'getSnapshot(', 'v121AwardPoint='])

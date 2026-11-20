@@ -39,6 +39,7 @@ import {installMatchVideoOverlayBridge} from './domain/scout-match-video-overlay
 import {installMatchManualResultBridge} from './domain/scout-match-manual-result-runtime';
 import {installRallyVideoBoundsBridge} from './domain/scout-rally-video-bounds-runtime';
 import {installMatchFinalizationBridge} from './domain/scout-match-finalization-runtime';
+import {installLiveRallyWriterBridge} from './domain/rally-writer-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -49,6 +50,7 @@ export {planAwardPoint,planUndoLastRally,inspectClosedRally} from './domain/rall
 export {projectSetBoundary,inspectRallyRestoration} from './domain/rally-boundaries';
 export {compareConfirmedPoint,createRallyShadowSession} from './domain/rally-shadow';
 export {createRallyTransactionPilot} from './domain/rally-transaction-pilot';
+export {installLiveRallyWriterBridge,RALLY_WRITER_VERSION} from './domain/rally-writer-runtime';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
@@ -158,6 +160,7 @@ if(typeof window!=='undefined'&&window.document){
  installMatchManualResultBridge(window);
  installRallyVideoBoundsBridge(window);
  installMatchFinalizationBridge(window);
+ installLiveRallyWriterBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

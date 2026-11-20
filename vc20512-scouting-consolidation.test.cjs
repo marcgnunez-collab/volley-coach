@@ -13,7 +13,7 @@ const hash=value=>crypto.createHash('sha256').update(value.trimEnd()).digest('he
 
 test('V20.5.12 extracts the canonical scripts byte-for-byte, without changing their legacy logic',()=>{
  assert.equal(hash(read(coreFile)),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash(read(adapterFile)),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(hash(read(adapterFile)),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
  assert.ok(read(coreFile).startsWith('(()=>{'));
  assert.ok(read(adapterFile).includes('State.commands=Object.assign'));
 });
@@ -117,10 +117,10 @@ test('all TypeScript scouting consumers use the single safe match-reader contrac
 
 test('V20.5.12 source, SW, Vite and native script distribution reference the exact external files',()=>{
  const html=read('index.html'),sw=read('service-worker.js'),pkg=require('./package.json');
- assert.equal(pkg.version,'20.5.54');
+ assert.equal(pkg.version,'20.5.55');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20512-scouting-consolidation.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.54'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.54'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.55'));
  assert.ok(sw.includes('scout-core-extraction-20.5.12'));
  assert.ok(sw.includes("'./233-vc20512-match-state-core.js'"));
  assert.ok(sw.includes("'./234-vc20512-match-state-adapters.js'"));

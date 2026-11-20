@@ -132,9 +132,9 @@ test('real historical CSV exporter delegates, keeps fallback and counts only num
 test('V20.5.26 deployment leaves native writers and storage untouched',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.54');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.54'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.54'));
+ assert.equal(pkg.version,'20.5.55');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.55'));
  assert.ok(sw.includes('analysis-export-index-20.5.26'));
  assert.ok(entry.includes('installAnalysisExportBridge(window)'));
  assert.ok(pkg.scripts['test:foundation'].includes('vc20526-analysis-export-index.test.cjs'));
@@ -145,5 +145,5 @@ test('V20.5.26 deployment leaves native writers and storage untouched',()=>{
    assert.equal(read(file).includes(forbidden),false,`${file}: ${forbidden}`);
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
 });

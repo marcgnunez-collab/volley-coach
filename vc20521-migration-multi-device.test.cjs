@@ -133,5 +133,5 @@ test('legacy V20.1.2 script stays for regression, but exactly one active UI is l
  assert.ok(sw.includes('domain-20.5.5'));
  const sha=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(sha('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(sha('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(sha('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
 });

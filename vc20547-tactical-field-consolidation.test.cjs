@@ -119,11 +119,11 @@ test('legacy reception fallback and blocking target cleanup remain in normalizin
 
 test('V20.5.47 only removes V8.3/V8.4 field wrappers and leaves original writers intact',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.54');
+ assert.equal(pkg.version,'20.5.55');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20547-tactical-field-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const asset of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(asset+'?v=20.5.54'),asset);
+  assert.ok(html.includes(asset+'?v=20.5.55'),asset);
  assert.ok(sw.includes('tactical-fields-consolidation-20.5.47'));
  assert.ok(source.includes('const v20547NormBase=scoutNormalizeAction'));
  assert.ok(!source.includes('const v830NormalizeBase=scoutNormalizeAction'));
@@ -141,5 +141,5 @@ test('V20.5.47 only removes V8.3/V8.4 field wrappers and leaves original writers
   assert.equal(pure.includes(forbidden)||runtime.includes(forbidden),false,forbidden);
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
 });

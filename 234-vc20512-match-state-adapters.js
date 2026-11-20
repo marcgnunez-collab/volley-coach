@@ -22,6 +22,32 @@ const captured={
   proVisual:window.v900RegisterVisual
 };
 let operationSeq=0,lastOperation='boot',renderQueued=false;
+/* V20.5.55: one FIFO for score/undo via Vite TypeScript, never a second writer.
+ * The existing V12.1 commands stay as the only persistence/video owners.
+ * If the bundle has not loaded, the captured original command still works.
+ */
+let rallyCoordinator=null,rallyCoordinatorStatus='awaiting-module';
+function getRallyCoordinator(){
+  if(rallyCoordinator)return rallyCoordinator;
+  const bridge=window.VC_RALLY_WRITER_20555;
+  if(!bridge||bridge.VERSION!=='20.5.55'||bridge.singleNativeWriter!==true||typeof bridge.create!=='function')return null;
+  if(typeof captured.point!=='function'||typeof captured.undo!=='function'){
+    rallyCoordinatorStatus='missing-native-command';return null;
+  }
+  try{
+    const next=bridge.create({readCurrent:()=>State.getActive?.(),awardPoint:captured.point,undoRally:captured.undo});
+    if(typeof next?.awardPoint!=='function'||typeof next?.undoRally!=='function'||typeof next?.report!=='function'){
+      rallyCoordinatorStatus='invalid-module';return null;
+    }
+    rallyCoordinator=next;rallyCoordinatorStatus='active';return rallyCoordinator;
+  }catch(error){rallyCoordinatorStatus='module-error';console.warn('V20.5.55 coordinator unavailable',error);return null}
+}
+function delegateRallyCommand(operation,winner){
+  const coordinator=getRallyCoordinator();
+  if(coordinator)return operation==='point'?coordinator.awardPoint(winner):coordinator.undoRally();
+  // Fallback is only for an ABSENT coordinator, never for a failed native call.
+  return operation==='point'?captured.point(winner):captured.undo();
+}
 function ensureMutable(){const m=State.getActive?.();if(!m)throw new Error('No hay un scouting activo.');if(State.isReadonly?.(m))throw new Error('Este scouting está finalizado y está abierto en modo solo lectura.');return m}
 function updateChip(){
   let chip=$('v131-state-chip');const host=$('v123-scout-switchbar')||document.querySelector('#scout-workspace-v900 .v119-probar');
@@ -55,8 +81,8 @@ async function throughState(name,fn,args=[],opts={}){
   finally{if(seq===operationSeq)$('v131-state-chip')?.classList.remove('busy')}
 }
 const commands={
-  awardPoint:winner=>throughState('score:point',captured.point,[winner]),
-  undoRally:()=>throughState('score:undo',captured.undo,[]),
+  awardPoint:winner=>throughState('score:point',()=>delegateRallyCommand('point',winner)),
+  undoRally:()=>throughState('score:undo',()=>delegateRallyCommand('undo')),
   saveLineup:()=>throughState('lineup:save',captured.lineup,[]),
   saveChange:()=>throughState('lineup:substitution',captured.change,[]),
   liberoAuto:()=>throughState('lineup:libero-auto',captured.liberoAuto,[]),
@@ -107,7 +133,9 @@ if(window.VC_V120){window.VC_V120.version=VERSION}
 
 const unsubscribe=State.subscribe?.(d=>scheduleConsumers(d?.reason||'state:change'))||(()=>{});
 const baseDiag=typeof State.diagnostics==='function'?State.diagnostics.bind(State):()=>({});
-State.diagnostics=()=>({...baseDiag(),version:VERSION,schema:'vc.match-state/13.1',adapter:'v13.1',lastOperation,operations:operationSeq,consumers:{scoutingPro:!!$('scout-workspace-v900')?.classList.contains('active'),matchMode:!!$('scout-match-mode')?.classList.contains('active')}});
+State.diagnostics=()=>({...baseDiag(),version:VERSION,schema:'vc.match-state/13.1',adapter:'v13.1',lastOperation,operations:operationSeq,
+  rallyCoordinator:{status:rallyCoordinatorStatus,...(rallyCoordinator?{report:rallyCoordinator.report()}: {})},
+  consumers:{scoutingPro:!!$('scout-workspace-v900')?.classList.contains('active'),matchMode:!!$('scout-match-mode')?.classList.contains('active')}});
 window.VC_V131={version:VERSION,state:State,commands,diagnostics:()=>State.diagnostics(),dispose:unsubscribe};
 function boot(){document.body.classList.add('v131-match-state-adapters');updateChip();State.sync?.('v13.1:boot');scheduleConsumers('boot')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

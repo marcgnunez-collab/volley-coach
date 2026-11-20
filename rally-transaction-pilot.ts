@@ -1,5 +1,5 @@
-/* V20.5.18 · Opt-in native pilot with read-only recovery evidence and gated resumption.
- * NOT installed in the live UI. No storage, cloud, DOM, global overrides or retry.
+/* V20.5.18 · Native pilot with read-only recovery evidence and gated resumption.
+ * Live wiring is opt-in via an injected native port. No storage, cloud, DOM, global overrides or retry.
  * Its only mutation is a caller-supplied ORIGINAL native command, once per task.
  */
 import {asList,asRecord,asScore,isRotation,isTeam,type Score,type Team} from './model';
@@ -20,6 +20,8 @@ export interface PilotOptions{
  readonly requireRecoveryAfterNativeFailure?:boolean;
  /** A caller may restore a pending flag from the EXISTING durable journal after reload. */
  readonly startBlockedForPendingRecovery?:boolean;
+ /** Marks a caller-owned live binding; standalone test pilots stay detached. */
+ readonly installedInLiveUI?:boolean;
 }
 export type PilotOperation='point'|'undo';
 export type PilotVerdict=ShadowVerdict|'native-rejected'|'native-declined'|'recovery-blocked';
@@ -32,7 +34,7 @@ export interface PilotFinding{
 export interface PilotReport{
  readonly version:'20.5.18';
  readonly mode:'explicit-native-delegation-only';
- readonly installedInLiveUI:false;
+ readonly installedInLiveUI:boolean;
  readonly submitted:number;
  readonly completed:number;
  readonly agree:number;
@@ -100,6 +102,7 @@ const compare=(operation:PilotOperation,plan:Readonly<RallyCommandPlan>,before:u
 export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOptions={}){
  let chain:Promise<unknown>=Promise.resolve(),closed=false;
  const gated=options.requireRecoveryAfterNativeFailure===true;
+ const liveBinding=options.installedInLiveUI===true;
  let blocked=gated&&options.startBlockedForPendingRecovery===true;
  let lastEvidence:RecoveryEvidence='not-checked';
  let submitted=0,completed=0,agree=0,difference=0,unverified=0,nativeRejected=0,nativeDeclined=0,partialMutations=0,uninspectedFailures=0,blockedCommands=0,pending=0;
@@ -173,14 +176,14 @@ export function createRallyTransactionPilot(port:NativeRallyPort,options:PilotOp
   return run.finally(()=>{pending--;});
  };
  const snapshot=():Readonly<PilotReport>=>Object.freeze({
-  version:'20.5.18',mode:'explicit-native-delegation-only',installedInLiveUI:false,
+  version:'20.5.18',mode:'explicit-native-delegation-only',installedInLiveUI:liveBinding,
   submitted,completed,agree,difference,unverified,nativeRejected,nativeDeclined,
   partialMutations,uninspectedFailures,blockedCommands,pending,
   recoveryGuard:Object.freeze({enabled:gated,blocked,lastEvidence}),
   recent:Object.freeze([...recent])
  });
  return Object.freeze({
-  readonlyVersion:'20.5.18' as const,installedInLiveUI:false as const,
+  readonlyVersion:'20.5.18' as const,installedInLiveUI:liveBinding,
   awardPoint:(winner:Team)=>submit('point',winner),
   undoRally:()=>submit('undo'),
   report:snapshot,

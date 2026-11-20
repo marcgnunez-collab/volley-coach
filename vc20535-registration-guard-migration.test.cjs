@@ -101,9 +101,9 @@ test('native failures after guard still preserve original parser and push outcom
 
 test('V20.5.35 publishes a single pure guard without a second scorer, DB or cloud writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.54');
+ assert.equal(pkg.version,'20.5.55');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20535-registration-guard-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.54'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.55'));
  assert.ok(sw.includes('native-registration-guard-20.5.35'));
  assert.ok(read('src/vc2055-entry.ts').includes('installRegistrationGuardBridge(window)'));
  const source=read('src/domain/scout-registration-guard.ts'),runtime=read('src/domain/scout-registration-guard-runtime.ts');
@@ -113,5 +113,5 @@ test('V20.5.35 publishes a single pure guard without a second scorer, DB or clou
  assert.ok(read('021-core-scouting-v150-monolithic.js').includes('v857CheckedGuard('));
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'42efe8e78c530d914c29b454d8a727a7abc840e854158748013be35c9541a8b0');
- assert.equal(hash('234-vc20512-match-state-adapters.js'),'446249d233b7ea9e7bbb5b7f5ff1b87e936035be95ad8785e066c3e1e11943bd');
+ assert.equal(hash('234-vc20512-match-state-adapters.js'),'db77cad2470857452b922ba979db482d46fbe38cfa94134780c010a8b40d2e5d');
 });
