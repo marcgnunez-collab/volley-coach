@@ -5071,22 +5071,8 @@ function v870SkillFromRaw(raw){
   return String(raw||'').trim().toUpperCase().replace(/\s+/g,'').match(/^(?:R)?\d+(S|R|E|A|B|D|F|C)/)?.[1]||'';
 }
 
-const v870NormalizeBase=scoutNormalizeAction;
-scoutNormalizeAction=function(a){
-  const x=v870NormalizeBase(a);
-  const rawTempo=v870CleanToken(a?.attackTempo||a?.setTempo||x.attackTempo||'',3);
-  const tempo=V870_TEMPO[rawTempo]?rawTempo:(V870_LEGACY_TEMPO[rawTempo]||'');
-  x.attackTempo=x.skill==='A'?tempo:'';
-  x.setTempo=x.skill==='E'?tempo:'';
-  x.attackCode=x.skill==='A'?v870CleanToken(a?.attackCode||'',6):'';
-  x.setterCall=x.skill==='E'?v870CleanToken(a?.setterCall||'',6):'';
-  x.dvSetType=(x.skill==='A'||x.skill==='E')&&V870_SETTYPE[String(a?.dvSetType||'').toUpperCase()]?String(a.dvSetType).toUpperCase():'';
-  const subtype=v870CleanToken(a?.skillSubtype||'',8);
-  x.skillSubtype=V870_SUBTYPE[x.skill]?.[subtype]?subtype:'';
-  x.specialCode=v870CleanToken(a?.specialCode||'',10);
-  x.customCode=v870CleanToken(a?.customCode||'',5);
-  return x;
-};
+/* V20.5.48 · V8.7 field normalization is applied together with V8.8 below.
+ * Keep these token rules and constants for code editing and native fallback. */
 
 /* V20.5.43 · DV code, tempo, subtype, set type and custom modifiers are
  * appended by the final single code builder below. */
@@ -5368,17 +5354,77 @@ function v880DataVolleyFields(action,m=scoutActive()){
 }
 window.VC_SCOUT_DV_METADATA_DIAGNOSTICS_20545=()=>Object.freeze({...v20545DvStats});
 
-const v880NormalizeBase=scoutNormalizeAction;
+/* V20.5.48 · One field projection replaces V8.7/V8.8 normalize wrappers.
+ * Keep the existing native base and compare every TypeScript field before use. */
+const v20548NormBase=scoutNormalizeAction;
+const v20548AdvancedStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20548NativeAdvancedFields(a,x){
+  const rawTempo=v870CleanToken(a?.attackTempo||a?.setTempo||x.attackTempo||'',3);
+  const tempo=V870_TEMPO[rawTempo]?rawTempo:(V870_LEGACY_TEMPO[rawTempo]||'');
+  const attackTempo=x.skill==='A'?tempo:'';
+  const setTempo=x.skill==='E'?tempo:'';
+  const attackCode=x.skill==='A'?v870CleanToken(a?.attackCode||'',6):'';
+  const setterCall=x.skill==='E'?v870CleanToken(a?.setterCall||'',6):'';
+  const dvSetType=(x.skill==='A'||x.skill==='E')&&V870_SETTYPE[String(a?.dvSetType||'').toUpperCase()]?String(a.dvSetType).toUpperCase():'';
+  const subtype=v870CleanToken(a?.skillSubtype||'',8);
+  const skillSubtype=V870_SUBTYPE[x.skill]?.[subtype]?subtype:'';
+  const specialCode=v870CleanToken(a?.specialCode||'',10);
+  const customCode=v870CleanToken(a?.customCode||'',5);
+  const locationMode=a?.locationMode==='cones'?'cones':'zones';
+  const endCone=a?.endCone!=null&&/^[1-8]$/.test(String(a.endCone))?Number(a.endCone):null;
+  const startCoordinate=v880CoordClone(a?.startCoordinate);
+  const endCoordinate=v880CoordClone(a?.endCoordinate);
+  const contactCoordinate=v880CoordClone(a?.contactCoordinate);
+  const contactZone=String(a?.contactZone||x.contactZone||'');
+  const dvStartZone=String(a?.dvStartZone||'');
+  const dvEndZone=String(a?.dvEndZone||'');
+  const dvEndSubzone=String(a?.dvEndSubzone||'');
+  const dvEndCone=a?.dvEndCone!=null&&Number.isFinite(Number(a.dvEndCone))?Number(a.dvEndCone):null;
+  const dvSourceActionId=a?.dvSourceActionId!=null?Number(a.dvSourceActionId):null;
+  const dvPointPhase=String(a?.dvPointPhase||'');
+  const dvPhase=String(a?.dvPhase||'');
+  const dvAttackPhase=String(a?.dvAttackPhase||'');
+  return {attackTempo,setTempo,attackCode,setterCall,dvSetType,skillSubtype,specialCode,customCode,
+    locationMode,endCone,startCoordinate,endCoordinate,contactCoordinate,contactZone,
+    dvStartZone,dvEndZone,dvEndSubzone,dvEndCone,dvSourceActionId,dvPointPhase,dvPhase,dvAttackPhase};
+}
+function v20548HasAccessors(record){
+  return !!record&&typeof record==='object'&&
+    Object.values(Object.getOwnPropertyDescriptors(record)).some(desc=>!('value' in desc));
+}
+function v20548EqualField(a,b){
+  if(a===b||Object.is(a,b))return true;
+  return !!a&&!!b&&typeof a==='object'&&typeof b==='object'&&
+    Object.keys(a).length===2&&Object.keys(b).length===2&&
+    Object.prototype.hasOwnProperty.call(a,'x')&&Object.prototype.hasOwnProperty.call(a,'y')&&
+    Object.prototype.hasOwnProperty.call(b,'x')&&Object.prototype.hasOwnProperty.call(b,'y')&&
+    Object.is(a.x,b.x)&&Object.is(a.y,b.y);
+}
+function v20548ChooseAdvancedFields(a,x){
+  const native=v20548NativeAdvancedFields(a,x);
+  try{
+    const api=window.VC_SCOUT_ADVANCED_FIELDS_20548;
+    if(api?.VERSION==='20.5.48'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if([a,x,a?.startCoordinate,a?.endCoordinate,a?.contactCoordinate].some(v20548HasAccessors)){
+        v20548AdvancedStats.native++;return native;
+      }
+      const typed=api.normalize(a,x);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          v20548EqualField(typed[key],native[key]))){
+        v20548AdvancedStats.typed++;return typed;
+      }
+      v20548AdvancedStats.mismatches++;
+    }
+  }catch(_){v20548AdvancedStats.exceptions++;}
+  v20548AdvancedStats.native++;return native;
+}
 scoutNormalizeAction=function(a){
-  const x=v880NormalizeBase(a);
-  x.locationMode=a?.locationMode==='cones'?'cones':'zones';
-  x.endCone=a?.endCone!=null&&/^[1-8]$/.test(String(a.endCone))?Number(a.endCone):null;
-  x.startCoordinate=v880CoordClone(a?.startCoordinate);x.endCoordinate=v880CoordClone(a?.endCoordinate);x.contactCoordinate=v880CoordClone(a?.contactCoordinate);
-  x.contactZone=String(a?.contactZone||x.contactZone||'');x.dvStartZone=String(a?.dvStartZone||'');x.dvEndZone=String(a?.dvEndZone||'');x.dvEndSubzone=String(a?.dvEndSubzone||'');
-  x.dvEndCone=a?.dvEndCone!=null&&Number.isFinite(Number(a.dvEndCone))?Number(a.dvEndCone):null;x.dvSourceActionId=a?.dvSourceActionId!=null?Number(a.dvSourceActionId):null;
-  x.dvPointPhase=String(a?.dvPointPhase||'');x.dvPhase=String(a?.dvPhase||'');x.dvAttackPhase=String(a?.dvAttackPhase||'');
+  const x=v20548NormBase(a);
+  Object.assign(x,v20548ChooseAdvancedFields(a,x));
   return x;
 };
+window.VC_SCOUT_ADVANCED_FIELDS_DIAGNOSTICS_20548=()=>Object.freeze({...v20548AdvancedStats});
 
 const v880PushBase=scoutPushAction;
 scoutPushAction=function(action){

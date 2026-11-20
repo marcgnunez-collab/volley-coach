@@ -1,0 +1,44 @@
+/* Original V8.7 token rules and normalizer from V20.5.47. */
+const V870_TEMPO={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other'};
+const V870_SETTYPE={F:'Front',C:'Centre',B:'Back',P:'Pipe',S:'Setter dump'};
+const V870_SUBTYPE={
+  A:{HSP:'Hard spike',SSP:'Soft spike/topspin',TIP:'Tip'},
+  E:{'1H':'1 hand set','2H':'2 hands set',BUMP:'Bump set',UND:'Underhand set',OTH:'Other set'},
+  R:{L:'On left',R:'On right',LOW:'Low',OH:'Overhand',MID:'Middle line'},
+  B:{AST:'Block assist',ATT:'Block attempt',SOFT:'Block on soft spike'},
+  D:{COV:'Spike cover',AB:'After block',EMG:'Emergency',TIP:'Tip',SOFT:'Soft spike'}
+};
+const V870_LEGACY_TEMPO={RAP:'T',MED:'M',ALT:'H'};
+function v870CleanToken(v,max=10){
+  return String(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,max);
+}
+const v870NormalizeBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v870NormalizeBase(a);
+  const rawTempo=v870CleanToken(a?.attackTempo||a?.setTempo||x.attackTempo||'',3);
+  const tempo=V870_TEMPO[rawTempo]?rawTempo:(V870_LEGACY_TEMPO[rawTempo]||'');
+  x.attackTempo=x.skill==='A'?tempo:'';
+  x.setTempo=x.skill==='E'?tempo:'';
+  x.attackCode=x.skill==='A'?v870CleanToken(a?.attackCode||'',6):'';
+  x.setterCall=x.skill==='E'?v870CleanToken(a?.setterCall||'',6):'';
+  x.dvSetType=(x.skill==='A'||x.skill==='E')&&V870_SETTYPE[String(a?.dvSetType||'').toUpperCase()]?String(a.dvSetType).toUpperCase():'';
+  const subtype=v870CleanToken(a?.skillSubtype||'',8);
+  x.skillSubtype=V870_SUBTYPE[x.skill]?.[subtype]?subtype:'';
+  x.specialCode=v870CleanToken(a?.specialCode||'',10);
+  x.customCode=v870CleanToken(a?.customCode||'',5);
+  return x;
+};
+
+/* Original V8.8 coordinate and Data Volley overlay normalizer from V20.5.47. */
+function v880CoordClone(c){return c&&Number.isFinite(Number(c.x))&&Number.isFinite(Number(c.y))?{x:Number(c.x),y:Number(c.y)}:null}
+const v880NormalizeBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v880NormalizeBase(a);
+  x.locationMode=a?.locationMode==='cones'?'cones':'zones';
+  x.endCone=a?.endCone!=null&&/^[1-8]$/.test(String(a.endCone))?Number(a.endCone):null;
+  x.startCoordinate=v880CoordClone(a?.startCoordinate);x.endCoordinate=v880CoordClone(a?.endCoordinate);x.contactCoordinate=v880CoordClone(a?.contactCoordinate);
+  x.contactZone=String(a?.contactZone||x.contactZone||'');x.dvStartZone=String(a?.dvStartZone||'');x.dvEndZone=String(a?.dvEndZone||'');x.dvEndSubzone=String(a?.dvEndSubzone||'');
+  x.dvEndCone=a?.dvEndCone!=null&&Number.isFinite(Number(a.dvEndCone))?Number(a.dvEndCone):null;x.dvSourceActionId=a?.dvSourceActionId!=null?Number(a.dvSourceActionId):null;
+  x.dvPointPhase=String(a?.dvPointPhase||'');x.dvPhase=String(a?.dvPhase||'');x.dvAttackPhase=String(a?.dvAttackPhase||'');
+  return x;
+};

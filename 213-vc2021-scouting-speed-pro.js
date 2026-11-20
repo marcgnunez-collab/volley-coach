@@ -244,8 +244,12 @@
   const tacticalApi=root?.VC_SCOUT_TACTICAL_FIELDS_20547;
   const typedTactical=tacticalApi?.VERSION==='20.5.47'&&tacticalApi?.pureOnly===true;
   dock.dataset.vc20547Tactical=typedTactical?'typescript':'classic';
+  const advancedApi=root?.VC_SCOUT_ADVANCED_FIELDS_20548;
+  const typedAdvanced=advancedApi?.VERSION==='20.5.48'&&advancedApi?.pureOnly===true;
+  dock.dataset.vc20548Advanced=typedAdvanced?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedRegistration&&typedBaseNormalize&&typedTactical?'Registro, recepción y bloqueo · TypeScript · escritura nativa':
+   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced?'Registro y códigos avanzados · TypeScript · escritura nativa':
+     typedRegistration&&typedBaseNormalize&&typedTactical?'Registro, recepción y bloqueo · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize?'Registro y normalización · TypeScript · escritura nativa':
      typedRegistration?'Preparación de registro unificada · TypeScript · escritura nativa':
      typedBuilder?'Construcción y jugadores TypeScript · escritura nativa':

@@ -119,11 +119,11 @@ test('legacy reception fallback and blocking target cleanup remain in normalizin
 
 test('V20.5.47 only removes V8.3/V8.4 field wrappers and leaves original writers intact',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.47');
+ assert.equal(pkg.version,'20.5.48');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20547-tactical-field-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const asset of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(asset+'?v=20.5.47'),asset);
+  assert.ok(html.includes(asset+'?v=20.5.48'),asset);
  assert.ok(sw.includes('tactical-fields-consolidation-20.5.47'));
  assert.ok(source.includes('const v20547NormBase=scoutNormalizeAction'));
  assert.ok(!source.includes('const v830NormalizeBase=scoutNormalizeAction'));
