@@ -1,0 +1,15 @@
+/* V6.10.2 · Historical finalized-match fields from V20.5.50. */
+const v6102NormMatchBase=scoutNormalizeMatch;
+scoutNormalizeMatch=function(m){
+  const x=v6102NormMatchBase(m);
+  x.manualSavedAt=m?.manualSavedAt?String(m.manualSavedAt):null;
+  x.reopenedAt=m?.reopenedAt?String(m.reopenedAt):null;
+  x.finalizedByUser=!!m?.finalizedByUser;
+  x.resultComplete=!!m?.resultComplete;
+  x.resultCompleteAt=m?.resultCompleteAt?String(m.resultCompleteAt):null;
+  x.dataVersion=V6102_VERSION;
+  return x;
+};
+
+/* V7.0 · Historical video overlay from V20.5.50; installed later inside IIFE. */
+const v700NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v700NormMatchBase(m),raw=m?.video&&typeof m.video==='object'?m.video:{};x.dataVersion=V700_VERSION;x.video={...x.video,syncOffset:raw.syncOffset==null?x.video?.syncOffset??null:Number(raw.syncOffset),source:String(raw.source||x.video?.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll??2)),postRoll:Math.max(0,Number(raw.postRoll??2)),clips:scoutArr(raw.clips||x.video?.clips)};return x};

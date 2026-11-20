@@ -35,6 +35,7 @@ import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-f
 import {installScoutAdvancedFieldsBridge} from './domain/scout-action-advanced-fields-runtime';
 import {installScoutIdentityFieldsBridge} from './domain/scout-action-identity-fields-runtime';
 import {installScoutMatchVideoContainerBridge} from './domain/scout-match-video-container-runtime';
+import {installMatchVideoOverlayBridge} from './domain/scout-match-video-overlay-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -122,6 +123,8 @@ export {normalizeScoutingIdentityFields} from './domain/scout-action-identity-fi
 export {installScoutIdentityFieldsBridge};
 export {normalizeScoutingMatchVideoContainer} from './domain/scout-match-video-container';
 export {installScoutMatchVideoContainerBridge};
+export {normalizeMatchVideoOverlay} from './domain/scout-match-video-overlay';
+export {installMatchVideoOverlayBridge};
 export {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -142,6 +145,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutAdvancedFieldsBridge(window);
  installScoutIdentityFieldsBridge(window);
  installScoutMatchVideoContainerBridge(window);
+ installMatchVideoOverlayBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

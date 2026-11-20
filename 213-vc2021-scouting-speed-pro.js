@@ -253,8 +253,12 @@
   const matchVideoApi=root?.VC_SCOUT_MATCH_VIDEO_20550;
   const typedMatchVideo=matchVideoApi?.VERSION==='20.5.50'&&matchVideoApi?.pureOnly===true;
   dock.dataset.vc20550MatchVideo=typedMatchVideo?'typescript':'classic';
+  const videoOverlayApi=root?.VC_SCOUT_VIDEO_OVERLAY_20551;
+  const typedVideoOverlay=videoOverlayApi?.VERSION==='20.5.51'&&videoOverlayApi?.pureOnly===true;
+  dock.dataset.vc20551VideoOverlay=typedVideoOverlay?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo?'Registro y vídeo de partido · TypeScript · escritura nativa':
+   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo&&typedVideoOverlay?'Registro y vídeo avanzado · TypeScript · escritura nativa':
+     typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo?'Registro y vídeo de partido · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity?'Registro, identidad y vídeo · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced?'Registro y códigos avanzados · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical?'Registro, recepción y bloqueo · TypeScript · escritura nativa':

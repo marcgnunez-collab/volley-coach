@@ -1790,6 +1790,49 @@ window.scoutV6100OpenPostMatch=function(m=scoutActive()){
   return v6102PostBase(m);
 };
 
+/* V20.5.51 · V6.10.2 finalization and V7.0 video metadata now share one
+ * match wrapper. The V7 phase is enabled inside its original runtime scope. */
+let v20551VideoOverlayReady=false;
+let v20551VideoOverlayVersion='';
+const v20551VideoOverlayStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20551NativeVideoOverlay(m,x){
+  const raw=m?.video&&typeof m.video==='object'?m.video:{};
+  return {syncOffset:raw.syncOffset==null?x.video?.syncOffset??null:Number(raw.syncOffset),
+    source:String(raw.source||x.video?.source||''),
+    fileSize:Math.max(0,Number(raw.fileSize)||0),
+    lastModified:Math.max(0,Number(raw.lastModified)||0),
+    mimeType:String(raw.mimeType||''),
+    duration:raw.duration==null?null:Number(raw.duration),
+    syncedAt:raw.syncedAt?String(raw.syncedAt):null,
+    anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,
+    preRoll:Math.max(0,Number(raw.preRoll??2)),
+    postRoll:Math.max(0,Number(raw.postRoll??2)),
+    clips:scoutArr(raw.clips||x.video?.clips)};
+}
+function v20551SelectVideoOverlay(m,x){
+  const native=v20551NativeVideoOverlay(m,x);
+  try{
+    const api=window.VC_SCOUT_VIDEO_OVERLAY_20551;
+    if(api?.VERSION==='20.5.51'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if([m,m?.video,x,x?.video].some(record=>record&&typeof record==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(record)).some(d=>!('value' in d)))){
+        v20551VideoOverlayStats.native++;return native;
+      }
+      const typed=api.normalize(m,x);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          (typed[key]===native[key]||Object.is(typed[key],native[key])||
+            (key==='clips'&&Array.isArray(typed[key])&&Array.isArray(native[key])&&
+              typed[key].length===0&&native[key].length===0)))){
+        v20551VideoOverlayStats.typed++;return typed;
+      }
+      v20551VideoOverlayStats.mismatches++;
+    }
+  }catch(_){v20551VideoOverlayStats.exceptions++;}
+  v20551VideoOverlayStats.native++;return native;
+}
+window.VC_SCOUT_VIDEO_OVERLAY_DIAGNOSTICS_20551=()=>Object.freeze({...v20551VideoOverlayStats,
+  videoEnabled:v20551VideoOverlayReady});
 const v6102NormMatchBase=scoutNormalizeMatch;
 scoutNormalizeMatch=function(m){
   const x=v6102NormMatchBase(m);
@@ -1799,6 +1842,10 @@ scoutNormalizeMatch=function(m){
   x.resultComplete=!!m?.resultComplete;
   x.resultCompleteAt=m?.resultCompleteAt?String(m.resultCompleteAt):null;
   x.dataVersion=V6102_VERSION;
+  if(v20551VideoOverlayReady){
+    x.dataVersion=v20551VideoOverlayVersion;
+    x.video={...x.video,...v20551SelectVideoOverlay(m,x)};
+  }
   return x;
 };
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
@@ -2816,7 +2863,10 @@ setTimeout(()=>{const v=v700Video();if(v){v.addEventListener('timeupdate',v700On
  * and intermediate action enrichments do not overwrite these properties.
  * Rally and match video normalization below remain untouched. */
 const v700NormRallyBase=scoutNormalizeRally;scoutNormalizeRally=function(r){const x=v700NormRallyBase(r);x.videoStart=r?.videoStart==null?null:Number(r.videoStart);x.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);return x};
-const v700NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v700NormMatchBase(m),raw=m?.video&&typeof m.video==='object'?m.video:{};x.dataVersion=V700_VERSION;x.video={...x.video,syncOffset:raw.syncOffset==null?x.video?.syncOffset??null:Number(raw.syncOffset),source:String(raw.source||x.video?.source||''),fileSize:Math.max(0,Number(raw.fileSize)||0),lastModified:Math.max(0,Number(raw.lastModified)||0),mimeType:String(raw.mimeType||''),duration:raw.duration==null?null:Number(raw.duration),syncedAt:raw.syncedAt?String(raw.syncedAt):null,anchor:raw.anchor&&typeof raw.anchor==='object'?raw.anchor:null,preRoll:Math.max(0,Number(raw.preRoll??2)),postRoll:Math.max(0,Number(raw.postRoll??2)),clips:scoutArr(raw.clips||x.video?.clips)};return x};
+/* V20.5.51 · Preserve V7.0's installation moment without another wrapper.
+ * V700_VERSION is private to this video runtime; pass its value to the shared layer. */
+v20551VideoOverlayVersion=V700_VERSION;
+v20551VideoOverlayReady=true;
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);scoutingMatches.forEach(m=>{if(m.video?.syncOffset!=null)v700ApplyMapping(m)});
 
 // Add a direct video jump beside closed rallies in the live screen.
