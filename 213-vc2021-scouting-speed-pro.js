@@ -262,8 +262,12 @@
   const rallyVideoApi=root?.VC_SCOUT_RALLY_VIDEO_20553;
   const typedRallyVideo=rallyVideoApi?.VERSION==='20.5.53'&&rallyVideoApi?.pureOnly===true;
   dock.dataset.vc20553RallyVideo=typedRallyVideo?'typescript':'classic';
+  const matchFinalizeApi=root?.VC_SCOUT_MATCH_FINALIZATION_20554;
+  const typedMatchFinalize=matchFinalizeApi?.VERSION==='20.5.54'&&matchFinalizeApi?.pureOnly===true;
+  dock.dataset.vc20554MatchFinalize=typedMatchFinalize?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo&&typedVideoOverlay&&typedManualResult&&typedRallyVideo?'Registro, tiempos de rally y vídeo · TypeScript · escritura nativa':
+   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo&&typedVideoOverlay&&typedManualResult&&typedRallyVideo&&typedMatchFinalize?'Registro y estado final del partido · TypeScript · escritura nativa':
+     typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo&&typedVideoOverlay&&typedManualResult&&typedRallyVideo?'Registro, tiempos de rally y vídeo · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo&&typedVideoOverlay&&typedManualResult?'Registro, vídeo y cierre manual · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo&&typedVideoOverlay?'Registro y vídeo avanzado · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity&&typedMatchVideo?'Registro y vídeo de partido · TypeScript · escritura nativa':

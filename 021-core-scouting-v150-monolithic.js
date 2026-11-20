@@ -1405,6 +1405,38 @@ function v20550SelectVideoContainer(m){
   }catch(_){v20550MatchVideoStats.exceptions++;}
   v20550MatchVideoStats.native++;return native;
 }
+/* V20.5.54 · The V6.9 match wrapper also owns finalization after V6.10.2. */
+let v20554FinalizationReady=false;
+const v20554FinalizationStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20554NativeFinalization(m){
+  return {manualSavedAt:m?.manualSavedAt?String(m.manualSavedAt):null,
+    reopenedAt:m?.reopenedAt?String(m.reopenedAt):null,
+    finalizedByUser:!!m?.finalizedByUser,
+    resultComplete:!!m?.resultComplete,
+    resultCompleteAt:m?.resultCompleteAt?String(m.resultCompleteAt):null};
+}
+function v20554SelectFinalization(m){
+  const native=v20554NativeFinalization(m);
+  try{
+    const api=window.VC_SCOUT_MATCH_FINALIZATION_20554;
+    if(api?.VERSION==='20.5.54'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if(m&&typeof m==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(m)).some(d=>!('value' in d))){
+        v20554FinalizationStats.native++;return native;
+      }
+      const typed=api.normalize(m);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===5&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          Object.is(typed[key],native[key]))){
+        v20554FinalizationStats.typed++;return typed;
+      }
+      v20554FinalizationStats.mismatches++;
+    }
+  }catch(_){v20554FinalizationStats.exceptions++;}
+  v20554FinalizationStats.native++;return native;
+}
+window.VC_SCOUT_MATCH_FINALIZATION_DIAGNOSTICS_20554=()=>Object.freeze({
+  ...v20554FinalizationStats,finalizationEnabled:v20554FinalizationReady});
 const v690NormMatchBase=scoutNormalizeMatch;
 scoutNormalizeMatch=function(m){
   const x=v690NormMatchBase(m);
@@ -1416,6 +1448,30 @@ scoutNormalizeMatch=function(m){
       r.videoStart=r?.videoStart==null?null:Number(r.videoStart);
       r.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);
     }));
+  }
+  if(v20554FinalizationReady){
+    const finalization=v20554SelectFinalization(m);
+    x.manualSavedAt=finalization.manualSavedAt;
+    x.reopenedAt=finalization.reopenedAt;
+    x.finalizedByUser=finalization.finalizedByUser;
+    x.resultComplete=finalization.resultComplete;
+    x.resultCompleteAt=finalization.resultCompleteAt;
+    x.dataVersion=V6102_VERSION;
+    if(v20551VideoOverlayReady){
+      x.dataVersion=v20551VideoOverlayVersion;
+      x.video={...x.video,...v20551SelectVideoOverlay(m,x)};
+    }
+    if(v20552ManualResultReady){
+      const overlay=v20552SelectManualResult(m,x);
+      scoutArr(x.sets).forEach((s,i)=>{
+        const fields=overlay.sets[i];
+        s.manualFinished=fields.manualFinished;
+        s.manualFinishedAt=fields.manualFinishedAt;
+        s.manualScorePrevious=fields.manualScorePrevious;
+      });
+      x.manualFinalResult=overlay.manualFinalResult;
+      x.dataVersion=v20552ManualResultVersion;
+    }
   }
   return x;
 };
@@ -1938,32 +1994,8 @@ function v20552SelectManualResult(m,x){
 }
 window.VC_SCOUT_MANUAL_RESULT_DIAGNOSTICS_20552=()=>Object.freeze({...v20552ManualResultStats,
   manualEnabled:v20552ManualResultReady});
-const v6102NormMatchBase=scoutNormalizeMatch;
-scoutNormalizeMatch=function(m){
-  const x=v6102NormMatchBase(m);
-  x.manualSavedAt=m?.manualSavedAt?String(m.manualSavedAt):null;
-  x.reopenedAt=m?.reopenedAt?String(m.reopenedAt):null;
-  x.finalizedByUser=!!m?.finalizedByUser;
-  x.resultComplete=!!m?.resultComplete;
-  x.resultCompleteAt=m?.resultCompleteAt?String(m.resultCompleteAt):null;
-  x.dataVersion=V6102_VERSION;
-  if(v20551VideoOverlayReady){
-    x.dataVersion=v20551VideoOverlayVersion;
-    x.video={...x.video,...v20551SelectVideoOverlay(m,x)};
-  }
-  if(v20552ManualResultReady){
-    const overlay=v20552SelectManualResult(m,x);
-    scoutArr(x.sets).forEach((s,i)=>{
-      const fields=overlay.sets[i];
-      s.manualFinished=fields.manualFinished;
-      s.manualFinishedAt=fields.manualFinishedAt;
-      s.manualScorePrevious=fields.manualScorePrevious;
-    });
-    x.manualFinalResult=overlay.manualFinalResult;
-    x.dataVersion=v20552ManualResultVersion;
-  }
-  return x;
-};
+/* V20.5.54 · Preserve V6.10.2's original activation and saved-match pass. */
+v20554FinalizationReady=true;
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
 scoutingMatches.forEach(m=>{if(m.status!=='finished'){m.status='live';m.endedAt=null}m.dataVersion=V6102_VERSION;});
 

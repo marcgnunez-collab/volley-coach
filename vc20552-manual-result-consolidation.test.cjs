@@ -10,10 +10,12 @@ const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 const json=value=>JSON.parse(JSON.stringify(value));
 const source=read('021-core-scouting-v150-monolithic.js');
 const archived=read('test-audit/fixtures/v20551-manual-result-normalizer.txt');
+const archivedFinalizer=read('test-audit/fixtures/v20553-match-normalizer-wrappers.txt');
 const first=source.indexOf('/* V20.5.51 · V6.10.2 finalization');
-const last=source.indexOf('scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);',first);
+const last=source.indexOf('/* V20.5.54 · Preserve V6.10.2',first);
 assert.ok(first>=0&&last>first);
-const modern=source.slice(first,last);
+const modern=source.slice(first,last)+'\n'+
+ archivedFinalizer.slice(archivedFinalizer.indexOf('const v6102NormMatchBase=scoutNormalizeMatch;'));
 const compiled=()=>import('./vc2055-domain-core.mjs');
 
 function harness(mode,bridge){
@@ -164,10 +166,10 @@ test('root accessors do not cause extra match or final-result property reads',as
 
 test('V20.5.52 removes only V8.6.1 normalization wrapper and keeps manual score writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.53');
+ assert.equal(pkg.version,'20.5.54');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20552-manual-result-consolidation.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(name+'?v=20.5.53'),name);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(name+'?v=20.5.54'),name);
  assert.ok(sw.includes('manual-result-20.5.52'));
  assert.ok(!source.includes('const v861NormBase=scoutNormalizeMatch'));
  assert.ok(source.includes('v20552ManualResultVersion=V861_VERSION'));
@@ -177,7 +179,8 @@ test('V20.5.52 removes only V8.6.1 normalization wrapper and keeps manual score 
  assert.ok(!source.includes('const v700NormRallyBase=scoutNormalizeRally'));
  assert.ok(source.includes('v20553RallyVideoReady=true'));
  assert.ok(source.includes('const v700SaveBase=scoutSave'));
- assert.ok(source.includes('const v6102NormMatchBase=scoutNormalizeMatch'));
+ assert.ok(!source.includes('const v6102NormMatchBase=scoutNormalizeMatch'));
+ assert.ok(source.includes('v20554FinalizationReady=true'));
  assert.ok(read('src/vc2055-entry.ts').includes('installMatchManualResultBridge(window)'));
  assert.ok(read('213-vc2021-scouting-speed-pro.js').includes('vc20552ManualResult'));
  const pure=read('src/domain/scout-match-manual-result.ts'),runtime=read('src/domain/scout-match-manual-result-runtime.ts');

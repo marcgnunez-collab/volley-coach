@@ -1,0 +1,40 @@
+const v690NormMatchBase=scoutNormalizeMatch;
+scoutNormalizeMatch=function(m){
+  const x=v690NormMatchBase(m);
+  x.workflow=v690NormalizeWorkflow(m?.workflow);
+  x.dataVersion=v20550MatchVideoReady?V6100_VERSION:V690_VERSION;
+  if(v20550MatchVideoReady){
+    x.video=v20550SelectVideoContainer(m);
+    scoutArr(x.sets).forEach(s=>scoutArr(s.rallies).forEach(r=>{
+      r.videoStart=r?.videoStart==null?null:Number(r.videoStart);
+      r.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd);
+    }));
+  }
+  return x;
+};
+const v6102NormMatchBase=scoutNormalizeMatch;
+scoutNormalizeMatch=function(m){
+  const x=v6102NormMatchBase(m);
+  x.manualSavedAt=m?.manualSavedAt?String(m.manualSavedAt):null;
+  x.reopenedAt=m?.reopenedAt?String(m.reopenedAt):null;
+  x.finalizedByUser=!!m?.finalizedByUser;
+  x.resultComplete=!!m?.resultComplete;
+  x.resultCompleteAt=m?.resultCompleteAt?String(m.resultCompleteAt):null;
+  x.dataVersion=V6102_VERSION;
+  if(v20551VideoOverlayReady){
+    x.dataVersion=v20551VideoOverlayVersion;
+    x.video={...x.video,...v20551SelectVideoOverlay(m,x)};
+  }
+  if(v20552ManualResultReady){
+    const overlay=v20552SelectManualResult(m,x);
+    scoutArr(x.sets).forEach((s,i)=>{
+      const fields=overlay.sets[i];
+      s.manualFinished=fields.manualFinished;
+      s.manualFinishedAt=fields.manualFinishedAt;
+      s.manualScorePrevious=fields.manualScorePrevious;
+    });
+    x.manualFinalResult=overlay.manualFinalResult;
+    x.dataVersion=v20552ManualResultVersion;
+  }
+  return x;
+};

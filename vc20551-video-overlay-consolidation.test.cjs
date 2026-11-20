@@ -10,13 +10,15 @@ const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 const json=value=>JSON.parse(JSON.stringify(value));
 const source=read('021-core-scouting-v150-monolithic.js');
 const old=read('test-audit/fixtures/v20550-finalization-video-normalizers.txt');
+const archivedFinalizer=read('test-audit/fixtures/v20553-match-normalizer-wrappers.txt');
 function part(text,start,end){
  const a=text.indexOf(start),b=text.indexOf(end,a+start.length);
  assert.ok(a>=0&&b>a,'extract '+start);
  return text.slice(a,b);
 }
 const modern=part(source,'/* V20.5.51 · V6.10.2 finalization',
- 'scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);');
+ '/* V20.5.54 · Preserve V6.10.2')+'\n'+
+ archivedFinalizer.slice(archivedFinalizer.indexOf('const v6102NormMatchBase=scoutNormalizeMatch;'));
 const oldFirst=part(old,'const v6102NormMatchBase=scoutNormalizeMatch;',
  '/* V7.0 · Historical video overlay');
 const oldSecond=old.slice(old.indexOf('const v700NormMatchBase=scoutNormalizeMatch;'));
@@ -154,13 +156,14 @@ test('accessor-backed video inputs stay native with the same getter access count
 
 test('V20.5.51 removes only the V7.0 match wrapper, preserving V7.0 video and score paths',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.53');
+ assert.equal(pkg.version,'20.5.54');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20551-video-overlay-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.53'),file);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.5.54'),file);
  assert.ok(sw.includes('match-video-overlay-20.5.51'));
- assert.ok(source.includes('const v6102NormMatchBase=scoutNormalizeMatch'));
+ assert.ok(!source.includes('const v6102NormMatchBase=scoutNormalizeMatch'));
+ assert.ok(source.includes('v20554FinalizationReady=true'));
  assert.ok(!source.includes('const v700NormMatchBase=scoutNormalizeMatch'));
  assert.ok(source.includes('v20551VideoOverlayVersion=V700_VERSION'));
  assert.ok(source.includes('v20551VideoOverlayReady=true'));
