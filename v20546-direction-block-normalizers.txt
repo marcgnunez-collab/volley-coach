@@ -1,0 +1,21 @@
+/* V8.3 · Historical direction and reception normalizer from V20.5.46. */
+const v830NormalizeBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v830NormalizeBase(a);
+  x.attackDirection=['LIN','DC','DL'].includes(String(a?.attackDirection||''))?String(a.attackDirection):'';
+  x.receivedServeType=['F','JF','JP','U'].includes(String(a?.receivedServeType||''))?String(a.receivedServeType):'';
+  // Compatibility: early builds allowed ~JF on R inside serveType.
+  if(x.skill==='R'&&!x.receivedServeType&&['F','JF','JP','U'].includes(String(a?.serveType||'')))x.receivedServeType=String(a.serveType);
+  if(x.skill==='R')x.serveType='';
+  return x;
+};
+
+/* V8.4 · Historical blocking target normalizer from V20.5.46. */
+const v840NormBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v840NormBase(a);
+  x.blockTargetNumber=String(a?.blockTargetNumber||'').replace(/\D/g,'').slice(0,3);
+  x.blockTargetLabel=String(a?.blockTargetLabel||'');
+  if(x.skill!=='B'){x.blockTargetNumber='';x.blockTargetLabel=''}
+  return x;
+};

@@ -2822,16 +2822,8 @@ const arr830=v=>Array.isArray(v)?v:[];
 const pct830=(n,d)=>d?Math.round(Number(n||0)*100/Number(d||0)):0;
 
 /* ---------- Persist new tactical metadata ---------- */
-const v830NormalizeBase=scoutNormalizeAction;
-scoutNormalizeAction=function(a){
-  const x=v830NormalizeBase(a);
-  x.attackDirection=['LIN','DC','DL'].includes(String(a?.attackDirection||''))?String(a.attackDirection):'';
-  x.receivedServeType=['F','JF','JP','U'].includes(String(a?.receivedServeType||''))?String(a.receivedServeType):'';
-  // Compatibility: early builds allowed ~JF on R inside serveType.
-  if(x.skill==='R'&&!x.receivedServeType&&['F','JF','JP','U'].includes(String(a?.serveType||'')))x.receivedServeType=String(a.serveType);
-  if(x.skill==='R')x.serveType='';
-  return x;
-};
+/* V20.5.47 · Direction and reception metadata run in the same V8.4
+ * normalization layer as block target fields, preserving V8.3 -> V8.4 order. */
 
 function v830InferReceptionMeta(action,m=scoutActive()){
   if(!action||action.skill!=='R'||!m)return action;
@@ -3110,14 +3102,46 @@ const BLOCK_EVAL={
    BLOCKING METADATA + CODE
    Format: 4B#.3@2&12
    ========================================================== */
-const v840NormBase=scoutNormalizeAction;
+/* V20.5.47 · One normalized-field pass replaces the V8.3/V8.4 pair.
+ * Pure TypeScript is accepted only when all five native fields agree. */
+const v20547NormBase=scoutNormalizeAction;
+const v20547TacticalStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20547NativeTacticalFields(a,x){
+  const attackDirection=['LIN','DC','DL'].includes(String(a?.attackDirection||''))?String(a.attackDirection):'';
+  let receivedServeType=['F','JF','JP','U'].includes(String(a?.receivedServeType||''))?String(a.receivedServeType):'';
+  // Legacy reception accepted its received-serve type under serveType.
+  if(x.skill==='R'&&!receivedServeType&&['F','JF','JP','U'].includes(String(a?.serveType||'')))receivedServeType=String(a.serveType);
+  const serveType=x.skill==='R'?'':x.serveType;
+  let blockTargetNumber=String(a?.blockTargetNumber||'').replace(/\D/g,'').slice(0,3);
+  let blockTargetLabel=String(a?.blockTargetLabel||'');
+  if(x.skill!=='B'){blockTargetNumber='';blockTargetLabel=''}
+  return {attackDirection,receivedServeType,serveType,blockTargetNumber,blockTargetLabel};
+}
+function v20547ChooseTacticalFields(a,x){
+  const native=v20547NativeTacticalFields(a,x);
+  try{
+    const api=window.VC_SCOUT_TACTICAL_FIELDS_20547;
+    if(api?.VERSION==='20.5.47'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if([a,x].some(record=>record&&typeof record==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(record)).some(d=>!('value' in d)))){
+        v20547TacticalStats.native++;return native;
+      }
+      const typed=api.normalize(a,x);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&typed[key]===native[key])){
+        v20547TacticalStats.typed++;return typed;
+      }
+      v20547TacticalStats.mismatches++;
+    }
+  }catch(_){v20547TacticalStats.exceptions++;}
+  v20547TacticalStats.native++;return native;
+}
 scoutNormalizeAction=function(a){
-  const x=v840NormBase(a);
-  x.blockTargetNumber=String(a?.blockTargetNumber||'').replace(/\D/g,'').slice(0,3);
-  x.blockTargetLabel=String(a?.blockTargetLabel||'');
-  if(x.skill!=='B'){x.blockTargetNumber='';x.blockTargetLabel=''}
+  const x=v20547NormBase(a);
+  Object.assign(x,v20547ChooseTacticalFields(a,x));
   return x;
 };
+window.VC_SCOUT_TACTICAL_FIELDS_DIAGNOSTICS_20547=()=>Object.freeze({...v20547TacticalStats});
 
 function v840InferBlockTarget(action,m=scoutActive()){
   if(!action||action.skill!=='B'||!m)return action;

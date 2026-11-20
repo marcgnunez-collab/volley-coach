@@ -31,6 +31,7 @@ import {installScoutCodeBuilderBridge} from './domain/scout-code-builder-runtime
 import {installScoutRegistrationBridge} from './domain/scout-action-registration-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
+import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -110,6 +111,8 @@ export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestam
 export {installScoutActionMetadataBridge};
 export {normalizeScoutingActionBase} from './domain/scout-action-normalizer';
 export {installScoutActionNormalizerBridge};
+export {normalizeTacticalActionFields} from './domain/scout-action-tactical-fields';
+export {installScoutTacticalFieldsBridge};
 export {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -126,6 +129,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutRegistrationBridge(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
+ installScoutTacticalFieldsBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);
