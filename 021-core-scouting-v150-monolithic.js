@@ -2139,16 +2139,48 @@ function scoutV6108InferSource(action,m=scoutActive()){
 }
 
 // Preserve the new zone metadata through normalization / persistence.
+/* V20.5.42 · Pure contact normalization from Vite/TS, checked against the
+ * historical shape. Native normalization still runs ONCE on the real action. */
+const v6108FormatStats={typedContact:0,typedCode:0,native:0,mismatches:0,exceptions:0};
+function v6108NativeContactFields(a,x){
+  const contactSkill=scoutV6108IsContactSkill(x.skill);
+  const contact=String(a?.contactZone||((contactSkill)?(x.endZone||x.startZone||''):'')||'');
+  const source=String(a?.sourceZone||((contactSkill&&x.startZone&&x.endZone)?x.startZone:'')||'');
+  return {contactZone:contact,sourceZone:source,zoneInferred:!!a?.zoneInferred,
+    sourceActionId:a?.sourceActionId!=null?Number(a.sourceActionId):null,
+    migratedEndZone:contactSkill&&contact&&!x.endZone&&!x.startZone?contact:null};
+}
+function v6108SelectFormat(mode,args,native){
+  try{
+    const api=window.VC_SCOUT_CODE_FORMAT_20542;
+    const method=mode==='contact'?'contact':'buildCode';
+    if(api?.VERSION==='20.5.42'&&api.pureOnly===true&&typeof api[method]==='function'){
+      if(mode==='contact'&&args.some(a=>a&&typeof a==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(a)).some(d=>!('value' in d)))){
+        v6108FormatStats.native++;return native;
+      }
+      const typed=api[method](...args);
+      const same=mode==='code'?typed===native:
+        typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          (typed[key]===native[key]||(Number.isNaN(typed[key])&&Number.isNaN(native[key]))));
+      if(same){v6108FormatStats[mode==='code'?'typedCode':'typedContact']++;return typed;}
+      v6108FormatStats.mismatches++;
+    }
+  }catch(_){v6108FormatStats.exceptions++;}
+  v6108FormatStats.native++;return native;
+}
+window.VC_SCOUT_CODE_FORMAT_DIAGNOSTICS_20542=()=>Object.freeze({...v6108FormatStats});
 const v6108NormalizeActionBase=scoutNormalizeAction;
 scoutNormalizeAction=function(a){
   const x=v6108NormalizeActionBase(a);
-  const contact=String(a?.contactZone||((scoutV6108IsContactSkill(x.skill))?(x.endZone||x.startZone||''):'')||'');
-  x.contactZone=contact;
-  x.sourceZone=String(a?.sourceZone||((scoutV6108IsContactSkill(x.skill)&&x.startZone&&x.endZone)?x.startZone:'')||'');
-  x.zoneInferred=!!a?.zoneInferred;
-  x.sourceActionId=a?.sourceActionId!=null?Number(a.sourceActionId):null;
+  const contact=v6108SelectFormat('contact',[a,x],v6108NativeContactFields(a,x));
+  x.contactZone=contact.contactZone;
+  x.sourceZone=contact.sourceZone;
+  x.zoneInferred=contact.zoneInferred;
+  x.sourceActionId=contact.sourceActionId;
   // Old reception/defense records with a single start zone are migrated to contact zone.
-  if(scoutV6108IsContactSkill(x.skill)&&contact&&!x.endZone&&!x.startZone)x.endZone=contact;
+  if(contact.migratedEndZone!==null)x.endZone=contact.migratedEndZone;
   return x;
 };
 
@@ -2796,13 +2828,13 @@ scoutPushAction=function(action){
 };
 
 /* ---------- Code builder/parser ---------- */
-scoutBuildCode=function(a){
+function v830NativeBuildCode(a,ownPlayer){
   let token='';
   if(a.team==='opponent'){
     const n=String(a.playerLabel||'').match(/\d+/)?.[0]||String(a.playerNumberSnapshot||'').match(/\d+/)?.[0]||String(a.playerLabel||'').replace(/\s+/g,'').slice(0,4)||'?';
     token='R'+n;
   }else{
-    const p=scoutPlayer(a.playerId);
+    const p=ownPlayer;
     token=p?.number!==''&&p?.number!=null?String(p.number):(a.playerNumberSnapshot!==''&&a.playerNumberSnapshot!=null?String(a.playerNumberSnapshot):'P');
   }
   token+=a.skill+(a.evaluation||'!');
@@ -2815,6 +2847,12 @@ scoutBuildCode=function(a){
   if(a.phase)token+=`^${a.phase}`;
   if(a.blockers!==''&&a.blockers!=null)token+=`@${a.blockers}`;
   return token;
+}
+scoutBuildCode=function(a){
+  // The roster lookup remains native, exactly once, and the final output
+  // passes through the original blocking/DV wrappers unchanged.
+  const player=a.team==='opponent'?null:scoutPlayer(a.playerId);
+  return v6108SelectFormat('code',[a,player],v830NativeBuildCode(a,player));
 };
 
 /* V20.5.40 · The V8.3 directional parser wrapper is now the first phase of

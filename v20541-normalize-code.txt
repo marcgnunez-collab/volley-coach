@@ -1,0 +1,36 @@
+/* V20.5.41 effective normalization/formatting, TEST FIXTURE ONLY. */
+const v6108NormalizeActionBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){
+  const x=v6108NormalizeActionBase(a);
+  const contact=String(a?.contactZone||((scoutV6108IsContactSkill(x.skill))?(x.endZone||x.startZone||''):'')||'');
+  x.contactZone=contact;
+  x.sourceZone=String(a?.sourceZone||((scoutV6108IsContactSkill(x.skill)&&x.startZone&&x.endZone)?x.startZone:'')||'');
+  x.zoneInferred=!!a?.zoneInferred;
+  x.sourceActionId=a?.sourceActionId!=null?Number(a.sourceActionId):null;
+  // Old reception/defense records with a single start zone are migrated to contact zone.
+  if(scoutV6108IsContactSkill(x.skill)&&contact&&!x.endZone&&!x.startZone)x.endZone=contact;
+  return x;
+};
+
+
+/* ---------- Code builder/parser ---------- */
+scoutBuildCode=function(a){
+  let token='';
+  if(a.team==='opponent'){
+    const n=String(a.playerLabel||'').match(/\d+/)?.[0]||String(a.playerNumberSnapshot||'').match(/\d+/)?.[0]||String(a.playerLabel||'').replace(/\s+/g,'').slice(0,4)||'?';
+    token='R'+n;
+  }else{
+    const p=scoutPlayer(a.playerId);
+    token=p?.number!==''&&p?.number!=null?String(p.number):(a.playerNumberSnapshot!==''&&a.playerNumberSnapshot!=null?String(a.playerNumberSnapshot):'P');
+  }
+  token+=a.skill+(a.evaluation||'!');
+  if(a.startZone&&a.endZone)token+=`.${a.startZone}>${a.endZone}`;
+  else if(typeof scoutV6108IsContactSkill==='function'&&scoutV6108IsContactSkill(a.skill)&&scoutV6108ContactZone(a))token+=`.${scoutV6108ContactZone(a)}`;
+  const serveMeta=a.skill==='R'?a.receivedServeType:a.serveType;
+  if(serveMeta)token+=`~${serveMeta}`;
+  const combo=a.setTarget||a.attackCombo;if(combo)token+=`:${combo}`;
+  if(a.skill==='A'&&a.attackDirection)token+=`*${a.attackDirection}`;
+  if(a.phase)token+=`^${a.phase}`;
+  if(a.blockers!==''&&a.blockers!=null)token+=`@${a.blockers}`;
+  return token;
+};

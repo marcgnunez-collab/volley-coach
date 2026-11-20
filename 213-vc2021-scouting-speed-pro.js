@@ -241,8 +241,13 @@
    :'Preparación nativa (respaldo)';
   const lexer=byId('vc2021-lexer-engine'),lexerApi=root?.VC_SCOUT_LEXER_20537;
   const typedLexer=lexerApi?.VERSION==='20.5.37'&&lexerApi?.syntaxOnly===true;
+  const formatApi=root?.VC_SCOUT_CODE_FORMAT_20542;
+  const typedFormat=formatApi?.VERSION==='20.5.42'&&formatApi?.pureOnly===true;
   dock.dataset.vc20537Lexer=typedLexer?'typescript':'classic';
-  if(lexer)lexer.textContent=typedLexer?'Sintaxis TypeScript · jugadores y escritura nativos':'Sintaxis nativa (respaldo)';
+  dock.dataset.vc20542Format=typedFormat?'typescript':'classic';
+  if(lexer)lexer.textContent=typedLexer
+   ?(typedFormat?'Sintaxis, contacto y código TypeScript':'Sintaxis TypeScript · jugadores y escritura nativos')
+   :'Sintaxis nativa (respaldo)';
   const extensions=byId('vc2021-extensions-engine'),extensionApi=root?.VC_SCOUT_EXTENSIONS_20538;
   const typedExtensions=extensionApi?.VERSION==='20.5.38'&&extensionApi?.grammarOnly===true;
   dock.dataset.vc20538Extensions=typedExtensions?'typescript':'classic';
