@@ -15,7 +15,31 @@ function players(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getPlayers?.()||[]}c
 function teamName(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Nuestro equipo'}catch(_){return'Nuestro equipo'}}
 function playerLabel(a){try{return window.VC_SCOUT_VIDEO_BRIDGE?.playerLabel?.(a)||String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}catch(_){return String(a?.playerLabel||'Jugador')}}
 function fmtVideo(sec){const n=Number(sec);if(!Number.isFinite(n)||n<0)return'—';const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=Math.floor(n%60);return h?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`}
-function actionTime(a){for(const k of['videoTimestamp','liveVideoTime','videoAction','videoTime']){const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n}return null}
+/* V20.5.45 · V13.2's exact timestamp priorities remain the native reference.
+ * Pure TypeScript metadata selectors only run if they agree with that result. */
+const v20545TimeStats={typedAction:0,typedNormalize:0,native:0,mismatches:0,exceptions:0};
+function v132NativeActionTime(a){for(const k of['videoTimestamp','liveVideoTime','videoAction','videoTime']){const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n}return null}
+function v132NativeNormalizeTime(a,x){const raw=a||{};const vals=[raw.videoTimestamp,raw.liveVideoTime,x.videoAction,raw.videoAction,x.videoTime,raw.videoTime].filter(v=>v!=null&&v!=='').map(Number);const t=vals.find(Number.isFinite);return Number.isFinite(t)?Math.max(0,t):null}
+function v132ChooseTime(kind,raw,normalized,native){
+  try{
+    const api=window.VC_SCOUT_ACTION_METADATA_20545;
+    if(api?.VERSION==='20.5.45'&&api.pureOnly===true&&
+      typeof api.actionTime==='function'&&typeof api.normalizeTime==='function'){
+      if([raw,normalized].some(v=>v&&typeof v==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(v)).some(d=>!('value' in d)))){
+        v20545TimeStats.native++;return native;
+      }
+      const typed=kind==='action'?api.actionTime(raw):api.normalizeTime(raw,normalized);
+      if(typed===native||(Number.isNaN(typed)&&Number.isNaN(native))){
+        v20545TimeStats[kind==='action'?'typedAction':'typedNormalize']++;return typed;
+      }
+      v20545TimeStats.mismatches++;
+    }
+  }catch(_){v20545TimeStats.exceptions++;}
+  v20545TimeStats.native++;return native;
+}
+function actionTime(a){return v132ChooseTime('action',a,null,v132NativeActionTime(a))}
+window.VC_SCOUT_VIDEO_METADATA_DIAGNOSTICS_20545=()=>Object.freeze({...v20545TimeStats});
 function readonly(){return !!State()?.isReadonly?.()}
 function buildCockpit(){
   if($('v132-cockpit'))return;
@@ -128,7 +152,7 @@ function saveDirect(a){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(_){}try{
 window.v132SaveActionEdit=function(){if(!editRef||readonly())return;const old=refAction(editRef);if(!old)return;const raw=String($('v132-edit-code')?.value||'').trim();let next={...old};if(raw&&raw!==String(old.code||'')){const parsed=window.VC_SCOUT_CORE?.parse?.(raw,match(),old);if(parsed?.error||!parsed?.action)return alert(parsed?.error||'Código no válido.');next={...old,...parsed.action};preserveVideo(old,next)}else{next.team=$('v132-edit-team').value==='opponent'?'opponent':'ours';const pv=$('v132-edit-player').value;if(next.team==='ours'){const p=players().find(x=>String(x.id)===String(pv));next.playerId=p?Number(p.id):null;next.playerLabel='';if(p){next.playerNumberSnapshot=p.number??'';next.playerNameSnapshot=p.name||''}}else{next.playerId=null;next.playerLabel=pv;next.playerNumberSnapshot='';next.playerNameSnapshot=''}next.skill=$('v132-edit-skill').value;next.evaluation=$('v132-edit-eval').value;next.startZone=String($('v132-edit-start').value||'').trim().toUpperCase();next.endZone=String($('v132-edit-end').value||'').trim().toUpperCase();next.phase=$('v132-edit-phase').value;try{next.code=window.scoutBuildCode?.(next)||next.code}catch(_){}}const m=match();if(editRef.live)m.liveRally.actions[editRef.index]=next;else{const s=(m.sets||[]).find(x=>Number(x.number)===Number(editRef.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(editRef.rallyId));if(!r)return;r.actions[editRef.index]=next;r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1}m.updatedAt=new Date().toISOString();saveDirect(next);v132CloseActionEditor()};
 window.v132DeleteEditedAction=function(){if(!editRef||readonly())return;if(!confirm('¿Eliminar esta acción del scouting? El marcador del rally no cambiará.'))return;const m=match();if(editRef.live)m.liveRally.actions.splice(editRef.index,1);else{const s=(m.sets||[]).find(x=>Number(x.number)===Number(editRef.setNo)),r=(s?.rallies||[]).find(x=>Number(x.id)===Number(editRef.rallyId));if(!r)return;r.actions.splice(editRef.index,1);r.editedAt=new Date().toISOString();r.editCount=(Number(r.editCount)||0)+1}m.updatedAt=new Date().toISOString();saveDirect();v132CloseActionEditor()};
 /* Persist a normalized video timestamp on every newly recorded action. Existing video fields remain authoritative. */
-try{if(typeof window.scoutNormalizeAction==='function'&&!window.scoutNormalizeAction.__v132){const base=window.scoutNormalizeAction;window.scoutNormalizeAction=function(a){const x=base(a);const raw=a||{};const vals=[raw.videoTimestamp,raw.liveVideoTime,x.videoAction,raw.videoAction,x.videoTime,raw.videoTime].filter(v=>v!=null&&v!=='').map(Number);const t=vals.find(Number.isFinite);x.videoTimestamp=Number.isFinite(t)?Math.max(0,t):null;return x};window.scoutNormalizeAction.__v132=true}}catch(e){console.warn('V13.2 normalize wrapper',e)}
+try{if(typeof window.scoutNormalizeAction==='function'&&!window.scoutNormalizeAction.__v132){const base=window.scoutNormalizeAction;window.scoutNormalizeAction=function(a){const x=base(a);x.videoTimestamp=v132ChooseTime('normalize',a,x,v132NativeNormalizeTime(a,x));return x};window.scoutNormalizeAction.__v132=true}}catch(e){console.warn('V13.2 normalize wrapper',e)}
 try{if(typeof window.scoutPushAction==='function'&&!window.scoutPushAction.__v132){const base=window.scoutPushAction;window.scoutPushAction=function(action){const m=match(),before=m?.liveRally?.actions?.length||0,out=base(action),mm=match(),arr=mm?.liveRally?.actions||[];if(arr.length>before){const a=arr[arr.length-1],t=actionTime(a);a.videoTimestamp=t==null?null:t;mm.updatedAt=new Date().toISOString()}setTimeout(queueRender,0);return out};window.scoutPushAction.__v132=true;if(window.VC_SCOUT_CORE)window.VC_SCOUT_CORE.push=a=>window.scoutPushAction(a)}}catch(e){console.warn('V13.2 action wrapper',e)}
 const oldRender=window.v900Render;if(typeof oldRender==='function'&&!oldRender.__v132){const wrapped=function(...args){const out=oldRender.apply(this,args);setTimeout(queueRender,0);return out};wrapped.__v132=true;window.v900Render=wrapped}
 const unsub=State()?.subscribe?.(()=>queueRender())||(()=>{});

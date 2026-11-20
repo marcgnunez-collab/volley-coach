@@ -103,9 +103,9 @@ test('a corrected rally and an undo are reflected in the migrated view on next r
 test('V20.5.29 releases a typed analysis view without a new native or cloud writer',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.44');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.44'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.44'));
+ assert.equal(pkg.version,'20.5.45');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.45'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.45'));
  assert.ok(sw.includes('analysis-view-20.5.29'));
  assert.ok(entry.includes('installAnalysisViewBridge(window)'));
  assert.ok(read('189-vc1938-professional-data-engine.js').includes('VC_ANALYSIS_VIEW_20529'));

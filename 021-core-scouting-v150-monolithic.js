@@ -5267,7 +5267,7 @@ function v880ZoneCenter(token){
 }
 function v880FormatCoord(c){return c?`x ${Number(c.x).toFixed(2)} · y ${Number(c.y).toFixed(2)}`:'sin coordenada exacta'}
 
-function v880DataVolleyFields(action,m=scoutActive()){
+function v880NativeDataVolleyFields(action,m=scoutActive()){
   const skill=action?.skill||'',start=String(action?.startZone||''),end=String(action?.endZone||'');
   const contact=String(action?.contactZone||((skill==='R'||skill==='D')?(end||start):'')||'');
   let dvStart=v880BaseToken(action?.dvStartZone||start),dvEnd=v880BaseToken(action?.dvEndZone||end),
@@ -5287,6 +5287,32 @@ function v880DataVolleyFields(action,m=scoutActive()){
   return {contactZone:contact,dvStartZone:dvStart,dvEndZone:action?.endCone?'':dvEnd,dvEndSubzone:action?.endCone?'':dvEndSub,
     dvEndCone:action?.endCone?Number(action.endCone):null,dvSourceActionId:sourceId,dvPointPhase:pointPhase,dvPhase,dvAttackPhase:attackPhase};
 }
+
+/* V20.5.45 · The native context projection stays the reference, while the
+ * Vite module is used only when it yields precisely the same nine fields.
+ * This function never writes rallies, changes video time or saves the match. */
+const v20545DvStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v880DataVolleyFields(action,m=scoutActive()){
+  const native=v880NativeDataVolleyFields(action,m);
+  try{
+    const api=window.VC_SCOUT_ACTION_METADATA_20545;
+    if(api?.VERSION==='20.5.45'&&api.pureOnly===true&&typeof api.dvFields==='function'){
+      if(action&&typeof action==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(action)).some(d=>!('value' in d))){
+        v20545DvStats.native++;return native;
+      }
+      const typed=api.dvFields(action,m);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          (typed[key]===native[key]||(Number.isNaN(typed[key])&&Number.isNaN(native[key]))))){
+        v20545DvStats.typed++;return typed;
+      }
+      v20545DvStats.mismatches++;
+    }
+  }catch(_){v20545DvStats.exceptions++;}
+  v20545DvStats.native++;return native;
+}
+window.VC_SCOUT_DV_METADATA_DIAGNOSTICS_20545=()=>Object.freeze({...v20545DvStats});
 
 const v880NormalizeBase=scoutNormalizeAction;
 scoutNormalizeAction=function(a){

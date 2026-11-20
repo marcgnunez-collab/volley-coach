@@ -29,6 +29,7 @@ import {installScoutActionBuilderBridge} from './domain/scout-action-builder-run
 import {installScoutCodeFormatBridge} from './domain/scout-code-format-runtime';
 import {installScoutCodeBuilderBridge} from './domain/scout-code-builder-runtime';
 import {installScoutRegistrationBridge} from './domain/scout-action-registration-runtime';
+import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {readCanonicalMatch,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -103,6 +104,9 @@ export {prepareScoutingCodeInput,finishScoutingCode} from './domain/scout-code-b
 export {installScoutCodeBuilderBridge};
 export {prepareContactRegistration} from './domain/scout-action-registration';
 export {installScoutRegistrationBridge};
+export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
+ from './domain/scout-action-metadata';
+export {installScoutActionMetadataBridge};
 export {readCanonicalMatch,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
@@ -117,6 +121,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutCodeFormatBridge(window);
  installScoutCodeBuilderBridge(window);
  installScoutRegistrationBridge(window);
+ installScoutActionMetadataBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

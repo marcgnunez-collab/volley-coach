@@ -1,0 +1,28 @@
+/* Exact V20.5.44 native DataVolley selector and V13.2 time priorities. */
+function v880DataVolleyFields(action,m=scoutActive()){
+  const skill=action?.skill||'',start=String(action?.startZone||''),end=String(action?.endZone||'');
+  const contact=String(action?.contactZone||((skill==='R'||skill==='D')?(end||start):'')||'');
+  let dvStart=v880BaseToken(action?.dvStartZone||start),dvEnd=v880BaseToken(action?.dvEndZone||end),
+      dvEndSub=v880SubToken(action?.dvEndSubzone||end),sourceId=action?.dvSourceActionId!=null?Number(action.dvSourceActionId):null;
+
+  if(skill==='R'||skill==='D'){
+    const wanted=skill==='R'?'S':'A',other=action.team==='ours'?'opponent':'ours';
+    const prev=[...scoutArr(m?.liveRally?.actions)].reverse().find(a=>a.team===other&&a.skill===wanted);
+    if(prev){dvStart=v880BaseToken(prev.startZone);dvEnd=v880BaseToken(prev.endZone);dvEndSub=v880SubToken(prev.endZone);sourceId=Number(prev.id)||null}
+  }
+  const serving=m?.servingTeam==='opponent'?'opponent':'ours';
+  const pointPhase=action?.team===serving?'Breakpoint':'Sideout';
+  const dvPhase=skill==='S'?'Serve':(action?.phase==='K1'?'Reception':'Transition');
+  let attackPhase='';
+  if(skill==='A')attackPhase=action?.phase==='K1'?'Reception':(pointPhase==='Breakpoint'?'Transition breakpoint':'Transition sideout');
+
+  return {contactZone:contact,dvStartZone:dvStart,dvEndZone:action?.endCone?'':dvEnd,dvEndSubzone:action?.endCone?'':dvEndSub,
+    dvEndCone:action?.endCone?Number(action.endCone):null,dvSourceActionId:sourceId,dvPointPhase:pointPhase,dvPhase,dvAttackPhase:attackPhase};
+}
+
+function actionTime(a){for(const k of['videoTimestamp','liveVideoTime','videoAction','videoTime']){const raw=a?.[k];if(raw==null||raw==='')continue;const n=Number(raw);if(Number.isFinite(n)&&n>=0)return n}return null}
+
+function normalizeVideoTimestamp(a,x){
+ const raw=a||{};const vals=[raw.videoTimestamp,raw.liveVideoTime,x.videoAction,raw.videoAction,x.videoTime,raw.videoTime].filter(v=>v!=null&&v!=='').map(Number);const t=vals.find(Number.isFinite);
+ return Number.isFinite(t)?Math.max(0,t):null;
+}
