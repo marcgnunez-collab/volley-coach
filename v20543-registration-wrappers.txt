@@ -1,0 +1,22 @@
+/* V20.5.43 originals, archived before consolidation into V20.5.44. */
+const v6108PushActionBase=scoutPushAction;
+scoutPushAction=function(action){
+  if(action&&scoutV6108IsContactSkill(action.skill)){
+    const z=scoutV6108NormalizeZoneInput(action.skill,action.startZone,action.endZone||action.contactZone);
+    action={...action,...z,contactZone:action.contactZone||z.contactZone,sourceZone:action.sourceZone||z.sourceZone};
+    scoutV6108InferSource(action);
+  }
+  return v6108PushActionBase(action);
+};
+
+const v830PushBase=scoutPushAction;
+scoutPushAction=function(action){
+  if(action?.skill==='R')v830InferReceptionMeta(action);
+  return v830PushBase(action);
+};
+
+const v840PushBase=scoutPushAction;
+scoutPushAction=function(action){
+  if(action?.skill==='B')v840InferBlockTarget(action);
+  return v840PushBase(action);
+};

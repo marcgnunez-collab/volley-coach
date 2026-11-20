@@ -2205,15 +2205,8 @@ scoutBuildCode=function(a){
 
 // Enrich R/D with the source action already typed in the same rally, without
 // forcing that inferred information into the visible short code.
-const v6108PushActionBase=scoutPushAction;
-scoutPushAction=function(action){
-  if(action&&scoutV6108IsContactSkill(action.skill)){
-    const z=scoutV6108NormalizeZoneInput(action.skill,action.startZone,action.endZone||action.contactZone);
-    action={...action,...z,contactZone:action.contactZone||z.contactZone,sourceZone:action.sourceZone||z.sourceZone};
-    scoutV6108InferSource(action);
-  }
-  return v6108PushActionBase(action);
-};
+/* V20.5.44 · R/D contact preparation runs in the single registration
+ * preparation layer below, preserving the original source inference. */
 
 /* V20.5.37 · Lexical grammar is now available from a pure Vite/TS module.
  * Keep this narrow reference lexer as a parity and offline fallback. It does
@@ -2821,11 +2814,8 @@ function v830InferReceptionMeta(action,m=scoutActive()){
   }
   return action;
 }
-const v830PushBase=scoutPushAction;
-scoutPushAction=function(action){
-  if(action?.skill==='R')v830InferReceptionMeta(action);
-  return v830PushBase(action);
-};
+/* V20.5.44 · Reception source/serve enrichment is installed together with
+ * contact and blocking preparation, before the same native action writer. */
 
 /* ---------- Code builder/parser ---------- */
 function v830NativeBuildCode(a,ownPlayer){
@@ -3110,11 +3100,46 @@ function v840InferBlockTarget(action,m=scoutActive()){
   return action;
 }
 
-const v840PushBase=scoutPushAction;
+/* V20.5.44 · One preparation wrapper replaces the V6.10.8, V8.3 and V8.4
+ * nested action wrappers. Order is unchanged: block enrichment (B only),
+ * reception source/serve (R only), contact normalization + inference (R/D).
+ * The existing V6.10.0 wrapper and native writer are called exactly once. */
+const v20544PushBase=scoutPushAction;
+const v20544RegistrationStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20544NativeContact(action){
+  const z=scoutV6108NormalizeZoneInput(action.skill,action.startZone,action.endZone||action.contactZone);
+  return {...z,contactZone:action.contactZone||z.contactZone,sourceZone:action.sourceZone||z.sourceZone};
+}
+function v20544ContactFields(action){
+  const native=v20544NativeContact(action);
+  try{
+    const api=window.VC_SCOUT_REGISTRATION_20544;
+    if(api?.VERSION==='20.5.44'&&api.pureOnly===true&&typeof api.prepareContact==='function'){
+      // Accessors can observe duplicate reads. Keep the historical path.
+      if(Object.values(Object.getOwnPropertyDescriptors(action)).some(d=>!('value' in d))){
+        v20544RegistrationStats.native++;return native;
+      }
+      const typed=api.prepareContact(action);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          (typed[key]===native[key]||(Number.isNaN(typed[key])&&Number.isNaN(native[key]))))){
+        v20544RegistrationStats.typed++;return typed;
+      }
+      v20544RegistrationStats.mismatches++;
+    }
+  }catch(_){v20544RegistrationStats.exceptions++;}
+  v20544RegistrationStats.native++;return native;
+}
 scoutPushAction=function(action){
   if(action?.skill==='B')v840InferBlockTarget(action);
-  return v840PushBase(action);
+  if(action?.skill==='R')v830InferReceptionMeta(action);
+  if(action&&scoutV6108IsContactSkill(action.skill)){
+    action={...action,...v20544ContactFields(action)};
+    scoutV6108InferSource(action);
+  }
+  return v20544PushBase(action);
 };
+window.VC_SCOUT_REGISTRATION_DIAGNOSTICS_20544=()=>Object.freeze({...v20544RegistrationStats});
 
 /* V20.5.43 · Block code preparation and target formatting are now handled
  * together with DV modifiers and cones by the final single code builder. */

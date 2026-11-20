@@ -235,8 +235,12 @@
   const builder=root?.VC_SCOUT_ACTION_BUILDER_20541;
   const typedBuilder=builder?.VERSION==='20.5.41'&&builder?.pureOnly===true;
   dock.dataset.vc20541ActionBuilder=typedBuilder?'typescript':'classic';
+  const registerApi=root?.VC_SCOUT_REGISTRATION_20544;
+  const typedRegistration=registerApi?.VERSION==='20.5.44'&&registerApi?.pureOnly===true;
+  dock.dataset.vc20544Registration=typedRegistration?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedBuilder?'Construcción y jugadores TypeScript · escritura nativa':
+   ?(typedRegistration?'Preparación de registro unificada · TypeScript · escritura nativa':
+     typedBuilder?'Construcción y jugadores TypeScript · escritura nativa':
      typedPlayer?'Preparación y dorsal TypeScript · escritura nativa':'Preparación TypeScript · parser y escritura nativos')
    :'Preparación nativa (respaldo)';
   const lexer=byId('vc2021-lexer-engine'),lexerApi=root?.VC_SCOUT_LEXER_20537;
