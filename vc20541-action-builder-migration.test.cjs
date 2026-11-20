@@ -155,10 +155,10 @@ test('malformed or absent typed builder never prevents native scoring inputs',as
 
 test('V20.5.41 pure builder is installed without a second writer or schema change',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.48');
+ assert.equal(pkg.version,'20.5.49');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20541-action-builder-migration.test.cjs'));
  for(const filename of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(filename+'?v=20.5.48'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(filename+'?v=20.5.49'));
  assert.ok(sw.includes('native-action-builder-20.5.41'));
  const source=read('021-core-scouting-v150-monolithic.js');
  assert.ok(source.includes("const base=v6108SelectDraft('base'"));

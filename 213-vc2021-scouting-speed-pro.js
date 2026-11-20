@@ -247,8 +247,12 @@
   const advancedApi=root?.VC_SCOUT_ADVANCED_FIELDS_20548;
   const typedAdvanced=advancedApi?.VERSION==='20.5.48'&&advancedApi?.pureOnly===true;
   dock.dataset.vc20548Advanced=typedAdvanced?'typescript':'classic';
+  const identityApi=root?.VC_SCOUT_IDENTITY_FIELDS_20549;
+  const typedIdentity=identityApi?.VERSION==='20.5.49'&&identityApi?.pureOnly===true;
+  dock.dataset.vc20549Identity=typedIdentity?'typescript':'classic';
   if(preparation)preparation.textContent=typedPreparation
-   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced?'Registro y códigos avanzados · TypeScript · escritura nativa':
+   ?(typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced&&typedIdentity?'Registro, identidad y vídeo · TypeScript · escritura nativa':
+     typedRegistration&&typedBaseNormalize&&typedTactical&&typedAdvanced?'Registro y códigos avanzados · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize&&typedTactical?'Registro, recepción y bloqueo · TypeScript · escritura nativa':
      typedRegistration&&typedBaseNormalize?'Registro y normalización · TypeScript · escritura nativa':
      typedRegistration?'Preparación de registro unificada · TypeScript · escritura nativa':

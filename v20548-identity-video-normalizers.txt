@@ -1,0 +1,6 @@
+/* V6.9 · Original action/video normalization from V20.5.48. */
+const v690NormActionBase=scoutNormalizeAction;
+scoutNormalizeAction=function(a){const x=v690NormActionBase(a);x.uid=String(a?.uid||`act_${x.id}`);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};
+
+/* V6.10.0 · Opponent identity activated after V6.9 match normalization. */
+const v6100NormActionBase=scoutNormalizeAction;scoutNormalizeAction=function(a){const x=v6100NormActionBase(a);x.opponentPlayerUid=String(a?.opponentPlayerUid||'');return x};

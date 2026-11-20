@@ -1306,8 +1306,46 @@ const V690_VERSION='6.9.0';
 const V690_SETTINGS_KEY='volley_scout_workflow_v690';
 const V690_SKILL_CODES=new Set(['S','R','E','A','B','D','F','C']);
 const V690_COMBOS=new Set(['Z4','Z2','Z1','Z6','1T','31','BACK','PIPE','2T','OTR']);
+/* V20.5.49 · V6.9 media fields and V6.10.0 opponent identity share one
+ * action wrapper. Phase switching preserves both historical startup passes. */
 const v690NormActionBase=scoutNormalizeAction;
-scoutNormalizeAction=function(a){const x=v690NormActionBase(a);x.uid=String(a?.uid||`act_${x.id}`);x.videoStart=a?.videoStart==null?null:Number(a.videoStart);x.videoAction=a?.videoAction==null?null:Number(a.videoAction);x.videoEnd=a?.videoEnd==null?null:Number(a.videoEnd);x.clipId=String(a?.clipId||'');return x};
+let v20549OpponentIdentityReady=false;
+const v20549IdentityStats={typed:0,native:0,mismatches:0,exceptions:0};
+function v20549NativeIdentityFields(a,x,withOpponent){
+  const fields={uid:String(a?.uid||`act_${x.id}`),
+    videoStart:a?.videoStart==null?null:Number(a.videoStart),
+    videoAction:a?.videoAction==null?null:Number(a.videoAction),
+    videoEnd:a?.videoEnd==null?null:Number(a.videoEnd),clipId:String(a?.clipId||'')};
+  if(withOpponent)fields.opponentPlayerUid=String(a?.opponentPlayerUid||'');
+  return fields;
+}
+function v20549ChooseIdentityFields(a,x,withOpponent){
+  const native=v20549NativeIdentityFields(a,x,withOpponent);
+  try{
+    const api=window.VC_SCOUT_IDENTITY_FIELDS_20549;
+    if(api?.VERSION==='20.5.49'&&api.pureOnly===true&&typeof api.normalize==='function'){
+      if([a,x].some(record=>record&&typeof record==='object'&&
+        Object.values(Object.getOwnPropertyDescriptors(record)).some(d=>!('value' in d)))){
+        v20549IdentityStats.native++;return native;
+      }
+      const typed=api.normalize(a,x,withOpponent);
+      if(typed&&typeof typed==='object'&&Object.keys(typed).length===Object.keys(native).length&&
+        Object.keys(native).every(key=>Object.prototype.hasOwnProperty.call(typed,key)&&
+          (typed[key]===native[key]||Object.is(typed[key],native[key])))){
+        v20549IdentityStats.typed++;return typed;
+      }
+      v20549IdentityStats.mismatches++;
+    }
+  }catch(_){v20549IdentityStats.exceptions++;}
+  v20549IdentityStats.native++;return native;
+}
+scoutNormalizeAction=function(a){
+  const x=v690NormActionBase(a);
+  Object.assign(x,v20549ChooseIdentityFields(a,x,v20549OpponentIdentityReady));
+  return x;
+};
+window.VC_SCOUT_IDENTITY_FIELDS_DIAGNOSTICS_20549=()=>Object.freeze({...v20549IdentityStats,
+  opponentEnabled:v20549OpponentIdentityReady});
 function v690NormalizeWorkflow(raw){raw=raw&&typeof raw==='object'?raw:{};const setLineups={};Object.entries(raw.setLineups||{}).forEach(([k,v])=>{if(v&&typeof v==='object')setLineups[String(k)]={baseLineup:scoutNormalizeLineup(v.baseLineup),lineup:scoutNormalizeLineup(v.lineup||v.baseLineup),lineupRoles:scoutNormalizeRoles(v.lineupRoles),libero:scoutNormalizeLibero(v.libero),rotationNo:Math.min(6,Math.max(1,Number(v.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(v.opponentRotationNo)||1)),savedAt:String(v.savedAt||scoutNow())}});return {setLineups,events:scoutArr(raw.events).map(e=>({id:Number(e?.id)||Date.now(),uid:String(e?.uid||`evt_${e?.id||Date.now()}`),type:String(e?.type||'note'),subject:String(e?.subject||''),note:String(e?.note||''),setNumber:Number(e?.setNumber)||1,scoreUs:Number(e?.scoreUs)||0,scoreOpponent:Number(e?.scoreOpponent)||0,rotationNo:Math.min(6,Math.max(1,Number(e?.rotationNo)||1)),opponentRotationNo:Math.min(6,Math.max(1,Number(e?.opponentRotationNo)||1)),createdAt:String(e?.createdAt||scoutNow()),scoutMs:Math.max(0,Number(e?.scoutMs)||0),videoTime:e?.videoTime==null?null:Number(e.videoTime),videoSource:String(e?.videoSource||''),videoExact:!!e?.videoExact,noteCategory:String(e?.noteCategory||''),contextLabel:String(e?.contextLabel||'')}))}};
 const v690NormMatchBase=scoutNormalizeMatch;
 scoutNormalizeMatch=function(m){const x=v690NormMatchBase(m);x.workflow=v690NormalizeWorkflow(m?.workflow);x.dataVersion=V690_VERSION;return x};
@@ -1395,8 +1433,9 @@ const v6100CleanBase=limpiarEquipo;limpiarEquipo=function(raw,id){const s=v6100C
 const v6100MemBase=guardarEquipoEnMemoria;guardarEquipoEnMemoria=function(){const keep=scoutClone(equiposData?.[equipoActivo]?.scoutRivalProfilesV6100||[]);v6100MemBase();if(equiposData?.[equipoActivo])equiposData[equipoActivo].scoutRivalProfilesV6100=keep};
 ['infantil','cadete'].forEach(id=>{if(equiposData?.[id]&&!Array.isArray(equiposData[id].scoutRivalProfilesV6100))equiposData[id].scoutRivalProfilesV6100=[]});
 
-// Stable opponent player identity + future video match container.
-const v6100NormActionBase=scoutNormalizeAction;scoutNormalizeAction=function(a){const x=v6100NormActionBase(a);x.opponentPlayerUid=String(a?.opponentPlayerUid||'');return x};
+// V20.5.49 · Activate opponent identity at the exact old V6.10.0 installation
+// boundary, before the second saved-match normalization; no second wrapper.
+v20549OpponentIdentityReady=true;
 const v6100NormMatchBase=scoutNormalizeMatch;scoutNormalizeMatch=function(m){const x=v6100NormMatchBase(m);x.dataVersion=V6100_VERSION;x.video={syncOffset:m?.video?.syncOffset==null?null:Number(m.video.syncOffset),source:String(m?.video?.source||''),clips:scoutArr(m?.video?.clips)};scoutArr(x.sets).forEach(s=>scoutArr(s.rallies).forEach(r=>{r.videoStart=r?.videoStart==null?null:Number(r.videoStart);r.videoEnd=r?.videoEnd==null?null:Number(r.videoEnd)}));return x};
 scoutingMatches=scoutingMatches.map(scoutNormalizeMatch);
 
