@@ -428,9 +428,17 @@ function cargarBorradosBiblioteca(){
 function guardarBorradosBiblioteca(lista){
   try{localStorage.setItem(LIBRARY_DELETED_KEY,JSON.stringify([...(new Set(lista||[]))]))}catch(_){ }
 }
-function guardarBibliotecaIndependiente(){
+function guardarBibliotecaIndependiente(vc20562Snapshot=null){
   try{
-    localStorage.setItem(LIBRARY_STORAGE_KEY,JSON.stringify({version:1,updatedAt:new Date().toISOString(),total:baseDeDatos.length,ejercicios:clonar(baseDeDatos)}));
+    const typed=window.VC_CLUB_SNAPSHOT_20562;
+    let raw=null;
+    if(vc20562Snapshot&&typed?.VERSION==='20.5.62'&&typed.usesExistingPayload===true&&
+       typeof typed.serializeLibrary==='function'){
+      try{raw=typed.serializeLibrary({snapshot:vc20562Snapshot,updatedAt:new Date().toISOString(),total:baseDeDatos.length})}
+      catch(_){raw=null}
+    }
+    if(typeof raw!=='string')raw=JSON.stringify({version:1,updatedAt:new Date().toISOString(),total:baseDeDatos.length,ejercicios:clonar(baseDeDatos)});
+    localStorage.setItem(LIBRARY_STORAGE_KEY,raw);
   }catch(err){console.warn('No se pudo guardar la biblioteca independiente',err)}
 }
 function aplicarBorradosBiblioteca(lista){
@@ -521,10 +529,20 @@ function cargarEstadoLocal(){
   else setTimeout(persistNormalized,1400);
 }
 function guardarEstadoLocalSinCloud(){
-  const raw=JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:new Date().toISOString(),equiposData:clonar(equiposData)});
+  const timestamp=new Date().toISOString();
+  const typed=window.VC_CLUB_SNAPSHOT_20562;
+  let prepared=null,raw=null;
+  if(typed?.VERSION==='20.5.62'&&typed.usesExistingPayload===true&&typeof typed.serialize==='function'){
+    try{
+      prepared=typed.serialize({bibliotecaCompartida:baseDeDatos,equiposData,updatedAt:timestamp});
+      if(!prepared||typeof prepared.raw!=='string'||typeof prepared.libraryEntriesJSON!=='string')throw Error('Instantánea incompleta');
+      raw=prepared.raw;
+    }catch(_){prepared=null;raw=null}
+  }
+  if(typeof raw!=='string')raw=JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:timestamp,equiposData:clonar(equiposData)});
   const mode=vc1531WriteState(APP_STORAGE_KEY,raw);
   if(mode==='compacto')console.info('V15.3.1 · Estado guardado en modo compacto,',Math.round(raw.length/1024),'KiB originales');
-  guardarBibliotecaIndependiente();
+  guardarBibliotecaIndependiente(prepared);
   try{localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo)}catch(err){console.warn('No se pudo actualizar el selector de equipo en localStorage',err)}
 }
 function guardarEquipoEnMemoria(){
