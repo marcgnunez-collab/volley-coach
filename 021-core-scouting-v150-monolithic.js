@@ -101,6 +101,8 @@ function scoutOpponentLabel(v,pos=''){return String(v||'').trim()||`Rival ${pos.
 const V902_JOURNAL_DB='VolleyCoachScoutJournalV902',V902_JOURNAL_STORE='liveMatches',V920_JOURNAL_LIVE_STORE='liveRallies';
 let v902CommitTimer=null,v902CommitBusy=false,v902CommitQueued=false,v902LastMutation=null,v902LastFullAt=0,v902RenderFrame=0;
 let v902JournalFailures=0,v902LastJournalError='';
+/* V20.5.60 · Only successful IDB transaction completions count as typed writes. */
+let v20560TypedCheckpoints=0,v20560TypedDeltas=0,v20560NativeCheckpoints=0,v20560NativeDeltas=0,v20560TypedFailures=0;
 
 function v902MutationState(m){
   const s=scoutSet(m),
@@ -169,7 +171,23 @@ async function v902JournalWrite(m,reason='change'){
   };
   try{
     const db=await v902OpenJournal();
-    if(liveOnly){
+    const typed=window.VC_SCOUT_INDEXED_JOURNAL_20560;
+    const typedAvailable=typed?.VERSION==='20.5.60'&&
+      typed.ownsDatabase===false&&typed.usesExistingStores===true&&typeof typed.write==='function';
+    if(typedAvailable){
+      /* The old owner still creates the payload and opens the database.
+         Once the typed transaction starts, errors are reported; NEVER retry a
+         possibly partial transaction through the legacy branch. */
+      try{
+        await typed.write({db,fullStore:V902_JOURNAL_STORE,liveStore:V920_JOURNAL_LIVE_STORE,
+          key,payload,mode:liveOnly?'action-delta':'checkpoint',
+          captureAnchor:liveOnly?()=>({savedAt:scoutNow(),
+            liveRally:scoutClone(m.liveRally||{actions:[]}),
+            currentSet:Number(m.currentSet)||1,status:String(m.status||'live'),
+            match:scoutClone(m)}):undefined});
+      }catch(error){v20560TypedFailures++;throw error}
+      if(liveOnly)v20560TypedDeltas++;else v20560TypedCheckpoints++;
+    }else if(liveOnly){
       /* An action delta without a base full snapshot cannot be recovered.
          Read/create the base and write the delta in ONE transaction.  This is
          relevant for newly created matches and slow IndexedDB startups. */
@@ -203,6 +221,7 @@ async function v902JournalWrite(m,reason='change'){
         tx.onerror=()=>reject(tx.error||new Error('No se pudo guardar la acción'));
         tx.onabort=()=>reject(tx.error||new Error('Guardado parcial cancelado'));
       });
+      v20560NativeDeltas++;
     }else{
       await new Promise((resolve,reject)=>{
         const tx=db.transaction([V902_JOURNAL_STORE,V920_JOURNAL_LIVE_STORE],'readwrite');
@@ -212,6 +231,7 @@ async function v902JournalWrite(m,reason='change'){
         tx.onerror=()=>reject(tx.error||new Error('No se pudo completar el checkpoint'));
         tx.onabort=()=>reject(tx.error||new Error('Checkpoint cancelado'));
       });
+      v20560NativeCheckpoints++;
     }
     return true;
   }catch(err){v902JournalFailures++;v902LastJournalError=String(err?.message||err);console.warn('V9.3.1 journal',err);return false}
@@ -296,7 +316,9 @@ function v902ScheduleCommit(reason='idle',delay=1100){
 window.scoutV902Flush=()=>v902FullCommit('manual-flush',true);
 window.scoutV902PerformanceDiagnostics=()=>({
   version:'9.3.1',lastFullAt:v902LastFullAt,commitPending:!!v902CommitTimer,commitBusy:v902CommitBusy,
-  lastMutation:v902LastMutation,journalDb:V902_JOURNAL_DB,journalFailures:v902JournalFailures,lastJournalError:v902LastJournalError
+  lastMutation:v902LastMutation,journalDb:V902_JOURNAL_DB,journalFailures:v902JournalFailures,lastJournalError:v902LastJournalError,
+  typedCheckpoints:v20560TypedCheckpoints,typedDeltas:v20560TypedDeltas,
+  nativeCheckpoints:v20560NativeCheckpoints,nativeDeltas:v20560NativeDeltas,typedFailures:v20560TypedFailures
 });
 
 function scoutSave(render=true){

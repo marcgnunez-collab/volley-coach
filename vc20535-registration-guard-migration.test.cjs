@@ -101,9 +101,9 @@ test('native failures after guard still preserve original parser and push outcom
 
 test('V20.5.35 publishes a single pure guard without a second scorer, DB or cloud writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.59');
+ assert.equal(pkg.version,'20.5.60');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20535-registration-guard-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.59'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.60'));
  assert.ok(sw.includes('native-registration-guard-20.5.35'));
  assert.ok(read('src/vc2055-entry.ts').includes('installRegistrationGuardBridge(window)'));
  const source=read('src/domain/scout-registration-guard.ts'),runtime=read('src/domain/scout-registration-guard-runtime.ts');

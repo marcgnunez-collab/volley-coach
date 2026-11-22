@@ -180,10 +180,10 @@ test('Gestión keeps one passive observer and defers reads outside the notificat
 
 test('release keeps only typed readers and one original writer while publishing the Gestión panel',()=>{
  const html=read('index.html'),sw=read('service-worker.js'),css=read('vc2055-domain.css'),pkg=require('./package.json');
- assert.equal(pkg.version,'20.5.59');
+ assert.equal(pkg.version,'20.5.60');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20515-rally-shadow.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.59'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.59'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.60'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.60'));
  assert.ok(sw.includes('rally-shadow-20.5.15'));
  assert.ok(css.includes('.vc20515-shadow'));
  assert.ok(read('src/vc2055-entry.ts').includes('mountRallyShadowPanel(window)'));

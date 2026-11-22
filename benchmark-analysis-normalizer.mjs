@@ -87,7 +87,7 @@ deepStrictEqual(exportAnalysisCSV(csvSource),historical.toCSV(csvSource));
 const historicalCsvMs=measure(()=>historical.toCSV(csvSource));
 const typescriptCsvMs=measure(()=>exportAnalysisCSV(csvSource));
 const indexStats=inspectAnalysisIndexDiagnostics();
-const result={version:'20.5.59',synthetic:true,rallies,actions:rallies*6,
+const result={version:'20.5.60',synthetic:true,rallies,actions:rallies*6,
  historicalMs,typescriptMs,baseline:'Median of five warm Node.js runs per implementation',
  operations:{historicalMs:historicalOperationsMs,typescriptMs:typescriptOperationsMs,
   filters:engineFilters.length,includes:['filter','evaluate','points','coverage','reconcile']},
