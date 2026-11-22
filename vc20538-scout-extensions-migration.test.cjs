@@ -123,11 +123,11 @@ test('extension runtime is idempotent and failures fall back without changing ou
 
 test('V20.5.38 source integration keeps action writer, video and sync boundaries protected',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.62');
+ assert.equal(pkg.version,'20.5.63');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20538-scout-extensions-migration.test.cjs'));
  for(const src of ['vc2055-domain-core.mjs','021-core-scouting-v150-monolithic.js',
   '213-vc2021-scouting-speed-pro.js'])
-  assert.ok(html.includes(src+'?v=20.5.62'),src);
+  assert.ok(html.includes(src+'?v=20.5.63'),src);
  assert.ok(sw.includes('scout-extensions-20.5.38'));
  assert.ok(read('src/vc2055-entry.ts').includes('installScoutingExtensionsBridge(window)'));
  const ts=read('src/domain/scout-grammar-extensions.ts'),

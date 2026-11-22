@@ -4386,44 +4386,44 @@ function Wi(e, t) {
 	for (let i of Hi) e.fields[i] === void 0 || t.fields[i] === void 0 ? r = !0 : e.fields[i] !== t.fields[i] && n.push(i);
 	return r && n.push("missing-data"), Object.freeze(n);
 }
-function Y(e, t) {
+function Gi(e, t) {
 	return !!e && !!t && !!e.identity && e.identity === t.identity && Hi.every((n) => e.fields[n] !== void 0 && t.fields[n] !== void 0 && e.fields[n] === t.fields[n]);
 }
-function Gi(e, t, n) {
-	return !e || !t || !n || !e.identity || !t.identity || !n.identity || e.identity !== t.identity || e.identity !== n.identity || [...Hi].some((r) => e.fields[r] === void 0 || t.fields[r] === void 0 || n.fields[r] === void 0) ? "unreadable" : Y(e, t) ? Y(e, n) ? "unchanged-observed" : "divergent" : Y(n, t) ? "durable-after" : Y(n, e) ? "durable-before" : "divergent";
+function Ki(e, t, n) {
+	return !e || !t || !n || !e.identity || !t.identity || !n.identity || e.identity !== t.identity || e.identity !== n.identity || [...Hi].some((r) => e.fields[r] === void 0 || t.fields[r] === void 0 || n.fields[r] === void 0) ? "unreadable" : Gi(e, t) ? Gi(e, n) ? "unchanged-observed" : "divergent" : Gi(n, t) ? "durable-after" : Gi(n, e) ? "durable-before" : "divergent";
 }
 // src/domain/rally-transaction-pilot.ts
-var Ki = 40, qi = (e, t) => e.us === t.us && e.opponent === t.opponent, Ji = (n) => {
+var qi = 40, Ji = (e, t) => e.us === t.us && e.opponent === t.opponent, Yi = (n) => {
 	let r = e(n);
 	return r && t(r.sets).map(e).find((e) => e && Number(e.number) === Number(r.currentSet) && Number.isInteger(Number(r.currentSet))) || null;
-}, X = (e, t, n = [], r = "not-checked") => Object.freeze({
+}, Y = (e, t, n = [], r = "not-checked") => Object.freeze({
 	operation: e,
 	verdict: t,
 	areas: Object.freeze([...n]),
 	durability: r
-}), Yi = (a, o, s, c, l, u, d) => {
-	let f = e(c), p = Ji(c);
-	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return X(a, "unverified", ["missing-data"]);
+}), Xi = (a, o, s, c, l, u, d) => {
+	let f = e(c), p = Yi(c);
+	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return Y(a, "unverified", ["missing-data"]);
 	let m = t(p.rallies).length;
 	if (a === "point") {
-		if (m !== d + 1) return X(a, "unverified", ["missing-data"]);
+		if (m !== d + 1) return Y(a, "unverified", ["missing-data"]);
 		let e = Ri(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
 			us: p.scoreUs,
 			opponent: p.scoreOpponent
 		});
-		return r && !qi(r, o.after.score) && !n.includes("score") && n.push("score"), X("point", n.length ? "difference" : e.verdict, n);
+		return r && !Ji(r, o.after.score) && !n.includes("score") && n.push("score"), Y("point", n.length ? "difference" : e.verdict, n);
 	}
 	let h = e(f.liveRally);
-	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return X("undo", "unverified", ["missing-data"]);
+	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return Y("undo", "unverified", ["missing-data"]);
 	let g = [], _ = i({
 		us: p.scoreUs,
 		opponent: p.scoreOpponent
 	}), v = !_;
-	return _ && !qi(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, X("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
+	return _ && !Ji(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, Y("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
 };
-function Xi(n, r = {}) {
+function Zi(n, r = {}) {
 	let i = Promise.resolve(), a = !1, o = r.requireRecoveryAfterNativeFailure === !0, s = r.installedInLiveUI === !0, c = r.requireStableMatchForCommands === !0, l = 0, u = 0, d = o && r.startBlockedForPendingRecovery === !0, f = "not-checked", p = 0, m = 0, h = 0, g = 0, _ = 0, v = 0, y = 0, b = 0, x = 0, S = 0, C = 0, w = 0, T = [], E = (e) => {
-		m++, e.verdict === "agree" ? h++ : e.verdict === "difference" ? g++ : e.verdict === "native-rejected" ? v++ : e.verdict === "native-declined" ? y++ : e.verdict === "recovery-blocked" ? S++ : e.verdict === "context-discarded" ? C++ : _++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (f = e.durability, e.areas.some((e) => e !== "missing-data") && b++, e.areas.includes("missing-data") && x++), e.verdict !== "agree" && (T.push(e), T.length > Ki && T.shift());
+		m++, e.verdict === "agree" ? h++ : e.verdict === "difference" ? g++ : e.verdict === "native-rejected" ? v++ : e.verdict === "native-declined" ? y++ : e.verdict === "recovery-blocked" ? S++ : e.verdict === "context-discarded" ? C++ : _++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (f = e.durability, e.areas.some((e) => e !== "missing-data") && b++, e.areas.includes("missing-data") && x++), e.verdict !== "agree" && (T.push(e), T.length > qi && T.shift());
 	}, D = () => {
 		try {
 			return n.readCurrent();
@@ -4433,14 +4433,14 @@ function Xi(n, r = {}) {
 	}, O = () => J(D()), k = async (e, t) => {
 		if (!n.readDurableLocal) return "not-configured";
 		try {
-			return Gi(e, t, J(await n.readDurableLocal()));
+			return Ki(e, t, J(await n.readDurableLocal()));
 		} catch {
 			return "unreadable";
 		}
 	}, A = async (r, i, a, s) => {
-		if (c && (l > 0 || s !== u || !a || D() !== a)) return E(X(r, "context-discarded")), !1;
-		if (d) throw E(X(r, "recovery-blocked")), Error("Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.");
-		let f = D(), p = Ji(f), m = t(p?.rallies), h = J(f), g = m.length, _ = e(m.at(-1)), v = null;
+		if (c && (l > 0 || s !== u || !a || D() !== a)) return E(Y(r, "context-discarded")), !1;
+		if (d) throw E(Y(r, "recovery-blocked")), Error("Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.");
+		let f = D(), p = Yi(f), m = t(p?.rallies), h = J(f), g = m.length, _ = e(m.at(-1)), v = null;
 		try {
 			v = r === "point" ? ae(f, i) : oe(f);
 		} catch {}
@@ -4450,22 +4450,22 @@ function Xi(n, r = {}) {
 		} catch (e) {
 			o && (d = !0);
 			let t = O(), n = await k(h, t);
-			throw E(X(r, "native-rejected", Wi(h, t), n)), e;
+			throw E(Y(r, "native-rejected", Wi(h, t), n)), e;
 		}
 		if (y === !1) {
 			o && (d = !0);
 			let e = O(), t = await k(h, e);
-			return E(X(r, "native-declined", Wi(h, e), t)), y;
+			return E(Y(r, "native-declined", Wi(h, e), t)), y;
 		}
 		try {
-			E(v ? Yi(r, v, f, D(), p, _, g) : X(r, "unverified", ["missing-data"]));
+			E(v ? Xi(r, v, f, D(), p, _, g) : Y(r, "unverified", ["missing-data"]));
 		} catch {
-			E(X(r, "unverified", ["missing-data"]));
+			E(Y(r, "unverified", ["missing-data"]));
 		}
 		return y;
 	}, j = (e, t) => {
 		if (a) return Promise.reject(/* @__PURE__ */ Error("El piloto ya está desactivado."));
-		if (p++, c && l > 0) return E(X(e, "context-discarded")), Promise.resolve(!1);
+		if (p++, c && l > 0) return E(Y(e, "context-discarded")), Promise.resolve(!1);
 		w++;
 		let n = c ? D() : null, r = u, o = i.then(() => A(e, t, n, r));
 		return i = o.then(() => void 0, () => void 0), o.finally(() => {
@@ -4512,7 +4512,7 @@ function Xi(n, r = {}) {
 		async resumeAfterVerifiedReload() {
 			if (!o || !d || a || w !== 0 || !n.readDurableLocal) return !1;
 			try {
-				return Y(O(), J(await n.readDurableLocal())) ? (d = !1, !0) : !1;
+				return Gi(O(), J(await n.readDurableLocal())) ? (d = !1, !0) : !1;
 			} catch {
 				return !1;
 			}
@@ -4523,32 +4523,32 @@ function Xi(n, r = {}) {
 	});
 }
 // src/domain/rally-writer-runtime.ts
-var Zi = "20.5.55", Qi = /* @__PURE__ */ new WeakMap();
-function $i(e) {
-	let t = Qi.get(e);
+var Qi = "20.5.55", $i = /* @__PURE__ */ new WeakMap();
+function ea(e) {
+	let t = $i.get(e);
 	if (t) return t;
 	let n = Object.freeze({
-		VERSION: Zi,
+		VERSION: Qi,
 		singleNativeWriter: !0,
 		create(e) {
 			if (!e || typeof e.readCurrent != "function" || typeof e.awardPoint != "function" || typeof e.undoRally != "function") throw TypeError("El coordinador requiere los escritores nativos originales.");
-			return Xi(e, {
+			return Zi(e, {
 				installedInLiveUI: !0,
 				requireStableMatchForCommands: !0
 			});
 		}
 	});
-	Qi.set(e, n);
+	$i.set(e, n);
 	let r = e;
 	return r.VC_RALLY_WRITER_20555 ||= n, n;
 }
 // src/domain/rally-record.ts
-var Z = (e) => typeof e == "object" && e && !Array.isArray(e) ? e : null, ea = (e) => {
+var X = (e) => typeof e == "object" && e && !Array.isArray(e) ? e : null, ta = (e) => {
 	let t = Object.getPrototypeOf(e);
 	return t === null || Object.getPrototypeOf(t) === null;
 };
-function ta(e) {
-	let t = Z(e), n = Z(t?.live), r = Z(t?.before);
+function na(e) {
+	let t = X(e), n = X(t?.live), r = X(t?.before);
 	return !t || !n || !r ? null : {
 		id: n.id,
 		setNumber: t.setNumber,
@@ -4572,8 +4572,8 @@ function ta(e) {
 		scoutEndMs: t.scoutEndMs
 	};
 }
-function na(e) {
-	let t = Z(e), n = Z(t?.rally);
+function ra(e) {
+	let t = X(e), n = X(t?.rally);
 	return !t || !n ? null : {
 		id: n.id,
 		actions: t.actions,
@@ -4588,38 +4588,38 @@ function na(e) {
 		}
 	};
 }
-function ra(e, t, n = 0) {
+function ia(e, t, n = 0) {
 	if (Object.is(e, t)) return !0;
 	if (n > 3) return !1;
-	let r = Z(e), i = Z(t);
-	if (!r || !i || !ea(r) || !ea(i)) return !1;
+	let r = X(e), i = X(t);
+	if (!r || !i || !ta(r) || !ta(i)) return !1;
 	let a = Reflect.ownKeys(r), o = Reflect.ownKeys(i);
 	return a.length === o.length && a.every((e, t) => {
 		if (e !== o[t]) return !1;
 		let a = Object.getOwnPropertyDescriptor(r, e), s = Object.getOwnPropertyDescriptor(i, e);
-		return !!a && !!s && "value" in a && "value" in s && a.enumerable === s.enumerable && ra(a.value, s.value, n + 1);
+		return !!a && !!s && "value" in a && "value" in s && a.enumerable === s.enumerable && ia(a.value, s.value, n + 1);
 	});
 }
 // src/domain/rally-record-runtime.ts
-var ia = /* @__PURE__ */ new WeakMap();
-function aa(e) {
-	let t = ia.get(e);
+var aa = /* @__PURE__ */ new WeakMap();
+function oa(e) {
+	let t = aa.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.57",
 		pureRecordOnly: !0,
-		close: ta,
-		restore: na,
-		equivalent: ra
+		close: na,
+		restore: ra,
+		equivalent: ia
 	});
-	ia.set(e, n);
+	aa.set(e, n);
 	let r = e;
 	return r.VC_RALLY_RECORDS_20557 ||= n, n;
 }
 // src/domain/scout-local-save-receipt.ts
-var oa = (e) => typeof e == "number" && Number.isInteger(e) && e >= 0 ? e : null;
-function sa(e) {
-	let t = e?.path === "full-flush" || e?.path === "legacy-backup" ? e.path : "unavailable", n = e?.error === !0 ? "failed" : t === "full-flush" && e.outcome === !0 ? "completed" : t === "full-flush" && e.outcome === !1 ? "pending" : "unverified", r = oa(e?.journalFailuresBefore), i = oa(e?.journalFailuresAfter);
+var sa = (e) => typeof e == "number" && Number.isInteger(e) && e >= 0 ? e : null;
+function ca(e) {
+	let t = e?.path === "full-flush" || e?.path === "legacy-backup" ? e.path : "unavailable", n = e?.error === !0 ? "failed" : t === "full-flush" && e.outcome === !0 ? "completed" : t === "full-flush" && e.outcome === !1 ? "pending" : "unverified", r = sa(e?.journalFailuresBefore), i = sa(e?.journalFailuresAfter);
 	return Object.freeze({
 		version: "20.5.58",
 		local: n,
@@ -4629,28 +4629,28 @@ function sa(e) {
 	});
 }
 // src/domain/scout-local-save-receipt-runtime.ts
-var ca = /* @__PURE__ */ new WeakMap();
-function la(e) {
-	let t = ca.get(e);
+var la = /* @__PURE__ */ new WeakMap();
+function ua(e) {
+	let t = la.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.58",
 		readOnly: !0,
-		classify: sa
+		classify: ca
 	});
-	ca.set(e, n);
+	la.set(e, n);
 	let r = e;
 	return r.VC_LOCAL_SAVE_20558 ||= n, n;
 }
 // src/domain/scout-local-readback.ts
-var ua = 6291456, da = 2097152, fa = 524288, pa = "VC-LZW16-1:", Q = (e) => Object.freeze({
+var da = 6291456, fa = 2097152, pa = 524288, ma = "VC-LZW16-1:", Z = (e) => Object.freeze({
 	version: "20.5.59",
 	state: e,
 	scope: "primary-local-only",
 	journal: "not-confirmed",
 	cloud: "not-confirmed"
 });
-function ma(e) {
+function ha(e) {
 	try {
 		if (!e || typeof e != "object" || Array.isArray(e)) return null;
 		let t = JSON.stringify(e);
@@ -4659,59 +4659,59 @@ function ma(e) {
 		return null;
 	}
 }
-function ha(e) {
+function ga(e) {
 	try {
-		if (typeof e?.snapshot != "string" || !e.snapshot || e.snapshot.length > 2097152 || typeof e.teamId != "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(e.teamId) || typeof e.matchId != "string" && typeof e.matchId != "number" || !String(e.matchId).trim()) return Q("unverified");
-		if (e.raw == null || e.raw === "") return Q("missing");
-		if (typeof e.raw != "string") return Q("invalid");
+		if (typeof e?.snapshot != "string" || !e.snapshot || e.snapshot.length > 2097152 || typeof e.teamId != "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(e.teamId) || typeof e.matchId != "string" && typeof e.matchId != "number" || !String(e.matchId).trim()) return Z("unverified");
+		if (e.raw == null || e.raw === "") return Z("missing");
+		if (typeof e.raw != "string") return Z("invalid");
 		let t = e.raw;
-		if (t.startsWith(pa)) {
-			if (t.length > 524288) return Q("too-large");
-			if (typeof e.unpack != "function") return Q("unverified");
+		if (t.startsWith(ma)) {
+			if (t.length > 524288) return Z("too-large");
+			if (typeof e.unpack != "function") return Z("unverified");
 			try {
 				t = e.unpack(t);
 			} catch {
-				return Q("invalid");
+				return Z("invalid");
 			}
-			if (typeof t != "string") return Q("invalid");
+			if (typeof t != "string") return Z("invalid");
 		}
-		if (t.length > 6291456) return Q("too-large");
+		if (t.length > 6291456) return Z("too-large");
 		let n;
 		try {
 			n = JSON.parse(t);
 		} catch {
-			return Q("invalid");
+			return Z("invalid");
 		}
-		if (!n || typeof n != "object" || Array.isArray(n)) return Q("invalid");
+		if (!n || typeof n != "object" || Array.isArray(n)) return Z("invalid");
 		let r = n.equiposData;
-		if (!r || typeof r != "object" || Array.isArray(r)) return Q("invalid");
+		if (!r || typeof r != "object" || Array.isArray(r)) return Z("invalid");
 		let i = r[e.teamId];
-		if (!i || typeof i != "object" || Array.isArray(i)) return Q("missing");
+		if (!i || typeof i != "object" || Array.isArray(i)) return Z("missing");
 		let a = i.scoutingMatches;
-		if (!Array.isArray(a)) return Q("missing");
+		if (!Array.isArray(a)) return Z("missing");
 		let o = a.filter((t) => !!t && typeof t == "object" && String(t.id) === String(e.matchId));
-		return o.length === 0 ? Q("missing") : o.length === 1 ? Q(JSON.stringify(o[0]) === e.snapshot ? "matched" : "different") : Q("invalid");
+		return o.length === 0 ? Z("missing") : o.length === 1 ? Z(JSON.stringify(o[0]) === e.snapshot ? "matched" : "different") : Z("invalid");
 	} catch {
-		return Q("unverified");
+		return Z("unverified");
 	}
 }
 // src/domain/scout-local-readback-runtime.ts
-var ga = /* @__PURE__ */ new WeakMap();
-function _a(e) {
-	let t = ga.get(e);
+var _a = /* @__PURE__ */ new WeakMap();
+function va(e) {
+	let t = _a.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.59",
 		readOnly: !0,
-		capture: ma,
-		verify: ha
+		capture: ha,
+		verify: ga
 	});
-	ga.set(e, n);
+	_a.set(e, n);
 	let r = e;
 	return r.VC_LOCAL_READBACK_20559 ||= n, n;
 }
 // src/domain/scout-indexed-journal.ts
-function va(e) {
+function ya(e) {
 	return !e || !e.db || typeof e.db.transaction != "function" || typeof e.fullStore != "string" || !e.fullStore || typeof e.liveStore != "string" || !e.liveStore || e.fullStore === e.liveStore || typeof e.key != "string" || !e.key || !e.payload || typeof e.payload != "object" || Array.isArray(e.payload) || e.payload.key !== e.key || e.mode !== "checkpoint" && e.mode !== "action-delta" || e.mode === "action-delta" && typeof e.captureAnchor != "function" ? Promise.reject(/* @__PURE__ */ Error("Contrato del diario IndexedDB no disponible")) : new Promise((t, n) => {
 		let r;
 		try {
@@ -4778,32 +4778,32 @@ function va(e) {
 	});
 }
 // src/domain/scout-indexed-journal-runtime.ts
-var ya = /* @__PURE__ */ new WeakMap();
-function ba(e) {
-	let t = ya.get(e);
+var ba = /* @__PURE__ */ new WeakMap();
+function xa(e) {
+	let t = ba.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.60",
 		ownsDatabase: !1,
 		usesExistingStores: !0,
-		write: va
+		write: ya
 	});
-	ya.set(e, n);
+	ba.set(e, n);
 	let r = e;
 	return r.VC_SCOUT_INDEXED_JOURNAL_20560 ||= n, n;
 }
 // src/domain/club-local-store.ts
-var xa = "VC-LZW16-1:", Sa = (e) => {
+var Sa = "VC-LZW16-1:", Ca = (e) => {
 	let t = e && typeof e == "object" ? e : {};
 	return t.name === "QuotaExceededError" || t.code === 22 || t.code === 1014;
 };
-function Ca(e) {
+function wa(e) {
 	if (!e || !e.storage || typeof e.storage.getItem != "function" || typeof e.storage.setItem != "function" || typeof e.key != "string" || !e.key || typeof e.raw != "string" || typeof e.pack != "function" || typeof e.unpack != "function") throw Error("Guardado local no disponible");
 	let t = e.storage.getItem(e.key);
-	if (!e.compactActive && !(t || "").startsWith(xa)) try {
+	if (!e.compactActive && !(t || "").startsWith(Sa)) try {
 		return e.storage.setItem(e.key, e.raw), "normal";
 	} catch (e) {
-		if (!Sa(e)) throw e;
+		if (!Ca(e)) throw e;
 	}
 	let n = e.pack(e.raw);
 	if (n.length >= e.raw.length) throw Error("No cabe el estado local ni comprimido. Exporta una copia, no borres datos.");
@@ -4811,61 +4811,323 @@ function Ca(e) {
 	try {
 		e.storage.setItem(e.key, n);
 	} catch (e) {
-		throw Sa(e) ? Error("Almacenamiento local lleno incluso en formato compacto. La importación se ha cancelado sin eliminar tus datos; exporta una copia de seguridad y avisa del error.") : e;
+		throw Ca(e) ? Error("Almacenamiento local lleno incluso en formato compacto. La importación se ha cancelado sin eliminar tus datos; exporta una copia de seguridad y avisa del error.") : e;
 	}
 	if (e.storage.getItem(e.key) !== n) throw Error("No se pudo verificar el almacenamiento local");
 	return "compacto";
 }
 // src/domain/club-local-store-runtime.ts
-var wa = /* @__PURE__ */ new WeakMap();
-function Ta(e) {
-	let t = wa.get(e);
+var Ta = /* @__PURE__ */ new WeakMap();
+function Ea(e) {
+	let t = Ta.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.61",
 		usesExistingKey: !0,
 		keepsNativeCodec: !0,
-		write: Ca
+		write: wa
 	});
-	wa.set(e, n);
+	Ta.set(e, n);
 	let r = e;
 	return r.VC_CLUB_LOCAL_STORE_20561 ||= n, n;
 }
 // src/domain/club-snapshot.ts
-var Ea = (e, t) => {
+var Da = (e, t) => {
 	let n = JSON.stringify(e);
 	if (typeof n != "string") throw Error(`No se pudo serializar ${t}`);
 	return n;
 };
-function Da(e) {
+function Oa(e) {
 	if (!e || typeof e.updatedAt != "string") throw Error("Instantánea del club no válida");
-	let t = Ea(e.bibliotecaCompartida, "la biblioteca"), n = Ea(e.equiposData, "los equipos"), r = Ea(e.updatedAt, "la fecha");
+	let t = Da(e.bibliotecaCompartida, "la biblioteca"), n = Da(e.equiposData, "los equipos"), r = Da(e.updatedAt, "la fecha");
 	return Object.freeze({
 		raw: `{"version":5.8,"bibliotecaCompartida":${t},"bibliotecaVersion":1,"bibliotecaUpdatedAt":${r},"equiposData":${n}}`,
 		libraryEntriesJSON: t
 	});
 }
-function Oa(e) {
+function ka(e) {
 	if (!e || !e.snapshot || typeof e.snapshot.libraryEntriesJSON != "string" || typeof e.updatedAt != "string" || !Number.isSafeInteger(e.total) || e.total < 0) throw Error("Copia de biblioteca no válida");
-	return `{"version":1,"updatedAt":${Ea(e.updatedAt, "la fecha de biblioteca")},"total":${e.total},"ejercicios":${e.snapshot.libraryEntriesJSON}}`;
+	return `{"version":1,"updatedAt":${Da(e.updatedAt, "la fecha de biblioteca")},"total":${e.total},"ejercicios":${e.snapshot.libraryEntriesJSON}}`;
 }
 // src/domain/club-snapshot-runtime.ts
-var ka = /* @__PURE__ */ new WeakMap();
-function Aa(e) {
-	let t = ka.get(e);
+var Aa = /* @__PURE__ */ new WeakMap();
+function ja(e) {
+	let t = Aa.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.62",
 		usesExistingPayload: !0,
-		serialize: Da,
-		serializeLibrary: Oa
+		serialize: Oa,
+		serializeLibrary: ka
 	});
-	ka.set(e, n);
+	Aa.set(e, n);
 	let r = e;
 	return r.VC_CLUB_SNAPSHOT_20562 ||= n, n;
 }
+// src/state/club-partitions.ts
+var Q = [
+	"players",
+	"trainings",
+	"seasons"
+], Ma = 5e6, Na = Object.freeze({
+	players: ["jugadores"],
+	trainings: [
+		"sesionActual",
+		"meta",
+		"historial",
+		"planificacion",
+		"plantillas"
+	],
+	seasons: [
+		"temporada",
+		"temporadas",
+		"temporadaActual",
+		"season",
+		"seasonName"
+	]
+}), Pa = (e) => !!e && typeof e == "object" && !Array.isArray(e);
+function Fa(e, t) {
+	if (!Pa(e) || !t || typeof t != "string" || t.length > 128) throw Error("Estado de equipos o revisión no disponible");
+	let n = Object.keys(e).sort();
+	if (!n.length || n.length > 100) throw Error("Número de equipos no admitido en el piloto");
+	let r = {
+		players: [],
+		trainings: [],
+		seasons: []
+	}, i = 0;
+	for (let a of n) {
+		let n = e[a];
+		if (!Pa(n)) throw Error("Registro de equipo no compatible con el piloto");
+		for (let e of Q) {
+			let o = {};
+			for (let t of Na[e]) Object.hasOwn(n, t) && (o[t] = n[t]);
+			let s = JSON.stringify(o);
+			if (typeof s != "string") throw Error("No se pudo convertir la partición a JSON");
+			if (i += s.length, i > 5e6) throw Error("El piloto supera el límite local de 5 millones de caracteres");
+			r[e].push(Object.freeze({
+				teamId: a,
+				revision: t,
+				dataJson: s
+			}));
+		}
+	}
+	for (let e of Q) Object.freeze(r[e]);
+	return Object.freeze({
+		schema: 1,
+		revision: t,
+		teamIds: Object.freeze(n),
+		rows: Object.freeze(r),
+		totalChars: i
+	});
+}
+function Ia(e, t) {
+	if (e.teamIds.length !== t.teamIds.length) return !1;
+	for (let n = 0; n < e.teamIds.length; n++) if (e.teamIds[n] !== t.teamIds[n]) return !1;
+	for (let n of Q) {
+		if (e.rows[n].length !== t.rows[n].length) return !1;
+		for (let r = 0; r < e.rows[n].length; r++) {
+			let i = e.rows[n][r], a = t.rows[n][r];
+			if (i.teamId !== a.teamId || i.dataJson !== a.dataJson) return !1;
+		}
+	}
+	return !0;
+}
+// src/state/club-repository.ts
+var La = "VolleyCoachClubPartitionsV2063", Ra = "metadata", za = [...Q, Ra];
+function Ba(e) {
+	return new Promise((t, n) => {
+		let r = !1, i = (e) => {
+			r || (r = !0, n(e || Error("No se pudo abrir el piloto local")));
+		}, a;
+		try {
+			a = e.open(La, 1);
+		} catch (e) {
+			i(e);
+			return;
+		}
+		a.onupgradeneeded = () => {
+			try {
+				for (let e of za) a.result.objectStoreNames.contains(e) || a.result.createObjectStore(e, { keyPath: e === Ra ? "key" : "teamId" });
+			} catch (e) {
+				try {
+					a.transaction?.abort();
+				} catch {}
+				i(e);
+			}
+		}, a.onsuccess = () => {
+			let e = a.result;
+			if (r) e.close();
+			else {
+				for (let t of za) if (!e.objectStoreNames.contains(t)) {
+					e.close(), i(Error("Falta una colección en el repositorio piloto"));
+					return;
+				}
+				r = !0, t(e);
+			}
+		}, a.onerror = () => i(a.error), a.onblocked = () => i(Error("Otra pestaña impide abrir el repositorio piloto"));
+	});
+}
+function Va(e, t) {
+	return new Promise((n, r) => {
+		let i;
+		try {
+			i = e.transaction([...za], "readwrite");
+		} catch (e) {
+			r(e);
+			return;
+		}
+		let a = !1, o = (e) => {
+			a || (a = !0, r(e || Error("Transacción de réplica cancelada")));
+		};
+		i.oncomplete = () => {
+			a || (a = !0, n());
+		}, i.onerror = () => o(i.error), i.onabort = () => o(i.error);
+		try {
+			for (let e of Q) {
+				let n = i.objectStore(e);
+				for (let r of t.rows[e]) n.put(r);
+			}
+			i.objectStore(Ra).put({
+				key: "current",
+				schema: 1,
+				revision: t.revision,
+				teamIds: [...t.teamIds],
+				totalChars: t.totalChars
+			});
+		} catch (e) {
+			try {
+				i.abort();
+			} catch {}
+			o(e);
+		}
+	});
+}
+function Ha(e, t) {
+	return new Promise((n, r) => {
+		let i;
+		try {
+			i = e.transaction([...za], "readonly");
+		} catch (e) {
+			r(e);
+			return;
+		}
+		let a = !1, o = !1, s = 0, c = (e) => {
+			o || (o = !0, r(e || Error("Fallo de lectura del repositorio piloto")));
+		}, l = (e, t) => {
+			s++, e.onsuccess = () => {
+				try {
+					t(e.result) || (a = !0);
+				} catch {
+					a = !0;
+				}
+			}, e.onerror = () => {
+				a = !0;
+			};
+		};
+		i.oncomplete = () => {
+			o || (o = !0, a || s !== 1 + t.teamIds.length * Q.length ? r(Error("La réplica no coincide con la instantánea original")) : n(Object.freeze({
+				status: "verified",
+				revision: t.revision,
+				teamCount: t.teamIds.length,
+				recordCount: t.teamIds.length * Q.length,
+				totalChars: t.totalChars,
+				authoritative: !1
+			})));
+		}, i.onerror = () => c(i.error), i.onabort = () => c(i.error);
+		try {
+			l(i.objectStore(Ra).get("current"), (e) => e?.key === "current" && e.schema === 1 && e.revision === t.revision && e.totalChars === t.totalChars && Array.isArray(e.teamIds) && JSON.stringify(e.teamIds) === JSON.stringify(t.teamIds));
+			for (let e of Q) {
+				let n = t.rows[e];
+				for (let r of n) l(i.objectStore(e).get(r.teamId), (e) => e?.teamId === r.teamId && e.revision === t.revision && e.dataJson === r.dataJson);
+			}
+		} catch (e) {
+			try {
+				i.abort();
+			} catch {}
+			c(e);
+		}
+	});
+}
+async function Ua(e) {
+	if (!e?.factory || typeof e.factory.open != "function" || !e.plan || e.plan.schema !== 1 || !e.plan.teamIds?.length) throw Error("Repositorio piloto no disponible");
+	let t = await Ba(e.factory);
+	try {
+		return await Va(t, e.plan), await Ha(t, e.plan);
+	} finally {
+		t.close();
+	}
+}
+function Wa(e) {
+	return !e || typeof e.deleteDatabase != "function" ? Promise.reject(Error("Limpieza del repositorio piloto no disponible")) : new Promise((t, n) => {
+		let r = !1, i, a = (e) => {
+			r || (r = !0, n(e || Error("No se ha podido borrar la réplica de prueba")));
+		};
+		try {
+			i = e.deleteDatabase(La);
+		} catch (e) {
+			a(e);
+			return;
+		}
+		i.onsuccess = () => {
+			r || (r = !0, t(!0));
+		}, i.onerror = () => a(i.error), i.onblocked = () => a(Error("Cierra las otras pestañas para eliminar la réplica piloto"));
+	});
+}
+// src/state/club-repository-runtime.ts
+var Ga = /* @__PURE__ */ new WeakMap(), Ka = 0, qa = () => `pilot-${Date.now().toString(36)}-${(++Ka).toString(36)}`;
+function Ja(e) {
+	let t = Ga.get(e);
+	if (t) return t;
+	let n = e.document, r = n?.getElementById("vc20563-run-pilot"), i = n?.getElementById("vc20563-pilot-status"), a = n?.getElementById("vc20563-remove-pilot");
+	if (!r || !a || !i) return null;
+	let o = !1, s = !1, c = typeof e.indexedDB?.open == "function", l = (e) => {
+		s || (i.textContent = e);
+	};
+	r.disabled = !c, a.disabled = !c, l(c ? "Sin ejecutar. El piloto no modifica los datos originales ni la nube." : "IndexedDB no está disponible en este navegador. No se han modificado datos.");
+	let u = async () => {
+		if (s || o || !c) throw Error("Piloto ocupado o no disponible");
+		o = !0, r.disabled = !0, a.disabled = !0, l("Preparando copia local de prueba. No cierres esta pestaña hasta ver el resultado.");
+		try {
+			let t = e.VC_V1917_TEAM_STATE?.(), n = Fa(t, qa()), r = await Ua({
+				factory: e.indexedDB,
+				plan: n
+			});
+			return Ia(n, Fa(e.VC_V1917_TEAM_STATE?.(), qa())) ? l(`Réplica piloto verificada: ${r.teamCount} equipos, ${r.recordCount} registros y ${r.totalChars.toLocaleString("es-ES")} caracteres. El guardado principal sigue intacto.`) : l("Réplica de prueba comprobada, pero los datos han cambiado durante la operación. Repite la prueba."), r;
+		} catch (e) {
+			throw l("No se ha podido verificar la réplica. El guardado habitual sigue funcionando; no borres datos."), e;
+		} finally {
+			o = !1, s || (r.disabled = !c, a.disabled = !c);
+		}
+	}, d = () => {
+		u().catch(() => {});
+	}, f = async () => {
+		if (s || o || !c) throw Error("Limpieza piloto no disponible");
+		o = !0, r.disabled = !0, a.disabled = !0, l("Eliminando únicamente las colecciones piloto de la V20.5.63…");
+		try {
+			return await Wa(e.indexedDB), l("Réplica piloto eliminada. Los datos originales del club siguen intactos."), !0;
+		} catch (e) {
+			throw l("La eliminación no se ha confirmado. Si otra pestaña la bloquea, podría completarse más tarde. Comprueba el estado antes de reintentar."), e;
+		} finally {
+			o = !1, s || (r.disabled = !c, a.disabled = !c);
+		}
+	}, p = () => {
+		e.confirm("¿Eliminar únicamente la réplica de prueba de V20.5.63? El club original y la nube no se modificarán.") && f().catch(() => {});
+	};
+	r.addEventListener("click", d), a.addEventListener("click", p);
+	let m = Object.freeze({
+		VERSION: "20.5.63",
+		authoritative: !1,
+		manualOnly: !0,
+		run: u,
+		removeReplica: f,
+		dispose() {
+			s || (s = !0, r.removeEventListener("click", d), a.removeEventListener("click", p), r.disabled = !0, a.disabled = !0, Ga.delete(e), e.VC_CLUB_PILOT_20563 === m && delete e.VC_CLUB_PILOT_20563);
+		}
+	});
+	return e.VC_CLUB_PILOT_20563 = m, Ga.set(e, m), m;
+}
 // src/domain/rally-shadow-runtime.ts
-function ja(e) {
+function Ya(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_SHADOW_20515) return e.VC_SHADOW_20515;
@@ -4968,35 +5230,35 @@ function ja(e) {
 	return e.VC_SHADOW_20515 = k, k;
 }
 // src/domain/multi-device-validation.ts
-var Ma = "20.1.2", Na = "vc-multi-device-validation", Pa = (e) => String(e ?? "").trim(), Fa = (e) => {
+var Xa = "20.1.2", Za = "vc-multi-device-validation", Qa = (e) => String(e ?? "").trim(), $a = (e) => {
 	let t = Number(e);
 	return Number.isSafeInteger(t) && t >= 0 ? t : 0;
-}, Ia = (e) => {
-	let t = Pa(e);
+}, eo = (e) => {
+	let t = Qa(e);
 	return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/.test(t) && Number.isFinite(Date.parse(t)) ? t : "";
 };
-function La({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
+function to({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
 	let a = e(t) || {}, o = e(n) || {}, s = e(r) || {};
 	return {
-		schema: Na,
-		version: Ma,
+		schema: Za,
+		version: Xa,
 		createdAt: new Date(i).toISOString(),
 		connected: !!a.connected,
 		dirty: !!a.dirty,
 		blocked: !!a.blockedReason,
 		realtimeSubscribed: o.realtimeState === "SUBSCRIBED",
-		lastReadAt: Fa(a.lastReadAt),
-		lastWriteAt: Fa(a.lastWriteAt),
-		lastReadErrorAt: Fa(a.lastReadErrorAt),
-		lastObservedRemoteStamp: Ia(a.lastObservedRemoteStamp),
-		lastAppliedRemoteStamp: Ia(a.lastAppliedRemoteStamp),
-		lastConfirmedWriteStamp: Ia(a.lastConfirmedWriteStamp),
-		pendingJournal: typeof s.pendingCount == "number" ? Fa(s.pendingCount) : null,
+		lastReadAt: $a(a.lastReadAt),
+		lastWriteAt: $a(a.lastWriteAt),
+		lastReadErrorAt: $a(a.lastReadErrorAt),
+		lastObservedRemoteStamp: eo(a.lastObservedRemoteStamp),
+		lastAppliedRemoteStamp: eo(a.lastAppliedRemoteStamp),
+		lastConfirmedWriteStamp: eo(a.lastConfirmedWriteStamp),
+		pendingJournal: typeof s.pendingCount == "number" ? $a(s.pendingCount) : null,
 		journalError: !!s.lastError,
 		warning: "Mismo origen y cuenta deben comprobarse manualmente. La igualdad de marcas CAS no verifica contenido ni entrega de vídeo."
 	};
 }
-function Ra(t) {
+function no(t) {
 	let n = e(typeof t == "string" ? JSON.parse(t) : t);
 	if (!n || n.schema !== "vc-multi-device-validation" || n.version !== "20.1.2") throw Error("Informe incompatible: deben ser diagnósticos V20.1.2.");
 	if (!Number.isFinite(Date.parse(String(n.createdAt)))) throw Error("Informe sin fecha válida.");
@@ -5007,7 +5269,7 @@ function Ra(t) {
 		"realtimeSubscribed"
 	]) if (typeof n[e] != "boolean") throw Error("Campo inválido: " + e);
 	if (n.pendingJournal !== null && (!Number.isInteger(n.pendingJournal) || Number(n.pendingJournal) < 0)) throw Error("Diario inválido.");
-	return La({
+	return to({
 		cloud: n,
 		device: { realtimeState: n.realtimeSubscribed ? "SUBSCRIBED" : "" },
 		journal: {
@@ -5017,8 +5279,8 @@ function Ra(t) {
 		now: Date.parse(String(n.createdAt))
 	});
 }
-function za(e, t) {
-	let n = Ra(e), r = Ra(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
+function ro(e, t) {
+	let n = no(e), r = no(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
 	if (!i(n) || !i(r)) return {
 		status: "review",
 		message: "Alguno de los dispositivos tiene cambios pendientes, está bloqueado o no puede comprobar su diario. No se confirma una entrega."
@@ -5033,19 +5295,19 @@ function za(e, t) {
 	};
 }
 // src/domain/multi-device-runtime.ts
-var Ba = /* @__PURE__ */ new WeakMap(), Va = Object.freeze({
-	VERSION: Ma,
-	SCHEMA: Na,
-	report: La,
-	parseReport: Ra,
-	compareReports: za,
-	mount: Ua
+var io = /* @__PURE__ */ new WeakMap(), ao = Object.freeze({
+	VERSION: Xa,
+	SCHEMA: Za,
+	report: to,
+	parseReport: no,
+	compareReports: ro,
+	mount: so
 });
-function Ha(e) {
-	return e.VC_SYNC_2012 = Va, Va;
+function oo(e) {
+	return e.VC_SYNC_2012 = ao, ao;
 }
-function Ua(e) {
-	let t = Ba.get(e);
+function so(e) {
+	let t = io.get(e);
 	if (t) return t;
 	let n = e.document;
 	if (!n) return null;
@@ -5054,7 +5316,7 @@ function Ua(e) {
 		return r.textContent = t, r;
 	}, a = null, o = !1, s = !1, c = !1, l = null, u = "", d = null, f = async () => {
 		let t = e.VC_V962_CLOUD_EFFICIENT?.diagnostics?.() || {}, n = e.VC_DEVICE_SYNC?.diagnostics?.() || {}, r = e.VC_V962_CLOUD_EFFICIENT?.getAccountId?.() || "";
-		return La({
+		return to({
 			cloud: t,
 			device: n,
 			journal: await e.VC_SYNC_2011_JOURNAL?.inspect?.(r) || {
@@ -5073,7 +5335,7 @@ function Ua(e) {
 					n && n.textContent !== t && (n.textContent = t);
 				};
 				t("vc2012-observed", e.lastObservedRemoteStamp || "Sin lectura confirmada"), t("vc2012-applied", e.lastAppliedRemoteStamp || "Sin recepción procesada"), t("vc2012-uploaded", e.lastConfirmedWriteStamp || "Sin subida confirmada"), t("vc2012-pending", e.pendingJournal === null ? "Sin comprobar" : String(e.pendingJournal));
-				let n = l ? za(e, l) : null, i = r("vc2012-feedback");
+				let n = l ? ro(e, l) : null, i = r("vc2012-feedback");
 				i && (i.textContent = n ? n.message : u || "Sin comparación. No se han modificado datos.", i.dataset.status = n?.status || "idle");
 			} catch {
 				if (!s) {
@@ -5103,7 +5365,7 @@ function Ua(e) {
 			if (t.size > 65536) u = "Archivo demasiado grande para un informe de validación.", p();
 			else {
 				try {
-					l = Ra(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
+					l = no(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
 				} catch {
 					l = null, u = "El archivo no es un informe V20.1.2 válido.";
 				}
@@ -5144,13 +5406,13 @@ function Ua(e) {
 		readOnly: !0,
 		refresh: p,
 		dispose() {
-			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, Ba.delete(e));
+			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, io.delete(e));
 		}
 	});
-	return Ba.set(e, C), C;
+	return io.set(e, C), C;
 }
 // src/domain/journal-recovery-inspector.ts
-var Wa = 27262976, $ = (e, t) => Object.freeze({
+var co = 27262976, $ = (e, t) => Object.freeze({
 	version: "20.5.19",
 	source: "existing-v2011-pending-checkpoint",
 	status: e,
@@ -5158,7 +5420,7 @@ var Wa = 27262976, $ = (e, t) => Object.freeze({
 	requiresManualReview: !0,
 	autoResumeAllowed: !1
 });
-async function Ga(n) {
+async function lo(n) {
 	if (!n || !n.journal || typeof n.journal.inspect != "function" || typeof n.journal.newest != "function" || !n.accountId || !n.teamId || n.matchId === null || n.matchId === void 0 || !String(n.matchId)) return $("unavailable", null);
 	let r = String(n.accountId).trim(), i = String(n.teamId);
 	if (!r) return $("unavailable", null);
@@ -5169,12 +5431,12 @@ async function Ga(n) {
 		if (a = s, s === 0) return $("no-checkpoint", 0);
 		if (s !== 1 || o?.hasOtherAccounts === !0 || o?.lastError) return $("ambiguous", s);
 		let c = e(await n.journal.newest(r));
-		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > Wa) return $("unavailable", s);
+		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > co) return $("unavailable", s);
 		let l = e(e(e(JSON.parse(c.stateJson))?.equiposData)?.[i]);
 		if (!l || !Array.isArray(l.scoutingMatches)) return $("missing-match", s);
 		let u = t(l.scoutingMatches).map(e).filter((e) => e && String(e.id) === String(n.matchId));
 		if (u.length !== 1) return $(u.length ? "ambiguous" : "missing-match", s);
-		let d = Gi(J(n.before), J(n.after), J(u[0]));
+		let d = Ki(J(n.before), J(n.after), J(u[0]));
 		return $(d === "durable-before" ? "checkpoint-before" : d === "durable-after" ? "checkpoint-after" : d === "unchanged-observed" ? "checkpoint-unchanged" : d === "divergent" ? "checkpoint-divergent" : "unavailable", s);
 	} catch {
 		return $("unavailable", a);
@@ -5182,10 +5444,10 @@ async function Ga(n) {
 }
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
-	Fn(window), Un(window), Kn(window), Qn(window), or(window), hr(window), vr(window), Cr(window), Dr(window), Pr(window), Lr(window), Wr(window), Qr(window), ti(window), ui(window), pi(window), gi(window), yi(window), Ci(window), Ei(window), ki(window), $i(window), aa(window), la(window), _a(window), ba(window), Ta(window), Aa(window), Ha(window), Ie(window), rn(window), dn(window), gn(window), ut(window), vt(window), Jt(window), $t(window);
+	Fn(window), Un(window), Kn(window), Qn(window), or(window), hr(window), vr(window), Cr(window), Dr(window), Pr(window), Lr(window), Wr(window), Qr(window), ti(window), ui(window), pi(window), gi(window), yi(window), Ci(window), Ei(window), ki(window), ea(window), oa(window), ua(window), va(window), xa(window), Ea(window), ja(window), oo(window), Ie(window), rn(window), dn(window), gn(window), ut(window), vt(window), Jt(window), $t(window);
 	let e = () => {
-		Se(window), nt(window), dt(window), D(window), te(window), he(window), ge(window), Re(window), $e(window), ja(window), Ua(window);
+		Se(window), nt(window), dt(window), D(window), te(window), he(window), ge(window), Re(window), $e(window), Ya(window), so(window), Ja(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { kt as MAX_INDEXED_CONTACTS, da as MAX_LOCAL_MATCH_CHARS, fa as MAX_PACKED_STATE_CHARS, On as MAX_SEQUENCE_CHARACTERS, kn as MAX_SEQUENCE_CONTACTS, ua as MAX_STORED_STATE_CHARS, fn as RALLY_SEARCH_PRESETS_KEY, Zi as RALLY_WRITER_VERSION, rt as SEARCH_FILTERS, Tn as applyScoutingDraftRating, wn as applyScoutingDraftSkill, ta as assembleClosedRally, na as assembleRestoredLiveRally, l as attackEfficiency, me as auditCommittedMatch, o as auditMatchScores, Tr as buildScoutCodeV830, yr as buildScoutingActionBase, Wt as calculateAnalysisPoints, C as canonicalReaders, ma as captureLocalMatchSnapshot, J as captureRecoveryFrame, cn as catalogRallySearch, Wi as changedRecoveryAreas, sa as classifyLocalSaveReceipt, j as classifyPreflight, Gi as classifyRecoveryEvidence, Vn as classifyScoutingPreflight, pe as classifyStoredAction, Ri as compareConfirmedPoint, za as compareDeviceValidation, y as compareNativeCode, xe as createObservableMatchStore, Vi as createRallyShadowSession, Xi as createRallyTransactionPilot, Le as createReadOnlyRenderGate, tt as createScoutingProjectionStore, ee as createShadowSession, En as cycleScoutingDraftRating, Y as equalRecoveryFrames, Xt as escapeAnalysisCSVCell, Ut as evaluateAnalysisContacts, Zt as exportAnalysisCSV, Ht as filterAnalysis, Mr as finishScoutingCode, Gt as inspectAnalysisCoverage, It as inspectAnalysisIndexDiagnostics, se as inspectClosedRally, v as inspectCodeShape, Ga as inspectJournalRecovery, je as inspectLiveSetStatistics, E as inspectMatchDomain, Yn as inspectNativePreparation, Qe as inspectPlayerBoxscore, ne as inspectRallyRestoration, Wn as inspectRegistrationConditions, Nn as inspectScoutingSequence, S as inspectSubstitution, $t as installAnalysisExportBridge, vt as installAnalysisNormalizeBridge, Jt as installAnalysisOperationsBridge, ut as installAnalysisQueryBridge, rn as installAnalysisViewBridge, Ta as installClubLocalStoreBridge, Aa as installClubSnapshotBridge, $i as installLiveRallyWriterBridge, _a as installLocalReadbackBridge, la as installLocalSaveReceiptBridge, ki as installMatchFinalizationBridge, Ci as installMatchManualResultBridge, yi as installMatchVideoOverlayBridge, Ha as installMultiDeviceAPI, aa as installRallyRecordBridge, gn as installRallySearchControls, dn as installRallySearchViewBridge, Ei as installRallyVideoBoundsBridge, Kn as installRegistrationGuardBridge, Ie as installRenderMetricsBridge, Cr as installScoutActionBuilderBridge, Wr as installScoutActionMetadataBridge, Qr as installScoutActionNormalizerBridge, ui as installScoutAdvancedFieldsBridge, Pr as installScoutCodeBuilderBridge, Dr as installScoutCodeFormatBridge, pi as installScoutIdentityFieldsBridge, ba as installScoutIndexedJournalBridge, gi as installScoutMatchVideoContainerBridge, vr as installScoutPlayerResolverBridge, Lr as installScoutRegistrationBridge, ti as installScoutTacticalFieldsBridge, Fn as installScoutingDraftBridge, hr as installScoutingExtensionsBridge, or as installScoutingLexerBridge, Un as installScoutingPreflightBridge, Qn as installScoutingPreparationBridge, Ft as invalidateAnalysisIndex, ir as lexScoutingCode, dt as mountAnalysisQueryPerformance, he as mountCommittedPanel, D as mountDomainDiagnostic, ge as mountGrammarPanel, Re as mountLiveStatisticsPanel, Ua as mountMultiDevicePanel, Se as mountObservablePanel, $e as mountPlayerBoxscore, ja as mountRallyShadowPanel, nt as mountScoutingProjectionStore, te as mountShadowPanel, s as nextRotation, Hr as normalizeActionVideoTimestamp, ci as normalizeAdvancedScoutingFields, gt as normalizeAnalysisMatch, V as normalizeAnalysisZone, wr as normalizeContactMetadata, Di as normalizeMatchFinalizationFields, xi as normalizeMatchManualResult, _i as normalizeMatchVideoOverlay, ot as normalizeRallySearchFilters, wi as normalizeRallyVideoBounds, Xr as normalizeScoutingActionBase, di as normalizeScoutingIdentityFields, mi as normalizeScoutingMatchVideoContainer, $r as normalizeTacticalActionFields, xr as opponentScoutingPlayerFields, br as ownScoutingPlayerFields, Ra as parseDeviceValidation, K as parseScoutingDraftHead, ae as planAwardPoint, oe as planUndoLastRally, Fr as prepareContactRegistration, Xn as prepareNativeScoutingAction, jr as prepareScoutingCodeInput, Br as projectDataVolleyFields, be as projectObservableMatch, c as projectPoint, N as projectSetBoundary, st as queryRallies, Vr as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, mn as readRallySearchPresets, Dn as recentScoutingDraftCodes, Kt as reconcileAnalysisPoints, tn as renderDataEngineView, ln as renderRallySearchView, La as reportDeviceValidation, gr as resolveOwnScoutingPlayer, ra as sameRallyRecord, pr as scanAdvancedExtension, fr as scanConeExtension, dr as scanSubzoneExtension, Oa as serializeClubIndependentLibrary, Da as serializeClubSnapshot, u as sideOutBreakPoint, a as verifyRallyScore, ha as verifyStoredLocalMatch, Ca as writeClubLocalState, va as writeScoutJournalTransaction };
+export { La as CLUB_PILOT_DB, Ma as MAX_CLUB_PARTITION_CHARS, kt as MAX_INDEXED_CONTACTS, fa as MAX_LOCAL_MATCH_CHARS, pa as MAX_PACKED_STATE_CHARS, On as MAX_SEQUENCE_CHARACTERS, kn as MAX_SEQUENCE_CONTACTS, da as MAX_STORED_STATE_CHARS, fn as RALLY_SEARCH_PRESETS_KEY, Qi as RALLY_WRITER_VERSION, rt as SEARCH_FILTERS, Tn as applyScoutingDraftRating, wn as applyScoutingDraftSkill, na as assembleClosedRally, ra as assembleRestoredLiveRally, l as attackEfficiency, me as auditCommittedMatch, o as auditMatchScores, Tr as buildScoutCodeV830, yr as buildScoutingActionBase, Wt as calculateAnalysisPoints, C as canonicalReaders, ha as captureLocalMatchSnapshot, J as captureRecoveryFrame, cn as catalogRallySearch, Wi as changedRecoveryAreas, ca as classifyLocalSaveReceipt, j as classifyPreflight, Ki as classifyRecoveryEvidence, Vn as classifyScoutingPreflight, pe as classifyStoredAction, Ri as compareConfirmedPoint, ro as compareDeviceValidation, y as compareNativeCode, xe as createObservableMatchStore, Vi as createRallyShadowSession, Zi as createRallyTransactionPilot, Le as createReadOnlyRenderGate, tt as createScoutingProjectionStore, ee as createShadowSession, En as cycleScoutingDraftRating, Gi as equalRecoveryFrames, Xt as escapeAnalysisCSVCell, Ut as evaluateAnalysisContacts, Zt as exportAnalysisCSV, Ht as filterAnalysis, Mr as finishScoutingCode, Gt as inspectAnalysisCoverage, It as inspectAnalysisIndexDiagnostics, se as inspectClosedRally, v as inspectCodeShape, lo as inspectJournalRecovery, je as inspectLiveSetStatistics, E as inspectMatchDomain, Yn as inspectNativePreparation, Qe as inspectPlayerBoxscore, ne as inspectRallyRestoration, Wn as inspectRegistrationConditions, Nn as inspectScoutingSequence, S as inspectSubstitution, $t as installAnalysisExportBridge, vt as installAnalysisNormalizeBridge, Jt as installAnalysisOperationsBridge, ut as installAnalysisQueryBridge, rn as installAnalysisViewBridge, Ea as installClubLocalStoreBridge, ja as installClubSnapshotBridge, ea as installLiveRallyWriterBridge, va as installLocalReadbackBridge, ua as installLocalSaveReceiptBridge, ki as installMatchFinalizationBridge, Ci as installMatchManualResultBridge, yi as installMatchVideoOverlayBridge, oo as installMultiDeviceAPI, oa as installRallyRecordBridge, gn as installRallySearchControls, dn as installRallySearchViewBridge, Ei as installRallyVideoBoundsBridge, Kn as installRegistrationGuardBridge, Ie as installRenderMetricsBridge, Cr as installScoutActionBuilderBridge, Wr as installScoutActionMetadataBridge, Qr as installScoutActionNormalizerBridge, ui as installScoutAdvancedFieldsBridge, Pr as installScoutCodeBuilderBridge, Dr as installScoutCodeFormatBridge, pi as installScoutIdentityFieldsBridge, xa as installScoutIndexedJournalBridge, gi as installScoutMatchVideoContainerBridge, vr as installScoutPlayerResolverBridge, Lr as installScoutRegistrationBridge, ti as installScoutTacticalFieldsBridge, Fn as installScoutingDraftBridge, hr as installScoutingExtensionsBridge, or as installScoutingLexerBridge, Un as installScoutingPreflightBridge, Qn as installScoutingPreparationBridge, Ft as invalidateAnalysisIndex, ir as lexScoutingCode, dt as mountAnalysisQueryPerformance, Ja as mountClubPilotPanel, he as mountCommittedPanel, D as mountDomainDiagnostic, ge as mountGrammarPanel, Re as mountLiveStatisticsPanel, so as mountMultiDevicePanel, Se as mountObservablePanel, $e as mountPlayerBoxscore, Ya as mountRallyShadowPanel, nt as mountScoutingProjectionStore, te as mountShadowPanel, s as nextRotation, Hr as normalizeActionVideoTimestamp, ci as normalizeAdvancedScoutingFields, gt as normalizeAnalysisMatch, V as normalizeAnalysisZone, wr as normalizeContactMetadata, Di as normalizeMatchFinalizationFields, xi as normalizeMatchManualResult, _i as normalizeMatchVideoOverlay, ot as normalizeRallySearchFilters, wi as normalizeRallyVideoBounds, Xr as normalizeScoutingActionBase, di as normalizeScoutingIdentityFields, mi as normalizeScoutingMatchVideoContainer, $r as normalizeTacticalActionFields, xr as opponentScoutingPlayerFields, br as ownScoutingPlayerFields, no as parseDeviceValidation, K as parseScoutingDraftHead, Ua as pilotClubPartitions, ae as planAwardPoint, Fa as planClubPartitions, oe as planUndoLastRally, Fr as prepareContactRegistration, Xn as prepareNativeScoutingAction, jr as prepareScoutingCodeInput, Br as projectDataVolleyFields, be as projectObservableMatch, c as projectPoint, N as projectSetBoundary, st as queryRallies, Vr as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, mn as readRallySearchPresets, Dn as recentScoutingDraftCodes, Kt as reconcileAnalysisPoints, Wa as removeClubPilot, tn as renderDataEngineView, ln as renderRallySearchView, to as reportDeviceValidation, gr as resolveOwnScoutingPlayer, Ia as sameClubPartitionPlan, ia as sameRallyRecord, pr as scanAdvancedExtension, fr as scanConeExtension, dr as scanSubzoneExtension, ka as serializeClubIndependentLibrary, Oa as serializeClubSnapshot, u as sideOutBreakPoint, a as verifyRallyScore, ga as verifyStoredLocalMatch, wa as writeClubLocalState, ya as writeScoutJournalTransaction };

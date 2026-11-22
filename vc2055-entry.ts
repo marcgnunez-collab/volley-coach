@@ -46,6 +46,7 @@ import {installLocalReadbackBridge} from './domain/scout-local-readback-runtime'
 import {installScoutIndexedJournalBridge} from './domain/scout-indexed-journal-runtime';
 import {installClubLocalStoreBridge} from './domain/club-local-store-runtime';
 import {installClubSnapshotBridge} from './domain/club-snapshot-runtime';
+import {mountClubPilotPanel} from './state/club-repository-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -71,6 +72,9 @@ export {writeClubLocalState} from './domain/club-local-store';
 export {installClubLocalStoreBridge} from './domain/club-local-store-runtime';
 export {serializeClubSnapshot,serializeClubIndependentLibrary} from './domain/club-snapshot';
 export {installClubSnapshotBridge} from './domain/club-snapshot-runtime';
+export {planClubPartitions,sameClubPartitionPlan,MAX_CLUB_PARTITION_CHARS} from './state/club-partitions';
+export {pilotClubPartitions,removeClubPilot,CLUB_PILOT_DB} from './state/club-repository';
+export {mountClubPilotPanel} from './state/club-repository-runtime';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
@@ -196,7 +200,7 @@ if(typeof window!=='undefined'&&window.document){
  installAnalysisNormalizeBridge(window);
  installAnalysisOperationsBridge(window);
  installAnalysisExportBridge(window);
- const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountAnalysisQueryPerformance(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);};
+ const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountAnalysisQueryPerformance(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);mountClubPilotPanel(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 }

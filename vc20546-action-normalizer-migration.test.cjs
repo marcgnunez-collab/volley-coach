@@ -135,10 +135,10 @@ test('accessor-bearing records stay on the historical path without second getter
 
 test('V20.5.46 publishes the canonical state reader and removes only the duplicate normalizer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.62');
+ assert.equal(pkg.version,'20.5.63');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20546-action-normalizer-migration.test.cjs'));
  for(const asset of ['021-core-scouting-v150-monolithic.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(asset+'?v=20.5.62'));
+  assert.ok(html.includes(asset+'?v=20.5.63'));
  assert.ok(sw.includes('action-normalizer-central-20.5.46'));
  assert.ok(source.includes('const v20546NativeNormalizeAction=scoutNormalizeAction'));
  assert.ok(!source.includes('const v700NormActionBase=scoutNormalizeAction'));
