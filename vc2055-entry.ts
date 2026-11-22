@@ -44,6 +44,7 @@ import {installRallyRecordBridge} from './domain/rally-record-runtime';
 import {installLocalSaveReceiptBridge} from './domain/scout-local-save-receipt-runtime';
 import {installLocalReadbackBridge} from './domain/scout-local-readback-runtime';
 import {installScoutIndexedJournalBridge} from './domain/scout-indexed-journal-runtime';
+import {installClubLocalStoreBridge} from './domain/club-local-store-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -65,6 +66,8 @@ export {captureLocalMatchSnapshot,verifyStoredLocalMatch,
 export {installLocalReadbackBridge} from './domain/scout-local-readback-runtime';
 export {writeScoutJournalTransaction} from './domain/scout-indexed-journal';
 export {installScoutIndexedJournalBridge} from './domain/scout-indexed-journal-runtime';
+export {writeClubLocalState} from './domain/club-local-store';
+export {installClubLocalStoreBridge} from './domain/club-local-store-runtime';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
@@ -179,6 +182,7 @@ if(typeof window!=='undefined'&&window.document){
  installLocalSaveReceiptBridge(window);
  installLocalReadbackBridge(window);
  installScoutIndexedJournalBridge(window);
+ installClubLocalStoreBridge(window);
  installMultiDeviceAPI(window);
  installRenderMetricsBridge(window);
  installAnalysisViewBridge(window);

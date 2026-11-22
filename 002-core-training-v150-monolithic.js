@@ -212,7 +212,7 @@ function vc1531ReadState(raw){
   }
   return JSON.parse(raw);
 }
-function vc1531WriteState(key,raw){
+function vc1531NativeWriteState(key,raw){
   const old=localStorage.getItem(key);
   // No realizar una compresión costosa en todos los puntos si aún cabe el formato normal.
   if(!vc1531CompactActive && !(old||'').startsWith(VC1531_PACK_PREFIX)){
@@ -232,7 +232,34 @@ function vc1531WriteState(key,raw){
   vc1531CompactActive=true;
   return 'compacto';
 }
-window.VC_STORAGE_QUOTA_1531={version:'15.3.1',getMode:()=>vc1531CompactActive?'compacto':'normal',pack:vc1531Pack,unpack:vc1531Unpack};
+/* V20.5.61 · The TypeScript writer uses this SAME key and native codec.
+   Legacy fallback runs only when the module is absent, never after typed failure. */
+let vc20561TypedNormal=0,vc20561TypedCompact=0,vc20561NativeNormal=0,vc20561NativeCompact=0,vc20561TypedFailures=0;
+function vc1531WriteState(key,raw){
+  const typed=window.VC_CLUB_LOCAL_STORE_20561;
+  const available=typed?.VERSION==='20.5.61'&&typed.usesExistingKey===true&&
+    typed.keepsNativeCodec===true&&typeof typed.write==='function';
+  if(available){
+    let mode;
+    try{
+      mode=typed.write({storage:localStorage,key,raw,compactActive:vc1531CompactActive,
+        pack:vc1531Pack,unpack:vc1531Unpack});
+      if(mode!=='normal'&&mode!=='compacto')throw Error('Respuesta de guardado local no confirmada');
+    }catch(error){vc20561TypedFailures++;throw error}
+    if(mode==='compacto'){vc1531CompactActive=true;vc20561TypedCompact++}
+    else vc20561TypedNormal++;
+    return mode;
+  }
+  const mode=vc1531NativeWriteState(key,raw);
+  if(mode==='compacto')vc20561NativeCompact++;else vc20561NativeNormal++;
+  return mode;
+}
+window.VC_STORAGE_QUOTA_1531={version:'15.3.1',getMode:()=>vc1531CompactActive?'compacto':'normal',
+  pack:vc1531Pack,unpack:vc1531Unpack,
+  diagnostics:()=>Object.freeze({version:'20.5.61',typedNormal:vc20561TypedNormal,
+    typedCompact:vc20561TypedCompact,nativeNormal:vc20561NativeNormal,
+    nativeCompact:vc20561NativeCompact,typedFailures:vc20561TypedFailures,
+    mode:vc1531CompactActive?'compacto':'normal'})};
 
 const APP_STORAGE_KEY='volleyCoachStateV43';
 const LIBRARY_STORAGE_KEY='volleyCoachLibraryV1';

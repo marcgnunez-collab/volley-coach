@@ -102,10 +102,10 @@ test('published assets, source and optional bundle reference V20.5.6 without a n
  const css=fs.readFileSync(path.join(root,'vc2055-domain.css'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const packageFile=require('./package.json');
- assert.equal(packageFile.version,'20.5.60');
+ assert.equal(packageFile.version,'20.5.61');
  assert.ok(packageFile.scripts['test:foundation'].includes('vc2056-shadow-validation.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.60'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.60'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.61'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.61'));
  assert.ok(css.includes('#vc2056-shadow')||css.includes('.vc2056-shadow'));
  assert.ok(sw.includes('shadow-validation-20.5.6'));
  const dist=fs.readFileSync(path.join(root,'dist/index.html'),'utf8');

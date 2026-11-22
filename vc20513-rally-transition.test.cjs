@@ -134,10 +134,10 @@ test('a single typed rally inspection powers prior score and rotation audit sema
 
 test('legacy writer adapters and sync boundaries stay unchanged in the V20.5.13 source',async()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.60');
+ assert.equal(pkg.version,'20.5.61');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20513-rally-transition.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.60'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.60'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.61'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.61'));
  assert.ok(html.includes('233-vc20512-match-state-core.js?v=20.5.12'));
  assert.ok(html.includes('234-vc20512-match-state-adapters.js?v=20.5.12'));
  assert.ok(sw.includes('rally-transition-20.5.13'));

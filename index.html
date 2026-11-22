@@ -3,7 +3,7 @@
 <head>
 <!-- V17.5.0: scoped CSS cache and critical core preloads; script execution order unchanged. -->
 <link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=20.3.2.1">
-<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.5.52">
+<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.5.61">
 <script id="vc16060-performance-core">
 /* Performance Core V16.0.6.3: passive, local-only observability. No application state mutation. */
 (()=>{
@@ -5056,7 +5056,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.5.52" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.5.61" data-vc-module="true"></script>
 
 
 
@@ -9889,6 +9889,12 @@ window.VC_V119={version:VERSION,refresh:renderPicker,active,save:window.v119Save
      ========================================================= -->
 <style id="v121-native-score-style">.v121-live-control{display:grid;grid-template-columns:minmax(220px,1.35fr) minmax(260px,1.15fr) auto;gap:8px;align-items:stretch;margin:0 0 12px;padding:8px;border:1px solid #d8e3ea;background:#fff;border-radius:13px;box-shadow:0 3px 14px rgba(18,43,63,.045)}.v121-live-summary{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;border:1px solid #e1e8ed;background:#f8fafc;border-radius:10px;padding:10px 12px;min-width:0}.v121-live-team{min-width:0}.v121-live-team:last-child{text-align:right}.v121-live-team span{display:block;font-size:6.8px;font-weight:950;letter-spacing:.09em;color:#81909b;text-transform:uppercase}.v121-live-team b{display:block;margin-top:3px;font-size:10px;color:#17324d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v121-live-score{text-align:center;min-width:94px}.v121-live-score strong{display:block;font-size:27px;line-height:1;color:#102b43;letter-spacing:-.04em}.v121-live-score small{display:block;margin-top:5px;font-size:7px;color:#718390;font-weight:850}.v121-rally-context{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.v121-rally-context>div{border:1px solid #e1e8ed;border-radius:9px;padding:8px 9px;background:#fbfcfd}.v121-rally-context span{display:block;font-size:6.4px;letter-spacing:.1em;font-weight:950;color:#84939d;text-transform:uppercase}.v121-rally-context b{display:block;margin-top:3px;font-size:9px;color:#23445d}.v121-rally-context small{display:block;margin-top:2px;font-size:6.8px;color:#86949d}.v121-score-actions{display:grid;grid-template-columns:1fr 68px 1fr;gap:6px;min-width:300px}.v121-score-actions button{border-radius:10px;border:1px solid #d9e2e8;background:#fff;padding:9px 10px;font-size:8px;font-weight:900;cursor:pointer}.v121-score-actions button b{display:block;font-size:17px;line-height:1;margin-bottom:3px}.v121-score-actions .ours{background:#eaf4fb;border-color:#c4dced;color:#174f77}.v121-score-actions .opponent{background:#fff0f0;border-color:#edcccc;color:#9a4040}.v121-score-actions .undo{color:#566d7d;background:#f8fafb}.v121-score-actions .tools{grid-column:1/-1;display:flex;gap:5px;justify-content:flex-end}.v121-score-actions .tools button{padding:6px 8px;background:#fff;color:#38576e;font-size:7px}.v121-score-actions .tools button.primary{background:#102b43;color:#fff;border-color:#102b43}.v121-flash{animation:v121Flash .45s ease}@keyframes v121Flash{0%{box-shadow:0 0 0 0 rgba(49,95,132,.22)}100%{box-shadow:0 0 0 8px rgba(49,95,132,0)}}.v121-modal{position:fixed;inset:0;z-index:10060;background:rgba(8,24,38,.48);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px}.v121-modal.open{display:flex}.v121-modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border:1px solid #dbe4ea;border-radius:18px;box-shadow:0 28px 80px rgba(10,30,47,.24)}.v121-modal-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:19px 20px 15px;border-bottom:1px solid #e8edf0;background:linear-gradient(180deg,#fbfdfe,#f6f9fb)}.v121-modal-head h2{margin:2px 0 4px!important;font-size:19px!important;color:#102b43!important}.v121-modal-head p{margin:0;color:#70808c;font-size:9px;line-height:1.45}.v121-modal-head button{border:1px solid #dce4e9;background:#fff;border-radius:8px;padding:7px 10px;color:#5f7281}.v121-body{padding:16px 20px}.v121-set-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}.v121-set-summary>div{border:1px solid #e0e7eb;background:#f8fafb;border-radius:9px;padding:9px}.v121-set-summary span{display:block;font-size:6.5px;font-weight:950;letter-spacing:.09em;color:#82919c}.v121-set-summary b{display:block;margin-top:4px;font-size:10px;color:#17324d}.v121-set-form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.v121-set-form label{display:flex;flex-direction:column;gap:5px}.v121-set-form label>span{font-size:7px;font-weight:900;letter-spacing:.08em;color:#758692;text-transform:uppercase}.v121-set-form select{border:1px solid #dbe3e8;border-radius:8px;background:#fff;padding:9px 10px;font-size:9px;color:#17324d}.v121-check{display:flex;align-items:center;gap:8px;margin-top:12px;padding:9px 10px;border:1px solid #e2e8ec;border-radius:8px;background:#fafcfd;font-size:8.5px;color:#526b7a}.v121-check input{width:auto}.v121-notice{margin-top:12px;border-left:4px solid #315f84;background:#f5f9fc;border-radius:8px;padding:10px 11px;font-size:8.5px;line-height:1.45;color:#536b7a}.v121-foot{display:flex;justify-content:space-between;gap:8px;padding:12px 20px;border-top:1px solid #e4eaee}.v121-foot>div{display:flex;gap:6px}.v121-foot button{font-size:8px!important}body.v121-native-score .v901-card{border:1px solid #dbe4ea;border-radius:18px;box-shadow:0 28px 80px rgba(10,30,47,.24)}body.v121-native-score .v901-head{background:linear-gradient(180deg,#fbfdfe,#f6f9fb);color:#102b43;border-bottom:1px solid #e8edf0;padding:18px 20px}body.v121-native-score .v901-head h2{color:#102b43!important;font-size:19px!important}body.v121-native-score .v901-head p{color:#70808c;font-size:9px}body.v121-native-score .v901-head .pro-kicker{color:#698093}body.v121-native-score .v901-head .ghost{background:#fff!important;color:#536c7c!important;border-color:#dce4e9!important}body.v121-native-score .v901-toolbar{padding:12px 20px;background:#fff}body.v121-native-score .v901-info{padding:11px 20px;background:#f8fafb}body.v121-native-score .v901-actions{padding:14px 20px}body.v121-native-score .v901-add{padding:12px 20px}body.v121-native-score .v901-validation{margin:10px 20px}body.v121-native-score .v901-foot{padding:12px 20px}@media(max-width:1000px){.v121-live-control{grid-template-columns:1fr}.v121-score-actions{min-width:0}.v121-set-summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.v121-live-summary{grid-template-columns:1fr auto 1fr}.v121-rally-context{grid-template-columns:1fr 1fr}.v121-score-actions{grid-template-columns:1fr 58px 1fr}.v121-set-form{grid-template-columns:1fr}.v121-set-summary{grid-template-columns:1fr 1fr}}
 </style>
+<style id="v20558-local-save-state-style">
+.v121-local-save-status{grid-column:1/-1;display:block;min-width:0;padding:5px 8px;border:1px solid #dbe6ed;border-radius:6px;background:#f4f8fb;color:#476275;font-size:8px;line-height:1.45;font-weight:700}
+.v121-local-save-status[data-state="completed"]{background:#eef8f2;border-color:#c8e4d3;color:#236544}
+.v121-local-save-status[data-state="pending"]{background:#fff9e9;border-color:#ead89d;color:#855d0c}
+.v121-local-save-status[data-state="failed"]{background:#fff0f0;border-color:#ecb9b9;color:#9e302e}
+</style>
 
 <div id="v121-new-set-modal" class="v121-modal" onclick="if(event.target===this)v121CloseNewSet()">
   <div class="v121-modal-card">
@@ -9921,13 +9927,101 @@ function setOf(m=active()){try{return window.VC_SCOUT_CORE?.getSet?.(m)||(m?.set
 function teamName(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.teamName?.()||'Nuestro equipo'}catch(_){return'Nuestro equipo'}}
 function setsScore(m){let us=0,opponent=0;arr(m?.sets).forEach(s=>{if(!s.finished)return;if(Number(s.scoreUs)>Number(s.scoreOpponent))us++;else if(Number(s.scoreOpponent)>Number(s.scoreUs))opponent++});return{us,opponent}}
 function saveState(){try{if(typeof window.scoutSave==='function')window.scoutSave(false);else window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(e){console.warn('V12.1 save',e)}try{window.v900Render?.();window.v120RenderManagement?.()}catch(_){ }setTimeout(render,0)}
-async function protect(reason){try{if(typeof window.scoutV902Flush==='function')await window.scoutV902Flush();else if(typeof window.scoutV680Backup==='function')await window.scoutV680Backup(reason,false)}catch(e){console.warn('V12.1 protect',e)}}
+/* V20.5.58 · Observe the existing save call: never rewrite, retry or claim cloud delivery. */
+const localSaveReceiptStats={attempts:0,completed:0,pending:0,failed:0,unverified:0,journalIssues:0,lastState:'unverified',lastOperation:'none',readbackChecks:0,readbackMatched:0,readbackDifferent:0,readbackMissing:0,readbackInvalid:0,readbackSkipped:0,lastReadback:'unverified'};
+let localSaveReceiptShown=0;
+function journalFailures(){try{return window.scoutV902PerformanceDiagnostics?.()?.journalFailures}catch(_){return undefined}}
+/* Defer the heavy full-state read until idle; never block an accepted native point. */
+function scheduleLocalReadback(sequence){
+  const api=window.VC_LOCAL_READBACK_20559;
+  if(api?.VERSION!=='20.5.59'||typeof api.capture!=='function'||typeof api.verify!=='function')return;
+  const match=active();let teamId,snapshot;
+  try{teamId=window.VC_SCOUT_VIDEO_BRIDGE?.getTeamId?.();snapshot=api.capture(match)}catch(_){return}
+  if(!match||!snapshot||typeof teamId!=='string'){
+    if(sequence===localSaveReceiptStats.attempts){
+      localSaveReceiptStats.readbackSkipped++;localSaveReceiptStats.lastReadback='unverified';
+      const label=$('v121-local-save-status');if(label){label.dataset.state='unverified';
+        label.textContent='Lectura local no disponible para este partido · diario y nube sin confirmar';}
+    }
+    return;
+  }
+  localSaveReceiptStats.lastReadback='pending';
+  const check=()=>{
+    if(sequence!==localSaveReceiptStats.attempts||active()!==match)return;
+    try{
+      if(window.VC_SCOUT_VIDEO_BRIDGE?.getTeamId?.()!==teamId||api.capture(match)!==snapshot)return;
+      if(typeof window.localStorage?.getItem!=='function')return;
+      const raw=window.localStorage.getItem('volleyCoachStateV43');
+      const proof=api.verify({raw,snapshot,matchId:match.id,teamId,
+        unpack:window.VC_STORAGE_QUOTA_1531?.unpack});
+      if(sequence!==localSaveReceiptStats.attempts||active()!==match)return;
+      const state=proof?.state;
+      if(!['matched','different','missing','invalid','unverified','too-large'].includes(state))return;
+      localSaveReceiptStats.readbackChecks++;
+      localSaveReceiptStats.lastReadback=state;
+      if(state==='matched')localSaveReceiptStats.readbackMatched++;
+      else if(state==='different')localSaveReceiptStats.readbackDifferent++;
+      else if(state==='missing')localSaveReceiptStats.readbackMissing++;
+      else if(state==='invalid')localSaveReceiptStats.readbackInvalid++;
+      else localSaveReceiptStats.readbackSkipped++;
+      const label=$('v121-local-save-status');if(!label)return;
+      const messages={matched:'Lectura local verificada: partido coincide',
+        different:'La copia local no coincide · exporta JSON y revisa recuperación',
+        missing:'No se encontró el partido en la copia local · exporta JSON',
+        invalid:'La copia local no se pudo interpretar · exporta JSON',
+        unverified:'Lectura local sin confirmar','too-large':'Lectura omitida para no ralentizar el scouting'};
+      label.dataset.state=state==='matched'?'completed':
+        ['different','missing','invalid'].includes(state)?'failed':'unverified';
+      label.textContent=messages[state]+' · diario y nube sin confirmar';
+      label.title='Comparación exacta del partido con el estado local leído en esta sesión. No confirma disco tras reinicio, IndexedDB ni entrega remota.';
+    }catch(_){localSaveReceiptStats.lastReadback='unverified'}
+  };
+  if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(check,{timeout:350});
+  else setTimeout(check,0);
+}
+function showLocalSaveReceipt(receipt,reason,sequence){
+  if(receipt.local==='completed')localSaveReceiptStats.completed++;
+  else if(receipt.local==='pending')localSaveReceiptStats.pending++;
+  else if(receipt.local==='failed')localSaveReceiptStats.failed++;
+  else localSaveReceiptStats.unverified++;
+  if(receipt.journal==='issue-observed')localSaveReceiptStats.journalIssues++;
+  if(sequence<localSaveReceiptShown)return;
+  localSaveReceiptShown=sequence;
+  localSaveReceiptStats.lastState=receipt.local;
+  localSaveReceiptStats.lastOperation=reason;
+  localSaveReceiptStats.lastReadback='unverified';
+  const label=$('v121-local-save-status');if(!label)return;
+  const messages={completed:'Guardado principal completado',pending:'Guardado principal en cola',
+    failed:'Error en el guardado principal · exporta una copia JSON',
+    unverified:'Guardado principal sin confirmar · revisa las copias'};
+  label.dataset.state=receipt.local;
+  label.textContent=messages[receipt.local]+' · diario y nube sin confirmar'+
+    (receipt.journal==='issue-observed'?' · incidencia de diario detectada':'');
+  label.title='Estado de la escritura principal de este comando, no una prueba de lectura posterior, diario IndexedDB ni recepción en otro dispositivo.';
+}
+async function protect(reason){
+  const sequence=++localSaveReceiptStats.attempts,before=journalFailures();
+  let path='unavailable',outcome,error=false;
+  try{
+    if(typeof window.scoutV902Flush==='function'){path='full-flush';outcome=await window.scoutV902Flush()}
+    else if(typeof window.scoutV680Backup==='function'){path='legacy-backup';outcome=await window.scoutV680Backup(reason,false)}
+  }catch(_){error=true;console.warn('V12.1 · Guardado local no confirmado')}
+  const input={path,outcome,error,journalFailuresBefore:before,journalFailuresAfter:journalFailures()};
+  let receipt;
+  try{receipt=window.VC_LOCAL_SAVE_20558?.classify?.(input)}catch(_){/* The native writer is still authoritative. */}
+  if(!receipt||!['completed','pending','failed','unverified'].includes(receipt.local))
+    receipt={local:error?'failed':'unverified',journal:'not-confirmed',cloud:'not-confirmed',source:path};
+  showLocalSaveReceipt(receipt,reason,sequence);
+  if(receipt.local==='completed'&&path==='full-flush')scheduleLocalReadback(sequence);
+  return receipt;
+}
+window.VC_LOCAL_SAVE_RECEIPT_DIAGNOSTICS_20558=()=>Object.freeze({...localSaveReceiptStats,version:'20.5.58',cloud:'not-confirmed'});
 function ensureControl(){
   const host=$('v120-match-management');if(!host||$('v121-live-control'))return;
   const node=document.createElement('div');node.id='v121-live-control';node.className='v121-live-control';node.innerHTML=`
     <div class="v121-live-summary"><div class="v121-live-team"><span>NUESTRO EQUIPO</span><b id="v121-us-name">Equipo</b></div><div class="v121-live-score"><strong id="v121-score">0–0</strong><small id="v121-score-meta">SET 1 · 0–0 sets</small></div><div class="v121-live-team"><span>RIVAL</span><b id="v121-op-name">Rival</b></div></div>
     <div class="v121-rally-context"><div><span>RALLY</span><b id="v121-rally">1</b><small id="v121-actions">0 acciones</small></div><div><span>SAQUE / FASE</span><b id="v121-service">NUESTRO</b><small id="v121-phase">K2 · Break</small></div><div><span>ROTACIÓN</span><b id="v121-rotation">R1</b><small id="v121-op-rotation">Rival R1</small></div></div>
-    <div class="v121-score-actions"><button class="ours" onclick="v121AwardPoint('ours')"><b>+1</b>PUNTO NUESTRO</button><button class="undo" onclick="v121UndoRally()"><b>↶</b>DESHACER</button><button class="opponent" onclick="v121AwardPoint('opponent')"><b>+1</b>PUNTO RIVAL</button><div class="tools"><button onclick="v121OpenRallyEditor()">Editar rallies</button><button onclick="v120OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v121OpenNewSet()">+ Nuevo set</button></div></div>`;
+    <div class="v121-score-actions"><button class="ours" onclick="v121AwardPoint('ours')"><b>+1</b>PUNTO NUESTRO</button><button class="undo" onclick="v121UndoRally()"><b>↶</b>DESHACER</button><button class="opponent" onclick="v121AwardPoint('opponent')"><b>+1</b>PUNTO RIVAL</button><div class="tools"><button onclick="v121OpenRallyEditor()">Editar rallies</button><button onclick="v120OpenFinishSet()">Finalizar set</button><button class="primary" onclick="v121OpenNewSet()">+ Nuevo set</button></div><small class="v121-local-save-status" id="v121-local-save-status" data-state="unverified" role="status" aria-live="polite">Guardado local todavía sin comprobar</small></div>`;
   host.insertAdjacentElement('afterend',node);
 }
 function render(){
@@ -10073,7 +10167,7 @@ body.v132-scouting-pro #scout-workspace-v900 .v111-workflow{display:none!importa
   </div>
 </div>
 
-<script id="v132-scouting-pro-workspace" src="./077-v132-scouting-pro-workspace.js?v=20.5.52" data-vc-module="true"></script>
+<script id="v132-scouting-pro-workspace" src="./077-v132-scouting-pro-workspace.js?v=20.5.61" data-vc-module="true"></script>
 
 
 <style id="v133-video-linked-scouting-style">.v133-smart-playlists{margin-top:8px;padding-top:8px;border-top:1px solid #e4e9ec}.v133-smart-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:5px}.v133-smart-head span{font-size:6.5px;font-weight:950;letter-spacing:.07em;color:#4e687a}.v133-smart-head small{font-size:6.5px;color:#87949d}.v133-smart-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.v133-smart-grid button{text-align:left;border:1px solid #dfe6ea!important;background:#fff!important;color:#29475f!important;border-radius:8px!important;padding:8px!important;text-transform:none!important;letter-spacing:0!important}.v133-smart-grid button b{display:block;font-size:8px}.v133-smart-grid button small{display:block;margin-top:2px;color:#7b8a94;font-size:6.7px}.v780-ruler-marker.action.skill-S{background:#2f6fa0!important}.v780-ruler-marker.action.skill-R{background:#398366!important}.v780-ruler-marker.action.skill-E{background:#b27a2f!important}.v780-ruler-marker.action.skill-A{background:#b64e50!important}.v780-ruler-marker.action.skill-B{background:#76559a!important}.v780-ruler-marker.action.skill-D{background:#2a8a8a!important}.v780-ruler-marker.action.skill-F,.v780-ruler-marker.action.skill-C{background:#687784!important}.v780-ruler-marker.action{opacity:.92!important;width:3px!important;height:16px!important;top:18px!important}.v780-row.skill-S{border-left:3px solid #2f6fa0}.v780-row.skill-R{border-left:3px solid #398366}.v780-row.skill-E{border-left:3px solid #b27a2f}.v780-row.skill-A{border-left:3px solid #b64e50}.v780-row.skill-B{border-left:3px solid #76559a}.v780-row.skill-D{border-left:3px solid #2a8a8a}.v133-linked{display:inline-flex;margin-left:5px;padding:2px 4px;border-radius:999px;background:#e9f5ee;color:#2e6b49;font-size:5.8px;font-style:normal;font-weight:950;vertical-align:1px}.v133-recent-clip{white-space:nowrap}.v133-video-link-health{display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:999px;background:#eef6f1;color:#3e7055;font-size:6px;font-weight:900}.v133-video-link-health.warn{background:#fff5e7;color:#8a672e}@media(max-width:700px){.v133-smart-grid{grid-template-columns:1fr}.v133-smart-head{align-items:flex-start;flex-direction:column}.v780-row-actions button{padding:7px 8px!important}}
@@ -13988,7 +14082,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <script id="vc2020-match-workspace" src="./212-vc2020-match-workspace.js?v=20.2.0" defer data-vc-module="true"></script>
 <!-- V20.2.1: safe draft-only Speed Pro. Keeps native registration, court and Alt+1–8 macros. -->
 <link rel="stylesheet" href="./vc2021-scouting-speed-pro.css?v=20.5.33">
-<script id="vc2021-scouting-speed-pro" src="./213-vc2021-scouting-speed-pro.js?v=20.5.52" defer data-vc-module="true"></script>
+<script id="vc2021-scouting-speed-pro" src="./213-vc2021-scouting-speed-pro.js?v=20.5.61" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2022-match-intelligence.css?v=20.2.2">
 <script id="vc2022-match-intelligence" src="./214-vc2022-match-intelligence.js?v=20.2.2" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2023-professional-scouting-workspace.css?v=20.2.4">
@@ -14035,7 +14129,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <!-- V20.5.39 · Canonical extension parser, historical wrappers consolidated. -->
 <!-- V20.5.40 · Direction/block parser consolidation and typed own-player selection. -->
 <!-- V20.5.41 · Typed action draft and opponent snapshot with native parity. -->
-<!-- V20.5.52 · Match and manual-result normalization. -->
-<link rel="stylesheet" href="./vc2055-domain.css?v=20.5.52">
-<script id="vc2055-domain" type="module" src="./vc2055-domain-core.mjs?v=20.5.52" data-vc-module="true"></script>
+<!-- V20.5.58 · Typed close/restore rally records with native state and save parity. -->
+<link rel="stylesheet" href="./vc2055-domain.css?v=20.5.61">
+<script id="vc2055-domain" type="module" src="./vc2055-domain-core.mjs?v=20.5.61" data-vc-module="true"></script>
 </body></html>
