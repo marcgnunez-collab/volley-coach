@@ -77,7 +77,7 @@ const club=()=>({
   meta:{equipo:'Cadete'},seasonName:'2026/27'}
 });
 
-test('V20.5.64 resolves only genuine stable identities and never stores scouting',async()=>{
+test('V20.5.65 resolves only genuine stable identities and never stores scouting',async()=>{
  const mod=await compiled(),source=club(),plan=mod.planClubEntities(source,'rev-1');
  assert.equal(plan.schema,2);assert.equal(plan.complete,true);
  assert.equal(plan.rows.playerEntities.length,2);
@@ -193,12 +193,12 @@ test('the old team-group pilot still works after the v2 schema upgrade',async()=
 test('management offers manual ID review and delta test without changing main writer',()=>{
  const html=read('index.html'),entry=read('src/vc2055-entry.ts'),
   legacy=read('002-core-training-v150-monolithic.js'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.64');
+ assert.equal(pkg.version,'20.5.65');
  assert.ok(html.includes('id="vc20564-inspect-ids" disabled'));
  assert.ok(html.includes('id="vc20564-run-delta" disabled'));
  assert.ok(entry.includes('mountClubEntityPanel(window)'));
  assert.ok(pkg.scripts['test:foundation'].includes('vc20564-club-entity-delta.test.cjs'));
  assert.ok(legacy.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
  assert.ok(read('service-worker.js').includes('club-entities-pilot-20.5.64'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.64'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.65'));
 });
