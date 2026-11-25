@@ -55,13 +55,13 @@ export function mountClubPilotPanel(win:PilotWindow):Readonly<ClubPilotAPI>|null
  const removeReplica=async()=>{
   if(disposed||busy||!ready)throw Error('Limpieza piloto no disponible');
   busy=true;button.disabled=true;removeButton.disabled=true;
-  show('Eliminando únicamente las colecciones piloto de la V20.5.63…');
+  show('Eliminando únicamente las colecciones piloto de V20.5.63/V20.5.64…');
   try{await removeClubPilot(win.indexedDB);show('Réplica piloto eliminada. Los datos originales del club siguen intactos.');return true as const}
   catch(error){show('La eliminación no se ha confirmado. Si otra pestaña la bloquea, podría completarse más tarde. Comprueba el estado antes de reintentar.');throw error}
   finally{busy=false;if(!disposed){button.disabled=!ready;removeButton.disabled=!ready}}
  };
  const onRemove=()=>{
-  if(!win.confirm('¿Eliminar únicamente la réplica de prueba de V20.5.63? El club original y la nube no se modificarán.'))return;
+  if(!win.confirm('¿Eliminar únicamente los repositorios piloto de V20.5.63 y V20.5.64? El club original y la nube no se modificarán.'))return;
   void removeReplica().catch(()=>{});
  };
  button.addEventListener('click',onClick);

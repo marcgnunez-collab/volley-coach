@@ -118,9 +118,10 @@ test('pilot commits all three stores atomically, reads each back and preserves t
  assert.equal(receipt.authoritative,false);
  assert.equal(receipt.recordCount,6);
  assert.equal(receipt.teamCount,2);
- assert.deepEqual(mem.opened,[{name:module.CLUB_PILOT_DB,version:1}]);
+ assert.deepEqual(mem.opened,[{name:module.CLUB_PILOT_DB,version:2}]);
  const records=mem.dbs.get(module.CLUB_PILOT_DB).__records;
- assert.deepEqual([...records.keys()],['players','trainings','seasons','metadata']);
+ assert.deepEqual([...records.keys()],['players','trainings','seasons','metadata',
+  'playerEntities','trainingEntities','seasonEntities','entityManifest']);
  assert.equal(records.get('players').rows.size,2);
  assert.equal(records.get('trainings').rows.size,2);
  assert.equal(records.get('seasons').rows.size,2);
@@ -211,7 +212,7 @@ test('source changes invalidate parity; unsupported data are rejected before any
 test('management exposes a visible, explicitly manual pilot with deletion and original save policy',()=>{
  const entry=read('src/vc2055-entry.ts'),html=read('index.html'),legacy=read('002-core-training-v150-monolithic.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.63');
+ assert.equal(pkg.version,'20.5.64');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20563-club-repository.test.cjs'));
  assert.ok(html.includes('id="vc20563-club-pilot"'));
  assert.ok(html.includes('id="vc20563-run-pilot" disabled'));
@@ -221,6 +222,6 @@ test('management exposes a visible, explicitly manual pilot with deletion and or
  assert.ok(legacy.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
  assert.ok(legacy.includes('vc1531WriteState(APP_STORAGE_KEY,raw)'));
  assert.ok(read('service-worker.js').includes('club-repository-pilot-20.5.63'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.63'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.64'));
  assert.equal(read('src/state/club-repository-runtime.ts').includes('guardarEstadoLocalSinCloud('),false);
 });

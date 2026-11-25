@@ -4,10 +4,13 @@
  */
 import {CLUB_PARTITION_STORES,type ClubPartitionPlan,
  type ClubPartitionStore} from './club-partitions';
+import {CLUB_ENTITY_STORES} from './club-entity-plan';
 
 export const CLUB_PILOT_DB='VolleyCoachClubPartitionsV2063';
 const META_STORE='metadata';
 const ALL_STORES=[...CLUB_PARTITION_STORES,META_STORE] as const;
+const SCHEMA_STORES=[...ALL_STORES,...CLUB_ENTITY_STORES,'entityManifest'] as const;
+export const CLUB_PILOT_SCHEMA_VERSION=2;
 export interface ClubPilotReceipt{
  readonly status:'verified';
  readonly revision:string;
@@ -17,21 +20,22 @@ export interface ClubPilotReceipt{
  readonly authoritative:false;
 }
 
-function openClubPilotDatabase(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase>{
+export function openClubPilotDatabase(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase>{
  return new Promise((resolve,reject)=>{
   let done=false;
   const fail=(error:unknown)=>{if(done)return;done=true;reject(error||Error('No se pudo abrir el piloto local'))};
   let request:IDBOpenDBRequest;
-  try{request=factory.open(CLUB_PILOT_DB,1)}catch(error){fail(error);return}
+  try{request=factory.open(CLUB_PILOT_DB,CLUB_PILOT_SCHEMA_VERSION)}catch(error){fail(error);return}
   request.onupgradeneeded=()=>{
-   try{for(const store of ALL_STORES)if(!request.result.objectStoreNames.contains(store))
-    request.result.createObjectStore(store,{keyPath:store===META_STORE?'key':'teamId'});
+   try{for(const store of SCHEMA_STORES)if(!request.result.objectStoreNames.contains(store))
+    request.result.createObjectStore(store,{keyPath:
+     store===META_STORE||store==='entityManifest'||CLUB_ENTITY_STORES.includes(store as typeof CLUB_ENTITY_STORES[number])?'key':'teamId'});
    }catch(error){try{request.transaction?.abort()}catch(_){}fail(error)}
   };
   request.onsuccess=()=>{
    const db=request.result;
    if(done){db.close();return}
-   for(const store of ALL_STORES)if(!db.objectStoreNames.contains(store)){
+   for(const store of SCHEMA_STORES)if(!db.objectStoreNames.contains(store)){
     db.close();fail(Error('Falta una colección en el repositorio piloto'));return;
    }
    done=true;resolve(db);
