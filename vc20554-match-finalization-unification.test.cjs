@@ -160,11 +160,11 @@ test('finalization getters preserve historical read counts with native fallback'
 
 test('V20.5.54 keeps score, video and cloud writers without secondary match wrapper',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.65');
+ assert.equal(pkg.version,'20.5.66');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20554-match-finalization-unification.test.cjs'));
  for(const file of ['021-core-scouting-v150-monolithic.js',
   '213-vc2021-scouting-speed-pro.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(file+'?v=20.5.65'),file);
+  assert.ok(html.includes(file+'?v=20.5.66'),file);
  assert.ok(sw.includes('match-finalization-20.5.54'));
  assert.equal((source.match(/scoutNormalizeMatch=function\(/g)||[]).length,1);
  assert.ok(source.includes('v20554FinalizationReady=true'));

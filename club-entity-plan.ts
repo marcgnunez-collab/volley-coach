@@ -8,9 +8,14 @@ export const MAX_ENTITY_CHARS=5_000_000;
 export const MAX_ENTITY_ROWS=20_000;
 export interface ClubEntityRow{readonly key:string;readonly teamId:string;
  readonly collection:string;readonly dataJson:string}
+export interface ClubEntityLayout{
+ readonly fields:readonly string[];
+ readonly arrays:Readonly<Record<string,readonly string[]>>;
+}
 export interface ClubEntityPlan{
  readonly schema:2;readonly revision:string;readonly teamIds:readonly string[];
  readonly rows:Readonly<Record<ClubEntityStore,readonly ClubEntityRow[]>>;
+ readonly layout:Readonly<Record<string,Readonly<ClubEntityLayout>>>;
  readonly missingIds:number;readonly duplicatedIds:number;readonly invalidRecords:number;
  readonly totalChars:number;readonly complete:boolean;
 }
@@ -87,8 +92,32 @@ export function planClubEntities(raw:unknown,revision:string):Readonly<ClubEntit
   }
  }
  for(const store of CLUB_ENTITY_STORES){rows[store].sort((a,b)=>a.key.localeCompare(b.key));Object.freeze(rows[store]);}
+ // Order + presence are needed for a lossless rehearsal. Entity keys alone
+ // cannot reconstruct an array's original order or distinguish [] from absent.
+ const layout:Record<string,Readonly<ClubEntityLayout>>=Object.create(null);
+ for(const id of teamIds){
+  const team=raw[id] as Record<string,unknown>;
+  const arrays:Record<string,readonly string[]>=Object.create(null);
+  const fields=['jugadores','historial','planificacion','plantillas','sesionActual',
+   'meta','temporada','temporadas','temporadaActual','season','seasonName']
+   .filter(field=>own(team,field));
+  for(const field of ['jugadores','historial','planificacion','plantillas','sesionActual','temporadas']){
+   const list=team[field];
+   if(!own(team,field)||!Array.isArray(list))continue;
+   const store:ClubEntityStore=field==='jugadores'?'playerEntities':
+    field==='temporadas'?'seasonEntities':'trainingEntities';
+   arrays[field]=Object.freeze(list.map(item=>{
+    const itemId=field==='temporadas'&&typeof item==='string'?item.trim():stableId(item);
+    return itemId===null?'':recordKey(store,id,field,itemId);
+   }));
+  }
+  Object.freeze(arrays);
+  Object.defineProperty(layout,id,{value:Object.freeze({fields:Object.freeze(fields),arrays}),
+   enumerable:true});
+ }
+ Object.freeze(layout);
  return Object.freeze({schema:2 as const,revision,teamIds:Object.freeze(teamIds),
-  rows:Object.freeze(rows),missingIds,duplicatedIds,invalidRecords,totalChars,
+  rows:Object.freeze(rows),layout,missingIds,duplicatedIds,invalidRecords,totalChars,
   complete:missingIds+duplicatedIds+invalidRecords===0});
 }
 
@@ -103,5 +132,6 @@ export function sameClubEntityData(a:ClubEntityPlan,b:ClubEntityPlan):boolean{
    if(x.key!==y.key||x.dataJson!==y.dataJson)return false;
   }
  }
+ if(JSON.stringify(a.layout)!==JSON.stringify(b.layout))return false;
  return true;
 }

@@ -65,7 +65,7 @@ async function writeDelta(db:IDBDatabase,plan:ClubEntityPlan){
       }
      }
      manifest.put({key:'current',schema:2,revision:plan.revision,
-      keys,teamIds:[...plan.teamIds],totalChars:plan.totalChars,
+      keys,layout:plan.layout,teamIds:[...plan.teamIds],totalChars:plan.totalChars,
       pendingIds:plan.missingIds+plan.duplicatedIds+plan.invalidRecords});
     }catch(error){abort(error)}
    };
@@ -103,6 +103,7 @@ async function verifyDelta(db:IDBDatabase,plan:ClubEntityPlan,
    check(tx.objectStore(MANIFEST).get('current'),value=>value?.schema===2&&
     value?.revision===plan.revision&&value?.totalChars===plan.totalChars&&
     JSON.stringify(value?.keys)===JSON.stringify(keys)&&
+    JSON.stringify(value?.layout)===JSON.stringify(plan.layout)&&
     JSON.stringify(value?.teamIds)===JSON.stringify(plan.teamIds));
    for(const store of CLUB_ENTITY_STORES){
     const target=tx.objectStore(store);

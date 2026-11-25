@@ -17,7 +17,7 @@ export interface ClubRecoveryReport{
 }
 
 /** Never creates or upgrades a missing pilot database: abort the upgrade event. */
-function openExistingPilot(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase|null>{
+export function openExistingPilot(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase|null>{
  return new Promise((resolve,reject)=>{
   let request:IDBOpenDBRequest,missing=false,done=false;
   const fail=(error:unknown)=>{if(done)return;done=true;
