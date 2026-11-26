@@ -165,10 +165,10 @@ test('Gestión starts with no reads, exposes only dry-run counts and can be disp
 
 test('release V66 exposes manual rehearsal without replacing live state storage',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.5.72');
+ assert.equal(pkg.version,'20.5.73');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20566-club-entity-rehydration.test.cjs'));
  assert.ok(html.includes('id="vc20566-rehearse-recovery" disabled'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.72'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.73'));
  assert.ok(read('src/vc2055-entry.ts').includes('mountClubRehydrationPanel(window)'));
  assert.ok(read('service-worker.js').includes('club-rehydration-dryrun-20.5.66'));
  assert.ok(read('002-core-training-v150-monolithic.js').includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));

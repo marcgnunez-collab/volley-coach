@@ -109,9 +109,9 @@ test('memory diagnostic is an estimate of references, never a promise of module 
 test('V20.5.27 bundles typed indexes without native writes or legacy removals',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.72');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.72'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.72'));
+ assert.equal(pkg.version,'20.5.73');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.73'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.73'));
  assert.ok(sw.includes('multi-filter-memory-20.5.27'));
  assert.ok(entry.includes('installAnalysisExportBridge(window)'));
  assert.ok(pkg.scripts['test:foundation'].includes('vc20527-multidimensional-index-memory.test.cjs'));

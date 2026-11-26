@@ -100,6 +100,8 @@ export {PLAYER_COLD_REOPEN_KEY,preparePlayerColdReopen,
 export {TRAINING_SHADOW_DB,TRAINING_FIELDS,planTrainingShadow,writeTrainingShadow,
  inspectTrainingShadow,deleteTrainingShadow} from './state/training-shadow';
 export {TRAINING_SHADOW_LOCK,mountTrainingShadowPanel} from './state/training-shadow-runtime';
+export {reconstructTrainingsForBackup,prepareTrainingShadowBackup}
+ from './state/training-shadow-backup';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
