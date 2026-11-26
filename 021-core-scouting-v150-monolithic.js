@@ -1308,6 +1308,95 @@ let v680DBPromise=null,v680LastBackupAt=0,v680LastWarning='',v680EditContext=nul
 // V16.0.4.2: private editor bridge for later professional controls.
 // The legacy editor still owns and mutates this state; do not duplicate it.
 window.VC_SCOUT_V680_EDITOR={getContext:()=>v680EditContext,parseCode:(raw,m,old)=>v680ParseCode(raw,m,old),escape:v680Esc};
+/* V20.5.77 · Historical editor owns the draft and final save. The typed lane
+ * only checks the captured rally identity and prepares actions in memory. */
+const v20577EditorStats={typedSaves:0,classicSaves:0,stale:0,blocked:0};
+window.VC_RALLY_EDITOR_DIAGNOSTICS_20577=()=>Object.freeze({...v20577EditorStats});
+function v20577Lane(){
+  const lane=window.VC_RALLY_EDITOR_LANE_20577;
+  return lane?.VERSION==='20.5.77'&&lane.nativeOnly===true&&
+    lane.singleNativeWriter===true?lane:null;
+}
+function v20577CurrentRally(c){
+  const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(c?.setNo))||null;
+  const r=scoutArr(s?.rallies).find(x=>Number(x.id)===Number(c?.rallyId))||null;
+  return {match:m,set:s,rally:r,actions:r?.actions||null};
+}
+function v20577CaptureRally(m,s,r){
+  const lane=v20577Lane();
+  if(lane&&typeof lane.capture==='function'){
+    try{return lane.capture({match:m,set:s,rally:r,actions:r.actions})}catch(_){return null}
+  }
+  try{return Object.freeze({match:m,set:s,rally:r,sourceActions:r.actions,
+    signature:JSON.stringify(r.actions)})}catch(_){return null}
+}
+function v20577EditorCurrent(c){
+  if(c?.mode!=='rally'||!c.v20577Scope)return false;
+  const scope=c.v20577Scope,now=v20577CurrentRally(c),lane=v20577Lane();
+  if(lane&&typeof lane.current==='function'){
+    try{return lane.current(scope,now)===true}catch(_){return false}
+  }
+  try{return now.match===scope.match&&now.set===scope.set&&
+    now.rally===scope.rally&&now.actions===scope.sourceActions&&
+    JSON.stringify(now.actions)===scope.signature}catch(_){return false}
+}
+function v20577EditorGuard(c){
+  if(v20577EditorCurrent(c))return true;
+  v20577EditorStats.stale++;
+  alert('El partido o rally ha cambiado desde que abriste el editor. Vuelve a abrirlo.');
+  return false;
+}
+function v20577SyncDraftCodes(c){
+  const codes=c.actions.map((_,i)=>document.getElementById(`scout-v680-edit-code-${i}`)?.value);
+  if(!codes.some((raw,i)=>typeof raw==='string'&&raw!==c.actions[i].code))return true;
+  const lane=v20577Lane();
+  if(lane&&typeof lane.syncCodes==='function'){
+    try{
+      const updated=lane.syncCodes({actions:c.actions,codes});
+      if(!Array.isArray(updated)||updated.length!==c.actions.length)
+        throw Error('Sincronización del borrador incompatible.');
+      c.actions=updated;return true;
+    }catch(_){
+      v20577EditorStats.blocked++;
+      alert('No se han podido conservar los códigos pendientes. Reabre el editor.');return false;
+    }
+  }
+  // Classic fallback modifies the draft only, never the original rally.
+  c.actions=c.actions.map((a,i)=>typeof codes[i]==='string'&&codes[i]!==a.code?
+    {...a,code:codes[i]}:a);
+  return true;
+}
+function v20577UpdateDraft(c,command){
+  if(!v20577EditorGuard(c)||!v20577SyncDraftCodes(c))return false;
+  const lane=v20577Lane();
+  if(lane&&typeof lane.draft==='function'){
+    try{
+      const result=lane.draft({actions:c.actions,command});
+      if(!result||typeof result.changed!=='boolean'||!Array.isArray(result.actions))
+        throw Error('Resultado del borrador incompatible.');
+      if(result.changed)c.actions=result.actions;
+      return result.changed;
+    }catch(error){
+      v20577EditorStats.blocked++;
+      alert('No se pudo aplicar la edición. Vuelve a abrir el editor.');return false;
+    }
+  }
+  // Classic fallback while the Vite module has not loaded: draft only.
+  const next=c.actions.slice(),i=command.index;
+  if(!Number.isInteger(i))return false;
+  if(command.type==='remove'){
+    if(i<0||i>=next.length)return false;
+    next.splice(i,1);
+  }else if(command.type==='move'){
+    const j=i+command.delta;
+    if(!Number.isInteger(command.delta)||i<0||i>=next.length||j<0||j>=next.length)return false;
+    const [item]=next.splice(i,1);next.splice(j,0,item);
+  }else if(command.type==='insert'){
+    if(i<0||i>next.length||!command.action)return false;
+    next.splice(i,0,command.action);
+  }else return false;
+  c.actions=next;return true;
+}
 
 function v680Esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function v680When(iso){if(!iso)return '—';try{return new Date(iso).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})}catch(_){return String(iso)}}
@@ -1345,11 +1434,90 @@ window.scoutV680ImportBackup=function(event){const file=event?.target?.files?.[0
 
 function v680ParseCode(raw,m,oldAction=null){raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt)return {error:'Código no reconocido.'};let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest)return {error:'Parte avanzada no reconocida: '+rest};const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,startZone:mt[5]||'',endZone:mt[6]||'',serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};if(rival){base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'')}else{let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num}const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a}}
 window.scoutV680OpenSetEditor=function(setNo){const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo));if(!m||!s)return;v680EditContext={mode:'set',setNo:Number(setNo)};document.getElementById('scout-v680-rally-modal')?.classList.add('open');document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · rallies`;document.getElementById('scout-v680-rally-subtitle').textContent='Selecciona un rally para corregir sus acciones. El marcador queda protegido.';const body=document.getElementById('scout-v680-rally-body'),footer=document.getElementById('scout-v680-rally-footer');if(body)body.innerHTML=`<div class="scout-v680-rally-browser">${scoutArr(s.rallies).slice().reverse().map((r,i)=>`<div class="scout-v680-rally-browser-row"><strong>${r.scoreAfter.us}–${r.scoreAfter.opponent}</strong><div><b>R${r.rotationBefore} · ${r.actions.length} acciones</b><small>${v680Esc(r.actions.map(a=>a.code).join('  ')||'Sin acciones')}${r.editedAt?' · editado '+v680When(r.editedAt):''}</small></div><button class="ghost" onclick="scoutV680OpenRallyEditor(${s.number},${r.id})">Editar acciones</button></div>`).join('')||'<div class="match-empty">No hay rallies cerrados en este set.</div>'}</div>`;if(footer)footer.innerHTML='<div></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cerrar</button></div>'};
-window.scoutV680OpenRallyEditor=function(setNo,rallyId){const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo)),r=s?.rallies?.find(x=>Number(x.id)===Number(rallyId));if(!m||!s||!r)return;v680EditContext={mode:'rally',setNo:Number(setNo),rallyId:Number(rallyId),actions:scoutClone(r.actions)};document.getElementById('scout-v680-rally-modal')?.classList.add('open');document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · ${r.scoreAfter.us}–${r.scoreAfter.opponent}`;document.getElementById('scout-v680-rally-subtitle').textContent=`R${r.rotationBefore} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · marcador y rotaciones bloqueados`;scoutV680RenderRallyEditor()};
+window.scoutV680OpenRallyEditor=function(setNo,rallyId){
+  const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo));
+  const r=s?.rallies?.find(x=>Number(x.id)===Number(rallyId));
+  if(!m||!s||!r)return;
+  const scope=v20577CaptureRally(m,s,r);
+  if(!scope){alert('No se pudo abrir el rally con seguridad. Inténtalo de nuevo.');return false;}
+  v680EditContext={mode:'rally',setNo:Number(setNo),rallyId:Number(rallyId),
+    actions:scoutClone(r.actions),v20577Scope:scope};
+  document.getElementById('scout-v680-rally-modal')?.classList.add('open');
+  document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · ${r.scoreAfter.us}–${r.scoreAfter.opponent}`;
+  document.getElementById('scout-v680-rally-subtitle').textContent=`R${r.rotationBefore} · ${r.winner==='ours'?'Punto nuestro':'Punto rival'} · marcador y rotaciones bloqueados`;
+  scoutV680RenderRallyEditor();
+};
 window.scoutV680RenderRallyEditor=function(){const c=v680EditContext,body=document.getElementById('scout-v680-rally-body'),footer=document.getElementById('scout-v680-rally-footer');if(!body||c?.mode!=='rally')return;body.innerHTML=`<div class="scout-v680-edit-list">${c.actions.map((a,i)=>`<div class="scout-v680-edit-action"><span>${i+1}</span><input id="scout-v680-edit-code-${i}" value="${v680Esc(a.code||scoutBuildCode(a))}" spellcheck="false"><button class="danger" onclick="scoutV680RemoveEditAction(${i})">Eliminar</button></div>`).join('')||'<div class="match-empty">Este rally no tiene acciones.</div>'}</div><div class="scout-v680-add-code"><input id="scout-v680-new-code" placeholder="Añadir código al rally · ej. 12A#.4>5" spellcheck="false"><button class="ghost" onclick="scoutV680AddEditAction()">Añadir</button></div><div class="scout-v680-warning">Edición protegida: solo cambian las acciones. Si el punto fue asignado al equipo incorrecto, utiliza “Deshacer último rally” cuando sea el rally más reciente.</div>`;if(footer)footer.innerHTML=`<div><button class="ghost" onclick="scoutV680OpenSetEditor(${c.setNo})">← Volver al set</button></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cancelar</button><button class="primary" onclick="scoutV680SaveRallyEdit()">Guardar corrección</button></div>`};
-window.scoutV680RemoveEditAction=function(i){if(v680EditContext?.mode!=='rally')return;v680EditContext.actions.splice(Number(i),1);scoutV680RenderRallyEditor()};
-window.scoutV680AddEditAction=function(){if(v680EditContext?.mode!=='rally')return;const input=document.getElementById('scout-v680-new-code'),raw=input?.value||'',m=scoutActive(),parsed=v680ParseCode(raw,m,null);if(parsed.error){alert(parsed.error);return}parsed.action.id=Date.now()+Math.floor(Math.random()*1000);parsed.action.createdAt=scoutNow();const s=scoutArr(m.sets).find(x=>Number(x.number)===v680EditContext.setNo),r=s?.rallies?.find(x=>Number(x.id)===v680EditContext.rallyId);parsed.action.scoutMs=Number(r?.scoutEndMs)||0;v680EditContext.actions.push(parsed.action);scoutV680RenderRallyEditor();setTimeout(()=>document.getElementById('scout-v680-new-code')?.focus(),0)};
-window.scoutV680SaveRallyEdit=function(){const c=v680EditContext,m=scoutActive();if(c?.mode!=='rally'||!m)return;const s=scoutArr(m.sets).find(x=>Number(x.number)===c.setNo),r=s?.rallies?.find(x=>Number(x.id)===c.rallyId);if(!r)return;const edited=[];for(let i=0;i<c.actions.length;i++){const input=document.getElementById(`scout-v680-edit-code-${i}`),raw=input?.value||c.actions[i].code,parsed=v680ParseCode(raw,m,c.actions[i]);if(parsed.error){alert(`Acción ${i+1}: ${parsed.error}`);input?.focus();return}parsed.action.seq=i+1;edited.push(parsed.action)}r.actions=edited;r.editedAt=scoutNow();r.editCount=(Number(r.editCount)||0)+1;scoutSave();scoutV680Backup('rally-edit',true);scoutV680OpenSetEditor(c.setNo)};
+window.scoutV680RemoveEditAction=function(i){
+  const c=v680EditContext;if(c?.mode!=='rally')return;
+  if(v20577UpdateDraft(c,{type:'remove',index:Number(i)}))scoutV680RenderRallyEditor();
+};
+window.scoutV680AddEditAction=function(){
+  const c=v680EditContext;if(c?.mode!=='rally'||!v20577EditorGuard(c))return;
+  const input=document.getElementById('scout-v680-new-code'),raw=input?.value||'';
+  const parsed=v680ParseCode(raw,c.v20577Scope.match,null);
+  if(parsed.error){alert(parsed.error);return;}
+  if(!v20577EditorGuard(c))return;
+  parsed.action.id=Date.now()+Math.floor(Math.random()*1000);
+  parsed.action.createdAt=scoutNow();
+  parsed.action.scoutMs=Number(c.v20577Scope.rally?.scoutEndMs)||0;
+  if(v20577UpdateDraft(c,{type:'insert',index:c.actions.length,action:parsed.action})){
+    scoutV680RenderRallyEditor();
+    setTimeout(()=>document.getElementById('scout-v680-new-code')?.focus(),0);
+  }
+};
+window.scoutV680SaveRallyEdit=function(){
+  const c=v680EditContext;
+  if(c?.mode!=='rally'||!v20577EditorGuard(c))return false;
+  const {match:m,rally:r}=c.v20577Scope;
+  const codes=c.actions.map((action,i)=>({
+    oldAction:action,
+    raw:document.getElementById(`scout-v680-edit-code-${i}`)?.value||action.code
+  }));
+  const lane=v20577Lane();let parsedCount=0,plan=null;
+  if(lane&&typeof lane.prepare==='function'){
+    try{
+      plan=lane.prepare({scope:c.v20577Scope,
+        current:()=>v20577CurrentRally(c),codes,
+        parse(raw,oldAction){parsedCount++;return v680ParseCode(raw,m,oldAction);}
+      });
+      if(!plan||typeof plan.ok!=='boolean'||
+         (plan.ok&&(!Array.isArray(plan.actions)||plan.actions.length!==codes.length)))
+        throw Error('El adaptador devolvió una corrección incompatible.');
+    }catch(error){
+      if(parsedCount)throw error; // Never interpret a code twice after a partial run.
+      plan=null;
+    }
+  }
+  if(!plan){
+    if(!v20577EditorGuard(c))return false;
+    const edited=[];
+    for(let i=0;i<codes.length;i++){
+      const parsed=v680ParseCode(codes[i].raw,m,codes[i].oldAction);
+      if(parsed.error){
+        alert(`Acción ${i+1}: ${parsed.error}`);
+        document.getElementById(`scout-v680-edit-code-${i}`)?.focus();return false;
+      }
+      parsed.action.seq=i+1;edited.push(parsed.action);
+    }
+    plan={ok:true,actions:edited};
+    v20577EditorStats.classicSaves++;
+  }else v20577EditorStats.typedSaves++;
+  if(!plan.ok){
+    if(plan.kind==='stale')v20577EditorStats.stale++;
+    else v20577EditorStats.blocked++;
+    alert(plan.kind==='invalid'?`Acción ${plan.index+1}: ${plan.error}`:
+      plan.error||'No se pudo guardar la corrección.');
+    if(plan.kind==='invalid')document.getElementById(`scout-v680-edit-code-${plan.index}`)?.focus();
+    return false;
+  }
+  if(!v20577EditorGuard(c))return false;
+  // Only the legacy owner commits, persists, backs up and refreshes.
+  r.actions=plan.actions;
+  r.editedAt=scoutNow();r.editCount=(Number(r.editCount)||0)+1;
+  scoutSave();scoutV680Backup('rally-edit',true);scoutV680OpenSetEditor(c.setNo);
+  return true;
+};
 window.scoutV680CloseRallyEditor=function(){document.getElementById('scout-v680-rally-modal')?.classList.remove('open');v680EditContext=null};
 
 const v680RenderRalliesBase=window.scoutRenderRallies;window.scoutRenderRallies=function(m){const s=scoutSet(m),box=document.getElementById('scout-rally-list');if(!box)return v680RenderRalliesBase(m);const rallies=scoutArr(s?.rallies).slice().reverse();box.innerHTML=rallies.length?rallies.map(r=>`<div class="scout-rally-item"><div class="scout-rally-score">${r.scoreAfter.us}–${r.scoreAfter.opponent}</div><div class="scout-rally-copy"><strong>R${r.rotationBefore} · ${r.actions.length} acciones${r.editCount?' · editado':''}</strong><small>${r.servingBefore==='ours'?'Saque nuestro':'Saque rival'}${r.actions.length?' · '+r.actions.map(a=>v680Esc(a.code)).join('  '):''}</small></div><span class="scout-rally-winner ${r.winner==='ours'?'ours':''}">${r.winner==='ours'?'Punto nuestro':'Punto rival'}</span><button class="ghost scout-v680-rally-edit" onclick="scoutV680OpenRallyEditor(${s.number},${r.id})">Editar</button></div>`).join(''):'<div class="scout-action-empty">Aún no hay rallies cerrados en este set.</div>';if(document.getElementById('scout-rally-count'))document.getElementById('scout-rally-count').textContent=`${rallies.length} rallies`};
@@ -3628,8 +3796,8 @@ $84('scout-v840-block-target')?.addEventListener('input',scoutUpdateAdvancedCode
    ========================================================== */
 function v840Context(){return window.VC_SCOUT_V680_EDITOR?.getContext?.()||null}
 function v840EditorRally(){
-  const c=v840Context(),m=scoutActive(),s=a84(m?.sets).find(x=>Number(x.number)===Number(c?.setNo));
-  return s?.rallies?.find(x=>Number(x.id)===Number(c?.rallyId))||null;
+  const c=v840Context();
+  return v20577EditorCurrent(c)?c.v20577Scope.rally:null;
 }
 function v840ActionMeta(a){
   const bits=[a.team==='ours'?'Nuestro':'Rival',SCOUT_SKILLS[a.skill]||a.skill,BLOCK_EVAL[a.evaluation]&&a.skill==='B'?BLOCK_EVAL[a.evaluation]:a.evaluation];
@@ -3640,29 +3808,32 @@ function v840ActionMeta(a){
   return bits.filter(Boolean);
 }
 window.scoutV840MoveEditAction=function(i,delta){
-  if(v840Context()?.mode!=='rally')return;
-  i=Number(i);const j=i+Number(delta);
-  if(j<0||j>=v840Context().actions.length)return;
-  const [x]=v840Context().actions.splice(i,1);v840Context().actions.splice(j,0,x);
-  scoutV680RenderRallyEditor();
+  const c=v840Context();if(c?.mode!=='rally')return;
+  if(v20577UpdateDraft(c,{type:'move',index:Number(i),delta:Number(delta)}))
+    scoutV680RenderRallyEditor();
 };
 window.scoutV840DuplicateEditAction=function(i){
-  if(v840Context()?.mode!=='rally')return;
-  i=Number(i);const src=v840Context().actions[i];if(!src)return;
-  const c=scoutClone(src);c.id=Date.now()+Math.floor(Math.random()*1000);c.createdAt=scoutNow();c.seq=i+2;
-  v840Context().actions.splice(i+1,0,c);scoutV680RenderRallyEditor();
+  const c=v840Context();if(c?.mode!=='rally'||!v20577EditorGuard(c))return;
+  if(!v20577SyncDraftCodes(c))return;
+  i=Number(i);const src=c.actions[i];if(!src)return;
+  const copy=scoutClone(src);copy.id=Date.now()+Math.floor(Math.random()*1000);copy.createdAt=scoutNow();copy.seq=i+2;
+  if(v20577UpdateDraft(c,{type:'insert',index:i+1,action:copy}))
+    scoutV680RenderRallyEditor();
 };
 window.scoutV840AddAt=function(where='end'){
-  if(v840Context()?.mode!=='rally')return;
-  const input=$84('scout-v680-new-code'),raw=String(input?.value||'').trim(),m=scoutActive();
+  const c=v840Context();if(c?.mode!=='rally'||!v20577EditorGuard(c))return;
+  const input=$84('scout-v680-new-code'),raw=String(input?.value||'').trim(),m=c.v20577Scope.match;
   if(!raw){input?.focus();return}
   const parsed=window.VC_SCOUT_V680_EDITOR.parseCode(raw,m,null);if(parsed.error){alert(parsed.error);input?.focus();return}
+  if(!v20577EditorGuard(c))return;
   parsed.action.id=Date.now()+Math.floor(Math.random()*1000);parsed.action.createdAt=scoutNow();
   const r=v840EditorRally();parsed.action.scoutMs=Number(r?.scoutEndMs)||0;
-  if(where==='start')v840Context().actions.unshift(parsed.action);else v840Context().actions.push(parsed.action);
-  scoutV680RenderRallyEditor();setTimeout(()=>$84('scout-v680-new-code')?.focus(),0);
+  const index=where==='start'?0:c.actions.length;
+  if(v20577UpdateDraft(c,{type:'insert',index,action:parsed.action})){
+    scoutV680RenderRallyEditor();setTimeout(()=>$84('scout-v680-new-code')?.focus(),0);
+  }
 };
-window.scoutV680AddEditAction=function(){scoutV840AddAt('end')};
+window.scoutV680AddEditAction=function(){return scoutV840AddAt('end')};
 
 window.scoutV680RenderRallyEditor=function(){
   const c=v840Context(),body=$84('scout-v680-rally-body'),footer=$84('scout-v680-rally-footer'),r=v840EditorRally();

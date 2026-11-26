@@ -31,6 +31,7 @@ import {installScoutCodeBuilderBridge} from './domain/scout-code-builder-runtime
 import {installScoutRegistrationBridge} from './domain/scout-action-registration-runtime';
 import {installScoutRegistrationLane} from './domain/scout-registration-lane-runtime';
 import {installScoutDirectActionLane} from './domain/scout-direct-action-runtime';
+import {installRallyEditorLane} from './domain/rally-editor-lane-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -179,6 +180,9 @@ export {registerNativeScoutingAction} from './domain/scout-registration-lane';
 export {installScoutRegistrationLane} from './domain/scout-registration-lane-runtime';
 export {dispatchNativeDirectAction} from './domain/scout-direct-action-lane';
 export {installScoutDirectActionLane} from './domain/scout-direct-action-runtime';
+export {captureRallyEditorScope,isRallyEditorScopeCurrent,syncRallyEditorDraftCodes,
+ changeRallyEditorDraft,prepareRallyCorrection} from './domain/rally-editor-lane';
+export {installRallyEditorLane} from './domain/rally-editor-lane-runtime';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -217,6 +221,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutRegistrationBridge(window);
  installScoutRegistrationLane(window);
  installScoutDirectActionLane(window);
+ installRallyEditorLane(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
  installScoutTacticalFieldsBridge(window);

@@ -175,7 +175,7 @@ test('a later command wins against an older queued readback even with the same m
 
 test('packaging and Vite include the verifier without changing cloud, journal or rally ownership',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.76');
+ assert.equal(pkg.version,'20.5.77');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20559-local-readback.test.cjs'));
  assert.ok(read('src/vc2055-entry.ts').includes('installLocalReadbackBridge(window)'));
  assert.ok(source.includes('scheduleLocalReadback(sequence)'));
