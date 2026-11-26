@@ -9,12 +9,18 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
-const {spawn}=require('node:child_process');
+const {spawn,spawnSync}=require('node:child_process');
 const ROOT=path.resolve(__dirname,'..');
 const REQUIRED=process.env.VC_BROWSER_REQUIRED==='1';
 const CHROMIUM=[process.env.VC_CHROMIUM,'/usr/bin/chromium','/usr/bin/chromium-browser',
  '/usr/bin/google-chrome','/usr/bin/google-chrome-stable']
- .find(file=>file&&fs.existsSync(file));
+ .find(file=>{
+  if(!file||!fs.existsSync(file))return false;
+  // Some CI images ship /usr/bin/chromium as a broken launcher with no binary.
+  // Never mistake the existence of that wrapper for a runnable browser.
+  const probe=spawnSync(file,['--version'],{timeout:3000,encoding:'utf8'});
+  return !probe.error&&probe.status===0;
+ });
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const fixtures={
  matchId:12345,account:'recovery-test-account',team:'cadete',

@@ -7,6 +7,8 @@ import {tryAcquirePlayerShadowLock,type ShadowLease,type ShadowLockPort} from '.
 import {preparePlayerShadowBackup,type PlayerBackupResult} from './player-shadow-backup';
 import {PLAYER_REOPEN_TICKET_KEY,preparePlayerReopenTicket,
  verifyPlayerReopenTicket,type PlayerReopenResult} from './player-shadow-reopen';
+import {PLAYER_COLD_REOPEN_KEY,preparePlayerColdReopen,
+ verifyPlayerColdReopen} from './player-shadow-cold-recovery';
 
 type PlayerWindow=Window&{
  VC_STORAGE_QUOTA_1531?:{unpack?:(v:string)=>string};
@@ -20,6 +22,9 @@ export interface PlayerShadowAPI{
  readonly inspect:()=>Promise<PlayerShadowCheck>;
  readonly backup:()=>Promise<PlayerBackupResult>;
  readonly reopen:()=>Promise<void>;
+ readonly prepareCold:()=>Promise<void>;
+ readonly verifyCold:()=>Promise<PlayerReopenResult>;
+ readonly cancelCold:()=>Promise<void>;
  readonly erase:()=>Promise<true>;
  readonly whenIdle:()=>Promise<void>;readonly dispose:()=>void;
 }
@@ -37,8 +42,14 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
  const backupButton=doc?.getElementById('vc20569-download-players') as HTMLButtonElement|null;
  const reopenButton=doc?.getElementById('vc20570-reopen-players') as HTMLButtonElement|null;
  const reopenStatus=doc?.getElementById('vc20570-reopen-status');
+ const coldPrepareButton=doc?.getElementById('vc20571-prepare-cold') as HTMLButtonElement|null;
+ const coldVerifyButton=doc?.getElementById('vc20571-verify-cold') as HTMLButtonElement|null;
+ const coldCancelButton=doc?.getElementById('vc20571-cancel-cold') as HTMLButtonElement|null;
+ const coldStatus=doc?.getElementById('vc20571-cold-status');
  const status=doc?.getElementById('vc20567-player-shadow-status');
- if(!armButton||!pauseButton||!checkButton||!eraseButton||!backupButton||!reopenButton||!reopenStatus||!status)return null;
+ if(!armButton||!pauseButton||!checkButton||!eraseButton||!backupButton||
+  !reopenButton||!reopenStatus||!coldPrepareButton||!coldVerifyButton||
+  !coldCancelButton||!coldStatus||!status)return null;
  const old=mounted.get(win);if(old)return old;
  const available=typeof win.indexedDB?.open==='function'&&
   typeof win.indexedDB?.deleteDatabase==='function'&&!!win.localStorage;
@@ -50,19 +61,28 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   typeof win.sessionStorage?.removeItem==='function'}catch(_){/* disabled */}
  const canReopen=canWrite&&typeof win.crypto?.subtle?.digest==='function'&&
   typeof win.location?.reload==='function'&&hasSession;
+ const canCold=canWrite&&typeof win.crypto?.subtle?.digest==='function';
  let active=false,arming=false,disposed=false,processing=false,scheduled=false;
- let reopening=false,recovering=false;
+ let reopening=false,recovering=false,coldBusy=false;
  let lease:ShadowLease|null=null,releasing:Promise<void>|null=null;
  let queued:string|null=null,ongoing:Promise<void>|null=null;
  const show=(text:string)=>{if(!disposed)status.textContent=text};
  const showReopen=(text:string)=>{if(!disposed)reopenStatus.textContent=text;show(text)};
+ const showCold=(text:string)=>{if(!disposed)coldStatus.textContent=text;show(text)};
+ const coldTicket=()=>{try{return win.localStorage.getItem(PLAYER_COLD_REOPEN_KEY)}
+  catch(_){return null}};
  const update=()=>{
-  armButton.disabled=!canWrite||active||arming||!!lease||!!releasing||disposed||reopening||recovering;
+  armButton.disabled=!canWrite||active||arming||!!lease||!!releasing||disposed||reopening||recovering||coldBusy;
   pauseButton.disabled=!active||disposed;
-  checkButton.disabled=!available||disposed||reopening||recovering;
-  eraseButton.disabled=!canWrite||disposed||reopening||recovering;
-  backupButton.disabled=!canWrite||disposed||reopening||recovering;
-  reopenButton.disabled=!canReopen||disposed||reopening||recovering;
+  checkButton.disabled=!available||disposed||reopening||recovering||coldBusy;
+  eraseButton.disabled=!canWrite||disposed||reopening||recovering||coldBusy;
+  backupButton.disabled=!canWrite||disposed||reopening||recovering||coldBusy;
+  reopenButton.disabled=!canReopen||disposed||reopening||recovering||coldBusy;
+  const coldLocked=disposed||reopening||recovering||coldBusy;
+  const exists=!!coldTicket();
+  coldPrepareButton.disabled=!canCold||coldLocked||exists;
+  coldVerifyButton.disabled=!canCold||coldLocked||!exists;
+  coldCancelButton.disabled=!canCold||coldLocked||!exists;
  };
  update();
  show(canWrite?'Copia paralela apagada. V20.5.68 protege la sesión con un bloqueo exclusivo entre pestañas.':
@@ -131,7 +151,7 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   if(releasing)await releasing;
  };
  const arm=async()=>{
-  if(!canWrite||disposed||active||arming||lease||releasing)
+  if(!canWrite||disposed||active||arming||lease||releasing||coldBusy)
    throw Error('No se puede activar: copia ocupada o bloqueo no disponible');
   // This is the original committed JSON, not mutable editor state.
   const raw=readRaw();
@@ -199,7 +219,7 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   }finally{exclusive.release();await exclusive.released}
  };
  const reopen=async()=>{
-  if(!canReopen||disposed||reopening||recovering)throw Error('Prueba de reapertura no disponible');
+  if(!canReopen||disposed||reopening||recovering||coldBusy)throw Error('Prueba de reapertura no disponible');
   reopening=true;update();
   try{
    pause();await whenIdle();
@@ -243,6 +263,53 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   }catch(_){showReopen('No se pudo certificar la reapertura de jugadores. No se ha modificado el club. Cierra otras pestañas y comprueba la copia de nuevo.')}
   finally{recovering=false;update()}
  };
+ const withColdLock=async<T>(work:()=>Promise<T>):Promise<T>=>{
+  if(!canCold||disposed||coldBusy||reopening||recovering)
+   throw Error('Comprobación de cierre no disponible');
+  coldBusy=true;update();
+  try{
+   pause();await whenIdle();
+   const exclusive=await tryAcquirePlayerShadowLock(locks);
+   if(!exclusive)throw Error('Otra pestaña está utilizando la réplica');
+   try{return await work()}
+   finally{exclusive.release();await exclusive.released}
+  }finally{coldBusy=false;update()}
+ };
+ const prepareCold=()=>withColdLock(async()=>{
+  if(coldTicket()!==null)throw Error('Ya existe una prueba pendiente');
+  const raw=readRaw();
+  const ticket=await preparePlayerColdReopen({raw,factory:win.indexedDB,
+   subtle:win.crypto.subtle,now:Date.now()});
+  if(readRaw()!==raw)throw Error('El club cambió antes de guardar la comprobación');
+  // A tiny separate localStorage key: only timestamp, digest and count.
+  win.localStorage.setItem(PLAYER_COLD_REOPEN_KEY,ticket);
+  if(win.localStorage.getItem(PLAYER_COLD_REOPEN_KEY)!==ticket)
+   throw Error('El navegador no confirmó el comprobante local');
+  showCold('Prueba preparada. Cierra COMPLETAMENTE el navegador y vuelve después a Gestión para pulsar «Verificar tras el cierre». El club no se ha modificado.');
+ });
+ const verifyCold=()=>withColdLock(async()=>{
+  const ticket=coldTicket();
+  if(!ticket)throw Error('No hay una prueba de cierre preparada');
+  const raw=readRaw();
+  const result=await verifyPlayerColdReopen({ticket,raw,factory:win.indexedDB,
+   subtle:win.crypto.subtle,now:Date.now()});
+  if(readRaw()!==raw||coldTicket()!==ticket)
+   throw Error('El club o la marca cambiaron durante la recuperación');
+  // Consume only this proof token; never delete the shadow or canonical state.
+  win.localStorage.removeItem(PLAYER_COLD_REOPEN_KEY);
+  const messages={
+   verified:`Verificación posterior al cierre: ${result.records} jugadores siguen coincidiendo con el guardado principal. No podemos determinar desde la web si el proceso fue forzado ni certificar resistencia a apagones.`,
+   missing:'Prueba no superada: IndexedDB no conserva la réplica de jugadores.',
+   different:'Prueba no superada: cambiaron el guardado principal o las entidades de jugadores.',
+   incomplete:'Prueba no superada: hay jugadores sin identidad estable.',
+   expired:'Prueba caducada: han pasado más de 24 horas.',
+   invalid:'Prueba rechazada: el comprobante local es inválido.'};
+  showCold(messages[result.status]);return result;
+ });
+ const cancelCold=()=>withColdLock(async()=>{
+  win.localStorage.removeItem(PLAYER_COLD_REOPEN_KEY);
+  showCold('Prueba cancelada. Solo se eliminó el comprobante de esta prueba; no se tocaron jugadores, scouting, vídeo ni nube.');
+ });
  const onArm=()=>{if(win.confirm('La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?'))
   void arm().catch(()=>show('No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes.'))};
  const onPause=()=>pause();
@@ -266,7 +333,17 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   if(!win.confirm('La página se recargará una vez. Se comparará la réplica de jugadores con el último guardado confirmado antes y después; no se tocarán tus datos. ¿Continuar?'))return;
   void reopen().catch(()=>showReopen('No se pudo iniciar la prueba: comprueba primero que las plantillas estén verificadas y no haya otra pestaña activa.'));
  };
+ const onPrepareCold=()=>{
+  if(!win.confirm('¿Preparar una comprobación opcional para cerrar el navegador y verificar luego la copia de jugadores? Se guardará SOLO una huella y fecha, sin datos personales.'))return;
+  void prepareCold().catch(()=>showCold('No se preparó la prueba de cierre. Comprueba que los jugadores coinciden, que no hay otra pestaña activa y que queda espacio local.'));
+ };
+ const onVerifyCold=()=>{void verifyCold().catch(()=>showCold('No se ha podido verificar el cierre. La prueba pendiente no se borra: comprueba el bloqueo de otras pestañas y vuelve a intentarlo.'))};
+ const onCancelCold=()=>{
+  if(win.confirm('¿Cancelar la prueba pendiente? Solo se elimina su comprobante, nunca los datos del club.'))
+   void cancelCold().catch(()=>showCold('No se pudo cancelar: otra pestaña puede tener el bloqueo.'));
+ };
  const onExternalState=(event:StorageEvent)=>{
+  if(event.key===PLAYER_COLD_REOPEN_KEY)update();
   if(event.key===MAIN_KEY&&(active||arming)){
    pause();show('Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla.');
   }
@@ -276,21 +353,29 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
  checkButton.addEventListener('click',onCheck);eraseButton.addEventListener('click',onErase);
  backupButton.addEventListener('click',onBackup);
  reopenButton.addEventListener('click',onReopen);
+ coldPrepareButton.addEventListener('click',onPrepareCold);
+ coldVerifyButton.addEventListener('click',onVerifyCold);
+ coldCancelButton.addEventListener('click',onCancelCold);
  win.addEventListener?.('storage',onExternalState);
  win.addEventListener?.('pagehide',onPageHide);
  const api:Readonly<PlayerShadowAPI>=Object.freeze({VERSION:'20.5.67',manualOnly:true,
-  authoritative:false,crossTabSafe:true,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,backup,reopen,erase,whenIdle,
+  authoritative:false,crossTabSafe:true,enabled:()=>active,arm,pause,onConfirmedWrite,
+  inspect,backup,reopen,prepareCold,verifyCold,cancelCold,erase,whenIdle,
   dispose(){if(disposed)return;pause();disposed=true;
    armButton.removeEventListener('click',onArm);pauseButton.removeEventListener('click',onPause);
    checkButton.removeEventListener('click',onCheck);eraseButton.removeEventListener('click',onErase);
    backupButton.removeEventListener('click',onBackup);
    reopenButton.removeEventListener('click',onReopen);
+   coldPrepareButton.removeEventListener('click',onPrepareCold);
+   coldVerifyButton.removeEventListener('click',onVerifyCold);
+   coldCancelButton.removeEventListener('click',onCancelCold);
    win.removeEventListener?.('storage',onExternalState);
    win.removeEventListener?.('pagehide',onPageHide);
    update();mounted.delete(win);
    if(win.VC_PLAYER_SHADOW_20567===api)delete win.VC_PLAYER_SHADOW_20567;
   }});
  mounted.set(win,api);win.VC_PLAYER_SHADOW_20567=api;
+ if(coldTicket()!==null)showCold('Hay una prueba de cierre pendiente. Si ya has vuelto a abrir el navegador, pulsa «Verificar tras el cierre». Si no, ciérralo completamente antes.');
  // Consume the one-shot ticket BEFORE opening the database; never auto-retry.
  try{const pending=win.sessionStorage?.getItem(PLAYER_REOPEN_TICKET_KEY);
   if(pending!==null&&pending!==undefined){

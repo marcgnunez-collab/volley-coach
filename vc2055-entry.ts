@@ -94,6 +94,8 @@ export {tryAcquirePlayerShadowLock,PLAYER_SHADOW_LOCK} from './state/player-shad
 export {preparePlayerShadowBackup,reconstructPlayersForBackup} from './state/player-shadow-backup';
 export {PLAYER_REOPEN_TICKET_KEY,parsePlayerReopenTicket,digestOriginalClub,
  preparePlayerReopenTicket,verifyPlayerReopenTicket} from './state/player-shadow-reopen';
+export {PLAYER_COLD_REOPEN_KEY,preparePlayerColdReopen,
+ verifyPlayerColdReopen} from './state/player-shadow-cold-recovery';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
