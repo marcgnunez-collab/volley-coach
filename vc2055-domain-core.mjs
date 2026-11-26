@@ -623,7 +623,7 @@ function N(r, a) {
 		setWinner: d
 	});
 }
-function ne(t) {
+function P(t) {
 	let n = e(t), r = e(n?.lineupBefore), i = !!e(r?.ours) && !!e(r?.opponent), a = (t) => !!e(t), o = [
 		"liveVideoSessionId",
 		"liveVideoStart",
@@ -641,7 +641,7 @@ function ne(t) {
 	});
 }
 // src/domain/rally-transition.ts
-var re = (e, t, a, o) => {
+var F = (e, t, a, o) => {
 	let s = i(e);
 	return s && n(t) && r(a) && r(o) ? Object.freeze({
 		score: s,
@@ -649,7 +649,7 @@ var re = (e, t, a, o) => {
 		rotationUs: a,
 		rotationOpponent: o
 	}) : null;
-}, P = (e, t, n = null, r = null, i = null, a = null) => Object.freeze({
+}, I = (e, t, n = null, r = null, i = null, a = null) => Object.freeze({
 	kind: e,
 	state: t === "ready" ? "projected" : t === "finished" ? "blocked" : "unknown",
 	reason: t,
@@ -659,51 +659,51 @@ var re = (e, t, a, o) => {
 	restoration: a,
 	includesLineups: !1,
 	readOnly: !0
-}), ie = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, F = (e, t) => e.us === t.us && e.opponent === t.opponent;
-function ae(t, r) {
+}), ne = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, L = (e, t) => e.us === t.us && e.opponent === t.opponent;
+function re(t, r) {
 	let a = e(t);
-	if (!a) return P("award-point", "no-match");
-	if (a.status === "finished") return P("award-point", "finished");
-	let o = ie(a);
-	if (!o) return P("award-point", "no-set");
-	if (o.finished === !0) return P("award-point", "finished");
+	if (!a) return I("award-point", "no-match");
+	if (a.status === "finished") return I("award-point", "finished");
+	let o = ne(a);
+	if (!o) return I("award-point", "no-set");
+	if (o.finished === !0) return I("award-point", "finished");
 	let s = i({
 		us: o.scoreUs,
 		opponent: o.scoreOpponent
-	}), l = e(e(a.liveRally)?.startSnapshot), u = re(s, l ? l.servingBefore : a.servingTeam, l ? l.rotationBefore : a.rotationNo, l ? l.opponentRotationBefore : a.opponentRotationNo);
-	if (!u || !n(r)) return P("award-point", "invalid-data");
+	}), l = e(e(a.liveRally)?.startSnapshot), u = F(s, l ? l.servingBefore : a.servingTeam, l ? l.rotationBefore : a.rotationNo, l ? l.opponentRotationBefore : a.opponentRotationNo);
+	if (!u || !n(r)) return I("award-point", "invalid-data");
 	if (l) {
 		let e = i(l.scoreBefore);
-		if (!e || !F(e, u.score) || l.servingBefore !== a.servingTeam || l.rotationBefore !== a.rotationNo || l.opponentRotationBefore !== a.opponentRotationNo) return P("award-point", "stale-score", u);
+		if (!e || !L(e, u.score) || l.servingBefore !== a.servingTeam || l.rotationBefore !== a.rotationNo || l.opponentRotationBefore !== a.opponentRotationNo) return I("award-point", "stale-score", u);
 	}
 	let d = c({
 		score: u.score,
 		serving: u.serving,
 		rotationUs: u.rotationUs,
 		rotationOpponent: u.rotationOpponent
-	}, r), f = re(d.score, d.serving, d.rotationUs, d.rotationOpponent);
-	return f ? P("award-point", "ready", u, f, N(a, f.score)) : P("award-point", "invalid-data", u);
+	}, r), f = F(d.score, d.serving, d.rotationUs, d.rotationOpponent);
+	return f ? I("award-point", "ready", u, f, N(a, f.score)) : I("award-point", "invalid-data", u);
 }
-function I(n) {
+function ie(n) {
 	let r = e(n);
-	if (!r) return P("undo-last-rally", "no-match");
-	if (r.status === "finished") return P("undo-last-rally", "finished");
-	let o = ie(r);
-	if (!o) return P("undo-last-rally", "no-set");
+	if (!r) return I("undo-last-rally", "no-match");
+	if (r.status === "finished") return I("undo-last-rally", "finished");
+	let o = ne(r);
+	if (!o) return I("undo-last-rally", "no-set");
 	let s = t(o.rallies), c = e(s[s.length - 1]);
-	if (!c) return P("undo-last-rally", "no-rallies");
-	let l = re(i({
+	if (!c) return I("undo-last-rally", "no-rallies");
+	let l = F(i({
 		us: o.scoreUs,
 		opponent: o.scoreOpponent
-	}), r.servingTeam, r.rotationNo, r.opponentRotationNo), u = re(c.scoreBefore, c.servingBefore, c.rotationBefore, c.opponentRotationBefore);
-	if (!l || !u || a(c).state !== "verified") return P("undo-last-rally", "invalid-data", l);
+	}), r.servingTeam, r.rotationNo, r.opponentRotationNo), u = F(c.scoreBefore, c.servingBefore, c.rotationBefore, c.opponentRotationBefore);
+	if (!l || !u || a(c).state !== "verified") return I("undo-last-rally", "invalid-data", l);
 	let d = i(c.scoreAfter);
-	return !d || !F(d, l.score) ? P("undo-last-rally", "stale-score", l) : P("undo-last-rally", "ready", l, u, null, ne(c));
+	return !d || !L(d, l.score) ? I("undo-last-rally", "stale-score", l) : I("undo-last-rally", "ready", l, u, null, P(c));
 }
-function oe(t, o = null) {
+function ae(t, o = null) {
 	let s = e(t), l = e(o), u = a(s), d = "unknown", f = "unknown", p = i(l?.scoreBefore);
-	u.after && p && (d = F(u.after, p) ? "match" : "mismatch");
-	let m = re(s?.scoreBefore, s?.servingBefore, s?.rotationBefore, s?.opponentRotationBefore);
+	u.after && p && (d = L(u.after, p) ? "match" : "mismatch");
+	let m = F(s?.scoreBefore, s?.servingBefore, s?.rotationBefore, s?.opponentRotationBefore);
 	if (m && l) {
 		let e = c({
 			score: m.score,
@@ -721,7 +721,7 @@ function oe(t, o = null) {
 	});
 }
 // src/domain/committed-audit.ts
-var L = 2e4, se = 6e4, ce = 80, le = /* @__PURE__ */ new Set([
+var R = 2e4, oe = 6e4, se = 80, ce = /* @__PURE__ */ new Set([
 	"S",
 	"R",
 	"E",
@@ -730,7 +730,7 @@ var L = 2e4, se = 6e4, ce = 80, le = /* @__PURE__ */ new Set([
 	"D",
 	"F",
 	"C"
-]), ue = (e) => typeof e == "string" && le.has(e) ? e : "—", de = {
+]), le = (e) => typeof e == "string" && ce.has(e) ? e : "—", ue = {
 	difference: "El código guardado y los campos de la acción no coinciden.",
 	"coverage-gap": "El código guardado utiliza sintaxis todavía no cubierta por TypeScript.",
 	unverified: "Faltan campos del registro para comprobarlo con seguridad.",
@@ -739,8 +739,8 @@ var L = 2e4, se = 6e4, ce = 80, le = /* @__PURE__ */ new Set([
 	"score-sequence": "El tanteo final y el inicial del siguiente rally no coinciden.",
 	rotation: "La siguiente rotación o el turno de saque no concuerdan con la proyección básica."
 };
-function fe(t) {
-	let r = e(t), i = ue(r?.skill);
+function de(t) {
+	let r = e(t), i = le(r?.skill);
 	if (!r) return Object.freeze({
 		kind: "unverified",
 		skill: i
@@ -753,9 +753,9 @@ function fe(t) {
 	let o = v(a);
 	if (o.state !== "candidate") return Object.freeze({
 		kind: "coverage-gap",
-		skill: ue(o.skill) || i
+		skill: le(o.skill) || i
 	});
-	if (!n(r.team) || !le.has(String(r.skill)) || ![
+	if (!n(r.team) || !ce.has(String(r.skill)) || ![
 		"#",
 		"+",
 		"!",
@@ -764,15 +764,15 @@ function fe(t) {
 		"="
 	].includes(String(r.evaluation)) || r.playerNumberSnapshot === null || r.playerNumberSnapshot === void 0 || String(r.playerNumberSnapshot).trim() === "") return Object.freeze({
 		kind: "unverified",
-		skill: ue(o.skill)
+		skill: le(o.skill)
 	});
 	let s = y(a, { action: r });
 	return Object.freeze({
 		kind: s.state === "agree" ? "agree" : s.state === "disagree" ? "difference" : "unverified",
-		skill: ue(o.skill)
+		skill: le(o.skill)
 	});
 }
-function pe(n) {
+function fe(n) {
 	let r = e(n), i = {
 		actions: 0,
 		agree: 0,
@@ -792,13 +792,13 @@ function pe(n) {
 		a.push(Object.freeze({
 			kind: e,
 			location: t,
-			skill: ue(n),
-			reason: de[e]
-		})), a.length > ce && a.shift();
+			skill: le(n),
+			reason: ue[e]
+		})), a.length > se && a.shift();
 	}, c = (e, t) => {
-		if (i.actions >= se) return o = !0, !1;
+		if (i.actions >= oe) return o = !0, !1;
 		i.actions++;
-		let n = fe(e);
+		let n = de(e);
 		return n.kind === "agree" ? i.agree++ : n.kind === "difference" ? i.difference++ : n.kind === "coverage-gap" ? i.coverageGap++ : n.kind === "no-code" ? i.noCode++ : i.unverified++, n.kind !== "agree" && s(n.kind, t, n.skill), !0;
 	}, l = t(r?.sets);
 	main: for (let n = 0; n < l.length; n++) {
@@ -806,14 +806,14 @@ function pe(n) {
 		if (!r) continue;
 		let a = t(r.rallies);
 		for (let r = 0; r < a.length; r++) {
-			if (i.rallies >= L) {
+			if (i.rallies >= R) {
 				o = !0;
 				break main;
 			}
 			let l = e(a[r]);
 			if (!l) continue;
 			i.rallies++;
-			let u = `S${n + 1} · R${r + 1}`, d = e(a[r + 1]), f = oe(l, d);
+			let u = `S${n + 1} · R${r + 1}`, d = e(a[r + 1]), f = ae(l, d);
 			f.score.state === "verified" ? i.scoreVerified++ : f.score.state === "inconsistent" ? (i.scoreInconsistent++, s("score", u)) : i.scoreUnknown++;
 			for (let [e, n] of t(l.actions).entries()) if (!c(n, `${u} · A${e + 1}`)) break main;
 			d && (f.scoreLink !== "unknown" && (i.scoreLinksChecked++, f.scoreLink === "mismatch" && (i.scoreLinksMismatch++, s("score-sequence", `${u} → R${r + 2}`))), f.rotationLink !== "unknown" && (i.rotationsChecked++, f.rotationLink === "mismatch" && (i.rotationsMismatch++, s("rotation", `${u} → R${r + 2}`))));
@@ -839,7 +839,7 @@ function pe(n) {
 	});
 }
 // src/domain/committed-runtime.ts
-function me(e) {
+function pe(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_COMMITTED_2057) return e.VC_COMMITTED_2057;
@@ -893,7 +893,7 @@ function me(e) {
 			e.append(r("strong", "", t.location), r("span", "", t.reason)), h.append(e);
 		}
 	}, C = () => {
-		let e = pe(x());
+		let e = fe(x());
 		return _ = e, v = !1, S(), e;
 	}, T = () => {
 		y || (b++, _ && !v && (v = !0, c.textContent = "El partido ha cambiado. Repite la comprobación para actualizar el informe.", i.dataset.state = "stale", p.disabled = !0));
@@ -944,7 +944,7 @@ function me(e) {
 	return e.VC_COMMITTED_2057 = k, k;
 }
 // src/domain/grammar-runtime.ts
-function he(e) {
+function me(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_CODE_GRAMMAR_2058) return e.VC_CODE_GRAMMAR_2058;
@@ -1010,14 +1010,14 @@ function he(e) {
 	return e.VC_CODE_GRAMMAR_2058 = y, y;
 }
 // src/state/match-observable.ts
-var ge = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, _e = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, ve = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
-function ye(i, a) {
-	let o = e(i), s = _e(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
+var he = (e) => typeof e == "number" && Number.isSafeInteger(e) && e >= 0 ? e : null, ge = (e) => typeof e == "number" && Number.isSafeInteger(e) && e > 0 ? e : null, _e = (e, t) => Object.keys(e).every((n) => Object.is(e[n], t[n]));
+function ve(i, a) {
+	let o = e(i), s = ge(o?.currentSet), c = t(o?.sets), l = e(a) || e(c.find((t) => e(t)?.number === s)), u = o?.status === "live" || o?.status === "finished" ? o.status : null;
 	return Object.freeze({
 		score: Object.freeze({
 			set: s,
-			us: ge(l?.scoreUs),
-			opponent: ge(l?.scoreOpponent)
+			us: he(l?.scoreUs),
+			opponent: he(l?.scoreOpponent)
 		}),
 		court: Object.freeze({
 			serving: n(o?.servingTeam) ? o.servingTeam : null,
@@ -1034,7 +1034,7 @@ function ye(i, a) {
 		})
 	});
 }
-function be(t) {
+function ye(t) {
 	let n = [
 		"score",
 		"court",
@@ -1048,12 +1048,12 @@ function be(t) {
 			try {
 				r = n?.getSet?.(t);
 			} catch {}
-			return ye(t, r);
+			return ve(t, r);
 		} catch {}
-		return ye(null);
+		return ve(null);
 	}, o = a(), s = !1, c = !1, l = !1, u = 0, d = 0, f = 0, p = (e = !1) => {
 		if (s) return;
-		let t = a(), r = n.filter((e) => !ve(o[e], t[e]));
+		let t = a(), r = n.filter((e) => !_e(o[e], t[e]));
 		r.length && (o = t, d++), (e || r.length) && r.push("change");
 		for (let e of r) for (let t of i.get(e) || []) {
 			f++;
@@ -1100,11 +1100,11 @@ function be(t) {
 	});
 }
 // src/state/runtime.ts
-function xe(e) {
+function be(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_STATE_2059) return e.VC_STATE_2059;
-	let r = be(e), i = (e, n = "", r = "") => {
+	let r = ye(e), i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
 		return i.className = n, i.textContent = r, i;
 	}, a = i("section", "vc2059-observable");
@@ -1171,7 +1171,7 @@ function xe(e) {
 	return e.VC_STATE_2059 = S, S;
 }
 // src/state/live-statistics.ts
-var Se = 3e3, Ce = 25e3, we = (e, t) => t ? Math.round(e / t * 100) : null, Te = () => ({
+var xe = 3e3, Se = 25e3, Ce = (e, t) => t ? Math.round(e / t * 100) : null, we = () => ({
 	receptions: 0,
 	perfect: 0,
 	positive: 0,
@@ -1179,7 +1179,7 @@ var Se = 3e3, Ce = 25e3, we = (e, t) => t ? Math.round(e / t * 100) : null, Te =
 	kills: 0,
 	errors: 0,
 	blocked: 0
-}), Ee = (t, n) => {
+}), Te = (t, n) => {
 	let r = e(n);
 	if (r?.team === "ours") {
 		if (r.skill === "R") {
@@ -1204,27 +1204,27 @@ var Se = 3e3, Ce = 25e3, we = (e, t) => t ? Math.round(e / t * 100) : null, Te =
 			t.attacks++, r.evaluation === "#" && t.kills++, r.evaluation === "=" && t.errors++, r.evaluation === "/" && t.blocked++;
 		}
 	}
-}, De = (e) => Object.freeze({
+}, Ee = (e) => Object.freeze({
 	attempts: e.receptions,
 	perfect: e.perfect,
 	positive: e.positive,
-	positivePct: we(e.positive, e.receptions),
-	perfectPct: we(e.perfect, e.receptions)
-}), Oe = (e) => Object.freeze({
+	positivePct: Ce(e.positive, e.receptions),
+	perfectPct: Ce(e.perfect, e.receptions)
+}), De = (e) => Object.freeze({
 	attempts: e.attacks,
 	kills: e.kills,
 	errors: e.errors,
 	blocked: e.blocked,
-	efficiencyPct: we(e.kills - e.errors - e.blocked, e.attacks)
-}), ke = (e, t) => Object.freeze({
+	efficiencyPct: Ce(e.kills - e.errors - e.blocked, e.attacks)
+}), Oe = (e, t) => Object.freeze({
 	attempts: e,
 	successes: t,
-	percent: we(t, e)
+	percent: Ce(t, e)
 });
-function Ae(r) {
-	let i = e(r), a = Number.isSafeInteger(i?.currentSet) && Number(i?.currentSet) > 0 ? Number(i?.currentSet) : null, o = e(t(i?.sets).find((t) => a !== null && e(t)?.number === a)), s = t(o?.rallies), c = Te(), l = Te(), u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, g = !1;
+function ke(r) {
+	let i = e(r), a = Number.isSafeInteger(i?.currentSet) && Number(i?.currentSet) > 0 ? Number(i?.currentSet) : null, o = e(t(i?.sets).find((t) => a !== null && e(t)?.number === a)), s = t(o?.rallies), c = we(), l = we(), u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, g = !1;
 	if (o) for (let r of s) {
-		if (m >= Se) {
+		if (m >= xe) {
 			g = !0;
 			break;
 		}
@@ -1233,17 +1233,17 @@ function Ae(r) {
 		let a = i.winner, o = i.servingBefore;
 		n(a) && n(o) && (o === "opponent" ? (u++, a === "ours" && d++) : (f++, a === "ours" && p++));
 		for (let e of t(i.actions)) {
-			if (h >= Ce) {
+			if (h >= Se) {
 				g = !0;
 				break;
 			}
-			h++, Ee(c, e);
+			h++, Te(c, e);
 		}
 		if (g) break;
 	}
 	let _ = t(e(i?.liveRally)?.actions);
-	for (let e of _.slice(0, Ce)) Ee(l, e);
-	_.length > Ce && (g = !0);
+	for (let e of _.slice(0, Se)) Te(l, e);
+	_.length > Se && (g = !0);
 	let v = {
 		receptions: c.receptions + l.receptions,
 		perfect: c.perfect + l.perfect,
@@ -1260,26 +1260,26 @@ function Ae(r) {
 		examinedRallies: m,
 		examinedActions: h,
 		truncated: g,
-		sideOut: ke(u, d),
-		breakPoint: ke(f, p),
-		reception: De(c),
-		attack: Oe(c),
+		sideOut: Oe(u, d),
+		breakPoint: Oe(f, p),
+		reception: Ee(c),
+		attack: De(c),
 		provisional: Object.freeze({
 			actions: _.length,
 			receptions: l.receptions,
 			attacks: l.attacks,
-			reception: De(v),
-			attack: Oe(v)
+			reception: Ee(v),
+			attack: De(v)
 		})
 	});
 }
 // src/state/render-performance.ts
-var je = [
+var Ae = [
 	"scouting-live",
 	"scouting-boxscore",
 	"data-engine",
 	"rally-search"
-], Me = /* @__PURE__ */ new WeakMap(), Ne = () => ({
+], je = /* @__PURE__ */ new WeakMap(), Me = () => ({
 	requests: 0,
 	rendered: 0,
 	skipped: 0,
@@ -1287,20 +1287,20 @@ var je = [
 	lastMs: 0,
 	maxMs: 0,
 	averageMs: 0
-}), Pe = (e) => Number.isFinite(e) && e >= 0 ? Math.round(e * 100) / 100 : 0;
-function Fe(e) {
-	let t = Me.get(e);
+}), Ne = (e) => Number.isFinite(e) && e >= 0 ? Math.round(e * 100) / 100 : 0;
+function Pe(e) {
+	let t = je.get(e);
 	if (t) return t;
-	let n = new Map(je.map((e) => [e, Ne()])), r = Object.freeze({
+	let n = new Map(Ae.map((e) => [e, Me()])), r = Object.freeze({
 		VERSION: "20.5.28",
 		readOnly: !0,
 		observe(e, t, r = 0) {
 			let i = n.get(e);
-			i && (i.requests++, t === "skip" ? i.skipped++ : t === "error" ? i.failures++ : (i.rendered++, i.lastMs = Pe(r), i.averageMs += (i.lastMs - i.averageMs) / i.rendered, i.maxMs = Math.max(i.maxMs, i.lastMs)));
+			i && (i.requests++, t === "skip" ? i.skipped++ : t === "error" ? i.failures++ : (i.rendered++, i.lastMs = Ne(r), i.averageMs += (i.lastMs - i.averageMs) / i.rendered, i.maxMs = Math.max(i.maxMs, i.lastMs)));
 		},
 		diagnostics: () => {
 			let e = {};
-			for (let t of je) {
+			for (let t of Ae) {
 				let r = n.get(t);
 				e[t] = Object.freeze({
 					...r,
@@ -1313,10 +1313,10 @@ function Fe(e) {
 			});
 		}
 	});
-	return Me.set(e, r), e.VC_RENDER_METRICS_20528 = r, r;
+	return je.set(e, r), e.VC_RENDER_METRICS_20528 = r, r;
 }
-function Ie(e) {
-	let t = null, n = -Infinity, r = Ne(), i = e.staleAfterMs ?? 5e3, a = () => {
+function Fe(e) {
+	let t = null, n = -Infinity, r = Me(), i = e.staleAfterMs ?? 5e3, a = () => {
 		let t = e.now();
 		return Number.isFinite(t) ? t : Date.now();
 	};
@@ -1325,7 +1325,7 @@ function Ie(e) {
 			let l = a();
 			if (r.requests++, !c && t === o && l - n < i) return r.skipped++, e.report?.("skip", 0), !1;
 			try {
-				return s(), t = o, n = a(), r.rendered++, r.lastMs = Pe(n - l), r.maxMs = Math.max(r.maxMs, r.lastMs), r.averageMs += (r.lastMs - r.averageMs) / r.rendered, e.report?.("render", r.lastMs), !0;
+				return s(), t = o, n = a(), r.rendered++, r.lastMs = Ne(n - l), r.maxMs = Math.max(r.maxMs, r.lastMs), r.averageMs += (r.lastMs - r.averageMs) / r.rendered, e.report?.("render", r.lastMs), !0;
 			} catch (n) {
 				throw t = null, r.failures++, e.report?.("error", 0), n;
 			}
@@ -1340,7 +1340,7 @@ function Ie(e) {
 	});
 }
 // src/state/live-statistics-runtime.ts
-function Le(e) {
+function Ie(e) {
 	let t = e.document, n = t.getElementById("vc20510-live-stats"), r = t.getElementById("scout-workspace-v900"), i = t.getElementById("v900-phase-scout"), a = e.VC_STATE_2059;
 	if (!n || !r || !i || !a) return null;
 	if (e.VC_LIVE_STATS_20510) return e.VC_LIVE_STATS_20510;
@@ -1364,7 +1364,7 @@ function Le(e) {
 	}
 	let u = o("div", "vc20510-open", "Rally abierto: sin acciones"), d = o("p", "vc20510-note", "SO y BP solo incluyen rallies cerrados. La recepción y el ataque muestran una vista provisional si hay acciones del rally abierto.");
 	n.append(s, c, u, d);
-	let f = !1, p = !1, m = null, h = Fe(e), g = Ie({
+	let f = !1, p = !1, m = null, h = Pe(e), g = Fe({
 		now: () => e.performance?.now?.() ?? Date.now(),
 		report: (e, t) => h.observe("scouting-live", e, t)
 	}), _ = () => r.classList.contains("active") && !i.classList.contains("hidden"), v = (e, t, n) => {
@@ -1381,7 +1381,7 @@ function Le(e) {
 	}, x = (t = !1) => {
 		let n = e.VC_SCOUT_PROJECTIONS_20522;
 		t && n?.invalidate();
-		let r = n ? n.getLiveStatistics() : Ae(w(e));
+		let r = n ? n.getLiveStatistics() : ke(w(e));
 		return m = r, _() && b(r, t), r;
 	}, S = () => x(!0), C = a.subscribe("change", () => {
 		f || p || !_() || (p = !0, Promise.resolve().then(() => {
@@ -1409,14 +1409,14 @@ function Le(e) {
 	return e.VC_LIVE_STATS_20510 = E, E;
 }
 // src/state/player-boxscore.ts
-var Re = 2e4, ze = 6e4, Be = 80, Ve = /* @__PURE__ */ new Set([
+var Le = 2e4, Re = 6e4, ze = 80, Be = /* @__PURE__ */ new Set([
 	"#",
 	"+",
 	"!",
 	"-",
 	"/",
 	"="
-]), He = () => ({
+]), Ve = () => ({
 	actions: 0,
 	s: 0,
 	aces: 0,
@@ -1432,19 +1432,19 @@ var Re = 2e4, ze = 6e4, Be = 80, Ve = /* @__PURE__ */ new Set([
 	bPoints: 0,
 	d: 0,
 	e: 0
-}), Ue = (e, t) => t ? Math.round(e / t * 100) : null, We = (e) => {
+}), He = (e, t) => t ? Math.round(e / t * 100) : null, Ue = (e) => {
 	if (typeof e == "number" && Number.isSafeInteger(e) && e > 0) return e;
 	if (typeof e == "string" && /^\d{1,15}$/.test(e)) {
 		let t = Number(e);
 		return Number.isSafeInteger(t) && t > 0 ? t : null;
 	}
 	return null;
-}, Ge = (e) => {
+}, We = (e) => {
 	let t = typeof e == "number" && Number.isSafeInteger(e) ? String(e) : typeof e == "string" ? e.trim() : "";
 	return /^\d{1,3}$/.test(t) ? t : null;
-}, Ke = (e) => typeof e == "string" ? e.trim().slice(0, 50) : "";
-function qe(e, t) {
-	let n = We(e.playerId), r = Ke(e.opponentPlayerUid), i = Ge(e.playerNumberSnapshot), a = Ke(e.playerLabel), o = Ge((a.match(/^#?\s*(\d{1,3})(?:\D|$)/) || [])[1]), s = i || (t === "opponent" ? o : null), c = Ke(e.playerNameSnapshot) || a.replace(/^#?\s*\d{1,3}\s*[·-]?\s*/, "") || "", l = t === "ours" && n !== null ? `id:${n}` : t === "opponent" && r ? `uid:${r}` : s === null ? "unidentified" : `num:${s}`;
+}, Ge = (e) => typeof e == "string" ? e.trim().slice(0, 50) : "";
+function Ke(e, t) {
+	let n = Ue(e.playerId), r = Ge(e.opponentPlayerUid), i = We(e.playerNumberSnapshot), a = Ge(e.playerLabel), o = We((a.match(/^#?\s*(\d{1,3})(?:\D|$)/) || [])[1]), s = i || (t === "opponent" ? o : null), c = Ge(e.playerNameSnapshot) || a.replace(/^#?\s*\d{1,3}\s*[·-]?\s*/, "") || "", l = t === "ours" && n !== null ? `id:${n}` : t === "opponent" && r ? `uid:${r}` : s === null ? "unidentified" : `num:${s}`;
 	return {
 		key: l,
 		number: s,
@@ -1452,9 +1452,9 @@ function qe(e, t) {
 		identified: l !== "unidentified"
 	};
 }
-var Je = (e, t) => {
+var qe = (e, t) => {
 	let n = t.skill, r = t.evaluation;
-	return !Ve.has(String(r)) || ![
+	return !Be.has(String(r)) || ![
 		"S",
 		"R",
 		"A",
@@ -1462,23 +1462,23 @@ var Je = (e, t) => {
 		"D",
 		"E"
 	].includes(String(n)) ? !1 : (e.actions++, n === "S" ? (e.s++, r === "#" && e.aces++, r === "=" && e.sErrors++) : n === "R" ? (e.r++, r === "#" && e.rPerfect++, (r === "#" || r === "+") && e.rPositive++) : n === "A" ? (e.a++, r === "#" && e.kills++, r === "=" && e.aErrors++, r === "/" && e.blocked++) : n === "B" ? (e.b++, r === "#" && e.bPoints++) : n === "D" ? e.d++ : n === "E" && e.e++, !0);
-}, Ye = (e) => Object.freeze({
+}, Je = (e) => Object.freeze({
 	attempts: e.a,
 	kills: e.kills,
 	errors: e.aErrors,
 	blocked: e.blocked,
-	efficiencyPct: Ue(e.kills - e.aErrors - e.blocked, e.a)
-}), Xe = (e, t) => Object.freeze({
+	efficiencyPct: He(e.kills - e.aErrors - e.blocked, e.a)
+}), Ye = (e, t) => Object.freeze({
 	attempts: e,
 	won: t,
-	percent: Ue(t, e)
+	percent: He(t, e)
 });
-function Ze(i, a) {
+function Xe(i, a) {
 	let o = e(i), s = a.team === "opponent" ? "opponent" : "ours", c = a.scope === "match" ? "match" : "current", l = r(a.rotation) ? a.rotation : null, u = Object.freeze({
 		team: s,
 		scope: c,
 		rotation: l
-	}), d = We(o?.currentSet), f = t(o?.sets), p = c === "match" ? f : f.filter((t) => d !== null && We(e(t)?.number) === d), m = !!o && p.some((t) => !!e(t)), h = /* @__PURE__ */ new Map(), g = /* @__PURE__ */ new Map(), _ = He();
+	}), d = Ue(o?.currentSet), f = t(o?.sets), p = c === "match" ? f : f.filter((t) => d !== null && Ue(e(t)?.number) === d), m = !!o && p.some((t) => !!e(t)), h = /* @__PURE__ */ new Map(), g = /* @__PURE__ */ new Map(), _ = Ve();
 	for (let e of [
 		1,
 		2,
@@ -1487,7 +1487,7 @@ function Ze(i, a) {
 		5,
 		6
 	]) g.set(e, {
-		...He(),
+		...Ve(),
 		rotation: e,
 		rallies: 0,
 		so: 0,
@@ -1499,7 +1499,7 @@ function Ze(i, a) {
 	main: for (let i of p) {
 		let a = e(i);
 		if (a) for (let i of t(a.rallies)) {
-			if (v >= Re) {
+			if (v >= Le) {
 				C = !0;
 				break main;
 			}
@@ -1512,22 +1512,22 @@ function Ze(i, a) {
 				e.rallies++, n(a.servingBefore) && n(a.winner) && (a.servingBefore === s ? (e.bp++, a.winner === s && e.bpWon++) : (e.so++, a.winner === s && e.soWon++));
 			}
 			for (let n of t(a.actions)) {
-				if (y >= ze) {
+				if (y >= Re) {
 					C = !0;
 					break main;
 				}
 				y++;
 				let t = e(n);
-				if (!t || t.team !== s || (c === null && S++, c !== null && Je(g.get(c), t), l !== null && c !== l)) continue;
-				let r = qe(t, s), i = r.key, a = h.get(i);
-				!a && h.size >= Be ? (w = !0, Je(_, t) && (b++, r.identified || x++)) : (a || (a = {
-					...He(),
+				if (!t || t.team !== s || (c === null && S++, c !== null && qe(g.get(c), t), l !== null && c !== l)) continue;
+				let r = Ke(t, s), i = r.key, a = h.get(i);
+				!a && h.size >= ze ? (w = !0, qe(_, t) && (b++, r.identified || x++)) : (a || (a = {
+					...Ve(),
 					...r
-				}, h.set(i, a)), !a.number && r.number && (a.number = r.number), !a.name && r.name && (a.name = r.name), Je(a, t) && (b++, a.identified || x++));
+				}, h.set(i, a)), !a.number && r.number && (a.number = r.number), !a.name && r.name && (a.name = r.name), qe(a, t) && (b++, a.identified || x++));
 			}
 		}
 	}
-	let T = [...h.values()].filter((e) => e.actions > 0).sort((e, t) => e.identified === t.identified ? (e.number === null ? Infinity : Number(e.number)) - (t.number === null ? Infinity : Number(t.number)) || e.name.localeCompare(t.name, "es") || e.key.localeCompare(t.key) : e.identified ? -1 : 1).slice(0, Be).map((e) => Object.freeze({
+	let T = [...h.values()].filter((e) => e.actions > 0).sort((e, t) => e.identified === t.identified ? (e.number === null ? Infinity : Number(e.number)) - (t.number === null ? Infinity : Number(t.number)) || e.name.localeCompare(t.name, "es") || e.key.localeCompare(t.key) : e.identified ? -1 : 1).slice(0, ze).map((e) => Object.freeze({
 		key: e.key,
 		number: e.number,
 		name: e.name || "Jugador sin nombre",
@@ -1542,10 +1542,10 @@ function Ze(i, a) {
 			attempts: e.r,
 			perfect: e.rPerfect,
 			positive: e.rPositive,
-			positivePct: Ue(e.rPositive, e.r),
-			perfectPct: Ue(e.rPerfect, e.r)
+			positivePct: He(e.rPositive, e.r),
+			perfectPct: He(e.rPerfect, e.r)
 		}),
-		attack: Ye(e),
+		attack: Je(e),
 		block: Object.freeze({
 			attempts: e.b,
 			points: e.bPoints
@@ -1555,9 +1555,9 @@ function Ze(i, a) {
 	})), E = [...g.values()].map((e) => Object.freeze({
 		rotation: e.rotation,
 		rallies: e.rallies,
-		sideOut: Xe(e.so, e.soWon),
-		breakPoint: Xe(e.bp, e.bpWon),
-		attack: Ye(e)
+		sideOut: Ye(e.so, e.soWon),
+		breakPoint: Ye(e.bp, e.bpWon),
+		attack: Je(e)
 	})), D = t(e(o?.liveRally)?.actions).filter((t) => e(t)?.team === s).length;
 	return Object.freeze({
 		available: m,
@@ -1575,7 +1575,7 @@ function Ze(i, a) {
 	});
 }
 // src/state/player-boxscore-runtime.ts
-function Qe(e) {
+function Ze(e) {
 	let t = e.document, n = t.getElementById("vc20511-boxscore"), r = t.getElementById("scout-workspace-v900"), i = t.getElementById("v900-phase-analyze"), a = e.VC_STATE_2059;
 	if (!n || !r || !i || !a) return null;
 	if (e.VC_PLAYER_BOXSCORE_20511) return e.VC_PLAYER_BOXSCORE_20511;
@@ -1608,7 +1608,7 @@ function Qe(e) {
 	m.setAttribute("role", "status");
 	let h = o("div", "vc20511-scroll"), g = o("h4", "", "Rendimiento por rotación"), _ = o("div", "vc20511-scroll vc20511-rotation-scroll"), v = o("p", "vc20511-note", "Datos del scouting confirmado; no se infieren puntos a partir de códigos #. P1–P6 corresponde a la rotación del equipo seleccionado al inicio de cada rally.");
 	n.append(s, l, m, h, g, _, v);
-	let y = !1, b = !1, x = null, S = Fe(e), C = Ie({
+	let y = !1, b = !1, x = null, S = Pe(e), C = Fe({
 		now: () => e.performance?.now?.() ?? Date.now(),
 		report: (e, t) => S.observe("scouting-boxscore", e, t)
 	}), T = () => r.classList.contains("active") && !i.classList.contains("hidden"), E = (e) => e === null ? "—" : `${e}%`, D = (e, t, n = "td") => e.append(o(n, "", t)), O = (e) => {
@@ -1661,7 +1661,7 @@ function Qe(e) {
 			rotation: /^[1-6]$/.test(p.value) ? Number(p.value) : null
 		}, r = e.VC_SCOUT_PROJECTIONS_20522;
 		t && r?.invalidate();
-		let i = r ? r.getPlayerBoxscore(n) : Ze(w(e), n);
+		let i = r ? r.getPlayerBoxscore(n) : Xe(w(e), n);
 		return x = i, T() && k(i, t), i;
 	}, j = () => A(!0), ee = a.subscribe("change", () => {
 		y || b || !T() || (b = !0, Promise.resolve().then(() => {
@@ -1703,8 +1703,8 @@ function Qe(e) {
 	return e.VC_PLAYER_BOXSCORE_20511 = N, N;
 }
 // src/state/scouting-projections.ts
-var $e = 8;
-function et(e, t) {
+var Qe = 8;
+function $e(e, t) {
 	let n = null, i = /* @__PURE__ */ new Map(), a = /* @__PURE__ */ new Set(), o = 0, s = 0, c = 0, l = 0, u = !1, d = () => {
 		u || (o++, l++, n = null, i.clear());
 	}, f = t.subscribe("change", d), p = Object.freeze({
@@ -1720,18 +1720,18 @@ function et(e, t) {
 		},
 		getLiveStatistics() {
 			if (u) throw Error("La vista de scouting está cerrada.");
-			return n ? (c++, n) : (n = Ae(w(e)), s++, n);
+			return n ? (c++, n) : (n = ke(w(e)), s++, n);
 		},
 		getPlayerBoxscore(t) {
 			if (u) throw Error("La vista de scouting está cerrada.");
 			let n = t.team === "opponent" ? "opponent" : "ours", a = t.scope === "match" ? "match" : "current", o = r(t.rotation) ? t.rotation : null, l = `${n}:${a}:${o ?? 0}`, d = i.get(l);
 			if (d) return c++, d;
-			let f = Ze(w(e), {
+			let f = Xe(w(e), {
 				team: n,
 				scope: a,
 				rotation: o
 			});
-			if (s++, i.size >= $e) {
+			if (s++, i.size >= Qe) {
 				let e = i.keys().next().value;
 				e !== void 0 && i.delete(e);
 			}
@@ -1757,15 +1757,15 @@ function et(e, t) {
 	});
 	return p;
 }
-function tt(e) {
+function et(e) {
 	if (e.VC_SCOUT_PROJECTIONS_20522) return e.VC_SCOUT_PROJECTIONS_20522;
 	let t = e.VC_STATE_2059;
 	if (!t) return null;
-	let n = et(e, t);
+	let n = $e(e, t);
 	return e.VC_SCOUT_PROJECTIONS_20522 = n, n;
 }
 // src/state/analysis-query.ts
-var nt = Object.freeze([
+var tt = Object.freeze([
 	"code",
 	"skill",
 	"player",
@@ -1782,15 +1782,15 @@ var nt = Object.freeze([
 	"outcome",
 	"video",
 	"status"
-]), R = (e) => String(e ?? "").trim(), rt = (e) => Array.isArray(e) ? e : [], z = (e) => R(e).toLocaleLowerCase("es"), it = (e) => e === "ours" || e === "opponent" ? e : null;
-function at(e) {
+]), z = (e) => String(e ?? "").trim(), nt = (e) => Array.isArray(e) ? e : [], B = (e) => z(e).toLocaleLowerCase("es"), rt = (e) => e === "ours" || e === "opponent" ? e : null;
+function it(e) {
 	let t = e || {};
-	return Object.fromEntries(nt.map((e) => [e, R(t[e]).slice(0, e === "code" ? 100 : 80)]));
+	return Object.fromEntries(tt.map((e) => [e, z(t[e]).slice(0, e === "code" ? 100 : 80)]));
 }
-function ot(e, t = {}) {
-	let n = at(t), r = it(t.team), i = R(t.set), a = R(t.rotation), o = R(t.phase).toUpperCase(), s = z(n.code), c = !!(s || n.skill || n.player || n.evaluation || n.startZone || n.endZone || n.video), l = !!(n.setter || n.attacker || n.tempo || n.combo), u = l || !!n.reception, d = [], f = /* @__PURE__ */ new Map(), p = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
-	for (let t of rt(e?.chains)) m.has(t.rallyKey) || m.set(t.rallyKey, []), m.get(t.rallyKey).push(t);
-	let h = (e) => e && (!r || e.team === r) && (!n.skill || e.skill === n.skill) && (!n.evaluation || e.evaluation === n.evaluation) && (!n.player || z(e.player) === z(n.player)) && (!s || [
+function at(e, t = {}) {
+	let n = it(t), r = rt(t.team), i = z(t.set), a = z(t.rotation), o = z(t.phase).toUpperCase(), s = B(n.code), c = !!(s || n.skill || n.player || n.evaluation || n.startZone || n.endZone || n.video), l = !!(n.setter || n.attacker || n.tempo || n.combo), u = l || !!n.reception, d = [], f = /* @__PURE__ */ new Map(), p = /* @__PURE__ */ new Map(), m = /* @__PURE__ */ new Map();
+	for (let t of nt(e?.chains)) m.has(t.rallyKey) || m.set(t.rallyKey, []), m.get(t.rallyKey).push(t);
+	let h = (e) => e && (!r || e.team === r) && (!n.skill || e.skill === n.skill) && (!n.evaluation || e.evaluation === n.evaluation) && (!n.player || B(e.player) === B(n.player)) && (!s || [
 		e.code,
 		e.skillRaw,
 		e.fields?.attackCode,
@@ -1801,8 +1801,8 @@ function ot(e, t = {}) {
 		e.fields?.contactZone?.code,
 		e.fields?.combo,
 		e.fields?.direction
-	].some((e) => z(e).includes(s))) && (!n.startZone || e.fields?.startZone?.code === n.startZone.toUpperCase().replace(/^([^Z])/, "Z$1")) && (!n.endZone || e.fields?.endZone?.code === n.endZone.toUpperCase().replace(/^([^Z])/, "Z$1")) && (!n.video || (n.video === "yes" ? !!e.video : !e.video)), g = (e) => e && (!r || e.team === r) && (!n.setter || z(e.setter?.player) === z(n.setter)) && (!n.attacker || z(e.attack?.player) === z(n.attacker)) && (!n.tempo || z(e.tempo || e.attack?.fields?.attackTempo) === z(n.tempo)) && (!n.combo || z(e.combo) === z(n.combo)) && (!n.reception || e.reception?.evaluation === n.reception);
-	for (let t of rt(e?.rallies)) {
+	].some((e) => B(e).includes(s))) && (!n.startZone || e.fields?.startZone?.code === n.startZone.toUpperCase().replace(/^([^Z])/, "Z$1")) && (!n.endZone || e.fields?.endZone?.code === n.endZone.toUpperCase().replace(/^([^Z])/, "Z$1")) && (!n.video || (n.video === "yes" ? !!e.video : !e.video)), g = (e) => e && (!r || e.team === r) && (!n.setter || B(e.setter?.player) === B(n.setter)) && (!n.attacker || B(e.attack?.player) === B(n.attacker)) && (!n.tempo || B(e.tempo || e.attack?.fields?.attackTempo) === B(n.tempo)) && (!n.combo || B(e.combo) === B(n.combo)) && (!n.reception || e.reception?.evaluation === n.reception);
+	for (let t of nt(e?.rallies)) {
 		if (n.status !== "all" && n.status === "open" != !t.closed || i && String(t.set) !== i || n.ownRotation && String(t.ownRotation || "") !== n.ownRotation || n.rivalRotation && String(t.rivalRotation || "") !== n.rivalRotation || a && String((r === "opponent" ? t.rivalRotation : t.ownRotation) || "") !== a || o && (!r || !t.serving || (t.serving === r ? "K2" : "K1") !== o) || n.outcome && t.winner !== n.outcome) continue;
 		let e = t.contacts.filter((e) => !r || e.team === r), s = (m.get(t.key) || []).filter(g), _;
 		if (u) {
@@ -1825,7 +1825,7 @@ function ot(e, t = {}) {
 	}
 	let _ = [...f.values()], v = [...p.values()], y = /* @__PURE__ */ new Map(), b = /* @__PURE__ */ new Map();
 	for (let e of _) {
-		let t = R(e.skill) || "?", n = R(e.player) || "Sin identificar";
+		let t = z(e.skill) || "?", n = z(e.player) || "Sin identificar";
 		y.set(t, (y.get(t) || 0) + 1), b.set(n, (b.get(n) || 0) + 1);
 	}
 	let x = _.filter((e) => e.skill === "A" && e.evaluation), S = x.filter((e) => e.evaluation === "#").length, C = x.filter((e) => e.evaluation === "=").length, w = x.filter((e) => e.evaluation === "/").length, T = x.length ? Math.round((S - C - w) / x.length * 1e3) / 10 : null;
@@ -1849,13 +1849,13 @@ function ot(e, t = {}) {
 		},
 		filters: n,
 		target: r,
-		matchId: R(e?.matchId)
+		matchId: z(e?.matchId)
 	};
 }
 // src/state/analysis-query-runtime.ts
-var st = /* @__PURE__ */ new WeakMap(), ct = /* @__PURE__ */ new WeakMap();
-function lt(e) {
-	let t = st.get(e);
+var ot = /* @__PURE__ */ new WeakMap(), st = /* @__PURE__ */ new WeakMap();
+function ct(e) {
+	let t = ot.get(e);
 	if (t) return t;
 	let n = 0, r = 0, i = 0, a = 0, o = 0, s = 0, c = () => {
 		try {
@@ -1870,7 +1870,7 @@ function lt(e) {
 		query(e, t = {}) {
 			let l = c();
 			try {
-				return ot(e, t);
+				return at(e, t);
 			} catch (e) {
 				throw r++, e;
 			} finally {
@@ -1889,14 +1889,14 @@ function lt(e) {
 			budgetMs: 16
 		})
 	});
-	return st.set(e, l), e.VC_ANALYSIS_QUERY_20523 = l, l;
+	return ot.set(e, l), e.VC_ANALYSIS_QUERY_20523 = l, l;
 }
-function ut(e) {
-	let t = ct.get(e);
+function lt(e) {
+	let t = st.get(e);
 	if (t) return t;
 	let n = e.document, r = n.getElementById("v11-management");
 	if (!r) return null;
-	let i = n.getElementById("vc60-diagnostics"), a = i || r, o = e.VC_ANALYSIS_QUERY_20523 || lt(e), s = (e, t = "", r = "") => {
+	let i = n.getElementById("vc60-diagnostics"), a = i || r, o = e.VC_ANALYSIS_QUERY_20523 || ct(e), s = (e, t = "", r = "") => {
 		let i = n.createElement(e);
 		return i.className = t, i.textContent = r, i;
 	}, c = s("section", "vc20523-query-metrics");
@@ -2005,7 +2005,7 @@ function ut(e) {
 		let r = s("strong", "", "—");
 		n.append(r), M.append(n), N.set(e, r);
 	}
-	let ne = s("h4", "vc20524-subheading", "Controles Rally Search Pro migrados a TypeScript"), re = s("p", "", "Controladores de filtros, presets y exportación; solo recuentos locales. Las búsquedas guardadas siguen en la misma clave del navegador."), P = s("div", "vc20523-values"), ie = /* @__PURE__ */ new Map();
+	let P = s("h4", "vc20524-subheading", "Controles Rally Search Pro migrados a TypeScript"), F = s("p", "", "Controladores de filtros, presets y exportación; solo recuentos locales. Las búsquedas guardadas siguen en la misma clave del navegador."), I = s("div", "vc20523-values"), ne = /* @__PURE__ */ new Map();
 	for (let [e, t] of [
 		["bindings", "Vistas conectadas"],
 		["filters", "Cambios de filtro"],
@@ -2018,21 +2018,21 @@ function ut(e) {
 		let n = s("div");
 		n.append(s("small", "", t));
 		let r = s("strong", "", "—");
-		n.append(r), P.append(n), ie.set(e, r);
+		n.append(r), I.append(n), ne.set(e, r);
 	}
-	let F = s("button", "vc20523-refresh", "Actualizar medición");
-	F.type = "button";
-	let ae = s("p", "vc20523-note", "El umbral de 16 ms es orientativo. La memoria del índice es una estimación mínima de referencias, NO memoria real atribuible al módulo. El heap JS, cuando exista, corresponde al navegador completo. No se guardan códigos, nombres ni partidos en este diagnóstico.");
-	c.append(l, d, s("h4", "vc20524-subheading", "Búsqueda táctica"), f, m, h, _, v, b, x, C, w, T, O, k, A, ee, te, M, ne, re, P, F, ae);
-	let I = n.getElementById(i ? "vc60-stat-grid" : "vc2059-observable");
-	I?.parentNode === a ? I.insertAdjacentElement("afterend", c) : a.append(c);
-	let oe = !1, L = (e) => `${e.toFixed(2)} ms`, se = () => {
-		if (oe) return;
+	let L = s("button", "vc20523-refresh", "Actualizar medición");
+	L.type = "button";
+	let re = s("p", "vc20523-note", "El umbral de 16 ms es orientativo. La memoria del índice es una estimación mínima de referencias, NO memoria real atribuible al módulo. El heap JS, cuando exista, corresponde al navegador completo. No se guardan códigos, nombres ni partidos en este diagnóstico.");
+	c.append(l, d, s("h4", "vc20524-subheading", "Búsqueda táctica"), f, m, h, _, v, b, x, C, w, T, O, k, A, ee, te, M, P, F, I, L, re);
+	let ie = n.getElementById(i ? "vc60-stat-grid" : "vc2059-observable");
+	ie?.parentNode === a ? ie.insertAdjacentElement("afterend", c) : a.append(c);
+	let ae = !1, R = (e) => `${e.toFixed(2)} ms`, oe = () => {
+		if (ae) return;
 		let t = o.diagnostics(), n = {
 			queries: String(t.queries),
-			last: L(t.lastMs),
-			average: L(t.averageMs),
-			max: L(t.maxMs),
+			last: R(t.lastMs),
+			average: R(t.averageMs),
+			max: R(t.maxMs),
 			slow: String(t.slowQueries),
 			failures: String(t.failures)
 		};
@@ -2042,9 +2042,9 @@ function ut(e) {
 		}
 		let r = e.VC_ANALYSIS_NORMALIZE_20524?.diagnostics?.(), i = {
 			normalizations: String(r?.normalizations ?? 0),
-			last: L(r?.lastMs ?? 0),
-			average: L(r?.averageMs ?? 0),
-			max: L(r?.maxMs ?? 0),
+			last: R(r?.lastMs ?? 0),
+			average: R(r?.averageMs ?? 0),
+			max: R(r?.maxMs ?? 0),
 			slow: String(r?.slowNormalizations ?? 0),
 			failures: String(r?.failures ?? 0)
 		};
@@ -2059,7 +2059,7 @@ function ut(e) {
 			points: String(a?.points ?? 0),
 			coverage: String(a?.coverage ?? 0),
 			reconciliations: String(a?.reconciliations ?? 0),
-			average: L(a?.averageMs ?? 0),
+			average: R(a?.averageMs ?? 0),
 			slow: String(a?.slowOperations ?? 0),
 			failures: String(a?.failures ?? 0)
 		};
@@ -2069,8 +2069,8 @@ function ut(e) {
 		}
 		let c = e.VC_ANALYSIS_CSV_20526?.diagnostics?.(), l = e.VC_ANALYSIS_CSV_20526?.indexDiagnostics?.(), u = e.performance?.memory?.usedJSHeapSize, d = typeof u == "number" && Number.isFinite(u) && u >= 0 ? `${(u / 1048576).toFixed(1)} MiB` : "No disponible", f = {
 			exports: String(c?.exports ?? 0),
-			last: L(c?.lastMs ?? 0),
-			average: L(c?.averageMs ?? 0),
+			last: R(c?.lastMs ?? 0),
+			average: R(c?.averageMs ?? 0),
 			failures: String(c?.failures ?? 0),
 			builds: String(l?.builds ?? 0),
 			hits: String(l?.hits ?? 0),
@@ -2088,12 +2088,12 @@ function ut(e) {
 		}
 		let m = e.VC_RENDER_METRICS_20528?.diagnostics?.();
 		for (let [e] of E) {
-			let t = m?.areas[e], n = t ? `${t.rendered} dibujadas · ${t.skipped} evitadas · media ${L(t.averageMs)} · ${t.failures} errores` : "Sin mediciones todavía", r = D.get(e);
+			let t = m?.areas[e], n = t ? `${t.rendered} dibujadas · ${t.skipped} evitadas · media ${R(t.averageMs)} · ${t.failures} errores` : "Sin mediciones todavía", r = D.get(e);
 			r && r.textContent !== n && (r.textContent = n);
 		}
 		let h = e.VC_ANALYSIS_VIEW_20529?.diagnostics?.(), _ = {
 			renders: String(h?.renders ?? 0),
-			average: L(h?.averageMs ?? 0),
+			average: R(h?.averageMs ?? 0),
 			slow: String(h?.slowRenders ?? 0),
 			failures: String(h?.failures ?? 0)
 		};
@@ -2103,7 +2103,7 @@ function ut(e) {
 		}
 		let v = e.VC_RALLY_VIEW_20530?.diagnostics?.(), b = {
 			renders: String(v?.renders ?? 0),
-			average: L(v?.averageMs ?? 0),
+			average: R(v?.averageMs ?? 0),
 			slow: String(v?.slowRenders ?? 0),
 			failures: String(v?.failures ?? 0)
 		};
@@ -2121,22 +2121,22 @@ function ut(e) {
 			"exports",
 			"failures"
 		]) {
-			let t = String(x?.[e] ?? 0), n = ie.get(e);
+			let t = String(x?.[e] ?? 0), n = ne.get(e);
 			n && n.textContent !== t && (n.textContent = t);
 		}
 	};
-	F.addEventListener("click", se), se();
-	let ce = Object.freeze({
+	L.addEventListener("click", oe), oe();
+	let se = Object.freeze({
 		readOnly: !0,
-		refresh: se,
+		refresh: oe,
 		dispose() {
-			oe || (oe = !0, F.removeEventListener("click", se), c.remove(), ct.delete(e));
+			ae || (ae = !0, L.removeEventListener("click", oe), c.remove(), st.delete(e));
 		}
 	});
-	return ct.set(e, ce), ce;
+	return st.set(e, se), se;
 }
 // src/state/analysis-normalizer.ts
-var dt = /* @__PURE__ */ new Set([
+var ut = /* @__PURE__ */ new Set([
 	"S",
 	"R",
 	"E",
@@ -2145,25 +2145,25 @@ var dt = /* @__PURE__ */ new Set([
 	"D",
 	"F",
 	"C"
-]), ft = /* @__PURE__ */ new Set([
+]), dt = /* @__PURE__ */ new Set([
 	"#",
 	"+",
 	"!",
 	"-",
 	"/",
 	"="
-]), B = (e) => String(e ?? "").trim(), V = (e) => e != null && B(e) !== "", pt = (e) => encodeURIComponent(B(e));
-function mt(e) {
-	let t = B(e).toUpperCase().match(/^Z?([1-9])([ABCD])?$/);
+]), V = (e) => String(e ?? "").trim(), H = (e) => e != null && V(e) !== "", ft = (e) => encodeURIComponent(V(e));
+function pt(e) {
+	let t = V(e).toUpperCase().match(/^Z?([1-9])([ABCD])?$/);
 	return t ? {
 		zone: Number(t[1]),
 		quadrant: t[2] || null,
 		code: "Z" + t[1] + (t[2] || "")
 	} : null;
 }
-var ht = (e) => B(e.playerNameSnapshot || e.playerLabel || e.playerNumberSnapshot || e.playerId || e.playerNumber);
-function gt(r) {
-	let i = [], a = [], o = [], s = [], c = [], l = e(r), u = B(l?.id), d = /* @__PURE__ */ new Set();
+var mt = (e) => V(e.playerNameSnapshot || e.playerLabel || e.playerNumberSnapshot || e.playerId || e.playerNumber);
+function ht(r) {
+	let i = [], a = [], o = [], s = [], c = [], l = e(r), u = V(l?.id), d = /* @__PURE__ */ new Set();
 	for (let [r, f] of t(l?.sets).entries()) {
 		let l = e(f), p = Number(l?.number), m = Number.isInteger(p) && p > 0 ? p : r + 1;
 		d.has(m) && i.push({
@@ -2174,7 +2174,7 @@ function gt(r) {
 		let h = /* @__PURE__ */ new Set();
 		for (let [d, f] of t(l?.rallies).entries()) {
 			if (!f) continue;
-			let l = e(f) || {}, p = V(l.id) ? B(l.id) : null;
+			let l = e(f) || {}, p = H(l.id) ? V(l.id) : null;
 			p && h.has(p) && i.push({
 				type: "duplicate-rally",
 				set: m,
@@ -2182,9 +2182,9 @@ function gt(r) {
 				message: "Identificador de rally repetido"
 			}), p && h.add(p);
 			let g = [
-				pt(u),
+				ft(u),
 				m,
-				p ? "id:" + pt(p) : "pos:" + d
+				p ? "id:" + ft(p) : "pos:" + d
 			].join("|"), _ = n(l.servingBefore) ? l.servingBefore : null, v = n(l.winner) ? l.winner : null, y = Number(l.rotationBefore), b = Number(l.opponentRotationBefore), x = {
 				key: g,
 				matchId: u,
@@ -2218,7 +2218,7 @@ function gt(r) {
 			let S = /* @__PURE__ */ new Set();
 			for (let [a, s] of t(l.actions).entries()) {
 				if (!s) continue;
-				let t = e(s) || {}, c = n(t.team) ? t.team : null, l = B(t.skill).toUpperCase(), f = B(t.evaluation), p = V(t.id) ? B(t.id) : null;
+				let t = e(s) || {}, c = n(t.team) ? t.team : null, l = V(t.skill).toUpperCase(), f = V(t.evaluation), p = H(t.id) ? V(t.id) : null;
 				p && S.has(p) && i.push({
 					type: "duplicate-action",
 					key: g,
@@ -2226,34 +2226,34 @@ function gt(r) {
 					message: "Acción duplicada dentro del rally"
 				}), p && S.add(p);
 				let h = {
-					startZone: mt(t.startZone),
-					endZone: mt(t.endZone),
-					contactZone: mt(t.contactZone),
-					setTarget: mt(t.setTarget),
-					tempo: B(t.setTempo),
-					attackTempo: B(t.attackTempo),
-					combo: B(t.attackCombo),
-					setterCall: B(t.setterCall),
-					direction: B(t.attackDirection),
-					blockers: V(t.blockers) ? B(t.blockers) : "",
-					serveType: B(t.serveType),
-					subtype: B(t.skillSubtype),
-					receivedServeType: B(t.receivedServeType),
-					dvSetType: B(t.dvSetType),
-					attackCode: B(t.attackCode),
-					endCone: B(t.endCone),
-					specialCode: B(t.specialCode),
-					blockTargetNumber: B(t.blockTargetNumber),
-					startCoordinate: V(t.startCoordinate) ? t.startCoordinate : null,
-					endCoordinate: V(t.endCoordinate) ? t.endCoordinate : null,
-					contactCoordinate: V(t.contactCoordinate) ? t.contactCoordinate : null
+					startZone: pt(t.startZone),
+					endZone: pt(t.endZone),
+					contactZone: pt(t.contactZone),
+					setTarget: pt(t.setTarget),
+					tempo: V(t.setTempo),
+					attackTempo: V(t.attackTempo),
+					combo: V(t.attackCombo),
+					setterCall: V(t.setterCall),
+					direction: V(t.attackDirection),
+					blockers: H(t.blockers) ? V(t.blockers) : "",
+					serveType: V(t.serveType),
+					subtype: V(t.skillSubtype),
+					receivedServeType: V(t.receivedServeType),
+					dvSetType: V(t.dvSetType),
+					attackCode: V(t.attackCode),
+					endCone: V(t.endCone),
+					specialCode: V(t.specialCode),
+					blockTargetNumber: V(t.blockTargetNumber),
+					startCoordinate: H(t.startCoordinate) ? t.startCoordinate : null,
+					endCoordinate: H(t.endCoordinate) ? t.endCoordinate : null,
+					contactCoordinate: H(t.contactCoordinate) ? t.contactCoordinate : null
 				}, _ = [
 					"videoTime",
 					"videoTimestamp",
 					"liveVideoTime",
 					"videoAction"
-				].some((e) => V(t[e]) && Number.isFinite(Number(t[e])) && Number(t[e]) >= 0), v = {
-					key: g + "|" + (p ? "id:" + pt(p) : "pos:" + a),
+				].some((e) => H(t[e]) && Number.isFinite(Number(t[e])) && Number(t[e]) >= 0), v = {
+					key: g + "|" + (p ? "id:" + ft(p) : "pos:" + a),
 					rallyKey: g,
 					matchId: u,
 					set: m,
@@ -2261,15 +2261,15 @@ function gt(r) {
 					actionIndex: a,
 					nativeId: p,
 					team: c,
-					code: B(t.code),
-					skill: dt.has(l) ? l : null,
+					code: V(t.code),
+					skill: ut.has(l) ? l : null,
 					skillRaw: l,
-					evaluation: ft.has(f) ? f : null,
+					evaluation: dt.has(f) ? f : null,
 					evaluationRaw: f,
-					player: ht(t) || null,
+					player: mt(t) || null,
 					fields: h,
 					video: _,
-					scoutMs: Number.isFinite(Number(t.scoutMs)) && V(t.scoutMs) ? Number(t.scoutMs) : null,
+					scoutMs: Number.isFinite(Number(t.scoutMs)) && H(t.scoutMs) ? Number(t.scoutMs) : null,
 					source: {
 						matchId: u,
 						setIndex: r,
@@ -2296,7 +2296,7 @@ function gt(r) {
 					"endZone",
 					"contactZone",
 					"setTarget"
-				]) V(t[e]) && !h[e] && i.push({
+				]) H(t[e]) && !h[e] && i.push({
 					type: "invalid-zone",
 					key: v.key,
 					field: e,
@@ -2375,9 +2375,9 @@ function gt(r) {
 	};
 }
 // src/state/analysis-normalize-runtime.ts
-var _t = /* @__PURE__ */ new WeakMap();
-function vt(e) {
-	let t = _t.get(e);
+var gt = /* @__PURE__ */ new WeakMap();
+function _t(e) {
+	let t = gt.get(e);
 	if (t) return t;
 	let n = 0, r = 0, i = 0, a = 0, o = 0, s = 0, c = () => {
 		try {
@@ -2392,7 +2392,7 @@ function vt(e) {
 		normalize(e) {
 			let t = c();
 			try {
-				return gt(e);
+				return ht(e);
 			} catch (e) {
 				throw r++, e;
 			} finally {
@@ -2411,11 +2411,11 @@ function vt(e) {
 			budgetMs: 16
 		})
 	});
-	return _t.set(e, l), e.VC_ANALYSIS_NORMALIZE_20524 = l, l;
+	return gt.set(e, l), e.VC_ANALYSIS_NORMALIZE_20524 = l, l;
 }
 // src/state/analysis-index.ts
-var yt = /* @__PURE__ */ new WeakMap(), bt = 0, xt = 0, St = 0, Ct = 0, wt = 0, Tt = 0, Et = 0, Dt = 0, Ot = 0, kt = 4e4;
-function At(e) {
+var vt = /* @__PURE__ */ new WeakMap(), yt = 0, bt = 0, xt = 0, St = 0, Ct = 0, wt = 0, Tt = 0, Et = 0, Dt = 0, Ot = 4e4;
+function kt(e) {
 	let t = /* @__PURE__ */ new Map(), n = !0;
 	for (let [r, i] of e.rallies.entries()) t.has(i.key) && (n = !1), t.set(i.key, r);
 	let r = /* @__PURE__ */ new Map(), i = /* @__PURE__ */ new Map(), a = /* @__PURE__ */ new Map(), o = /* @__PURE__ */ new Map(), s = /* @__PURE__ */ new Map(), c = /* @__PURE__ */ new Map(), l = /* @__PURE__ */ new Map(), u = /* @__PURE__ */ new Map(), d = /* @__PURE__ */ new Map(), f = /* @__PURE__ */ new Map(), p = [], m = 0, h = (e, t, n) => {
@@ -2435,7 +2435,7 @@ function At(e) {
 	for (let t of e.contacts) h(o, t.possessionKey, t), h(s, t.team, t), h(c, t.skill, t), h(l, t.evaluation, t), h(u, t.player?.toLocaleLowerCase("es"), t), h(d, t.fields.startZone?.code, t), h(f, t.fields.endZone?.code, t), t.video && (p.push(t), m++);
 	m += e.contacts.length + e.possessions.length + e.chains.length;
 	let _ = m * 8;
-	return Et = _, Dt = Math.max(Dt, _), bt++, n || Ct++, {
+	return Tt = _, Et = Math.max(Et, _), yt++, n || St++, {
 		contactsRef: e.contacts,
 		ralliesRef: e.rallies,
 		possessionsRef: e.possessions,
@@ -2461,14 +2461,14 @@ function At(e) {
 		estimatedReferenceBytes: _
 	};
 }
-function jt(e) {
-	let t = yt.get(e);
-	if (t && t.contactsRef === e.contacts && t.ralliesRef === e.rallies && t.possessionsRef === e.possessions && t.chainsRef === e.chains && t.lengths[0] === e.rallies.length && t.lengths[1] === e.contacts.length && t.lengths[2] === e.possessions.length && t.lengths[3] === e.chains.length) return xt++, t;
-	t && (St++, yt.delete(e));
-	let n = At(e);
-	return yt.set(e, n), n;
+function At(e) {
+	let t = vt.get(e);
+	if (t && t.contactsRef === e.contacts && t.ralliesRef === e.rallies && t.possessionsRef === e.possessions && t.chainsRef === e.chains && t.lengths[0] === e.rallies.length && t.lengths[1] === e.contacts.length && t.lengths[2] === e.possessions.length && t.lengths[3] === e.chains.length) return bt++, t;
+	t && (xt++, vt.delete(e));
+	let n = kt(e);
+	return vt.set(e, n), n;
 }
-function Mt(e, t) {
+function jt(e, t) {
 	let n = [];
 	for (let r of e) {
 		let e = t.get(r.key);
@@ -2476,20 +2476,20 @@ function Mt(e, t) {
 	}
 	return n;
 }
-function Nt(e, t) {
+function Mt(e, t) {
 	if (e.rallies.length < 40 || t.length * 2 > e.rallies.length) return null;
-	if (e.contacts.length > 4e4) return Ot++, null;
-	let n = jt(e);
+	if (e.contacts.length > 4e4) return Dt++, null;
+	let n = At(e);
 	return n.canonical ? {
-		contacts: Mt(t, n.contacts),
-		possessions: Mt(t, n.possessions),
-		chains: Mt(t, n.chains)
+		contacts: jt(t, n.contacts),
+		possessions: jt(t, n.possessions),
+		chains: jt(t, n.chains)
 	} : null;
 }
-function Pt(e, t, n) {
-	if (e.contacts.length < 80 || e.contacts.length > 4e4) return e.contacts.length > 4e4 && Ot++, null;
+function Nt(e, t, n) {
+	if (e.contacts.length < 80 || e.contacts.length > 4e4) return e.contacts.length > 4e4 && Dt++, null;
 	if (!t.team && !t.skill && !t.evaluation && !t.player && !t.startZone && !t.endZone && !t.video) return null;
-	let r = jt(e);
+	let r = At(e);
 	if (!r.canonical) return null;
 	let i = [
 		...t.team ? [r.byTeam.get(t.team) || []] : [],
@@ -2501,30 +2501,30 @@ function Pt(e, t, n) {
 		...t.video ? [r.videoContacts] : []
 	], a = null;
 	for (let e of i) e.length < n && (!a || e.length < a.length) && (a = e);
-	return a && (wt++, Tt += n - a.length), a;
+	return a && (Ct++, wt += n - a.length), a;
 }
-function Ft(e) {
-	yt.delete(e) && St++;
+function Pt(e) {
+	vt.delete(e) && xt++;
 }
-function It() {
+function Ft() {
 	return Object.freeze({
 		readOnly: !0,
-		builds: bt,
-		hits: xt,
-		invalidations: St,
-		unsupported: Ct,
-		dimensionUses: wt,
-		avoidedContactScans: Tt,
-		lastEstimatedReferenceBytes: Et,
-		peakEstimatedReferenceBytes: Dt,
-		maxIndexedContacts: kt,
-		skippedMemoryLimit: Ot
+		builds: yt,
+		hits: bt,
+		invalidations: xt,
+		unsupported: St,
+		dimensionUses: Ct,
+		avoidedContactScans: wt,
+		lastEstimatedReferenceBytes: Tt,
+		peakEstimatedReferenceBytes: Et,
+		maxIndexedContacts: Ot,
+		skippedMemoryLimit: Dt
 	});
 }
 // src/state/analysis-operations.ts
-var Lt = (e) => String(e ?? "").trim(), Rt = (e) => e != null && Lt(e) !== "", zt = (e) => e === "ours" || e === "opponent" ? e : null, Bt = (e) => Array.isArray(e) ? e : [], Vt = (e, t) => t ? Math.round(1e3 * e / t) / 10 : null;
-function Ht(e, t = {}) {
-	let n = zt(t.team), r = Rt(t.set) ? Number(t.set) : null, i = Rt(t.rotation) ? Number(t.rotation) : null, a = Lt(t.phase).toUpperCase(), o = Lt(t.skill).toUpperCase(), s = Lt(t.evaluation), c = Lt(t.player).toLocaleLowerCase("es"), l = mt(t.startZone), u = mt(t.endZone), d = Lt(t.setter).toLocaleLowerCase("es"), f = e.rallies.filter((e) => e.closed && (!r || e.set === r) && (!i || (n ? (n === "ours" ? e.ownRotation : e.rivalRotation) === i : !1)) && (!a || !!e.serving && (n ? a === "K1" ? e.serving !== n : a === "K2" && e.serving === n : !1))), p = Nt(e, f), m = new Set(f.map((e) => e.key)), h = !!(o || s || c || l || u || t.video === !0), g = (Pt(e, {
+var It = (e) => String(e ?? "").trim(), Lt = (e) => e != null && It(e) !== "", Rt = (e) => e === "ours" || e === "opponent" ? e : null, zt = (e) => Array.isArray(e) ? e : [], Bt = (e, t) => t ? Math.round(1e3 * e / t) / 10 : null;
+function Vt(e, t = {}) {
+	let n = Rt(t.team), r = Lt(t.set) ? Number(t.set) : null, i = Lt(t.rotation) ? Number(t.rotation) : null, a = It(t.phase).toUpperCase(), o = It(t.skill).toUpperCase(), s = It(t.evaluation), c = It(t.player).toLocaleLowerCase("es"), l = pt(t.startZone), u = pt(t.endZone), d = It(t.setter).toLocaleLowerCase("es"), f = e.rallies.filter((e) => e.closed && (!r || e.set === r) && (!i || (n ? (n === "ours" ? e.ownRotation : e.rivalRotation) === i : !1)) && (!a || !!e.serving && (n ? a === "K1" ? e.serving !== n : a === "K2" && e.serving === n : !1))), p = Mt(e, f), m = new Set(f.map((e) => e.key)), h = !!(o || s || c || l || u || t.video === !0), g = (Nt(e, {
 		team: n,
 		skill: o,
 		evaluation: s,
@@ -2542,8 +2542,8 @@ function Ht(e, t = {}) {
 		filters: t
 	};
 }
-function Ut(e, t = "A") {
-	let n = Bt(e).filter((e) => e.skill === t), r = n.filter((e) => e.evaluation), i = r.filter((e) => e.evaluation === "#").length, a = r.filter((e) => e.evaluation === "=").length, o = r.filter((e) => e.evaluation === "/").length;
+function Ht(e, t = "A") {
+	let n = zt(e).filter((e) => e.skill === t), r = n.filter((e) => e.evaluation), i = r.filter((e) => e.evaluation === "#").length, a = r.filter((e) => e.evaluation === "=").length, o = r.filter((e) => e.evaluation === "/").length;
 	return {
 		recorded: n.length,
 		rated: r.length,
@@ -2551,19 +2551,19 @@ function Ut(e, t = "A") {
 		kills: i,
 		errors: a,
 		blocked: o,
-		killPct: Vt(i, r.length),
-		efficiency: t === "A" ? Vt(i - a - o, r.length) : null
+		killPct: Bt(i, r.length),
+		efficiency: t === "A" ? Bt(i - a - o, r.length) : null
 	};
 }
-function Wt(e, t) {
-	let n = zt(t);
+function Ut(e, t) {
+	let n = Rt(t);
 	if (!n) return null;
-	let r = Bt(e).filter((e) => e.closed), i = r.filter((e) => e.serving && e.serving !== n), a = r.filter((e) => e.serving === n), o = (e) => {
+	let r = zt(e).filter((e) => e.closed), i = r.filter((e) => e.serving && e.serving !== n), a = r.filter((e) => e.serving === n), o = (e) => {
 		let t = e.filter((e) => e.winner === n).length;
 		return {
 			n: e.length,
 			won: t,
-			pct: Vt(t, e.length)
+			pct: Bt(t, e.length)
 		};
 	};
 	return {
@@ -2573,7 +2573,7 @@ function Wt(e, t) {
 		k2: o(a)
 	};
 }
-function Gt(e) {
+function Wt(e) {
 	let t = e.contacts, n = [];
 	for (let e of [
 		"S",
@@ -2610,8 +2610,8 @@ function Gt(e) {
 		].includes(e.type)).length
 	};
 }
-function Kt(e, t, n) {
-	let r = zt(n), i = Wt(e.rallies, r), a = t && typeof t == "object" && "points" in t ? t.points : void 0;
+function Gt(e, t, n) {
+	let r = Rt(n), i = Ut(e.rallies, r), a = t && typeof t == "object" && "points" in t ? t.points : void 0;
 	if (!i || !a) return null;
 	let o = a.k1?.n, s = a.k2?.n;
 	return {
@@ -2624,9 +2624,9 @@ function Kt(e, t, n) {
 	};
 }
 // src/state/analysis-operations-runtime.ts
-var qt = /* @__PURE__ */ new WeakMap();
-function Jt(e) {
-	let t = qt.get(e);
+var Kt = /* @__PURE__ */ new WeakMap();
+function qt(e) {
+	let t = Kt.get(e);
 	if (t) return t;
 	let n = 0, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = 0, d = 0, f = 0, p = () => {
 		try {
@@ -2648,11 +2648,11 @@ function Jt(e) {
 	}, h = Object.freeze({
 		VERSION: "20.5.25",
 		readOnly: !0,
-		filter: (e, t = {}) => m("filter", () => Ht(e, t)),
-		evaluate: (e, t = "A") => m("evaluate", () => Ut(e, t)),
-		points: (e, t) => m("points", () => Wt(e, t)),
-		coverage: (e) => m("coverage", () => Gt(e)),
-		reconcile: (e, t, n) => m("reconcile", () => Kt(e, t, n)),
+		filter: (e, t = {}) => m("filter", () => Vt(e, t)),
+		evaluate: (e, t = "A") => m("evaluate", () => Ht(e, t)),
+		points: (e, t) => m("points", () => Ut(e, t)),
+		coverage: (e) => m("coverage", () => Wt(e)),
+		reconcile: (e, t, n) => m("reconcile", () => Gt(e, t, n)),
 		diagnostics: () => Object.freeze({
 			readOnly: !0,
 			operations: n,
@@ -2669,15 +2669,15 @@ function Jt(e) {
 			budgetMs: 16
 		})
 	});
-	return qt.set(e, h), e.VC_ANALYSIS_OPERATIONS_20525 = h, h;
+	return Kt.set(e, h), e.VC_ANALYSIS_OPERATIONS_20525 = h, h;
 }
 // src/state/analysis-export.ts
-var Yt = (e) => String(e ?? "").trim();
-function Xt(e) {
-	let t = Yt(e);
+var Jt = (e) => String(e ?? "").trim();
+function Yt(e) {
+	let t = Jt(e);
 	return /^[\s\u0000-\u001f]*[=+\-@]/.test(t) && !/^[-+]?\d+(?:[.,]\d+)?$/.test(t.trim()) && (t = "'" + t), "\"" + t.replace(/"/g, "\"\"") + "\"";
 }
-function Zt(e) {
+function Xt(e) {
 	let t = [
 		"Partido",
 		"Set",
@@ -2720,12 +2720,12 @@ function Zt(e) {
 			t.fields.combo,
 			t.video ? "Sí" : "No"
 		];
-	})].map((e) => e.map(Xt).join(";")).join("\r\n");
+	})].map((e) => e.map(Yt).join(";")).join("\r\n");
 }
 // src/state/analysis-export-runtime.ts
-var Qt = /* @__PURE__ */ new WeakMap();
-function $t(e) {
-	let t = Qt.get(e);
+var Zt = /* @__PURE__ */ new WeakMap();
+function Qt(e) {
+	let t = Zt.get(e);
 	if (t) return t;
 	let n = 0, r = 0, i = 0, a = 0, o = 0, s = 0, c = () => {
 		try {
@@ -2740,7 +2740,7 @@ function $t(e) {
 		toCSV(e) {
 			let t = c();
 			try {
-				return Zt(e);
+				return Xt(e);
 			} catch (e) {
 				throw r++, e;
 			} finally {
@@ -2758,20 +2758,20 @@ function $t(e) {
 			slowExports: s,
 			budgetMs: 16
 		}),
-		indexDiagnostics: It
+		indexDiagnostics: Ft
 	});
-	return Qt.set(e, l), e.VC_ANALYSIS_CSV_20526 = l, l;
+	return Zt.set(e, l), e.VC_ANALYSIS_CSV_20526 = l, l;
 }
 // src/state/analysis-view.ts
-var en = (e) => String(e ?? "").trim(), H = (e) => en(e).replace(/[&<>"']/g, (e) => ({
+var $t = (e) => String(e ?? "").trim(), U = (e) => $t(e).replace(/[&<>"']/g, (e) => ({
 	"&": "&amp;",
 	"<": "&lt;",
 	">": "&gt;",
 	"\"": "&quot;",
 	"'": "&#39;"
 })[e]);
-function tn(e) {
-	let { data: t, selection: n, coverage: r, attack: i, comparison: a } = e, o = r.bySkill.map((e) => `<tr><td><b>${H(e.skill)}</b></td><td>${e.n}</td><td>${e.properties.team}/${e.n}</td><td>${e.properties.player}/${e.n}</td><td>${e.properties.evaluation}/${e.n}</td><td>${e.properties.zone}/${e.n}</td><td>${e.properties.video}/${e.n}</td></tr>`).join(""), s = n.chains.slice(-45).reverse().map((e) => `<tr><td>${H(e.setter.set)} · ${H(e.setter.rallyIndex)}</td><td>${H(e.setter.player || "—")}</td><td>${H(e.reception?.evaluation || "—")}</td><td>${H(e.target?.code || "—")}</td><td>${H(e.tempo || "—")}</td><td>${H(e.attack?.player || "Sin ataque")}</td><td>${H(e.attack?.evaluation || "—")}</td></tr>`).join("");
+function en(e) {
+	let { data: t, selection: n, coverage: r, attack: i, comparison: a } = e, o = r.bySkill.map((e) => `<tr><td><b>${U(e.skill)}</b></td><td>${e.n}</td><td>${e.properties.team}/${e.n}</td><td>${e.properties.player}/${e.n}</td><td>${e.properties.evaluation}/${e.n}</td><td>${e.properties.zone}/${e.n}</td><td>${e.properties.video}/${e.n}</td></tr>`).join(""), s = n.chains.slice(-45).reverse().map((e) => `<tr><td>${U(e.setter.set)} · ${U(e.setter.rallyIndex)}</td><td>${U(e.setter.player || "—")}</td><td>${U(e.reception?.evaluation || "—")}</td><td>${U(e.target?.code || "—")}</td><td>${U(e.tempo || "—")}</td><td>${U(e.attack?.player || "Sin ataque")}</td><td>${U(e.attack?.evaluation || "—")}</td></tr>`).join("");
 	return {
 		left: `<div class="vc1938-audit"><h3>Professional Data Engine · Contactos</h3><p>Modelo común de solo lectura. Los contactos sin equipo o valoración se mantienen como desconocidos, sin asignaciones automáticas.</p><div class="vc1938-filters"><label>Fundamento<select data-vc1938-filter="skill"><option value="">Todos</option>${[
 			"S",
@@ -2789,7 +2789,7 @@ function tn(e) {
 			"-",
 			"/",
 			"="
-		].map((e) => `<option>${H(e)}</option>`).join("")}</select></label><button type="button" data-vc1938-export>Exportar selección CSV</button></div><div class="vc1938-metrics"><span><strong>${n.rallies.length}</strong>rallies filtrados</span><span><strong>${n.contacts.length}</strong>contactos filtrados</span><span><strong>${n.possessions.length}</strong>posesiones</span><span><strong>${n.chains.length}</strong>colocaciones</span></div><div class="vc1938-scroll"><table><thead><tr><th>Fund.</th><th>Total</th><th>Equipo</th><th>Jugador</th><th>Eval.</th><th>Zona</th><th>Vídeo</th></tr></thead><tbody>${o}</tbody></table></div><small>Los denominadores de cobertura son los contactos de cada fundamento en todo el scouting, antes de filtros.</small></div>`,
+		].map((e) => `<option>${U(e)}</option>`).join("")}</select></label><button type="button" data-vc1938-export>Exportar selección CSV</button></div><div class="vc1938-metrics"><span><strong>${n.rallies.length}</strong>rallies filtrados</span><span><strong>${n.contacts.length}</strong>contactos filtrados</span><span><strong>${n.possessions.length}</strong>posesiones</span><span><strong>${n.chains.length}</strong>colocaciones</span></div><div class="vc1938-scroll"><table><thead><tr><th>Fund.</th><th>Total</th><th>Equipo</th><th>Jugador</th><th>Eval.</th><th>Zona</th><th>Vídeo</th></tr></thead><tbody>${o}</tbody></table></div><small>Los denominadores de cobertura son los contactos de cada fundamento en todo el scouting, antes de filtros.</small></div>`,
 		center: `<div class="vc1938-audit"><h3>Posesión → colocación → ataque</h3><p>Solo se emparejan contactos consecutivos del mismo equipo; un contacto rival o sin equipo separa posesiones.</p><div class="vc1938-scroll"><table><thead><tr><th>Set / rally</th><th>Colocador</th><th>Recep.</th><th>Destino</th><th>Tempo</th><th>Atacante</th><th>Eval. A</th></tr></thead><tbody>${s || "<tr><td colspan=\"7\">No hay colocaciones en esta selección.</td></tr>"}</tbody></table></div><div class="vc1938-note">Ataques evaluados: ${i.rated}/${i.recorded}; EFF ataque: ${i.efficiency == null ? "sin muestra" : i.efficiency + " %"}. ${a ? a.agrees ? "K1/K2 coincide en número de oportunidades." : "Revisar diferencias de denominadores K1/K2 con el motor anterior." : "Sin comparación disponible."}</div></div>`,
 		notice: `${t.count.rallies} rallies totales · ${t.count.closed} cerrados · ${r.unknownTeams} contactos sin equipo · ${r.missingIDs} contactos sin ID · ${r.invalidValues} incidencias de integridad · ${t.issues.length} observaciones`,
 		badges: [
@@ -2802,9 +2802,9 @@ function tn(e) {
 	};
 }
 // src/state/analysis-view-runtime.ts
-var nn = /* @__PURE__ */ new WeakMap();
-function rn(e) {
-	let t = nn.get(e);
+var tn = /* @__PURE__ */ new WeakMap();
+function nn(e) {
+	let t = tn.get(e);
 	if (t) return t;
 	let n = 0, r = 0, i = 0, a = 0, o = 0, s = 0, c = () => {
 		let t = e.performance?.now?.();
@@ -2815,7 +2815,7 @@ function rn(e) {
 		renderDataEngine(e) {
 			let t = c();
 			try {
-				return tn(e);
+				return en(e);
 			} catch (e) {
 				throw r++, e;
 			} finally {
@@ -2834,16 +2834,16 @@ function rn(e) {
 			budgetMs: 16
 		})
 	});
-	return nn.set(e, l), e.VC_ANALYSIS_VIEW_20529 = l, l;
+	return tn.set(e, l), e.VC_ANALYSIS_VIEW_20529 = l, l;
 }
 // src/state/rally-search-view.ts
-var an = (e) => String(e ?? "").trim(), U = (e) => an(e).replace(/[&<>"']/g, (e) => ({
+var rn = (e) => String(e ?? "").trim(), W = (e) => rn(e).replace(/[&<>"']/g, (e) => ({
 	"&": "&amp;",
 	"<": "&lt;",
 	">": "&gt;",
 	"\"": "&quot;",
 	"'": "&#39;"
-})[e]), on = (e, t = e) => `<option value="${U(e)}">${U(t)}</option>`, sn = {
+})[e]), an = (e, t = e) => `<option value="${W(e)}">${W(t)}</option>`, on = {
 	S: "Saque",
 	R: "Recepción",
 	E: "Colocación",
@@ -2852,8 +2852,8 @@ var an = (e) => String(e ?? "").trim(), U = (e) => an(e).replace(/[&<>"']/g, (e)
 	D: "Defensa",
 	F: "Freeball",
 	C: "Control"
-}, W = {
-	skill: [["", "Todos los fundamentos"], ...Object.entries(sn)],
+}, G = {
+	skill: [["", "Todos los fundamentos"], ...Object.entries(on)],
 	evaluation: [["", "Todas las valoraciones"], ...[
 		"#",
 		"+",
@@ -2902,8 +2902,8 @@ var an = (e) => String(e ?? "").trim(), U = (e) => an(e).replace(/[&<>"']/g, (e)
 		["open", "Solo abiertos"]
 	]
 };
-function cn(e) {
-	let t = (e) => [...new Set(e.map(an).filter(Boolean))].sort((e, t) => e.localeCompare(t, "es", { numeric: !0 })).slice(0, 250), n = Array.isArray(e?.contacts) ? e.contacts : [], r = Array.isArray(e?.chains) ? e.chains : [];
+function sn(e) {
+	let t = (e) => [...new Set(e.map(rn).filter(Boolean))].sort((e, t) => e.localeCompare(t, "es", { numeric: !0 })).slice(0, 250), n = Array.isArray(e?.contacts) ? e.contacts : [], r = Array.isArray(e?.chains) ? e.chains : [];
 	return {
 		players: t(n.map((e) => e.player)),
 		setters: t(r.map((e) => e.setter?.player)),
@@ -2914,30 +2914,30 @@ function cn(e) {
 		endZones: t(n.map((e) => e.fields?.endZone?.code))
 	};
 }
-var G = (e, t, n) => `<label>${U(e)}<select data-vc1939-filter="${t}">${n.map(([e, t]) => on(e, t)).join("")}</select></label>`;
-function ln(e, t, n = {}) {
-	let r = cn(e), i = (e) => [["", "Todos"], ...e.map((e) => [e, e])], a = `<div class="vc1939-search" aria-label="Buscar rallies con filtros cruzados"><div class="vc1939-intro"><strong>RALLY SEARCH PRO</strong><small>Todos los criterios se combinan · un contacto no hereda la valoración de otro</small></div>
+var K = (e, t, n) => `<label>${W(e)}<select data-vc1939-filter="${t}">${n.map(([e, t]) => an(e, t)).join("")}</select></label>`;
+function cn(e, t, n = {}) {
+	let r = sn(e), i = (e) => [["", "Todos"], ...e.map((e) => [e, e])], a = `<div class="vc1939-search" aria-label="Buscar rallies con filtros cruzados"><div class="vc1939-intro"><strong>RALLY SEARCH PRO</strong><small>Todos los criterios se combinan · un contacto no hereda la valoración de otro</small></div>
   <div class="vc1939-grid vc1939-basic"><label>Código / texto<input data-vc1939-filter="code" maxlength="100" placeholder="Ej.: A4#, Z4 o código de scouting"></label>
-  ${G("Fundamento", "skill", W.skill)}${G("Jugador", "player", i(r.players))}${G("Valoración", "evaluation", W.evaluation)}</div>
+  ${K("Fundamento", "skill", G.skill)}${K("Jugador", "player", i(r.players))}${K("Valoración", "evaluation", G.evaluation)}</div>
   <details class="vc1939-advanced"><summary>Más criterios · rotaciones, colocador y secuencias</summary><div class="vc1939-grid">
-  ${G("Rotación propia", "ownRotation", W.ownRotation)}${G("Rotación rival", "rivalRotation", W.rivalRotation)}
-  ${G("Recepción anterior", "reception", W.reception)}${G("Colocador", "setter", i(r.setters))}
-  ${G("Atacante tras colocación", "attacker", i(r.attackers))}${G("Tempo", "tempo", i(r.tempos))}
-  ${G("Combinación", "combo", i(r.combos))}${G("Origen", "startZone", i(r.startZones))}
-  ${G("Destino", "endZone", i(r.endZones))}${G("Ganador del rally", "outcome", W.outcome)}
-  ${G("Marca temporal", "video", W.video)}${G("Estado del rally", "status", W.status)}</div></details>
+  ${K("Rotación propia", "ownRotation", G.ownRotation)}${K("Rotación rival", "rivalRotation", G.rivalRotation)}
+  ${K("Recepción anterior", "reception", G.reception)}${K("Colocador", "setter", i(r.setters))}
+  ${K("Atacante tras colocación", "attacker", i(r.attackers))}${K("Tempo", "tempo", i(r.tempos))}
+  ${K("Combinación", "combo", i(r.combos))}${K("Origen", "startZone", i(r.startZones))}
+  ${K("Destino", "endZone", i(r.endZones))}${K("Ganador del rally", "outcome", G.outcome)}
+  ${K("Marca temporal", "video", G.video)}${K("Estado del rally", "status", G.status)}</div></details>
   <div class="vc1939-actions"><button type="button" data-vc1939-clear>Limpiar búsqueda</button><button type="button" data-vc1939-export>Exportar CSV</button></div>
   <div class="vc1939-presets"><select data-vc1939-preset aria-label="Búsquedas guardadas"><option value="">Búsquedas guardadas</option></select><button type="button" data-vc1939-save>Guardar</button><button type="button" data-vc1939-load>Aplicar</button><button type="button" data-vc1939-delete>Eliminar</button></div>
-  <p class="vc1939-context-note">Se aplican también los filtros superiores de scouting, equipo, set, rotación y K1/K2. Para búsquedas por secuencia, colocador, recepción y ataque deben pertenecer a una misma posesión.</p></div>`, o = t.statistics, s = `<div class="vc1939-metrics"><div><strong>${o.rallies}</strong><span>Rallies</span></div><div><strong>${o.contacts}</strong><span>Contactos</span></div><div><strong>${o.chains}</strong><span>Colocaciones</span></div><div><strong>${o.videoContacts}</strong><span>Marcas vídeo</span></div></div>`, c = o.bySkill.map(([e, t]) => `<tr><td>${U(sn[e] || e)}</td><td>${t}</td><td>${o.contacts ? Math.round(t / o.contacts * 1e3) / 10 : 0} %</td></tr>`).join(""), l = o.byPlayer.slice(0, 10).map(([e, t]) => `<tr><td>${U(e)}</td><td>${t}</td></tr>`).join(""), u = `<div class="vc1939-left"><h3>Buscador de rallies</h3>${a}${s}<div class="vc1939-scroll"><table><thead><tr><th>Fundamento</th><th>Contactos</th><th>Uso</th></tr></thead><tbody>${c || "<tr><td colspan=\"3\">Sin acciones con esta selección.</td></tr>"}</tbody></table></div></div>`, d = t.chains.slice(0, 50).map((e) => `<tr><td>S${e.setter?.set} · R${e.setter?.rallyIndex}</td><td>${U(e.reception?.evaluation || "—")}</td><td>${U(e.setter?.player || "—")}</td><td>${U(e.tempo || "—")}</td><td>${U(e.attack?.player || "—")}</td><td>${U(e.attack?.evaluation || "—")}</td></tr>`).join("");
+  <p class="vc1939-context-note">Se aplican también los filtros superiores de scouting, equipo, set, rotación y K1/K2. Para búsquedas por secuencia, colocador, recepción y ataque deben pertenecer a una misma posesión.</p></div>`, o = t.statistics, s = `<div class="vc1939-metrics"><div><strong>${o.rallies}</strong><span>Rallies</span></div><div><strong>${o.contacts}</strong><span>Contactos</span></div><div><strong>${o.chains}</strong><span>Colocaciones</span></div><div><strong>${o.videoContacts}</strong><span>Marcas vídeo</span></div></div>`, c = o.bySkill.map(([e, t]) => `<tr><td>${W(on[e] || e)}</td><td>${t}</td><td>${o.contacts ? Math.round(t / o.contacts * 1e3) / 10 : 0} %</td></tr>`).join(""), l = o.byPlayer.slice(0, 10).map(([e, t]) => `<tr><td>${W(e)}</td><td>${t}</td></tr>`).join(""), u = `<div class="vc1939-left"><h3>Buscador de rallies</h3>${a}${s}<div class="vc1939-scroll"><table><thead><tr><th>Fundamento</th><th>Contactos</th><th>Uso</th></tr></thead><tbody>${c || "<tr><td colspan=\"3\">Sin acciones con esta selección.</td></tr>"}</tbody></table></div></div>`, d = t.chains.slice(0, 50).map((e) => `<tr><td>S${e.setter?.set} · R${e.setter?.rallyIndex}</td><td>${W(e.reception?.evaluation || "—")}</td><td>${W(e.setter?.player || "—")}</td><td>${W(e.tempo || "—")}</td><td>${W(e.attack?.player || "—")}</td><td>${W(e.attack?.evaluation || "—")}</td></tr>`).join("");
 	return {
 		left: u,
 		center: `<div class="vc1939-center-body"><h3>Resultados y secuencias</h3><p class="vc1939-summary">Ataques valorados: ${o.attackRated} · Eficiencia: ${o.efficiency == null ? "Sin muestra" : o.efficiency.toLocaleString("es-ES") + " %"} · Sin valoración: ${o.missingEvaluation} contactos.</p><div class="vc1939-scroll"><table><thead><tr><th>Jugador</th><th>Acciones</th></tr></thead><tbody>${l || "<tr><td colspan=\"2\">Sin jugadores codificados.</td></tr>"}</tbody></table></div><h4>Recepción → Colocación → Ataque</h4><div class="vc1939-scroll"><table><thead><tr><th>Set/rally</th><th>Recep.</th><th>Colocador</th><th>Tempo</th><th>Atacante</th><th>Eval. A</th></tr></thead><tbody>${d || "<tr><td colspan=\"6\">No hay secuencias completas con estos filtros.</td></tr>"}</tbody></table></div></div>`
 	};
 }
 // src/state/rally-search-view-runtime.ts
-var un = /* @__PURE__ */ new WeakMap();
-function dn(e) {
-	let t = un.get(e);
+var ln = /* @__PURE__ */ new WeakMap();
+function un(e) {
+	let t = ln.get(e);
 	if (t) return t;
 	let n = 0, r = 0, i = 0, a = 0, o = 0, s = 0, c = () => {
 		try {
@@ -2952,7 +2952,7 @@ function dn(e) {
 		render(e, t, l = {}) {
 			let u = c();
 			try {
-				return ln(e, t, l);
+				return cn(e, t, l);
 			} catch (e) {
 				throw r++, e;
 			} finally {
@@ -2971,29 +2971,29 @@ function dn(e) {
 			budgetMs: 16
 		})
 	});
-	return un.set(e, l), e.VC_RALLY_VIEW_20530 = l, l;
+	return ln.set(e, l), e.VC_RALLY_VIEW_20530 = l, l;
 }
 // src/state/rally-search-controls.ts
-var fn = "vc1939:search-presets:1", pn = (e) => String(e ?? "").trim();
-function mn(e) {
+var dn = "vc1939:search-presets:1", fn = (e) => String(e ?? "").trim();
+function pn(e) {
 	try {
 		let t = JSON.parse(e?.getItem("vc1939:search-presets:1") || "[]");
 		return Array.isArray(t) ? t.filter((e) => e && typeof e.name == "string" && e.name.length <= 40 && e.filters && typeof e.filters == "object").slice(-15).map((e) => ({
 			name: e.name,
-			filters: at(e.filters)
+			filters: it(e.filters)
 		})) : [];
 	} catch {
 		return [];
 	}
 }
-var hn = /* @__PURE__ */ new WeakMap();
-function gn(e) {
-	let t = hn.get(e);
+var mn = /* @__PURE__ */ new WeakMap();
+function hn(e) {
+	let t = mn.get(e);
 	if (t) return t;
 	let n = e, r = /* @__PURE__ */ new WeakSet(), i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = 0, d = Object.freeze({
 		VERSION: "20.5.31",
 		nativeReadOnly: !0,
-		readPresets: mn,
+		readPresets: pn,
 		bind(t, d) {
 			if (!t || typeof t.addEventListener != "function" || typeof t.removeEventListener != "function" || typeof d?.refresh != "function" || typeof d?.toCSV != "function") return !1;
 			if (r.has(t)) return t.dataset.vc1939Bound = "yes", !0;
@@ -3036,21 +3036,21 @@ function gn(e) {
 						}
 						else if (i.hasAttribute("data-vc1939-save")) {
 							let t = e.prompt?.("Nombre de la búsqueda (máximo 40 caracteres)");
-							if (!pn(t)) return;
+							if (!fn(t)) return;
 							try {
-								let n = e.localStorage, r = pn(t).slice(0, 40), i = mn(n).filter((e) => e.name !== r);
+								let n = e.localStorage, r = fn(t).slice(0, 40), i = pn(n).filter((e) => e.name !== r);
 								i.push({
 									name: r,
-									filters: at(f.filters)
-								}), n?.setItem(fn, JSON.stringify(i.slice(-15))), f.preset = r, s++, d.refresh();
+									filters: it(f.filters)
+								}), n?.setItem(dn, JSON.stringify(i.slice(-15))), f.preset = r, s++, d.refresh();
 							} catch {
 								u++;
 							}
 						} else if (i.hasAttribute("data-vc1939-load")) {
-							let t = mn(e.localStorage).find((e) => e.name === f.preset);
+							let t = pn(e.localStorage).find((e) => e.name === f.preset);
 							t && (f.filters = { ...t.filters }, c++, d.refresh());
 						} else if (i.hasAttribute("data-vc1939-delete")) try {
-							e.localStorage?.setItem(fn, JSON.stringify(mn(e.localStorage).filter((e) => e.name !== f.preset))), f.preset = "", l++, d.refresh();
+							e.localStorage?.setItem(dn, JSON.stringify(pn(e.localStorage).filter((e) => e.name !== f.preset))), f.preset = "", l++, d.refresh();
 						} catch {
 							u++;
 						}
@@ -3076,10 +3076,10 @@ function gn(e) {
 			failures: u
 		})
 	});
-	return hn.set(e, d), e.VC_RALLY_CONTROLS_20531 = d, d;
+	return mn.set(e, d), e.VC_RALLY_CONTROLS_20531 = d, d;
 }
 // src/state/scouting-speed-draft.ts
-var _n = [
+var gn = [
 	"S",
 	"R",
 	"E",
@@ -3088,17 +3088,17 @@ var _n = [
 	"D",
 	"F",
 	"C"
-], vn = [
+], _n = [
 	"#",
 	"+",
 	"!",
 	"-",
 	"/",
 	"="
-], yn = /^(R?)(\d{1,3})([SREABDFC])?([#+!\-/=])?(.*)$/, bn = /^[.:~^@|*%&?$]/, xn = (e) => String(e ?? ""), Sn = (e) => xn(e).trim().toUpperCase().replace(/\s+/g, "");
-function Cn(e) {
-	let t = Sn(e), n = t.match(yn);
-	return !n || n[5] && !bn.test(n[5]) ? null : {
+], vn = /^(R?)(\d{1,3})([SREABDFC])?([#+!\-/=])?(.*)$/, yn = /^[.:~^@|*%&?$]/, bn = (e) => String(e ?? ""), xn = (e) => bn(e).trim().toUpperCase().replace(/\s+/g, "");
+function Sn(e) {
+	let t = xn(e), n = t.match(vn);
+	return !n || n[5] && !yn.test(n[5]) ? null : {
 		code: t,
 		side: n[1],
 		number: n[2],
@@ -3107,37 +3107,37 @@ function Cn(e) {
 		tail: n[5]
 	};
 }
-function wn(e) {
-	let t = xn(e?.number || "").trim();
+function Cn(e) {
+	let t = bn(e?.number || "").trim();
 	return !/^\d{1,3}$/.test(t) || e?.team !== "ours" && e?.team !== "opponent" ? null : (e.team === "opponent" ? "R" : "") + t;
 }
-function Tn(e, t, n) {
-	if (!_n.some((e) => e === t)) return null;
-	let r = Sn(e);
+function wn(e, t, n) {
+	if (!gn.some((e) => e === t)) return null;
+	let r = xn(e);
 	if (!r) {
-		let e = wn(n);
+		let e = Cn(n);
 		return e ? e + t : null;
 	}
-	let i = Cn(r);
+	let i = Sn(r);
 	return i ? i.side + i.number + t + (i.rating || "") + i.tail : null;
 }
-function En(e, t) {
-	if (!vn.some((e) => e === t)) return null;
-	let n = Cn(e);
+function Tn(e, t) {
+	if (!_n.some((e) => e === t)) return null;
+	let n = Sn(e);
 	return !n || !n.skill ? null : n.side + n.number + n.skill + t + n.tail;
 }
-function Dn(e, t = 1) {
-	let n = Cn(e);
+function En(e, t = 1) {
+	let n = Sn(e);
 	if (!n || !n.skill) return null;
-	let r = vn[(vn.findIndex((e) => e === n.rating) + (t > 0 ? 1 : vn.length - 1) + vn.length) % vn.length];
-	return En(e, r);
+	let r = _n[(_n.findIndex((e) => e === n.rating) + (t > 0 ? 1 : _n.length - 1) + _n.length) % _n.length];
+	return Tn(e, r);
 }
-function On(e, t = 8) {
+function Dn(e, t = 8) {
 	if (!e) return [];
 	let n = [], r = (e) => {
 		for (let r = (Array.isArray(e) ? e.length : 0) - 1; r >= 0 && n.length < t; r--) {
-			let t = Sn(e?.[r]?.code);
-			t.length <= 140 && Cn(t)?.skill && !n.includes(t) && n.push(t);
+			let t = xn(e?.[r]?.code);
+			t.length <= 140 && Sn(t)?.skill && !n.includes(t) && n.push(t);
 		}
 	};
 	r(e.liveRally?.actions);
@@ -3149,15 +3149,15 @@ function On(e, t = 8) {
 	return n;
 }
 // src/state/scouting-sequence-check.ts
-var kn = 512, An = 32, jn = /* @__PURE__ */ new Set([
+var On = 512, kn = 32, An = /* @__PURE__ */ new Set([
 	"S",
 	"A",
 	"B"
 ]);
-function Mn(e, t) {
-	return jn.has(e) && t === "#" || (e === "S" || e === "A") && t === "=";
+function jn(e, t) {
+	return An.has(e) && t === "#" || (e === "S" || e === "A") && t === "=";
 }
-function Nn(e, t, n, r) {
+function Mn(e, t, n, r) {
 	return Object.freeze({
 		status: e,
 		contacts: Object.freeze(t.map((e) => Object.freeze({ ...e }))),
@@ -3170,16 +3170,16 @@ function Nn(e, t, n, r) {
 		advice: r
 	});
 }
-function Pn(e) {
+function Nn(e) {
 	let t = String(e ?? "").trim().toUpperCase();
-	if (!t) return Nn("empty", [], [], "Escribe una secuencia para comprobar su estructura.");
-	if (t.length > 512) return Nn("invalid", [], [{
+	if (!t) return Mn("empty", [], [], "Escribe una secuencia para comprobar su estructura.");
+	if (t.length > 512) return Mn("invalid", [], [{
 		position: 0,
 		severity: "error",
 		reason: "Secuencia demasiado larga (máximo 512 caracteres)."
 	}], "Reduce la secuencia; no se ha registrado ninguna acción.");
 	let n = t.split(/\s+/);
-	if (n.length > 32) return Nn("invalid", [], [{
+	if (n.length > 32) return Mn("invalid", [], [{
 		position: 0,
 		severity: "error",
 		reason: "Demasiados contactos (máximo 32)."
@@ -3194,7 +3194,7 @@ function Pn(e) {
 		reason: t
 	}), s = null;
 	for (let [e, t] of n.entries()) {
-		let n = e + 1, i = t[0], c = i === "." || i === "R" ? "opponent" : "ours", l = i === "*" ? t.slice(1) : i === "." ? "R" + t.slice(1) : t, u = Cn(l);
+		let n = e + 1, i = t[0], c = i === "." || i === "R" ? "opponent" : "ours", l = i === "*" ? t.slice(1) : i === "." ? "R" + t.slice(1) : t, u = Sn(l);
 		if (!u || !u.skill) {
 			o(n, `Código ${n}: falta dorsal/fundamento o el prefijo no es válido.`);
 			continue;
@@ -3208,30 +3208,30 @@ function Pn(e) {
 			nativePreview: l,
 			status: p
 		};
-		r.push(m), d.state !== "candidate" && a(n, `Código ${n}: el sufijo necesita confirmación en el editor original.`), f || a(n, `Código ${n}: falta valoración explícita.`), s && (Mn(s.skill, s.rating) && a(n, `Código ${n}: hay un contacto después de una valoración que parece cerrar el punto.`), s.team === m.team && s.number === m.number && s.skill !== "B" && a(n, `Código ${n}: posible doble contacto del mismo dorsal; revisa la jugada.`), s.skill === "S" && m.skill === "R" && s.team === m.team && a(n, `Código ${n}: el saque y la recepción se atribuyen al mismo equipo.`)), s = m;
+		r.push(m), d.state !== "candidate" && a(n, `Código ${n}: el sufijo necesita confirmación en el editor original.`), f || a(n, `Código ${n}: falta valoración explícita.`), s && (jn(s.skill, s.rating) && a(n, `Código ${n}: hay un contacto después de una valoración que parece cerrar el punto.`), s.team === m.team && s.number === m.number && s.skill !== "B" && a(n, `Código ${n}: posible doble contacto del mismo dorsal; revisa la jugada.`), s.skill === "S" && m.skill === "R" && s.team === m.team && a(n, `Código ${n}: el saque y la recepción se atribuyen al mismo equipo.`)), s = m;
 	}
 	let c = i.some((e) => e.severity === "error") ? "invalid" : i.length ? "review" : "ready";
-	return Nn(c, r, i, c === "ready" ? "Estructura reconocida. Sin comprobar alineaciones, legalidad ni aceptación del registrador." : c === "review" ? "Hay avisos orientativos. Revisa los códigos antes de registrar el rally." : "Hay errores de sintaxis. Corrige la secuencia; no se ha registrado ninguna acción.");
+	return Mn(c, r, i, c === "ready" ? "Estructura reconocida. Sin comprobar alineaciones, legalidad ni aceptación del registrador." : c === "review" ? "Hay avisos orientativos. Revisa los códigos antes de registrar el rally." : "Hay errores de sintaxis. Corrige la secuencia; no se ha registrado ninguna acción.");
 }
 // src/state/scouting-speed-draft-runtime.ts
-var Fn = /* @__PURE__ */ new WeakMap();
-function In(e) {
-	let t = Fn.get(e);
+var Pn = /* @__PURE__ */ new WeakMap();
+function Fn(e) {
+	let t = Pn.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.32",
 		inputOnly: !0,
-		parseHead: Cn,
-		applySkill: Tn,
-		applyRating: En,
-		cycleRating: Dn,
-		recentCodes: On,
-		inspectSequence: Pn
+		parseHead: Sn,
+		applySkill: wn,
+		applyRating: Tn,
+		cycleRating: En,
+		recentCodes: Dn,
+		inspectSequence: Nn
 	});
-	return Fn.set(e, n), e.VC_SCOUT_DRAFT_20532 ||= n, n;
+	return Pn.set(e, n), e.VC_SCOUT_DRAFT_20532 ||= n, n;
 }
 // src/state/scouting-preflight.ts
-var Ln = {
+var In = {
 	S: "Saque",
 	R: "Recepción",
 	E: "Colocación",
@@ -3240,16 +3240,16 @@ var Ln = {
 	D: "Defensa",
 	F: "Freeball",
 	C: "Cobertura"
-}, Rn = /* @__PURE__ */ new Set([
+}, Ln = /* @__PURE__ */ new Set([
 	"#",
 	"+",
 	"!",
 	"-",
 	"/",
 	"="
-]), zn = /^(R?)(\d{1,3})([SREABDFC])?([#+!\-/=])?(.*)$/, Bn = (e) => String(e ?? "").trim().toUpperCase().replace(/\s+/g, ""), Vn = (e) => String(e ?? "").slice(0, 180);
-function Hn(e, t, n, r, i, a = !1) {
-	let o = Bn(e);
+]), Rn = /^(R?)(\d{1,3})([SREABDFC])?([#+!\-/=])?(.*)$/, zn = (e) => String(e ?? "").trim().toUpperCase().replace(/\s+/g, ""), Bn = (e) => String(e ?? "").slice(0, 180);
+function Vn(e, t, n, r, i, a = !1) {
+	let o = zn(e);
 	if (!o) return {
 		state: "idle",
 		message: "Escribe un código: 7A# · 3R+ · R12S=.",
@@ -3270,7 +3270,7 @@ function Hn(e, t, n, r, i, a = !1) {
 		message: "El scouting está finalizado. Reábrelo para editar.",
 		code: o
 	};
-	let s = o.match(zn);
+	let s = o.match(Rn);
 	if (!s) return {
 		state: "error",
 		message: "Empieza por el dorsal (7A#) o R+dorsal rival (R7A#).",
@@ -3281,7 +3281,7 @@ function Hn(e, t, n, r, i, a = !1) {
 		message: `Dorsal ${s[2]} reconocido · falta fundamento (S/R/E/A/B/D/F/C).`,
 		code: o
 	};
-	let c = s[1] ? "Rival" : "Nuestro", l = Ln[s[3]], u = s[4], d = `${c} · #${s[2]} · ${l}${u ? " · " + u : ""}`;
+	let c = s[1] ? "Rival" : "Nuestro", l = In[s[3]], u = s[4], d = `${c} · #${s[2]} · ${l}${u ? " · " + u : ""}`;
 	if (!r) return {
 		state: "warning",
 		message: `${d} · motor de validación no disponible.`,
@@ -3296,13 +3296,13 @@ function Hn(e, t, n, r, i, a = !1) {
 	let f = i;
 	if (!f || f.error || !f.action) return {
 		state: "error",
-		message: Vn(f?.error || "Código no reconocido por el motor de scouting."),
+		message: Bn(f?.error || "Código no reconocido por el motor de scouting."),
 		code: o,
 		summary: d
 	};
 	let p = f.action, m = [];
 	p.startZone && m.push(`origen ${p.startZone}`), p.endZone && m.push(`destino ${p.endZone}`), p.tempo && m.push(`tempo ${p.tempo}`);
-	let h = Rn.has(String(p.evaluation)) ? p.evaluation : u || "—";
+	let h = Ln.has(String(p.evaluation)) ? p.evaluation : u || "—";
 	return {
 		state: u ? "ok" : "caution",
 		code: o,
@@ -3321,35 +3321,35 @@ function Hn(e, t, n, r, i, a = !1) {
 	};
 }
 // src/state/scouting-preflight-runtime.ts
-var Un = /* @__PURE__ */ new WeakMap();
-function Wn(e) {
-	let t = Un.get(e);
+var Hn = /* @__PURE__ */ new WeakMap();
+function Un(e) {
+	let t = Hn.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.34",
 		previewOnly: !0,
-		classify: Hn
+		classify: Vn
 	});
-	return Un.set(e, n), e.VC_SCOUT_PREFLIGHT_20534 ||= n, n;
+	return Hn.set(e, n), e.VC_SCOUT_PREFLIGHT_20534 ||= n, n;
 }
 // src/domain/scout-registration-guard.ts
-function Gn(e) {
+function Wn(e) {
 	return e.hasCode ? !e.hasMatch || e.matchFinished ? "No hay un scouting activo." : !e.hasSet || e.setFinished ? "El set está cerrado." : null : "Código vacío.";
 }
 // src/domain/scout-registration-guard-runtime.ts
-var Kn = /* @__PURE__ */ new WeakMap();
-function qn(e) {
-	let t = Kn.get(e);
+var Gn = /* @__PURE__ */ new WeakMap();
+function Kn(e) {
+	let t = Gn.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.35",
 		preconditionsOnly: !0,
-		inspect: Gn
+		inspect: Wn
 	});
-	return Kn.set(e, n), e.VC_SCOUT_REG_GUARD_20535 ||= n, n;
+	return Gn.set(e, n), e.VC_SCOUT_REG_GUARD_20535 ||= n, n;
 }
 // src/domain/scout-action-preparation.ts
-var Jn = () => ({
+var qn = () => ({
 	parserReturnedAction: !1,
 	parserReturnedError: !1,
 	propertyCount: 0,
@@ -3360,12 +3360,12 @@ var Jn = () => ({
 	hasZones: !1,
 	hasTacticalMetadata: !1,
 	hasVideoEvidence: !1
-}), Yn = (e) => e && typeof e == "object" ? e : null;
-function Xn(e) {
+}), Jn = (e) => e && typeof e == "object" ? e : null;
+function Yn(e) {
 	try {
-		let t = Yn(e), n = Yn(t?.action);
+		let t = Jn(e), n = Jn(t?.action);
 		if (!n) return Object.freeze({
-			...Jn(),
+			...qn(),
 			parserReturnedError: !!t?.error
 		});
 		let r = (e) => e != null && e !== "";
@@ -3402,46 +3402,46 @@ function Xn(e) {
 			].some((e) => r(n[e]))
 		});
 	} catch {
-		return Object.freeze(Jn());
+		return Object.freeze(qn());
 	}
 }
-function Zn(e, t, n) {
+function Xn(e, t, n) {
 	let r = n(e, t, null);
 	return Object.freeze({
 		mode: "native-once",
 		nativeResult: r,
-		facts: Xn(r)
+		facts: Yn(r)
 	});
 }
 // src/domain/scout-action-preparation-runtime.ts
-var Qn = /* @__PURE__ */ new WeakMap();
-function $n(e) {
-	let t = Qn.get(e);
+var Zn = /* @__PURE__ */ new WeakMap();
+function Qn(e) {
+	let t = Zn.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.36",
 		nativeOnly: !0,
-		prepare: Zn,
-		inspect: Xn
+		prepare: Xn,
+		inspect: Yn
 	});
-	return Qn.set(e, n), e.VC_SCOUT_PREPARE_20536 ||= n, n;
+	return Zn.set(e, n), e.VC_SCOUT_PREPARE_20536 ||= n, n;
 }
 // src/domain/scout-code-lexer.ts
-var er = /^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])(?:>([1-9]))?)?(.*)$/, tr = /~(JF|JP|F|U)/, nr = /:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/, rr = /\^(K1|K2|FB|TR)/, ir = /@([0-3])/;
-function ar(e) {
-	let t = String(e || "").trim().toUpperCase().replace(/\s+/g, "").match(er);
+var $n = /^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])(?:>([1-9]))?)?(.*)$/, er = /~(JF|JP|F|U)/, tr = /:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/, nr = /\^(K1|K2|FB|TR)/, rr = /@([0-3])/;
+function ir(e) {
+	let t = String(e || "").trim().toUpperCase().replace(/\s+/g, "").match($n);
 	if (!t) return {
 		kind: "error",
 		error: "Código no reconocido."
 	};
-	let n = t[7] || "", r = n.match(tr)?.[1] || "";
+	let n = t[7] || "", r = n.match(er)?.[1] || "";
+	n = n.replace(er, "");
+	let i = n.match(tr)?.[1] || "";
 	n = n.replace(tr, "");
-	let i = n.match(nr)?.[1] || "";
+	let a = n.match(nr)?.[1] || "";
 	n = n.replace(nr, "");
-	let a = n.match(rr)?.[1] || "";
-	n = n.replace(rr, "");
-	let o = n.match(ir)?.[1] || "";
-	return n = n.replace(ir, ""), n ? {
+	let o = n.match(rr)?.[1] || "";
+	return n = n.replace(rr, ""), n ? {
 		kind: "error",
 		error: "Parte avanzada no reconocida: " + n
 	} : {
@@ -3459,19 +3459,19 @@ function ar(e) {
 	};
 }
 // src/domain/scout-code-lexer-runtime.ts
-var or = /* @__PURE__ */ new WeakMap();
-function sr(e) {
-	let t = or.get(e);
+var ar = /* @__PURE__ */ new WeakMap();
+function or(e) {
+	let t = ar.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.37",
 		syntaxOnly: !0,
-		lex: ar
+		lex: ir
 	});
-	return or.set(e, n), e.VC_SCOUT_LEXER_20537 ||= n, n;
+	return ar.set(e, n), e.VC_SCOUT_LEXER_20537 ||= n, n;
 }
 // src/domain/scout-grammar-extensions.ts
-var cr = (e) => String(e || "").trim().toUpperCase().replace(/\s+/g, ""), lr = /^((?:R)?\d+(?:S|R|E|A|B|D|F|C)(?:[#\+!\-\/=])?)\.([1-9])([A-D]?)(?:>([1-9])([A-D]?))?(.*)$/, ur = /^((?:R)?\d+A[#\+!\-\/=]?)\.([1-9][A-D]?)>C([1-8])(.*)$/, dr = [
+var sr = (e) => String(e || "").trim().toUpperCase().replace(/\s+/g, ""), cr = /^((?:R)?\d+(?:S|R|E|A|B|D|F|C)(?:[#\+!\-\/=])?)\.([1-9])([A-D]?)(?:>([1-9])([A-D]?))?(.*)$/, lr = /^((?:R)?\d+A[#\+!\-\/=]?)\.([1-9][A-D]?)>C([1-8])(.*)$/, ur = [
 	"Z4",
 	"Z2",
 	"Z1",
@@ -3483,8 +3483,8 @@ var cr = (e) => String(e || "").trim().toUpperCase().replace(/\s+/g, ""), lr = /
 	"2T",
 	"OTR"
 ];
-function fr(e) {
-	let t = cr(e).match(lr);
+function dr(e) {
+	let t = sr(e).match(cr);
 	if (!t || !t[3] && !t[5]) return { kind: "pass" };
 	let n = t[1], r = t[2], i = t[3] || "", a = t[4] || "", o = t[5] || "", s = t[6] || "";
 	return {
@@ -3494,8 +3494,8 @@ function fr(e) {
 		endZone: a ? a + o : ""
 	};
 }
-function pr(e) {
-	let t = cr(e).match(ur);
+function fr(e) {
+	let t = sr(e).match(lr);
 	return t ? {
 		kind: "cone",
 		cleaned: t[1] + t[4],
@@ -3503,11 +3503,11 @@ function pr(e) {
 		endCone: Number(t[3])
 	} : { kind: "pass" };
 }
-function mr(e) {
-	let t = cr(e), n = t.match(/^(?:R)?\d+(S|R|E|A|B|D|F|C)/)?.[1] || "", r = t, i = r.match(/::([A-Z0-9]{1,6})/)?.[1] || "";
+function pr(e) {
+	let t = sr(e), n = t.match(/^(?:R)?\d+(S|R|E|A|B|D|F|C)/)?.[1] || "", r = t, i = r.match(/::([A-Z0-9]{1,6})/)?.[1] || "";
 	if (r = r.replace(/::[A-Z0-9]{1,6}/, ""), !i && (n === "A" || n === "E")) {
 		let e = r.match(/:([A-Z0-9]{1,6})/)?.[1] || "";
-		e && !dr.includes(e) && (i = e, r = r.replace(":" + e, ""));
+		e && !ur.includes(e) && (i = e, r = r.replace(":" + e, ""));
 	}
 	let a = "";
 	(n === "A" || n === "E") && (a = r.match(/~([QUTMHO])/)?.[1] || "", a && (r = r.replace(/~[QUTMHO]/, "")));
@@ -3531,21 +3531,21 @@ function mr(e) {
 	};
 }
 // src/domain/scout-grammar-extensions-runtime.ts
-var hr = /* @__PURE__ */ new WeakMap();
-function gr(e) {
-	let t = hr.get(e);
+var mr = /* @__PURE__ */ new WeakMap();
+function hr(e) {
+	let t = mr.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.38",
 		grammarOnly: !0,
-		subzone: fr,
-		advanced: mr,
-		cone: pr
+		subzone: dr,
+		advanced: pr,
+		cone: fr
 	});
-	return hr.set(e, n), e.VC_SCOUT_EXTENSIONS_20538 ||= n, n;
+	return mr.set(e, n), e.VC_SCOUT_EXTENSIONS_20538 ||= n, n;
 }
 // src/domain/scout-player-resolution.ts
-function _r(e, t, n) {
+function gr(e, t, n) {
 	if (t) return {
 		found: !0,
 		fromPreviousAction: !1,
@@ -3570,19 +3570,19 @@ function _r(e, t, n) {
 	};
 }
 // src/domain/scout-player-resolution-runtime.ts
-var vr = /* @__PURE__ */ new WeakMap();
-function yr(e) {
-	let t = vr.get(e);
+var _r = /* @__PURE__ */ new WeakMap();
+function vr(e) {
+	let t = _r.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.40",
 		pureOnly: !0,
-		resolveOwn: _r
+		resolveOwn: gr
 	});
-	return vr.set(e, n), e.VC_SCOUT_PLAYER_RESOLVER_20540 ||= n, n;
+	return _r.set(e, n), e.VC_SCOUT_PLAYER_RESOLVER_20540 ||= n, n;
 }
 // src/domain/scout-action-builder.ts
-function br(e, t) {
+function yr(e, t) {
 	return {
 		...e || {},
 		team: t.rival ? "opponent" : "ours",
@@ -3597,7 +3597,7 @@ function br(e, t) {
 		validationWarnings: []
 	};
 }
-function xr(e, t, n) {
+function br(e, t, n) {
 	let r = e;
 	return {
 		playerId: r.id,
@@ -3606,7 +3606,7 @@ function xr(e, t, n) {
 		playerNumberSnapshot: r.number ?? n
 	};
 }
-function Sr(e, t, n) {
+function xr(e, t, n) {
 	return {
 		playerId: null,
 		playerLabel: e,
@@ -3615,21 +3615,21 @@ function Sr(e, t, n) {
 	};
 }
 // src/domain/scout-action-builder-runtime.ts
-var Cr = /* @__PURE__ */ new WeakMap();
-function wr(e) {
-	let t = Cr.get(e);
+var Sr = /* @__PURE__ */ new WeakMap();
+function Cr(e) {
+	let t = Sr.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.41",
 		pureOnly: !0,
-		buildBase: br,
-		ownFields: xr,
-		opponentFields: Sr
+		buildBase: yr,
+		ownFields: br,
+		opponentFields: xr
 	});
-	return Cr.set(e, n), e.VC_SCOUT_ACTION_BUILDER_20541 ||= n, n;
+	return Sr.set(e, n), e.VC_SCOUT_ACTION_BUILDER_20541 ||= n, n;
 }
 // src/domain/scout-code-format.ts
-function Tr(e, t) {
+function wr(e, t) {
 	let n = e || {}, r = t || {}, i = r.skill === "R" || r.skill === "D", a = String(n.contactZone || i && (r.endZone || r.startZone) || ""), o = String(n.sourceZone || (i && r.startZone && r.endZone ? r.startZone : "") || ""), s = i && !!a && !r.endZone && !r.startZone;
 	return {
 		contactZone: a,
@@ -3639,7 +3639,7 @@ function Tr(e, t) {
 		migratedEndZone: s ? a : null
 	};
 }
-function Er(e, t) {
+function Tr(e, t) {
 	let n = e, r = "";
 	if (n.team === "opponent") r = "R" + (String(n.playerLabel || "").match(/\d+/)?.[0] || String(n.playerNumberSnapshot || "").match(/\d+/)?.[0] || String(n.playerLabel || "").replace(/\s+/g, "").slice(0, 4) || "?");
 	else {
@@ -3657,37 +3657,37 @@ function Er(e, t) {
 	return a && (r += `:${a}`), n.skill === "A" && n.attackDirection && (r += `*${n.attackDirection}`), n.phase && (r += `^${n.phase}`), n.blockers !== "" && n.blockers != null && (r += `@${n.blockers}`), r;
 }
 // src/domain/scout-code-format-runtime.ts
-var Dr = /* @__PURE__ */ new WeakMap();
-function Or(e) {
-	let t = Dr.get(e);
+var Er = /* @__PURE__ */ new WeakMap();
+function Dr(e) {
+	let t = Er.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.42",
 		pureOnly: !0,
-		contact: Tr,
-		buildCode: Er
+		contact: wr,
+		buildCode: Tr
 	});
-	return Dr.set(e, n), e.VC_SCOUT_CODE_FORMAT_20542 ||= n, n;
+	return Er.set(e, n), e.VC_SCOUT_CODE_FORMAT_20542 ||= n, n;
 }
 // src/domain/scout-code-builder.ts
-var kr = {
+var Or = {
 	Q: "Quick",
 	U: "Super",
 	T: "Fast",
 	M: "Medium",
 	H: "High",
 	O: "Other"
-}, Ar = {
+}, kr = {
 	F: "Front",
 	C: "Centre",
 	B: "Back",
 	P: "Pipe",
 	S: "Setter dump"
 };
-function jr(e, t = 10) {
+function Ar(e, t = 10) {
 	return String(e || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, t);
 }
-function Mr(e) {
+function jr(e) {
 	let t = e;
 	if (t?.skill !== "B") return t;
 	let n = String(t.startZone || t.contactZone || "");
@@ -3697,34 +3697,34 @@ function Mr(e) {
 		endZone: n || ""
 	};
 }
-function Nr(e, t) {
+function Mr(e, t) {
 	let n = t, r = e;
 	if (n?.skill === "B") {
 		let e = String(n.startZone || n.contactZone || "");
 		e && (r = r.replace(`.${e}>${e}`, `.${e}`)), n.blockTargetNumber && (r += `&${String(n.blockTargetNumber).replace(/\D/g, "").slice(0, 3)}`);
 	}
 	let i = n?.skill === "A" ? n.attackCode : n?.skill === "E" ? n.setterCall : "", a = n?.skill === "A" ? n.attackTempo : n?.skill === "E" ? n.setTempo : "";
-	if (i && (r += `::${jr(i, 6)}`), a && kr[a] && (r += `~${a}`), n?.skillSubtype && (r += `%${jr(n.skillSubtype, 8)}`), n?.dvSetType && Ar[n.dvSetType] && (r += `|${n.dvSetType}`), n?.specialCode && (r += `?${jr(n.specialCode, 10)}`), n?.customCode && (r += `$${jr(n.customCode, 5)}`), n?.skill === "A" && n?.endCone && n?.startZone) {
+	if (i && (r += `::${Ar(i, 6)}`), a && Or[a] && (r += `~${a}`), n?.skillSubtype && (r += `%${Ar(n.skillSubtype, 8)}`), n?.dvSetType && kr[n.dvSetType] && (r += `|${n.dvSetType}`), n?.specialCode && (r += `?${Ar(n.specialCode, 10)}`), n?.customCode && (r += `$${Ar(n.customCode, 5)}`), n?.skill === "A" && n?.endCone && n?.startZone) {
 		let e = `.${n.startZone}>C${n.endCone}`;
 		r.includes(">C" + n.endCone) || (r = r.replace(/^((?:R)?(?:\d+|P)(?:S|R|E|A|B|D|F|C)[#\+!\-\/=])/, `$1${e}`));
 	}
 	return r;
 }
 // src/domain/scout-code-builder-runtime.ts
-var Pr = /* @__PURE__ */ new WeakMap();
-function Fr(e) {
-	let t = Pr.get(e);
+var Nr = /* @__PURE__ */ new WeakMap();
+function Pr(e) {
+	let t = Nr.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.43",
 		pureOnly: !0,
-		prepare: Mr,
-		finish: Nr
+		prepare: jr,
+		finish: Mr
 	});
-	return Pr.set(e, n), e.VC_SCOUT_CODE_BUILDER_20543 ||= n, n;
+	return Nr.set(e, n), e.VC_SCOUT_CODE_BUILDER_20543 ||= n, n;
 }
 // src/domain/scout-action-registration.ts
-function Ir(e) {
+function Fr(e) {
 	let t = e, n = String(t.startZone || ""), r = String(t.endZone || t.contactZone || ""), i;
 	if (n && r) i = {
 		startZone: n,
@@ -3750,29 +3750,29 @@ function Ir(e) {
 	};
 }
 // src/domain/scout-action-registration-runtime.ts
-var Lr = /* @__PURE__ */ new WeakMap();
-function Rr(e) {
-	let t = Lr.get(e);
+var Ir = /* @__PURE__ */ new WeakMap();
+function Lr(e) {
+	let t = Ir.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.44",
 		pureOnly: !0,
-		prepareContact: Ir
+		prepareContact: Fr
 	});
-	return Lr.set(e, n), e.VC_SCOUT_REGISTRATION_20544 ||= n, n;
+	return Ir.set(e, n), e.VC_SCOUT_REGISTRATION_20544 ||= n, n;
 }
 // src/domain/scout-action-metadata.ts
-function zr(e) {
+function Rr(e) {
 	return String(e || "").match(/[1-9]/)?.[0] || "";
 }
-function Br(e) {
+function zr(e) {
 	return String(e || "").toUpperCase().match(/[A-D]/)?.[0] || "";
 }
-function Vr(e, t) {
-	let n = e, r = t, i = n?.skill || "", a = String(n?.startZone || ""), o = String(n?.endZone || ""), s = String(n?.contactZone || (i === "R" || i === "D" ? o || a : "") || ""), c = zr(n?.dvStartZone || a), l = zr(n?.dvEndZone || o), u = Br(n?.dvEndSubzone || o), d = n?.dvSourceActionId == null ? null : Number(n.dvSourceActionId);
+function Br(e, t) {
+	let n = e, r = t, i = n?.skill || "", a = String(n?.startZone || ""), o = String(n?.endZone || ""), s = String(n?.contactZone || (i === "R" || i === "D" ? o || a : "") || ""), c = Rr(n?.dvStartZone || a), l = Rr(n?.dvEndZone || o), u = zr(n?.dvEndSubzone || o), d = n?.dvSourceActionId == null ? null : Number(n.dvSourceActionId);
 	if (i === "R" || i === "D") {
 		let e = i === "R" ? "S" : "A", t = n?.team === "ours" ? "opponent" : "ours", a = [...Array.isArray(r?.liveRally?.actions) ? r.liveRally.actions : []].reverse().find((n) => n.team === t && n.skill === e);
-		a && (c = zr(a.startZone), l = zr(a.endZone), u = Br(a.endZone), d = Number(a.id) || null);
+		a && (c = Rr(a.startZone), l = Rr(a.endZone), u = zr(a.endZone), d = Number(a.id) || null);
 	}
 	let f = r?.servingTeam === "opponent" ? "opponent" : "ours", p = n?.team === f ? "Breakpoint" : "Sideout", m = i === "S" ? "Serve" : n?.phase === "K1" ? "Reception" : "Transition", h = "";
 	return i === "A" && (h = n?.phase === "K1" ? "Reception" : p === "Breakpoint" ? "Transition breakpoint" : "Transition sideout"), {
@@ -3787,7 +3787,7 @@ function Vr(e, t) {
 		dvAttackPhase: h
 	};
 }
-function Hr(e) {
+function Vr(e) {
 	let t = e;
 	for (let e of [
 		"videoTimestamp",
@@ -3802,7 +3802,7 @@ function Hr(e) {
 	}
 	return null;
 }
-function Ur(e, t) {
+function Hr(e, t) {
 	let n = e || {}, r = t, i = [
 		n.videoTimestamp,
 		n.liveVideoTime,
@@ -3814,21 +3814,21 @@ function Ur(e, t) {
 	return Number.isFinite(i) ? Math.max(0, i) : null;
 }
 // src/domain/scout-action-metadata-runtime.ts
-var Wr = /* @__PURE__ */ new WeakMap();
-function Gr(e) {
-	let t = Wr.get(e);
+var Ur = /* @__PURE__ */ new WeakMap();
+function Wr(e) {
+	let t = Ur.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.45",
 		pureOnly: !0,
-		dvFields: Vr,
-		actionTime: Hr,
-		normalizeTime: Ur
+		dvFields: Br,
+		actionTime: Vr,
+		normalizeTime: Hr
 	});
-	return Wr.set(e, n), e.VC_SCOUT_ACTION_METADATA_20545 ||= n, n;
+	return Ur.set(e, n), e.VC_SCOUT_ACTION_METADATA_20545 ||= n, n;
 }
 // src/domain/scout-action-normalizer.ts
-var Kr = {
+var Gr = {
 	S: "Saque",
 	R: "Recepción",
 	E: "Colocación",
@@ -3837,24 +3837,24 @@ var Kr = {
 	D: "Defensa",
 	F: "Freeball",
 	C: "Cobertura"
-}, qr = [
+}, Kr = [
 	"#",
 	"+",
 	"!",
 	"-",
 	"/",
 	"="
-], Jr = [
+], qr = [
 	"F",
 	"JF",
 	"JP",
 	"U"
-], Yr = [
+], Jr = [
 	"K1",
 	"K2",
 	"FB",
 	"TR"
-], Xr = [
+], Yr = [
 	"Z4",
 	"Z2",
 	"Z1",
@@ -3866,7 +3866,7 @@ var Kr = {
 	"2T",
 	"OTR"
 ];
-function Zr(e, t, n) {
+function Xr(e, t, n) {
 	let r = e || {};
 	return {
 		...e && typeof e == "object" && !Array.isArray(e) ? e : {},
@@ -3877,14 +3877,14 @@ function Zr(e, t, n) {
 		playerLabel: String(r?.playerLabel || ""),
 		playerNameSnapshot: String(r?.playerNameSnapshot || ""),
 		playerNumberSnapshot: r?.playerNumberSnapshot ?? "",
-		skill: Kr[r?.skill] ? r.skill : "S",
-		evaluation: qr.includes(r?.evaluation) ? r.evaluation : "!",
+		skill: Gr[r?.skill] ? r.skill : "S",
+		evaluation: Kr.includes(r?.evaluation) ? r.evaluation : "!",
 		startZone: String(r?.startZone || ""),
 		endZone: String(r?.endZone || ""),
-		serveType: Jr.includes(r?.serveType) ? r.serveType : "",
-		phase: Yr.includes(r?.phase) ? r.phase : "",
-		setTarget: Xr.includes(r?.setTarget) ? r.setTarget : "",
-		attackCombo: Xr.includes(r?.attackCombo) ? r.attackCombo : "",
+		serveType: qr.includes(r?.serveType) ? r.serveType : "",
+		phase: Jr.includes(r?.phase) ? r.phase : "",
+		setTarget: Yr.includes(r?.setTarget) ? r.setTarget : "",
+		attackCombo: Yr.includes(r?.attackCombo) ? r.attackCombo : "",
 		attackTempo: [
 			"RAP",
 			"MED",
@@ -3905,19 +3905,19 @@ function Zr(e, t, n) {
 	};
 }
 // src/domain/scout-action-normalizer-runtime.ts
-var Qr = /* @__PURE__ */ new WeakMap();
-function $r(e) {
-	let t = Qr.get(e);
+var Zr = /* @__PURE__ */ new WeakMap();
+function Qr(e) {
+	let t = Zr.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.46",
 		pureOnly: !0,
-		normalizeBase: Zr
+		normalizeBase: Xr
 	});
-	return Qr.set(e, n), e.VC_SCOUT_ACTION_NORMALIZER_20546 ||= n, n;
+	return Zr.set(e, n), e.VC_SCOUT_ACTION_NORMALIZER_20546 ||= n, n;
 }
 // src/domain/scout-action-tactical-fields.ts
-function ei(e, t) {
+function $r(e, t) {
 	let n = e || {}, r = t, i = [
 		"LIN",
 		"DC",
@@ -3944,32 +3944,32 @@ function ei(e, t) {
 	};
 }
 // src/domain/scout-action-tactical-fields-runtime.ts
-var ti = /* @__PURE__ */ new WeakMap();
-function ni(e) {
-	let t = ti.get(e);
+var ei = /* @__PURE__ */ new WeakMap();
+function ti(e) {
+	let t = ei.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.47",
 		pureOnly: !0,
-		normalize: ei
+		normalize: $r
 	});
-	return ti.set(e, n), e.VC_SCOUT_TACTICAL_FIELDS_20547 ||= n, n;
+	return ei.set(e, n), e.VC_SCOUT_TACTICAL_FIELDS_20547 ||= n, n;
 }
 // src/domain/scout-action-advanced-fields.ts
-var ri = {
+var ni = {
 	Q: "Quick",
 	U: "Super",
 	T: "Fast",
 	M: "Medium",
 	H: "High",
 	O: "Other"
-}, ii = {
+}, ri = {
 	F: "Front",
 	C: "Centre",
 	B: "Back",
 	P: "Pipe",
 	S: "Setter dump"
-}, ai = {
+}, ii = {
 	A: {
 		HSP: "Hard spike",
 		SSP: "Soft spike/topspin",
@@ -4001,30 +4001,30 @@ var ri = {
 		TIP: "Tip",
 		SOFT: "Soft spike"
 	}
-}, oi = {
+}, ai = {
 	RAP: "T",
 	MED: "M",
 	ALT: "H"
-}, si = (e, t = 10) => String(e || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, t), ci = (e) => e && Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) ? {
+}, oi = (e, t = 10) => String(e || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, t), si = (e) => e && Number.isFinite(Number(e.x)) && Number.isFinite(Number(e.y)) ? {
 	x: Number(e.x),
 	y: Number(e.y)
 } : null;
-function li(e, t) {
-	let n = e, r = t, i = si(n?.attackTempo || n?.setTempo || r.attackTempo || "", 3), a = ri[i] ? i : oi[i] || "", o = r.skill === "A" ? a : "", s = r.skill === "E" ? a : "", c = r.skill === "A" ? si(n?.attackCode || "", 6) : "", l = r.skill === "E" ? si(n?.setterCall || "", 6) : "", u = (r.skill === "A" || r.skill === "E") && ii[String(n?.dvSetType || "").toUpperCase()] ? String(n?.dvSetType).toUpperCase() : "", d = si(n?.skillSubtype || "", 8);
+function ci(e, t) {
+	let n = e, r = t, i = oi(n?.attackTempo || n?.setTempo || r.attackTempo || "", 3), a = ni[i] ? i : ai[i] || "", o = r.skill === "A" ? a : "", s = r.skill === "E" ? a : "", c = r.skill === "A" ? oi(n?.attackCode || "", 6) : "", l = r.skill === "E" ? oi(n?.setterCall || "", 6) : "", u = (r.skill === "A" || r.skill === "E") && ri[String(n?.dvSetType || "").toUpperCase()] ? String(n?.dvSetType).toUpperCase() : "", d = oi(n?.skillSubtype || "", 8);
 	return {
 		attackTempo: o,
 		setTempo: s,
 		attackCode: c,
 		setterCall: l,
 		dvSetType: u,
-		skillSubtype: ai[r.skill]?.[d] ? d : "",
-		specialCode: si(n?.specialCode || "", 10),
-		customCode: si(n?.customCode || "", 5),
+		skillSubtype: ii[r.skill]?.[d] ? d : "",
+		specialCode: oi(n?.specialCode || "", 10),
+		customCode: oi(n?.customCode || "", 5),
 		locationMode: n?.locationMode === "cones" ? "cones" : "zones",
 		endCone: n?.endCone != null && /^[1-8]$/.test(String(n.endCone)) ? Number(n.endCone) : null,
-		startCoordinate: ci(n?.startCoordinate),
-		endCoordinate: ci(n?.endCoordinate),
-		contactCoordinate: ci(n?.contactCoordinate),
+		startCoordinate: si(n?.startCoordinate),
+		endCoordinate: si(n?.endCoordinate),
+		contactCoordinate: si(n?.contactCoordinate),
 		contactZone: String(n?.contactZone || r.contactZone || ""),
 		dvStartZone: String(n?.dvStartZone || ""),
 		dvEndZone: String(n?.dvEndZone || ""),
@@ -4037,19 +4037,19 @@ function li(e, t) {
 	};
 }
 // src/domain/scout-action-advanced-fields-runtime.ts
-var ui = /* @__PURE__ */ new WeakMap();
-function di(e) {
-	let t = ui.get(e);
+var li = /* @__PURE__ */ new WeakMap();
+function ui(e) {
+	let t = li.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.48",
 		pureOnly: !0,
-		normalize: li
+		normalize: ci
 	});
-	return ui.set(e, n), e.VC_SCOUT_ADVANCED_FIELDS_20548 ||= n, n;
+	return li.set(e, n), e.VC_SCOUT_ADVANCED_FIELDS_20548 ||= n, n;
 }
 // src/domain/scout-action-identity-fields.ts
-function fi(e, t, n) {
+function di(e, t, n) {
 	let r = e, i = t, a = {
 		uid: String(r?.uid || `act_${i.id}`),
 		videoStart: r?.videoStart == null ? null : Number(r.videoStart),
@@ -4060,19 +4060,19 @@ function fi(e, t, n) {
 	return n && (a.opponentPlayerUid = String(r?.opponentPlayerUid || "")), a;
 }
 // src/domain/scout-action-identity-fields-runtime.ts
-var pi = /* @__PURE__ */ new WeakMap();
-function mi(e) {
-	let t = pi.get(e);
+var fi = /* @__PURE__ */ new WeakMap();
+function pi(e) {
+	let t = fi.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.49",
 		pureOnly: !0,
-		normalize: fi
+		normalize: di
 	});
-	return pi.set(e, n), e.VC_SCOUT_IDENTITY_FIELDS_20549 ||= n, n;
+	return fi.set(e, n), e.VC_SCOUT_IDENTITY_FIELDS_20549 ||= n, n;
 }
 // src/domain/scout-match-video-container.ts
-function hi(e) {
+function mi(e) {
 	let t = e?.video;
 	return {
 		syncOffset: t?.syncOffset == null ? null : Number(t.syncOffset),
@@ -4081,19 +4081,19 @@ function hi(e) {
 	};
 }
 // src/domain/scout-match-video-container-runtime.ts
-var gi = /* @__PURE__ */ new WeakMap();
-function _i(e) {
-	let t = gi.get(e);
+var hi = /* @__PURE__ */ new WeakMap();
+function gi(e) {
+	let t = hi.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.50",
 		pureOnly: !0,
-		normalize: hi
+		normalize: mi
 	});
-	return gi.set(e, n), e.VC_SCOUT_MATCH_VIDEO_20550 ||= n, n;
+	return hi.set(e, n), e.VC_SCOUT_MATCH_VIDEO_20550 ||= n, n;
 }
 // src/domain/scout-match-video-overlay.ts
-function vi(e, t) {
+function _i(e, t) {
 	let n = e, r = t, i = n?.video && typeof n.video == "object" ? n.video : {}, a = r?.video, o = i.clips || a?.clips;
 	return {
 		syncOffset: i.syncOffset == null ? a?.syncOffset ?? null : Number(i.syncOffset),
@@ -4110,23 +4110,23 @@ function vi(e, t) {
 	};
 }
 // src/domain/scout-match-video-overlay-runtime.ts
-var yi = /* @__PURE__ */ new WeakMap();
-function bi(e) {
-	let t = yi.get(e);
+var vi = /* @__PURE__ */ new WeakMap();
+function yi(e) {
+	let t = vi.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.51",
 		pureOnly: !0,
-		normalize: vi
+		normalize: _i
 	});
-	return yi.set(e, n), e.VC_SCOUT_VIDEO_OVERLAY_20551 ||= n, n;
+	return vi.set(e, n), e.VC_SCOUT_VIDEO_OVERLAY_20551 ||= n, n;
 }
 // src/domain/scout-match-manual-result.ts
-var xi = (e) => Array.isArray(e) ? e : [];
-function Si(e, t) {
-	let n = e, r = t, i = xi(n?.sets);
+var bi = (e) => Array.isArray(e) ? e : [];
+function xi(e, t) {
+	let n = e, r = t, i = bi(n?.sets);
 	return {
-		sets: xi(r?.sets).map((e, t) => {
+		sets: bi(r?.sets).map((e, t) => {
 			let n = i.find((t) => Number(t?.number) === Number(e.number)) || i[t] || {};
 			return {
 				manualFinished: !!n?.manualFinished,
@@ -4148,19 +4148,19 @@ function Si(e, t) {
 	};
 }
 // src/domain/scout-match-manual-result-runtime.ts
-var Ci = /* @__PURE__ */ new WeakMap();
-function wi(e) {
-	let t = Ci.get(e);
+var Si = /* @__PURE__ */ new WeakMap();
+function Ci(e) {
+	let t = Si.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.52",
 		pureOnly: !0,
-		normalize: Si
+		normalize: xi
 	});
-	return Ci.set(e, n), e.VC_SCOUT_MANUAL_RESULT_20552 ||= n, n;
+	return Si.set(e, n), e.VC_SCOUT_MANUAL_RESULT_20552 ||= n, n;
 }
 // src/domain/scout-rally-video-bounds.ts
-function Ti(e) {
+function wi(e) {
 	let t = e;
 	return {
 		videoStart: t?.videoStart == null ? null : Number(t.videoStart),
@@ -4168,19 +4168,19 @@ function Ti(e) {
 	};
 }
 // src/domain/scout-rally-video-bounds-runtime.ts
-var Ei = /* @__PURE__ */ new WeakMap();
-function Di(e) {
-	let t = Ei.get(e);
+var Ti = /* @__PURE__ */ new WeakMap();
+function Ei(e) {
+	let t = Ti.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.53",
 		pureOnly: !0,
-		normalize: Ti
+		normalize: wi
 	});
-	return Ei.set(e, n), e.VC_SCOUT_RALLY_VIDEO_20553 ||= n, n;
+	return Ti.set(e, n), e.VC_SCOUT_RALLY_VIDEO_20553 ||= n, n;
 }
 // src/domain/scout-match-finalization-fields.ts
-function Oi(e) {
+function Di(e) {
 	let t = e;
 	return {
 		manualSavedAt: t?.manualSavedAt ? String(t.manualSavedAt) : null,
@@ -4191,68 +4191,68 @@ function Oi(e) {
 	};
 }
 // src/domain/scout-match-finalization-runtime.ts
-var ki = /* @__PURE__ */ new WeakMap();
-function Ai(e) {
-	let t = ki.get(e);
+var Oi = /* @__PURE__ */ new WeakMap();
+function ki(e) {
+	let t = Oi.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.54",
 		pureOnly: !0,
-		normalize: Oi
+		normalize: Di
 	});
-	return ki.set(e, n), e.VC_SCOUT_MATCH_FINALIZATION_20554 ||= n, n;
+	return Oi.set(e, n), e.VC_SCOUT_MATCH_FINALIZATION_20554 ||= n, n;
 }
 // src/domain/rally-shadow.ts
-var ji = 40, Mi = [
+var Ai = 40, ji = [
 	"p1",
 	"p2",
 	"p3",
 	"p4",
 	"p5",
 	"p6"
-], Ni = [
+], Mi = [
 	"liveVideoSessionId",
 	"liveVideoStart",
 	"liveVideoEnd",
 	"liveVideoLinkedAt"
-], Pi = (e, t) => e.us === t.us && e.opponent === t.opponent, Fi = (e, t, n = !1) => Object.freeze({
+], Ni = (e, t) => e.us === t.us && e.opponent === t.opponent, Pi = (e, t, n = !1) => Object.freeze({
 	operation: e,
 	verdict: t.length ? "difference" : n ? "unverified" : "agree",
 	areas: Object.freeze(t.length ? [...t] : n ? ["missing-data"] : [])
-}), Ii = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, Li = (t) => {
+}), Fi = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, Ii = (t) => {
 	let n = e(t), r = e(n?.ours), i = e(n?.opponent);
-	return !!r && !!i && Mi.every((e) => Object.hasOwn(r, e) && Object.hasOwn(i, e));
-}, Ri = (t, n) => {
+	return !!r && !!i && ji.every((e) => Object.hasOwn(r, e) && Object.hasOwn(i, e));
+}, Li = (t, n) => {
 	let r = e(t), i = e(n), a = e(r?.ours), o = e(i?.ours), s = e(r?.opponent), c = e(i?.opponent);
-	return !!a && !!o && !!s && !!c && Mi.every((e) => Object.is(a[e], o[e]) && Object.is(s[e], c[e]));
+	return !!a && !!o && !!s && !!c && ji.every((e) => Object.is(a[e], o[e]) && Object.is(s[e], c[e]));
 };
-function zi(o, s, l) {
+function Ri(o, s, l) {
 	let u = e(o), d = e(s), f = e(l), p = [];
-	if (!u || !d || !f) return Fi("point", p, !0);
+	if (!u || !d || !f) return Pi("point", p, !0);
 	let m = a(f);
-	if (!m.before || !m.after || !n(f.winner) || !n(f.servingBefore) || !r(f.rotationBefore) || !r(f.opponentRotationBefore)) return Fi("point", p, !0);
+	if (!m.before || !m.after || !n(f.winner) || !n(f.servingBefore) || !r(f.rotationBefore) || !r(f.opponentRotationBefore)) return Pi("point", p, !0);
 	let h = c({
 		score: m.before,
 		serving: f.servingBefore,
 		rotationUs: f.rotationBefore,
 		rotationOpponent: f.opponentRotationBefore
 	}, f.winner);
-	if (h.state !== "projected" || !h.score) return Fi("point", p, !0);
-	m.state !== "inconsistent" && Pi(h.score, m.after) || p.push("score");
+	if (h.state !== "projected" || !h.score) return Pi("point", p, !0);
+	m.state !== "inconsistent" && Ni(h.score, m.after) || p.push("score");
 	let g = i({
 		us: d.scoreUs,
 		opponent: d.scoreOpponent
 	}), _ = !g;
-	g && !Pi(g, m.after) && !p.includes("score") && p.push("score");
+	g && !Ni(g, m.after) && !p.includes("score") && p.push("score");
 	let v = e(u.liveRally);
 	v && t(v.actions).length === 0 && !e(v.startSnapshot) && (n(u.servingTeam) && u.servingTeam !== h.serving ? p.push("service") : n(u.servingTeam) || (_ = !0), r(u.rotationNo) && r(u.opponentRotationNo) ? (u.rotationNo !== h.rotationUs || u.opponentRotationNo !== h.rotationOpponent) && p.push("rotation") : _ = !0);
 	let y = N(u, m.after);
 	y.state === "projected" ? (typeof d.finished == "boolean" && d.finished !== y.setFinished ? p.push("set") : typeof d.finished != "boolean" && (_ = !0), y.setFinished && n(d.winner) && d.winner !== y.setWinner ? p.push("set") : y.setFinished && !n(d.winner) && (_ = !0), y.matchFinished === !0 && u.status !== "finished" && p.push("match")) : _ = !0;
-	let b = ne(f);
-	return (b.lineup === "missing" || b.actionsCaptured === !1) && (_ = !0), Fi("point", [...new Set(p)], _);
+	let b = P(f);
+	return (b.lineup === "missing" || b.actionsCaptured === !1) && (_ = !0), Pi("point", [...new Set(p)], _);
 }
-var Bi = (n, r) => {
-	let i = t(r.rallies), a = e(i.at(-1)), o = I(n);
+var zi = (n, r) => {
+	let i = t(r.rallies), a = e(i.at(-1)), o = ie(n);
 	return {
 		match: n,
 		set: r,
@@ -4262,26 +4262,26 @@ var Bi = (n, r) => {
 		expectedUndo: o.state === "projected" ? o.after : null
 	};
 };
-function Vi(t, a, o) {
+function Bi(t, a, o) {
 	let s = [], c = e(a.liveRally), l = t.lastRally, u = t.expectedUndo;
-	if (!l || !c || !u || l.id === void 0 || c.id !== l.id) return Fi("undo", s, !0);
+	if (!l || !c || !u || l.id === void 0 || c.id !== l.id) return Pi("undo", s, !0);
 	let d = i({
 		us: o.scoreUs,
 		opponent: o.scoreOpponent
 	}), f = !d;
-	d && !Pi(d, u.score) && s.push("score"), n(a.servingTeam) ? a.servingTeam !== u.serving && s.push("service") : f = !0, r(a.rotationNo) && r(a.opponentRotationNo) ? (a.rotationNo !== u.rotationUs || a.opponentRotationNo !== u.rotationOpponent) && s.push("rotation") : f = !0, Array.isArray(l.actions) && Array.isArray(c.actions) ? l.actions.length !== c.actions.length && s.push("actions") : f = !0, Li(l.lineupBefore) && Li(a.lineup) ? Ri(l.lineupBefore, a.lineup) || s.push("lineup") : f = !0;
-	let p = Ni.filter((e) => l[e] !== void 0 && l[e] !== null);
-	return p.length && p.some((e) => !Object.is(l[e], c[e])) && s.push("video"), Fi("undo", [...new Set(s)], f);
+	d && !Ni(d, u.score) && s.push("score"), n(a.servingTeam) ? a.servingTeam !== u.serving && s.push("service") : f = !0, r(a.rotationNo) && r(a.opponentRotationNo) ? (a.rotationNo !== u.rotationUs || a.opponentRotationNo !== u.rotationOpponent) && s.push("rotation") : f = !0, Array.isArray(l.actions) && Array.isArray(c.actions) ? l.actions.length !== c.actions.length && s.push("actions") : f = !0, Ii(l.lineupBefore) && Ii(a.lineup) ? Li(l.lineupBefore, a.lineup) || s.push("lineup") : f = !0;
+	let p = Mi.filter((e) => l[e] !== void 0 && l[e] !== null);
+	return p.length && p.some((e) => !Object.is(l[e], c[e])) && s.push("video"), Pi("undo", [...new Set(s)], f);
 }
-function Hi() {
-	let t = null, n = !1, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = [], d = (e) => (r++, e.operation === "point" ? i++ : a++, e.verdict === "agree" ? o++ : e.verdict === "difference" ? s++ : c++, e.verdict !== "agree" && (u.push(e), u.length > ji && u.shift()), e);
+function Vi() {
+	let t = null, n = !1, r = 0, i = 0, a = 0, o = 0, s = 0, c = 0, l = 0, u = [], d = (e) => (r++, e.operation === "point" ? i++ : a++, e.verdict === "agree" ? o++ : e.verdict === "difference" ? s++ : c++, e.verdict !== "agree" && (u.push(e), u.length > Ai && u.shift()), e);
 	return Object.freeze({
 		observe(r) {
 			if (n) return null;
-			let i = e(r), a = i && Ii(i);
+			let i = e(r), a = i && Fi(i);
 			if (!i || !a) return t = null, null;
-			let o = Bi(i, a), s = t;
-			return t = o, s ? s.match !== i || s.set !== a ? (l++, null) : o.count === s.count ? null : o.count === s.count + 1 ? d(zi(i, a, o.lastRally)) : o.count === s.count - 1 ? s.lastId === void 0 || e(i.liveRally)?.id !== s.lastId ? (l++, null) : d(Vi(s, i, a)) : (l++, null) : null;
+			let o = zi(i, a), s = t;
+			return t = o, s ? s.match !== i || s.set !== a ? (l++, null) : o.count === s.count ? null : o.count === s.count + 1 ? d(Ri(i, a, o.lastRally)) : o.count === s.count - 1 ? s.lastId === void 0 || e(i.liveRally)?.id !== s.lastId ? (l++, null) : d(Bi(s, i, a)) : (l++, null) : null;
 		},
 		snapshot: () => Object.freeze({
 			version: "20.5.15",
@@ -4314,7 +4314,7 @@ function Hi() {
 	});
 }
 // src/domain/rally-recovery-evidence.ts
-var Ui = Object.freeze([
+var Hi = Object.freeze([
 	"score",
 	"service",
 	"rotation",
@@ -4323,22 +4323,22 @@ var Ui = Object.freeze([
 	"actions",
 	"lineup",
 	"video"
-]), K = (e) => {
+]), q = (e) => {
 	try {
 		return JSON.stringify(e);
 	} catch {
 		return;
 	}
-}, Wi = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null;
-function q(n) {
+}, Ui = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null;
+function J(n) {
 	try {
 		let r = e(n);
 		if (!r) return null;
-		let i = Wi(r), a = i && Array.isArray(i.rallies) ? i.rallies : null, o = e(a?.at(-1)), s = e(r.liveRally), c = typeof r.id == "string" && r.id.length > 0 || typeof r.id == "number" && Number.isFinite(r.id) ? K([r.id, r.currentSet]) : void 0, l = {
-			score: i ? K([i.scoreUs, i.scoreOpponent]) : void 0,
-			service: K(r.servingTeam),
-			rotation: K([r.rotationNo, r.opponentRotationNo]),
-			set: i ? K([r.currentSet, t(r.sets).map((t) => {
+		let i = Ui(r), a = i && Array.isArray(i.rallies) ? i.rallies : null, o = e(a?.at(-1)), s = e(r.liveRally), c = typeof r.id == "string" && r.id.length > 0 || typeof r.id == "number" && Number.isFinite(r.id) ? q([r.id, r.currentSet]) : void 0, l = {
+			score: i ? q([i.scoreUs, i.scoreOpponent]) : void 0,
+			service: q(r.servingTeam),
+			rotation: q([r.rotationNo, r.opponentRotationNo]),
+			set: i ? q([r.currentSet, t(r.sets).map((t) => {
 				let n = e(t);
 				return n ? [
 					n.number,
@@ -4348,21 +4348,21 @@ function q(n) {
 					n.winner
 				] : null;
 			})]) : void 0,
-			match: K(r.status),
-			actions: a ? K([
+			match: q(r.status),
+			actions: a ? q([
 				a.length,
 				o?.id,
 				o?.actions,
 				s?.id,
 				s?.actions
 			]) : void 0,
-			lineup: K([
+			lineup: q([
 				r.lineup,
 				r.baseLineup,
 				r.lineupRoles,
 				r.libero
 			]),
-			video: K([
+			video: q([
 				o?.liveVideoSessionId,
 				o?.liveVideoStart,
 				o?.liveVideoEnd,
@@ -4380,69 +4380,69 @@ function q(n) {
 		return null;
 	}
 }
-function Gi(e, t) {
+function Wi(e, t) {
 	if (!e || !t) return Object.freeze(["missing-data"]);
 	let n = [], r = !1;
-	for (let i of Ui) e.fields[i] === void 0 || t.fields[i] === void 0 ? r = !0 : e.fields[i] !== t.fields[i] && n.push(i);
+	for (let i of Hi) e.fields[i] === void 0 || t.fields[i] === void 0 ? r = !0 : e.fields[i] !== t.fields[i] && n.push(i);
 	return r && n.push("missing-data"), Object.freeze(n);
 }
-function Ki(e, t) {
-	return !!e && !!t && !!e.identity && e.identity === t.identity && Ui.every((n) => e.fields[n] !== void 0 && t.fields[n] !== void 0 && e.fields[n] === t.fields[n]);
+function Gi(e, t) {
+	return !!e && !!t && !!e.identity && e.identity === t.identity && Hi.every((n) => e.fields[n] !== void 0 && t.fields[n] !== void 0 && e.fields[n] === t.fields[n]);
 }
-function qi(e, t, n) {
-	return !e || !t || !n || !e.identity || !t.identity || !n.identity || e.identity !== t.identity || e.identity !== n.identity || [...Ui].some((r) => e.fields[r] === void 0 || t.fields[r] === void 0 || n.fields[r] === void 0) ? "unreadable" : Ki(e, t) ? Ki(e, n) ? "unchanged-observed" : "divergent" : Ki(n, t) ? "durable-after" : Ki(n, e) ? "durable-before" : "divergent";
+function Ki(e, t, n) {
+	return !e || !t || !n || !e.identity || !t.identity || !n.identity || e.identity !== t.identity || e.identity !== n.identity || [...Hi].some((r) => e.fields[r] === void 0 || t.fields[r] === void 0 || n.fields[r] === void 0) ? "unreadable" : Gi(e, t) ? Gi(e, n) ? "unchanged-observed" : "divergent" : Gi(n, t) ? "durable-after" : Gi(n, e) ? "durable-before" : "divergent";
 }
 // src/domain/rally-transaction-pilot.ts
-var Ji = 40, Yi = (e, t) => e.us === t.us && e.opponent === t.opponent, Xi = (n) => {
+var qi = 40, Ji = (e, t) => e.us === t.us && e.opponent === t.opponent, Yi = (n) => {
 	let r = e(n);
 	return r && t(r.sets).map(e).find((e) => e && Number(e.number) === Number(r.currentSet) && Number.isInteger(Number(r.currentSet))) || null;
-}, J = (e, t, n = [], r = "not-checked") => Object.freeze({
+}, Y = (e, t, n = [], r = "not-checked") => Object.freeze({
 	operation: e,
 	verdict: t,
 	areas: Object.freeze([...n]),
 	durability: r
-}), Zi = (a, o, s, c, l, u, d) => {
-	let f = e(c), p = Xi(c);
-	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return J(a, "unverified", ["missing-data"]);
+}), Xi = (a, o, s, c, l, u, d) => {
+	let f = e(c), p = Yi(c);
+	if (o.state !== "projected" || !o.after || !f || !p || !l || f !== s || p !== l) return Y(a, "unverified", ["missing-data"]);
 	let m = t(p.rallies).length;
 	if (a === "point") {
-		if (m !== d + 1) return J(a, "unverified", ["missing-data"]);
-		let e = zi(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
+		if (m !== d + 1) return Y(a, "unverified", ["missing-data"]);
+		let e = Ri(f, p, t(p.rallies).at(-1)), n = [...e.areas], r = i({
 			us: p.scoreUs,
 			opponent: p.scoreOpponent
 		});
-		return r && !Yi(r, o.after.score) && !n.includes("score") && n.push("score"), J("point", n.length ? "difference" : e.verdict, n);
+		return r && !Ji(r, o.after.score) && !n.includes("score") && n.push("score"), Y("point", n.length ? "difference" : e.verdict, n);
 	}
 	let h = e(f.liveRally);
-	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return J("undo", "unverified", ["missing-data"]);
+	if (m !== d - 1 || !u || u.id === void 0 || h?.id !== u.id) return Y("undo", "unverified", ["missing-data"]);
 	let g = [], _ = i({
 		us: p.scoreUs,
 		opponent: p.scoreOpponent
 	}), v = !_;
-	return _ && !Yi(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, J("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
+	return _ && !Ji(_, o.after.score) && g.push("score"), n(f.servingTeam) ? f.servingTeam !== o.after.serving && g.push("service") : v = !0, r(f.rotationNo) && r(f.opponentRotationNo) ? (f.rotationNo !== o.after.rotationUs || f.opponentRotationNo !== o.after.rotationOpponent) && g.push("rotation") : v = !0, Array.isArray(u.actions) && Array.isArray(h.actions) ? u.actions.length !== h.actions.length && g.push("actions") : v = !0, Y("undo", g.length ? "difference" : v ? "unverified" : "agree", g.length ? g : v ? ["missing-data"] : []);
 };
-function Qi(n, r = {}) {
+function Zi(n, r = {}) {
 	let i = Promise.resolve(), a = !1, o = r.requireRecoveryAfterNativeFailure === !0, s = r.installedInLiveUI === !0, c = r.requireStableMatchForCommands === !0, l = 0, u = 0, d = o && r.startBlockedForPendingRecovery === !0, f = "not-checked", p = 0, m = 0, h = 0, g = 0, _ = 0, v = 0, y = 0, b = 0, x = 0, S = 0, C = 0, w = 0, T = [], E = (e) => {
-		m++, e.verdict === "agree" ? h++ : e.verdict === "difference" ? g++ : e.verdict === "native-rejected" ? v++ : e.verdict === "native-declined" ? y++ : e.verdict === "recovery-blocked" ? S++ : e.verdict === "context-discarded" ? C++ : _++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (f = e.durability, e.areas.some((e) => e !== "missing-data") && b++, e.areas.includes("missing-data") && x++), e.verdict !== "agree" && (T.push(e), T.length > Ji && T.shift());
+		m++, e.verdict === "agree" ? h++ : e.verdict === "difference" ? g++ : e.verdict === "native-rejected" ? v++ : e.verdict === "native-declined" ? y++ : e.verdict === "recovery-blocked" ? S++ : e.verdict === "context-discarded" ? C++ : _++, (e.verdict === "native-rejected" || e.verdict === "native-declined") && (f = e.durability, e.areas.some((e) => e !== "missing-data") && b++, e.areas.includes("missing-data") && x++), e.verdict !== "agree" && (T.push(e), T.length > qi && T.shift());
 	}, D = () => {
 		try {
 			return n.readCurrent();
 		} catch {
 			return null;
 		}
-	}, O = () => q(D()), k = async (e, t) => {
+	}, O = () => J(D()), k = async (e, t) => {
 		if (!n.readDurableLocal) return "not-configured";
 		try {
-			return qi(e, t, q(await n.readDurableLocal()));
+			return Ki(e, t, J(await n.readDurableLocal()));
 		} catch {
 			return "unreadable";
 		}
 	}, A = async (r, i, a, s) => {
-		if (c && (l > 0 || s !== u || !a || D() !== a)) return E(J(r, "context-discarded")), !1;
-		if (d) throw E(J(r, "recovery-blocked")), Error("Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.");
-		let f = D(), p = Xi(f), m = t(p?.rallies), h = q(f), g = m.length, _ = e(m.at(-1)), v = null;
+		if (c && (l > 0 || s !== u || !a || D() !== a)) return E(Y(r, "context-discarded")), !1;
+		if (d) throw E(Y(r, "recovery-blocked")), Error("Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.");
+		let f = D(), p = Yi(f), m = t(p?.rallies), h = J(f), g = m.length, _ = e(m.at(-1)), v = null;
 		try {
-			v = r === "point" ? ae(f, i) : I(f);
+			v = r === "point" ? re(f, i) : ie(f);
 		} catch {}
 		let y;
 		try {
@@ -4450,22 +4450,22 @@ function Qi(n, r = {}) {
 		} catch (e) {
 			o && (d = !0);
 			let t = O(), n = await k(h, t);
-			throw E(J(r, "native-rejected", Gi(h, t), n)), e;
+			throw E(Y(r, "native-rejected", Wi(h, t), n)), e;
 		}
 		if (y === !1) {
 			o && (d = !0);
 			let e = O(), t = await k(h, e);
-			return E(J(r, "native-declined", Gi(h, e), t)), y;
+			return E(Y(r, "native-declined", Wi(h, e), t)), y;
 		}
 		try {
-			E(v ? Zi(r, v, f, D(), p, _, g) : J(r, "unverified", ["missing-data"]));
+			E(v ? Xi(r, v, f, D(), p, _, g) : Y(r, "unverified", ["missing-data"]));
 		} catch {
-			E(J(r, "unverified", ["missing-data"]));
+			E(Y(r, "unverified", ["missing-data"]));
 		}
 		return y;
 	}, j = (e, t) => {
 		if (a) return Promise.reject(/* @__PURE__ */ Error("El piloto ya está desactivado."));
-		if (p++, c && l > 0) return E(J(e, "context-discarded")), Promise.resolve(!1);
+		if (p++, c && l > 0) return E(Y(e, "context-discarded")), Promise.resolve(!1);
 		w++;
 		let n = c ? D() : null, r = u, o = i.then(() => A(e, t, n, r));
 		return i = o.then(() => void 0, () => void 0), o.finally(() => {
@@ -4512,7 +4512,7 @@ function Qi(n, r = {}) {
 		async resumeAfterVerifiedReload() {
 			if (!o || !d || a || w !== 0 || !n.readDurableLocal) return !1;
 			try {
-				return Ki(O(), q(await n.readDurableLocal())) ? (d = !1, !0) : !1;
+				return Gi(O(), J(await n.readDurableLocal())) ? (d = !1, !0) : !1;
 			} catch {
 				return !1;
 			}
@@ -4523,32 +4523,32 @@ function Qi(n, r = {}) {
 	});
 }
 // src/domain/rally-writer-runtime.ts
-var $i = "20.5.55", ea = /* @__PURE__ */ new WeakMap();
-function ta(e) {
-	let t = ea.get(e);
+var Qi = "20.5.55", $i = /* @__PURE__ */ new WeakMap();
+function ea(e) {
+	let t = $i.get(e);
 	if (t) return t;
 	let n = Object.freeze({
-		VERSION: $i,
+		VERSION: Qi,
 		singleNativeWriter: !0,
 		create(e) {
 			if (!e || typeof e.readCurrent != "function" || typeof e.awardPoint != "function" || typeof e.undoRally != "function") throw TypeError("El coordinador requiere los escritores nativos originales.");
-			return Qi(e, {
+			return Zi(e, {
 				installedInLiveUI: !0,
 				requireStableMatchForCommands: !0
 			});
 		}
 	});
-	ea.set(e, n);
+	$i.set(e, n);
 	let r = e;
 	return r.VC_RALLY_WRITER_20555 ||= n, n;
 }
 // src/domain/rally-record.ts
-var na = (e) => typeof e == "object" && e && !Array.isArray(e) ? e : null, ra = (e) => {
+var ta = (e) => typeof e == "object" && e && !Array.isArray(e) ? e : null, na = (e) => {
 	let t = Object.getPrototypeOf(e);
 	return t === null || Object.getPrototypeOf(t) === null;
 };
-function ia(e) {
-	let t = na(e), n = na(t?.live), r = na(t?.before);
+function ra(e) {
+	let t = ta(e), n = ta(t?.live), r = ta(t?.before);
 	return !t || !n || !r ? null : {
 		id: n.id,
 		setNumber: t.setNumber,
@@ -4572,8 +4572,8 @@ function ia(e) {
 		scoutEndMs: t.scoutEndMs
 	};
 }
-function aa(e) {
-	let t = na(e), n = na(t?.rally);
+function ia(e) {
+	let t = ta(e), n = ta(t?.rally);
 	return !t || !n ? null : {
 		id: n.id,
 		actions: t.actions,
@@ -4588,38 +4588,38 @@ function aa(e) {
 		}
 	};
 }
-function oa(e, t, n = 0) {
+function aa(e, t, n = 0) {
 	if (Object.is(e, t)) return !0;
 	if (n > 3) return !1;
-	let r = na(e), i = na(t);
-	if (!r || !i || !ra(r) || !ra(i)) return !1;
+	let r = ta(e), i = ta(t);
+	if (!r || !i || !na(r) || !na(i)) return !1;
 	let a = Reflect.ownKeys(r), o = Reflect.ownKeys(i);
 	return a.length === o.length && a.every((e, t) => {
 		if (e !== o[t]) return !1;
 		let a = Object.getOwnPropertyDescriptor(r, e), s = Object.getOwnPropertyDescriptor(i, e);
-		return !!a && !!s && "value" in a && "value" in s && a.enumerable === s.enumerable && oa(a.value, s.value, n + 1);
+		return !!a && !!s && "value" in a && "value" in s && a.enumerable === s.enumerable && aa(a.value, s.value, n + 1);
 	});
 }
 // src/domain/rally-record-runtime.ts
-var sa = /* @__PURE__ */ new WeakMap();
-function ca(e) {
-	let t = sa.get(e);
+var oa = /* @__PURE__ */ new WeakMap();
+function sa(e) {
+	let t = oa.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.57",
 		pureRecordOnly: !0,
-		close: ia,
-		restore: aa,
-		equivalent: oa
+		close: ra,
+		restore: ia,
+		equivalent: aa
 	});
-	sa.set(e, n);
+	oa.set(e, n);
 	let r = e;
 	return r.VC_RALLY_RECORDS_20557 ||= n, n;
 }
 // src/domain/scout-local-save-receipt.ts
-var la = (e) => typeof e == "number" && Number.isInteger(e) && e >= 0 ? e : null;
-function ua(e) {
-	let t = e?.path === "full-flush" || e?.path === "legacy-backup" ? e.path : "unavailable", n = e?.error === !0 ? "failed" : t === "full-flush" && e.outcome === !0 ? "completed" : t === "full-flush" && e.outcome === !1 ? "pending" : "unverified", r = la(e?.journalFailuresBefore), i = la(e?.journalFailuresAfter);
+var ca = (e) => typeof e == "number" && Number.isInteger(e) && e >= 0 ? e : null;
+function la(e) {
+	let t = e?.path === "full-flush" || e?.path === "legacy-backup" ? e.path : "unavailable", n = e?.error === !0 ? "failed" : t === "full-flush" && e.outcome === !0 ? "completed" : t === "full-flush" && e.outcome === !1 ? "pending" : "unverified", r = ca(e?.journalFailuresBefore), i = ca(e?.journalFailuresAfter);
 	return Object.freeze({
 		version: "20.5.58",
 		local: n,
@@ -4629,28 +4629,28 @@ function ua(e) {
 	});
 }
 // src/domain/scout-local-save-receipt-runtime.ts
-var da = /* @__PURE__ */ new WeakMap();
-function fa(e) {
-	let t = da.get(e);
+var ua = /* @__PURE__ */ new WeakMap();
+function da(e) {
+	let t = ua.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.58",
 		readOnly: !0,
-		classify: ua
+		classify: la
 	});
-	da.set(e, n);
+	ua.set(e, n);
 	let r = e;
 	return r.VC_LOCAL_SAVE_20558 ||= n, n;
 }
 // src/domain/scout-local-readback.ts
-var pa = 6291456, ma = 2097152, ha = 524288, ga = "VC-LZW16-1:", Y = (e) => Object.freeze({
+var fa = 6291456, pa = 2097152, ma = 524288, ha = "VC-LZW16-1:", X = (e) => Object.freeze({
 	version: "20.5.59",
 	state: e,
 	scope: "primary-local-only",
 	journal: "not-confirmed",
 	cloud: "not-confirmed"
 });
-function _a(e) {
+function ga(e) {
 	try {
 		if (!e || typeof e != "object" || Array.isArray(e)) return null;
 		let t = JSON.stringify(e);
@@ -4659,59 +4659,59 @@ function _a(e) {
 		return null;
 	}
 }
-function va(e) {
+function _a(e) {
 	try {
-		if (typeof e?.snapshot != "string" || !e.snapshot || e.snapshot.length > 2097152 || typeof e.teamId != "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(e.teamId) || typeof e.matchId != "string" && typeof e.matchId != "number" || !String(e.matchId).trim()) return Y("unverified");
-		if (e.raw == null || e.raw === "") return Y("missing");
-		if (typeof e.raw != "string") return Y("invalid");
+		if (typeof e?.snapshot != "string" || !e.snapshot || e.snapshot.length > 2097152 || typeof e.teamId != "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(e.teamId) || typeof e.matchId != "string" && typeof e.matchId != "number" || !String(e.matchId).trim()) return X("unverified");
+		if (e.raw == null || e.raw === "") return X("missing");
+		if (typeof e.raw != "string") return X("invalid");
 		let t = e.raw;
-		if (t.startsWith(ga)) {
-			if (t.length > 524288) return Y("too-large");
-			if (typeof e.unpack != "function") return Y("unverified");
+		if (t.startsWith(ha)) {
+			if (t.length > 524288) return X("too-large");
+			if (typeof e.unpack != "function") return X("unverified");
 			try {
 				t = e.unpack(t);
 			} catch {
-				return Y("invalid");
+				return X("invalid");
 			}
-			if (typeof t != "string") return Y("invalid");
+			if (typeof t != "string") return X("invalid");
 		}
-		if (t.length > 6291456) return Y("too-large");
+		if (t.length > 6291456) return X("too-large");
 		let n;
 		try {
 			n = JSON.parse(t);
 		} catch {
-			return Y("invalid");
+			return X("invalid");
 		}
-		if (!n || typeof n != "object" || Array.isArray(n)) return Y("invalid");
+		if (!n || typeof n != "object" || Array.isArray(n)) return X("invalid");
 		let r = n.equiposData;
-		if (!r || typeof r != "object" || Array.isArray(r)) return Y("invalid");
+		if (!r || typeof r != "object" || Array.isArray(r)) return X("invalid");
 		let i = r[e.teamId];
-		if (!i || typeof i != "object" || Array.isArray(i)) return Y("missing");
+		if (!i || typeof i != "object" || Array.isArray(i)) return X("missing");
 		let a = i.scoutingMatches;
-		if (!Array.isArray(a)) return Y("missing");
+		if (!Array.isArray(a)) return X("missing");
 		let o = a.filter((t) => !!t && typeof t == "object" && String(t.id) === String(e.matchId));
-		return o.length === 0 ? Y("missing") : o.length === 1 ? Y(JSON.stringify(o[0]) === e.snapshot ? "matched" : "different") : Y("invalid");
+		return o.length === 0 ? X("missing") : o.length === 1 ? X(JSON.stringify(o[0]) === e.snapshot ? "matched" : "different") : X("invalid");
 	} catch {
-		return Y("unverified");
+		return X("unverified");
 	}
 }
 // src/domain/scout-local-readback-runtime.ts
-var ya = /* @__PURE__ */ new WeakMap();
-function ba(e) {
-	let t = ya.get(e);
+var va = /* @__PURE__ */ new WeakMap();
+function ya(e) {
+	let t = va.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.59",
 		readOnly: !0,
-		capture: _a,
-		verify: va
+		capture: ga,
+		verify: _a
 	});
-	ya.set(e, n);
+	va.set(e, n);
 	let r = e;
 	return r.VC_LOCAL_READBACK_20559 ||= n, n;
 }
 // src/domain/scout-indexed-journal.ts
-function xa(e) {
+function ba(e) {
 	return !e || !e.db || typeof e.db.transaction != "function" || typeof e.fullStore != "string" || !e.fullStore || typeof e.liveStore != "string" || !e.liveStore || e.fullStore === e.liveStore || typeof e.key != "string" || !e.key || !e.payload || typeof e.payload != "object" || Array.isArray(e.payload) || e.payload.key !== e.key || e.mode !== "checkpoint" && e.mode !== "action-delta" || e.mode === "action-delta" && typeof e.captureAnchor != "function" ? Promise.reject(/* @__PURE__ */ Error("Contrato del diario IndexedDB no disponible")) : new Promise((t, n) => {
 		let r;
 		try {
@@ -4778,32 +4778,32 @@ function xa(e) {
 	});
 }
 // src/domain/scout-indexed-journal-runtime.ts
-var Sa = /* @__PURE__ */ new WeakMap();
-function Ca(e) {
-	let t = Sa.get(e);
+var xa = /* @__PURE__ */ new WeakMap();
+function Sa(e) {
+	let t = xa.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.60",
 		ownsDatabase: !1,
 		usesExistingStores: !0,
-		write: xa
+		write: ba
 	});
-	Sa.set(e, n);
+	xa.set(e, n);
 	let r = e;
 	return r.VC_SCOUT_INDEXED_JOURNAL_20560 ||= n, n;
 }
 // src/domain/club-local-store.ts
-var wa = "VC-LZW16-1:", Ta = (e) => {
+var Ca = "VC-LZW16-1:", wa = (e) => {
 	let t = e && typeof e == "object" ? e : {};
 	return t.name === "QuotaExceededError" || t.code === 22 || t.code === 1014;
 };
-function Ea(e) {
+function Ta(e) {
 	if (!e || !e.storage || typeof e.storage.getItem != "function" || typeof e.storage.setItem != "function" || typeof e.key != "string" || !e.key || typeof e.raw != "string" || typeof e.pack != "function" || typeof e.unpack != "function") throw Error("Guardado local no disponible");
 	let t = e.storage.getItem(e.key);
-	if (!e.compactActive && !(t || "").startsWith(wa)) try {
+	if (!e.compactActive && !(t || "").startsWith(Ca)) try {
 		return e.storage.setItem(e.key, e.raw), "normal";
 	} catch (e) {
-		if (!Ta(e)) throw e;
+		if (!wa(e)) throw e;
 	}
 	let n = e.pack(e.raw);
 	if (n.length >= e.raw.length) throw Error("No cabe el estado local ni comprimido. Exporta una copia, no borres datos.");
@@ -4811,61 +4811,61 @@ function Ea(e) {
 	try {
 		e.storage.setItem(e.key, n);
 	} catch (e) {
-		throw Ta(e) ? Error("Almacenamiento local lleno incluso en formato compacto. La importación se ha cancelado sin eliminar tus datos; exporta una copia de seguridad y avisa del error.") : e;
+		throw wa(e) ? Error("Almacenamiento local lleno incluso en formato compacto. La importación se ha cancelado sin eliminar tus datos; exporta una copia de seguridad y avisa del error.") : e;
 	}
 	if (e.storage.getItem(e.key) !== n) throw Error("No se pudo verificar el almacenamiento local");
 	return "compacto";
 }
 // src/domain/club-local-store-runtime.ts
-var Da = /* @__PURE__ */ new WeakMap();
-function Oa(e) {
-	let t = Da.get(e);
+var Ea = /* @__PURE__ */ new WeakMap();
+function Da(e) {
+	let t = Ea.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.61",
 		usesExistingKey: !0,
 		keepsNativeCodec: !0,
-		write: Ea
+		write: Ta
 	});
-	Da.set(e, n);
+	Ea.set(e, n);
 	let r = e;
 	return r.VC_CLUB_LOCAL_STORE_20561 ||= n, n;
 }
 // src/domain/club-snapshot.ts
-var ka = (e, t) => {
+var Oa = (e, t) => {
 	let n = JSON.stringify(e);
 	if (typeof n != "string") throw Error(`No se pudo serializar ${t}`);
 	return n;
 };
-function Aa(e) {
+function ka(e) {
 	if (!e || typeof e.updatedAt != "string") throw Error("Instantánea del club no válida");
-	let t = ka(e.bibliotecaCompartida, "la biblioteca"), n = ka(e.equiposData, "los equipos"), r = ka(e.updatedAt, "la fecha");
+	let t = Oa(e.bibliotecaCompartida, "la biblioteca"), n = Oa(e.equiposData, "los equipos"), r = Oa(e.updatedAt, "la fecha");
 	return Object.freeze({
 		raw: `{"version":5.8,"bibliotecaCompartida":${t},"bibliotecaVersion":1,"bibliotecaUpdatedAt":${r},"equiposData":${n}}`,
 		libraryEntriesJSON: t
 	});
 }
-function ja(e) {
+function Aa(e) {
 	if (!e || !e.snapshot || typeof e.snapshot.libraryEntriesJSON != "string" || typeof e.updatedAt != "string" || !Number.isSafeInteger(e.total) || e.total < 0) throw Error("Copia de biblioteca no válida");
-	return `{"version":1,"updatedAt":${ka(e.updatedAt, "la fecha de biblioteca")},"total":${e.total},"ejercicios":${e.snapshot.libraryEntriesJSON}}`;
+	return `{"version":1,"updatedAt":${Oa(e.updatedAt, "la fecha de biblioteca")},"total":${e.total},"ejercicios":${e.snapshot.libraryEntriesJSON}}`;
 }
 // src/domain/club-snapshot-runtime.ts
-var Ma = /* @__PURE__ */ new WeakMap();
-function Na(e) {
-	let t = Ma.get(e);
+var ja = /* @__PURE__ */ new WeakMap();
+function Ma(e) {
+	let t = ja.get(e);
 	if (t) return t;
 	let n = Object.freeze({
 		VERSION: "20.5.62",
 		usesExistingPayload: !0,
-		serialize: Aa,
-		serializeLibrary: ja
+		serialize: ka,
+		serializeLibrary: Aa
 	});
-	Ma.set(e, n);
+	ja.set(e, n);
 	let r = e;
 	return r.VC_CLUB_SNAPSHOT_20562 ||= n, n;
 }
 // src/state/club-partitions.ts
-var X = [
+var Na = [
 	"players",
 	"trainings",
 	"seasons"
@@ -4898,7 +4898,7 @@ function Z(e, t) {
 	for (let a of n) {
 		let n = e[a];
 		if (!Ia(n)) throw Error("Registro de equipo no compatible con el piloto");
-		for (let e of X) {
+		for (let e of Na) {
 			let o = {};
 			for (let t of Fa[e]) Object.hasOwn(n, t) && (o[t] = n[t]);
 			let s = JSON.stringify(o);
@@ -4911,7 +4911,7 @@ function Z(e, t) {
 			}));
 		}
 	}
-	for (let e of X) Object.freeze(r[e]);
+	for (let e of Na) Object.freeze(r[e]);
 	return Object.freeze({
 		schema: 1,
 		revision: t,
@@ -4923,7 +4923,7 @@ function Z(e, t) {
 function La(e, t) {
 	if (e.teamIds.length !== t.teamIds.length) return !1;
 	for (let n = 0; n < e.teamIds.length; n++) if (e.teamIds[n] !== t.teamIds[n]) return !1;
-	for (let n of X) {
+	for (let n of Na) {
 		if (e.rows[n].length !== t.rows[n].length) return !1;
 		for (let r = 0; r < e.rows[n].length; r++) {
 			let i = e.rows[n][r], a = t.rows[n][r];
@@ -5086,7 +5086,7 @@ function Wa(e, t) {
 	return JSON.stringify(e.layout) === JSON.stringify(t.layout);
 }
 // src/state/club-repository.ts
-var Ga = "VolleyCoachClubPartitionsV2063", Ka = "metadata", qa = [...X, Ka], Ja = [
+var Ga = "VolleyCoachClubPartitionsV2063", Ka = "metadata", qa = [...Na, Ka], Ja = [
 	...qa,
 	...Q,
 	"entityManifest"
@@ -5140,7 +5140,7 @@ function Xa(e, t) {
 			a || (a = !0, n());
 		}, i.onerror = () => o(i.error), i.onabort = () => o(i.error);
 		try {
-			for (let e of X) {
+			for (let e of Na) {
 				let n = i.objectStore(e);
 				for (let r of t.rows[e]) n.put(r);
 			}
@@ -5182,18 +5182,18 @@ function Za(e, t) {
 			};
 		};
 		i.oncomplete = () => {
-			o || (o = !0, a || s !== 1 + t.teamIds.length * X.length ? r(Error("La réplica no coincide con la instantánea original")) : n(Object.freeze({
+			o || (o = !0, a || s !== 1 + t.teamIds.length * Na.length ? r(Error("La réplica no coincide con la instantánea original")) : n(Object.freeze({
 				status: "verified",
 				revision: t.revision,
 				teamCount: t.teamIds.length,
-				recordCount: t.teamIds.length * X.length,
+				recordCount: t.teamIds.length * Na.length,
 				totalChars: t.totalChars,
 				authoritative: !1
 			})));
 		}, i.onerror = () => c(i.error), i.onabort = () => c(i.error);
 		try {
 			l(i.objectStore(Ka).get("current"), (e) => e?.key === "current" && e.schema === 1 && e.revision === t.revision && e.totalChars === t.totalChars && Array.isArray(e.teamIds) && JSON.stringify(e.teamIds) === JSON.stringify(t.teamIds));
-			for (let e of X) {
+			for (let e of Na) {
 				let n = t.rows[e];
 				for (let r of n) l(i.objectStore(e).get(r.teamId), (e) => e?.teamId === r.teamId && e.revision === t.revision && e.dataJson === r.dataJson);
 			}
@@ -6254,7 +6254,9 @@ function ds(e, t = us) {
 			i || (i = !0, n(e));
 		}, o = (e) => {
 			i || (i = !0, r(e));
-		};
+		}, s = () => {}, c = new Promise((e) => {
+			s = e;
+		});
 		try {
 			Promise.resolve(e.request(t, {
 				mode: "exclusive",
@@ -6267,10 +6269,15 @@ function ds(e, t = us) {
 				let t = () => {}, n = new Promise((e) => {
 					t = e;
 				}), r = !1;
-				a(Object.freeze({ release: () => {
-					r || (r = !0, t());
-				} })), await n;
-			})).catch(o);
+				a(Object.freeze({
+					release: () => {
+						r || (r = !0, t());
+					},
+					released: c
+				})), await n;
+			})).then(s, (e) => {
+				s(), o(e);
+			});
 		} catch (e) {
 			o(e);
 		}
@@ -6382,21 +6389,85 @@ async function gs(e) {
 		n.close();
 	}
 }
-// src/state/player-shadow-runtime.ts
-var _s = /* @__PURE__ */ new WeakMap(), vs = 0, ys = () => `player-shadow-${Date.now().toString(36)}-${(++vs).toString(36)}`, bs = "volleyCoachStateV43";
-function xs(e) {
-	let t = e.document, n = t?.getElementById("vc20567-arm-players"), r = t?.getElementById("vc20567-pause-players"), i = t?.getElementById("vc20567-check-players"), a = t?.getElementById("vc20567-erase-players"), o = t?.getElementById("vc20569-download-players"), s = t?.getElementById("vc20567-player-shadow-status");
-	if (!n || !r || !i || !a || !o || !s) return null;
-	let c = _s.get(e);
-	if (c) return c;
-	let l = typeof e.indexedDB?.open == "function" && typeof e.indexedDB?.deleteDatabase == "function" && !!e.localStorage, u = e.navigator?.locks, d = l && typeof u?.request == "function", f = !1, p = !1, m = !1, h = !1, g = !1, _ = null, v = null, y = null, b = null, x = (e) => {
-		m || (s.textContent = e);
-	}, S = () => {
-		n.disabled = !d || f || p || !!_ || !!v || m, r.disabled = !f || m, i.disabled = !l || m, a.disabled = !d || m, o.disabled = !d || m;
+// src/state/player-shadow-reopen.ts
+var _s = "vc20570-player-reopen-once", vs = "vc-player-reopen-v1", ys = 6e5, bs = (e, t = 0) => Object.freeze({
+	status: e,
+	readOnly: !0,
+	authoritative: !1,
+	records: t
+});
+async function xs(e, t) {
+	if (typeof e != "string" || e.length > 12e6 || typeof t?.digest != "function") throw Error("No se puede comprobar la huella de la copia");
+	let n = await t.digest("SHA-256", new TextEncoder().encode(e));
+	return Array.from(new Uint8Array(n), (e) => e.toString(16).padStart(2, "0")).join("");
+}
+function Ss(e, t) {
+	if (typeof e != "string" || e.length > 512 || !Number.isSafeInteger(t)) return { status: "invalid" };
+	let n;
+	try {
+		n = JSON.parse(e);
+	} catch {
+		return { status: "invalid" };
+	}
+	if (!n || typeof n != "object") return { status: "invalid" };
+	let r = n;
+	return r.schema !== vs || !Number.isSafeInteger(r.createdAt) || !Number.isSafeInteger(r.records) || Number(r.records) < 0 || Number(r.records) > 2e4 || typeof r.digest != "string" || !/^[a-f0-9]{64}$/.test(r.digest) ? { status: "invalid" } : Number(r.createdAt) > t || t - Number(r.createdAt) > ys ? { status: "expired" } : {
+		status: "valid",
+		ticket: r
 	};
-	S(), x(d ? "Copia paralela apagada. V20.5.68 protege la sesión con un bloqueo exclusivo entre pestañas." : "La copia paralela requiere IndexedDB y Web Locks para impedir escrituras simultáneas. La inspección de solo lectura puede seguir disponible.");
-	let C = () => {
-		let t = e.localStorage.getItem(bs);
+}
+async function Cs(e) {
+	let t = es(e.raw, "reopen-preflight"), n = await cs({
+		factory: e.factory,
+		plan: t
+	});
+	if (n.status !== "verified") throw Error("La copia de jugadores no coincide: " + n.status);
+	let r = await xs(e.raw, e.subtle);
+	return JSON.stringify(Object.freeze({
+		schema: vs,
+		createdAt: e.now,
+		digest: r,
+		records: n.records
+	}));
+}
+async function ws(e) {
+	let t = Ss(e.ticket, e.now);
+	if (t.status !== "valid") return bs(t.status);
+	let n = t.ticket, r;
+	try {
+		r = es(e.raw, "reopen-after-reload");
+	} catch {
+		return bs("different");
+	}
+	if (!r.complete) return bs("incomplete");
+	if (r.rows.length !== n.records || await xs(e.raw, e.subtle) !== n.digest) return bs("different");
+	let i = await cs({
+		factory: e.factory,
+		plan: r
+	});
+	return bs(i.status === "verified" ? "verified" : i.status, i.records);
+}
+// src/state/player-shadow-runtime.ts
+var Ts = /* @__PURE__ */ new WeakMap(), Es = 0, Ds = () => `player-shadow-${Date.now().toString(36)}-${(++Es).toString(36)}`, Os = "volleyCoachStateV43";
+function ks(e) {
+	let t = e.document, n = t?.getElementById("vc20567-arm-players"), r = t?.getElementById("vc20567-pause-players"), i = t?.getElementById("vc20567-check-players"), a = t?.getElementById("vc20567-erase-players"), o = t?.getElementById("vc20569-download-players"), s = t?.getElementById("vc20570-reopen-players"), c = t?.getElementById("vc20570-reopen-status"), l = t?.getElementById("vc20567-player-shadow-status");
+	if (!n || !r || !i || !a || !o || !s || !c || !l) return null;
+	let u = Ts.get(e);
+	if (u) return u;
+	let d = typeof e.indexedDB?.open == "function" && typeof e.indexedDB?.deleteDatabase == "function" && !!e.localStorage, f = e.navigator?.locks, p = d && typeof f?.request == "function", m = !1;
+	try {
+		m = typeof e.sessionStorage?.getItem == "function" && typeof e.sessionStorage?.setItem == "function" && typeof e.sessionStorage?.removeItem == "function";
+	} catch {}
+	let h = p && typeof e.crypto?.subtle?.digest == "function" && typeof e.location?.reload == "function" && m, g = !1, _ = !1, v = !1, y = !1, b = !1, x = !1, S = !1, C = null, w = null, T = null, E = null, D = (e) => {
+		v || (l.textContent = e);
+	}, O = (e) => {
+		v || (c.textContent = e), D(e);
+	}, k = () => {
+		n.disabled = !p || g || _ || !!C || !!w || v || x || S, r.disabled = !g || v, i.disabled = !d || v || x || S, a.disabled = !p || v || x || S, o.disabled = !p || v || x || S, s.disabled = !h || v || x || S;
+	};
+	k(), D(p ? "Copia paralela apagada. V20.5.68 protege la sesión con un bloqueo exclusivo entre pestañas." : "La copia paralela requiere IndexedDB y Web Locks para impedir escrituras simultáneas. La inspección de solo lectura puede seguir disponible.");
+	let A = () => {
+		let t = e.localStorage.getItem(Os);
 		if (!t) throw Error("No hay un guardado local principal confirmado");
 		if (t.startsWith("VC-LZW16-1:")) {
 			let n = e.VC_STORAGE_QUOTA_1531?.unpack;
@@ -6404,66 +6475,66 @@ function xs(e) {
 			return n(t);
 		}
 		return t;
-	}, w = async () => {
-		if (!(h || m || !f)) {
-			h = !0;
+	}, j = async () => {
+		if (!(y || v || !g)) {
+			y = !0;
 			try {
-				for (; f && y !== null;) {
-					let t = y;
-					y = null;
-					let n = es(t, ys());
+				for (; g && T !== null;) {
+					let t = T;
+					T = null;
+					let n = es(t, Ds());
 					if (!n.complete) throw Error(`IDs pendientes: ${n.pendingIds}`);
 					let r = await ss({
 						factory: e.indexedDB,
 						plan: n
 					});
-					x(`Copia paralela verificada: ${r.records} jugadores. ${r.added} nuevos, ${r.changed} actualizados, ${r.removed} eliminados de la copia. El guardado original continúa activo.`);
+					D(`Copia paralela verificada: ${r.records} jugadores. ${r.added} nuevos, ${r.changed} actualizados, ${r.removed} eliminados de la copia. El guardado original continúa activo.`);
 				}
 			} catch {
-				f = !1, y = null, x("Copia paralela detenida por una incompatibilidad o fallo local. El guardado principal no se ha modificado. Revisa los IDs y la copia JSON.");
+				g = !1, T = null, D("Copia paralela detenida por una incompatibilidad o fallo local. El guardado principal no se ha modificado. Revisa los IDs y la copia JSON.");
 			} finally {
-				h = !1, b = null, S(), f || O();
+				y = !1, E = null, k(), g || N();
 			}
 		}
-	}, T = () => {
-		g || h || m || !f || (g = !0, setTimeout(() => {
-			g = !1, f && !m && (b = w());
+	}, ee = () => {
+		b || y || v || !g || (b = !0, setTimeout(() => {
+			b = !1, g && !v && (E = j());
 		}, 0));
-	}, E = (e) => {
-		f && !m && (typeof e != "string" || !e || e.length > 12e6 ? (j(), x("Copia paralela pausada: el estado confirmado supera los límites de prueba.")) : (y = e, T()));
-	}, D = async () => {
-		for (; g || h || b;) b ? await b : await new Promise((e) => setTimeout(e, 0));
-	}, O = () => v || (v = (async () => {
-		await D();
-		let e = _;
-		_ = null, e?.release(), v = null, S();
-	})(), v), k = async () => {
-		await D(), v && await v;
-	}, A = async () => {
-		if (!d || m || f || p || _ || v) throw Error("No se puede activar: copia ocupada o bloqueo no disponible");
-		let e = C(), t = es(e, ys());
+	}, te = (e) => {
+		g && !v && (typeof e != "string" || !e || e.length > 12e6 ? (I(), D("Copia paralela pausada: el estado confirmado supera los límites de prueba.")) : (T = e, ee()));
+	}, M = async () => {
+		for (; b || y || E;) E ? await E : await new Promise((e) => setTimeout(e, 0));
+	}, N = () => w || (w = (async () => {
+		await M();
+		let e = C;
+		C = null, e?.release(), e && await e.released, w = null, k();
+	})(), w), P = async () => {
+		await M(), w && await w;
+	}, F = async () => {
+		if (!p || v || g || _ || C || w) throw Error("No se puede activar: copia ocupada o bloqueo no disponible");
+		let e = A(), t = es(e, Ds());
 		if (!t.complete) throw Error(`Hay ${t.pendingIds} identidades pendientes`);
-		p = !0, S();
+		_ = !0, k();
 		try {
-			let t = await ds(u);
+			let t = await ds(f);
 			if (!t) throw Error("Otra pestaña ya tiene activada la copia paralela");
-			if (m || !p) {
+			if (v || !_) {
 				t.release();
 				return;
 			}
-			_ = t, f = !0, x("Copia paralela protegida para esta sesión. Comprobando el último guardado confirmado…"), E(e);
+			C = t, g = !0, D("Copia paralela protegida para esta sesión. Comprobando el último guardado confirmado…"), te(e);
 		} finally {
-			p = !1, S();
+			_ = !1, k();
 		}
-	}, j = () => {
-		f = !1, p = !1, y = null, S(), O(), x(h ? "Copia paralela pausada. La transacción ya iniciada finalizará antes de liberar el bloqueo." : "Copia paralela desactivada. El bloqueo de esta sesión se ha liberado y el guardado principal sigue activo.");
-	}, ee = async () => {
-		if (!l || m) throw Error("Inspección de jugadores no disponible");
-		let t = C(), n = es(t, ys()), r = await cs({
+	}, I = () => {
+		g = !1, _ = !1, T = null, k(), N(), D(y ? "Copia paralela pausada. La transacción ya iniciada finalizará antes de liberar el bloqueo." : "Copia paralela desactivada. El bloqueo de esta sesión se ha liberado y el guardado principal sigue activo.");
+	}, ne = async () => {
+		if (!d || v) throw Error("Inspección de jugadores no disponible");
+		let t = A(), n = es(t, Ds()), r = await cs({
 			factory: e.indexedDB,
 			plan: n
 		});
-		if (C() !== t) return x("El guardado principal cambió durante la lectura. Repite la comprobación."), Object.freeze({
+		if (A() !== t) return D("El guardado principal cambió durante la lectura. Repite la comprobación."), Object.freeze({
 			...r,
 			status: "different"
 		});
@@ -6473,29 +6544,29 @@ function xs(e) {
 			different: "La copia paralela y el guardado local no coinciden.",
 			incomplete: `Hay ${r.pendingIds} identidades incompletas o duplicadas; no se puede certificar la copia.`
 		};
-		return x(i[r.status]), r;
-	}, te = async () => {
-		if (!d || m) throw Error("Borrado protegido no disponible");
-		j(), await k();
-		let t = await ds(u);
+		return D(i[r.status]), r;
+	}, L = async () => {
+		if (!p || v) throw Error("Borrado protegido no disponible");
+		I(), await P();
+		let t = await ds(f);
 		if (!t) throw Error("Otra pestaña está usando la copia; no se elimina");
 		try {
 			let t = await ls(e.indexedDB);
-			return x("Se eliminó únicamente la copia paralela de jugadores. El club original no cambió."), t;
+			return D("Se eliminó únicamente la copia paralela de jugadores. El club original no cambió."), t;
 		} finally {
-			t.release();
+			t.release(), await t.released;
 		}
-	}, M = async () => {
-		if (!d || m) throw Error("Exportación protegida no disponible");
-		j(), await k();
-		let t = await ds(u);
+	}, re = async () => {
+		if (!p || v) throw Error("Exportación protegida no disponible");
+		I(), await P();
+		let t = await ds(f);
 		if (!t) throw Error("Otra pestaña tiene activa la copia de jugadores");
 		try {
-			let t = C(), n = es(t, ys()), r = await gs({
+			let t = A(), n = es(t, Ds()), r = await gs({
 				factory: e.indexedDB,
 				plan: n
 			});
-			if (C() !== t) return x("El club cambió durante la preparación de la copia. Repite el ensayo."), Object.freeze({
+			if (A() !== t) return D("El club cambió durante la preparación de la copia. Repite el ensayo."), Object.freeze({
 				...r,
 				status: "different",
 				json: void 0
@@ -6506,18 +6577,78 @@ function xs(e) {
 				different: "La copia paralela no coincide con el guardado principal. No se descarga información antigua.",
 				incomplete: `La copia está bloqueada por ${r.pendingIds} identidades pendientes.`
 			};
-			return x(i[r.status]), r;
+			return D(i[r.status]), r;
 		} finally {
-			t.release();
+			t.release(), await t.released;
 		}
-	}, N = () => {
-		e.confirm("La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?") && A().catch(() => x("No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes."));
-	}, ne = () => j(), re = () => {
-		ee().catch(() => x("No se pudo comprobar la copia de jugadores."));
-	}, P = () => {
-		e.confirm("¿Eliminar solo la réplica de jugadores V20.5.67? No se borrará el club principal.") && te().catch(() => x("No se ha eliminado la copia. Otra pestaña puede estar utilizándola."));
-	}, ie = () => {
-		e.confirm("Esta descarga contiene datos personales de jugadores. ¿Quieres crear una copia JSON solo de plantilla, verificada y para guardar en un lugar protegido?") && M().then((e) => {
+	}, ie = async () => {
+		if (!h || v || x || S) throw Error("Prueba de reapertura no disponible");
+		x = !0, k();
+		try {
+			I(), await P();
+			let t = await ds(f);
+			if (!t) throw Error("Hay otra pestaña con la copia activa");
+			try {
+				let t = A(), n = await Cs({
+					raw: t,
+					factory: e.indexedDB,
+					subtle: e.crypto.subtle,
+					now: Date.now()
+				});
+				if (A() !== t) throw Error("El club cambió durante la comprobación");
+				e.sessionStorage.setItem(_s, n);
+			} finally {
+				t.release(), await t.released;
+			}
+			O("Copia verificada antes de recargar. Comenzando la prueba de reapertura…");
+			try {
+				e.location.reload();
+			} catch (t) {
+				throw e.sessionStorage.removeItem(_s), t;
+			}
+		} finally {
+			x = !1, k();
+		}
+	}, ae = async (t) => {
+		S = !0, k(), O("Volviendo a abrir la copia de jugadores desde IndexedDB…");
+		try {
+			if (!h) throw Error("El navegador no permite verificar esta reapertura");
+			let n = await ds(f);
+			if (!n) throw Error("Otra pestaña mantiene el bloqueo; la reapertura no se ha certificado");
+			try {
+				let n = A(), r = await ws({
+					ticket: t,
+					raw: n,
+					factory: e.indexedDB,
+					subtle: e.crypto.subtle,
+					now: Date.now()
+				});
+				if (A() !== n) throw Error("El guardado original cambió durante la reapertura");
+				let i = {
+					verified: `Reapertura comprobada: ${r.records} jugadores coinciden en una conexión IndexedDB nueva. Solo prueba recarga normal; no garantiza recuperación tras apagón ni sincronización con otro dispositivo.`,
+					missing: "Prueba no superada: falta la base IndexedDB después de recargar.",
+					different: "Prueba no superada: el club o los registros de IndexedDB cambiaron.",
+					incomplete: "Prueba no superada: hay identidades de jugadores pendientes.",
+					expired: "Prueba caducada: han pasado más de diez minutos desde su inicio.",
+					invalid: "Prueba rechazada: la marca de sesión no es válida."
+				};
+				O(i[r.status]);
+			} finally {
+				n.release(), await n.released;
+			}
+		} catch {
+			O("No se pudo certificar la reapertura de jugadores. No se ha modificado el club. Cierra otras pestañas y comprueba la copia de nuevo.");
+		} finally {
+			S = !1, k();
+		}
+	}, R = () => {
+		e.confirm("La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?") && F().catch(() => D("No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes."));
+	}, oe = () => I(), se = () => {
+		ne().catch(() => D("No se pudo comprobar la copia de jugadores."));
+	}, ce = () => {
+		e.confirm("¿Eliminar solo la réplica de jugadores V20.5.67? No se borrará el club principal.") && L().catch(() => D("No se ha eliminado la copia. Otra pestaña puede estar utilizándola."));
+	}, le = () => {
+		e.confirm("Esta descarga contiene datos personales de jugadores. ¿Quieres crear una copia JSON solo de plantilla, verificada y para guardar en un lugar protegido?") && re().then((e) => {
 			if (e.status !== "ready" || !e.json) return;
 			let n = new Blob([e.json], { type: "application/json;charset=utf-8" }), r = URL.createObjectURL(n);
 			try {
@@ -6526,38 +6657,48 @@ function xs(e) {
 			} finally {
 				setTimeout(() => URL.revokeObjectURL(r), 1e3);
 			}
-		}).catch(() => x("No se pudo preparar la descarga segura de jugadores. No se modificaron los datos."));
-	}, F = (e) => {
-		e.key === bs && (f || p) && (j(), x("Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla."));
-	}, ae = () => {
-		(f || p) && j();
+		}).catch(() => D("No se pudo preparar la descarga segura de jugadores. No se modificaron los datos."));
+	}, ue = () => {
+		e.confirm("La página se recargará una vez. Se comparará la réplica de jugadores con el último guardado confirmado antes y después; no se tocarán tus datos. ¿Continuar?") && ie().catch(() => O("No se pudo iniciar la prueba: comprueba primero que las plantillas estén verificadas y no haya otra pestaña activa."));
+	}, de = (e) => {
+		e.key === Os && (g || _) && (I(), D("Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla."));
+	}, fe = () => {
+		(g || _) && I();
 	};
-	n.addEventListener("click", N), r.addEventListener("click", ne), i.addEventListener("click", re), a.addEventListener("click", P), o.addEventListener("click", ie), e.addEventListener?.("storage", F), e.addEventListener?.("pagehide", ae);
-	let I = Object.freeze({
+	n.addEventListener("click", R), r.addEventListener("click", oe), i.addEventListener("click", se), a.addEventListener("click", ce), o.addEventListener("click", le), s.addEventListener("click", ue), e.addEventListener?.("storage", de), e.addEventListener?.("pagehide", fe);
+	let pe = Object.freeze({
 		VERSION: "20.5.67",
 		manualOnly: !0,
 		authoritative: !1,
 		crossTabSafe: !0,
-		enabled: () => f,
-		arm: A,
-		pause: j,
-		onConfirmedWrite: E,
-		inspect: ee,
-		backup: M,
-		erase: te,
-		whenIdle: k,
+		enabled: () => g,
+		arm: F,
+		pause: I,
+		onConfirmedWrite: te,
+		inspect: ne,
+		backup: re,
+		reopen: ie,
+		erase: L,
+		whenIdle: P,
 		dispose() {
-			m || (j(), m = !0, n.removeEventListener("click", N), r.removeEventListener("click", ne), i.removeEventListener("click", re), a.removeEventListener("click", P), o.removeEventListener("click", ie), e.removeEventListener?.("storage", F), e.removeEventListener?.("pagehide", ae), S(), _s.delete(e), e.VC_PLAYER_SHADOW_20567 === I && delete e.VC_PLAYER_SHADOW_20567);
+			v || (I(), v = !0, n.removeEventListener("click", R), r.removeEventListener("click", oe), i.removeEventListener("click", se), a.removeEventListener("click", ce), o.removeEventListener("click", le), s.removeEventListener("click", ue), e.removeEventListener?.("storage", de), e.removeEventListener?.("pagehide", fe), k(), Ts.delete(e), e.VC_PLAYER_SHADOW_20567 === pe && delete e.VC_PLAYER_SHADOW_20567);
 		}
 	});
-	return _s.set(e, I), e.VC_PLAYER_SHADOW_20567 = I, I;
+	Ts.set(e, pe), e.VC_PLAYER_SHADOW_20567 = pe;
+	try {
+		let t = e.sessionStorage?.getItem(_s);
+		t != null && (e.sessionStorage.removeItem(_s), ae(t));
+	} catch {
+		O("No se pudo acceder a la marca de reapertura. El club permanece intacto.");
+	}
+	return pe;
 }
 // src/domain/rally-shadow-runtime.ts
-function Ss(e) {
+function As(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_SHADOW_20515) return e.VC_SHADOW_20515;
-	let r = Hi();
+	let r = Vi();
 	r.observe(w(e));
 	let i = (e, n = "", r = "") => {
 		let i = t.createElement(e);
@@ -6656,35 +6797,35 @@ function Ss(e) {
 	return e.VC_SHADOW_20515 = k, k;
 }
 // src/domain/multi-device-validation.ts
-var Cs = "20.1.2", ws = "vc-multi-device-validation", Ts = (e) => String(e ?? "").trim(), Es = (e) => {
+var js = "20.1.2", Ms = "vc-multi-device-validation", Ns = (e) => String(e ?? "").trim(), Ps = (e) => {
 	let t = Number(e);
 	return Number.isSafeInteger(t) && t >= 0 ? t : 0;
-}, Ds = (e) => {
-	let t = Ts(e);
+}, Fs = (e) => {
+	let t = Ns(e);
 	return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/.test(t) && Number.isFinite(Date.parse(t)) ? t : "";
 };
-function Os({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
+function Is({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
 	let a = e(t) || {}, o = e(n) || {}, s = e(r) || {};
 	return {
-		schema: ws,
-		version: Cs,
+		schema: Ms,
+		version: js,
 		createdAt: new Date(i).toISOString(),
 		connected: !!a.connected,
 		dirty: !!a.dirty,
 		blocked: !!a.blockedReason,
 		realtimeSubscribed: o.realtimeState === "SUBSCRIBED",
-		lastReadAt: Es(a.lastReadAt),
-		lastWriteAt: Es(a.lastWriteAt),
-		lastReadErrorAt: Es(a.lastReadErrorAt),
-		lastObservedRemoteStamp: Ds(a.lastObservedRemoteStamp),
-		lastAppliedRemoteStamp: Ds(a.lastAppliedRemoteStamp),
-		lastConfirmedWriteStamp: Ds(a.lastConfirmedWriteStamp),
-		pendingJournal: typeof s.pendingCount == "number" ? Es(s.pendingCount) : null,
+		lastReadAt: Ps(a.lastReadAt),
+		lastWriteAt: Ps(a.lastWriteAt),
+		lastReadErrorAt: Ps(a.lastReadErrorAt),
+		lastObservedRemoteStamp: Fs(a.lastObservedRemoteStamp),
+		lastAppliedRemoteStamp: Fs(a.lastAppliedRemoteStamp),
+		lastConfirmedWriteStamp: Fs(a.lastConfirmedWriteStamp),
+		pendingJournal: typeof s.pendingCount == "number" ? Ps(s.pendingCount) : null,
 		journalError: !!s.lastError,
 		warning: "Mismo origen y cuenta deben comprobarse manualmente. La igualdad de marcas CAS no verifica contenido ni entrega de vídeo."
 	};
 }
-function ks(t) {
+function Ls(t) {
 	let n = e(typeof t == "string" ? JSON.parse(t) : t);
 	if (!n || n.schema !== "vc-multi-device-validation" || n.version !== "20.1.2") throw Error("Informe incompatible: deben ser diagnósticos V20.1.2.");
 	if (!Number.isFinite(Date.parse(String(n.createdAt)))) throw Error("Informe sin fecha válida.");
@@ -6695,7 +6836,7 @@ function ks(t) {
 		"realtimeSubscribed"
 	]) if (typeof n[e] != "boolean") throw Error("Campo inválido: " + e);
 	if (n.pendingJournal !== null && (!Number.isInteger(n.pendingJournal) || Number(n.pendingJournal) < 0)) throw Error("Diario inválido.");
-	return Os({
+	return Is({
 		cloud: n,
 		device: { realtimeState: n.realtimeSubscribed ? "SUBSCRIBED" : "" },
 		journal: {
@@ -6705,8 +6846,8 @@ function ks(t) {
 		now: Date.parse(String(n.createdAt))
 	});
 }
-function As(e, t) {
-	let n = ks(e), r = ks(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
+function Rs(e, t) {
+	let n = Ls(e), r = Ls(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
 	if (!i(n) || !i(r)) return {
 		status: "review",
 		message: "Alguno de los dispositivos tiene cambios pendientes, está bloqueado o no puede comprobar su diario. No se confirma una entrega."
@@ -6721,19 +6862,19 @@ function As(e, t) {
 	};
 }
 // src/domain/multi-device-runtime.ts
-var js = /* @__PURE__ */ new WeakMap(), Ms = Object.freeze({
-	VERSION: Cs,
-	SCHEMA: ws,
-	report: Os,
-	parseReport: ks,
-	compareReports: As,
-	mount: Ps
+var zs = /* @__PURE__ */ new WeakMap(), Bs = Object.freeze({
+	VERSION: js,
+	SCHEMA: Ms,
+	report: Is,
+	parseReport: Ls,
+	compareReports: Rs,
+	mount: Hs
 });
-function Ns(e) {
-	return e.VC_SYNC_2012 = Ms, Ms;
+function Vs(e) {
+	return e.VC_SYNC_2012 = Bs, Bs;
 }
-function Ps(e) {
-	let t = js.get(e);
+function Hs(e) {
+	let t = zs.get(e);
 	if (t) return t;
 	let n = e.document;
 	if (!n) return null;
@@ -6742,7 +6883,7 @@ function Ps(e) {
 		return r.textContent = t, r;
 	}, a = null, o = !1, s = !1, c = !1, l = null, u = "", d = null, f = async () => {
 		let t = e.VC_V962_CLOUD_EFFICIENT?.diagnostics?.() || {}, n = e.VC_DEVICE_SYNC?.diagnostics?.() || {}, r = e.VC_V962_CLOUD_EFFICIENT?.getAccountId?.() || "";
-		return Os({
+		return Is({
 			cloud: t,
 			device: n,
 			journal: await e.VC_SYNC_2011_JOURNAL?.inspect?.(r) || {
@@ -6761,7 +6902,7 @@ function Ps(e) {
 					n && n.textContent !== t && (n.textContent = t);
 				};
 				t("vc2012-observed", e.lastObservedRemoteStamp || "Sin lectura confirmada"), t("vc2012-applied", e.lastAppliedRemoteStamp || "Sin recepción procesada"), t("vc2012-uploaded", e.lastConfirmedWriteStamp || "Sin subida confirmada"), t("vc2012-pending", e.pendingJournal === null ? "Sin comprobar" : String(e.pendingJournal));
-				let n = l ? As(e, l) : null, i = r("vc2012-feedback");
+				let n = l ? Rs(e, l) : null, i = r("vc2012-feedback");
 				i && (i.textContent = n ? n.message : u || "Sin comparación. No se han modificado datos.", i.dataset.status = n?.status || "idle");
 			} catch {
 				if (!s) {
@@ -6791,7 +6932,7 @@ function Ps(e) {
 			if (t.size > 65536) u = "Archivo demasiado grande para un informe de validación.", p();
 			else {
 				try {
-					l = ks(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
+					l = Ls(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
 				} catch {
 					l = null, u = "El archivo no es un informe V20.1.2 válido.";
 				}
@@ -6832,13 +6973,13 @@ function Ps(e) {
 		readOnly: !0,
 		refresh: p,
 		dispose() {
-			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, js.delete(e));
+			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, zs.delete(e));
 		}
 	});
-	return js.set(e, C), C;
+	return zs.set(e, C), C;
 }
 // src/domain/journal-recovery-inspector.ts
-var Fs = 27262976, $ = (e, t) => Object.freeze({
+var Us = 27262976, $ = (e, t) => Object.freeze({
 	version: "20.5.19",
 	source: "existing-v2011-pending-checkpoint",
 	status: e,
@@ -6846,7 +6987,7 @@ var Fs = 27262976, $ = (e, t) => Object.freeze({
 	requiresManualReview: !0,
 	autoResumeAllowed: !1
 });
-async function Is(n) {
+async function Ws(n) {
 	if (!n || !n.journal || typeof n.journal.inspect != "function" || typeof n.journal.newest != "function" || !n.accountId || !n.teamId || n.matchId === null || n.matchId === void 0 || !String(n.matchId)) return $("unavailable", null);
 	let r = String(n.accountId).trim(), i = String(n.teamId);
 	if (!r) return $("unavailable", null);
@@ -6857,12 +6998,12 @@ async function Is(n) {
 		if (a = s, s === 0) return $("no-checkpoint", 0);
 		if (s !== 1 || o?.hasOtherAccounts === !0 || o?.lastError) return $("ambiguous", s);
 		let c = e(await n.journal.newest(r));
-		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > Fs) return $("unavailable", s);
+		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > Us) return $("unavailable", s);
 		let l = e(e(e(JSON.parse(c.stateJson))?.equiposData)?.[i]);
 		if (!l || !Array.isArray(l.scoutingMatches)) return $("missing-match", s);
 		let u = t(l.scoutingMatches).map(e).filter((e) => e && String(e.id) === String(n.matchId));
 		if (u.length !== 1) return $(u.length ? "ambiguous" : "missing-match", s);
-		let d = qi(q(n.before), q(n.after), q(u[0]));
+		let d = Ki(J(n.before), J(n.after), J(u[0]));
 		return $(d === "durable-before" ? "checkpoint-before" : d === "durable-after" ? "checkpoint-after" : d === "unchanged-observed" ? "checkpoint-unchanged" : d === "divergent" ? "checkpoint-divergent" : "unavailable", s);
 	} catch {
 		return $("unavailable", a);
@@ -6870,10 +7011,10 @@ async function Is(n) {
 }
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
-	In(window), Wn(window), qn(window), $n(window), sr(window), gr(window), yr(window), wr(window), Or(window), Fr(window), Rr(window), Gr(window), $r(window), ni(window), di(window), mi(window), _i(window), bi(window), wi(window), Di(window), Ai(window), ta(window), ca(window), fa(window), ba(window), Ca(window), Oa(window), Na(window), Ns(window), Fe(window), rn(window), dn(window), gn(window), lt(window), vt(window), Jt(window), $t(window);
+	Fn(window), Un(window), Kn(window), Qn(window), or(window), hr(window), vr(window), Cr(window), Dr(window), Pr(window), Lr(window), Wr(window), Qr(window), ti(window), ui(window), pi(window), gi(window), yi(window), Ci(window), Ei(window), ki(window), ea(window), sa(window), da(window), ya(window), Sa(window), Da(window), Ma(window), Vs(window), Pe(window), nn(window), un(window), hn(window), ct(window), _t(window), qt(window), Qt(window);
 	let e = () => {
-		xe(window), tt(window), ut(window), D(window), te(window), me(window), he(window), Le(window), Qe(window), Ss(window), Ps(window), ro(window), ho(window), Mo(window), Go(window), xs(window);
+		be(window), et(window), lt(window), D(window), te(window), pe(window), me(window), Ie(window), Ze(window), As(window), Hs(window), ro(window), ho(window), Mo(window), Go(window), ks(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { Ga as CLUB_PILOT_DB, Pa as MAX_CLUB_PARTITION_CHARS, Ra as MAX_ENTITY_ROWS, kt as MAX_INDEXED_CONTACTS, ma as MAX_LOCAL_MATCH_CHARS, ha as MAX_PACKED_STATE_CHARS, kn as MAX_SEQUENCE_CHARACTERS, An as MAX_SEQUENCE_CONTACTS, pa as MAX_STORED_STATE_CHARS, Ko as PLAYER_SHADOW_DB, us as PLAYER_SHADOW_LOCK, fn as RALLY_SEARCH_PRESETS_KEY, $i as RALLY_WRITER_VERSION, nt as SEARCH_FILTERS, En as applyScoutingDraftRating, Tn as applyScoutingDraftSkill, ia as assembleClosedRally, aa as assembleRestoredLiveRally, l as attackEfficiency, pe as auditCommittedMatch, o as auditMatchScores, Er as buildScoutCodeV830, br as buildScoutingActionBase, Wt as calculateAnalysisPoints, C as canonicalReaders, _a as captureLocalMatchSnapshot, q as captureRecoveryFrame, cn as catalogRallySearch, Gi as changedRecoveryAreas, ua as classifyLocalSaveReceipt, j as classifyPreflight, qi as classifyRecoveryEvidence, Hn as classifyScoutingPreflight, fe as classifyStoredAction, zi as compareConfirmedPoint, As as compareDeviceValidation, y as compareNativeCode, be as createObservableMatchStore, Hi as createRallyShadowSession, Qi as createRallyTransactionPilot, Ie as createReadOnlyRenderGate, et as createScoutingProjectionStore, ee as createShadowSession, Dn as cycleScoutingDraftRating, ls as deletePlayerShadow, Ki as equalRecoveryFrames, Xt as escapeAnalysisCSVCell, Ut as evaluateAnalysisContacts, Zt as exportAnalysisCSV, Ht as filterAnalysis, Nr as finishScoutingCode, Gt as inspectAnalysisCoverage, It as inspectAnalysisIndexDiagnostics, oe as inspectClosedRally, bo as inspectClubEntityRecovery, v as inspectCodeShape, Is as inspectJournalRecovery, Ae as inspectLiveSetStatistics, E as inspectMatchDomain, Xn as inspectNativePreparation, Ze as inspectPlayerBoxscore, cs as inspectPlayerShadow, ne as inspectRallyRestoration, Gn as inspectRegistrationConditions, Pn as inspectScoutingSequence, S as inspectSubstitution, $t as installAnalysisExportBridge, vt as installAnalysisNormalizeBridge, Jt as installAnalysisOperationsBridge, lt as installAnalysisQueryBridge, rn as installAnalysisViewBridge, Oa as installClubLocalStoreBridge, Na as installClubSnapshotBridge, ta as installLiveRallyWriterBridge, ba as installLocalReadbackBridge, fa as installLocalSaveReceiptBridge, Ai as installMatchFinalizationBridge, wi as installMatchManualResultBridge, bi as installMatchVideoOverlayBridge, Ns as installMultiDeviceAPI, ca as installRallyRecordBridge, gn as installRallySearchControls, dn as installRallySearchViewBridge, Di as installRallyVideoBoundsBridge, qn as installRegistrationGuardBridge, Fe as installRenderMetricsBridge, wr as installScoutActionBuilderBridge, Gr as installScoutActionMetadataBridge, $r as installScoutActionNormalizerBridge, di as installScoutAdvancedFieldsBridge, Fr as installScoutCodeBuilderBridge, Or as installScoutCodeFormatBridge, mi as installScoutIdentityFieldsBridge, Ca as installScoutIndexedJournalBridge, _i as installScoutMatchVideoContainerBridge, yr as installScoutPlayerResolverBridge, Rr as installScoutRegistrationBridge, ni as installScoutTacticalFieldsBridge, In as installScoutingDraftBridge, gr as installScoutingExtensionsBridge, sr as installScoutingLexerBridge, Wn as installScoutingPreflightBridge, $n as installScoutingPreparationBridge, Ft as invalidateAnalysisIndex, ar as lexScoutingCode, ut as mountAnalysisQueryPerformance, ho as mountClubEntityPanel, ro as mountClubPilotPanel, Mo as mountClubRecoveryPanel, Go as mountClubRehydrationPanel, me as mountCommittedPanel, D as mountDomainDiagnostic, he as mountGrammarPanel, Le as mountLiveStatisticsPanel, Ps as mountMultiDevicePanel, xe as mountObservablePanel, Qe as mountPlayerBoxscore, xs as mountPlayerShadowPanel, Ss as mountRallyShadowPanel, tt as mountScoutingProjectionStore, te as mountShadowPanel, s as nextRotation, Ur as normalizeActionVideoTimestamp, li as normalizeAdvancedScoutingFields, gt as normalizeAnalysisMatch, mt as normalizeAnalysisZone, Tr as normalizeContactMetadata, Oi as normalizeMatchFinalizationFields, Si as normalizeMatchManualResult, vi as normalizeMatchVideoOverlay, at as normalizeRallySearchFilters, Ti as normalizeRallyVideoBounds, Zr as normalizeScoutingActionBase, fi as normalizeScoutingIdentityFields, hi as normalizeScoutingMatchVideoContainer, ei as normalizeTacticalActionFields, Sr as opponentScoutingPlayerFields, xr as ownScoutingPlayerFields, ks as parseDeviceValidation, Cn as parseScoutingDraftHead, uo as pilotClubEntityDelta, Qa as pilotClubPartitions, ae as planAwardPoint, Ua as planClubEntities, Z as planClubPartitions, es as planPlayerShadow, I as planUndoLastRally, Ir as prepareContactRegistration, Zn as prepareNativeScoutingAction, gs as preparePlayerShadowBackup, Mr as prepareScoutingCodeInput, Do as previewHistoricIds, Vr as projectDataVolleyFields, ye as projectObservableMatch, c as projectPoint, N as projectSetBoundary, ot as queryRallies, Hr as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, mn as readRallySearchPresets, On as recentScoutingDraftCodes, Kt as reconcileAnalysisPoints, Bo as reconstructClubEntityFields, hs as reconstructPlayersForBackup, Vo as rehearseClubEntityRecovery, Oo as rehearseHistoricIds, $a as removeClubPilot, tn as renderDataEngineView, ln as renderRallySearchView, Os as reportDeviceValidation, _r as resolveOwnScoutingPlayer, Wa as sameClubEntityData, La as sameClubPartitionPlan, oa as sameRallyRecord, mr as scanAdvancedExtension, pr as scanConeExtension, fr as scanSubzoneExtension, ja as serializeClubIndependentLibrary, Aa as serializeClubSnapshot, u as sideOutBreakPoint, ds as tryAcquirePlayerShadowLock, a as verifyRallyScore, va as verifyStoredLocalMatch, Ea as writeClubLocalState, ss as writePlayerShadow, xa as writeScoutJournalTransaction };
+export { Ga as CLUB_PILOT_DB, Pa as MAX_CLUB_PARTITION_CHARS, Ra as MAX_ENTITY_ROWS, Ot as MAX_INDEXED_CONTACTS, pa as MAX_LOCAL_MATCH_CHARS, ma as MAX_PACKED_STATE_CHARS, On as MAX_SEQUENCE_CHARACTERS, kn as MAX_SEQUENCE_CONTACTS, fa as MAX_STORED_STATE_CHARS, _s as PLAYER_REOPEN_TICKET_KEY, Ko as PLAYER_SHADOW_DB, us as PLAYER_SHADOW_LOCK, dn as RALLY_SEARCH_PRESETS_KEY, Qi as RALLY_WRITER_VERSION, tt as SEARCH_FILTERS, Tn as applyScoutingDraftRating, wn as applyScoutingDraftSkill, ra as assembleClosedRally, ia as assembleRestoredLiveRally, l as attackEfficiency, fe as auditCommittedMatch, o as auditMatchScores, Tr as buildScoutCodeV830, yr as buildScoutingActionBase, Ut as calculateAnalysisPoints, C as canonicalReaders, ga as captureLocalMatchSnapshot, J as captureRecoveryFrame, sn as catalogRallySearch, Wi as changedRecoveryAreas, la as classifyLocalSaveReceipt, j as classifyPreflight, Ki as classifyRecoveryEvidence, Vn as classifyScoutingPreflight, de as classifyStoredAction, Ri as compareConfirmedPoint, Rs as compareDeviceValidation, y as compareNativeCode, ye as createObservableMatchStore, Vi as createRallyShadowSession, Zi as createRallyTransactionPilot, Fe as createReadOnlyRenderGate, $e as createScoutingProjectionStore, ee as createShadowSession, En as cycleScoutingDraftRating, ls as deletePlayerShadow, xs as digestOriginalClub, Gi as equalRecoveryFrames, Yt as escapeAnalysisCSVCell, Ht as evaluateAnalysisContacts, Xt as exportAnalysisCSV, Vt as filterAnalysis, Mr as finishScoutingCode, Wt as inspectAnalysisCoverage, Ft as inspectAnalysisIndexDiagnostics, ae as inspectClosedRally, bo as inspectClubEntityRecovery, v as inspectCodeShape, Ws as inspectJournalRecovery, ke as inspectLiveSetStatistics, E as inspectMatchDomain, Yn as inspectNativePreparation, Xe as inspectPlayerBoxscore, cs as inspectPlayerShadow, P as inspectRallyRestoration, Wn as inspectRegistrationConditions, Nn as inspectScoutingSequence, S as inspectSubstitution, Qt as installAnalysisExportBridge, _t as installAnalysisNormalizeBridge, qt as installAnalysisOperationsBridge, ct as installAnalysisQueryBridge, nn as installAnalysisViewBridge, Da as installClubLocalStoreBridge, Ma as installClubSnapshotBridge, ea as installLiveRallyWriterBridge, ya as installLocalReadbackBridge, da as installLocalSaveReceiptBridge, ki as installMatchFinalizationBridge, Ci as installMatchManualResultBridge, yi as installMatchVideoOverlayBridge, Vs as installMultiDeviceAPI, sa as installRallyRecordBridge, hn as installRallySearchControls, un as installRallySearchViewBridge, Ei as installRallyVideoBoundsBridge, Kn as installRegistrationGuardBridge, Pe as installRenderMetricsBridge, Cr as installScoutActionBuilderBridge, Wr as installScoutActionMetadataBridge, Qr as installScoutActionNormalizerBridge, ui as installScoutAdvancedFieldsBridge, Pr as installScoutCodeBuilderBridge, Dr as installScoutCodeFormatBridge, pi as installScoutIdentityFieldsBridge, Sa as installScoutIndexedJournalBridge, gi as installScoutMatchVideoContainerBridge, vr as installScoutPlayerResolverBridge, Lr as installScoutRegistrationBridge, ti as installScoutTacticalFieldsBridge, Fn as installScoutingDraftBridge, hr as installScoutingExtensionsBridge, or as installScoutingLexerBridge, Un as installScoutingPreflightBridge, Qn as installScoutingPreparationBridge, Pt as invalidateAnalysisIndex, ir as lexScoutingCode, lt as mountAnalysisQueryPerformance, ho as mountClubEntityPanel, ro as mountClubPilotPanel, Mo as mountClubRecoveryPanel, Go as mountClubRehydrationPanel, pe as mountCommittedPanel, D as mountDomainDiagnostic, me as mountGrammarPanel, Ie as mountLiveStatisticsPanel, Hs as mountMultiDevicePanel, be as mountObservablePanel, Ze as mountPlayerBoxscore, ks as mountPlayerShadowPanel, As as mountRallyShadowPanel, et as mountScoutingProjectionStore, te as mountShadowPanel, s as nextRotation, Hr as normalizeActionVideoTimestamp, ci as normalizeAdvancedScoutingFields, ht as normalizeAnalysisMatch, pt as normalizeAnalysisZone, wr as normalizeContactMetadata, Di as normalizeMatchFinalizationFields, xi as normalizeMatchManualResult, _i as normalizeMatchVideoOverlay, it as normalizeRallySearchFilters, wi as normalizeRallyVideoBounds, Xr as normalizeScoutingActionBase, di as normalizeScoutingIdentityFields, mi as normalizeScoutingMatchVideoContainer, $r as normalizeTacticalActionFields, xr as opponentScoutingPlayerFields, br as ownScoutingPlayerFields, Ls as parseDeviceValidation, Ss as parsePlayerReopenTicket, Sn as parseScoutingDraftHead, uo as pilotClubEntityDelta, Qa as pilotClubPartitions, re as planAwardPoint, Ua as planClubEntities, Z as planClubPartitions, es as planPlayerShadow, ie as planUndoLastRally, Fr as prepareContactRegistration, Xn as prepareNativeScoutingAction, Cs as preparePlayerReopenTicket, gs as preparePlayerShadowBackup, jr as prepareScoutingCodeInput, Do as previewHistoricIds, Br as projectDataVolleyFields, ve as projectObservableMatch, c as projectPoint, N as projectSetBoundary, at as queryRallies, Vr as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, pn as readRallySearchPresets, Dn as recentScoutingDraftCodes, Gt as reconcileAnalysisPoints, Bo as reconstructClubEntityFields, hs as reconstructPlayersForBackup, Vo as rehearseClubEntityRecovery, Oo as rehearseHistoricIds, $a as removeClubPilot, en as renderDataEngineView, cn as renderRallySearchView, Is as reportDeviceValidation, gr as resolveOwnScoutingPlayer, Wa as sameClubEntityData, La as sameClubPartitionPlan, aa as sameRallyRecord, pr as scanAdvancedExtension, fr as scanConeExtension, dr as scanSubzoneExtension, Aa as serializeClubIndependentLibrary, ka as serializeClubSnapshot, u as sideOutBreakPoint, ds as tryAcquirePlayerShadowLock, ws as verifyPlayerReopenTicket, a as verifyRallyScore, _a as verifyStoredLocalMatch, Ta as writeClubLocalState, ss as writePlayerShadow, ba as writeScoutJournalTransaction };

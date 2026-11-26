@@ -161,7 +161,7 @@ test('badly shaped partitions are rejected before they can create invalid JSON',
 test('version and assets expose the new code with unchanged historical storage keys',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
  const source=read('src/vc2055-entry.ts');
- assert.equal(pkg.version,'20.5.69');
+ assert.equal(pkg.version,'20.5.70');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20562-club-snapshot-optimization.test.cjs'));
  assert.ok(source.includes('installClubSnapshotBridge(window)'));
  assert.ok(source.includes('installClubLocalStoreBridge(window)'));
@@ -169,6 +169,6 @@ test('version and assets expose the new code with unchanged historical storage k
  assert.ok(monolith.includes("const LIBRARY_STORAGE_KEY='volleyCoachLibraryV1';"));
  assert.ok(monolith.includes('vc1531WriteState(APP_STORAGE_KEY,raw)'));
  assert.ok(monolith.includes('guardarBibliotecaIndependiente(prepared)'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.69'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.70'));
  assert.ok(read('service-worker.js').includes('club-snapshot-20.5.62'));
 });

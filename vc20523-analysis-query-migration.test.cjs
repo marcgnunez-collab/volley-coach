@@ -180,9 +180,9 @@ test('Gestión has a manually refreshed performance panel with no timers, identi
 test('V20.5.23 publishes a typed query, stable legacy adapter and no new scoring writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js'),
   entry=read('src/vc2055-entry.ts'),legacy=read('190-vc1939-rally-search-pro.js');
- assert.equal(pkg.version,'20.5.69');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.69'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.69'));
+ assert.equal(pkg.version,'20.5.70');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.70'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.70'));
  assert.ok(sw.includes('analysis-query-migration-20.5.23'));
  assert.ok(entry.includes('installAnalysisQueryBridge(window)'));
  assert.ok(entry.includes('mountAnalysisQueryPerformance(window)'));

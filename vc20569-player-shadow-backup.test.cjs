@@ -129,11 +129,13 @@ test('Gestion export is manual, pauses writer and checks the exact saved origina
  const button=()=>({disabled:true,listeners:new Map(),
   addEventListener(type,fn){this.listeners.set(type,fn)},
   removeEventListener(type){this.listeners.delete(type)}});
- const arm=button(),pause=button(),check=button(),erase=button(),backup=button();
+ const arm=button(),pause=button(),check=button(),erase=button(),backup=button(),reopen=button();
  const status={textContent:''};
  const elements={'vc20567-arm-players':arm,'vc20567-pause-players':pause,
   'vc20567-check-players':check,'vc20567-erase-players':erase,
-  'vc20569-download-players':backup,'vc20567-player-shadow-status':status};
+  'vc20569-download-players':backup,'vc20570-reopen-players':reopen,
+  'vc20570-reopen-status':{textContent:''},
+  'vc20567-player-shadow-status':status};
  const local={state:initial,getItem(key){return key==='volleyCoachStateV43'?this.state:null}};
  const win={document:{getElementById:id=>elements[id]||null},
   navigator:{locks:sharedLocks()},indexedDB:mem.factory,localStorage:local,
@@ -154,10 +156,10 @@ test('Gestion export is manual, pauses writer and checks the exact saved origina
 
 test('release V69 includes export button and retains the original cloud and club writers',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.69');
+ assert.equal(pkg.version,'20.5.70');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20569-player-shadow-backup.test.cjs'));
  assert.ok(html.includes('id="vc20569-download-players" disabled'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.69'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.70'));
  assert.ok(read('src/vc2055-entry.ts').includes('preparePlayerShadowBackup'));
  assert.ok(read('service-worker.js').includes('player-shadow-backup-20.5.69'));
  assert.ok(read('002-core-training-v150-monolithic.js').includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
