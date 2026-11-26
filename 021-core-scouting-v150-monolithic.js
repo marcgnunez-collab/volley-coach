@@ -4681,6 +4681,52 @@ window.VC_SCOUT_PREPARE_DIAGNOSTICS_20536=()=>Object.freeze({...v857PreparationS
 const v20575RegistrationStats={typed:0,native:0,exceptions:0,
   rejected:0,nativeParses:0,nativePushes:0};
 window.VC_SCOUT_REG_LANE_DIAGNOSTICS_20575=()=>Object.freeze({...v20575RegistrationStats});
+/* V20.5.76 · Same native writer for manual form, interactive court and
+ * VC_SCOUT_CORE.push. A changed match/set is never silently redirected. */
+const v20576DirectStats={typed:0,native:0,rejected:0,exceptions:0,nativePushes:0};
+window.VC_SCOUT_DIRECT_DIAGNOSTICS_20576=()=>Object.freeze({...v20576DirectStats});
+function v20576CommitDirectAction(action,m=scoutActive(),s=scoutSet(m)){
+  if(!m||m.status==='finished'){
+    alert('No hay un scouting activo.');return false;
+  }
+  if(!s||s.finished){
+    alert('Este set está cerrado. Inicia el siguiente set.');return false;
+  }
+  const current=()=>scoutActive()===m&&scoutSet(m)===s&&
+    m.status!=='finished'&&!s.finished;
+  if(!current()){
+    v20576DirectStats.rejected++;
+    alert('El partido o set ha cambiado. Vuelve a registrar la acción.');return false;
+  }
+  const lane=window.VC_SCOUT_DIRECT_LANE_20576;
+  if(lane?.VERSION==='20.5.76'&&lane.nativeOnly===true&&
+     lane.singleNativeWriter===true&&typeof lane.dispatch==='function'){
+    let pushed=false;
+    try{
+      const result=lane.dispatch({action,expectedMatch:m,expectedSet:s,port:{
+        current:()=>({match:scoutActive(),set:scoutSet(m),open:current()}),
+        push(candidate){
+          if(pushed)throw Error('La acción manual ya se ha enviado al escritor.');
+          pushed=true;
+          if(!current()){v20576DirectStats.rejected++;return false;}
+          v20576DirectStats.nativePushes++;
+          return scoutPushAction(candidate);
+        }
+      }});
+      if(!pushed&&current())throw Error('El adaptador no llamó al escritor nativo.');
+      v20576DirectStats.typed++;return result;
+    }catch(error){
+      v20576DirectStats.exceptions++;
+      if(pushed)throw error; // Never retry after dispatch, even on a late throw.
+    }
+  }
+  if(!current()){
+    v20576DirectStats.rejected++;
+    alert('El partido o set ha cambiado. Vuelve a registrar la acción.');return false;
+  }
+  v20576DirectStats.native++;v20576DirectStats.nativePushes++;
+  return scoutPushAction(action);
+}
 function v857RegisterRaw(raw,m=scoutActive()){
   raw=v857Preprocess(raw);
   if(!raw)return {ok:false,error:v857CheckedGuard('Código vacío.',
@@ -4694,6 +4740,9 @@ function v857RegisterRaw(raw,m=scoutActive()){
   if(guard)return {ok:false,error:guard};
 
   const before=v857LiveCount(m);
+  const stillCurrent=()=>scoutActive()===m&&
+    (m.currentSet==null||scoutSet(m)===s)&&
+    m.status!=='finished'&&!s.finished;
   const lane=window.VC_SCOUT_REG_LANE_20575;
   if(lane?.VERSION==='20.5.75'&&lane.nativeOnly===true&&
      lane.singleNativeWriter===true&&typeof lane.register==='function'){
@@ -4705,9 +4754,12 @@ function v857RegisterRaw(raw,m=scoutActive()){
           parsedCalled=true;v20575RegistrationStats.nativeParses++;
           return v857PrepareNativeOnce(raw,m);
         },
+        isCurrent:stillCurrent,
         push(action){
           if(pushedCalled)throw Error('La acción ya se envió al escritor nativo.');
-          pushedCalled=true;v20575RegistrationStats.nativePushes++;
+          pushedCalled=true;
+          if(!stillCurrent())return false;
+          v20575RegistrationStats.nativePushes++;
           return scoutPushAction(action);
         },
         countAfter:()=>v857LiveCount(m),
@@ -4731,6 +4783,8 @@ function v857RegisterRaw(raw,m=scoutActive()){
   if(parsed?.error||!parsed?.action){
     return {ok:false,error:parsed?.error||'Código no reconocido.',before,after:before};
   }
+  if(!stillCurrent())return {ok:false,
+    error:'El partido o set ha cambiado. Vuelve a registrar la acción.',before,after:before};
 
   const pushed=scoutPushAction(parsed.action);
   const after=v857LiveCount(m);
@@ -4930,7 +4984,8 @@ window.VC_SCOUT_CORE={
   parse:(raw,m=scoutActive(),oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction),
   // V20.2.4: read-only bridge to the FINAL canonical code builder. No writes.
   build:(action)=>scoutBuildCode(action),
-  push:(action)=>scoutPushAction(action),
+  push:(action)=>v20576CommitDirectAction(action),
+  commitDirect:(action,m=scoutActive(),s=scoutSet(m))=>v20576CommitDirectAction(action,m,s),
   register:(raw,m=scoutActive())=>v857RegisterRaw(raw,m),
   addFromFull:()=>window.scoutAddCode(),
   addFromMatch:()=>window.v857AddCode(),
@@ -5917,6 +5972,7 @@ scoutV6108ParseRaw=function(raw,m,oldAction=null){
 window.v680ParseCode=(raw,m,oldAction=null)=>scoutV6108ParseRaw(raw,m,oldAction);
 
 window.scoutAddManualAction=function(){
+  const expectedMatch=scoutActive(),expectedSet=scoutSet(expectedMatch);
   const team=$('scout-action-team')?.value||'ours',pv=$('scout-action-player')?.value||'',skill=$('scout-action-skill')?.value||'S',
     combo=$('scout-action-combo')?.value||'',start=v860ZoneToken($('scout-action-start')?.value||'',$('scout-action-start-sub')?.value||''),
     end=v860ZoneToken($('scout-action-end')?.value||'',$('scout-action-end-sub')?.value||''),serve=$('scout-action-serve-type')?.value||'',
@@ -5943,7 +5999,8 @@ window.scoutAddManualAction=function(){
     attackDirection:skill==='A'?direction:'',blockers:(skill==='A'||skill==='B')?String(blockers):'',blockTargetNumber:skill==='B'?target:'',
     locationMode,endCone,startCoordinate:v880OriginCoord,endCoordinate:locationMode==='zones'?v880DestCoord:null,
     contactCoordinate:V880_CONTACT_SKILLS.has(skill)?(v880DestCoord||v880OriginCoord):null};
-  Object.assign(action,v880DataVolleyFields(action,scoutActive()));scoutPushAction(action);
+  Object.assign(action,v880DataVolleyFields(action,expectedMatch));
+  return v20576CommitDirectAction(action,expectedMatch,expectedSet);
 };
 
 const v880FieldsBase=window.scoutUpdateAdvancedFields;

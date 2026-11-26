@@ -5,6 +5,8 @@
  */
 export interface NativeRegistrationPort<Action=unknown>{
  readonly parse:()=>unknown;
+ /** Optional to preserve the V20.5.75 contract for older adapters. */
+ readonly isCurrent?:()=>boolean;
  readonly push:(action:Action)=>unknown;
  readonly countAfter:()=>number;
  readonly lastAction:()=>Action|undefined;
@@ -23,6 +25,9 @@ export function registerNativeScoutingAction<Action=unknown,Match=unknown>(input
  const parsed=port.parse() as {readonly error?:unknown;readonly action?:Action}|null|undefined;
  if(parsed?.error||!parsed?.action)
   return {ok:false,error:parsed?.error||'Código no reconocido.',before,after:before};
+ if(port.isCurrent&&!port.isCurrent())
+  return {ok:false,error:'El partido o set ha cambiado. Vuelve a registrar la acción.',
+   before,after:before};
  const pushed=port.push(parsed.action);
  const after=port.countAfter();
  if(pushed===false||after!==before+1)
