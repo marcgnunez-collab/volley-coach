@@ -5158,6 +5158,29 @@ window.scoutV680ValidateBeforePoint=function(m){
   return true;
 };
 
+/* V20.5.79: typed command lane owns preflight and verification, never scoring.
+ * A missing/broken bridge may fall back only BEFORE any native dispatch. */
+function v20579RunRallyCommand(kind,m,s,before,winner,native){
+  const lane=window.VC_RALLY_COMMAND_LANE_20579;
+  if(!lane||lane.VERSION!=='20.5.79'||lane.nativeOnly!==true||
+     lane.singleNativeWriter!==true||typeof lane.run!=='function')return null;
+  let dispatched=false;
+  try{
+    const result=lane.run({kind,winner,expectedMatch:m,expectedSet:s,before,port:{
+      current:()=>({match:scoutActive(),set:scoutSet(m)}),
+      dispatch:()=>{if(dispatched)throw Error('V20.5.79 duplicate native dispatch');dispatched=true;return native()},
+      read:()=>({score:v857Score(s),rallies:v857RallyCount(s)})
+    }});
+    if(result&&typeof result.ok==='boolean'&&result.dispatched===dispatched&&
+       result.after&&result.after.score&&Number.isFinite(result.after.rallies))return result;
+    console.error('V20.5.79 unexpected command outcome',result);
+    return dispatched?{ok:false,dispatched:true,after:{score:v857Score(s),rallies:v857RallyCount(s)},reason:'unverified'}:null;
+  }catch(error){
+    console.error('V20.5.79 command bridge error',error);
+    return dispatched?{ok:false,dispatched:true,after:{score:v857Score(s),rallies:v857RallyCount(s)},reason:'native-error',error}:null;
+  }
+}
+
 /* POINTS: call the mature internal chain exactly once, then verify +1. */
 const v857AwardBase=window.scoutAwardPoint;
 window.scoutAwardPoint=function(winner){
@@ -5172,13 +5195,20 @@ window.scoutAwardPoint=function(winner){
     }
     const beforeScore=v857Score(s),beforeRallies=v857RallyCount(s);
     let err=null;
-    try{v857AwardBase(winner)}catch(e){err=e}
+    const result=v20579RunRallyCommand('point',m,s,{score:beforeScore,rallies:beforeRallies},winner,()=>v857AwardBase(winner));
+    if(!result){
+      if(scoutActive()!==m||scoutSet(m)!==s){
+        v857Status('El partido o set ha cambiado; no se añadió ningún punto.','warn');
+        return false;
+      }
+      try{v857AwardBase(winner)}catch(e){err=e}
+    }else err=result.error||null;
 
-    const mm=v857SelectedMatch()||scoutActive()||m,ss=v857Set(mm)||s;
-    const afterScore=v857Score(ss),afterRallies=v857RallyCount(ss);
+    const afterScore=result?result.after.score:v857Score(s),afterRallies=result?result.after.rallies:v857RallyCount(s);
     const expectedUs=beforeScore.us+(winner==='ours'?1:0);
     const expectedOp=beforeScore.op+(winner==='opponent'?1:0);
-    const ok=afterScore.us===expectedUs&&afterScore.op===expectedOp&&afterRallies===beforeRallies+1;
+    const verified=afterScore.us===expectedUs&&afterScore.op===expectedOp&&afterRallies===beforeRallies+1;
+    const ok=result?result.ok===true&&verified:verified;
 
     if(!ok){
       console.error('V8.5.7 point verification failed',err,{beforeScore,afterScore,beforeRallies,afterRallies});
@@ -5207,10 +5237,16 @@ window.scoutUndoRally=function(){
     if(!before){v857Status('No hay rallies cerrados para deshacer.','warn');return false}
 
     let err=null;
-    try{v857UndoBase()}catch(e){err=e}
-    const mm=v857SelectedMatch()||scoutActive()||m,ss=v857Set(mm)||s;
-    const after=v857RallyCount(ss),scoreAfter=v857Score(ss);
-    if(after!==before-1){
+    const result=v20579RunRallyCommand('undo',m,s,{score:scoreBefore,rallies:before},undefined,()=>v857UndoBase());
+    if(!result){
+      if(scoutActive()!==m||scoutSet(m)!==s){
+        v857Status('El partido o set ha cambiado; no se deshizo ningún rally.','warn');
+        return false;
+      }
+      try{v857UndoBase()}catch(e){err=e}
+    }else err=result.error||null;
+    const after=result?result.after.rallies:v857RallyCount(s),scoreAfter=result?result.after.score:v857Score(s);
+    if(!(result?result.ok===true&&after===before-1:after===before-1)){
       console.error('V8.5.7 undo verification failed',err,{before,after});
       v857Status('No se ha podido deshacer el rally correctamente.','bad');
       v857Refresh();
