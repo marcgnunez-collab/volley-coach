@@ -4,6 +4,7 @@
 import {planPlayerShadow,writePlayerShadow,inspectPlayerShadow,deletePlayerShadow,
  type PlayerShadowCheck,type PlayerShadowReceipt} from './player-shadow';
 import {tryAcquirePlayerShadowLock,type ShadowLease,type ShadowLockPort} from './player-shadow-lock';
+import {preparePlayerShadowBackup,type PlayerBackupResult} from './player-shadow-backup';
 
 type PlayerWindow=Window&{
  VC_STORAGE_QUOTA_1531?:{unpack?:(v:string)=>string};
@@ -15,6 +16,7 @@ export interface PlayerShadowAPI{
  readonly enabled:()=>boolean;readonly arm:()=>Promise<void>;readonly pause:()=>void;
  readonly onConfirmedWrite:(raw:string)=>void;
  readonly inspect:()=>Promise<PlayerShadowCheck>;
+ readonly backup:()=>Promise<PlayerBackupResult>;
  readonly erase:()=>Promise<true>;
  readonly whenIdle:()=>Promise<void>;readonly dispose:()=>void;
 }
@@ -29,8 +31,9 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
  const pauseButton=doc?.getElementById('vc20567-pause-players') as HTMLButtonElement|null;
  const checkButton=doc?.getElementById('vc20567-check-players') as HTMLButtonElement|null;
  const eraseButton=doc?.getElementById('vc20567-erase-players') as HTMLButtonElement|null;
+ const backupButton=doc?.getElementById('vc20569-download-players') as HTMLButtonElement|null;
  const status=doc?.getElementById('vc20567-player-shadow-status');
- if(!armButton||!pauseButton||!checkButton||!eraseButton||!status)return null;
+ if(!armButton||!pauseButton||!checkButton||!eraseButton||!backupButton||!status)return null;
  const old=mounted.get(win);if(old)return old;
  const available=typeof win.indexedDB?.open==='function'&&
   typeof win.indexedDB?.deleteDatabase==='function'&&!!win.localStorage;
@@ -45,6 +48,7 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   pauseButton.disabled=!active||disposed;
   checkButton.disabled=!available||disposed;
   eraseButton.disabled=!canWrite||disposed;
+  backupButton.disabled=!canWrite||disposed;
  };
  update();
  show(canWrite?'Copia paralela apagada. V20.5.68 protege la sesión con un bloqueo exclusivo entre pestañas.':
@@ -160,12 +164,44 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
    return result;
   }finally{exclusive.release()}
  };
+ const backup=async()=>{
+  if(!canWrite||disposed)throw Error('Exportación protegida no disponible');
+  pause();await whenIdle();
+  const exclusive=await tryAcquirePlayerShadowLock(locks);
+  if(!exclusive)throw Error('Otra pestaña tiene activa la copia de jugadores');
+  try{
+   const raw=readRaw(),plan=planPlayerShadow(raw,revision());
+   const result=await preparePlayerShadowBackup({factory:win.indexedDB,plan});
+   if(readRaw()!==raw){
+    show('El club cambió durante la preparación de la copia. Repite el ensayo.');
+    return Object.freeze({...result,status:'different' as const,json:undefined});
+   }
+   const messages={ready:`Copia comprobada: ${result.records} jugadores. La descarga contiene únicamente las plantillas.`,
+    missing:'No existe una copia paralela que se pueda exportar.',
+    different:'La copia paralela no coincide con el guardado principal. No se descarga información antigua.',
+    incomplete:`La copia está bloqueada por ${result.pendingIds} identidades pendientes.`};
+   show(messages[result.status]);return result;
+  }finally{exclusive.release()}
+ };
  const onArm=()=>{if(win.confirm('La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?'))
   void arm().catch(()=>show('No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes.'))};
  const onPause=()=>pause();
  const onCheck=()=>{void inspect().catch(()=>show('No se pudo comprobar la copia de jugadores.'))};
  const onErase=()=>{if(win.confirm('¿Eliminar solo la réplica de jugadores V20.5.67? No se borrará el club principal.'))
   void erase().catch(()=>show('No se ha eliminado la copia. Otra pestaña puede estar utilizándola.'))};
+ const onBackup=()=>{
+  if(!win.confirm('Esta descarga contiene datos personales de jugadores. ¿Quieres crear una copia JSON solo de plantilla, verificada y para guardar en un lugar protegido?'))return;
+  void backup().then(found=>{
+   if(found.status!=='ready'||!found.json)return;
+   const blob=new Blob([found.json],{type:'application/json;charset=utf-8'});
+   const url=URL.createObjectURL(blob);
+   try{
+    const link=doc.createElement('a');link.href=url;
+    link.download='Volley_Coach_Jugadores_'+new Date().toISOString().slice(0,10)+'.json';
+    link.click();
+   }finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
+  }).catch(()=>show('No se pudo preparar la descarga segura de jugadores. No se modificaron los datos.'));
+ };
  const onExternalState=(event:StorageEvent)=>{
   if(event.key===MAIN_KEY&&(active||arming)){
    pause();show('Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla.');
@@ -174,13 +210,15 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
  const onPageHide=()=>{if(active||arming)pause()};
  armButton.addEventListener('click',onArm);pauseButton.addEventListener('click',onPause);
  checkButton.addEventListener('click',onCheck);eraseButton.addEventListener('click',onErase);
+ backupButton.addEventListener('click',onBackup);
  win.addEventListener?.('storage',onExternalState);
  win.addEventListener?.('pagehide',onPageHide);
  const api:Readonly<PlayerShadowAPI>=Object.freeze({VERSION:'20.5.67',manualOnly:true,
-  authoritative:false,crossTabSafe:true,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,erase,whenIdle,
+  authoritative:false,crossTabSafe:true,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,backup,erase,whenIdle,
   dispose(){if(disposed)return;pause();disposed=true;
    armButton.removeEventListener('click',onArm);pauseButton.removeEventListener('click',onPause);
    checkButton.removeEventListener('click',onCheck);eraseButton.removeEventListener('click',onErase);
+   backupButton.removeEventListener('click',onBackup);
    win.removeEventListener?.('storage',onExternalState);
    win.removeEventListener?.('pagehide',onPageHide);
    update();mounted.delete(win);

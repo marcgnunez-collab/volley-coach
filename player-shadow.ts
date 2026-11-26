@@ -94,7 +94,7 @@ function openPlayerDB(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase>{
 }
 
 /** Missing DB must NOT be created by a read/inspection. */
-function openExisting(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase|null>{
+export function openExistingPlayerShadow(factory:Pick<IDBFactory,'open'>):Promise<IDBDatabase|null>{
  return new Promise((resolve,reject)=>{
   let done=false,missing=false,request:IDBOpenDBRequest;
   const fail=(error:unknown)=>{if(!done){done=true;reject(error||Error('No se pudo leer la réplica'))}};
@@ -207,7 +207,7 @@ export async function inspectPlayerShadow(input:{factory:Pick<IDBFactory,'open'>
  if(!input?.factory||typeof input.factory.open!=='function'||input.plan?.schema!==1)
   throw Error('Inspección de jugadores no disponible');
  if(!input.plan.complete)return response('incomplete',input.plan);
- const db=await openExisting(input.factory);
+ const db=await openExistingPlayerShadow(input.factory);
  if(!db)return response('missing',input.plan);
  try{return response(await verifyShadow(db,input.plan,false)?'verified':'different',
   input.plan,input.plan.rows.length)}finally{db.close()}

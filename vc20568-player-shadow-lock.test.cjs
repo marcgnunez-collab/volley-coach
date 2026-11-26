@@ -21,9 +21,10 @@ function fakeWindow(locks,hasLocks=true){
  const button=()=>({disabled:true,listeners:new Map(),
   addEventListener(type,fn){this.listeners.set(type,fn)},
   removeEventListener(type){this.listeners.delete(type)}});
- const arm=button(),pause=button(),check=button(),erase=button(),status={textContent:''};
+ const arm=button(),pause=button(),check=button(),erase=button(),backup=button(),status={textContent:''};
  const elements={'vc20567-arm-players':arm,'vc20567-pause-players':pause,
   'vc20567-check-players':check,'vc20567-erase-players':erase,
+  'vc20569-download-players':backup,
   'vc20567-player-shadow-status':status};
  const listeners=new Map(),ops=[];
  const win={document:{getElementById:id=>elements[id]||null},
@@ -101,10 +102,10 @@ test('without native Web Locks the mirror remains disabled but read-only check i
 
 test('release V68 retains all original writers and publishes cross-tab guard',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.68');
+ assert.equal(pkg.version,'20.5.69');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20568-player-shadow-lock.test.cjs'));
  assert.ok(html.includes('V20.5.68 · PROTECCIÓN ENTRE PESTAÑAS'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.68'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.69'));
  assert.ok(read('src/vc2055-entry.ts').includes('tryAcquirePlayerShadowLock'));
  assert.ok(read('service-worker.js').includes('player-shadow-tab-lock-20.5.68'));
  assert.ok(read('002-core-training-v150-monolithic.js').includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));

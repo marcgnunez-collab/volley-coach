@@ -91,6 +91,7 @@ export {planPlayerShadow,writePlayerShadow,inspectPlayerShadow,deletePlayerShado
  PLAYER_SHADOW_DB} from './state/player-shadow';
 export {mountPlayerShadowPanel} from './state/player-shadow-runtime';
 export {tryAcquirePlayerShadowLock,PLAYER_SHADOW_LOCK} from './state/player-shadow-lock';
+export {preparePlayerShadowBackup,reconstructPlayersForBackup} from './state/player-shadow-backup';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';

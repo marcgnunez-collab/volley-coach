@@ -157,10 +157,11 @@ test('Gestion remains unarmed after mounting; after consent it mirrors and can e
  const makeButton=()=>({disabled:true,listeners:new Map(),
   addEventListener(type,fn){this.listeners.set(type,fn)},
   removeEventListener(type){this.listeners.delete(type)}});
- const arm=makeButton(),pause=makeButton(),check=makeButton(),erase=makeButton();
+ const arm=makeButton(),pause=makeButton(),check=makeButton(),erase=makeButton(),backup=makeButton();
  const status={textContent:''};
  const elements={'vc20567-arm-players':arm,'vc20567-pause-players':pause,
   'vc20567-check-players':check,'vc20567-erase-players':erase,
+  'vc20569-download-players':backup,
   'vc20567-player-shadow-status':status};
  const local={state:raw,getItem(key){return key==='volleyCoachStateV43'?this.state:null}};
  const win={document:{getElementById:id=>elements[id]||null},indexedDB:mem.factory,
@@ -212,10 +213,10 @@ test('native save hook runs only AFTER a confirmed main write, never on failure 
 test('release V67 mounts manual opt-in AFTER original save and retains all live owners',()=>{
  const html=read('index.html'),legacy=read('002-core-training-v150-monolithic.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.68');
+ assert.equal(pkg.version,'20.5.69');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20567-player-shadow.test.cjs'));
  assert.ok(html.includes('id="vc20567-arm-players" disabled'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.68'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.69'));
  assert.ok(read('src/vc2055-entry.ts').includes('mountPlayerShadowPanel(window)'));
  assert.ok(read('service-worker.js').includes('player-shadow-optin-20.5.67'));
  assert.ok(legacy.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
