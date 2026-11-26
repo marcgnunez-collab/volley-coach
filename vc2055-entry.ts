@@ -32,6 +32,7 @@ import {installScoutRegistrationBridge} from './domain/scout-action-registration
 import {installScoutRegistrationLane} from './domain/scout-registration-lane-runtime';
 import {installScoutDirectActionLane} from './domain/scout-direct-action-runtime';
 import {installRallyEditorLane} from './domain/rally-editor-lane-runtime';
+import {installHistoricalRestoreLane} from './domain/scout-historical-restore-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -183,6 +184,9 @@ export {installScoutDirectActionLane} from './domain/scout-direct-action-runtime
 export {captureRallyEditorScope,isRallyEditorScopeCurrent,syncRallyEditorDraftCodes,
  changeRallyEditorDraft,prepareRallyCorrection} from './domain/rally-editor-lane';
 export {installRallyEditorLane} from './domain/rally-editor-lane-runtime';
+export {captureHistoricalRestoreTicket,isHistoricalRestoreTicketCurrent}
+ from './domain/scout-historical-restore-gate';
+export {installHistoricalRestoreLane} from './domain/scout-historical-restore-runtime';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -222,6 +226,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutRegistrationLane(window);
  installScoutDirectActionLane(window);
  installRallyEditorLane(window);
+ installHistoricalRestoreLane(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
  installScoutTacticalFieldsBridge(window);

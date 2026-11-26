@@ -1308,6 +1308,54 @@ let v680DBPromise=null,v680LastBackupAt=0,v680LastWarning='',v680EditContext=nul
 // V16.0.4.2: private editor bridge for later professional controls.
 // The legacy editor still owns and mutates this state; do not duplicate it.
 window.VC_SCOUT_V680_EDITOR={getContext:()=>v680EditContext,parseCode:(raw,m,old)=>v680ParseCode(raw,m,old),escape:v680Esc};
+/* V20.5.78 · History restore holds an ephemeral ticket while IndexedDB,
+ * FileReader or user confirmation is pending. No new storage writer. */
+const v20578RestoreStats={typed:0,classic:0,stale:0,rejected:0};
+window.VC_HISTORICAL_RESTORE_DIAGNOSTICS_20578=()=>Object.freeze({...v20578RestoreStats});
+function v20578RestoreLane(){
+  const lane=window.VC_HISTORICAL_RESTORE_LANE_20578;
+  return lane?.VERSION==='20.5.78'&&lane.nativeOnly===true&&
+    lane.singleNativeWriter===true?lane:null;
+}
+function v20578HistoryView(){
+  return {teamKey:equipoActivo,activeId:scoutingActiveId,
+    activeMatch:scoutActive(),matches:scoutingMatches};
+}
+function v20578CaptureHistory(){
+  const view=v20578HistoryView(),lane=v20578RestoreLane();
+  if(lane&&typeof lane.capture==='function'){
+    try{
+      const ticket=lane.capture(view);
+      if(ticket&&typeof ticket.signature==='string'){
+        v20578RestoreStats.typed++;return ticket;
+      }
+    }catch(_){}
+  }
+  if(view.activeMatch&&view.activeMatch.status!=='finished')return null;
+  try{
+    const signature=JSON.stringify(view.matches);
+    if(typeof signature!=='string')return null;
+    v20578RestoreStats.classic++;
+    return Object.freeze({...view,signature});
+  }catch(_){return null}
+}
+function v20578HistoryCurrent(ticket){
+  if(!ticket)return false;
+  const view=v20578HistoryView(),lane=v20578RestoreLane();
+  if(lane&&typeof lane.current==='function'){
+    try{return lane.current(ticket,view)===true}catch(_){return false}
+  }
+  try{return (!view.activeMatch||view.activeMatch.status==='finished')&&
+    view.teamKey===ticket.teamKey&&view.activeId===ticket.activeId&&
+    view.activeMatch===ticket.activeMatch&&view.matches===ticket.matches&&
+    JSON.stringify(view.matches)===ticket.signature}catch(_){return false}
+}
+function v20578HistoryGuard(ticket){
+  if(v20578HistoryCurrent(ticket))return true;
+  v20578RestoreStats.stale++;
+  alert('El club, partido o historial ha cambiado durante la restauración. Operación cancelada; vuelve a abrir la copia.');
+  return false;
+}
 /* V20.5.77 · Historical editor owns the draft and final save. The typed lane
  * only checks the captured rally identity and prepares actions in memory. */
 const v20577EditorStats={typedSaves:0,classicSaves:0,stale:0,blocked:0};
@@ -1428,9 +1476,52 @@ setInterval(()=>{try{scoutV680UpdateStatus()}catch(_){}},30000);
 async function v680SnapshotCard(snap,which){if(!snap)return `<div class="scout-v680-snapshot"><h4>${which==='current'?'Última copia':'Checkpoint anterior'}</h4><p>No hay copia disponible en este dispositivo.</p></div>`;const c=v680Counts(snap.match);return `<div class="scout-v680-snapshot"><h4>${which==='current'?'Última copia':'Checkpoint anterior'}</h4><p><b>${v680Esc(snap.match?.opponent||'Rival')}</b> · ${v680Esc(snap.match?.date||'—')}</p><p>${c.rallies} rallies · ${c.actions} acciones · ${v680When(snap.savedAt)}</p><p>Motivo: ${v680Esc(snap.reason||'auto')} · formato ${v680Esc(snap.version||'—')}</p><div class="scout-v680-snapshot-actions"><button class="primary" onclick="scoutV680RestoreSnapshot('${which}')">Restaurar</button></div></div>`}
 window.scoutV680OpenRecovery=async function(){document.getElementById('scout-v680-recovery-modal')?.classList.add('open');const m=scoutActive(),current=await v680DBGet(v680Key('current')),previous=await v680DBGet(v680Key('previous')),c=m?v680Counts(m):{rallies:0,actions:0},integrity=scoutV680Integrity(m),status=document.getElementById('scout-v680-recovery-status'),snaps=document.getElementById('scout-v680-recovery-snapshots'),issues=document.getElementById('scout-v680-issues');if(status)status.innerHTML=`<div class="scout-v680-status-card"><span>Conexión</span><b>${navigator.onLine?'Online':'Offline'}</b></div><div class="scout-v680-status-card"><span>Partido activo</span><b>${m?v680Esc(m.opponent):'—'}</b></div><div class="scout-v680-status-card"><span>Rallies / acciones</span><b>${c.rallies} / ${c.actions}</b></div><div class="scout-v680-status-card"><span>Integridad</span><b>${integrity.errors.length?integrity.errors.length+' errores':integrity.warnings.length?integrity.warnings.length+' avisos':'OK'}</b></div>`;if(snaps)snaps.innerHTML=(await v680SnapshotCard(current,'current'))+(await v680SnapshotCard(previous,'previous'));if(issues){const all=[...integrity.errors.map(x=>({x,cls:'error'})),...integrity.warnings.map(x=>({x,cls:'warn'}))];issues.innerHTML=all.length?all.slice(0,40).map(i=>`<div class="scout-v680-issue ${i.cls}">${v680Esc(i.x)}</div>`).join(''):'<div class="scout-v680-issue">No se han detectado incoherencias en el partido activo.</div>'}};
 window.scoutV680CloseRecovery=function(){document.getElementById('scout-v680-recovery-modal')?.classList.remove('open')};
-window.scoutV680RestoreSnapshot=async function(which='current'){const snap=await v680DBGet(v680Key(which));if(!snap?.match){alert('No hay una copia válida para restaurar.');return}if(!confirm(`¿Restaurar la copia de ${v680When(snap.savedAt)}? El scouting activo con el mismo ID será sustituido.`))return;const restored=scoutNormalizeMatch(snap.match),idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scout-workspace-v900',botonVista('scout-workspace-v900'));scoutRender();alert('Copia restaurada correctamente.')};
+window.scoutV680RestoreSnapshot=async function(which='current'){
+  const ticket=v20578CaptureHistory();
+  if(!ticket){v20578RestoreStats.rejected++;
+    alert('No se puede restaurar mientras el scouting está abierto o el historial no es verificable.');return false;}
+  const snap=await v680DBGet(v680Key(which));
+  if(!snap?.match){alert('No hay una copia válida para restaurar.');return false;}
+  if(!v20578HistoryGuard(ticket))return false;
+  if(!confirm(`¿Restaurar la copia de ${v680When(snap.savedAt)}? El scouting activo con el mismo ID será sustituido.`))return false;
+  if(!v20578HistoryGuard(ticket))return false;
+  const restored=scoutNormalizeMatch(snap.match);
+  if(!v20578HistoryGuard(ticket))return false;
+  const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));
+  if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);
+  scoutingActiveId=restored.id;
+  scoutSave();scoutV680CloseRecovery();
+  showView('scout-workspace-v900',botonVista('scout-workspace-v900'));
+  scoutRender();alert('Copia restaurada correctamente.');return true;
+};
 window.scoutV680DownloadBackup=function(){const snap=v680Snapshot('download');if(!snap){alert('No hay un scouting activo que copiar.');return}const blob=new Blob([JSON.stringify(snap,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${scoutSafeFilename((snap.match.date||'partido')+'_'+(snap.match.opponent||'rival'))}_backup_v680.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-window.scoutV680ImportBackup=function(event){const file=event?.target?.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!data?.match||!['volley-coach-scout-recovery','volley-coach-scout-backup'].includes(data.type)){throw new Error('Formato de copia no reconocido')}const restored=scoutNormalizeMatch(data.match);if(!confirm(`Importar scouting contra ${restored.opponent}?`))return;const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();showView('scout-workspace-v900',botonVista('scout-workspace-v900'));scoutRender()}catch(err){alert('No se pudo importar la copia: '+err.message)}finally{event.target.value=''}};reader.readAsText(file)};
+window.scoutV680ImportBackup=function(event){
+  const file=event?.target?.files?.[0];if(!file)return;
+  const ticket=v20578CaptureHistory();
+  if(!ticket){v20578RestoreStats.rejected++;
+    alert('No se puede importar mientras el scouting está abierto o el historial no es verificable.');
+    if(event?.target)event.target.value='';return false;}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data?.match||!['volley-coach-scout-recovery','volley-coach-scout-backup'].includes(data.type))
+        throw new Error('Formato de copia no reconocido');
+      if(!v20578HistoryGuard(ticket))return false;
+      const restored=scoutNormalizeMatch(data.match);
+      if(!confirm(`Importar scouting contra ${restored.opponent}?`))return false;
+      if(!v20578HistoryGuard(ticket))return false;
+      const idx=scoutingMatches.findIndex(x=>Number(x.id)===Number(restored.id));
+      if(idx>=0)scoutingMatches[idx]=restored;else scoutingMatches.push(restored);
+      scoutingActiveId=restored.id;scoutSave();scoutV680CloseRecovery();
+      showView('scout-workspace-v900',botonVista('scout-workspace-v900'));scoutRender();
+      return true;
+    }catch(err){alert('No se pudo importar la copia: '+err.message);return false;}
+    finally{event.target.value='';}
+  };
+  reader.readAsText(file);
+  return true;
+};
 
 function v680ParseCode(raw,m,oldAction=null){raw=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');const mt=raw.match(/^(R)?(\d+)(S|R|E|A|B|D|F|C)([#\+!\-\/=])?(?:\.([1-9])>([1-9]))?(.*)$/);if(!mt)return {error:'Código no reconocido.'};let rest=mt[7]||'';const serve=rest.match(/~(JF|JP|F|U)/)?.[1]||'';rest=rest.replace(/~(JF|JP|F|U)/,'');const combo=rest.match(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/)?.[1]||'';rest=rest.replace(/:(Z4|Z2|Z1|Z6|1T|31|BACK|PIPE|2T|OTR)/,'');const phase=rest.match(/\^(K1|K2|FB|TR)/)?.[1]||'';rest=rest.replace(/\^(K1|K2|FB|TR)/,'');const blockers=rest.match(/@([0-3])/)?.[1]||'';rest=rest.replace(/@([0-3])/,'');if(rest)return {error:'Parte avanzada no reconocida: '+rest};const rival=!!mt[1],num=mt[2],skill=mt[3],evaluation=mt[4]||'!',base={...(oldAction||{}),team:rival?'opponent':'ours',skill,evaluation,startZone:mt[5]||'',endZone:mt[6]||'',serveType:serve,phase,setTarget:skill==='E'?combo:'',attackCombo:skill==='A'?combo:'',blockers:skill==='A'?blockers:'',validationWarnings:[]};if(rival){base.playerId=null;base.playerLabel=scoutFindOpponentByNumber(m,num);base.playerNumberSnapshot=num;base.playerNameSnapshot=base.playerNameSnapshot||String(base.playerLabel||'').replace(/^#?\d+\s*[·-]?\s*/,'')}else{let p=scoutFindOwnByNumber(num);if(!p&&oldAction&&String(oldAction.playerNumberSnapshot)===String(num))p={id:oldAction.playerId,name:oldAction.playerNameSnapshot,number:num};if(!p)return {error:`No encuentro el dorsal ${num} en la plantilla actual.`};base.playerId=p.id;base.playerLabel='';base.playerNameSnapshot=p.name||base.playerNameSnapshot||'';base.playerNumberSnapshot=p.number??num}const a=scoutNormalizeAction(base);a.code=scoutBuildCode(a);return {action:a}}
 window.scoutV680OpenSetEditor=function(setNo){const m=scoutActive(),s=scoutArr(m?.sets).find(x=>Number(x.number)===Number(setNo));if(!m||!s)return;v680EditContext={mode:'set',setNo:Number(setNo)};document.getElementById('scout-v680-rally-modal')?.classList.add('open');document.getElementById('scout-v680-rally-title').textContent=`Set ${s.number} · rallies`;document.getElementById('scout-v680-rally-subtitle').textContent='Selecciona un rally para corregir sus acciones. El marcador queda protegido.';const body=document.getElementById('scout-v680-rally-body'),footer=document.getElementById('scout-v680-rally-footer');if(body)body.innerHTML=`<div class="scout-v680-rally-browser">${scoutArr(s.rallies).slice().reverse().map((r,i)=>`<div class="scout-v680-rally-browser-row"><strong>${r.scoreAfter.us}–${r.scoreAfter.opponent}</strong><div><b>R${r.rotationBefore} · ${r.actions.length} acciones</b><small>${v680Esc(r.actions.map(a=>a.code).join('  ')||'Sin acciones')}${r.editedAt?' · editado '+v680When(r.editedAt):''}</small></div><button class="ghost" onclick="scoutV680OpenRallyEditor(${s.number},${r.id})">Editar acciones</button></div>`).join('')||'<div class="match-empty">No hay rallies cerrados en este set.</div>'}</div>`;if(footer)footer.innerHTML='<div></div><div><button class="ghost" onclick="scoutV680CloseRallyEditor()">Cerrar</button></div>'};
