@@ -71,6 +71,15 @@ function fakeIDB({failPut=false,corruptRead=false}={}){
  };
  return {factory,databases,ops};
 }
+function fakeLocks(){
+ let held=false;
+ return {request(name,options,callback){
+  assert.equal(options.ifAvailable,true);
+  if(held)return Promise.resolve(callback(null));
+  held=true;
+  return Promise.resolve(callback({name})).finally(()=>{held=false});
+ }};
+}
 const fixture=()=>({version:5.8,bibliotecaCompartida:[{id:1,nombre:'BIBLIOTECA'}],
  equiposData:{
   infantil:{jugadores:[{id:'z9',nombre:'NOMBRE-PRIVADO'},{uuid:'a1',numero:1}],
@@ -155,11 +164,11 @@ test('Gestion remains unarmed after mounting; after consent it mirrors and can e
   'vc20567-player-shadow-status':status};
  const local={state:raw,getItem(key){return key==='volleyCoachStateV43'?this.state:null}};
  const win={document:{getElementById:id=>elements[id]||null},indexedDB:mem.factory,
-  localStorage:local,confirm:()=>true};
+  navigator:{locks:fakeLocks()},localStorage:local,confirm:()=>true};
  const api=mod.mountPlayerShadowPanel(win);
  assert.equal(api.manualOnly,true);assert.equal(api.authoritative,false);
  assert.equal(api.enabled(),false);assert.equal(mem.ops.length,0);
- api.arm();await api.whenIdle();assert.equal(api.enabled(),true);
+ await api.arm();await api.whenIdle();assert.equal(api.enabled(),true);
  assert.equal((await api.inspect()).status,'verified');
  source.equiposData.infantil.jugadores[0].nombre='NUEVO';
  local.state=JSON.stringify(source);
@@ -172,7 +181,7 @@ test('Gestion remains unarmed after mounting; after consent it mirrors and can e
  assert.ok(!status.textContent.includes('NOMBRE-PRIVADO'));
   source.equiposData.infantil.jugadores.push({nombre:'SIN-ID'});
   local.state=JSON.stringify(source);
-  assert.throws(()=>api.arm(),/identidades pendientes/);
+  await assert.rejects(api.arm(),/identidades pendientes/);
   assert.equal(api.enabled(),false);assert.equal(mem.databases.size,0);
  api.dispose();assert.equal(arm.disabled,true);
 });
@@ -203,10 +212,10 @@ test('native save hook runs only AFTER a confirmed main write, never on failure 
 test('release V67 mounts manual opt-in AFTER original save and retains all live owners',()=>{
  const html=read('index.html'),legacy=read('002-core-training-v150-monolithic.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.67');
+ assert.equal(pkg.version,'20.5.68');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20567-player-shadow.test.cjs'));
  assert.ok(html.includes('id="vc20567-arm-players" disabled'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.67'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.68'));
  assert.ok(read('src/vc2055-entry.ts').includes('mountPlayerShadowPanel(window)'));
  assert.ok(read('service-worker.js').includes('player-shadow-optin-20.5.67'));
  assert.ok(legacy.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));

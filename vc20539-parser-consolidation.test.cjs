@@ -129,10 +129,10 @@ test('V20.5.39 removes two active wrapper layers without modifying protected wri
 
 test('V20.5.39 sources, assets and service worker are versioned together',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.67');
+ assert.equal(pkg.version,'20.5.68');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20539-parser-consolidation.test.cjs'));
  for(const script of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(script+'?v=20.5.67'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(script+'?v=20.5.68'));
  assert.ok(sw.includes('canonical-parser-20.5.39'));
  assert.ok(read('GUIA_V20.5.39_PARSER_CANONICO.md').includes('V20.5.39'));
 });

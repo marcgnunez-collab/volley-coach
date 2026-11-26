@@ -3,6 +3,7 @@
  */
 import {planPlayerShadow,writePlayerShadow,inspectPlayerShadow,deletePlayerShadow,
  type PlayerShadowCheck,type PlayerShadowReceipt} from './player-shadow';
+import {tryAcquirePlayerShadowLock,type ShadowLease,type ShadowLockPort} from './player-shadow-lock';
 
 type PlayerWindow=Window&{
  VC_STORAGE_QUOTA_1531?:{unpack?:(v:string)=>string};
@@ -10,7 +11,8 @@ type PlayerWindow=Window&{
 };
 export interface PlayerShadowAPI{
  readonly VERSION:'20.5.67';readonly manualOnly:true;readonly authoritative:false;
- readonly enabled:()=>boolean;readonly arm:()=>void;readonly pause:()=>void;
+ readonly crossTabSafe:true;
+ readonly enabled:()=>boolean;readonly arm:()=>Promise<void>;readonly pause:()=>void;
  readonly onConfirmedWrite:(raw:string)=>void;
  readonly inspect:()=>Promise<PlayerShadowCheck>;
  readonly erase:()=>Promise<true>;
@@ -32,18 +34,21 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
  const old=mounted.get(win);if(old)return old;
  const available=typeof win.indexedDB?.open==='function'&&
   typeof win.indexedDB?.deleteDatabase==='function'&&!!win.localStorage;
- let active=false,disposed=false,processing=false,scheduled=false;
+ const locks=win.navigator?.locks as unknown as ShadowLockPort|undefined;
+ const canWrite=available&&typeof locks?.request==='function';
+ let active=false,arming=false,disposed=false,processing=false,scheduled=false;
+ let lease:ShadowLease|null=null,releasing:Promise<void>|null=null;
  let queued:string|null=null,ongoing:Promise<void>|null=null;
  const show=(text:string)=>{if(!disposed)status.textContent=text};
  const update=()=>{
-  armButton.disabled=!available||active||disposed;
+  armButton.disabled=!canWrite||active||arming||!!lease||!!releasing||disposed;
   pauseButton.disabled=!active||disposed;
   checkButton.disabled=!available||disposed;
-  eraseButton.disabled=!available||disposed;
+  eraseButton.disabled=!canWrite||disposed;
  };
  update();
- show(available?'Copia paralela apagada. Solo se activa manualmente para esta sesión.':
-  'Este navegador no permite la prueba aislada de jugadores.');
+ show(canWrite?'Copia paralela apagada. V20.5.68 protege la sesión con un bloqueo exclusivo entre pestañas.':
+  'La copia paralela requiere IndexedDB y Web Locks para impedir escrituras simultáneas. La inspección de solo lectura puede seguir disponible.');
 
  const readRaw=()=>{
   const stored=win.localStorage.getItem(MAIN_KEY);
@@ -71,7 +76,7 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
    // retrying the canonical storage path, inventing IDs or replaying data.
    active=false;queued=null;
    show('Copia paralela detenida por una incompatibilidad o fallo local. El guardado principal no se ha modificado. Revisa los IDs y la copia JSON.');
-  }finally{processing=false;ongoing=null;update()}
+  }finally{processing=false;ongoing=null;update();if(!active)void releaseAfterIdle()}
  };
  const schedule=()=>{
   if(scheduled||processing||disposed||!active)return;
@@ -81,32 +86,53 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
  const onConfirmedWrite=(raw:string)=>{
   if(!active||disposed)return;
   if(typeof raw!=='string'||!raw||raw.length>12000000){
-   active=false;queued=null;update();
+   pause();
    show('Copia paralela pausada: el estado confirmado supera los límites de prueba.');
    return;
   }
   queued=raw;schedule();
  };
- const arm=()=>{
-  if(!available||disposed)throw Error('No se puede activar esta réplica');
-  // Capture the actual last committed local JSON; never clone transient editor state.
-  const raw=readRaw();
-  const preview=planPlayerShadow(raw,revision());
-  if(!preview.complete)throw Error(`Hay ${preview.pendingIds} identidades pendientes`);
-  active=true;update();
-  show('Copia paralela activa para esta sesión. Preparando la lectura del último guardado confirmado…');
-  onConfirmedWrite(raw);
- };
- const pause=()=>{
-  active=false;queued=null;update();
-  show(processing?'Copia paralela pausada. La transacción ya iniciada puede finalizar.':
-   'Copia paralela desactivada. Se mantiene el guardado principal.');
- };
- const whenIdle=async()=>{
+ const whenWritesSettled=async()=>{
   while(scheduled||processing||ongoing){
    if(ongoing)await ongoing;
    else await new Promise<void>(resolve=>setTimeout(resolve,0));
   }
+ };
+ const releaseAfterIdle=()=>{
+  if(releasing)return releasing;
+  releasing=(async()=>{
+   await whenWritesSettled();
+   const held=lease;lease=null;held?.release();
+   releasing=null;update();
+  })();
+  return releasing;
+ };
+ const whenIdle=async()=>{
+  await whenWritesSettled();
+  if(releasing)await releasing;
+ };
+ const arm=async()=>{
+  if(!canWrite||disposed||active||arming||lease||releasing)
+   throw Error('No se puede activar: copia ocupada o bloqueo no disponible');
+  // This is the original committed JSON, not mutable editor state.
+  const raw=readRaw();
+  const preview=planPlayerShadow(raw,revision());
+  if(!preview.complete)throw Error(`Hay ${preview.pendingIds} identidades pendientes`);
+  arming=true;update();
+  try{
+   const acquired=await tryAcquirePlayerShadowLock(locks);
+   if(!acquired)throw Error('Otra pestaña ya tiene activada la copia paralela');
+   if(disposed||!arming){acquired.release();return}
+   lease=acquired;active=true;
+   show('Copia paralela protegida para esta sesión. Comprobando el último guardado confirmado…');
+   onConfirmedWrite(raw);
+  }finally{arming=false;update()}
+ };
+ const pause=()=>{
+  active=false;arming=false;queued=null;update();
+  void releaseAfterIdle();
+  show(processing?'Copia paralela pausada. La transacción ya iniciada finalizará antes de liberar el bloqueo.':
+   'Copia paralela desactivada. El bloqueo de esta sesión se ha liberado y el guardado principal sigue activo.');
  };
  const inspect=async()=>{
   if(!available||disposed)throw Error('Inspección de jugadores no disponible');
@@ -124,25 +150,39 @@ export function mountPlayerShadowPanel(win:PlayerWindow):Readonly<PlayerShadowAP
   show(descriptions[result.status]);return result;
  };
  const erase=async()=>{
-  if(!available||disposed)throw Error('Borrado de réplica no disponible');
+  if(!canWrite||disposed)throw Error('Borrado protegido no disponible');
   pause();await whenIdle();
-  const result=await deletePlayerShadow(win.indexedDB);
-  show('Se eliminó únicamente la copia paralela de jugadores. El club original no cambió.');
-  return result;
+  const exclusive=await tryAcquirePlayerShadowLock(locks);
+  if(!exclusive)throw Error('Otra pestaña está usando la copia; no se elimina');
+  try{
+   const result=await deletePlayerShadow(win.indexedDB);
+   show('Se eliminó únicamente la copia paralela de jugadores. El club original no cambió.');
+   return result;
+  }finally{exclusive.release()}
  };
  const onArm=()=>{if(win.confirm('La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?'))
-  try{arm()}catch(_){show('No se pudo activar: revisa los IDs de jugadores, el guardado principal y la copia JSON.')}};
+  void arm().catch(()=>show('No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes.'))};
  const onPause=()=>pause();
  const onCheck=()=>{void inspect().catch(()=>show('No se pudo comprobar la copia de jugadores.'))};
  const onErase=()=>{if(win.confirm('¿Eliminar solo la réplica de jugadores V20.5.67? No se borrará el club principal.'))
-  void erase().catch(()=>show('No pudo eliminarse la copia paralela. Cierra otras pestañas e inténtalo de nuevo.'))};
+  void erase().catch(()=>show('No se ha eliminado la copia. Otra pestaña puede estar utilizándola.'))};
+ const onExternalState=(event:StorageEvent)=>{
+  if(event.key===MAIN_KEY&&(active||arming)){
+   pause();show('Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla.');
+  }
+ };
+ const onPageHide=()=>{if(active||arming)pause()};
  armButton.addEventListener('click',onArm);pauseButton.addEventListener('click',onPause);
  checkButton.addEventListener('click',onCheck);eraseButton.addEventListener('click',onErase);
+ win.addEventListener?.('storage',onExternalState);
+ win.addEventListener?.('pagehide',onPageHide);
  const api:Readonly<PlayerShadowAPI>=Object.freeze({VERSION:'20.5.67',manualOnly:true,
-  authoritative:false,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,erase,whenIdle,
+  authoritative:false,crossTabSafe:true,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,erase,whenIdle,
   dispose(){if(disposed)return;pause();disposed=true;
    armButton.removeEventListener('click',onArm);pauseButton.removeEventListener('click',onPause);
    checkButton.removeEventListener('click',onCheck);eraseButton.removeEventListener('click',onErase);
+   win.removeEventListener?.('storage',onExternalState);
+   win.removeEventListener?.('pagehide',onPageHide);
    update();mounted.delete(win);
    if(win.VC_PLAYER_SHADOW_20567===api)delete win.VC_PLAYER_SHADOW_20567;
   }});

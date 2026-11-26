@@ -171,11 +171,11 @@ test('missing, corrupt or throwing bridge returns historical fields and timestam
 
 test('V20.5.45 keeps native video, score, source identification and journal writers untouched',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.67');
+ assert.equal(pkg.version,'20.5.68');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20545-action-metadata-migration.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js',
   '077-v132-scouting-pro-workspace.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(name+'?v=20.5.67'));
+  assert.ok(html.includes(name+'?v=20.5.68'));
  assert.ok(sw.includes('action-video-metadata-20.5.45'));
  assert.ok(code.includes('const pushed=scoutPushAction(parsed.action)'));
  assert.ok(code.includes('const v880PushBase=scoutPushAction'));

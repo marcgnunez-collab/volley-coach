@@ -90,6 +90,7 @@ export {mountClubRehydrationPanel} from './state/club-entity-rehydration-runtime
 export {planPlayerShadow,writePlayerShadow,inspectPlayerShadow,deletePlayerShadow,
  PLAYER_SHADOW_DB} from './state/player-shadow';
 export {mountPlayerShadowPanel} from './state/player-shadow-runtime';
+export {tryAcquirePlayerShadowLock,PLAYER_SHADOW_LOCK} from './state/player-shadow-lock';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
