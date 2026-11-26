@@ -4675,6 +4675,12 @@ function v857PrepareNativeOnce(raw,m){
 }
 window.VC_SCOUT_PREPARE_DIAGNOSTICS_20536=()=>Object.freeze({...v857PreparationStats});
 
+/* V20.5.75 · Typed orchestration of the live parser→writer boundary.
+ * The final native scoutPushAction (including all video and DV wrappers)
+ * stays the ONLY action writer. Never fall back after a parser or push call. */
+const v20575RegistrationStats={typed:0,native:0,exceptions:0,
+  rejected:0,nativeParses:0,nativePushes:0};
+window.VC_SCOUT_REG_LANE_DIAGNOSTICS_20575=()=>Object.freeze({...v20575RegistrationStats});
 function v857RegisterRaw(raw,m=scoutActive()){
   raw=v857Preprocess(raw);
   if(!raw)return {ok:false,error:v857CheckedGuard('Código vacío.',
@@ -4688,6 +4694,39 @@ function v857RegisterRaw(raw,m=scoutActive()){
   if(guard)return {ok:false,error:guard};
 
   const before=v857LiveCount(m);
+  const lane=window.VC_SCOUT_REG_LANE_20575;
+  if(lane?.VERSION==='20.5.75'&&lane.nativeOnly===true&&
+     lane.singleNativeWriter===true&&typeof lane.register==='function'){
+    let parsedCalled=false,pushedCalled=false;
+    try{
+      const outcome=lane.register({raw,match:m,before,port:{
+        parse(){
+          if(parsedCalled)throw Error('El parser nativo ya se invocó: no repetir.');
+          parsedCalled=true;v20575RegistrationStats.nativeParses++;
+          return v857PrepareNativeOnce(raw,m);
+        },
+        push(action){
+          if(pushedCalled)throw Error('La acción ya se envió al escritor nativo.');
+          pushedCalled=true;v20575RegistrationStats.nativePushes++;
+          return scoutPushAction(action);
+        },
+        countAfter:()=>v857LiveCount(m),
+        lastAction:()=>scoutArr(m.liveRally?.actions).slice(-1)[0]
+      }});
+      if(!outcome||typeof outcome.ok!=='boolean'||outcome.before!==before||
+         typeof outcome.after!=='number'||!parsedCalled||
+         (outcome.ok&&(!pushedCalled||outcome.match!==m||outcome.after!==before+1))){
+        v20575RegistrationStats.rejected++;
+        throw Error('Resultado incompatible del registro tipado. No se repite la acción.');
+      }
+      v20575RegistrationStats.typed++;return outcome;
+    }catch(error){
+      v20575RegistrationStats.exceptions++;
+      // Native parser / writer already invoked: retrying could duplicate a point.
+      if(parsedCalled||pushedCalled)throw error;
+    }
+  }
+  v20575RegistrationStats.native++;
   const parsed=v857PrepareNativeOnce(raw,m);
   if(parsed?.error||!parsed?.action){
     return {ok:false,error:parsed?.error||'Código no reconocido.',before,after:before};

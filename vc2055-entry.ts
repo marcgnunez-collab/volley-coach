@@ -29,6 +29,7 @@ import {installScoutActionBuilderBridge} from './domain/scout-action-builder-run
 import {installScoutCodeFormatBridge} from './domain/scout-code-format-runtime';
 import {installScoutCodeBuilderBridge} from './domain/scout-code-builder-runtime';
 import {installScoutRegistrationBridge} from './domain/scout-action-registration-runtime';
+import {installScoutRegistrationLane} from './domain/scout-registration-lane-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -173,6 +174,8 @@ export {prepareScoutingCodeInput,finishScoutingCode} from './domain/scout-code-b
 export {installScoutCodeBuilderBridge};
 export {prepareContactRegistration} from './domain/scout-action-registration';
 export {installScoutRegistrationBridge};
+export {registerNativeScoutingAction} from './domain/scout-registration-lane';
+export {installScoutRegistrationLane} from './domain/scout-registration-lane-runtime';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -209,6 +212,7 @@ if(typeof window!=='undefined'&&window.document){
  installScoutCodeFormatBridge(window);
  installScoutCodeBuilderBridge(window);
  installScoutRegistrationBridge(window);
+ installScoutRegistrationLane(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
  installScoutTacticalFieldsBridge(window);

@@ -185,10 +185,10 @@ test('actual V7.4 video wrappers retain the closed clip markers after native und
 
 test('V20.5.14 keeps native writers untouched, including the extracted V13 scripts',async()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.74');
+ assert.equal(pkg.version,'20.5.75');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20514-rally-boundaries.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.74'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.74'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.75'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.75'));
  assert.ok(sw.includes('rally-boundaries-20.5.14'));
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
