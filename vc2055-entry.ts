@@ -52,6 +52,7 @@ import {mountClubRecoveryPanel} from './state/club-recovery-runtime';
 import {mountClubRehydrationPanel} from './state/club-entity-rehydration-runtime';
 import {mountPlayerShadowPanel} from './state/player-shadow-runtime';
 import {mountTrainingShadowPanel} from './state/training-shadow-runtime';
+import {installTrainingPlanningBridge} from './training/planning-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -102,6 +103,12 @@ export {TRAINING_SHADOW_DB,TRAINING_FIELDS,planTrainingShadow,writeTrainingShado
 export {TRAINING_SHADOW_LOCK,mountTrainingShadowPanel} from './state/training-shadow-runtime';
 export {reconstructTrainingsForBackup,prepareTrainingShadowBackup}
  from './state/training-shadow-backup';
+export {TRAINING_COLD_REOPEN_KEY,parseTrainingColdTicket,
+ prepareTrainingColdReopen,verifyTrainingColdReopen}
+ from './state/training-shadow-cold-recovery';
+export {classifyTrainingPlan,formatTrainingLocalDate,startOfTrainingWeek,totalTrainingMinutes}
+ from './training/planning-core';
+export {installTrainingPlanningBridge} from './training/planning-runtime';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
@@ -190,6 +197,7 @@ export {installMatchFinalizationBridge};
 export {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
+ installTrainingPlanningBridge(window);
  installScoutingDraftBridge(window);
  installScoutingPreflightBridge(window);
  installRegistrationGuardBridge(window);

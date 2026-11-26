@@ -282,7 +282,11 @@ const ORDEN_SECCIONES_ENTRENO=['activacion','tecnica','especifico','aplicado','j
 const MAPA_SECCIONES_LEGACY={controles:'tecnica',analiticos:'tecnica',especificos:'especifico',desarrollo:'aplicado',reducidos:'aplicado',juego:'juego',activacion:'activacion',tecnica:'tecnica',especifico:'especifico',aplicado:'aplicado'};
 let seccionDestinoSesion=null;
 let crearEjercicioDestinoSesion=null;
-function fechaLocalISO(d=new Date()){const x=new Date(d),y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),dia=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${dia}`}
+function fechaLocalISO(d=new Date()){
+  const modern=window.VC_TRAINING_PLANNING_20574;
+  if(modern?.VERSION==='20.5.74'&&modern.pureOnly===true&&typeof modern.formatLocalDate==='function')return modern.formatLocalDate(d);
+  const x=new Date(d),y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),dia=String(x.getDate()).padStart(2,'0');return `${y}-${m}-${dia}`;
+}
 let equipoActivo=localStorage.getItem(ACTIVE_TEAM_KEY)||localStorage.getItem(OLD_ACTIVE_TEAM_KEY)||'infantil';
 if(!EQUIPOS[equipoActivo])equipoActivo='infantil';
 let sesionActual=[],planificacion=[],historial=[],plantillas=[],jugadoresEquipo=[];
@@ -618,7 +622,11 @@ function cambiarEquipo(id){
 }
 
 function fechaHumanaDashboard(iso){if(!iso)return {dia:'—',mes:''};const d=new Date(iso+'T12:00:00');return {dia:String(d.getDate()).padStart(2,'0'),mes:d.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}}
-function minutosListaEjercicios(lista){return (lista||[]).reduce((a,e)=>a+(Number(e.tiempo)||0),0)}
+function minutosListaEjercicios(lista){
+  const modern=window.VC_TRAINING_PLANNING_20574;
+  if(modern?.VERSION==='20.5.74'&&modern.pureOnly===true&&typeof modern.totalMinutes==='function')return modern.totalMinutes(lista);
+  return (lista||[]).reduce((a,e)=>a+(Number(e.tiempo)||0),0);
+}
 function fundamentosConMinutos(lista){const c={};(lista||[]).forEach(e=>{const fs=normalizarFundamentos(e);if(!fs.length)return;const m=(Number(e.tiempo)||0)/fs.length;fs.forEach(f=>c[f]=(c[f]||0)+m)});return c}
 function renderFocusRows(conteo,vacio='Sin trabajo registrado todavía.'){const vals=Object.entries(conteo||{}).sort((a,b)=>b[1]-a[1]);if(!vals.length)return `<div class="dashboard-empty">${esc(vacio)}</div>`;const max=Math.max(...vals.map(x=>x[1]),1);return vals.slice(0,5).map(([f,m])=>`<div class="dashboard-focus-row"><span>${esc(f)}</span><div class="dashboard-focus-track"><span style="width:${Math.max(5,m/max*100)}%"></span></div><b>${Math.round(m)}m</b></div>`).join('')}
 function abrirSesionDesdeDashboard(){showView('entrenamiento',botonVista('entrenamiento'))}
@@ -1294,7 +1302,11 @@ function generarPDFEntrenamiento(h,equipoNombre){
 /* V12.5 removed unreachable function: cargarPizarraSesion */
 /* V12.5 removed unreachable function: marcarPizarraParaEjercicio */
 /* V12.5 removed unreachable function: cargarPizarraEjercicio */
-function lunesDeSemana(d){let x=new Date(d);let day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}
+function lunesDeSemana(d){
+  const modern=window.VC_TRAINING_PLANNING_20574;
+  if(modern?.VERSION==='20.5.74'&&modern.pureOnly===true&&typeof modern.startOfWeek==='function')return modern.startOfWeek(d);
+  let x=new Date(d);let day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;
+}
 function isoDate(d){return fechaLocalISO(d)}
 function crearSesionDesdePlanificacion(fechaForzada=''){
   const fecha=fechaForzada||$('plan-fecha')?.value||'';if(!fecha){alert('Selecciona una fecha.');return false}
@@ -1639,7 +1651,11 @@ function setVistaPlanificacion(v){vistaPlanificacion=v==='mes'?'mes':'semana';$(
 function cambiarPeriodoPlan(dir){if(vistaPlanificacion==='mes')semanaBase.setMonth(semanaBase.getMonth()+dir,1);else semanaBase.setDate(semanaBase.getDate()+dir*7);renderPlanificacion()}
 function irHoyPlanificacion(){semanaBase=new Date();renderPlanificacion()}
 /* V12.5 removed unreachable function: cambiarSemana */
-function estadoPlanificacion(p,hoy){if(p.realizado)return {clase:'done',texto:'Realizado'};if(Number(meta.planificacionId)===Number(p.id))return {clase:'editing',texto:'En edición'};if(p.historialId)return {clase:'pending',texto:'En Historial · pendiente de marcar'};if(p.fecha<=hoy)return {clase:'pending',texto:'Pendiente'};return {clase:'future',texto:'Planificado'}}
+function estadoPlanificacion(p,hoy){
+  const modern=window.VC_TRAINING_PLANNING_20574;
+  if(modern?.VERSION==='20.5.74'&&modern.pureOnly===true&&typeof modern.classifyPlan==='function')return modern.classifyPlan(p,meta.planificacionId,hoy);
+  if(p.realizado)return {clase:'done',texto:'Realizado'};if(Number(meta.planificacionId)===Number(p.id))return {clase:'editing',texto:'En edición'};if(p.historialId)return {clase:'pending',texto:'En Historial · pendiente de marcar'};if(p.fecha<=hoy)return {clase:'pending',texto:'Pendiente'};return {clase:'future',texto:'Planificado'};
+}
 function editarEntrenamientoPlanificacion(id){
   const p=planificacion.find(x=>Number(x.id)===Number(id));if(!p)return;
   if(p.realizado){alert('Este entrenamiento ya está marcado como realizado. Puedes reutilizarlo, pero no editar el registro completado desde Planificación.');return}

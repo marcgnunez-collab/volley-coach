@@ -4,6 +4,8 @@
 import {planTrainingShadow,writeTrainingShadow,inspectTrainingShadow,
  deleteTrainingShadow,type TrainingCheck} from './training-shadow';
 import {prepareTrainingShadowBackup,type TrainingBackupResult} from './training-shadow-backup';
+import {TRAINING_COLD_REOPEN_KEY,prepareTrainingColdReopen,
+ verifyTrainingColdReopen,type TrainingColdResult} from './training-shadow-cold-recovery';
 import {tryAcquirePlayerShadowLock,type ShadowLease,type ShadowLockPort} from './player-shadow-lock';
 
 export const TRAINING_SHADOW_LOCK='volley-coach-training-shadow-20.5.72';
@@ -18,6 +20,8 @@ export interface TrainingShadowAPI{
  readonly pause:()=>void;readonly onConfirmedWrite:(raw:string)=>void;
  readonly inspect:()=>Promise<TrainingCheck>;readonly erase:()=>Promise<true>;
  readonly backup:()=>Promise<TrainingBackupResult>;
+ readonly prepareCold:()=>Promise<void>;readonly verifyCold:()=>Promise<TrainingColdResult>;
+ readonly cancelCold:()=>Promise<void>;
  readonly whenIdle:()=>Promise<void>;readonly dispose:()=>void;
 }
 const mounted=new WeakMap<Window,Readonly<TrainingShadowAPI>>();
@@ -32,6 +36,10 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
  const eraseButton=doc?.getElementById('vc20572-erase-training') as HTMLButtonElement|null;
  const backupButton=doc?.getElementById('vc20573-export-training') as HTMLButtonElement|null;
  const backupStatus=doc?.getElementById('vc20573-export-status');
+ const prepareColdButton=doc?.getElementById('vc20574-prepare-training-cold') as HTMLButtonElement|null;
+ const verifyColdButton=doc?.getElementById('vc20574-verify-training-cold') as HTMLButtonElement|null;
+ const cancelColdButton=doc?.getElementById('vc20574-cancel-training-cold') as HTMLButtonElement|null;
+ const coldStatus=doc?.getElementById('vc20574-training-cold-status');
  const status=doc?.getElementById('vc20572-training-status');
  if(!armButton||!pauseButton||!checkButton||!eraseButton||!status)return null;
  const earlier=mounted.get(win);if(earlier)return earlier;
@@ -41,17 +49,25 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
   typeof win.localStorage?.getItem==='function'}catch(_){/* storage disabled */}
  const locks=win.navigator?.locks as unknown as ShadowLockPort|undefined;
  const canWrite=available&&typeof locks?.request==='function';
- let active=false,arming=false,processing=false,scheduled=false,disposed=false,backupBusy=false;
+ const canCold=canWrite&&typeof win.crypto?.subtle?.digest==='function'&&
+  typeof win.localStorage?.setItem==='function'&&typeof win.localStorage?.removeItem==='function';
+ let active=false,arming=false,processing=false,scheduled=false,disposed=false,backupBusy=false,coldBusy=false;
  let lease:ShadowLease|null=null,releasing:Promise<void>|null=null;
  let queued:string|null=null,ongoing:Promise<void>|null=null;
  const show=(message:string)=>{if(!disposed)status.textContent=message};
  const showBackup=(message:string)=>{if(!disposed&&backupStatus)backupStatus.textContent=message;show(message)};
+ const showCold=(message:string)=>{if(!disposed&&coldStatus)coldStatus.textContent=message;show(message)};
+ const coldTicket=()=>{try{return win.localStorage.getItem(TRAINING_COLD_REOPEN_KEY)}catch(_){return null}};
  const update=()=>{
-  armButton.disabled=!canWrite||active||arming||backupBusy||!!lease||!!releasing||disposed;
+  armButton.disabled=!canWrite||active||arming||backupBusy||coldBusy||!!lease||!!releasing||disposed;
   pauseButton.disabled=!active||disposed;
-  checkButton.disabled=!available||disposed||backupBusy;
-  eraseButton.disabled=!canWrite||disposed||backupBusy;
-  if(backupButton)backupButton.disabled=!canWrite||disposed||backupBusy||arming;
+  checkButton.disabled=!available||disposed||backupBusy||coldBusy;
+  eraseButton.disabled=!canWrite||disposed||backupBusy||coldBusy;
+  if(backupButton)backupButton.disabled=!canWrite||disposed||backupBusy||coldBusy||arming;
+  const coldLocked=!canCold||disposed||coldBusy||backupBusy||arming;
+  if(prepareColdButton)prepareColdButton.disabled=coldLocked||!!coldTicket();
+  if(verifyColdButton)verifyColdButton.disabled=coldLocked||!coldTicket();
+  if(cancelColdButton)cancelColdButton.disabled=coldLocked||!coldTicket();
  };
  const readRaw=()=>{
   const stored=win.localStorage.getItem(MAIN_KEY);
@@ -115,7 +131,7 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
   queued=raw;schedule();
  };
  const arm=async()=>{
-  if(!canWrite||disposed||active||arming||lease||releasing||backupBusy)
+  if(!canWrite||disposed||active||arming||lease||releasing||backupBusy||coldBusy)
    throw Error('Copia de entrenamientos no disponible o bloqueada');
   const raw=readRaw(),preview=planTrainingShadow(raw,revision());
   if(!preview.complete)throw Error(`Hay ${preview.pendingIds} entrenamientos con IDs pendientes`);
@@ -136,7 +152,7 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
   }finally{arming=false;update()}
  };
  const inspect=async()=>{
-  if(!available||disposed||backupBusy)throw Error('Inspección no disponible');
+  if(!available||disposed||backupBusy||coldBusy)throw Error('Inspección no disponible');
   await whenWritesSettled();
   const raw=readRaw(),plan=planTrainingShadow(raw,revision());
   const result=await inspectTrainingShadow({factory:win.indexedDB,plan});
@@ -149,7 +165,7 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
   show(descriptions[result.status]);return result;
  };
  const erase=async()=>{
-  if(!canWrite||disposed||backupBusy)throw Error('Borrado no disponible');
+  if(!canWrite||disposed||backupBusy||coldBusy)throw Error('Borrado no disponible');
   pause();await whenIdle();
   const exclusive=await tryAcquirePlayerShadowLock(locks,TRAINING_SHADOW_LOCK);
   if(!exclusive)throw Error('Otra pestaña tiene activada la réplica');
@@ -159,7 +175,7 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
   }finally{exclusive.release();await exclusive.released}
  };
  const backup=async():Promise<TrainingBackupResult>=>{
-  if(!canWrite||disposed||backupBusy||arming)throw Error('Exportación no disponible');
+  if(!canWrite||disposed||backupBusy||arming||coldBusy)throw Error('Exportación no disponible');
   backupBusy=true;update();
   try{
    pause();await whenIdle();
@@ -182,6 +198,56 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
     showBackup(messages[result.status]);return result;
    }finally{exclusive.release();await exclusive.released}
   }finally{backupBusy=false;update()}
+ };
+ const prepareCold=async()=>{
+  if(!canCold||disposed||coldBusy||backupBusy||arming||coldTicket())
+   throw Error('Prueba pendiente o no disponible');
+  coldBusy=true;update();
+  try{
+   pause();await whenIdle();
+   const exclusive=await tryAcquirePlayerShadowLock(locks,TRAINING_SHADOW_LOCK);
+   if(!exclusive)throw Error('Otra pestaña utiliza la réplica de entrenamientos');
+   try{
+    const raw=readRaw(),ticket=await prepareTrainingColdReopen({raw,
+     factory:win.indexedDB,subtle:win.crypto.subtle,now:Date.now()});
+    if(readRaw()!==raw)throw Error('El club cambió durante la comprobación');
+    if(coldTicket())throw Error('Ya existe otra prueba pendiente');
+    win.localStorage.setItem(TRAINING_COLD_REOPEN_KEY,ticket);
+    showCold('Prueba preparada. Cierra todas las pestañas y vuelve a abrir Volley Coach; después pulsa «Verificar». El marcador no contiene entrenamientos.');
+   }finally{exclusive.release();await exclusive.released}
+  }finally{coldBusy=false;update()}
+ };
+ const verifyCold=async():Promise<TrainingColdResult>=>{
+  if(!canCold||disposed||coldBusy||backupBusy||arming||!coldTicket())
+   throw Error('No existe una prueba pendiente');
+  coldBusy=true;update();
+  try{
+   pause();await whenIdle();
+   const exclusive=await tryAcquirePlayerShadowLock(locks,TRAINING_SHADOW_LOCK);
+   if(!exclusive)throw Error('Otra pestaña utiliza la réplica; se conserva el marcador');
+   try{
+    const ticket=coldTicket();if(!ticket)throw Error('Desapareció la prueba pendiente');
+    const raw=readRaw();let result=await verifyTrainingColdReopen({ticket,raw,
+     factory:win.indexedDB,subtle:win.crypto.subtle,now:Date.now()});
+    if(readRaw()!==raw)result=Object.freeze({...result,status:'different' as const});
+    if(coldTicket()===ticket)win.localStorage.removeItem(TRAINING_COLD_REOPEN_KEY);
+    const messages={
+     verified:`Verificación posterior a la reapertura: ${result.records} registros coinciden. No demuestra resistencia a un apagón o cierre forzado.`,
+     missing:'No existe ya la réplica de entrenamientos. No se ha restaurado nada.',
+     different:'Los entrenamientos del guardado original ya no coinciden. No se ha restaurado nada.',
+     incomplete:'La comprobación no puede certificarse: faltan IDs estables.',
+     incompatible:'La réplica no puede reconstruirse íntegramente; no se ha restaurado nada.',
+     expired:'Marcador caducado. Prepara una prueba nueva.',
+     invalid:'Marcador inválido. No se ha modificado el club.'};
+    showCold(messages[result.status]);return result;
+   }finally{exclusive.release();await exclusive.released}
+  }finally{coldBusy=false;update()}
+ };
+ const cancelCold=async()=>{
+  if(!canCold||disposed||coldBusy||backupBusy||arming)throw Error('Cancelación no disponible');
+  win.localStorage.removeItem(TRAINING_COLD_REOPEN_KEY);
+  showCold('Prueba cancelada: solo se eliminó el marcador. No se borraron entrenamientos ni copias.');
+  update();
  };
  const onArm=()=>{
   if(win.confirm('Esta prueba creará una copia local adicional de los entrenamientos. ¿Has descargado antes una copia JSON completa y quieres activarla solo durante esta sesión?'))
@@ -206,6 +272,12 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
    }finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
   }).catch(()=>showBackup('La exportación no pudo verificarse. No se ha descargado ni modificado ningún entrenamiento.'));
  };
+ const onPrepareCold=()=>{
+  if(win.confirm('La prueba guardará solo una huella digital y el número de entrenamientos. ¿Prepararla para verificar tras cerrar y volver a abrir la aplicación?'))
+   void prepareCold().catch(error=>showCold(`No se preparó la prueba: ${error instanceof Error?error.message:'fallo al verificar'}.`));
+ };
+ const onVerifyCold=()=>{void verifyCold().catch(error=>showCold(`Prueba detenida: ${error instanceof Error?error.message:'no se pudo verificar'}. El marcador se conserva si la base estaba bloqueada.`))};
+ const onCancelCold=()=>{void cancelCold().catch(()=>showCold('No se pudo cancelar la prueba.'))};
  const onStorage=(event:StorageEvent)=>{
   if(event.key===MAIN_KEY&&(active||arming)){
    pause();show('Copia detenida: otra pestaña modificó el guardado principal. Comprueba antes de reactivarla.');
@@ -217,16 +289,23 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
  checkButton.addEventListener('click',onCheck);
  eraseButton.addEventListener('click',onErase);
  backupButton?.addEventListener('click',onBackup);
+ prepareColdButton?.addEventListener('click',onPrepareCold);
+ verifyColdButton?.addEventListener('click',onVerifyCold);
+ cancelColdButton?.addEventListener('click',onCancelCold);
  win.addEventListener?.('storage',onStorage);
  win.addEventListener?.('pagehide',onPageHide);
  const api:Readonly<TrainingShadowAPI>=Object.freeze({VERSION:'20.5.72',manualOnly:true,
-  authoritative:false,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,erase,backup,whenIdle,
+  authoritative:false,enabled:()=>active,arm,pause,onConfirmedWrite,inspect,erase,backup,
+  prepareCold,verifyCold,cancelCold,whenIdle,
   dispose(){if(disposed)return;pause();disposed=true;
    armButton.removeEventListener('click',onArm);
    pauseButton.removeEventListener('click',onPause);
    checkButton.removeEventListener('click',onCheck);
    eraseButton.removeEventListener('click',onErase);
    backupButton?.removeEventListener('click',onBackup);
+   prepareColdButton?.removeEventListener('click',onPrepareCold);
+   verifyColdButton?.removeEventListener('click',onVerifyCold);
+   cancelColdButton?.removeEventListener('click',onCancelCold);
    win.removeEventListener?.('storage',onStorage);
    win.removeEventListener?.('pagehide',onPageHide);
    update();mounted.delete(win);
@@ -235,5 +314,8 @@ export function mountTrainingShadowPanel(win:TrainingWindow):Readonly<TrainingSh
  mounted.set(win,api);win.VC_TRAINING_SHADOW_20572=api;
  show(canWrite?'Réplica de entrenamientos apagada. Requiere IDs únicos y activación manual.':
   'Para escribir la réplica se necesitan IndexedDB y Web Locks. No se activa automáticamente.');
+ if(coldStatus)coldStatus.textContent=coldTicket()?
+  'Hay una prueba pendiente. Pulsa «Verificar tras volver a abrir» o cancélala.':
+  'Sin prueba pendiente. Primero activa, comprueba y prepara la réplica.';
  update();return api;
 }

@@ -659,8 +659,8 @@ var L = (e, t, a, o) => {
 	restoration: a,
 	includesLineups: !1,
 	readOnly: !0
-}), ee = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, z = (e, t) => e.us === t.us && e.opponent === t.opponent;
-function te(t, r) {
+}), ee = (n) => t(n.sets).map(e).find((e) => e && Number(e.number) === Number(n.currentSet) && Number.isInteger(Number(n.currentSet))) || null, te = (e, t) => e.us === t.us && e.opponent === t.opponent;
+function ne(t, r) {
 	let a = e(t);
 	if (!a) return R("award-point", "no-match");
 	if (a.status === "finished") return R("award-point", "finished");
@@ -674,7 +674,7 @@ function te(t, r) {
 	if (!u || !n(r)) return R("award-point", "invalid-data");
 	if (l) {
 		let e = i(l.scoreBefore);
-		if (!e || !z(e, u.score) || l.servingBefore !== a.servingTeam || l.rotationBefore !== a.rotationNo || l.opponentRotationBefore !== a.opponentRotationNo) return R("award-point", "stale-score", u);
+		if (!e || !te(e, u.score) || l.servingBefore !== a.servingTeam || l.rotationBefore !== a.rotationNo || l.opponentRotationBefore !== a.opponentRotationNo) return R("award-point", "stale-score", u);
 	}
 	let d = c({
 		score: u.score,
@@ -684,7 +684,7 @@ function te(t, r) {
 	}, r), f = L(d.score, d.serving, d.rotationUs, d.rotationOpponent);
 	return f ? R("award-point", "ready", u, f, F(a, f.score)) : R("award-point", "invalid-data", u);
 }
-function ne(n) {
+function re(n) {
 	let r = e(n);
 	if (!r) return R("undo-last-rally", "no-match");
 	if (r.status === "finished") return R("undo-last-rally", "finished");
@@ -698,11 +698,11 @@ function ne(n) {
 	}), r.servingTeam, r.rotationNo, r.opponentRotationNo), u = L(c.scoreBefore, c.servingBefore, c.rotationBefore, c.opponentRotationBefore);
 	if (!l || !u || a(c).state !== "verified") return R("undo-last-rally", "invalid-data", l);
 	let d = i(c.scoreAfter);
-	return !d || !z(d, l.score) ? R("undo-last-rally", "stale-score", l) : R("undo-last-rally", "ready", l, u, null, I(c));
+	return !d || !te(d, l.score) ? R("undo-last-rally", "stale-score", l) : R("undo-last-rally", "ready", l, u, null, I(c));
 }
-function re(t, o = null) {
+function ie(t, o = null) {
 	let s = e(t), l = e(o), u = a(s), d = "unknown", f = "unknown", p = i(l?.scoreBefore);
-	u.after && p && (d = z(u.after, p) ? "match" : "mismatch");
+	u.after && p && (d = te(u.after, p) ? "match" : "mismatch");
 	let m = L(s?.scoreBefore, s?.servingBefore, s?.rotationBefore, s?.opponentRotationBefore);
 	if (m && l) {
 		let e = c({
@@ -721,7 +721,7 @@ function re(t, o = null) {
 	});
 }
 // src/domain/committed-audit.ts
-var B = 2e4, V = 6e4, H = 80, ie = /* @__PURE__ */ new Set([
+var z = 2e4, B = 6e4, V = 80, ae = /* @__PURE__ */ new Set([
 	"S",
 	"R",
 	"E",
@@ -730,7 +730,7 @@ var B = 2e4, V = 6e4, H = 80, ie = /* @__PURE__ */ new Set([
 	"D",
 	"F",
 	"C"
-]), ae = (e) => typeof e == "string" && ie.has(e) ? e : "—", oe = {
+]), H = (e) => typeof e == "string" && ae.has(e) ? e : "—", oe = {
 	difference: "El código guardado y los campos de la acción no coinciden.",
 	"coverage-gap": "El código guardado utiliza sintaxis todavía no cubierta por TypeScript.",
 	unverified: "Faltan campos del registro para comprobarlo con seguridad.",
@@ -740,7 +740,7 @@ var B = 2e4, V = 6e4, H = 80, ie = /* @__PURE__ */ new Set([
 	rotation: "La siguiente rotación o el turno de saque no concuerdan con la proyección básica."
 };
 function se(t) {
-	let r = e(t), i = ae(r?.skill);
+	let r = e(t), i = H(r?.skill);
 	if (!r) return Object.freeze({
 		kind: "unverified",
 		skill: i
@@ -753,9 +753,9 @@ function se(t) {
 	let o = v(a);
 	if (o.state !== "candidate") return Object.freeze({
 		kind: "coverage-gap",
-		skill: ae(o.skill) || i
+		skill: H(o.skill) || i
 	});
-	if (!n(r.team) || !ie.has(String(r.skill)) || ![
+	if (!n(r.team) || !ae.has(String(r.skill)) || ![
 		"#",
 		"+",
 		"!",
@@ -764,12 +764,12 @@ function se(t) {
 		"="
 	].includes(String(r.evaluation)) || r.playerNumberSnapshot === null || r.playerNumberSnapshot === void 0 || String(r.playerNumberSnapshot).trim() === "") return Object.freeze({
 		kind: "unverified",
-		skill: ae(o.skill)
+		skill: H(o.skill)
 	});
 	let s = y(a, { action: r });
 	return Object.freeze({
 		kind: s.state === "agree" ? "agree" : s.state === "disagree" ? "difference" : "unverified",
-		skill: ae(o.skill)
+		skill: H(o.skill)
 	});
 }
 function ce(n) {
@@ -792,11 +792,11 @@ function ce(n) {
 		a.push(Object.freeze({
 			kind: e,
 			location: t,
-			skill: ae(n),
+			skill: H(n),
 			reason: oe[e]
-		})), a.length > H && a.shift();
+		})), a.length > V && a.shift();
 	}, c = (e, t) => {
-		if (i.actions >= V) return o = !0, !1;
+		if (i.actions >= B) return o = !0, !1;
 		i.actions++;
 		let n = se(e);
 		return n.kind === "agree" ? i.agree++ : n.kind === "difference" ? i.difference++ : n.kind === "coverage-gap" ? i.coverageGap++ : n.kind === "no-code" ? i.noCode++ : i.unverified++, n.kind !== "agree" && s(n.kind, t, n.skill), !0;
@@ -806,14 +806,14 @@ function ce(n) {
 		if (!r) continue;
 		let a = t(r.rallies);
 		for (let r = 0; r < a.length; r++) {
-			if (i.rallies >= B) {
+			if (i.rallies >= z) {
 				o = !0;
 				break main;
 			}
 			let l = e(a[r]);
 			if (!l) continue;
 			i.rallies++;
-			let u = `S${n + 1} · R${r + 1}`, d = e(a[r + 1]), f = re(l, d);
+			let u = `S${n + 1} · R${r + 1}`, d = e(a[r + 1]), f = ie(l, d);
 			f.score.state === "verified" ? i.scoreVerified++ : f.score.state === "inconsistent" ? (i.scoreInconsistent++, s("score", u)) : i.scoreUnknown++;
 			for (let [e, n] of t(l.actions).entries()) if (!c(n, `${u} · A${e + 1}`)) break main;
 			d && (f.scoreLink !== "unknown" && (i.scoreLinksChecked++, f.scoreLink === "mismatch" && (i.scoreLinksMismatch++, s("score-sequence", `${u} → R${r + 2}`))), f.rotationLink !== "unknown" && (i.rotationsChecked++, f.rotationLink === "mismatch" && (i.rotationsMismatch++, s("rotation", `${u} → R${r + 2}`))));
@@ -2020,19 +2020,19 @@ function ot(e) {
 		let r = s("strong", "", "—");
 		n.append(r), R.append(n), ee.set(e, r);
 	}
-	let z = s("button", "vc20523-refresh", "Actualizar medición");
-	z.type = "button";
-	let te = s("p", "vc20523-note", "El umbral de 16 ms es orientativo. La memoria del índice es una estimación mínima de referencias, NO memoria real atribuible al módulo. El heap JS, cuando exista, corresponde al navegador completo. No se guardan códigos, nombres ni partidos en este diagnóstico.");
-	c.append(l, d, s("h4", "vc20524-subheading", "Búsqueda táctica"), f, m, h, _, v, b, x, C, w, T, O, k, A, M, N, P, I, L, R, z, te);
-	let ne = n.getElementById(i ? "vc60-stat-grid" : "vc2059-observable");
-	ne?.parentNode === a ? ne.insertAdjacentElement("afterend", c) : a.append(c);
-	let re = !1, B = (e) => `${e.toFixed(2)} ms`, V = () => {
-		if (re) return;
+	let te = s("button", "vc20523-refresh", "Actualizar medición");
+	te.type = "button";
+	let ne = s("p", "vc20523-note", "El umbral de 16 ms es orientativo. La memoria del índice es una estimación mínima de referencias, NO memoria real atribuible al módulo. El heap JS, cuando exista, corresponde al navegador completo. No se guardan códigos, nombres ni partidos en este diagnóstico.");
+	c.append(l, d, s("h4", "vc20524-subheading", "Búsqueda táctica"), f, m, h, _, v, b, x, C, w, T, O, k, A, M, N, P, I, L, R, te, ne);
+	let re = n.getElementById(i ? "vc60-stat-grid" : "vc2059-observable");
+	re?.parentNode === a ? re.insertAdjacentElement("afterend", c) : a.append(c);
+	let ie = !1, z = (e) => `${e.toFixed(2)} ms`, B = () => {
+		if (ie) return;
 		let t = o.diagnostics(), n = {
 			queries: String(t.queries),
-			last: B(t.lastMs),
-			average: B(t.averageMs),
-			max: B(t.maxMs),
+			last: z(t.lastMs),
+			average: z(t.averageMs),
+			max: z(t.maxMs),
 			slow: String(t.slowQueries),
 			failures: String(t.failures)
 		};
@@ -2042,9 +2042,9 @@ function ot(e) {
 		}
 		let r = e.VC_ANALYSIS_NORMALIZE_20524?.diagnostics?.(), i = {
 			normalizations: String(r?.normalizations ?? 0),
-			last: B(r?.lastMs ?? 0),
-			average: B(r?.averageMs ?? 0),
-			max: B(r?.maxMs ?? 0),
+			last: z(r?.lastMs ?? 0),
+			average: z(r?.averageMs ?? 0),
+			max: z(r?.maxMs ?? 0),
 			slow: String(r?.slowNormalizations ?? 0),
 			failures: String(r?.failures ?? 0)
 		};
@@ -2059,7 +2059,7 @@ function ot(e) {
 			points: String(a?.points ?? 0),
 			coverage: String(a?.coverage ?? 0),
 			reconciliations: String(a?.reconciliations ?? 0),
-			average: B(a?.averageMs ?? 0),
+			average: z(a?.averageMs ?? 0),
 			slow: String(a?.slowOperations ?? 0),
 			failures: String(a?.failures ?? 0)
 		};
@@ -2069,8 +2069,8 @@ function ot(e) {
 		}
 		let c = e.VC_ANALYSIS_CSV_20526?.diagnostics?.(), l = e.VC_ANALYSIS_CSV_20526?.indexDiagnostics?.(), u = e.performance?.memory?.usedJSHeapSize, d = typeof u == "number" && Number.isFinite(u) && u >= 0 ? `${(u / 1048576).toFixed(1)} MiB` : "No disponible", f = {
 			exports: String(c?.exports ?? 0),
-			last: B(c?.lastMs ?? 0),
-			average: B(c?.averageMs ?? 0),
+			last: z(c?.lastMs ?? 0),
+			average: z(c?.averageMs ?? 0),
 			failures: String(c?.failures ?? 0),
 			builds: String(l?.builds ?? 0),
 			hits: String(l?.hits ?? 0),
@@ -2088,12 +2088,12 @@ function ot(e) {
 		}
 		let m = e.VC_RENDER_METRICS_20528?.diagnostics?.();
 		for (let [e] of E) {
-			let t = m?.areas[e], n = t ? `${t.rendered} dibujadas · ${t.skipped} evitadas · media ${B(t.averageMs)} · ${t.failures} errores` : "Sin mediciones todavía", r = D.get(e);
+			let t = m?.areas[e], n = t ? `${t.rendered} dibujadas · ${t.skipped} evitadas · media ${z(t.averageMs)} · ${t.failures} errores` : "Sin mediciones todavía", r = D.get(e);
 			r && r.textContent !== n && (r.textContent = n);
 		}
 		let h = e.VC_ANALYSIS_VIEW_20529?.diagnostics?.(), _ = {
 			renders: String(h?.renders ?? 0),
-			average: B(h?.averageMs ?? 0),
+			average: z(h?.averageMs ?? 0),
 			slow: String(h?.slowRenders ?? 0),
 			failures: String(h?.failures ?? 0)
 		};
@@ -2103,7 +2103,7 @@ function ot(e) {
 		}
 		let v = e.VC_RALLY_VIEW_20530?.diagnostics?.(), b = {
 			renders: String(v?.renders ?? 0),
-			average: B(v?.averageMs ?? 0),
+			average: z(v?.averageMs ?? 0),
 			slow: String(v?.slowRenders ?? 0),
 			failures: String(v?.failures ?? 0)
 		};
@@ -2125,15 +2125,15 @@ function ot(e) {
 			n && n.textContent !== t && (n.textContent = t);
 		}
 	};
-	z.addEventListener("click", V), V();
-	let H = Object.freeze({
+	te.addEventListener("click", B), B();
+	let V = Object.freeze({
 		readOnly: !0,
-		refresh: V,
+		refresh: B,
 		dispose() {
-			re || (re = !0, z.removeEventListener("click", V), c.remove(), it.delete(e));
+			ie || (ie = !0, te.removeEventListener("click", B), c.remove(), it.delete(e));
 		}
 	});
-	return it.set(e, H), H;
+	return it.set(e, V), V;
 }
 // src/state/analysis-normalizer.ts
 var st = /* @__PURE__ */ new Set([
@@ -4252,7 +4252,7 @@ function Li(o, s, l) {
 	return (b.lineup === "missing" || b.actionsCaptured === !1) && (_ = !0), Ni("point", [...new Set(p)], _);
 }
 var Ri = (n, r) => {
-	let i = t(r.rallies), a = e(i.at(-1)), o = ne(n);
+	let i = t(r.rallies), a = e(i.at(-1)), o = re(n);
 	return {
 		match: n,
 		set: r,
@@ -4442,7 +4442,7 @@ function Qi(n, r = {}) {
 		if (d) throw E(J(r, "recovery-blocked")), Error("Recuperación pendiente: comprueba el partido y el guardado local antes de continuar.");
 		let f = D(), p = Xi(f), m = t(p?.rallies), h = Wi(f), g = m.length, _ = e(m.at(-1)), v = null;
 		try {
-			v = r === "point" ? te(f, i) : ne(f);
+			v = r === "point" ? ne(f, i) : re(f);
 		} catch {}
 		let y;
 		try {
@@ -6506,24 +6506,24 @@ function Ns(e) {
 			} catch {
 				x = !1, j = null, N("Copia paralela detenida por una incompatibilidad o fallo local. El guardado principal no se ha modificado. Revisa los IDs y la copia JSON.");
 			} finally {
-				w = !1, M = null, L(), x || re();
+				w = !1, M = null, L(), x || ie();
 			}
 		}
-	}, z = () => {
+	}, te = () => {
 		T || w || C || !x || (T = !0, setTimeout(() => {
 			T = !1, x && !C && (M = ee());
 		}, 0));
-	}, te = (e) => {
-		x && !C && (typeof e != "string" || !e || e.length > 12e6 ? (H(), N("Copia paralela pausada: el estado confirmado supera los límites de prueba.")) : (j = e, z()));
-	}, ne = async () => {
+	}, ne = (e) => {
+		x && !C && (typeof e != "string" || !e || e.length > 12e6 ? (V(), N("Copia paralela pausada: el estado confirmado supera los límites de prueba.")) : (j = e, te()));
+	}, re = async () => {
 		for (; T || w || M;) M ? await M : await new Promise((e) => setTimeout(e, 0));
-	}, re = () => A || (A = (async () => {
-		await ne();
+	}, ie = () => A || (A = (async () => {
+		await re();
 		let e = k;
 		k = null, e?.release(), e && await e.released, A = null, L();
-	})(), A), B = async () => {
-		await ne(), A && await A;
-	}, V = async () => {
+	})(), A), z = async () => {
+		await re(), A && await A;
+	}, B = async () => {
 		if (!_ || C || x || S || k || A || O) throw Error("No se puede activar: copia ocupada o bloqueo no disponible");
 		let e = R(), t = ts(e, js());
 		if (!t.complete) throw Error(`Hay ${t.pendingIds} identidades pendientes`);
@@ -6535,13 +6535,13 @@ function Ns(e) {
 				t.release();
 				return;
 			}
-			k = t, x = !0, N("Copia paralela protegida para esta sesión. Comprobando el último guardado confirmado…"), te(e);
+			k = t, x = !0, N("Copia paralela protegida para esta sesión. Comprobando el último guardado confirmado…"), ne(e);
 		} finally {
 			S = !1, L();
 		}
-	}, H = () => {
-		x = !1, S = !1, j = null, L(), re(), N(w ? "Copia paralela pausada. La transacción ya iniciada finalizará antes de liberar el bloqueo." : "Copia paralela desactivada. El bloqueo de esta sesión se ha liberado y el guardado principal sigue activo.");
-	}, ie = async () => {
+	}, V = () => {
+		x = !1, S = !1, j = null, L(), ie(), N(w ? "Copia paralela pausada. La transacción ya iniciada finalizará antes de liberar el bloqueo." : "Copia paralela desactivada. El bloqueo de esta sesión se ha liberado y el guardado principal sigue activo.");
+	}, ae = async () => {
 		if (!h || C) throw Error("Inspección de jugadores no disponible");
 		let t = R(), n = ts(t, js()), r = await ls({
 			factory: e.indexedDB,
@@ -6558,9 +6558,9 @@ function Ns(e) {
 			incomplete: `Hay ${r.pendingIds} identidades incompletas o duplicadas; no se puede certificar la copia.`
 		};
 		return N(i[r.status]), r;
-	}, ae = async () => {
+	}, H = async () => {
 		if (!_ || C) throw Error("Borrado protegido no disponible");
-		H(), await B();
+		V(), await z();
 		let t = await Q(g);
 		if (!t) throw Error("Otra pestaña está usando la copia; no se elimina");
 		try {
@@ -6571,7 +6571,7 @@ function Ns(e) {
 		}
 	}, oe = async () => {
 		if (!_ || C) throw Error("Exportación protegida no disponible");
-		H(), await B();
+		V(), await z();
 		let t = await Q(g);
 		if (!t) throw Error("Otra pestaña tiene activa la copia de jugadores");
 		try {
@@ -6598,7 +6598,7 @@ function Ns(e) {
 		if (!y || C || E || D || O) throw Error("Prueba de reapertura no disponible");
 		E = !0, L();
 		try {
-			H(), await B();
+			V(), await z();
 			let t = await Q(g);
 			if (!t) throw Error("Hay otra pestaña con la copia activa");
 			try {
@@ -6658,7 +6658,7 @@ function Ns(e) {
 		if (!b || C || O || E || D) throw Error("Comprobación de cierre no disponible");
 		O = !0, L();
 		try {
-			H(), await B();
+			V(), await z();
 			let t = await Q(g);
 			if (!t) throw Error("Otra pestaña está utilizando la réplica");
 			try {
@@ -6704,11 +6704,11 @@ function Ns(e) {
 	}), fe = () => le(async () => {
 		e.localStorage.removeItem(Es), F("Prueba cancelada. Solo se eliminó el comprobante de esta prueba; no se tocaron jugadores, scouting, vídeo ni nube.");
 	}), pe = () => {
-		e.confirm("La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?") && V().catch(() => N("No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes."));
-	}, me = () => H(), he = () => {
-		ie().catch(() => N("No se pudo comprobar la copia de jugadores."));
+		e.confirm("La réplica opcional guardará datos de jugadores en este dispositivo. ¿Tienes copia JSON de seguridad y deseas activarla solo para esta sesión?") && B().catch(() => N("No se pudo activar: otra pestaña puede estar usando la copia, o hay IDs de jugadores pendientes."));
+	}, me = () => V(), he = () => {
+		ae().catch(() => N("No se pudo comprobar la copia de jugadores."));
 	}, ge = () => {
-		e.confirm("¿Eliminar solo la réplica de jugadores V20.5.67? No se borrará el club principal.") && ae().catch(() => N("No se ha eliminado la copia. Otra pestaña puede estar utilizándola."));
+		e.confirm("¿Eliminar solo la réplica de jugadores V20.5.67? No se borrará el club principal.") && H().catch(() => N("No se ha eliminado la copia. Otra pestaña puede estar utilizándola."));
 	}, _e = () => {
 		e.confirm("Esta descarga contiene datos personales de jugadores. ¿Quieres crear una copia JSON solo de plantilla, verificada y para guardar en un lugar protegido?") && oe().then((e) => {
 			if (e.status !== "ready" || !e.json) return;
@@ -6729,9 +6729,9 @@ function Ns(e) {
 	}, xe = () => {
 		e.confirm("¿Cancelar la prueba pendiente? Solo se elimina su comprobante, nunca los datos del club.") && fe().catch(() => F("No se pudo cancelar: otra pestaña puede tener el bloqueo."));
 	}, Se = (e) => {
-		e.key === "vc20571-player-cold-check-once" && L(), e.key === Ms && (x || S) && (H(), N("Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla."));
+		e.key === "vc20571-player-cold-check-once" && L(), e.key === Ms && (x || S) && (V(), N("Copia paralela detenida: otra pestaña modificó el guardado principal. Vuelve a comprobar los datos antes de activarla."));
 	}, Ce = () => {
-		(x || S) && H();
+		(x || S) && V();
 	};
 	n.addEventListener("click", pe), r.addEventListener("click", me), i.addEventListener("click", he), a.addEventListener("click", ge), o.addEventListener("click", _e), s.addEventListener("click", ve), l.addEventListener("click", ye), u.addEventListener("click", be), d.addEventListener("click", xe), e.addEventListener?.("storage", Se), e.addEventListener?.("pagehide", Ce);
 	let we = Object.freeze({
@@ -6740,19 +6740,19 @@ function Ns(e) {
 		authoritative: !1,
 		crossTabSafe: !0,
 		enabled: () => x,
-		arm: V,
-		pause: H,
-		onConfirmedWrite: te,
-		inspect: ie,
+		arm: B,
+		pause: V,
+		onConfirmedWrite: ne,
+		inspect: ae,
 		backup: oe,
 		reopen: se,
 		prepareCold: ue,
 		verifyCold: de,
 		cancelCold: fe,
-		erase: ae,
-		whenIdle: B,
+		erase: H,
+		whenIdle: z,
 		dispose() {
-			C || (H(), C = !0, n.removeEventListener("click", pe), r.removeEventListener("click", me), i.removeEventListener("click", he), a.removeEventListener("click", ge), o.removeEventListener("click", _e), s.removeEventListener("click", ve), l.removeEventListener("click", ye), u.removeEventListener("click", be), d.removeEventListener("click", xe), e.removeEventListener?.("storage", Se), e.removeEventListener?.("pagehide", Ce), L(), ks.delete(e), e.VC_PLAYER_SHADOW_20567 === we && delete e.VC_PLAYER_SHADOW_20567);
+			C || (V(), C = !0, n.removeEventListener("click", pe), r.removeEventListener("click", me), i.removeEventListener("click", he), a.removeEventListener("click", ge), o.removeEventListener("click", _e), s.removeEventListener("click", ve), l.removeEventListener("click", ye), u.removeEventListener("click", be), d.removeEventListener("click", xe), e.removeEventListener?.("storage", Se), e.removeEventListener?.("pagehide", Ce), L(), ks.delete(e), e.VC_PLAYER_SHADOW_20567 === we && delete e.VC_PLAYER_SHADOW_20567);
 		}
 	});
 	ks.set(e, we), e.VC_PLAYER_SHADOW_20567 = we, I() !== null && F("Hay una prueba de cierre pendiente. Si ya has vuelto a abrir el navegador, pulsa «Verificar tras el cierre». Si no, ciérralo completamente antes.");
@@ -7229,25 +7229,91 @@ async function oc(e) {
 		n.close();
 	}
 }
-// src/state/training-shadow-runtime.ts
-var sc = "volley-coach-training-shadow-20.5.72", cc = "volleyCoachStateV43", lc = /* @__PURE__ */ new WeakMap(), uc = 0, dc = () => `training-${Date.now().toString(36)}-${(++uc).toString(36)}`;
-function fc(e) {
-	let t = e.document, n = t?.getElementById("vc20572-arm-training"), r = t?.getElementById("vc20572-pause-training"), i = t?.getElementById("vc20572-check-training"), a = t?.getElementById("vc20572-erase-training"), o = t?.getElementById("vc20573-export-training"), s = t?.getElementById("vc20573-export-status"), c = t?.getElementById("vc20572-training-status");
-	if (!n || !r || !i || !a || !c) return null;
-	let l = lc.get(e);
-	if (l) return l;
-	let u = !1;
+// src/state/training-shadow-cold-recovery.ts
+var sc = "vc20574-training-cold-check-once", cc = "vc-training-cold-v1", lc = 864e5, uc = (e, t = 0) => Object.freeze({
+	status: e,
+	records: t,
+	readOnly: !0,
+	authoritative: !1
+});
+function dc(e, t) {
+	if (typeof e != "string" || e.length > 512 || !Number.isSafeInteger(t)) return { status: "invalid" };
+	let n;
 	try {
-		u = typeof e.indexedDB?.open == "function" && typeof e.indexedDB?.deleteDatabase == "function" && typeof e.localStorage?.getItem == "function";
+		n = JSON.parse(e);
+	} catch {
+		return { status: "invalid" };
+	}
+	if (!n || typeof n != "object" || Array.isArray(n)) return { status: "invalid" };
+	let r = n;
+	return r.schema !== cc || !Number.isSafeInteger(r.createdAt) || !Number.isSafeInteger(r.records) || Number(r.records) < 0 || Number(r.records) > 2e4 || typeof r.digest != "string" || !/^[a-f0-9]{64}$/.test(r.digest) ? { status: "invalid" } : Number(r.createdAt) > t || t - Number(r.createdAt) > lc ? { status: "expired" } : {
+		status: "valid",
+		ticket: r
+	};
+}
+async function fc(e) {
+	if (!Number.isSafeInteger(e.now)) throw Error("Fecha de comprobación inválida");
+	let t = Ws(e.raw, "training-cold-prepare"), n = await oc({
+		factory: e.factory,
+		plan: t,
+		originalRaw: e.raw
+	});
+	if (n.status !== "ready") throw Error("Réplica de entrenamientos sin verificar: " + n.status);
+	let r = await Ss(e.raw, e.subtle);
+	return JSON.stringify({
+		schema: cc,
+		createdAt: e.now,
+		digest: r,
+		records: n.records
+	});
+}
+async function pc(e) {
+	let t = dc(e.ticket, e.now);
+	if (t.status !== "valid") return uc(t.status);
+	let n;
+	try {
+		n = Ws(e.raw, "training-cold-verify");
+	} catch {
+		return uc("different");
+	}
+	if (!n.complete) return uc("incomplete");
+	if (n.rows.length !== t.ticket.records || await Ss(e.raw, e.subtle) !== t.ticket.digest) return uc("different");
+	let r = await oc({
+		factory: e.factory,
+		plan: n,
+		originalRaw: e.raw
+	});
+	return uc(r.status === "ready" ? "verified" : r.status, r.records);
+}
+// src/state/training-shadow-runtime.ts
+var mc = "volley-coach-training-shadow-20.5.72", hc = "volleyCoachStateV43", gc = /* @__PURE__ */ new WeakMap(), _c = 0, vc = () => `training-${Date.now().toString(36)}-${(++_c).toString(36)}`;
+function yc(e) {
+	let t = e.document, n = t?.getElementById("vc20572-arm-training"), r = t?.getElementById("vc20572-pause-training"), i = t?.getElementById("vc20572-check-training"), a = t?.getElementById("vc20572-erase-training"), o = t?.getElementById("vc20573-export-training"), s = t?.getElementById("vc20573-export-status"), c = t?.getElementById("vc20574-prepare-training-cold"), l = t?.getElementById("vc20574-verify-training-cold"), u = t?.getElementById("vc20574-cancel-training-cold"), d = t?.getElementById("vc20574-training-cold-status"), f = t?.getElementById("vc20572-training-status");
+	if (!n || !r || !i || !a || !f) return null;
+	let p = gc.get(e);
+	if (p) return p;
+	let m = !1;
+	try {
+		m = typeof e.indexedDB?.open == "function" && typeof e.indexedDB?.deleteDatabase == "function" && typeof e.localStorage?.getItem == "function";
 	} catch {}
-	let d = e.navigator?.locks, f = u && typeof d?.request == "function", p = !1, m = !1, h = !1, g = !1, _ = !1, v = !1, y = null, b = null, x = null, S = null, C = (e) => {
-		_ || (c.textContent = e);
-	}, w = (e) => {
-		!_ && s && (s.textContent = e), C(e);
-	}, T = () => {
-		n.disabled = !f || p || m || v || !!y || !!b || _, r.disabled = !p || _, i.disabled = !u || _ || v, a.disabled = !f || _ || v, o && (o.disabled = !f || _ || v || m);
-	}, E = () => {
-		let t = e.localStorage.getItem(cc);
+	let h = e.navigator?.locks, g = m && typeof h?.request == "function", _ = g && typeof e.crypto?.subtle?.digest == "function" && typeof e.localStorage?.setItem == "function" && typeof e.localStorage?.removeItem == "function", v = !1, y = !1, b = !1, x = !1, S = !1, C = !1, w = !1, T = null, E = null, D = null, O = null, k = (e) => {
+		S || (f.textContent = e);
+	}, A = (e) => {
+		!S && s && (s.textContent = e), k(e);
+	}, j = (e) => {
+		!S && d && (d.textContent = e), k(e);
+	}, M = () => {
+		try {
+			return e.localStorage.getItem(sc);
+		} catch {
+			return null;
+		}
+	}, N = () => {
+		n.disabled = !g || v || y || C || w || !!T || !!E || S, r.disabled = !v || S, i.disabled = !m || S || C || w, a.disabled = !g || S || C || w, o && (o.disabled = !g || S || C || w || y);
+		let e = !_ || S || w || C || y;
+		c && (c.disabled = e || !!M()), l && (l.disabled = e || !M()), u && (u.disabled = e || !M());
+	}, P = () => {
+		let t = e.localStorage.getItem(hc);
 		if (!t) throw Error("No existe un guardado local confirmado");
 		if (t.startsWith("VC-LZW16-1:")) {
 			let n = e.VC_STORAGE_QUOTA_1531?.unpack;
@@ -7255,75 +7321,75 @@ function fc(e) {
 			return n(t);
 		}
 		return t;
-	}, D = async () => {
-		for (; g || h || S;) S ? await S : await new Promise((e) => setTimeout(e, 0));
-	}, O = () => b || (b = (async () => {
-		await D();
-		let e = y;
-		y = null, e?.release(), e && await e.released, b = null, T();
-	})(), b), k = async () => {
-		await D(), b && await b;
-	}, A = () => {
-		p = !1, m = !1, x = null, T(), O(), C(h ? "Copia detenida. La operación ya iniciada finalizará antes de liberar el bloqueo." : "Copia de entrenamientos desactivada. El guardado original continúa activo.");
-	}, j = async () => {
-		if (!(h || _ || !p)) {
-			h = !0;
+	}, F = async () => {
+		for (; x || b || O;) O ? await O : await new Promise((e) => setTimeout(e, 0));
+	}, I = () => E || (E = (async () => {
+		await F();
+		let e = T;
+		T = null, e?.release(), e && await e.released, E = null, N();
+	})(), E), L = async () => {
+		await F(), E && await E;
+	}, R = () => {
+		v = !1, y = !1, D = null, N(), I(), k(b ? "Copia detenida. La operación ya iniciada finalizará antes de liberar el bloqueo." : "Copia de entrenamientos desactivada. El guardado original continúa activo.");
+	}, ee = async () => {
+		if (!(b || S || !v)) {
+			b = !0;
 			try {
-				for (; p && x !== null;) {
-					let t = x;
-					if (x = null, E() !== t) throw Error("El club cambió antes de escribir");
-					let n = Ws(t, dc());
+				for (; v && D !== null;) {
+					let t = D;
+					if (D = null, P() !== t) throw Error("El club cambió antes de escribir");
+					let n = Ws(t, vc());
 					if (!n.complete) throw Error(`Entrenamientos sin identidad: ${n.pendingIds}`);
 					let r = await Xs({
 						factory: e.indexedDB,
 						plan: n
 					});
-					if (E() !== t) throw Error("El club cambió durante la comparación");
-					C(`Copia verificada: ${r.records} registros de entrenamiento; ${r.added} nuevos, ${r.changed} modificados, ${r.removed} eliminados de la réplica. El club original no cambia.`);
+					if (P() !== t) throw Error("El club cambió durante la comparación");
+					k(`Copia verificada: ${r.records} registros de entrenamiento; ${r.added} nuevos, ${r.changed} modificados, ${r.removed} eliminados de la réplica. El club original no cambia.`);
 				}
 			} catch {
-				p = !1, x = null, C("Copia detenida: IDs ausentes o duplicados, datos modificados o fallo de IndexedDB. No se ha modificado el club. Comprueba el guardado principal antes de continuar.");
+				v = !1, D = null, k("Copia detenida: IDs ausentes o duplicados, datos modificados o fallo de IndexedDB. No se ha modificado el club. Comprueba el guardado principal antes de continuar.");
 			} finally {
-				h = !1, S = null, T(), p || O();
+				b = !1, O = null, N(), v || I();
 			}
 		}
-	}, M = () => {
-		g || h || _ || !p || (g = !0, setTimeout(() => {
-			g = !1, p && !_ && (S = j());
+	}, te = () => {
+		x || b || S || !v || (x = !0, setTimeout(() => {
+			x = !1, v && !S && (O = ee());
 		}, 0));
-	}, N = (e) => {
-		p && !_ && (typeof e != "string" || !e || e.length > 12e6 ? (A(), C("Copia detenida: guardado principal fuera de los límites de ensayo.")) : (x = e, M()));
-	}, P = async () => {
-		if (!f || _ || p || m || y || b || v) throw Error("Copia de entrenamientos no disponible o bloqueada");
-		let e = E(), t = Ws(e, dc());
+	}, ne = (e) => {
+		v && !S && (typeof e != "string" || !e || e.length > 12e6 ? (R(), k("Copia detenida: guardado principal fuera de los límites de ensayo.")) : (D = e, te()));
+	}, re = async () => {
+		if (!g || S || v || y || T || E || C || w) throw Error("Copia de entrenamientos no disponible o bloqueada");
+		let e = P(), t = Ws(e, vc());
 		if (!t.complete) throw Error(`Hay ${t.pendingIds} entrenamientos con IDs pendientes`);
-		m = !0, T();
+		y = !0, N();
 		try {
-			let t = await Q(d, sc);
+			let t = await Q(h, mc);
 			if (!t) throw Error("Otra pestaña usa la copia de entrenamientos");
-			if (_ || !m) {
+			if (S || !y) {
 				t.release(), await t.released;
 				return;
 			}
-			if (y = t, E() !== e) throw Error("El club cambió mientras se solicitaba el bloqueo");
-			p = !0, C("Guardando entrenamientos en paralelo. Solo lectura para la aplicación."), N(e);
+			if (T = t, P() !== e) throw Error("El club cambió mientras se solicitaba el bloqueo");
+			v = !0, k("Guardando entrenamientos en paralelo. Solo lectura para la aplicación."), ne(e);
 		} catch (e) {
-			if (p = !1, x = null, y) {
-				let e = y;
-				y = null, e.release(), await e.released;
+			if (v = !1, D = null, T) {
+				let e = T;
+				T = null, e.release(), await e.released;
 			}
 			throw e;
 		} finally {
-			m = !1, T();
+			y = !1, N();
 		}
-	}, F = async () => {
-		if (!u || _ || v) throw Error("Inspección no disponible");
-		await D();
-		let t = E(), n = Ws(t, dc()), r = await Zs({
+	}, ie = async () => {
+		if (!m || S || C || w) throw Error("Inspección no disponible");
+		await F();
+		let t = P(), n = Ws(t, vc()), r = await Zs({
 			factory: e.indexedDB,
 			plan: n
 		});
-		if (E() !== t) return C("El club cambió durante la lectura: repite la prueba."), Object.freeze({
+		if (P() !== t) return k("El club cambió durante la lectura: repite la prueba."), Object.freeze({
 			...r,
 			status: "different"
 		});
@@ -7333,32 +7399,32 @@ function fc(e) {
 			different: "La réplica y los entrenamientos guardados no coinciden. No se restauró nada.",
 			incomplete: `Hay ${r.pendingIds} registros sin identidad fiable; no se escribió ni certificó la réplica.`
 		};
-		return C(i[r.status]), r;
-	}, I = async () => {
-		if (!f || _ || v) throw Error("Borrado no disponible");
-		A(), await k();
-		let t = await Q(d, sc);
+		return k(i[r.status]), r;
+	}, z = async () => {
+		if (!g || S || C || w) throw Error("Borrado no disponible");
+		R(), await L();
+		let t = await Q(h, mc);
 		if (!t) throw Error("Otra pestaña tiene activada la réplica");
 		try {
 			let t = await Qs(e.indexedDB);
-			return C("Eliminada solo la réplica de entrenamientos. El club original, el vídeo y el scouting siguen intactos."), t;
+			return k("Eliminada solo la réplica de entrenamientos. El club original, el vídeo y el scouting siguen intactos."), t;
 		} finally {
 			t.release(), await t.released;
 		}
-	}, L = async () => {
-		if (!f || _ || v || m) throw Error("Exportación no disponible");
-		v = !0, T();
+	}, B = async () => {
+		if (!g || S || C || y || w) throw Error("Exportación no disponible");
+		C = !0, N();
 		try {
-			A(), await k();
-			let t = await Q(d, sc);
+			R(), await L();
+			let t = await Q(h, mc);
 			if (!t) throw Error("Otra pestaña tiene activada la copia de entrenamientos");
 			try {
-				let t = E(), n = Ws(t, dc()), r = await oc({
+				let t = P(), n = Ws(t, vc()), r = await oc({
 					factory: e.indexedDB,
 					plan: n,
 					originalRaw: t
 				});
-				if (E() !== t) return w("El club original cambió durante la reconstrucción: se ha cancelado la descarga."), Object.freeze({
+				if (P() !== t) return A("El club original cambió durante la reconstrucción: se ha cancelado la descarga."), Object.freeze({
 					...r,
 					status: "different",
 					json: void 0
@@ -7370,21 +7436,84 @@ function fc(e) {
 					incomplete: `Exportación bloqueada: ${r.pendingIds} registros sin identidad estable. No se inventan IDs.`,
 					incompatible: "No se pudo reconstruir de forma íntegra la copia: datos o estructura incompatibles."
 				};
-				return w(i[r.status]), r;
+				return A(i[r.status]), r;
 			} finally {
 				t.release(), await t.released;
 			}
 		} finally {
-			v = !1, T();
+			C = !1, N();
 		}
-	}, R = () => {
-		e.confirm("Esta prueba creará una copia local adicional de los entrenamientos. ¿Has descargado antes una copia JSON completa y quieres activarla solo durante esta sesión?") && P().catch((e) => C(`No se activó la réplica: ${e instanceof Error ? e.message : "revisa los IDs y las pestañas"}.`));
-	}, ee = () => A(), z = () => {
-		F().catch(() => C("No se pudieron comprobar los entrenamientos. El club no se modificó."));
-	}, te = () => {
-		e.confirm("¿Eliminar SOLO la base experimental de entrenamientos? El club real y la copia de jugadores no se tocarán.") && I().catch(() => C("No se eliminó la réplica. Comprueba que las otras pestañas estén cerradas."));
-	}, ne = () => {
-		e.confirm("Esta exportación contiene información de sesiones y posibles datos personales de participantes. ¿Descargar una copia JSON verificada y guardarla en un lugar protegido?") && L().then((e) => {
+	}, V = async () => {
+		if (!_ || S || w || C || y || M()) throw Error("Prueba pendiente o no disponible");
+		w = !0, N();
+		try {
+			R(), await L();
+			let t = await Q(h, mc);
+			if (!t) throw Error("Otra pestaña utiliza la réplica de entrenamientos");
+			try {
+				let t = P(), n = await fc({
+					raw: t,
+					factory: e.indexedDB,
+					subtle: e.crypto.subtle,
+					now: Date.now()
+				});
+				if (P() !== t) throw Error("El club cambió durante la comprobación");
+				if (M()) throw Error("Ya existe otra prueba pendiente");
+				e.localStorage.setItem(sc, n), j("Prueba preparada. Cierra todas las pestañas y vuelve a abrir Volley Coach; después pulsa «Verificar». El marcador no contiene entrenamientos.");
+			} finally {
+				t.release(), await t.released;
+			}
+		} finally {
+			w = !1, N();
+		}
+	}, ae = async () => {
+		if (!_ || S || w || C || y || !M()) throw Error("No existe una prueba pendiente");
+		w = !0, N();
+		try {
+			R(), await L();
+			let t = await Q(h, mc);
+			if (!t) throw Error("Otra pestaña utiliza la réplica; se conserva el marcador");
+			try {
+				let t = M();
+				if (!t) throw Error("Desapareció la prueba pendiente");
+				let n = P(), r = await pc({
+					ticket: t,
+					raw: n,
+					factory: e.indexedDB,
+					subtle: e.crypto.subtle,
+					now: Date.now()
+				});
+				P() !== n && (r = Object.freeze({
+					...r,
+					status: "different"
+				})), M() === t && e.localStorage.removeItem(sc);
+				let i = {
+					verified: `Verificación posterior a la reapertura: ${r.records} registros coinciden. No demuestra resistencia a un apagón o cierre forzado.`,
+					missing: "No existe ya la réplica de entrenamientos. No se ha restaurado nada.",
+					different: "Los entrenamientos del guardado original ya no coinciden. No se ha restaurado nada.",
+					incomplete: "La comprobación no puede certificarse: faltan IDs estables.",
+					incompatible: "La réplica no puede reconstruirse íntegramente; no se ha restaurado nada.",
+					expired: "Marcador caducado. Prepara una prueba nueva.",
+					invalid: "Marcador inválido. No se ha modificado el club."
+				};
+				return j(i[r.status]), r;
+			} finally {
+				t.release(), await t.released;
+			}
+		} finally {
+			w = !1, N();
+		}
+	}, H = async () => {
+		if (!_ || S || w || C || y) throw Error("Cancelación no disponible");
+		e.localStorage.removeItem(sc), j("Prueba cancelada: solo se eliminó el marcador. No se borraron entrenamientos ni copias."), N();
+	}, oe = () => {
+		e.confirm("Esta prueba creará una copia local adicional de los entrenamientos. ¿Has descargado antes una copia JSON completa y quieres activarla solo durante esta sesión?") && re().catch((e) => k(`No se activó la réplica: ${e instanceof Error ? e.message : "revisa los IDs y las pestañas"}.`));
+	}, se = () => R(), ce = () => {
+		ie().catch(() => k("No se pudieron comprobar los entrenamientos. El club no se modificó."));
+	}, le = () => {
+		e.confirm("¿Eliminar SOLO la base experimental de entrenamientos? El club real y la copia de jugadores no se tocarán.") && z().catch(() => k("No se eliminó la réplica. Comprueba que las otras pestañas estén cerradas."));
+	}, ue = () => {
+		e.confirm("Esta exportación contiene información de sesiones y posibles datos personales de participantes. ¿Descargar una copia JSON verificada y guardarla en un lugar protegido?") && B().then((e) => {
 			if (e.status !== "ready" || !e.json) return;
 			let n = new Blob([e.json], { type: "application/json;charset=utf-8" }), r = URL.createObjectURL(n);
 			try {
@@ -7393,33 +7522,87 @@ function fc(e) {
 			} finally {
 				setTimeout(() => URL.revokeObjectURL(r), 1e3);
 			}
-		}).catch(() => w("La exportación no pudo verificarse. No se ha descargado ni modificado ningún entrenamiento."));
-	}, re = (e) => {
-		e.key === cc && (p || m) && (A(), C("Copia detenida: otra pestaña modificó el guardado principal. Comprueba antes de reactivarla."));
-	}, B = () => {
-		(p || m) && A();
+		}).catch(() => A("La exportación no pudo verificarse. No se ha descargado ni modificado ningún entrenamiento."));
+	}, de = () => {
+		e.confirm("La prueba guardará solo una huella digital y el número de entrenamientos. ¿Prepararla para verificar tras cerrar y volver a abrir la aplicación?") && V().catch((e) => j(`No se preparó la prueba: ${e instanceof Error ? e.message : "fallo al verificar"}.`));
+	}, fe = () => {
+		ae().catch((e) => j(`Prueba detenida: ${e instanceof Error ? e.message : "no se pudo verificar"}. El marcador se conserva si la base estaba bloqueada.`));
+	}, pe = () => {
+		H().catch(() => j("No se pudo cancelar la prueba."));
+	}, me = (e) => {
+		e.key === hc && (v || y) && (R(), k("Copia detenida: otra pestaña modificó el guardado principal. Comprueba antes de reactivarla."));
+	}, he = () => {
+		(v || y) && R();
 	};
-	n.addEventListener("click", R), r.addEventListener("click", ee), i.addEventListener("click", z), a.addEventListener("click", te), o?.addEventListener("click", ne), e.addEventListener?.("storage", re), e.addEventListener?.("pagehide", B);
-	let V = Object.freeze({
+	n.addEventListener("click", oe), r.addEventListener("click", se), i.addEventListener("click", ce), a.addEventListener("click", le), o?.addEventListener("click", ue), c?.addEventListener("click", de), l?.addEventListener("click", fe), u?.addEventListener("click", pe), e.addEventListener?.("storage", me), e.addEventListener?.("pagehide", he);
+	let ge = Object.freeze({
 		VERSION: "20.5.72",
 		manualOnly: !0,
 		authoritative: !1,
-		enabled: () => p,
-		arm: P,
-		pause: A,
-		onConfirmedWrite: N,
-		inspect: F,
-		erase: I,
-		backup: L,
-		whenIdle: k,
+		enabled: () => v,
+		arm: re,
+		pause: R,
+		onConfirmedWrite: ne,
+		inspect: ie,
+		erase: z,
+		backup: B,
+		prepareCold: V,
+		verifyCold: ae,
+		cancelCold: H,
+		whenIdle: L,
 		dispose() {
-			_ || (A(), _ = !0, n.removeEventListener("click", R), r.removeEventListener("click", ee), i.removeEventListener("click", z), a.removeEventListener("click", te), o?.removeEventListener("click", ne), e.removeEventListener?.("storage", re), e.removeEventListener?.("pagehide", B), T(), lc.delete(e), e.VC_TRAINING_SHADOW_20572 === V && delete e.VC_TRAINING_SHADOW_20572);
+			S || (R(), S = !0, n.removeEventListener("click", oe), r.removeEventListener("click", se), i.removeEventListener("click", ce), a.removeEventListener("click", le), o?.removeEventListener("click", ue), c?.removeEventListener("click", de), l?.removeEventListener("click", fe), u?.removeEventListener("click", pe), e.removeEventListener?.("storage", me), e.removeEventListener?.("pagehide", he), N(), gc.delete(e), e.VC_TRAINING_SHADOW_20572 === ge && delete e.VC_TRAINING_SHADOW_20572);
 		}
 	});
-	return lc.set(e, V), e.VC_TRAINING_SHADOW_20572 = V, C(f ? "Réplica de entrenamientos apagada. Requiere IDs únicos y activación manual." : "Para escribir la réplica se necesitan IndexedDB y Web Locks. No se activa automáticamente."), T(), V;
+	return gc.set(e, ge), e.VC_TRAINING_SHADOW_20572 = ge, k(g ? "Réplica de entrenamientos apagada. Requiere IDs únicos y activación manual." : "Para escribir la réplica se necesitan IndexedDB y Web Locks. No se activa automáticamente."), d && (d.textContent = M() ? "Hay una prueba pendiente. Pulsa «Verificar tras volver a abrir» o cancélala." : "Sin prueba pendiente. Primero activa, comprueba y prepara la réplica."), N(), ge;
+}
+// src/training/planning-core.ts
+function bc(e = /* @__PURE__ */ new Date()) {
+	let t = new Date(e);
+	return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+}
+function xc(e) {
+	let t = new Date(e), n = (t.getDay() + 6) % 7;
+	return t.setDate(t.getDate() - n), t.setHours(0, 0, 0, 0), t;
+}
+function Sc(e) {
+	return (e || []).reduce((e, t) => e + (Number(t.tiempo) || 0), 0);
+}
+function Cc(e, t, n) {
+	return e.realizado ? {
+		clase: "done",
+		texto: "Realizado"
+	} : Number(t) === Number(e.id) ? {
+		clase: "editing",
+		texto: "En edición"
+	} : e.historialId ? {
+		clase: "pending",
+		texto: "En Historial · pendiente de marcar"
+	} : e.fecha !== void 0 && e.fecha !== null && e.fecha <= n ? {
+		clase: "pending",
+		texto: "Pendiente"
+	} : {
+		clase: "future",
+		texto: "Planificado"
+	};
+}
+// src/training/planning-runtime.ts
+var wc = /* @__PURE__ */ new WeakMap();
+function Tc(e) {
+	let t = wc.get(e);
+	if (t) return t;
+	let n = Object.freeze({
+		VERSION: "20.5.74",
+		pureOnly: !0,
+		classifyPlan: Cc,
+		formatLocalDate: bc,
+		startOfWeek: xc,
+		totalMinutes: Sc
+	});
+	return wc.set(e, n), e.VC_TRAINING_PLANNING_20574 ||= n, n;
 }
 // src/domain/rally-shadow-runtime.ts
-function pc(e) {
+function Ec(e) {
 	let t = e.document, n = t.getElementById("v11-management");
 	if (!n) return null;
 	if (e.VC_SHADOW_20515) return e.VC_SHADOW_20515;
@@ -7522,35 +7705,35 @@ function pc(e) {
 	return e.VC_SHADOW_20515 = k, k;
 }
 // src/domain/multi-device-validation.ts
-var mc = "20.1.2", hc = "vc-multi-device-validation", gc = (e) => String(e ?? "").trim(), _c = (e) => {
+var Dc = "20.1.2", Oc = "vc-multi-device-validation", kc = (e) => String(e ?? "").trim(), Ac = (e) => {
 	let t = Number(e);
 	return Number.isSafeInteger(t) && t >= 0 ? t : 0;
-}, vc = (e) => {
-	let t = gc(e);
+}, jc = (e) => {
+	let t = kc(e);
 	return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/.test(t) && Number.isFinite(Date.parse(t)) ? t : "";
 };
-function yc({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
+function Mc({ cloud: t = {}, device: n = {}, journal: r = {}, now: i = Date.now() } = {}) {
 	let a = e(t) || {}, o = e(n) || {}, s = e(r) || {};
 	return {
-		schema: hc,
-		version: mc,
+		schema: Oc,
+		version: Dc,
 		createdAt: new Date(i).toISOString(),
 		connected: !!a.connected,
 		dirty: !!a.dirty,
 		blocked: !!a.blockedReason,
 		realtimeSubscribed: o.realtimeState === "SUBSCRIBED",
-		lastReadAt: _c(a.lastReadAt),
-		lastWriteAt: _c(a.lastWriteAt),
-		lastReadErrorAt: _c(a.lastReadErrorAt),
-		lastObservedRemoteStamp: vc(a.lastObservedRemoteStamp),
-		lastAppliedRemoteStamp: vc(a.lastAppliedRemoteStamp),
-		lastConfirmedWriteStamp: vc(a.lastConfirmedWriteStamp),
-		pendingJournal: typeof s.pendingCount == "number" ? _c(s.pendingCount) : null,
+		lastReadAt: Ac(a.lastReadAt),
+		lastWriteAt: Ac(a.lastWriteAt),
+		lastReadErrorAt: Ac(a.lastReadErrorAt),
+		lastObservedRemoteStamp: jc(a.lastObservedRemoteStamp),
+		lastAppliedRemoteStamp: jc(a.lastAppliedRemoteStamp),
+		lastConfirmedWriteStamp: jc(a.lastConfirmedWriteStamp),
+		pendingJournal: typeof s.pendingCount == "number" ? Ac(s.pendingCount) : null,
 		journalError: !!s.lastError,
 		warning: "Mismo origen y cuenta deben comprobarse manualmente. La igualdad de marcas CAS no verifica contenido ni entrega de vídeo."
 	};
 }
-function bc(t) {
+function Nc(t) {
 	let n = e(typeof t == "string" ? JSON.parse(t) : t);
 	if (!n || n.schema !== "vc-multi-device-validation" || n.version !== "20.1.2") throw Error("Informe incompatible: deben ser diagnósticos V20.1.2.");
 	if (!Number.isFinite(Date.parse(String(n.createdAt)))) throw Error("Informe sin fecha válida.");
@@ -7561,7 +7744,7 @@ function bc(t) {
 		"realtimeSubscribed"
 	]) if (typeof n[e] != "boolean") throw Error("Campo inválido: " + e);
 	if (n.pendingJournal !== null && (!Number.isInteger(n.pendingJournal) || Number(n.pendingJournal) < 0)) throw Error("Diario inválido.");
-	return yc({
+	return Mc({
 		cloud: n,
 		device: { realtimeState: n.realtimeSubscribed ? "SUBSCRIBED" : "" },
 		journal: {
@@ -7571,8 +7754,8 @@ function bc(t) {
 		now: Date.parse(String(n.createdAt))
 	});
 }
-function xc(e, t) {
-	let n = bc(e), r = bc(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
+function Pc(e, t) {
+	let n = Nc(e), r = Nc(t), i = (e) => e.connected && !e.dirty && !e.blocked && !e.journalError && e.pendingJournal === 0;
 	if (!i(n) || !i(r)) return {
 		status: "review",
 		message: "Alguno de los dispositivos tiene cambios pendientes, está bloqueado o no puede comprobar su diario. No se confirma una entrega."
@@ -7587,19 +7770,19 @@ function xc(e, t) {
 	};
 }
 // src/domain/multi-device-runtime.ts
-var Sc = /* @__PURE__ */ new WeakMap(), Cc = Object.freeze({
-	VERSION: mc,
-	SCHEMA: hc,
-	report: yc,
-	parseReport: bc,
-	compareReports: xc,
-	mount: Tc
+var Fc = /* @__PURE__ */ new WeakMap(), Ic = Object.freeze({
+	VERSION: Dc,
+	SCHEMA: Oc,
+	report: Mc,
+	parseReport: Nc,
+	compareReports: Pc,
+	mount: Rc
 });
-function wc(e) {
-	return e.VC_SYNC_2012 = Cc, Cc;
+function Lc(e) {
+	return e.VC_SYNC_2012 = Ic, Ic;
 }
-function Tc(e) {
-	let t = Sc.get(e);
+function Rc(e) {
+	let t = Fc.get(e);
 	if (t) return t;
 	let n = e.document;
 	if (!n) return null;
@@ -7608,7 +7791,7 @@ function Tc(e) {
 		return r.textContent = t, r;
 	}, a = null, o = !1, s = !1, c = !1, l = null, u = "", d = null, f = async () => {
 		let t = e.VC_V962_CLOUD_EFFICIENT?.diagnostics?.() || {}, n = e.VC_DEVICE_SYNC?.diagnostics?.() || {}, r = e.VC_V962_CLOUD_EFFICIENT?.getAccountId?.() || "";
-		return yc({
+		return Mc({
 			cloud: t,
 			device: n,
 			journal: await e.VC_SYNC_2011_JOURNAL?.inspect?.(r) || {
@@ -7627,7 +7810,7 @@ function Tc(e) {
 					n && n.textContent !== t && (n.textContent = t);
 				};
 				t("vc2012-observed", e.lastObservedRemoteStamp || "Sin lectura confirmada"), t("vc2012-applied", e.lastAppliedRemoteStamp || "Sin recepción procesada"), t("vc2012-uploaded", e.lastConfirmedWriteStamp || "Sin subida confirmada"), t("vc2012-pending", e.pendingJournal === null ? "Sin comprobar" : String(e.pendingJournal));
-				let n = l ? xc(e, l) : null, i = r("vc2012-feedback");
+				let n = l ? Pc(e, l) : null, i = r("vc2012-feedback");
 				i && (i.textContent = n ? n.message : u || "Sin comparación. No se han modificado datos.", i.dataset.status = n?.status || "idle");
 			} catch {
 				if (!s) {
@@ -7657,7 +7840,7 @@ function Tc(e) {
 			if (t.size > 65536) u = "Archivo demasiado grande para un informe de validación.", p();
 			else {
 				try {
-					l = bc(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
+					l = Nc(await t.text()), u = "Informe del segundo dispositivo cargado para comparar.";
 				} catch {
 					l = null, u = "El archivo no es un informe V20.1.2 válido.";
 				}
@@ -7698,13 +7881,13 @@ function Tc(e) {
 		readOnly: !0,
 		refresh: p,
 		dispose() {
-			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, Sc.delete(e));
+			s || (s = !0, S && n.removeEventListener("DOMContentLoaded", x), d?.disconnect(), d = null, e.removeEventListener("vc200:sync-state", y), e.removeEventListener("vc2011:journal", y), n.removeEventListener("click", b, !0), r("vc2012-refresh")?.removeEventListener("click", m), r("vc2012-export")?.removeEventListener("click", g), r("vc2012-file")?.removeEventListener("change", _), o && a?.remove(), a = null, l = null, Fc.delete(e));
 		}
 	});
-	return Sc.set(e, C), C;
+	return Fc.set(e, C), C;
 }
 // src/domain/journal-recovery-inspector.ts
-var Ec = 27262976, $ = (e, t) => Object.freeze({
+var zc = 27262976, $ = (e, t) => Object.freeze({
 	version: "20.5.19",
 	source: "existing-v2011-pending-checkpoint",
 	status: e,
@@ -7712,7 +7895,7 @@ var Ec = 27262976, $ = (e, t) => Object.freeze({
 	requiresManualReview: !0,
 	autoResumeAllowed: !1
 });
-async function Dc(n) {
+async function Bc(n) {
 	if (!n || !n.journal || typeof n.journal.inspect != "function" || typeof n.journal.newest != "function" || !n.accountId || !n.teamId || n.matchId === null || n.matchId === void 0 || !String(n.matchId)) return $("unavailable", null);
 	let r = String(n.accountId).trim(), i = String(n.teamId);
 	if (!r) return $("unavailable", null);
@@ -7723,7 +7906,7 @@ async function Dc(n) {
 		if (a = s, s === 0) return $("no-checkpoint", 0);
 		if (s !== 1 || o?.hasOtherAccounts === !0 || o?.lastError) return $("ambiguous", s);
 		let c = e(await n.journal.newest(r));
-		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > Ec) return $("unavailable", s);
+		if (!c || c.accountId !== r || c.status !== "pending" || c.mode !== "draft" && c.mode !== "upload" || typeof c.stateJson != "string" || c.stateJson.length === 0 || c.stateJson.length > zc) return $("unavailable", s);
 		let l = e(e(e(JSON.parse(c.stateJson))?.equiposData)?.[i]);
 		if (!l || !Array.isArray(l.scoutingMatches)) return $("missing-match", s);
 		let u = t(l.scoutingMatches).map(e).filter((e) => e && String(e.id) === String(n.matchId));
@@ -7736,10 +7919,10 @@ async function Dc(n) {
 }
 // src/vc2055-entry.ts
 if (typeof window < "u" && window.document) {
-	Pn(window), Hn(window), Gn(window), Zn(window), ar(window), mr(window), _r(window), Sr(window), Er(window), Nr(window), Ir(window), Ur(window), Zr(window), ei(window), li(window), fi(window), hi(window), vi(window), Si(window), Ti(window), Oi(window), ta(window), ca(window), fa(window), ba(window), Ca(window), Oa(window), Na(window), wc(window), Ae(window), en(window), ln(window), mn(window), at(window), ht(window), Gt(window), Xt(window);
+	Tc(window), Pn(window), Hn(window), Gn(window), Zn(window), ar(window), mr(window), _r(window), Sr(window), Er(window), Nr(window), Ir(window), Ur(window), Zr(window), ei(window), li(window), fi(window), hi(window), vi(window), Si(window), Ti(window), Oi(window), ta(window), ca(window), fa(window), ba(window), Ca(window), Oa(window), Na(window), Lc(window), Ae(window), en(window), ln(window), mn(window), at(window), ht(window), Gt(window), Xt(window);
 	let e = () => {
-		ge(window), Xe(window), ot(window), D(window), N(window), le(window), ue(window), Me(window), qe(window), pc(window), Tc(window), io(window), go(window), No(window), Ko(window), Ns(window), fc(window);
+		ge(window), Xe(window), ot(window), D(window), N(window), le(window), ue(window), Me(window), qe(window), Ec(window), Rc(window), io(window), go(window), No(window), Ko(window), Ns(window), yc(window);
 	};
 	window.document.readyState === "loading" ? window.document.addEventListener("DOMContentLoaded", e, { once: !0 }) : e();
 }
-export { Ka as CLUB_PILOT_DB, Fa as MAX_CLUB_PARTITION_CHARS, za as MAX_ENTITY_ROWS, Et as MAX_INDEXED_CONTACTS, ma as MAX_LOCAL_MATCH_CHARS, ha as MAX_PACKED_STATE_CHARS, Dn as MAX_SEQUENCE_CHARACTERS, On as MAX_SEQUENCE_CONTACTS, pa as MAX_STORED_STATE_CHARS, Es as PLAYER_COLD_REOPEN_KEY, _s as PLAYER_REOPEN_TICKET_KEY, qo as PLAYER_SHADOW_DB, ds as PLAYER_SHADOW_LOCK, un as RALLY_SEARCH_PRESETS_KEY, $i as RALLY_WRITER_VERSION, Ze as SEARCH_FILTERS, Fs as TRAINING_FIELDS, Ps as TRAINING_SHADOW_DB, sc as TRAINING_SHADOW_LOCK, wn as applyScoutingDraftRating, Cn as applyScoutingDraftSkill, ia as assembleClosedRally, aa as assembleRestoredLiveRally, l as attackEfficiency, ce as auditCommittedMatch, o as auditMatchScores, wr as buildScoutCodeV830, vr as buildScoutingActionBase, Vt as calculateAnalysisPoints, C as canonicalReaders, _a as captureLocalMatchSnapshot, Wi as captureRecoveryFrame, on as catalogRallySearch, Gi as changedRecoveryAreas, ua as classifyLocalSaveReceipt, j as classifyPreflight, qi as classifyRecoveryEvidence, Bn as classifyScoutingPreflight, se as classifyStoredAction, Li as compareConfirmedPoint, xc as compareDeviceValidation, y as compareNativeCode, he as createObservableMatchStore, Bi as createRallyShadowSession, Qi as createRallyTransactionPilot, je as createReadOnlyRenderGate, Ye as createScoutingProjectionStore, M as createShadowSession, Tn as cycleScoutingDraftRating, us as deletePlayerShadow, Qs as deleteTrainingShadow, Ss as digestOriginalClub, Ki as equalRecoveryFrames, qt as escapeAnalysisCSVCell, Bt as evaluateAnalysisContacts, Jt as exportAnalysisCSV, zt as filterAnalysis, jr as finishScoutingCode, Ht as inspectAnalysisCoverage, Nt as inspectAnalysisIndexDiagnostics, re as inspectClosedRally, xo as inspectClubEntityRecovery, v as inspectCodeShape, Dc as inspectJournalRecovery, Te as inspectLiveSetStatistics, E as inspectMatchDomain, Jn as inspectNativePreparation, Ke as inspectPlayerBoxscore, ls as inspectPlayerShadow, I as inspectRallyRestoration, Un as inspectRegistrationConditions, Mn as inspectScoutingSequence, S as inspectSubstitution, Zs as inspectTrainingShadow, Xt as installAnalysisExportBridge, ht as installAnalysisNormalizeBridge, Gt as installAnalysisOperationsBridge, at as installAnalysisQueryBridge, en as installAnalysisViewBridge, Oa as installClubLocalStoreBridge, Na as installClubSnapshotBridge, ta as installLiveRallyWriterBridge, ba as installLocalReadbackBridge, fa as installLocalSaveReceiptBridge, Oi as installMatchFinalizationBridge, Si as installMatchManualResultBridge, vi as installMatchVideoOverlayBridge, wc as installMultiDeviceAPI, ca as installRallyRecordBridge, mn as installRallySearchControls, ln as installRallySearchViewBridge, Ti as installRallyVideoBoundsBridge, Gn as installRegistrationGuardBridge, Ae as installRenderMetricsBridge, Sr as installScoutActionBuilderBridge, Ur as installScoutActionMetadataBridge, Zr as installScoutActionNormalizerBridge, li as installScoutAdvancedFieldsBridge, Nr as installScoutCodeBuilderBridge, Er as installScoutCodeFormatBridge, fi as installScoutIdentityFieldsBridge, Ca as installScoutIndexedJournalBridge, hi as installScoutMatchVideoContainerBridge, _r as installScoutPlayerResolverBridge, Ir as installScoutRegistrationBridge, ei as installScoutTacticalFieldsBridge, Pn as installScoutingDraftBridge, mr as installScoutingExtensionsBridge, ar as installScoutingLexerBridge, Hn as installScoutingPreflightBridge, Zn as installScoutingPreparationBridge, Mt as invalidateAnalysisIndex, rr as lexScoutingCode, ot as mountAnalysisQueryPerformance, go as mountClubEntityPanel, io as mountClubPilotPanel, No as mountClubRecoveryPanel, Ko as mountClubRehydrationPanel, le as mountCommittedPanel, D as mountDomainDiagnostic, ue as mountGrammarPanel, Me as mountLiveStatisticsPanel, Tc as mountMultiDevicePanel, ge as mountObservablePanel, qe as mountPlayerBoxscore, Ns as mountPlayerShadowPanel, pc as mountRallyShadowPanel, Xe as mountScoutingProjectionStore, N as mountShadowPanel, fc as mountTrainingShadowPanel, s as nextRotation, Vr as normalizeActionVideoTimestamp, si as normalizeAdvancedScoutingFields, pt as normalizeAnalysisMatch, dt as normalizeAnalysisZone, Cr as normalizeContactMetadata, Ei as normalizeMatchFinalizationFields, bi as normalizeMatchManualResult, gi as normalizeMatchVideoOverlay, tt as normalizeRallySearchFilters, Ci as normalizeRallyVideoBounds, Yr as normalizeScoutingActionBase, ui as normalizeScoutingIdentityFields, pi as normalizeScoutingMatchVideoContainer, Qr as normalizeTacticalActionFields, br as opponentScoutingPlayerFields, yr as ownScoutingPlayerFields, bc as parseDeviceValidation, Cs as parsePlayerReopenTicket, xn as parseScoutingDraftHead, fo as pilotClubEntityDelta, $a as pilotClubPartitions, te as planAwardPoint, Wa as planClubEntities, X as planClubPartitions, ts as planPlayerShadow, Ws as planTrainingShadow, ne as planUndoLastRally, Pr as prepareContactRegistration, Yn as prepareNativeScoutingAction, Ds as preparePlayerColdReopen, ws as preparePlayerReopenTicket, gs as preparePlayerShadowBackup, Ar as prepareScoutingCodeInput, oc as prepareTrainingShadowBackup, Oo as previewHistoricIds, zr as projectDataVolleyFields, me as projectObservableMatch, c as projectPoint, F as projectSetBoundary, nt as queryRallies, Br as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, fn as readRallySearchPresets, En as recentScoutingDraftCodes, Ut as reconcileAnalysisPoints, Vo as reconstructClubEntityFields, hs as reconstructPlayersForBackup, ic as reconstructTrainingsForBackup, Ho as rehearseClubEntityRecovery, ko as rehearseHistoricIds, eo as removeClubPilot, Qt as renderDataEngineView, sn as renderRallySearchView, yc as reportDeviceValidation, hr as resolveOwnScoutingPlayer, Ga as sameClubEntityData, Ra as sameClubPartitionPlan, oa as sameRallyRecord, fr as scanAdvancedExtension, dr as scanConeExtension, ur as scanSubzoneExtension, ja as serializeClubIndependentLibrary, Aa as serializeClubSnapshot, u as sideOutBreakPoint, Q as tryAcquirePlayerShadowLock, Os as verifyPlayerColdReopen, Ts as verifyPlayerReopenTicket, a as verifyRallyScore, va as verifyStoredLocalMatch, Ea as writeClubLocalState, cs as writePlayerShadow, xa as writeScoutJournalTransaction, Xs as writeTrainingShadow };
+export { Ka as CLUB_PILOT_DB, Fa as MAX_CLUB_PARTITION_CHARS, za as MAX_ENTITY_ROWS, Et as MAX_INDEXED_CONTACTS, ma as MAX_LOCAL_MATCH_CHARS, ha as MAX_PACKED_STATE_CHARS, Dn as MAX_SEQUENCE_CHARACTERS, On as MAX_SEQUENCE_CONTACTS, pa as MAX_STORED_STATE_CHARS, Es as PLAYER_COLD_REOPEN_KEY, _s as PLAYER_REOPEN_TICKET_KEY, qo as PLAYER_SHADOW_DB, ds as PLAYER_SHADOW_LOCK, un as RALLY_SEARCH_PRESETS_KEY, $i as RALLY_WRITER_VERSION, Ze as SEARCH_FILTERS, sc as TRAINING_COLD_REOPEN_KEY, Fs as TRAINING_FIELDS, Ps as TRAINING_SHADOW_DB, mc as TRAINING_SHADOW_LOCK, wn as applyScoutingDraftRating, Cn as applyScoutingDraftSkill, ia as assembleClosedRally, aa as assembleRestoredLiveRally, l as attackEfficiency, ce as auditCommittedMatch, o as auditMatchScores, wr as buildScoutCodeV830, vr as buildScoutingActionBase, Vt as calculateAnalysisPoints, C as canonicalReaders, _a as captureLocalMatchSnapshot, Wi as captureRecoveryFrame, on as catalogRallySearch, Gi as changedRecoveryAreas, ua as classifyLocalSaveReceipt, j as classifyPreflight, qi as classifyRecoveryEvidence, Bn as classifyScoutingPreflight, se as classifyStoredAction, Cc as classifyTrainingPlan, Li as compareConfirmedPoint, Pc as compareDeviceValidation, y as compareNativeCode, he as createObservableMatchStore, Bi as createRallyShadowSession, Qi as createRallyTransactionPilot, je as createReadOnlyRenderGate, Ye as createScoutingProjectionStore, M as createShadowSession, Tn as cycleScoutingDraftRating, us as deletePlayerShadow, Qs as deleteTrainingShadow, Ss as digestOriginalClub, Ki as equalRecoveryFrames, qt as escapeAnalysisCSVCell, Bt as evaluateAnalysisContacts, Jt as exportAnalysisCSV, zt as filterAnalysis, jr as finishScoutingCode, bc as formatTrainingLocalDate, Ht as inspectAnalysisCoverage, Nt as inspectAnalysisIndexDiagnostics, ie as inspectClosedRally, xo as inspectClubEntityRecovery, v as inspectCodeShape, Bc as inspectJournalRecovery, Te as inspectLiveSetStatistics, E as inspectMatchDomain, Jn as inspectNativePreparation, Ke as inspectPlayerBoxscore, ls as inspectPlayerShadow, I as inspectRallyRestoration, Un as inspectRegistrationConditions, Mn as inspectScoutingSequence, S as inspectSubstitution, Zs as inspectTrainingShadow, Xt as installAnalysisExportBridge, ht as installAnalysisNormalizeBridge, Gt as installAnalysisOperationsBridge, at as installAnalysisQueryBridge, en as installAnalysisViewBridge, Oa as installClubLocalStoreBridge, Na as installClubSnapshotBridge, ta as installLiveRallyWriterBridge, ba as installLocalReadbackBridge, fa as installLocalSaveReceiptBridge, Oi as installMatchFinalizationBridge, Si as installMatchManualResultBridge, vi as installMatchVideoOverlayBridge, Lc as installMultiDeviceAPI, ca as installRallyRecordBridge, mn as installRallySearchControls, ln as installRallySearchViewBridge, Ti as installRallyVideoBoundsBridge, Gn as installRegistrationGuardBridge, Ae as installRenderMetricsBridge, Sr as installScoutActionBuilderBridge, Ur as installScoutActionMetadataBridge, Zr as installScoutActionNormalizerBridge, li as installScoutAdvancedFieldsBridge, Nr as installScoutCodeBuilderBridge, Er as installScoutCodeFormatBridge, fi as installScoutIdentityFieldsBridge, Ca as installScoutIndexedJournalBridge, hi as installScoutMatchVideoContainerBridge, _r as installScoutPlayerResolverBridge, Ir as installScoutRegistrationBridge, ei as installScoutTacticalFieldsBridge, Pn as installScoutingDraftBridge, mr as installScoutingExtensionsBridge, ar as installScoutingLexerBridge, Hn as installScoutingPreflightBridge, Zn as installScoutingPreparationBridge, Tc as installTrainingPlanningBridge, Mt as invalidateAnalysisIndex, rr as lexScoutingCode, ot as mountAnalysisQueryPerformance, go as mountClubEntityPanel, io as mountClubPilotPanel, No as mountClubRecoveryPanel, Ko as mountClubRehydrationPanel, le as mountCommittedPanel, D as mountDomainDiagnostic, ue as mountGrammarPanel, Me as mountLiveStatisticsPanel, Rc as mountMultiDevicePanel, ge as mountObservablePanel, qe as mountPlayerBoxscore, Ns as mountPlayerShadowPanel, Ec as mountRallyShadowPanel, Xe as mountScoutingProjectionStore, N as mountShadowPanel, yc as mountTrainingShadowPanel, s as nextRotation, Vr as normalizeActionVideoTimestamp, si as normalizeAdvancedScoutingFields, pt as normalizeAnalysisMatch, dt as normalizeAnalysisZone, Cr as normalizeContactMetadata, Ei as normalizeMatchFinalizationFields, bi as normalizeMatchManualResult, gi as normalizeMatchVideoOverlay, tt as normalizeRallySearchFilters, Ci as normalizeRallyVideoBounds, Yr as normalizeScoutingActionBase, ui as normalizeScoutingIdentityFields, pi as normalizeScoutingMatchVideoContainer, Qr as normalizeTacticalActionFields, br as opponentScoutingPlayerFields, yr as ownScoutingPlayerFields, Nc as parseDeviceValidation, Cs as parsePlayerReopenTicket, xn as parseScoutingDraftHead, dc as parseTrainingColdTicket, fo as pilotClubEntityDelta, $a as pilotClubPartitions, ne as planAwardPoint, Wa as planClubEntities, X as planClubPartitions, ts as planPlayerShadow, Ws as planTrainingShadow, re as planUndoLastRally, Pr as prepareContactRegistration, Yn as prepareNativeScoutingAction, Ds as preparePlayerColdReopen, ws as preparePlayerReopenTicket, gs as preparePlayerShadowBackup, Ar as prepareScoutingCodeInput, fc as prepareTrainingColdReopen, oc as prepareTrainingShadowBackup, Oo as previewHistoricIds, zr as projectDataVolleyFields, me as projectObservableMatch, c as projectPoint, F as projectSetBoundary, nt as queryRallies, Br as readActionVideoTime, T as readCanonicalLiveActions, w as readCanonicalMatch, fn as readRallySearchPresets, En as recentScoutingDraftCodes, Ut as reconcileAnalysisPoints, Vo as reconstructClubEntityFields, hs as reconstructPlayersForBackup, ic as reconstructTrainingsForBackup, Ho as rehearseClubEntityRecovery, ko as rehearseHistoricIds, eo as removeClubPilot, Qt as renderDataEngineView, sn as renderRallySearchView, Mc as reportDeviceValidation, hr as resolveOwnScoutingPlayer, Ga as sameClubEntityData, Ra as sameClubPartitionPlan, oa as sameRallyRecord, fr as scanAdvancedExtension, dr as scanConeExtension, ur as scanSubzoneExtension, ja as serializeClubIndependentLibrary, Aa as serializeClubSnapshot, u as sideOutBreakPoint, xc as startOfTrainingWeek, Sc as totalTrainingMinutes, Q as tryAcquirePlayerShadowLock, Os as verifyPlayerColdReopen, Ts as verifyPlayerReopenTicket, a as verifyRallyScore, va as verifyStoredLocalMatch, pc as verifyTrainingColdReopen, Ea as writeClubLocalState, cs as writePlayerShadow, xa as writeScoutJournalTransaction, Xs as writeTrainingShadow };
