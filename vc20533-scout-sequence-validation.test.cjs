@@ -72,9 +72,9 @@ test('the actual Scouting Speed Pro panel checks a sequence without modifying th
 
 test('V20.5.33 publishes an optional sequence check while preserving every writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.5.66');
+ assert.equal(pkg.version,'20.5.67');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20533-scout-sequence-validation.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.66'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.67'));
  assert.ok(html.includes('vc2021-scouting-speed-pro.css?v=20.5.33'));
  assert.ok(sw.includes('scouting-sequence-check-20.5.33'));
  assert.ok(read('src/vc2055-entry.ts').includes('inspectScoutingSequence'));

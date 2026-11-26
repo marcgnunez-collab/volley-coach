@@ -149,9 +149,9 @@ test('legacy fallback restores original behavior when operations module is absen
 test('V20.5.25 deployment keeps existing writers and bridge ordering intact',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js'),engine=read('189-vc1938-professional-data-engine.js');
- assert.equal(pkg.version,'20.5.66');
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.66'));
- assert.ok(html.includes('vc2055-domain.css?v=20.5.66'));
+ assert.equal(pkg.version,'20.5.67');
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.67'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.5.67'));
  assert.ok(sw.includes('analysis-operations-20.5.25'));
  assert.ok(entry.includes('installAnalysisOperationsBridge(window)'));
  assert.ok(engine.includes('VC_ANALYSIS_OPERATIONS_20525'));

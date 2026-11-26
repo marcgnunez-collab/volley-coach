@@ -542,6 +542,14 @@ function guardarEstadoLocalSinCloud(){
   if(typeof raw!=='string')raw=JSON.stringify({version:5.8,bibliotecaCompartida:clonar(baseDeDatos),bibliotecaVersion:1,bibliotecaUpdatedAt:timestamp,equiposData:clonar(equiposData)});
   const mode=vc1531WriteState(APP_STORAGE_KEY,raw);
   if(mode==='compacto')console.info('V15.3.1 · Estado guardado en modo compacto,',Math.round(raw.length/1024),'KiB originales');
+  /* V20.5.67: optional, session-only player shadow AFTER the original writer
+     has confirmed. Never throw into save(), never touch scoring/cloud data. */
+  try{
+    const shadow=window.VC_PLAYER_SHADOW_20567;
+    if(shadow?.VERSION==='20.5.67'&&shadow.manualOnly===true&&
+       shadow.enabled?.()===true&&typeof shadow.onConfirmedWrite==='function')
+      shadow.onConfirmedWrite(raw);
+  }catch(_){/* The experimental mirror must not affect the original save. */}
   guardarBibliotecaIndependiente(prepared);
   try{localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo)}catch(err){console.warn('No se pudo actualizar el selector de equipo en localStorage',err)}
 }
