@@ -51,6 +51,7 @@ import {mountClubEntityPanel} from './state/club-entity-runtime';
 import {mountClubRecoveryPanel} from './state/club-recovery-runtime';
 import {mountClubRehydrationPanel} from './state/club-entity-rehydration-runtime';
 import {mountPlayerShadowPanel} from './state/player-shadow-runtime';
+import {mountTrainingShadowPanel} from './state/training-shadow-runtime';
 import {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders} from './state/match-state-contract';
 import {mountRallyShadowPanel} from './domain/rally-shadow-runtime';
 import {installMultiDeviceAPI,mountMultiDevicePanel} from './domain/multi-device-runtime';
@@ -96,6 +97,9 @@ export {PLAYER_REOPEN_TICKET_KEY,parsePlayerReopenTicket,digestOriginalClub,
  preparePlayerReopenTicket,verifyPlayerReopenTicket} from './state/player-shadow-reopen';
 export {PLAYER_COLD_REOPEN_KEY,preparePlayerColdReopen,
  verifyPlayerColdReopen} from './state/player-shadow-cold-recovery';
+export {TRAINING_SHADOW_DB,TRAINING_FIELDS,planTrainingShadow,writeTrainingShadow,
+ inspectTrainingShadow,deleteTrainingShadow} from './state/training-shadow';
+export {TRAINING_SHADOW_LOCK,mountTrainingShadowPanel} from './state/training-shadow-runtime';
 export {captureRecoveryFrame,changedRecoveryAreas,equalRecoveryFrames,classifyRecoveryEvidence}
  from './domain/rally-recovery-evidence';
 export {inspectJournalRecovery} from './domain/journal-recovery-inspector';
@@ -221,7 +225,7 @@ if(typeof window!=='undefined'&&window.document){
  installAnalysisNormalizeBridge(window);
  installAnalysisOperationsBridge(window);
  installAnalysisExportBridge(window);
- const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountAnalysisQueryPerformance(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);mountClubPilotPanel(window);mountClubEntityPanel(window);mountClubRecoveryPanel(window);mountClubRehydrationPanel(window);mountPlayerShadowPanel(window);};
+ const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountAnalysisQueryPerformance(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);mountClubPilotPanel(window);mountClubEntityPanel(window);mountClubRecoveryPanel(window);mountClubRehydrationPanel(window);mountPlayerShadowPanel(window);mountTrainingShadowPanel(window);};
  if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 }

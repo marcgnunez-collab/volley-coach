@@ -550,6 +550,14 @@ function guardarEstadoLocalSinCloud(){
        shadow.enabled?.()===true&&typeof shadow.onConfirmedWrite==='function')
       shadow.onConfirmedWrite(raw);
   }catch(_){/* The experimental mirror must not affect the original save. */}
+  /* V20.5.72: independent, opt-in training mirror. The canonical writer,
+     player replica, scouting journal and cloud are unaffected by errors. */
+  try{
+    const training=window.VC_TRAINING_SHADOW_20572;
+    if(training?.VERSION==='20.5.72'&&training.manualOnly===true&&
+       training.enabled?.()===true&&typeof training.onConfirmedWrite==='function')
+      training.onConfirmedWrite(raw);
+  }catch(_){/* Never reattempt or alter the confirmed original save. */}
   guardarBibliotecaIndependiente(prepared);
   try{localStorage.setItem(ACTIVE_TEAM_KEY,equipoActivo)}catch(err){console.warn('No se pudo actualizar el selector de equipo en localStorage',err)}
 }

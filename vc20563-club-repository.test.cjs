@@ -212,7 +212,7 @@ test('source changes invalidate parity; unsupported data are rejected before any
 test('management exposes a visible, explicitly manual pilot with deletion and original save policy',()=>{
  const entry=read('src/vc2055-entry.ts'),html=read('index.html'),legacy=read('002-core-training-v150-monolithic.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.5.71');
+ assert.equal(pkg.version,'20.5.72');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20563-club-repository.test.cjs'));
  assert.ok(html.includes('id="vc20563-club-pilot"'));
  assert.ok(html.includes('id="vc20563-run-pilot" disabled'));
@@ -222,6 +222,6 @@ test('management exposes a visible, explicitly manual pilot with deletion and or
  assert.ok(legacy.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
  assert.ok(legacy.includes('vc1531WriteState(APP_STORAGE_KEY,raw)'));
  assert.ok(read('service-worker.js').includes('club-repository-pilot-20.5.63'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.71'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.72'));
  assert.equal(read('src/state/club-repository-runtime.ts').includes('guardarEstadoLocalSinCloud('),false);
 });
