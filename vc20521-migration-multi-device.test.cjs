@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
-const legacy=require('./211-vc2012-multi-device-validation.js');
+const legacy=require('./test-audit/fixtures/v2012-legacy-device-validator.js');
 const compiled=()=>import('./vc2055-domain-core.mjs');
 const read=file=>fs.readFileSync(path.join(__dirname,file),'utf8');
 const stamp='2026-11-19T10:30:00.000Z';
@@ -129,7 +129,7 @@ test('legacy V20.1.2 script stays for regression, but exactly one active UI is l
  assert.ok(html.includes('vc2012-multi-device-validation.css?v=20.1.2'));
  assert.ok(entry.includes('installMultiDeviceAPI(window)'));
  assert.ok(entry.includes('mountMultiDevicePanel(window)'));
- assert.ok(read('211-vc2012-multi-device-validation.js').includes('VC_SYNC_2012'));
+ assert.ok(read('test-audit/fixtures/v2012-legacy-device-validator.js').includes('VC_SYNC_2012'));
  assert.ok(sw.includes('domain-20.5.5'));
  const sha=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(sha('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');

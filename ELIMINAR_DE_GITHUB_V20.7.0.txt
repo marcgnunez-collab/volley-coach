@@ -1,0 +1,38 @@
+VOLLEY COACH V20.7.0 - ARCHIVOS EXACTOS PARA ELIMINAR DE GITHUB
+
+Eliminar SOLO estos diez archivos de la raiz de tu repositorio DESPUES de subir SOLO_CAMBIOS V20.7.0:
+
+216-vc20231-dv-layout-refinement.js
+vc20231-dv-layout-refinement.css
+vc-app-192-v1741.png
+vc-app-512-v1741.png
+vc-app-maskable-v1741.png
+211-vc2012-multi-device-validation.js
+v19320-compatibility-final-audit.test.cjs
+v2001-sync-engine-reliability.test.cjs
+v2011-durable-sync-journal.test.cjs
+v2012-multi-device-validation.test.cjs
+
+NO borrar los actuales:
+
+216-vc20241-data-volley-layout-refinement.js
+vc20241-data-volley-layout-refinement.css
+icon-192.png
+icon-512.png
+icon-maskable-512.png
+manifest.webmanifest
+index.html
+service-worker.js
+src/
+*.test.cjs
+test-audit/
+test-audit/fixtures/v2012-legacy-device-validator.js
+scripts/
+.github/workflows/
+
+Las tres imagenes retiradas tenian EXACTAMENTE los mismos bytes que icon-192.png, icon-512.png e icon-maskable-512.png respectivamente.
+La interfaz V20.2.3.1 retirada no era solicitada por el index ni por los cargadores; la interfaz V20.2.4.1 actual permanece intacta.
+El lector historico de dos dispositivos ha sido trasladado a test-audit/fixtures/; su reemplazo TypeScript sigue activo.
+Las cuatro pruebas historicas eliminadas tienen su version autoritativa completa en test-audit/ y la CI utiliza esas versiones.
+El ZIP SOLO_CAMBIOS no borra archivos remotos: estas diez eliminaciones son operaciones separadas en GitHub.
+Si hay alguna personalizacion manual fuera de esta entrega, compruebala antes de borrar.

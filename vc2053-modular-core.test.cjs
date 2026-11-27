@@ -79,7 +79,7 @@ test('new assets, cache support and setup are bundled as true ES modules',()=>{
   assert.ok(fs.existsSync(path.join(root,name)),name);
  }
  assert.match(sw,/const asset=u=>\/\\\.\(\?:m\?js\|css/);
- assert.ok(sw.includes("request.mode==='navigate'||/\\.mjs$/i.test(url.pathname)"));
+ assert.ok(sw.includes("request.mode==='navigate'||/\\.(?:m?js|css)$/i.test(url.pathname)"));
  assert.ok(sw.includes('modular-core-20.5.3'));
  assert.ok(fs.readFileSync(path.join(root,'vc2053-modular-core.mjs'),'utf8').includes("import {createMatchReader"));
 });

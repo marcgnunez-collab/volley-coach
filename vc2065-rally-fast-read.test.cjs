@@ -140,12 +140,12 @@ test('V20.6.5 4,000 closed rallies do not trigger redundant legacy flatMap',asyn
 
 test('V20.6.5 release has cache-busted assets and preserves the previous diagnostics panel',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.5');
+ assert.equal(pkg.version,'20.7.0');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2065-rally-fast-read.test.cjs'));
  assert.ok(sw.includes('rally-fast-read-20.6.5'));
  assert.ok(html.includes('V20.6.5 · LECTURA ÚNICA DE RALLIES'));
  assert.ok(html.includes('id="vc2064-check"'));
  for(const file of ['021-core-scouting-v150-monolithic.js','040-v800-match-mode-module.js',
   '028-v740-live-scout-video-module.js','217-vc2025-rally-review-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(`${file}?v=20.6.5`),file);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(`${file}?v=20.7.0`),file);
 });
