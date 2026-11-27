@@ -738,6 +738,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.2 · NAVEGACIÓN RECUPERABLE</small><h3>Ocultar y volver a mostrar la barra lateral en cualquier pantalla</h3><p>En escritorio, el botón de la barra la oculta y el de la cabecera la recupera. El estado se recuerda por separado para el modo partido, que sigue dando prioridad al vídeo. En móvil se conserva el menú superpuesto original. Tres módulos de análisis táctico ahora se cargan como uno.</p></div><span>Reestructuración · Navegación y JavaScript</span></div>
     <div class="vc2052-title"><div><small>V20.7.1 · ESTILOS UNIFICADOS</small><h3>Menos archivos para cargar la interfaz</h3><p>Diez hojas de estilo pasan a cuatro, con seis solicitudes CSS menos y ahorro de transferencia comprimida. Se conserva el orden de todas las reglas y se actualiza la caché offline. Scouting, vídeo, guardados y sincronización mantienen su funcionamiento.</p></div><span>Reestructuración · Consolidación CSS</span></div>
     <div class="vc2052-title"><div><small>V20.7.0 · LIMPIEZA DE ARQUITECTURA</small><h3>Dependencias verificadas y recursos más fiables</h3><p>Se han retirado diez archivos raíz obsoletos o redundantes: una interfaz antigua, tres iconos idénticos, un módulo histórico trasladado a las pruebas y cuatro pruebas duplicadas. La precarga evita referencias inexistentes o duplicadas y puede recuperar CSS y JavaScript de esta versión cuando falle la red. El diagnóstico de Gestión sigue disponible. No se modifican los escritores del partido ni el funcionamiento del vídeo.</p></div><span>Reestructuración · Auditoría integral</span></div>
     <div class="vc2052-title"><div><small>V20.6.5 · LECTURA ÚNICA DE RALLIES</small><h3>Un historial, menos cálculos repetidos</h3><p>Scouting, Match Mode, Vídeo y Rally Review consumen el historial TypeScript tras comprobar los datos originales en un solo recorrido, sin construir otro historial entero para compararlo. Si los resultados no coinciden, se conserva la ruta clásica. Sin cambios en puntos, vídeo, guardado ni sincronización.</p></div><span>Reestructuración · Rendimiento</span></div>
@@ -14136,8 +14137,8 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <script id="vc2023-professional-scouting-workspace" src="./215-vc2023-professional-scouting-workspace.js?v=20.2.4" defer data-vc-module="true"></script>
 
 <!-- V20.2.4.1 · Left navigation collapse and video-first professional scouting layout -->
-<link rel="stylesheet" href="./vc20241-data-volley-layout-refinement.css?v=20.2.4.1">
-<script id="vc20241-data-volley-layout" src="./216-vc20241-data-volley-layout-refinement.js?v=20.2.5.2" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc20241-data-volley-layout-refinement.css?v=20.7.2">
+<script id="vc20241-data-volley-layout" src="./216-vc20241-data-volley-layout-refinement.js?v=20.7.2" defer data-vc-module="true"></script>
 
 <!-- V20.2.5 · Rally Review Pro: floating review, native editor, verified video timecodes. -->
 <link rel="stylesheet" href="./vc2025-rally-review-pro.css?v=20.2.5">
@@ -14149,9 +14150,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <script id="vc2040-training-pro" src="./226-vc2040-training-pro-workflow.js?v=20.4.0" defer data-vc-module="true"></script>
 <!-- V20.4.1–20.4.3: read-only statistical audit, rival briefing and live tactical intelligence. -->
 <link rel="stylesheet" href="./vc2041-2043-tactical-intelligence.css?v=20.4.3">
-<script id="vc2041-stat-integrity" src="./227-vc2041-statistical-integrity.js?v=20.4.1" defer data-vc-module="true"></script>
-<script id="vc2042-rival-intelligence" src="./228-vc2042-rival-intelligence.js?v=20.4.2" defer data-vc-module="true"></script>
-<script id="vc2043-live-tactical" src="./229-vc2043-live-tactical-assistant.js?v=20.4.3" defer data-vc-module="true"></script>
+<script id="vc2072-tactical-insights" src="./vc2072-tactical-intelligence-unified.js?v=20.7.2" defer data-vc-module="true"></script>
 <!-- V20.5.0.3: no requests for 11 CSS paths never committed to GitHub. -->
 <link rel="stylesheet" href="./vc2050-release-health.css?v=20.5.0.3">
 <script id="vc2050-release-health" src="./230-vc2050-release-health.js?v=20.5.0.3" defer data-vc-module="true"></script>

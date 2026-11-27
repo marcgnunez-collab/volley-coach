@@ -1,0 +1,16 @@
+VOLLEY COACH · V20.7.2 · RETIRAR TRES SCRIPTS ANTIGUOS
+
+DESPUÉS de subir SOLO_CAMBIOS V20.7.2 sobre V20.7.1,
+elimina exactamente estos TRES archivos de la RAÍZ de GitHub:
+
+227-vc2041-statistical-integrity.js
+228-vc2042-rival-intelligence.js
+229-vc2043-live-tactical-assistant.js
+
+NO elimines el nuevo script:
+- vc2072-tactical-intelligence-unified.js
+
+Los códigos anteriores están conservados en V20.7.1 COMPLETO
+y sus textos exactos están dentro del nuevo archivo unificado.
+NO borres los motores de Scouting, MatchState, REC/Delay,
+IndexedDB ni Supabase. No subas VITE aparte con SOLO_CAMBIOS.

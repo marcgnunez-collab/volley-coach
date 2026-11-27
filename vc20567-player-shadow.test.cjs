@@ -216,7 +216,7 @@ test('native save hook runs only AFTER a confirmed main write, never on failure 
 test('release V67 mounts manual opt-in AFTER original save and retains all live owners',()=>{
  const html=read('index.html'),legacy=read('002-core-training-v150-monolithic.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.1');
+ assert.equal(pkg.version,'20.7.2');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20567-player-shadow.test.cjs'));
  assert.ok(html.includes('id="vc20567-arm-players" disabled'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

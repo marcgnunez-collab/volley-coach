@@ -16,30 +16,38 @@
  'use strict';
  const VERSION='20.2.4.1';
  const KEY='vc20241.suggestedWorkspace';
- const defaults=Object.freeze({leftHidden:true,right:'full',sourceOpen:false});
+ const defaults=Object.freeze({leftHidden:true,globalLeftHidden:false,right:'full',sourceOpen:false});
  const safeRight=x=>['full','compact','hidden'].includes(x)?x:'full';
  function normalize(settings){const s=settings&&typeof settings==='object'?settings:{};
   return {leftHidden:typeof s.leftHidden==='boolean'?s.leftHidden:defaults.leftHidden,
+   globalLeftHidden:typeof s.globalLeftHidden==='boolean'?s.globalLeftHidden:defaults.globalLeftHidden,
    right:safeRight(s.right),sourceOpen:typeof s.sourceOpen==='boolean'?s.sourceOpen:defaults.sourceOpen};
  }
- let settings=normalize(),booted=false,observer=null,menuObserver=null;
+ let settings=normalize(),booted=false,observer=null,menuObserver=null,sidebarObserver=null;
  const doc=()=>root?.document;
  const byId=id=>doc()?.getElementById(id)||null;
  const active=()=>!!byId('scout-match-mode')?.classList.contains('active');
  const desktop=()=>!!root?.matchMedia?.('(min-width:861px)')?.matches;
+ const leftHidden=()=>active()?settings.leftHidden:settings.globalLeftHidden;
  function read(){try{const raw=root?.localStorage?.getItem(KEY);return normalize(raw?JSON.parse(raw):null)}catch(_){return normalize()}}
  function persist(){try{root?.localStorage?.setItem(KEY,JSON.stringify(settings))}catch(_){} }
  function sync(){const d=doc(),body=d?.body;if(!body)return false;
-  const enabled=active();const left=enabled&&desktop()&&settings.leftHidden;
+  const enabled=active(),wide=desktop(),left=wide&&leftHidden();
   body.classList.toggle('vc20241-workspace',enabled);
   body.classList.toggle('vc20241-left-hidden',left);
   for(const mode of ['full','compact','hidden'])body.classList.toggle('vc20241-right-'+mode,enabled&&settings.right===mode);
   body.classList.toggle('vc20241-source-open',enabled&&settings.sourceOpen);
+  const side=byId('v11-sidebar'),overlay=byId('v11-sidebar-overlay');
+  if(wide&&side?.classList.contains('open')){
+   side.classList.remove('open');overlay?.classList.remove('open');
+  }
+  const mobileOpen=!!side?.classList.contains('open');
   const toggle=d.querySelector('#v11-topbar .v11-menu-toggle');
-  if(toggle&&enabled&&desktop()){
-   toggle.setAttribute('aria-label',left?'Mostrar navegación principal':'Ocultar navegación principal');
-   toggle.setAttribute('aria-expanded',String(!left));
-   toggle.title=left?'Mostrar menú principal':'Ocultar menú principal';
+  if(toggle){
+   toggle.setAttribute('aria-controls','v11-sidebar');
+   toggle.setAttribute('aria-expanded',String(wide?!left:mobileOpen));
+   toggle.setAttribute('aria-label',wide?(left?'Mostrar navegación principal':'Ocultar navegación principal'):(mobileOpen?'Cerrar navegación principal':'Abrir navegación principal'));
+   toggle.title=wide?(left?'Mostrar menú principal':'Ocultar menú principal'):(mobileOpen?'Cerrar menú principal':'Abrir menú principal');
   }
   const hide=byId('vc20241-hide-nav');if(hide){hide.title='Ocultar barra izquierda';hide.setAttribute('aria-label','Ocultar barra lateral izquierda');}
   const panel=byId('v113-video-code-panel');
@@ -63,7 +71,8 @@
   });
   return enabled;
  }
- function setLeftHidden(value){settings.leftHidden=!!value;persist();sync();return settings.leftHidden;}
+ function setLeftHidden(value){if(active())settings.leftHidden=!!value;else settings.globalLeftHidden=!!value;
+  persist();sync();return leftHidden();}
  function setRight(value){settings.right=safeRight(value);persist();sync();return settings.right;}
  function cycleRight(){return setRight({full:'compact',compact:'hidden',hidden:'full'}[settings.right]);}
  function toggleMax(){return setRight(settings.right==='hidden'?'full':'hidden');}
@@ -89,20 +98,21 @@
   sync();return !!(menu&&card&&brand);
  }
  function onClick(e){const el=e.target?.closest?.('[data-vc20241-right],[data-vc20241-max],[data-vc20241-source],#vc20241-hide-nav,#v11-topbar .v11-menu-toggle');
-  if(!el||!active())return;
+  if(!el)return;
   if(el.matches('#v11-topbar .v11-menu-toggle')){
    if(!desktop())return; // Preserve native overlay navigation on phones/tablets.
-   e.preventDefault();e.stopImmediatePropagation();setLeftHidden(!settings.leftHidden);return;
+   e.preventDefault();e.stopImmediatePropagation();setLeftHidden(!leftHidden());return;
   }
-  if(el.id==='vc20241-hide-nav'){e.preventDefault();e.stopImmediatePropagation();setLeftHidden(true);dFocusMenu();return;}
+  if(el.id==='vc20241-hide-nav'&&desktop()){e.preventDefault();e.stopImmediatePropagation();setLeftHidden(true);dFocusMenu();return;}
+  if(!active())return;
   if(el.hasAttribute('data-vc20241-right')){e.preventDefault();e.stopImmediatePropagation();cycleRight();return;}
   if(el.hasAttribute('data-vc20241-max')){e.preventDefault();e.stopImmediatePropagation();toggleMax();return;}
   if(el.hasAttribute('data-vc20241-source')){e.preventDefault();e.stopImmediatePropagation();setSourceOpen(!settings.sourceOpen);}
  }
  function dFocusMenu(){doc()?.querySelector('#v11-topbar .v11-menu-toggle')?.focus?.()}
- function onKey(e){if(!active()||(!e.altKey||!e.shiftKey)||e.ctrlKey||e.metaKey)return;
-  if(e.code==='KeyM'&&desktop()){e.preventDefault();setLeftHidden(!settings.leftHidden)}
-  if(e.code==='KeyP'){e.preventDefault();cycleRight()}
+ function onKey(e){if((!e.altKey||!e.shiftKey)||e.ctrlKey||e.metaKey)return;
+  if(e.code==='KeyM'&&desktop()){e.preventDefault();setLeftHidden(!leftHidden())}
+  if(e.code==='KeyP'&&active()){e.preventDefault();cycleRight()}
  }
  function boot(){if(!doc())return false;settings=read();inject();
   if(!booted){booted=true;
@@ -114,10 +124,14 @@
     menuObserver=new root.MutationObserver(()=>{if(!byId('vc20241-workspace-controls')||!byId('vc20241-video-tools'))inject()});
     menuObserver.observe(byId('v800-live'),{childList:true,subtree:false});
    }
+   if(root.MutationObserver&&byId('v11-sidebar')){
+    sidebarObserver=new root.MutationObserver(sync);
+    sidebarObserver.observe(byId('v11-sidebar'),{attributes:true,attributeFilter:['class']});
+   }
    root?.matchMedia?.('(min-width:861px)')?.addEventListener?.('change',sync);
   }
   return true;
  }
- function diagnostics(){return {version:VERSION,active:active(),desktop:desktop(),settings:{...settings},mounted:!!byId('vc20241-workspace-controls'),hasVideo:!!byId('v800-video-frame'),hasCode:!!byId('v113-video-code'),hasCourt:!!byId('vc1613-board'),hasOriginalScore:!!byId('v800-score-us'),changesScouting:false,changesSync:false}}
+ function diagnostics(){return {version:VERSION,active:active(),desktop:desktop(),leftHidden:desktop()&&leftHidden(),settings:{...settings},mounted:!!byId('vc20241-workspace-controls'),hasVideo:!!byId('v800-video-frame'),hasCode:!!byId('v113-video-code'),hasCourt:!!byId('vc1613-board'),hasOriginalScore:!!byId('v800-score-us'),changesScouting:false,changesSync:false}}
  return {VERSION,normalize,boot,inject,sync,setLeftHidden,setRight,cycleRight,toggleMax,setSourceOpen,diagnostics};
 });

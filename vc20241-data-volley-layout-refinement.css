@@ -1,12 +1,13 @@
 /* V20.2.4.1 · Compact professional video-first workspace.
  * Scoped to the active Match Scouting workspace. No scorer, recorder or sync changes. */
 @media(min-width:861px){
- body.vc17-shell.vc20241-workspace.vc20241-left-hidden #v11-sidebar{transform:translateX(-102%)!important;pointer-events:none!important;visibility:hidden!important}
- body.vc17-shell.vc20241-workspace.vc20241-left-hidden #v11-topbar{left:0!important;width:100%!important}
- body.vc17-shell.vc20241-workspace.vc20241-left-hidden #v11-main{margin-left:0!important;padding-left:12px!important;padding-right:12px!important}
- body.vc17-shell.vc20241-workspace #v11-sidebar{transition:transform .19s ease,visibility .19s!important}
- body.vc17-shell.vc20241-workspace #v11-topbar{transition:left .19s ease!important}
- body.vc17-shell.vc20241-workspace #v11-main{transition:margin-left .19s ease!important}
+ body.vc17-shell.vc20241-left-hidden #v11-sidebar{transform:translateX(-102%)!important;pointer-events:none!important;visibility:hidden!important}
+ body.vc17-shell.vc20241-left-hidden #v11-topbar{left:0!important;width:100%!important}
+ body.vc17-shell.vc20241-left-hidden #v11-main{margin-left:0!important;padding-left:12px!important;padding-right:12px!important}
+ body.vc17-shell:not(.v158-view-only) #v11-topbar .v11-menu-toggle{display:grid!important;place-items:center!important;flex:0 0 42px;min-width:42px;min-height:42px;background:#f3f8ff!important;color:#174775!important;border:1px solid #c8d9ec!important;border-radius:9px!important;cursor:pointer}
+ body.vc17-shell #v11-sidebar{transition:transform .19s ease,visibility .19s!important}
+ body.vc17-shell #v11-topbar{transition:left .19s ease!important}
+ body.vc17-shell #v11-main{transition:margin-left .19s ease!important}
 }
 body.vc17-shell #v11-sidebar .vc20241-hide-nav{display:flex!important;align-items:center;justify-content:center;flex-shrink:0;width:29px;min-width:29px;min-height:30px;padding:2px!important;margin-left:auto;border:1px solid #5e809f!important;border-radius:4px!important;background:#183d63!important;color:#eaf4ff!important;font-size:14px!important;cursor:pointer}
 body.vc17-shell #v11-sidebar .vc20241-hide-nav:hover{background:#24578b!important}

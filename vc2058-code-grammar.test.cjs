@@ -194,7 +194,7 @@ test('versioned bundle, stylesheet and cache stay aligned with existing PWA publ
  const css=fs.readFileSync(path.join(root,'vc2055-domain.css'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.7.1');
+ assert.equal(pkg.version,'20.7.2');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2058-code-grammar.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));

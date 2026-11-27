@@ -233,7 +233,7 @@ test('failed controller invocation never triggers fallback native invocation',()
 
 test('versioned shell, build output, old bridge and service worker reference V20.5.80',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.1');
+ assert.equal(pkg.version,'20.7.2');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20580-rally-controller-migration.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.7.0'));
