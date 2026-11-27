@@ -57,6 +57,11 @@
      skill:txt(last?.skill)||'',code:txt(last?.code)||'',actions:actions.length});
    }
   }
+  const bridge=root?.VC_RALLY_TIMELINE_2062;
+  let recent=lastRallies;
+  if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.recent==='function'){
+   try{const typed=bridge.recent(match,5);if(Array.isArray(typed)&&JSON.stringify(typed)===JSON.stringify(lastRallies))recent=typed}catch(_){}
+  }
   const rotation=match.rotationNo??match.rotation??null;
   const live=arr(match.liveRally?.actions);
   return {team:txt(teamName)||'Nuestro equipo',opponent:txt(match.opponent)||'Rival sin identificar',
@@ -64,7 +69,7 @@
    set:validNumber(active?.number)?String(active.number):'—',
    rotation:validRotation(rotation)?`R${rotation}`:'—',
    rallies:active?String(arr(active.rallies).length):'—',
-   currentActions:match.liveRally?String(live.length):'—',recent:lastRallies};
+   currentActions:match.liveRally?String(live.length):'—',recent};
  }
  function validNumber(x){return x!==''&&x!=null&&Number.isInteger(Number(x))&&Number(x)>0}
  function markup(){

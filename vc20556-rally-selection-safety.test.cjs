@@ -161,12 +161,12 @@ test('cancelled undo and original opt-in detached pilots preserve their previous
 test('V20.5.56 release wires selection to the one writer without touching CAS or IndexedDB',()=>{
  const pkg=require('./package.json'),adapter=read('234-vc20512-match-state-adapters.js'),
   state=read('233-vc20512-match-state-core.js'),html=read('index.html');
- assert.equal(pkg.version,'20.6.1');
+ assert.equal(pkg.version,'20.6.2');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20556-rally-selection-safety.test.cjs'));
  assert.ok(adapter.includes('prepareMatchSwitch:async()=>'));
  assert.ok(state.includes('releaseSelection=await prepare()'));
  assert.ok(state.includes('}finally{try{releaseSelection()}catch(_){}}'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.2'));
  const typed=read('src/domain/rally-transaction-pilot.ts');
  for(const forbidden of ['localStorage','indexedDB','supabase','scoutSave(', 'window.scoutAwardPoint='])
   assert.equal(typed.includes(forbidden),false,forbidden);

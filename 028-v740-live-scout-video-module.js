@@ -181,7 +181,11 @@ function markAction(a,m){
 function lastClosedRally(m=active()){
   if(!m)return null;
   const all=arr(m.sets).flatMap(s=>arr(s.rallies).map(r=>({r,set:s})));
-  return all.length?all[all.length-1]:null;
+  const native=all.length?all[all.length-1]:null,bridge=window.VC_RALLY_TIMELINE_2062;
+  if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.last==='function'){
+    try{const typed=bridge.last(m);if((!typed&&!native)||(typed&&native&&typed.rally===native.r&&typed.set===native.set))return typed?{r:typed.rally,set:typed.set}:null}catch(_){}
+  }
+  return native;
 }
 function lastAction(m=active()){
   if(!m)return null;

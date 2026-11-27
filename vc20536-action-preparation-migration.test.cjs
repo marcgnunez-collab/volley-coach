@@ -124,10 +124,10 @@ test('native parse exceptions, rejections and push failures keep original error 
 
 test('V20.5.36 installs a typed preparation boundary and preserves protected writers',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.1');
+ assert.equal(pkg.version,'20.6.2');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20536-action-preparation-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.1'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.2'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.2'));
  assert.ok(sw.includes('scout-action-preparation-20.5.36'));
  assert.ok(read('src/vc2055-entry.ts').includes('installScoutingPreparationBridge(window)'));
  const typed=read('src/domain/scout-action-preparation.ts'),runtime=read('src/domain/scout-action-preparation-runtime.ts');

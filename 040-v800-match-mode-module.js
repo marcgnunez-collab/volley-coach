@@ -137,7 +137,7 @@ function setsScore(m){
   return {us:valid.filter(s=>Number(s.scoreUs)>Number(s.scoreOpponent)&&s.winner!=='opponent').length,
    op:valid.filter(s=>Number(s.scoreOpponent)>Number(s.scoreUs)&&s.winner!=='ours').length};
 }
-function allRallies(m){return arr(m?.sets).flatMap(s=>arr(s.rallies).map(r=>({s,r})))}
+function allRallies(m){const native=arr(m?.sets).flatMap(s=>arr(s.rallies).map(r=>({s,r}))),bridge=window.VC_RALLY_TIMELINE_2062;if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.entries==='function'){try{const typed=bridge.entries(m);if(Array.isArray(typed)&&typed.length===native.length&&typed.every((row,i)=>row.set===native[i].s&&row.rally===native[i].r))return typed.map(row=>({s:row.set,r:row.rally}))}catch(_){}}return native}
 function allActions(m){return allRallies(m).flatMap(x=>arr(x.r.actions).map(a=>({...x,a})))}
 function pct(n,d){return d?Math.round(n*100/d):null}
 function elapsed(m){

@@ -38,6 +38,7 @@ import {installLiveRallyController} from './domain/scout-rally-controller-runtim
 import {installNativeScoreRules} from './domain/scout-native-score-rules-runtime';
 import {installNativeRallyPlan} from './domain/scout-native-rally-plan-runtime';
 import {installSharedMatchContext} from './state/shared-match-context-runtime';
+import {installSharedRallyTimeline} from './state/shared-rally-timeline-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -205,6 +206,9 @@ export {installNativeRallyPlan} from './domain/scout-native-rally-plan-runtime';
 export {captureSharedMatchFrame,isSharedMatchFrameCurrent,selectSharedAnalysisMatch}
  from './state/shared-match-context';
 export {installSharedMatchContext,readSharedMatch} from './state/shared-match-context-runtime';
+export {listClosedRallyRefs,lastClosedRallyRef,listClosedRallies,
+ projectRallyReviewRows,projectRecentRallies} from './state/shared-rally-timeline';
+export {installSharedRallyTimeline} from './state/shared-rally-timeline-runtime';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -250,6 +254,7 @@ if(typeof window!=='undefined'&&window.document){
  installNativeScoreRules(window);
  installNativeRallyPlan(window);
  installSharedMatchContext(window);
+ installSharedRallyTimeline(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
  installScoutTacticalFieldsBridge(window);

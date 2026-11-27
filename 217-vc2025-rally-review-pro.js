@@ -28,12 +28,22 @@
  const state = () => ({open, selected, currentId, filters:{...filters}});
 
  function collect(matchData) {
-  return arr(matchData?.sets).flatMap((set, si) => arr(set?.rallies).map((rally, ri) => ({
+  const native=arr(matchData?.sets).flatMap((set, si) => arr(set?.rallies).map((rally, ri) => ({
    key: `${si}:${ri}:${str(rally?.id ?? '')}`, setIndex: si, rallyIndex: ri,
    setNo: set?.number ?? si + 1, rallyNo: ri + 1, id: rally?.id, rally,
    actions: arr(rally?.actions), winner: rally?.winner || null,
    rotation: rally?.rotationBefore ?? null, before: rally?.scoreBefore, after: rally?.scoreAfter
   })));
+  const bridge=win?.VC_RALLY_TIMELINE_2062;
+  if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.review==='function'){
+   try{const typed=bridge.review(matchData);
+    if(Array.isArray(typed)&&typed.length===native.length&&typed.every((row,i)=>{
+     const source=native[i],keys=Object.keys(source);
+     return row&&Object.keys(row).length===keys.length&&keys.every(key=>Object.is(row[key],source[key]));
+    }))return typed;
+   }catch(_){}
+  }
+  return native;
  }
  function issues(item, parser, matchData) {
   if (!item) return [];

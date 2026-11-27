@@ -143,11 +143,11 @@ test('nested video accessors keep native read counts with no extra TypeScript ac
 
 test('V20.5.50 removes only the duplicate match wrapper and preserves score/video writers',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.6.1');
+ assert.equal(pkg.version,'20.6.2');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20550-match-video-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.6.1'),file);
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(file+'?v=20.6.2'),file);
  assert.ok(sw.includes('match-video-container-20.5.50'));
  assert.ok(source.includes('const v690NormMatchBase=scoutNormalizeMatch'));
  assert.ok(source.includes('v20550MatchVideoReady=true'));
