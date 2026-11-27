@@ -163,10 +163,10 @@ test('missing or early-throwing bridge falls back once; late exceptions never wr
 
 test('V20.5.75 retains one native writer, original rally/undo path, Vite and PWA',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),entry=read('src/vc2055-entry.ts');
- assert.equal(pkg.version,'20.5.80');
+ assert.equal(pkg.version,'20.5.81');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20575-scout-registration-lane.test.cjs'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.5.80'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.80'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.5.81'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.81'));
  assert.ok(read('service-worker.js').includes('scout-registration-lane-20.5.75'));
  assert.ok(entry.includes('installScoutRegistrationLane(window)'));
  assert.equal((source.match(/scoutPushAction=function\(action\)/g)||[]).length,3);

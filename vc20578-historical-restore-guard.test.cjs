@@ -216,10 +216,10 @@ test('two concurrent restore requests do not silently overwrite each other',asyn
 
 test('V20.5.78 PWA, source guard, old sync journal and compatibility remain wired',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.5.80');
+ assert.equal(pkg.version,'20.5.81');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20578-historical-restore-guard.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.80'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.5.80'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.81'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.5.81'));
  assert.ok(read('src/vc2055-entry.ts').includes('installHistoricalRestoreLane(window)'));
  assert.ok(read('service-worker.js').includes('historical-restore-20.5.78'));
  assert.ok(source.includes("scoutV680Backup('rally-edit',true)"));

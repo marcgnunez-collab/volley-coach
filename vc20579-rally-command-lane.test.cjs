@@ -181,10 +181,10 @@ test('historical wrapper never falls back after the bridge already invoked nativ
 
 test('versioned shell, typed export, service worker and foundation suite are wired',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.5.80');
+ assert.equal(pkg.version,'20.5.81');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20579-rally-command-lane.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.80'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.5.80'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.81'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.5.81'));
  assert.ok(read('service-worker.js').includes('rally-command-lane-20.5.79'));
  assert.ok(read('src/vc2055-entry.ts').includes('installRallyCommandLane(window)'));
  assert.ok(source.includes("v20579RunRallyCommand('point'"));
