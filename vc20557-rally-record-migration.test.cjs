@@ -156,9 +156,9 @@ test('the exact shape comparison rejects reordered, missing, extra and getter-ba
 
 test('release publishes the typed record bridge without changing scoring, storage or video owner',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.3');
+ assert.equal(pkg.version,'20.6.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20557-rally-record-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.3'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
  assert.ok(sw.includes('rally-record-20.5.57'));
  assert.ok(monolith.includes("scoutV20557SelectRecord('close',closeSource,nativeRally)"));
  assert.ok(monolith.includes("scoutV20557SelectRecord('restore'"));

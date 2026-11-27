@@ -153,10 +153,10 @@ test('old action video metadata is unchanged by formatting and no user data appe
 
 test('V20.5.42 loads typed effective code formatter without a second writer',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.3');
+ assert.equal(pkg.version,'20.6.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20542-code-format-migration.test.cjs'));
  for(const filename of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(filename+'?v=20.6.3'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(filename+'?v=20.6.4'));
  assert.ok(sw.includes('typed-action-normalizer-20.5.42'));
  const source=read('021-core-scouting-v150-monolithic.js');
  assert.ok(source.includes('v6108SelectFormat(\'contact\''));

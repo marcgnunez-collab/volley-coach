@@ -212,12 +212,12 @@ test('a fresh window can read the same journal after a typed checkpoint and undo
 
 test('release includes typed journal entry with the same native DB, store names and no duplicate write',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.3');
+ assert.equal(pkg.version,'20.6.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20560-indexed-journal-migration.test.cjs'));
  assert.ok(read('src/vc2055-entry.ts').includes('installScoutIndexedJournalBridge(window)'));
  assert.ok(native.includes("const V902_JOURNAL_DB='VolleyCoachScoutJournalV902'"));
  assert.ok(native.includes("V920_JOURNAL_LIVE_STORE='liveRallies'"));
  assert.ok(native.includes("mode:liveOnly?'action-delta':'checkpoint'"));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.3'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
  assert.ok(sw.includes('indexed-journal-20.5.60'));
 });

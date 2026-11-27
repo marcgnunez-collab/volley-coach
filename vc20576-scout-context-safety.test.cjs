@@ -211,11 +211,11 @@ test('public scouting push and every later video wrapper use guarded direct lane
 
 test('version, Vite, public files and unique cache include V20.5.76',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.6.3');
+ assert.equal(pkg.version,'20.6.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20576-scout-context-safety.test.cjs'));
  const html=read('index.html'),entry=read('src/vc2055-entry.ts');
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.3'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.3'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.4'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
  assert.ok(html.includes('SCOUTING MANUAL Y PISTA'));
  assert.ok(entry.includes('installScoutDirectActionLane(window)'));
  assert.ok(read('service-worker.js').includes('scout-context-20.5.76'));

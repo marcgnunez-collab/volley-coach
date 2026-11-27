@@ -40,6 +40,7 @@ import {installNativeRallyPlan} from './domain/scout-native-rally-plan-runtime';
 import {installSharedMatchContext} from './state/shared-match-context-runtime';
 import {installSharedRallyTimeline} from './state/shared-rally-timeline-runtime';
 import {installBootstrapCoordinator} from './state/bootstrap-coordinator';
+import {installRuntimeHealthBridge,mountRuntimeHealthPanel} from './state/runtime-health-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -211,6 +212,8 @@ export {listClosedRallyRefs,lastClosedRallyRef,listClosedRallies,
  projectRallyReviewRows,projectRecentRallies} from './state/shared-rally-timeline';
 export {installSharedRallyTimeline} from './state/shared-rally-timeline-runtime';
 export {installBootstrapCoordinator} from './state/bootstrap-coordinator';
+export {inspectRuntimeHealth} from './state/runtime-health';
+export {installRuntimeHealthBridge,mountRuntimeHealthPanel} from './state/runtime-health-runtime';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -259,6 +262,7 @@ if(typeof window!=='undefined'&&window.document){
  installNativeRallyPlan(window);
  installSharedMatchContext(window);
  installSharedRallyTimeline(window);
+ installRuntimeHealthBridge(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
  installScoutTacticalFieldsBridge(window);
@@ -304,6 +308,7 @@ if(typeof window!=='undefined'&&window.document){
   mountClubRehydrationPanel(window);
   mountPlayerShadowPanel(window);
   mountTrainingShadowPanel(window);
+  mountRuntimeHealthPanel(window);
  }});
  bootstrap.start();
 }

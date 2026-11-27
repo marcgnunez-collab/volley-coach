@@ -143,11 +143,11 @@ test('all effective legacy installers and panel mounts remain inside one ordered
  assert.ok(installers.length>=40,`installed ${installers.length}`);
  assert.equal(new Set(installers).size,installers.length,'No duplicated installers');
  assert.equal(new Set(mounts).size,mounts.length,'No duplicated mounts');
- assert.equal(mounts.length,17);
+ assert.equal(mounts.length,18);
  assert.equal(installers[0],'installTrainingPlanningBridge(window)');
  assert.equal(installers.at(-1),'installAnalysisExportBridge(window)');
  assert.equal(mounts[0],'mountObservablePanel(window)');
- assert.equal(mounts.at(-1),'mountTrainingShadowPanel(window)');
+ assert.equal(mounts.at(-1),'mountRuntimeHealthPanel(window)');
  assert.ok(section.includes('installNativeRallyPlan(window)'));
  assert.ok(section.includes('installSharedMatchContext(window)'));
  assert.ok(section.includes('installSharedRallyTimeline(window)'));
@@ -163,10 +163,10 @@ test('boot coordinator neither stores canonical matches nor owns media or sync w
 
 test('V20.6.3 version, cache, Vite bundle and automation remain wired',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.6.3');
+ assert.equal(pkg.version,'20.6.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2063-bootstrap-coordinator.test.cjs'));
  assert.ok(html.includes('V20.6.3 · ARRANQUE ÚNICO'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.3'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
  assert.ok(read('service-worker.js').includes('single-bootstrap-20.6.3'));
  assert.ok(read('src/vc2055-entry.ts').includes('installBootstrapCoordinator(window'));
  assert.ok(read('vc2055-domain-core.mjs').includes('VC_APP_BOOTSTRAP_2063'));

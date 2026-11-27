@@ -213,10 +213,10 @@ test('failed proof never reveals match IDs, players, codes or storage details in
 
 test('V20.5.18 is exported but remains offline in UI; CAS/native sources are byte-identical',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.3');
+ assert.equal(pkg.version,'20.6.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20518-recovery-guard.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.3'));
- assert.ok(html.includes('vc2055-domain.css?v=20.6.3'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.6.4'));
  assert.ok(sw.includes('recovery-guard-20.5.18'));
  assert.ok(!html.includes('createRallyTransactionPilot('));
  assert.ok(read('src/vc2055-entry.ts').includes('classifyRecoveryEvidence'));
