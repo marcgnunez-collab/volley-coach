@@ -132,7 +132,7 @@ test('real historical CSV exporter delegates, keeps fallback and counts only num
 test('V20.5.26 deployment leaves native writers and storage untouched',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));
  assert.ok(sw.includes('analysis-export-index-20.5.26'));

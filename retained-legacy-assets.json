@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.3",
+  "updatedIn": "20.7.4",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -47,6 +47,17 @@
         "230-vc2050-release-health.js",
         "231-vc2051-scouting-expert.js",
         "232-vc2052-architecture-foundation.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.4",
+      "files": [
+        "202-vc193191-data-contract.js",
+        "203-vc193191-unified-workspace.js",
+        "204-vc193192-domain-adapters.js",
+        "205-vc193192-club-desk.js",
+        "vc193191-professional-workspace.css",
+        "vc193192-professional-club.css"
       ]
     }
   ]

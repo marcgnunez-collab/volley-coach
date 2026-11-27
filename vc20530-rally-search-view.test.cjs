@@ -151,7 +151,7 @@ test('search templates update after a correction and undo, but presets retain cl
 test('V20.5.30 adds modular Rally Search while keeping native scoring, cloud and video untouched',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));
  assert.ok(sw.includes('rally-search-view-20.5.30'));

@@ -71,10 +71,11 @@ test('V20.7.3 loads the new script once but keeps three historical sources for n
  assert.match(sw,/diagnostics-retained-20\.7\.3/);
 });
 
-test('V20.7.3 enumerates all 26 deferred removals without duplicates or active code',()=>{
+test('V20.7.3 historical list remains unchanged while later candidates accumulate',()=>{
  assert.equal(manifest.policy,'KEEP_UNTIL_MIGRATION_FINISHED');
- assert.deepEqual(manifest.groups.map(group=>group.files.length),[10,10,3,3]);
- assert.equal(names.length,26);assert.equal(new Set(names).size,26);
+ assert.deepEqual(manifest.groups.slice(0,4).map(group=>group.files.length),[10,10,3,3]);
+ assert.equal(manifest.groups.slice(0,4).flatMap(group=>group.files).length,26);
+ assert.equal(new Set(names).size,names.length);
  const html=read('index.html'),sw=read('service-worker.js');
  for(const name of names){
   assert.ok(!html.includes(`src="./${name}`),`${name}: no script load`);
@@ -82,15 +83,15 @@ test('V20.7.3 enumerates all 26 deferred removals without duplicates or active c
   assert.ok(!sw.includes(`'./${name}'`),`${name}: no precache`);
  }
  assert.ok(read('MIGRACION_PENDIENTES_DE_BORRADO_V20.7.3.md').includes('NO BORRAR'));
- assert.equal(require('./package.json').version,'20.7.3');
+ assert.equal(require('./package.json').version,'20.7.4');
 });
 
 test('V20.7.3 audit permits only explicitly listed legacy files, and rejects active legacy use',async()=>{
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
  const actual=auditRuntimeAssets(__dirname);
  assert.deepEqual(actual.errors,[]);
- assert.equal(actual.retainedCandidates,26);
- assert.ok(actual.retainedPresent>=3&&actual.retainedPresent<=26,'earlier GitHub files may be retained temporarily');
+ assert.equal(actual.retainedCandidates,names.length);
+ assert.ok(actual.retainedPresent>=3&&actual.retainedPresent<=names.length,'earlier GitHub files may be retained temporarily');
  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'vc2073-retained-'));
  try{
   fs.mkdirSync(path.join(tmp,'scripts'));

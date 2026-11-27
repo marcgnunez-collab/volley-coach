@@ -167,7 +167,7 @@ test('Gestión V65 is manual, does not open DB on mount or ID simulation',async(
 
 test('release V65 keeps live writer intact while exposing both manual checks',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20565-club-recovery.test.cjs'));
  assert.ok(html.includes('id="vc20565-check-recovery" disabled'));
  assert.ok(html.includes('id="vc20565-preview-ids" disabled'));

@@ -195,7 +195,7 @@ test('the real guardarEstadoLocalSinCloud path keeps library and active-team sid
 
 test('release retains the original storage key, quota codec and Vite bridge',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20561-club-local-store-migration.test.cjs'));
  assert.ok(read('src/vc2055-entry.ts').includes('installClubLocalStoreBridge(window)'));
  assert.ok(monolith.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));

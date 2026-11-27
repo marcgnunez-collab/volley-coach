@@ -229,7 +229,7 @@ test('third won set still finalizes match and invokes only the old competition w
 
 test('published shell, source bridge and service worker are updated without changing V20.5.80 controller',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20581-native-scoring-rules.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.7.0'));

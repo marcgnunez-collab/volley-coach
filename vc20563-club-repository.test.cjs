@@ -212,7 +212,7 @@ test('source changes invalidate parity; unsupported data are rejected before any
 test('management exposes a visible, explicitly manual pilot with deletion and original save policy',()=>{
  const entry=read('src/vc2055-entry.ts'),html=read('index.html'),legacy=read('002-core-training-v150-monolithic.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20563-club-repository.test.cjs'));
  assert.ok(html.includes('id="vc20563-club-pilot"'));
  assert.ok(html.includes('id="vc20563-run-pilot" disabled'));

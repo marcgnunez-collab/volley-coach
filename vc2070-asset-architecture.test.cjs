@@ -12,7 +12,7 @@ const audit=()=>import('./scripts/audit-runtime-assets.mjs');
 test('V20.7.0 verifies the full runtime asset graph before production builds',async()=>{
  const {auditRuntimeAssets}=await audit(),out=auditRuntimeAssets(root);
  assert.deepEqual(out.errors,[]);assert.deepEqual(out.unreferenced,[]);
- assert.ok(out.assets>200);assert.ok(out.client>190);assert.ok(out.precache>130);
+ assert.ok(out.assets>200);assert.ok(out.client>190);assert.ok(out.precache>120,'consolidated bundles replace redundant precache entries');
 });
 
 test('asset audit rejects broken HTML, duplicated script ids and orphaned files',async()=>{
@@ -141,7 +141,7 @@ test('offline files that were never cached fail closed instead of returning stal
 test('V20.7.0 release scripts audit assets and GitHub CI watches future regressions',()=>{
  const pkg=JSON.parse(read('package.json')),sw=read('service-worker.js'),html=read('index.html');
  const action=read('.github/workflows/volley-coach-recovery.yml');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2070-asset-architecture.test.cjs'));
  assert.ok(pkg.scripts['audit:assets'].includes('scripts/audit-runtime-assets.mjs'));
  assert.ok(pkg.scripts.prebuild.includes('audit:assets'));

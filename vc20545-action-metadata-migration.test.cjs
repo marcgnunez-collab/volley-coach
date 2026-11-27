@@ -171,7 +171,7 @@ test('missing, corrupt or throwing bridge returns historical fields and timestam
 
 test('V20.5.45 keeps native video, score, source identification and journal writers untouched',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.3');
+ assert.equal(pkg.version,'20.7.4');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20545-action-metadata-migration.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js',
   '077-v132-scouting-pro-workspace.js','vc2055-domain-core.mjs'])
