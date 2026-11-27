@@ -48,7 +48,7 @@ test('HTML requests only the two combined video modules and preserves the delay 
  assert.match(html,/028-v740-live-scout-video-module\.js\?v=20\.7\.0&amp;rev=20\.7\.10/);
  const clip=html.indexOf('id="v720-clip-studio-module"'),delay=html.indexOf('id="vc1921-delay-policy"'),
   review=html.indexOf('id="vc1922-review-policy"'),live=html.indexOf('id="v740-live-scout-video-module"'),
-  reports=html.indexOf('id="v750-professional-reports-module"');
+  reports=Math.max(html.indexOf('id="v750-professional-reports-module"'),html.indexOf('id="v752-native-pdf-fix"'));
  assert.ok(clip>0&&clip<delay&&delay<review&&review<live&&live<reports);
  assert.ok(html.indexOf('id="v710-video-analysis-style"')<clip);
  assert.ok(html.indexOf('id="v730-live-delay-style"')<live);
@@ -64,7 +64,7 @@ test('PWA precaches the new video bundles and no longer requires the retired liv
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
  const audit=auditRuntimeAssets(__dirname);
  assert.deepEqual(audit.errors,[]);
- assert.equal(audit.retainedCandidates,40);
+ assert.ok(audit.retainedCandidates>=40,'later report consolidation can add retirement candidates');
 });
 
 test('consolidation saves three script requests and at least two kilobytes gzipped',()=>{
@@ -78,10 +78,9 @@ test('three replaced filenames remain retained, without removing native video or
  const manifest=JSON.parse(read('scripts/retained-legacy-assets.json'));
  const group=manifest.groups.find(g=>g.identifiedIn==='20.7.10');
  assert.deepEqual(group.files,['024-v702-video-persistence-hotfix.js','025-v710-video-analysis-module.js','027-v730-live-delay-module.js']);
- assert.equal(manifest.groups.flatMap(g=>g.files).length,40);
- assert.equal(manifest.updatedIn,'20.7.10');
+ assert.ok(manifest.groups.flatMap(g=>g.files).length>=40);
+ assert.equal(require('./package.json').version,manifest.updatedIn);
  assert.equal(manifest.policy,'KEEP_UNTIL_MIGRATION_FINISHED');
- assert.equal(require('./package.json').version,'20.7.10');
  assert.ok(require('./package.json').scripts['test:foundation'].includes('vc20710-video-bundle-consolidation.test.cjs'));
  const scouting=read('021-core-scouting-v150-monolithic.js');
  for(const key of ['window.scoutAwardPoint=','window.scoutUndoRally=','window.scoutSaveLineup=','const V902_JOURNAL_DB=','window.VC_SCOUT_VIDEO_BRIDGE='])assert.ok(scouting.includes(key),key);

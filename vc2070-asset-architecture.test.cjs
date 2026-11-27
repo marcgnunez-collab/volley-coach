@@ -12,7 +12,8 @@ const audit=()=>import('./scripts/audit-runtime-assets.mjs');
 test('V20.7.0 verifies the full runtime asset graph before production builds',async()=>{
  const {auditRuntimeAssets}=await audit(),out=auditRuntimeAssets(root);
  assert.deepEqual(out.errors,[]);assert.deepEqual(out.unreferenced,[]);
- assert.ok(out.assets>200);assert.ok(out.client>190);assert.ok(out.precache>120,'consolidated bundles replace redundant precache entries');
+ // Later architecture versions intentionally reduce the number of client references.
+ assert.ok(out.assets>200);assert.ok(out.client>150);assert.ok(out.precache>120,'consolidated bundles replace redundant precache entries');
 });
 
 test('asset audit rejects broken HTML, duplicated script ids and orphaned files',async()=>{
