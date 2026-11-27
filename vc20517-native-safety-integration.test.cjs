@@ -206,7 +206,7 @@ test('failure findings are bounded and omit player, rally, match and video ident
 
 test('release retains the historical native writers, deployment separation and opt-in-only pilot',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20517-native-safety-integration.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));

@@ -103,5 +103,5 @@ test('V20.7.4 retains its original six candidates while later groups accumulate'
  const guide=read('GUIA_V20.7.4_CLUB_WORKSPACE.md');
  assert.ok(guide.includes('No borres ningún archivo'));
  assert.ok(read('MIGRACION_PENDIENTES_DE_BORRADO_V20.7.4.md').includes('32 candidatos'));
- assert.equal(require('./package.json').version,'20.7.5');
+ assert.equal(require('./package.json').version,'20.7.6');
 });

@@ -135,5 +135,5 @@ test('V20.7.2 loads just the one unified tactical script and caches it',()=>{
  assert.match(css,/body\.vc17-shell:not\(\.v158-view-only\) #v11-topbar \.v11-menu-toggle/);
  const deletion=read('ELIMINAR_DE_GITHUB_V20.7.2.txt').split(/\r?\n/).filter(x=>/^\d{3}-.*\.js$/.test(x));
  assert.deepEqual(deletion,originals.map(([file])=>file));
- assert.equal(require('./package.json').version,'20.7.5');
+ assert.equal(require('./package.json').version,'20.7.6');
 });

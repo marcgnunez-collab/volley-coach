@@ -225,7 +225,7 @@ test('all report parts are immutable and the check cannot write match state',asy
 
 test('V20.6.4 application shell, Vite exports and safe read-only policy are wired',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2064-runtime-health.test.cjs'));
  assert.ok(html.includes('V20.6.4 · ESTABILIDAD Y DIAGNÓSTICO'));
  assert.ok(html.includes('id="vc2064-check"'));

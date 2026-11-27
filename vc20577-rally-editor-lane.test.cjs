@@ -315,7 +315,7 @@ test('V840 pro editor routes move, duplicate and insert through guarded typed dr
 
 test('V20.5.77 leaves scoring and synchronization native, publishes Vite and PWA',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20577-rally-editor-lane.test.cjs'));
  assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

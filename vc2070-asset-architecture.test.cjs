@@ -141,7 +141,7 @@ test('offline files that were never cached fail closed instead of returning stal
 test('V20.7.0 release scripts audit assets and GitHub CI watches future regressions',()=>{
  const pkg=JSON.parse(read('package.json')),sw=read('service-worker.js'),html=read('index.html');
  const action=read('.github/workflows/volley-coach-recovery.yml');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2070-asset-architecture.test.cjs'));
  assert.ok(pkg.scripts['audit:assets'].includes('scripts/audit-runtime-assets.mjs'));
  assert.ok(pkg.scripts.prebuild.includes('audit:assets'));

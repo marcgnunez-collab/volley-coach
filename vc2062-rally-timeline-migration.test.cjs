@@ -201,7 +201,7 @@ test('2,000 historical rallies remain ordered and unmodified across all projecti
 
 test('V20.6.2 source, service worker, Vite bundle and changed assets are versioned',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2062-rally-timeline-migration.test.cjs'));
  assert.ok(read('src/vc2055-entry.ts').includes('installSharedRallyTimeline(window)'));
  assert.ok(read('vc2055-domain-core.mjs').includes('VC_RALLY_TIMELINE_2062'));

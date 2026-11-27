@@ -92,7 +92,7 @@ test('typed preview never modifies match, code, scorer or private/cloud records'
 
 test('V20.5.34 is integrated as one read-only classifier, without modifying native writers',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20534-preflight-migration.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2073-diagnostics-unified.js?v=20.7.3'));

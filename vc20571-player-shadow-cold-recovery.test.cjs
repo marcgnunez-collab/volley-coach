@@ -141,7 +141,7 @@ test('concurrent tab lock blocks creating or checking a proof without losing it'
 
 test('V20.5.71 manual cold recovery remains installed after V20.5.72',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20571-player-shadow-cold-recovery.test.cjs'));
  assert.ok(html.includes('id="vc20571-prepare-cold" disabled'));
  assert.ok(html.includes('id="vc20571-verify-cold" disabled'));

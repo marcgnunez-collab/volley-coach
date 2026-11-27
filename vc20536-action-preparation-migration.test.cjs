@@ -124,7 +124,7 @@ test('native parse exceptions, rejections and push failures keep original error 
 
 test('V20.5.36 installs a typed preparation boundary and preserves protected writers',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20536-action-preparation-migration.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.7.0'));

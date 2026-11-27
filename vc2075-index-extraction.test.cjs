@@ -111,5 +111,5 @@ test('V20.7.5 retains five old JS files until final GitHub cleanup',async()=>{
  assert.equal(result.retainedCandidates,37);
  assert.ok(result.retainedPresent>=14&&result.retainedPresent<=37);
  assert.ok(read('GUIA_V20.7.5_EXTRACCION_INDEX.md').includes('No borres ningún archivo'));
- assert.equal(require('./package.json').version,'20.7.5');
+ assert.equal(require('./package.json').version,'20.7.6');
 });

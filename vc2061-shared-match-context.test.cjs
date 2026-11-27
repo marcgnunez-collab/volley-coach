@@ -173,7 +173,7 @@ test('Scouting projection, LIVE and boxscore all use the shared read-through wit
 
 test('V20.6.1 shell, build, service worker and scripts register the shared scope',()=>{
  const packageFile=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(packageFile.version,'20.7.5');
+ assert.equal(packageFile.version,'20.7.6');
  assert.ok(packageFile.scripts['test:foundation'].includes('vc2061-shared-match-context.test.cjs'));
  assert.ok(html.includes('V20.6.1 · ESTADO COMPARTIDO'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

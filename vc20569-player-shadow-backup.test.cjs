@@ -158,7 +158,7 @@ test('Gestion export is manual, pauses writer and checks the exact saved origina
 
 test('release V69 includes export button and retains the original cloud and club writers',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20569-player-shadow-backup.test.cjs'));
  assert.ok(html.includes('id="vc20569-download-players" disabled'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

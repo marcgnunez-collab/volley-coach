@@ -92,7 +92,7 @@ test('V20.7.1 GitHub retire instructions enumerate only the ten old CSS files',(
 
 test('V20.7.1 remains the Vite-enabled, asset-audited incremental release',()=>{
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.7.5');
+ assert.equal(pkg.version,'20.7.6');
  assert.ok(pkg.scripts.prebuild.includes('audit:assets'));
  assert.ok(pkg.scripts['test:foundation'].includes('vc2071-css-consolidation.test.cjs'));
  assert.ok(read('index.html').includes('V20.7.1 · ESTILOS UNIFICADOS'));

@@ -83,7 +83,7 @@ test('V20.7.3 historical list remains unchanged while later candidates accumulat
   assert.ok(!sw.includes(`'./${name}'`),`${name}: no precache`);
  }
  assert.ok(read('MIGRACION_PENDIENTES_DE_BORRADO_V20.7.3.md').includes('NO BORRAR'));
- assert.equal(require('./package.json').version,'20.7.5');
+ assert.equal(require('./package.json').version,'20.7.6');
 });
 
 test('V20.7.3 audit permits only explicitly listed legacy files, and rejects active legacy use',async()=>{
