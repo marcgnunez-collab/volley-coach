@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.11",
+  "updatedIn": "20.7.12",
   "groups": [
     {
       "identifiedIn": "20.7.0",

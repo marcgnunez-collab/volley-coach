@@ -68,7 +68,7 @@ test('report bundle is precached offline, and old script stays a deletion candid
 });
 
 test('new structure cuts HTML source weight and total gzip transfer',()=>{
- assert.ok(Buffer.byteLength(html)<=1771033-33000,'inline report code no longer weighs on index.html');
+ assert.ok(Buffer.byteLength(html)<=1771033-32000,'inline report code remains removed despite new release notes');
  const previous=383873+13098+10566;
  const actual=zlib.gzipSync(Buffer.from(html),{level:9}).length+zlib.gzipSync(Buffer.from(bundle),{level:9}).length;
  assert.ok(previous-actual>=2500,'report consolidation should reduce the total compressed payload by at least 2.5KB');
@@ -79,7 +79,6 @@ test('release retains one native scorer and report PDF writers with explicit ver
  const core=read('021-core-scouting-v150-monolithic.js');
  for(const marker of ['window.scoutAwardPoint=','window.scoutUndoRally=','window.scoutSaveLineup=','const V902_JOURNAL_DB=','window.VC_SCOUT_VIDEO_BRIDGE='])assert.ok(core.includes(marker),marker);
  assert.ok(bundle.includes('v757-final-pdf-router'));
- assert.equal(require('./package.json').version,'20.7.11');
- assert.equal(JSON.parse(read('scripts/retained-legacy-assets.json')).updatedIn,'20.7.11');
+ assert.equal(require('./package.json').version,JSON.parse(read('scripts/retained-legacy-assets.json')).updatedIn);
  assert.ok(require('./package.json').scripts['test:foundation'].includes('vc20711-report-inline-unification.test.cjs'));
 });

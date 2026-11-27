@@ -202,3 +202,5 @@ Actualización incremental sobre V19.3.15 con asociaciones por secuencia de cont
 **Instrucciones y limitaciones:** [`RELEASE_V19.3.16.md`](RELEASE_V19.3.16.md). La prueba real de Supabase con PC y móvil y la prueba completa de partido están pendientes. El ZIP de origen carece de 11 CSS referenciados; no borres los CSS auténticos del repositorio al publicar.
 
 
+> **V20.7.12 · Vistas de análisis desacopladas:** 11 generadores HTML de tendencias, rivales y cruces tácticos pasan del núcleo de Scouting al módulo de presentación existente. El núcleo pierde **20.816 bytes** y no se añade ninguna petición JavaScript. El conjunto HTML + núcleo + vistas suma **1.709 bytes gzip adicionales**: esta fase mejora la separación del código, no la transferencia total. Las pruebas comparan el HTML de los algoritmos originales. **41 candidatos históricos**, sin borrar ninguno. [Guía V20.7.12](GUIA_V20.7.12_VISTAS_ANALISIS.md). Base: **V20.7.11**.
+

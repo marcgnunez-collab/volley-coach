@@ -86,8 +86,8 @@ test('real report helper calculations and final HTML equal original with and wit
 });
 
 test('V20.7.9 refreshes both cached scripts without adding a network request',async()=>{
- assert.match(html,/011-v5115-pdf-rosters-script\.js\?v=16\.0\.2\.1&amp;rev=20\.7\.9/);
- assert.match(html,/021-core-scouting-v150-monolithic\.js\?v=20\.7\.0&amp;rev=20\.7\.9/);
+ assert.match(html,/011-v5115-pdf-rosters-script\.js\?v=16\.0\.2\.1&amp;rev=20\.7\.\d+/);
+ assert.match(html,/021-core-scouting-v150-monolithic\.js\?v=20\.7\.0&amp;rev=20\.7\.\d+/);
  assert.ok(html.indexOf('id="v5115-pdf-rosters-script"')<html.indexOf('id="core-scouting-v150-monolithic"'));
  assert.match(sw,/report-helpers-20\.7\.9/);
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
@@ -97,7 +97,7 @@ test('V20.7.9 refreshes both cached scripts without adding a network request',as
 });
 
 test('migration reduces the main monolith and keeps the version and historical writers consistent',()=>{
- assert.equal(Buffer.byteLength(core),690443);
+ assert.ok(Buffer.byteLength(core)<=690443,'subsequent view migrations must not regrow the monolith');
  assert.ok(Buffer.byteLength(pdf)>49516);
  const manifest=JSON.parse(read('scripts/retained-legacy-assets.json'));
  assert.equal(require('./package.json').version,manifest.updatedIn);

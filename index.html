@@ -4,7 +4,7 @@
 <!-- V17.5.0: scoped CSS cache and critical core preloads; script execution order unchanged. -->
 <link rel="preload" as="script" href="./vc2076-training-catalog-data.js?v=20.7.6">
 <link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=20.7.6">
-<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.9">
+<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.12">
 <script id="vc16060-performance-core">
 /* Performance Core V16.0.6.3: passive, local-only observability. No application state mutation. */
 (()=>{
@@ -739,6 +739,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.12 · VISTAS DE ANÁLISIS MODULARES</small><h3>Once generadores HTML fuera del núcleo de Scouting</h3><p>Las vistas de tendencias del colocador y atacante, el rival y los cruces entre rotaciones pasan al módulo de presentación. El núcleo reduce más de 20 KB sin añadir peticiones, y se conservan el marcador, el vídeo, los guardados y la sincronización originales. Los 41 archivos históricos candidatos seguirán intactos hasta terminar la migración.</p></div><span>Arquitectura · Análisis táctico</span></div>
     <div class="vc2052-title"><div><small>V20.7.11 · INFORMES SIN DUPLICADOS</small><h3>Siete componentes de informes en un único módulo</h3><p>Dos scripts de informes y cinco bloques JavaScript incrustados en HTML se unen conservando su código y secuencia. El HTML pierde unos 34 KB y se elimina una solicitud activa; el conjunto reduce 3,4 KB gzip. Los escritores de puntos, vídeo y nube permanecen iguales. Hay 41 candidatos antiguos para la limpieza futura: no borres archivos todavía.</p></div><span>Arquitectura · Informes y HTML</span></div>
     <div class="vc2052-title"><div><small>V20.7.10 · VÍDEO UNIFICADO</small><h3>Tres solicitudes menos para las herramientas de vídeo</h3><p>Los módulos de persistencia, análisis y clips se cargan juntos, y Live/Delay comparte un segundo bundle con Scouting+Vídeo. Conservamos las cinco implementaciones originales en su orden, sin tocar las escrituras ni los datos. Quedan 40 archivos candidatos para la limpieza final; no borres ninguno en GitHub todavía.</p></div><span>Arquitectura · Vídeo</span></div>
     <div class="vc2052-title"><div><small>V20.7.9 · AYUDANTES DE INFORMES UNIFICADOS</small><h3>26 cálculos de PDF migrados fuera del motor principal</h3><p>El núcleo de Scouting cede otros 15 KB de funciones solo de lectura al módulo de informes ya existente, sin añadir archivos activos. Los informes oficial y profesional conservan sus resultados con y sin rallies. Puntos, Deshacer, vídeo y sincronización siguen en sus rutas originales. Continúan 37 candidatos antiguos: no borres nada en GitHub todavía.</p></div><span>Arquitectura · Informes PDF</span></div>
@@ -3636,7 +3637,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </script>\n
 <style id="v5115-pdf-rosters-style">.match-roster-list{display:flex!important;flex-direction:column!important;gap:7px!important}.match-roster-pro-row{display:grid;grid-template-columns:minmax(190px,1.35fr) minmax(140px,.65fr) minmax(200px,1fr);gap:8px;align-items:center;border:1px solid #e1e6ea;border-radius:9px;padding:9px 10px;background:#fbfcfd;min-width:0}.match-roster-pro-player{min-width:0;color:#243f55}.match-roster-pro-player b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.match-roster-pro-player small{display:block;color:#7d8993;font-size:9px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.match-roster-pro-row select,.match-roster-pro-row input{min-width:0;width:100%;font-size:11px!important;padding:8px 9px!important;border-radius:7px!important}.match-roster-reason.hidden{display:none!important}.match-roster-legend{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 2px}.match-roster-legend span{font-size:9px;padding:4px 7px;border-radius:999px;background:#f2f5f7;color:#667581;border:1px solid #e1e6ea}@media(max-width:760px){.match-roster-pro-row{grid-template-columns:1fr}.match-roster-pro-player b,.match-roster-pro-player small{white-space:normal}.match-roster-pro-row select,.match-roster-pro-row input{font-size:16px!important}}
 </style>
-<script id="v5115-pdf-rosters-script" src="./011-v5115-pdf-rosters-script.js?v=16.0.2.1&amp;rev=20.7.9" data-vc-module="true"></script>
+<script id="v5115-pdf-rosters-script" src="./011-v5115-pdf-rosters-script.js?v=16.0.2.1&amp;rev=20.7.12" data-vc-module="true"></script>
 
 
 <script id="v5116-pdf-summary-patch" src="./012-v5116-pdf-summary-patch.js?v=19.1.0" data-vc-module="true"></script>
@@ -5126,7 +5127,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.9" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.12" data-vc-module="true"></script>
 
 
 
