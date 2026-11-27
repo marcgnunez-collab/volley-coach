@@ -1,8 +1,235 @@
 /* VC2078_SCOUT_REPORT_LAYOUT_BEGIN: exact V7.5.7 HTML bodies, read-only. */
 ;(()=>{
 "use strict";
+/* VC2079_SCOUT_REPORT_HELPERS_BEGIN: 26 original read-only declarations */
+function v2079CreateReportHelpers(ctx){
+const {scoutArr,EQUIPOS,equipoActivo,scoutActionRows,scoutPlayerKey,scoutV61010FullStats,scoutSkillMetric,esc}=ctx;
+/* VC2079_HELPER_BEGIN:v757Pct */
+function v757Pct(n,d){return d?Math.round((Number(n)||0)*100/(Number(d)||0)):0}
+/* VC2079_HELPER_END:v757Pct */
+
+/* VC2079_HELPER_BEGIN:v757Gp */
+function v757Gp(n){n=Number(n)||0;return `${n>0?'+':''}${n}`}
+/* VC2079_HELPER_END:v757Gp */
+
+/* VC2079_HELPER_BEGIN:v757Rows */
+function v757Rows(m,team){return scoutActionRows(m,false).filter(a=>a.team===team)}
+/* VC2079_HELPER_END:v757Rows */
+
+/* VC2079_HELPER_BEGIN:v757SkillRows */
+function v757SkillRows(rows,skill){
+  const a=rows.filter(x=>x.skill===skill),c={'#':0,'+':0,'!':0,'-':0,'/':0,'=':0};
+  a.forEach(x=>c[x.evaluation]=(c[x.evaluation]||0)+1);
+  const total=a.length,perfect=c['#']||0,positive=perfect+(c['+']||0),error=c['=']||0,blocked=c['/']||0;
+  return {total,perfect,positive,error,blocked,posPct:v757Pct(positive,total),excPct:v757Pct(perfect,total),ptsPct:v757Pct(perfect,total),effPct:total?Math.round((perfect-error-blocked)*100/total):0};
+}
+/* VC2079_HELPER_END:v757SkillRows */
+
+/* VC2079_HELPER_BEGIN:v757Impact */
+function v757Impact(m,team,key=null){
+  const all=scoutActionRows(m,false),scope=a=>!key||scoutPlayerKey(a)===key,groups=new Map(),gains=[],losses=[];
+  all.forEach(a=>{const k=`${a.set}:${a.rallyIndex}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(a)});
+  groups.forEach(g=>{
+    g.sort((a,b)=>(Number(a.actionIndex)||0)-(Number(b.actionIndex)||0));
+    const winner=g.find(a=>a.winner)?.winner||'',mine=g.filter(a=>a.team===team);
+    if(winner===team){
+      const point=[...mine].reverse().find(a=>a.evaluation==='#'&&['S','A','B'].includes(a.skill));
+      if(point&&scope(point))gains.push(point);
+    }else if(winner&&winner!==team){
+      const last=mine[mine.length-1];
+      if(last&&scope(last)&&(last.evaluation==='='||(last.skill==='A'&&last.evaluation==='/')))losses.push(last);
+    }
+  });
+  return {won:gains.length,lost:losses.length,gp:gains.length-losses.length,fp:gains.filter(a=>a.servingBefore===team).length};
+}
+/* VC2079_HELPER_END:v757Impact */
+
+/* VC2079_HELPER_BEGIN:v757PlayerStats */
+function v757PlayerStats(m,team){
+  /* V9.6.1: player rows and team totals share the same CLOSED-rally dataset. */
+  const data=scoutV61010FullStats(m,team,false);
+  return data.players.map(st=>{
+    const s=scoutSkillMetric(st,'S'),r=scoutSkillMetric(st,'R'),a=scoutSkillMetric(st,'A'),b=scoutSkillMetric(st,'B'),d=scoutSkillMetric(st,'D'),e=scoutSkillMetric(st,'E'),p=v757Impact(m,team,st.key);
+    return {...st,_s:s,_r:r,_a:a,_b:b,_d:d,_e:e,_p:p};
+  });
+}
+/* VC2079_HELPER_END:v757PlayerStats */
+
+/* VC2079_HELPER_BEGIN:v757PhaseAttack */
+function v757PhaseAttack(seqRows,kind){
+  let rows=[];
+  if(kind==='positive')rows=seqRows.filter(x=>x.phase==='K1'&&['#','+'].includes(x.receptionEval)&&x.attackEval);
+  if(kind==='negative')rows=seqRows.filter(x=>x.phase==='K1'&&!['#','+'].includes(x.receptionEval)&&x.attackEval);
+  if(kind==='counter')rows=seqRows.filter(x=>x.phase==='K2'&&x.attackEval);
+  const pts=rows.filter(x=>x.attackEval==='#').length,err=rows.filter(x=>x.attackEval==='=').length,blq=rows.filter(x=>x.attackEval==='/').length;
+  return {total:rows.length,pts,err,blq,pct:v757Pct(pts,rows.length),eff:rows.length?Math.round((pts-err-blq)*100/rows.length):0};
+}
+/* VC2079_HELPER_END:v757PhaseAttack */
+
+/* VC2079_HELPER_BEGIN:v757SetStats */
+function v757SetStats(m,team,setNo){
+  const rows=v757Rows(m,team).filter(a=>Number(a.set)===Number(setNo));
+  return {s:v757SkillRows(rows,'S'),r:v757SkillRows(rows,'R'),a:v757SkillRows(rows,'A'),b:v757SkillRows(rows,'B')};
+}
+/* VC2079_HELPER_END:v757SetStats */
+
+/* VC2079_HELPER_BEGIN:v757Safe */
+function v757Safe(v){return esc(String(v??''))}
+/* VC2079_HELPER_END:v757Safe */
+
+/* VC2079_HELPER_BEGIN:v757TableTeam */
+function v757TableTeam(m,team){
+  const name=team==='ours'?EQUIPOS[equipoActivo].nombre:(m.opponent||'Rival'),players=v757PlayerStats(m,team),rows=v757Rows(m,team),tot=v757Impact(m,team),
+    ts=v757SkillRows(rows,'S'),tr=v757SkillRows(rows,'R'),ta=v757SkillRows(rows,'A'),tb=v757SkillRows(rows,'B');
+  const body=players.map(st=>`<tr>
+    <td class="name">${v757Safe(st.label)}</td>
+    <td>${st._p.won||'·'}</td><td>${st._p.fp||'·'}</td><td class="gp">${v757Gp(st._p.gp)}</td>
+    <td>${st._s.total||'·'}</td><td>${st._s.total?st._s.error:'·'}</td><td>${st._s.total?st._s.perfect:'·'}</td>
+    <td>${st._r.total||'·'}</td><td>${st._r.total?st._r.error:'·'}</td><td>${st._r.total?st._r.posPct+'%':'·'}</td><td>${st._r.total?'('+st._r.perfPct+'%)':'·'}</td>
+    <td>${st._a.total||'·'}</td><td>${st._a.total?st._a.error:'·'}</td><td>${st._a.total?st._a.veryNegative:'·'}</td><td>${st._a.total?st._a.perfect:'·'}</td><td>${st._a.total?st._a.perfPct+'%':'·'}</td>
+    <td>${st._b.total?st._b.perfect:'·'}</td>
+  </tr>`).join('');
+  const sets=scoutArr(m.sets).map(set=>{
+    const x=v757SetStats(m,team,set.number);
+    const sr=scoutArr(set.rallies),won=sr.filter(r=>r.winner===team);
+    const serve=won.filter(r=>scoutArr(r.actions).some(a=>a.team===team&&a.skill==='S'&&a.evaluation==='#')).length;
+    const attack=won.filter(r=>scoutArr(r.actions).some(a=>a.team===team&&a.skill==='A'&&a.evaluation==='#')).length;
+    const block=won.filter(r=>scoutArr(r.actions).some(a=>a.team===team&&a.skill==='B'&&a.evaluation==='#')).length;
+    const oppErr=Math.max(0,won.length-serve-attack-block);
+    return `<tr><td><b>Set ${set.number}</b></td><td>${serve||'·'}</td><td>${attack||'·'}</td><td>${block||'·'}</td><td>${oppErr||'·'}</td><td>${x.s.total||'·'}</td><td>${x.s.error||'·'}</td><td>${x.s.perfect||'·'}</td><td>${x.r.total||'·'}</td><td>${x.r.error||'·'}</td><td>${x.r.total?x.r.posPct+'%':'·'}</td><td>${x.r.total?'('+x.r.excPct+'%)':'·'}</td><td>${x.a.total||'·'}</td><td>${x.a.error||'·'}</td><td>${x.a.blocked||'·'}</td><td>${x.a.perfect||'·'}</td><td>${x.a.total?x.a.ptsPct+'%':'·'}</td><td>${x.b.perfect||'·'}</td></tr>`;
+  }).join('');
+  return `<section class="v757-team"><h2>${v757Safe(name)}</h2>
+  <table><thead><tr><th rowspan="2" class="name">Jugador</th><th colspan="3">Puntos</th><th colspan="3">Saque</th><th colspan="4">Recepción</th><th colspan="5">Ataque</th><th>BLQ</th></tr>
+  <tr><th>Tot</th><th>FP</th><th>G-P</th><th>Tot</th><th>Err</th><th>Pts</th><th>Tot</th><th>Err</th><th>Pos%</th><th>Exc%</th><th>Tot</th><th>Err</th><th>Blq</th><th>Pts</th><th>Pts%</th><th>Pts</th></tr></thead>
+  <tbody>${body}<tr class="total"><td class="name">Totales jugadores</td><td>${tot.won}</td><td>${tot.fp}</td><td class="gp">${v757Gp(tot.gp)}</td><td>${ts.total}</td><td>${ts.error}</td><td>${ts.perfect}</td><td>${tr.total}</td><td>${tr.error}</td><td>${tr.total?tr.posPct+'%':'·'}</td><td>${tr.total?'('+tr.excPct+'%)':'·'}</td><td>${ta.total}</td><td>${ta.error}</td><td>${ta.blocked}</td><td>${ta.perfect}</td><td>${ta.total?ta.ptsPct+'%':'·'}</td><td>${tb.perfect}</td></tr></tbody></table>
+  <table class="sets"><thead><tr><th></th><th>Saq</th><th>Att</th><th>BLQ</th><th>Er.Ad.</th><th>Saq T</th><th>Err</th><th>Pts</th><th>Rec T</th><th>Err</th><th>Pos%</th><th>Exc%</th><th>Atq T</th><th>Err</th><th>Blq</th><th>Pts</th><th>Pts%</th><th>BLQ</th></tr></thead><tbody>${sets}</tbody></table>
+  </section>`;
+}
+/* VC2079_HELPER_END:v757TableTeam */
+
+/* VC2079_HELPER_BEGIN:v890PdfRows */
+function v890PdfRows(m,team,skill){return scoutActionRows(m,false).filter(a=>a.team===team&&(!skill||a.skill===skill))}
+/* VC2079_HELPER_END:v890PdfRows */
+
+/* VC2079_HELPER_BEGIN:v890PdfPct */
+function v890PdfPct(n,d){return d?Math.round(Number(n||0)*100/d):0}
+/* VC2079_HELPER_END:v890PdfPct */
+
+/* VC2079_HELPER_BEGIN:v890PdfTop */
+function v890PdfTop(rows,getter){
+  const map=new Map();rows.forEach(a=>{const k=String(getter(a)||'').trim();if(k)map.set(k,(map.get(k)||0)+1)});
+  return [...map.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+}
+/* VC2079_HELPER_END:v890PdfTop */
+
+/* VC2079_HELPER_BEGIN:v890PdfOutcome */
+function v890PdfOutcome(rows){
+  const pts=rows.filter(a=>a.evaluation==='#').length,err=rows.filter(a=>a.evaluation==='=').length,blk=rows.filter(a=>a.evaluation==='/').length;
+  return {pts,err,blk,kill:v890PdfPct(pts,rows.length),eff:rows.length?Math.round((pts-err-blk)*100/rows.length):0};
+}
+/* VC2079_HELPER_END:v890PdfOutcome */
+
+/* VC2079_HELPER_BEGIN:v890PdfRecSubtype */
+function v890PdfRecSubtype(m,team){
+  const rows=v890PdfRows(m,team,'R'),labels={L:'On left',R:'On right',LOW:'Low',OH:'Overhand',MID:'Middle line','':'Sin tipo'};
+  return ['L','R','LOW','OH','MID',''].map(k=>{
+    const rr=rows.filter(a=>String(a.skillSubtype||'')===k),pos=rr.filter(a=>['#','+'].includes(a.evaluation)).length,
+      exc=rr.filter(a=>a.evaluation==='#').length,err=rr.filter(a=>a.evaluation==='=').length,so=rr.filter(a=>a.winner===team).length;
+    return {key:k,label:labels[k],total:rr.length,pos:v890PdfPct(pos,rr.length),exc:v890PdfPct(exc,rr.length),err,so:v890PdfPct(so,rr.length),
+      contact:v890PdfTop(rr,a=>a.contactZone||a.endZone||a.startZone),source:v890PdfTop(rr,a=>a.dvStartZone)};
+  }).filter(x=>x.total);
+}
+/* VC2079_HELPER_END:v890PdfRecSubtype */
+
+/* VC2079_HELPER_BEGIN:v890PdfSetTempo */
+function v890PdfSetTempo(m,team){
+  const rows=v890PdfRows(m,team,'E'),labs={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other','':'Sin tempo'};
+  return ['Q','U','T','M','H','O',''].map(k=>{
+    const rr=rows.filter(a=>String(a.setTempo||'')===k),good=rr.filter(a=>['#','+'].includes(a.evaluation)).length,bad=rr.filter(a=>['-','/','='].includes(a.evaluation)).length;
+    return {key:k,label:k?`${k} · ${labs[k]}`:labs[k],total:rr.length,use:v890PdfPct(rr.length,rows.length),gp:good-bad,
+      call:v890PdfTop(rr,a=>a.setterCall),target:v890PdfTop(rr,a=>a.setTarget),type:v890PdfTop(rr,a=>a.dvSetType)};
+  }).filter(x=>x.total);
+}
+/* VC2079_HELPER_END:v890PdfSetTempo */
+
+/* VC2079_HELPER_BEGIN:v890PdfAttackTempo */
+function v890PdfAttackTempo(m,team){
+  const rows=v890PdfRows(m,team,'A'),labs={Q:'Quick',U:'Super',T:'Fast',M:'Medium',H:'High',O:'Other','':'Sin tempo'};
+  return ['Q','U','T','M','H','O',''].map(k=>{
+    const rr=rows.filter(a=>String(a.attackTempo||'')===k),o=v890PdfOutcome(rr);
+    return {key:k,label:k?`${k} · ${labs[k]}`:labs[k],total:rr.length,use:v890PdfPct(rr.length,rows.length),...o,
+      code:v890PdfTop(rr,a=>a.attackCode),sub:v890PdfTop(rr,a=>a.skillSubtype),dest:v890PdfTop(rr,a=>a.endCone?`C${a.endCone}`:(a.startZone&&a.endZone?`${a.startZone}→${a.endZone}`:a.endZone))};
+  }).filter(x=>x.total);
+}
+/* VC2079_HELPER_END:v890PdfAttackTempo */
+
+/* VC2079_HELPER_BEGIN:v890PdfAttackCodes */
+function v890PdfAttackCodes(m,team){
+  const rows=v890PdfRows(m,team,'A'),map=new Map();rows.forEach(a=>{const k=String(a.attackCode||'Sin code');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,total:rr.length,use:v890PdfPct(rr.length,rows.length),...v890PdfOutcome(rr),
+    tempo:v890PdfTop(rr,a=>a.attackTempo),sub:v890PdfTop(rr,a=>a.skillSubtype),dest:v890PdfTop(rr,a=>a.endCone?`C${a.endCone}`:(a.startZone&&a.endZone?`${a.startZone}→${a.endZone}`:a.endZone))})).sort((a,b)=>b.total-a.total);
+}
+/* VC2079_HELPER_END:v890PdfAttackCodes */
+
+/* VC2079_HELPER_BEGIN:v890PdfSimpleGroups */
+function v890PdfSimpleGroups(m,team,skill,field){
+  const rows=v890PdfRows(m,team,skill),map=new Map();rows.forEach(a=>{const k=String(a?.[field]||'Sin dato');if(!map.has(k))map.set(k,[]);map.get(k).push(a)});
+  return [...map.entries()].map(([key,rr])=>({key,total:rr.length,use:v890PdfPct(rr.length,rows.length),...v890PdfOutcome(rr)})).sort((a,b)=>b.total-a.total);
+}
+/* VC2079_HELPER_END:v890PdfSimpleGroups */
+
+/* VC2079_HELPER_BEGIN:v961Rows */
+function v961Rows(m,team,skill=''){return scoutActionRows(m,false).filter(a=>a.team===team&&(!skill||a.skill===skill))}
+/* VC2079_HELPER_END:v961Rows */
+
+/* VC2079_HELPER_BEGIN:v961Pct */
+function v961Pct(n,d){return d?Math.round(Number(n||0)*100/Number(d||0)):0}
+/* VC2079_HELPER_END:v961Pct */
+
+/* VC2079_HELPER_BEGIN:v961Group */
+function v961Group(rows,getter){
+  const map=new Map();scoutArr(rows).forEach(a=>{const key=String(getter(a)||'').trim()||'Sin dato';if(!map.has(key))map.set(key,[]);map.get(key).push(a)});
+  return [...map.entries()].map(([key,rr])=>{const pts=rr.filter(a=>a.evaluation==='#').length,err=rr.filter(a=>a.evaluation==='=').length,blk=rr.filter(a=>a.evaluation==='/').length;return {key,total:rr.length,pct:v961Pct(rr.length,rows.length),pts,err,blk,eff:rr.length?Math.round((pts-err-blk)*100/rr.length):0}}).sort((a,b)=>b.total-a.total)
+}
+/* VC2079_HELPER_END:v961Group */
+
+/* VC2079_HELPER_BEGIN:v961Coverage */
+function v961Coverage(m,team){
+  const all=v961Rows(m,team),spec=[
+    ['Código visible',all,a=>a.code],['Jugador identificado',all,a=>a.playerId||a.playerLabel||a.playerNameSnapshot],['Zona/contacto',all,a=>a.contactZone||a.startZone||a.endZone],['Coordenadas exactas',all,a=>a.startCoordinate||a.endCoordinate||a.contactCoordinate],['Fase VC',all,a=>a.phase],['Fase DataVolley',all,a=>a.dvPhase||a.dvPointPhase||a.dvAttackPhase],
+    ['Recepción subtype',all.filter(a=>a.skill==='R'),a=>a.skillSubtype],['Saque recibido',all.filter(a=>a.skill==='R'),a=>a.receivedServeType],['Origen recepción DV',all.filter(a=>a.skill==='R'),a=>a.dvStartZone],
+    ['Setter call',all.filter(a=>a.skill==='E'),a=>a.setterCall],['Tempo colocación',all.filter(a=>a.skill==='E'),a=>a.setTempo],['Set type',all.filter(a=>a.skill==='E'),a=>a.dvSetType],['Gesto colocación',all.filter(a=>a.skill==='E'),a=>a.skillSubtype],
+    ['Attack code',all.filter(a=>a.skill==='A'),a=>a.attackCode],['Tempo ataque',all.filter(a=>a.skill==='A'),a=>a.attackTempo],['Tipo ataque',all.filter(a=>a.skill==='A'),a=>a.skillSubtype],['Dirección ataque',all.filter(a=>a.skill==='A'),a=>a.attackDirection],['Destino zona/cono',all.filter(a=>a.skill==='A'),a=>a.endCone||a.dvEndCone||a.dvEndSubzone||a.endZone],
+    ['Bloqueo subtype',all.filter(a=>a.skill==='B'),a=>a.skillSubtype],['Tamaño bloqueo',all.filter(a=>a.skill==='B'),a=>a.blockers],['Atacante objetivo',all.filter(a=>a.skill==='B'),a=>a.blockTargetNumber||a.blockTargetLabel],['Vídeo enlazado',all,a=>a.videoTime!=null||a.videoAction!=null||a.videoStart!=null]
+  ];
+  return spec.map(([label,rows,getter])=>{const total=rows.length,coded=rows.filter(a=>!!getter(a)).length;return {label,total,coded,pct:v961Pct(coded,total)}})
+}
+/* VC2079_HELPER_END:v961Coverage */
+
+/* VC2079_HELPER_BEGIN:v961Integrity */
+function v961Integrity(m){
+  const closed=scoutActionRows(m,false),all=scoutActionRows(m,true),live=all.filter(a=>a.live),issues=[];
+  const rawClosed=scoutArr(m?.sets).reduce((n,s)=>n+scoutArr(s?.rallies).reduce((x,r)=>x+scoutArr(r?.actions).length,0),0);
+  if(closed.length!==rawClosed)issues.push(`Acciones cerradas: filas ${closed.length} ≠ datos ${rawClosed}.`);
+  ['ours','opponent'].forEach(team=>{const rows=closed.filter(a=>a.team===team),data=scoutV61010FullStats(m,team,false),playerTotal=data.players.reduce((n,p)=>n+Number(p.total||0),0);if(data.rows.length!==rows.length)issues.push(`${team}: motor análisis ${data.rows.length} ≠ filas ${rows.length}.`);if(playerTotal!==rows.length)issues.push(`${team}: suma jugadores ${playerTotal} ≠ filas ${rows.length}.`)});
+  const ids=closed.map(a=>String(a.uid||a.id||'')).filter(Boolean),duplicates=ids.length-new Set(ids).size;if(duplicates)issues.push(`${duplicates} identificadores de acción duplicados.`);
+  const invalid=closed.filter(a=>!['ours','opponent'].includes(a.team)||!['S','R','E','A','B','D','F','C'].includes(a.skill)||!['#','+','!','-','/','='].includes(a.evaluation));if(invalid.length)issues.push(`${invalid.length} acciones con team/skill/evaluation inválido.`);
+  return {closedActions:closed.length,liveActions:live.length,rallies:scoutArr(m?.sets).reduce((n,s)=>n+scoutArr(s?.rallies).length,0),issues,ok:issues.length===0,ours:v961Coverage(m,'ours'),opponent:v961Coverage(m,'opponent')}
+}
+/* VC2079_HELPER_END:v961Integrity */
+
+/* VC2079_HELPER_BEGIN:v961CoverageTable */
+function v961CoverageTable(rows){return `<table class="tbl"><thead><tr><th>Campo</th><th>Cod.</th><th>Tot</th><th>Cobertura</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${v757Safe(x.label)}</b></td><td>${x.coded}</td><td>${x.total}</td><td>${x.total?x.pct+'%':'—'}</td></tr>`).join('')}</tbody></table>`}
+/* VC2079_HELPER_END:v961CoverageTable */
+
+/* VC2079_HELPER_BEGIN:v961GroupTable */
+function v961GroupTable(rows,label){return `<table class="tbl"><thead><tr><th>${v757Safe(label)}</th><th>Tot</th><th>Uso</th><th>Pts</th><th>Err</th><th>Blq</th><th>EFF</th></tr></thead><tbody>${rows.slice(0,12).map(x=>`<tr><td><b>${v757Safe(x.key)}</b></td><td>${x.total}</td><td>${x.pct}%</td><td>${x.pts}</td><td>${x.err}</td><td>${x.blk}</td><td>${x.eff}%</td></tr>`).join('')||'<tr><td colspan="7">Sin datos codificados.</td></tr>'}</tbody></table>`}
+/* VC2079_HELPER_END:v961GroupTable */
+return {v757Pct,v757Gp,v757Rows,v757SkillRows,v757Impact,v757PlayerStats,v757PhaseAttack,v757SetStats,v757Safe,v757TableTeam,v890PdfRows,v890PdfPct,v890PdfTop,v890PdfOutcome,v890PdfRecSubtype,v890PdfSetTempo,v890PdfAttackTempo,v890PdfAttackCodes,v890PdfSimpleGroups,v961Rows,v961Pct,v961Group,v961Coverage,v961Integrity,v961CoverageTable,v961GroupTable};
+}
+/* VC2079_SCOUT_REPORT_HELPERS_END */
 /* VC2078_FN_BEGIN:v757OfficialHTML */
-function v757OfficialHTML(m,ctx){const {scoutAnalysis,scoutSetsScore,scoutSequenceSummary,scoutArr,scoutDistributionRows,v757Safe,v757TableTeam,v757Gp,v757Rows,v757SkillRows,v757Pct,v757PhaseAttack,v757PlayerStats,v757SetStats,v961Group,v961Rows,v961GroupTable,v961CoverageTable,v961Integrity,v890PdfSimpleGroups,v890PdfRecSubtype,v890PdfSetTempo,v890PdfAttackTempo,v890PdfAttackCodes,EQUIPOS,equipoActivo}=ctx;
+function v757OfficialHTML(m,ctx){const {scoutAnalysis,scoutSetsScore,scoutSequenceSummary,scoutArr,scoutDistributionRows,v757Safe,v757TableTeam,v757Gp,v757Rows,v757SkillRows,v757Pct,v757PhaseAttack,v757PlayerStats,v757SetStats,v961Group,v961Rows,v961GroupTable,v961CoverageTable,v961Integrity,v890PdfSimpleGroups,v890PdfRecSubtype,v890PdfSetTempo,v890PdfAttackTempo,v890PdfAttackCodes,EQUIPOS,equipoActivo}={...ctx,...v2079CreateReportHelpers(ctx)};
 
   const score=scoutSetsScore(m),a=scoutAnalysis(m),ours=scoutSequenceSummary(m,'ours'),opp=scoutSequenceSummary(m,'opponent'),
     op=v757PhaseAttack(ours.rows,'positive'),on=v757PhaseAttack(ours.rows,'negative'),oc=v757PhaseAttack(ours.rows,'counter'),
@@ -31,7 +258,7 @@ function v757OfficialHTML(m,ctx){const {scoutAnalysis,scoutSetsScore,scoutSequen
 }
 /* VC2078_FN_END:v757OfficialHTML */
 /* VC2078_FN_BEGIN:v757ProPages */
-function v757ProPages(m,ctx){const {scoutAnalysis,scoutSetsScore,scoutSequenceSummary,scoutArr,scoutDistributionRows,v757Safe,v757TableTeam,v757Gp,v757Rows,v757SkillRows,v757Pct,v757PhaseAttack,v757PlayerStats,v757SetStats,v961Group,v961Rows,v961GroupTable,v961CoverageTable,v961Integrity,v890PdfSimpleGroups,v890PdfRecSubtype,v890PdfSetTempo,v890PdfAttackTempo,v890PdfAttackCodes,EQUIPOS,equipoActivo}=ctx;
+function v757ProPages(m,ctx){const {scoutAnalysis,scoutSetsScore,scoutSequenceSummary,scoutArr,scoutDistributionRows,v757Safe,v757TableTeam,v757Gp,v757Rows,v757SkillRows,v757Pct,v757PhaseAttack,v757PlayerStats,v757SetStats,v961Group,v961Rows,v961GroupTable,v961CoverageTable,v961Integrity,v890PdfSimpleGroups,v890PdfRecSubtype,v890PdfSetTempo,v890PdfAttackTempo,v890PdfAttackCodes,EQUIPOS,equipoActivo}={...ctx,...v2079CreateReportHelpers(ctx)};
 
   const a=scoutAnalysis(m),score=scoutSetsScore(m),ours=v757Rows(m,'ours'),rival=v757Rows(m,'opponent'),
     os=v757SkillRows(ours,'S'),or=v757SkillRows(ours,'R'),oa=v757SkillRows(ours,'A'),ob=v757SkillRows(ours,'B'),
