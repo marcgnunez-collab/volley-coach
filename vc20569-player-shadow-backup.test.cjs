@@ -158,10 +158,10 @@ test('Gestion export is manual, pauses writer and checks the exact saved origina
 
 test('release V69 includes export button and retains the original cloud and club writers',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.6.2');
+ assert.equal(pkg.version,'20.6.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20569-player-shadow-backup.test.cjs'));
  assert.ok(html.includes('id="vc20569-download-players" disabled'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.2'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.3'));
  assert.ok(read('src/vc2055-entry.ts').includes('preparePlayerShadowBackup'));
  assert.ok(read('service-worker.js').includes('player-shadow-backup-20.5.69'));
  assert.ok(read('002-core-training-v150-monolithic.js').includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));

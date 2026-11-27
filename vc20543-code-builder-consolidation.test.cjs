@@ -134,10 +134,10 @@ test('complex modifier tokens and malformed values match original wrappers',asyn
 
 test('V20.5.43 publishes one final wrapper, no replacement of action writes or match state',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.2');
+ assert.equal(pkg.version,'20.6.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20543-code-builder-consolidation.test.cjs'));
  for(const filename of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
-  'vc2055-domain-core.mjs'])assert.ok(html.includes(filename+'?v=20.6.2'));
+  'vc2055-domain-core.mjs'])assert.ok(html.includes(filename+'?v=20.6.3'));
  assert.ok(sw.includes('code-builder-consolidation-20.5.43'));
  assert.ok(!source.includes('const v840BuildBase='));
  assert.ok(!source.includes('const v870BuildBase='));

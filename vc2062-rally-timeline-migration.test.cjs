@@ -201,14 +201,14 @@ test('2,000 historical rallies remain ordered and unmodified across all projecti
 
 test('V20.6.2 source, service worker, Vite bundle and changed assets are versioned',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.6.2');
+ assert.equal(pkg.version,'20.6.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2062-rally-timeline-migration.test.cjs'));
  assert.ok(read('src/vc2055-entry.ts').includes('installSharedRallyTimeline(window)'));
  assert.ok(read('vc2055-domain-core.mjs').includes('VC_RALLY_TIMELINE_2062'));
  assert.ok(html.includes('V20.6.2 · HISTORIAL ÚNICO DE RALLIES'));
  for(const name of ['028-v740-live-scout-video-module.js','040-v800-match-mode-module.js',
   '212-vc2020-match-workspace.js','217-vc2025-rally-review-pro.js'])
-  assert.ok(html.includes(name+'?v=20.6.2'),name);
+  assert.ok(html.includes(name+'?v=20.6.3'),name);
  assert.ok(read('service-worker.js').includes('shared-rally-timeline-20.6.2'));
  const src=read('src/state/shared-rally-timeline.ts')+read('src/state/shared-rally-timeline-runtime.ts');
  for(const forbidden of ['scoutSave(','.rallies.push(','.rallies.pop(',

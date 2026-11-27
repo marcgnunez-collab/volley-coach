@@ -39,6 +39,7 @@ import {installNativeScoreRules} from './domain/scout-native-score-rules-runtime
 import {installNativeRallyPlan} from './domain/scout-native-rally-plan-runtime';
 import {installSharedMatchContext} from './state/shared-match-context-runtime';
 import {installSharedRallyTimeline} from './state/shared-rally-timeline-runtime';
+import {installBootstrapCoordinator} from './state/bootstrap-coordinator';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -209,6 +210,7 @@ export {installSharedMatchContext,readSharedMatch} from './state/shared-match-co
 export {listClosedRallyRefs,lastClosedRallyRef,listClosedRallies,
  projectRallyReviewRows,projectRecentRallies} from './state/shared-rally-timeline';
 export {installSharedRallyTimeline} from './state/shared-rally-timeline-runtime';
+export {installBootstrapCoordinator} from './state/bootstrap-coordinator';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -233,6 +235,8 @@ export {installMatchFinalizationBridge};
 export {readCanonicalMatch,readCanonicalLiveActions,canonicalReaders};
 
 if(typeof window!=='undefined'&&window.document){
+ const bootstrap=installBootstrapCoordinator(window,{
+ installBridges:()=>{
  installTrainingPlanningBridge(window);
  installScoutingDraftBridge(window);
  installScoutingPreflightBridge(window);
@@ -281,7 +285,25 @@ if(typeof window!=='undefined'&&window.document){
  installAnalysisNormalizeBridge(window);
  installAnalysisOperationsBridge(window);
  installAnalysisExportBridge(window);
- const start=()=>{mountObservablePanel(window);mountScoutingProjectionStore(window);mountAnalysisQueryPerformance(window);mountDomainDiagnostic(window);mountShadowPanel(window);mountCommittedPanel(window);mountGrammarPanel(window);mountLiveStatisticsPanel(window);mountPlayerBoxscore(window);mountRallyShadowPanel(window);mountMultiDevicePanel(window);mountClubPilotPanel(window);mountClubEntityPanel(window);mountClubRecoveryPanel(window);mountClubRehydrationPanel(window);mountPlayerShadowPanel(window);mountTrainingShadowPanel(window);};
- if(window.document.readyState==='loading')window.document.addEventListener('DOMContentLoaded',start,{once:true});
- else start();
+ },
+ mountUi:()=>{
+  mountObservablePanel(window);
+  mountScoutingProjectionStore(window);
+  mountAnalysisQueryPerformance(window);
+  mountDomainDiagnostic(window);
+  mountShadowPanel(window);
+  mountCommittedPanel(window);
+  mountGrammarPanel(window);
+  mountLiveStatisticsPanel(window);
+  mountPlayerBoxscore(window);
+  mountRallyShadowPanel(window);
+  mountMultiDevicePanel(window);
+  mountClubPilotPanel(window);
+  mountClubEntityPanel(window);
+  mountClubRecoveryPanel(window);
+  mountClubRehydrationPanel(window);
+  mountPlayerShadowPanel(window);
+  mountTrainingShadowPanel(window);
+ }});
+ bootstrap.start();
 }

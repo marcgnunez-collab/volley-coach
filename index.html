@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <!-- V17.5.0: scoped CSS cache and critical core preloads; script execution order unchanged. -->
-<link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=20.6.2">
-<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.6.2">
+<link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=20.6.3">
+<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.6.3">
 <script id="vc16060-performance-core">
 /* Performance Core V16.0.6.3: passive, local-only observability. No application state mutation. */
 (()=>{
@@ -738,6 +738,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.6.3 · ARRANQUE ÚNICO</small><h3>Un solo inicio para los módulos y paneles TypeScript</h3><p>El coordinador de arranque instala los adaptadores en su orden original y monta una sola vez los paneles al estar listo el documento. Detecta recargas duplicadas y detiene los reintentos tras un fallo parcial, sin crear nuevos escritores, partidos ni conexiones de sincronización.</p></div><span>Reestructuración · Bloque 4</span></div>
     <div class="vc2052-title"><div><small>V20.6.2 · HISTORIAL ÚNICO DE RALLIES</small><h3>Scouting, Match Mode, Revisión y Vídeo comparten el recorrido de rallies</h3><p>El historial se proyecta mediante un único módulo TypeScript de solo lectura, con comprobación de paridad y respaldo histórico en cada pantalla. Se conservan referencias, índices, tiempos de vídeo verificados, tanteos y escritor nativo.</p></div><span>Reestructuración · Bloque 3</span></div>
     <div class="vc2052-title"><div><small>V20.6.1 · ESTADO COMPARTIDO</small><h3>Scouting, Análisis y Vídeo leen el mismo partido</h3><p>Una capa TypeScript consulta el partido y set nativos sin duplicarlos. Los lectores efectivos comprueban identidad con los resultados históricos y conservan su respaldo si hay diferencias. El marcador, las acciones, el vídeo y los guardados mantienen sus únicos propietarios originales.</p></div><span>Reestructuración · Bloque 2</span></div>
     <div class="vc2052-title"><div><small>V20.6.0 · MIGRACIÓN AMPLIA DEL RALLY</small><h3>El motor efectivo usa planes TypeScript de cierre y restauración</h3><p>El escritor real de Punto y Deshacer valida planes tipados para tanteo, saque, rotaciones y recuperación del rally. Comprueba la equivalencia exacta con la lógica histórica antes de aplicarlos. Se mantiene una única escritura nativa y no se modifican vídeo, REC/Delay, diarios ni Supabase.</p></div><span>Reestructuración · Bloque mayor</span></div>
@@ -3102,7 +3103,7 @@ BLOQUEO=6B#"></textarea></label><div class="scout-v690-help">Los favoritos se re
 </div>
 
 
-<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=20.6.2" data-vc-module="true"></script>
+<script id="core-training-v150-monolithic" src="./002-core-training-v150-monolithic.js?v=20.6.3" data-vc-module="true"></script>
 
 
 <script id="players-pro-v2-script" src="./003-players-pro-v2-script.js?v=16.0.2.1" data-vc-module="true"></script>
@@ -5106,7 +5107,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.6.2" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.6.3" data-vc-module="true"></script>
 
 
 
@@ -5241,7 +5242,7 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v740-live-scout-video-module" src="./028-v740-live-scout-video-module.js?v=20.6.2" data-vc-module="true"></script>
+<script id="v740-live-scout-video-module" src="./028-v740-live-scout-video-module.js?v=20.6.3" data-vc-module="true"></script>
 
 
 
@@ -6085,7 +6086,7 @@ window.scoutV757FinalDiagnostics=function(){
 </style>
 
 
-<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=20.6.2" data-vc-module="true"></script>
+<script id="v800-match-mode-module" src="./040-v800-match-mode-module.js?v=20.6.3" data-vc-module="true"></script>
 
 
 
@@ -10217,7 +10218,7 @@ body.v132-scouting-pro #scout-workspace-v900 .v111-workflow{display:none!importa
   </div>
 </div>
 
-<script id="v132-scouting-pro-workspace" src="./077-v132-scouting-pro-workspace.js?v=20.6.2" data-vc-module="true"></script>
+<script id="v132-scouting-pro-workspace" src="./077-v132-scouting-pro-workspace.js?v=20.6.3" data-vc-module="true"></script>
 
 
 <style id="v133-video-linked-scouting-style">.v133-smart-playlists{margin-top:8px;padding-top:8px;border-top:1px solid #e4e9ec}.v133-smart-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:5px}.v133-smart-head span{font-size:6.5px;font-weight:950;letter-spacing:.07em;color:#4e687a}.v133-smart-head small{font-size:6.5px;color:#87949d}.v133-smart-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.v133-smart-grid button{text-align:left;border:1px solid #dfe6ea!important;background:#fff!important;color:#29475f!important;border-radius:8px!important;padding:8px!important;text-transform:none!important;letter-spacing:0!important}.v133-smart-grid button b{display:block;font-size:8px}.v133-smart-grid button small{display:block;margin-top:2px;color:#7b8a94;font-size:6.7px}.v780-ruler-marker.action.skill-S{background:#2f6fa0!important}.v780-ruler-marker.action.skill-R{background:#398366!important}.v780-ruler-marker.action.skill-E{background:#b27a2f!important}.v780-ruler-marker.action.skill-A{background:#b64e50!important}.v780-ruler-marker.action.skill-B{background:#76559a!important}.v780-ruler-marker.action.skill-D{background:#2a8a8a!important}.v780-ruler-marker.action.skill-F,.v780-ruler-marker.action.skill-C{background:#687784!important}.v780-ruler-marker.action{opacity:.92!important;width:3px!important;height:16px!important;top:18px!important}.v780-row.skill-S{border-left:3px solid #2f6fa0}.v780-row.skill-R{border-left:3px solid #398366}.v780-row.skill-E{border-left:3px solid #b27a2f}.v780-row.skill-A{border-left:3px solid #b64e50}.v780-row.skill-B{border-left:3px solid #76559a}.v780-row.skill-D{border-left:3px solid #2a8a8a}.v133-linked{display:inline-flex;margin-left:5px;padding:2px 4px;border-radius:999px;background:#e9f5ee;color:#2e6b49;font-size:5.8px;font-style:normal;font-weight:950;vertical-align:1px}.v133-recent-clip{white-space:nowrap}.v133-video-link-health{display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:999px;background:#eef6f1;color:#3e7055;font-size:6px;font-weight:900}.v133-video-link-health.warn{background:#fff5e7;color:#8a672e}@media(max-width:700px){.v133-smart-grid{grid-template-columns:1fr}.v133-smart-head{align-items:flex-start;flex-direction:column}.v780-row-actions button{padding:7px 8px!important}}
@@ -14129,10 +14130,10 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <link rel="stylesheet" href="./vc2012-multi-device-validation.css?v=20.1.2">
 <!-- V20.2.0: match workspace navigation and read-only live context. Uses original code, scoreboard, video and sync. -->
 <link rel="stylesheet" href="./vc2020-match-workspace.css?v=20.2.0">
-<script id="vc2020-match-workspace" src="./212-vc2020-match-workspace.js?v=20.6.2" defer data-vc-module="true"></script>
+<script id="vc2020-match-workspace" src="./212-vc2020-match-workspace.js?v=20.6.3" defer data-vc-module="true"></script>
 <!-- V20.2.1: safe draft-only Speed Pro. Keeps native registration, court and Alt+1–8 macros. -->
 <link rel="stylesheet" href="./vc2021-scouting-speed-pro.css?v=20.5.33">
-<script id="vc2021-scouting-speed-pro" src="./213-vc2021-scouting-speed-pro.js?v=20.6.2" defer data-vc-module="true"></script>
+<script id="vc2021-scouting-speed-pro" src="./213-vc2021-scouting-speed-pro.js?v=20.6.3" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2022-match-intelligence.css?v=20.2.2">
 <script id="vc2022-match-intelligence" src="./214-vc2022-match-intelligence.js?v=20.2.2" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2023-professional-scouting-workspace.css?v=20.2.4">
@@ -14144,7 +14145,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 
 <!-- V20.2.5 · Rally Review Pro: floating review, native editor, verified video timecodes. -->
 <link rel="stylesheet" href="./vc2025-rally-review-pro.css?v=20.2.5">
-<script id="vc2025-rally-review" src="./217-vc2025-rally-review-pro.js?v=20.6.2" defer data-vc-module="true"></script>
+<script id="vc2025-rally-review" src="./217-vc2025-rally-review-pro.js?v=20.6.3" defer data-vc-module="true"></script>
 <!-- V20.3.3: last-loading universal persistent-change observer and read-only UI fanout. -->
 <script id="vc2033-complete-live-sync" src="./225-vc2033-complete-live-sync.js?v=20.3.3" defer data-vc-module="true"></script>
 <!-- V20.4.0 · Training Pro 2.0: one plan / execution / review workflow, using canonical training data and existing cloud CAS. -->
@@ -14180,6 +14181,6 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <!-- V20.5.40 · Direction/block parser consolidation and typed own-player selection. -->
 <!-- V20.5.41 · Typed action draft and opponent snapshot with native parity. -->
 <!-- V20.5.58 · Typed close/restore rally records with native state and save parity. -->
-<link rel="stylesheet" href="./vc2055-domain.css?v=20.6.2">
-<script id="vc2055-domain" type="module" src="./vc2055-domain-core.mjs?v=20.6.2" data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc2055-domain.css?v=20.6.3">
+<script id="vc2055-domain" type="module" src="./vc2055-domain-core.mjs?v=20.6.3" data-vc-module="true"></script>
 </body></html>
