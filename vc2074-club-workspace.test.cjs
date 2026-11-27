@@ -89,19 +89,19 @@ test('V20.7.4 loads only two bundles instead of six original files',()=>{
  assert.match(sw,/club-workspace-20\.7\.4/);
 });
 
-test('V20.7.4 adds six deferred-retirement candidates, but instructs no deletions',async()=>{
+test('V20.7.4 retains its original six candidates while later groups accumulate',async()=>{
  const manifest=JSON.parse(read('scripts/retained-legacy-assets.json'));
  const all=manifest.groups.flatMap(group=>group.files);
- assert.equal(all.length,32);assert.equal(new Set(all).size,32);
- assert.deepEqual(manifest.groups.at(-1).files,[...scripts,...styles].map(([n])=>n));
+ assert.ok(all.length>=32);assert.equal(new Set(all).size,all.length);
+ assert.deepEqual(manifest.groups.find(group=>group.identifiedIn==='20.7.4').files,[...scripts,...styles].map(([n])=>n));
  assert.equal(manifest.policy,'KEEP_UNTIL_MIGRATION_FINISHED');
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
  const result=auditRuntimeAssets(__dirname);
  assert.deepEqual(result.errors,[]);
- assert.equal(result.retainedCandidates,32);
- assert.ok(result.retainedPresent>=9&&result.retainedPresent<=32);
+ assert.equal(result.retainedCandidates,all.length);
+ assert.ok(result.retainedPresent>=9&&result.retainedPresent<=all.length);
  const guide=read('GUIA_V20.7.4_CLUB_WORKSPACE.md');
  assert.ok(guide.includes('No borres ningún archivo'));
  assert.ok(read('MIGRACION_PENDIENTES_DE_BORRADO_V20.7.4.md').includes('32 candidatos'));
- assert.equal(require('./package.json').version,'20.7.4');
+ assert.equal(require('./package.json').version,'20.7.5');
 });

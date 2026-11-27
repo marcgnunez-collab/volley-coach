@@ -163,7 +163,7 @@ test('Gestion refuses certification if the main state changes between reloads',a
 
 test('V70 published UI is opt-in and leaves the canonical club writer unchanged',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.4');
+ assert.equal(pkg.version,'20.7.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20570-player-shadow-reopen.test.cjs'));
  assert.ok(html.includes('id="vc20570-reopen-players" disabled'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

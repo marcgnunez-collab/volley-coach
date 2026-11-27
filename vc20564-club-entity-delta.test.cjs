@@ -193,7 +193,7 @@ test('the old team-group pilot still works after the v2 schema upgrade',async()=
 test('management offers manual ID review and delta test without changing main writer',()=>{
  const html=read('index.html'),entry=read('src/vc2055-entry.ts'),
   legacy=read('002-core-training-v150-monolithic.js'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.4');
+ assert.equal(pkg.version,'20.7.5');
  assert.ok(html.includes('id="vc20564-inspect-ids" disabled'));
  assert.ok(html.includes('id="vc20564-run-delta" disabled'));
  assert.ok(entry.includes('mountClubEntityPanel(window)'));

@@ -41,7 +41,7 @@ test('two-device regression exercises recovered checkpoint, CAS acknowledgement 
 
 test('V20.5.20 release does not mount an alternative point writer or alter native CAS and journal modules',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.4');
+ assert.equal(pkg.version,'20.7.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20520-ci-recovery.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));

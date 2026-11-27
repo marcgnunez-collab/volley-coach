@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.4",
+  "updatedIn": "20.7.5",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -58,6 +58,16 @@
         "205-vc193192-club-desk.js",
         "vc193191-professional-workspace.css",
         "vc193192-professional-club.css"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.5",
+      "files": [
+        "206-vc193195-professional-tactical-tables.js",
+        "191-vc19310-professional-analysis-architecture.js",
+        "199-vc19317-video-montage-pro.js",
+        "200-vc19318-worksheets-reports-pro.js",
+        "201-vc19319-bench-client-pro.js"
       ]
     }
   ]

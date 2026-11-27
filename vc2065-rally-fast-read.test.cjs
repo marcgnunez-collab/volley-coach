@@ -140,7 +140,7 @@ test('V20.6.5 4,000 closed rallies do not trigger redundant legacy flatMap',asyn
 
 test('V20.6.5 release has cache-busted assets and preserves the previous diagnostics panel',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.4');
+ assert.equal(pkg.version,'20.7.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2065-rally-fast-read.test.cjs'));
  assert.ok(sw.includes('rally-fast-read-20.6.5'));
  assert.ok(html.includes('V20.6.5 · LECTURA ÚNICA DE RALLIES'));
