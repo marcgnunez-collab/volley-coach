@@ -3,9 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const crypto=require('node:crypto');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
-const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 const core=read('021-core-scouting-v150-monolithic.js');
 const html=read('index.html'),sw=read('service-worker.js');
 const removed=[
@@ -21,8 +19,7 @@ const removed=[
 const marker=name=>'/* V20.7.7 · Unreferenced overwritten view/export implementation retired: '+name+' */';
 
 test('V20.7.7 removes only eight noncaptured replaced view/export functions from the monolith',()=>{
- assert.equal(Buffer.byteLength(core),729913);
- assert.equal(sha(core),'e603b374a6cd5afbf6cf1893f7742f5471f6b4ed6a023324f1b8a2dfab804ee7');
+ assert.ok(Buffer.byteLength(core)<=729913,'later report migrations can further reduce the monolith');
  assert.ok(749211-Buffer.byteLength(core)>=19000);
  for(const name of new Set(removed)){
   assert.equal(core.split(marker(name)).length-1,removed.filter(n=>n===name).length,name);
@@ -50,8 +47,8 @@ test('native point, undo, lineup and live-action ownership stays in Scouting',()
 });
 
 test('PWA and classic HTML reference the smaller scouting core with a new cache revision',async()=>{
- assert.match(html,/rel="preload" as="script" href="\.\/021-core-scouting-v150-monolithic\.js\?v=20\.7\.0&amp;rev=20\.7\.7"/);
- assert.match(html,/<script id="core-scouting-v150-monolithic" src="\.\/021-core-scouting-v150-monolithic\.js\?v=20\.7\.0&amp;rev=20\.7\.7"/);
+ assert.match(html,/rel="preload" as="script" href="\.\/021-core-scouting-v150-monolithic\.js\?v=20\.7\.0&amp;rev=20\.7\.\d+"/);
+ assert.match(html,/<script id="core-scouting-v150-monolithic" src="\.\/021-core-scouting-v150-monolithic\.js\?v=20\.7\.0&amp;rev=20\.7\.\d+"/);
  assert.match(sw,/scout-view-override-dedup-20\.7\.7/);
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
  const audit=auditRuntimeAssets(__dirname);

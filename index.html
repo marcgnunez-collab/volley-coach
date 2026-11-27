@@ -4,7 +4,7 @@
 <!-- V17.5.0: scoped CSS cache and critical core preloads; script execution order unchanged. -->
 <link rel="preload" as="script" href="./vc2076-training-catalog-data.js?v=20.7.6">
 <link rel="preload" as="script" href="./002-core-training-v150-monolithic.js?v=20.7.6">
-<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.7">
+<link rel="preload" as="script" href="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.8">
 <script id="vc16060-performance-core">
 /* Performance Core V16.0.6.3: passive, local-only observability. No application state mutation. */
 (()=>{
@@ -739,6 +739,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.8 · INFORMES DESACOPLADOS</small><h3>Los informes de Scouting salen del núcleo principal</h3><p>Dos generadores de informe, oficial y multipágina, se alojan en el módulo PDF que ya existía. El núcleo pierde 24 KB de código y se mantienen el HTML de los informes y los escritores originales. Esta fase mejora la arquitectura, todavía sin reducir el peso gzip total de ambos archivos. No borres los 37 candidatos antiguos hasta cerrar la migración.</p></div><span>Arquitectura · Informes</span></div>
     <div class="vc2052-title"><div><small>V20.7.7 · SCOUTING MÁS LIGERO</small><h3>Informes más compactos, mismos datos protegidos</h3><p>El núcleo de Scouting deja atrás ocho versiones de vistas y exportaciones que ya habían sido reemplazadas: ahorra unos 19 KB de fuente y 4,6 KB gzip. Punto, deshacer, sesiones, vídeo y guardado permanecen en sus rutas actuales. Hay 37 candidatos para la limpieza futura: no borres archivos de GitHub todavía.</p></div><span>Arquitectura · Scouting</span></div>
     <div class="vc2052-title"><div><small>V20.7.6 · CATÁLOGO SEPARADO</small><h3>El núcleo de entrenamientos se aligera un 74 %</h3><p>Siete catálogos de ejercicios y limpieza están ahora en un único módulo de datos precargado; los escritores de sesiones, jugadores y sincronización permanecen en el núcleo original. El catálogo conserva exactamente todos sus registros. Sigue habiendo 37 archivos antiguos inventariados: no borres ninguno todavía.</p></div><span>Arquitectura · Entrenamientos</span></div>
     <div class="vc2052-title"><div><small>V20.7.5 · HTML MÁS LIGERO</small><h3>Los estilos de vídeo salen del HTML y se pueden cachear</h3><p>Un bloque de 69 KB pasa a un CSS externo sin modificar sus reglas, y cinco módulos de análisis y revisión se agrupan en dos. Menos peso en index.html y menos peticiones activas. Hay 37 candidatos para la limpieza final: no borres ningún archivo de GitHub todavía.</p></div><span>Reestructuración · Extracción HTML</span></div>
@@ -3632,7 +3633,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </script>\n
 <style id="v5115-pdf-rosters-style">.match-roster-list{display:flex!important;flex-direction:column!important;gap:7px!important}.match-roster-pro-row{display:grid;grid-template-columns:minmax(190px,1.35fr) minmax(140px,.65fr) minmax(200px,1fr);gap:8px;align-items:center;border:1px solid #e1e6ea;border-radius:9px;padding:9px 10px;background:#fbfcfd;min-width:0}.match-roster-pro-player{min-width:0;color:#243f55}.match-roster-pro-player b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.match-roster-pro-player small{display:block;color:#7d8993;font-size:9px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.match-roster-pro-row select,.match-roster-pro-row input{min-width:0;width:100%;font-size:11px!important;padding:8px 9px!important;border-radius:7px!important}.match-roster-reason.hidden{display:none!important}.match-roster-legend{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 2px}.match-roster-legend span{font-size:9px;padding:4px 7px;border-radius:999px;background:#f2f5f7;color:#667581;border:1px solid #e1e6ea}@media(max-width:760px){.match-roster-pro-row{grid-template-columns:1fr}.match-roster-pro-player b,.match-roster-pro-player small{white-space:normal}.match-roster-pro-row select,.match-roster-pro-row input{font-size:16px!important}}
 </style>
-<script id="v5115-pdf-rosters-script" src="./011-v5115-pdf-rosters-script.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v5115-pdf-rosters-script" src="./011-v5115-pdf-rosters-script.js?v=16.0.2.1&amp;rev=20.7.8" data-vc-module="true"></script>
 
 
 <script id="v5116-pdf-summary-patch" src="./012-v5116-pdf-summary-patch.js?v=19.1.0" data-vc-module="true"></script>
@@ -5122,7 +5123,7 @@ setTimeout(()=>{if($('plan-equipo'))$('plan-equipo').value=EQUIPOS[equipoActivo]
 </div>
 <div id="scout-export-status" class="scout-export-status hidden">Preparando archivo…</div>
 
-<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.7" data-vc-module="true"></script>
+<script id="core-scouting-v150-monolithic" src="./021-core-scouting-v150-monolithic.js?v=20.7.0&amp;rev=20.7.8" data-vc-module="true"></script>
 
 
 
