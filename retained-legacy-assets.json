@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.13",
+  "updatedIn": "20.7.14",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -82,6 +82,20 @@
       "identifiedIn": "20.7.11",
       "files": [
         "029-v750-professional-reports-module.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.14",
+      "files": [
+        "118-vc1611-video-sync-assistant.js",
+        "119-vc1612-video-analytics.js",
+        "120-vc1613-zone-board.js",
+        "130-vc1640-scouting-pro-cockpit.js",
+        "131-vc1641-code-assistant.js",
+        "121-vc16131-clip-studio-pro.js",
+        "135-vc1650-custom-worksheets.js",
+        "136-vc1651-tactical-laboratory.js",
+        "167-vc1880-analysis-pro.js"
       ]
     }
   ]
