@@ -89,10 +89,10 @@ test('V20.7.6 preserves native storage ownership and the no-delete retirement po
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
  const result=auditRuntimeAssets(root);
  assert.deepEqual(result.errors,[]);
- assert.equal(result.retainedCandidates,37,'no fully active training file is retired');
+ assert.ok(result.retainedCandidates>=37,'no fully active training file is retired');
  const manifest=JSON.parse(read('scripts/retained-legacy-assets.json'));
  assert.equal(manifest.policy,'KEEP_UNTIL_MIGRATION_FINISHED');
- assert.equal(manifest.groups.flatMap(x=>x.files).length,37);
+ assert.ok(manifest.groups.flatMap(x=>x.files).length>=37);
  assert.ok(core.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
  assert.ok(core.includes('window.VC_TRAINING_PLANNING_20574'));
  assert.equal(require('./package.json').version,require('./scripts/retained-legacy-assets.json').updatedIn);

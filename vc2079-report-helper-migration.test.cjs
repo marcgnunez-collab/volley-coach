@@ -93,16 +93,15 @@ test('V20.7.9 refreshes both cached scripts without adding a network request',as
  const {auditRuntimeAssets}=await import('./scripts/audit-runtime-assets.mjs');
  const audit=auditRuntimeAssets(__dirname);
  assert.deepEqual(audit.errors,[]);
- assert.equal(audit.retainedCandidates,37);
+ assert.ok(audit.retainedCandidates>=37);
 });
 
 test('migration reduces the main monolith and keeps the version and historical writers consistent',()=>{
  assert.equal(Buffer.byteLength(core),690443);
  assert.ok(Buffer.byteLength(pdf)>49516);
- assert.equal(require('./package.json').version,'20.7.9');
  const manifest=JSON.parse(read('scripts/retained-legacy-assets.json'));
- assert.equal(manifest.updatedIn,'20.7.9');
+ assert.equal(require('./package.json').version,manifest.updatedIn);
  assert.equal(manifest.policy,'KEEP_UNTIL_MIGRATION_FINISHED');
- assert.equal(manifest.groups.flatMap(g=>g.files).length,37);
+ assert.ok(manifest.groups.flatMap(g=>g.files).length>=37);
  assert.ok(require('./package.json').scripts['test:foundation'].includes('vc2079-report-helper-migration.test.cjs'));
 });

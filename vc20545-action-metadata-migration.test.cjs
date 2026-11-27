@@ -191,7 +191,12 @@ test('V20.5.45 keeps native video, score, source identification and journal writ
  assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
  // V20.6.5 optimizes only lastClosedRally. Pin the entire remaining module,
  // including native REC/Delay and the link/recording writers, byte-for-byte.
- const videoWithoutRead=read('028-v740-live-scout-video-module.js')
+ const combinedVideo=read('028-v740-live-scout-video-module.js');
+ const prefix='/* VC20710_SOURCE_BEGIN:028-v740-live-scout-video-module.js */\n';
+ const suffix='\n/* VC20710_SOURCE_END:028-v740-live-scout-video-module.js */';
+ const start=combinedVideo.indexOf(prefix),end=combinedVideo.indexOf(suffix,start+prefix.length);
+ const nativeVideo=start>=0&&end>start?combinedVideo.slice(start+prefix.length,end):combinedVideo;
+ const videoWithoutRead=nativeVideo
   .replace(/function lastClosedRally\(m=active\(\)\)\{[\s\S]*?(?=function lastAction\(m=active\(\)\)\{)/,'');
  assert.equal(crypto.createHash('sha256').update(videoWithoutRead.trimEnd()).digest('hex'),
   '1ab7af3180f0182e91e41d8133dd8607de9eddce282d21a440d287f99e3297f7');

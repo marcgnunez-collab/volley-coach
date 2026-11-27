@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.9",
+  "updatedIn": "20.7.10",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -68,6 +68,14 @@
         "199-vc19317-video-montage-pro.js",
         "200-vc19318-worksheets-reports-pro.js",
         "201-vc19319-bench-client-pro.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.10",
+      "files": [
+        "024-v702-video-persistence-hotfix.js",
+        "025-v710-video-analysis-module.js",
+        "027-v730-live-delay-module.js"
       ]
     }
   ]

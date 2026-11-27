@@ -739,6 +739,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.10 · VÍDEO UNIFICADO</small><h3>Tres solicitudes menos para las herramientas de vídeo</h3><p>Los módulos de persistencia, análisis y clips se cargan juntos, y Live/Delay comparte un segundo bundle con Scouting+Vídeo. Conservamos las cinco implementaciones originales en su orden, sin tocar las escrituras ni los datos. Quedan 40 archivos candidatos para la limpieza final; no borres ninguno en GitHub todavía.</p></div><span>Arquitectura · Vídeo</span></div>
     <div class="vc2052-title"><div><small>V20.7.9 · AYUDANTES DE INFORMES UNIFICADOS</small><h3>26 cálculos de PDF migrados fuera del motor principal</h3><p>El núcleo de Scouting cede otros 15 KB de funciones solo de lectura al módulo de informes ya existente, sin añadir archivos activos. Los informes oficial y profesional conservan sus resultados con y sin rallies. Puntos, Deshacer, vídeo y sincronización siguen en sus rutas originales. Continúan 37 candidatos antiguos: no borres nada en GitHub todavía.</p></div><span>Arquitectura · Informes PDF</span></div>
     <div class="vc2052-title"><div><small>V20.7.8 · INFORMES DESACOPLADOS</small><h3>Los informes de Scouting salen del núcleo principal</h3><p>Dos generadores de informe, oficial y multipágina, se alojan en el módulo PDF que ya existía. El núcleo pierde 24 KB de código y se mantienen el HTML de los informes y los escritores originales. Esta fase mejora la arquitectura, todavía sin reducir el peso gzip total de ambos archivos. No borres los 37 candidatos antiguos hasta cerrar la migración.</p></div><span>Arquitectura · Informes</span></div>
     <div class="vc2052-title"><div><small>V20.7.7 · SCOUTING MÁS LIGERO</small><h3>Informes más compactos, mismos datos protegidos</h3><p>El núcleo de Scouting deja atrás ocho versiones de vistas y exportaciones que ya habían sido reemplazadas: ahorra unos 19 KB de fuente y 4,6 KB gzip. Punto, deshacer, sesiones, vídeo y guardado permanecen en sus rutas actuales. Hay 37 candidatos para la limpieza futura: no borres archivos de GitHub todavía.</p></div><span>Arquitectura · Scouting</span></div>
@@ -5225,7 +5226,6 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 
 
 
-<script id="v702-video-persistence-hotfix" src="./024-v702-video-persistence-hotfix.js?v=16.0.2.1" data-vc-module="true"></script>
 
 
 
@@ -5233,7 +5233,6 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v710-video-analysis-module" src="./025-v710-video-analysis-module.js?v=16.0.2.1" data-vc-module="true"></script>
 
 
 
@@ -5241,7 +5240,7 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v720-clip-studio-module" src="./026-v720-clip-studio-module.js?v=16.0.2.1" data-vc-module="true"></script>
+<script id="v720-clip-studio-module" src="./026-v720-clip-studio-module.js?v=16.0.2.1&amp;rev=20.7.10" data-vc-module="true"></script>
 
 
 
@@ -5251,7 +5250,6 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 
 <script id="vc1921-delay-policy" src="./177-vc1921-delay-policy.js?v=19.2.1" data-vc-module="true"></script>
 <script id="vc1922-review-policy" src="./178-vc1922-review-policy.js?v=19.2.2" data-vc-module="true"></script>
-<script id="v730-live-delay-module" src="./027-v730-live-delay-module.js?v=19.3.14" data-vc-module="true"></script>
 
 
 
@@ -5259,7 +5257,7 @@ window.scoutV701Diagnostics=()=>({module:'7.0.1-safe',bridge:!!bridge(),matches:
 </style>
 
 
-<script id="v740-live-scout-video-module" src="./028-v740-live-scout-video-module.js?v=20.7.0" data-vc-module="true"></script>
+<script id="v740-live-scout-video-module" src="./028-v740-live-scout-video-module.js?v=20.7.0&amp;rev=20.7.10" data-vc-module="true"></script>
 
 
 
