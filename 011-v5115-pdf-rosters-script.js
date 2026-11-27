@@ -60,6 +60,153 @@ window.VC_SCOUT_ANALYSIS_VIEWS_20712=Object.freeze({VERSION:"20.7.12",presentati
 })();
 /* VC20712_ANALYSIS_VIEW_LAYOUT_END */
 
+/* VC20713_ANALYSIS_QUERY_BEGIN: original V6.4–V6.7 read-only calculations */
+;(()=>{
+"use strict";
+/* VC20713_FN_BEGIN:scoutV640ActionRowsByRally */
+function scoutV640ActionRowsByRally(m,team,ctx){const {scoutArr}=ctx;
+const rows=[];scoutArr(m?.sets).forEach(set=>scoutArr(set.rallies).forEach((r,ri)=>{const acts=scoutArr(r.actions).filter(a=>a.team===team);const phase=r.servingBefore===team?'K2':'K1',rotation=team==='ours'?Number(r.rotationBefore)||1:Number(r.opponentRotationBefore)||1,rec=acts.find(a=>a.skill==='R');acts.forEach((a,ai)=>rows.push({action:a,set:Number(set.number)||1,rally:ri+1,phase,rotation,receptionEval:rec?.evaluation||'',rallyData:r,actionIndex:ai}))}));return rows}
+/* VC20713_FN_END:scoutV640ActionRowsByRally */
+
+/* VC20713_FN_BEGIN:scoutV640DistributionEvents */
+function scoutV640DistributionEvents(m,team,ctx){const {scoutActionPlayerLabel,scoutArr,scoutV640Key}=ctx;
+const out=[];scoutArr(m?.sets).forEach(set=>scoutArr(set.rallies).forEach((r,ri)=>{const acts=scoutArr(r.actions).filter(a=>a.team===team),phase=r.servingBefore===team?'K2':'K1',rotation=team==='ours'?Number(r.rotationBefore)||1:Number(r.opponentRotationBefore)||1;for(let i=0;i<acts.length;i++){const setter=acts[i];if(setter.skill!=='E')continue;let attack=null;for(let j=i+1;j<acts.length;j++){if(acts[j].skill==='E')break;if(acts[j].skill==='A'){attack=acts[j];break}}let reception=null;for(let j=i-1;j>=0;j--){if(acts[j].skill==='E'||acts[j].skill==='A')break;if(acts[j].skill==='R'){reception=acts[j];break}}if(!reception)reception=acts.find(a=>a.skill==='R')||null;const target=setter.setTarget||attack?.attackCombo||'',recipientKey=scoutV640Key(attack),recipientLabel=attack?scoutActionPlayerLabel(attack):'Sin ataque asociado';out.push({set:Number(set.number)||1,rally:ri+1,phase,rotation,receptionEval:reception?.evaluation||'',setter,setterKey:scoutV640Key(setter),setterLabel:scoutActionPlayerLabel(setter),attack,recipientKey,recipientLabel,target,win:r.winner===team,rallyData:r})}}));return out}
+/* VC20713_FN_END:scoutV640DistributionEvents */
+
+/* VC20713_FN_BEGIN:scoutV640Candidates */
+function scoutV640Candidates(m,team,mode,ctx){const {scoutActionPlayerLabel,scoutV640ActionRowsByRally,scoutV640DistributionEvents,scoutV640Key}=ctx;
+if(!m)return[];const map=new Map;if(mode==='setter'){scoutV640DistributionEvents(m,team).forEach(x=>{if(x.setterKey)map.set(x.setterKey,x.setterLabel)})}else{scoutV640ActionRowsByRally(m,team).filter(x=>x.action.skill==='A').forEach(x=>{const k=scoutV640Key(x.action);if(k)map.set(k,scoutActionPlayerLabel(x.action))})}return [...map.entries()].map(([key,label])=>({key,label})).sort((a,b)=>a.label.localeCompare(b.label,'es'))}
+/* VC20713_FN_END:scoutV640Candidates */
+
+/* VC20713_FN_BEGIN:scoutV640FilterDistribution */
+function scoutV640FilterDistribution(m,f,ctx){const {scoutV640DecodedPlayer,scoutV640DistributionEvents}=ctx;
+const key=scoutV640DecodedPlayer();return scoutV640DistributionEvents(m,f.team).filter(x=>(!key||x.setterKey===key)&&(!f.set||x.set===f.set)&&(!f.rotation||x.rotation===f.rotation)&&(!f.phase||x.phase===f.phase)&&(!f.reception||x.receptionEval===f.reception))}
+/* VC20713_FN_END:scoutV640FilterDistribution */
+
+/* VC20713_FN_BEGIN:scoutV640FilterAttacks */
+function scoutV640FilterAttacks(m,f,ctx){const {scoutActionPlayerLabel,scoutArr,scoutV640DecodedPlayer,scoutV640Key}=ctx;
+const key=scoutV640DecodedPlayer(),events=[];scoutArr(m?.sets).forEach(set=>scoutArr(set.rallies).forEach((r,ri)=>{const acts=scoutArr(r.actions).filter(a=>a.team===f.team),phase=r.servingBefore===f.team?'K2':'K1',rotation=f.team==='ours'?Number(r.rotationBefore)||1:Number(r.opponentRotationBefore)||1,rec=acts.find(a=>a.skill==='R')||null;acts.forEach((a,i)=>{if(a.skill!=='A'|| (key&&scoutV640Key(a)!==key))return;let setter=null;for(let j=i-1;j>=0;j--){if(acts[j].skill==='A')break;if(acts[j].skill==='E'){setter=acts[j];break}}events.push({action:a,set:Number(set.number)||1,rally:ri+1,phase,rotation,receptionEval:rec?.evaluation||'',setter,setterLabel:setter?scoutActionPlayerLabel(setter):'',target:setter?.setTarget||a.attackCombo||'',win:r.winner===f.team,rallyData:r})})}));return events.filter(x=>(!f.set||x.set===f.set)&&(!f.rotation||x.rotation===f.rotation)&&(!f.phase||x.phase===f.phase)&&(!f.reception||x.receptionEval===f.reception))}
+/* VC20713_FN_END:scoutV640FilterAttacks */
+
+/* VC20713_FN_BEGIN:scoutV640Group */
+function scoutV640Group(rows,keyFn,ctx){const {}=ctx;
+const m=new Map;rows.forEach(x=>{const k=keyFn(x)||'—';if(!m.has(k))m.set(k,[]);m.get(k).push(x)});return [...m.entries()].sort((a,b)=>b[1].length-a[1].length)}
+/* VC20713_FN_END:scoutV640Group */
+
+/* VC20713_FN_BEGIN:scoutV640SamplePill */
+function scoutV640SamplePill(n,ctx){const {}=ctx;
+return n<10?'<span class="scout-v640-pill warn">⚠ Muestra baja · '+n+'</span>':'<span class="scout-v640-pill">Muestra · '+n+'</span>'}
+/* VC20713_FN_END:scoutV640SamplePill */
+
+/* VC20713_FN_BEGIN:scoutV640DrillRows */
+function scoutV640DrillRows(kind,value,ctx){const {scoutV640FilterAttacks,scoutV640FilterDistribution,scoutV640Filters,scoutV640LabelTarget,scoutV640Match}=ctx;
+const m=scoutV640Match(),f=scoutV640Filters();if(!m)return[];if(kind.startsWith('setter')){const rows=scoutV640FilterDistribution(m,f);if(kind==='setterTarget')return rows.filter(x=>scoutV640LabelTarget(x.target)===value);if(kind==='setterRecipient')return rows.filter(x=>x.recipientLabel===value)}else{const rows=scoutV640FilterAttacks(m,f);if(kind==='attackDirection')return rows.filter(x=>{const a=x.action,k=a.startZone&&a.endZone?`Z${a.startZone} → Z${a.endZone}`:(a.endZone?`→ Z${a.endZone}`:'Sin dirección');return k===value});if(kind==='attackCombo')return rows.filter(x=>scoutV640LabelTarget(x.target||x.action.attackCombo)===value);if(kind==='attackBlockers')return rows.filter(x=>((x.action.blockers!==''&&x.action.blockers!=null?String(x.action.blockers)+' bloqueadores':'Sin dato')===value))}return[]}
+/* VC20713_FN_END:scoutV640DrillRows */
+
+/* VC20713_FN_BEGIN:scoutV650Groups */
+function scoutV650Groups(ctx){const {scoutActionCount,scoutArr,scoutV650OpponentKey,scoutingMatches}=ctx;
+const map=new Map();scoutingMatches.forEach(m=>{if(!m)return;const key=scoutV650OpponentKey(m.opponent),actions=scoutActionCount(m),rallies=scoutArr(m.sets).reduce((n,s)=>n+scoutArr(s.rallies).length,0);if(!actions&&!rallies)return;if(!map.has(key))map.set(key,{key,name:String(m.opponent||'Rival').trim()||'Rival',matches:[]});map.get(key).matches.push(m)});return [...map.values()].map(g=>({...g,matches:g.matches.slice().sort((a,b)=>String(b.date||b.updatedAt).localeCompare(String(a.date||a.updatedAt)))})).sort((a,b)=>String(b.matches[0]?.date||'').localeCompare(String(a.matches[0]?.date||''))||a.name.localeCompare(b.name,'es'))}
+/* VC20713_FN_END:scoutV650Groups */
+
+/* VC20713_FN_BEGIN:scoutV650Attacks */
+function scoutV650Attacks(matches,ctx){const {scoutActionPlayerLabel,scoutArr}=ctx;
+const out=[];matches.forEach(m=>scoutArr(m?.sets).forEach(set=>scoutArr(set.rallies).forEach((r,ri)=>{const acts=scoutArr(r.actions).filter(a=>a.team==='opponent'),phase=r.servingBefore==='opponent'?'K2':'K1',rotation=Number(r.opponentRotationBefore)||1,rec=acts.find(a=>a.skill==='R')||null;acts.forEach((a,i)=>{if(a.skill!=='A')return;let setter=null;for(let j=i-1;j>=0;j--){if(acts[j].skill==='A')break;if(acts[j].skill==='E'){setter=acts[j];break}}out.push({match:m,action:a,set:Number(set.number)||1,rally:ri+1,phase,rotation,receptionEval:rec?.evaluation||'',setter,setterLabel:setter?scoutActionPlayerLabel(setter):'',target:setter?.setTarget||a.attackCombo||'',win:r.winner==='opponent',rallyData:r})})})));return out}
+/* VC20713_FN_END:scoutV650Attacks */
+
+/* VC20713_FN_BEGIN:scoutV650CandidateMap */
+function scoutV650CandidateMap(matches,mode,ctx){const {scoutActionPlayerLabel,scoutV640Key,scoutV650Attacks,scoutV650Distribution}=ctx;
+const map=new Map;if(mode==='setter')scoutV650Distribution(matches).forEach(x=>{if(x.setterKey)map.set(x.setterKey,x.setterLabel)});else scoutV650Attacks(matches).forEach(x=>{const k=scoutV640Key(x.action);if(k)map.set(k,scoutActionPlayerLabel(x.action))});return [...map.entries()].map(([key,label])=>({key,label})).sort((a,b)=>a.label.localeCompare(b.label,'es'))}
+/* VC20713_FN_END:scoutV650CandidateMap */
+
+/* VC20713_FN_BEGIN:scoutV650FilterSetter */
+function scoutV650FilterSetter(matches,ctx){const {scoutV650Distribution,scoutV650Filters}=ctx;
+const f=scoutV650Filters();return scoutV650Distribution(matches).filter(x=>(!f.player||x.setterKey===f.player)&&(!f.reception||x.receptionEval===f.reception)&&(!f.rotation||x.rotation===f.rotation)&&(!f.phase||x.phase===f.phase))}
+/* VC20713_FN_END:scoutV650FilterSetter */
+
+/* VC20713_FN_BEGIN:scoutV650FilterAttacker */
+function scoutV650FilterAttacker(matches,ctx){const {scoutV640Key,scoutV650Attacks,scoutV650Filters}=ctx;
+const f=scoutV650Filters();return scoutV650Attacks(matches).filter(x=>(!f.player||scoutV640Key(x.action)===f.player)&&(!f.reception||x.receptionEval===f.reception)&&(!f.rotation||x.rotation===f.rotation)&&(!f.phase||x.phase===f.phase))}
+/* VC20713_FN_END:scoutV650FilterAttacker */
+
+/* VC20713_FN_BEGIN:scoutV650Group */
+function scoutV650Group(rows,fn,ctx){const {}=ctx;
+const map=new Map;rows.forEach(x=>{const k=fn(x)||'Sin dato';if(!map.has(k))map.set(k,[]);map.get(k).push(x)});return [...map.entries()].sort((a,b)=>b[1].length-a[1].length||String(a[0]).localeCompare(String(b[0]),'es'))}
+/* VC20713_FN_END:scoutV650Group */
+
+/* VC20713_FN_BEGIN:scoutV650RotationData */
+function scoutV650RotationData(matches,ctx){const {scoutV640LabelTarget,scoutV640Pct,scoutV650AllSequences,scoutV650Distribution,scoutV650Group}=ctx;
+const seq=scoutV650AllSequences(matches),dist=scoutV650Distribution(matches);return [1,2,3,4,5,6].map(no=>{const rot=seq.filter(x=>Number(x.rotation)===no),k1=rot.filter(x=>x.phase==='K1'),k2=rot.filter(x=>x.phase==='K2'),rd=dist.filter(x=>Number(x.rotation)===no),tg=scoutV650Group(rd,x=>scoutV640LabelTarget(x.target))[0];return {no,k1Total:k1.length,k1Won:k1.filter(x=>x.win).length,k2Total:k2.length,k2Won:k2.filter(x=>x.win).length,target:tg?.[0]||'',targetPct:tg?scoutV640Pct(tg[1].length,rd.length):0}})}
+/* VC20713_FN_END:scoutV650RotationData */
+
+/* VC20713_FN_BEGIN:scoutV650Roster */
+function scoutV650Roster(matches,ctx){const {scoutActionPlayerLabel,scoutPlayerKey,scoutV650AllActions}=ctx;
+const map=new Map;scoutV650AllActions(matches).forEach(a=>{const k=scoutPlayerKey(a),label=scoutActionPlayerLabel(a);if(!map.has(k))map.set(k,{key:k,label,count:0});map.get(k).count++});return [...map.values()].sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'es'))}
+/* VC20713_FN_END:scoutV650Roster */
+
+/* VC20713_FN_BEGIN:scoutV650DrillRows */
+function scoutV650DrillRows(kind,val,ctx){const {scoutV640LabelTarget,scoutV650FilterAttacker,scoutV650FilterSetter,scoutV650Matches}=ctx;
+const matches=scoutV650Matches();if(kind.startsWith('setter')){const rows=scoutV650FilterSetter(matches);if(kind==='setterTarget')return rows.filter(x=>scoutV640LabelTarget(x.target)===val);if(kind==='setterRecipient')return rows.filter(x=>x.recipientLabel===val)}else{const rows=scoutV650FilterAttacker(matches);if(kind==='attackDirection')return rows.filter(x=>{const a=x.action,k=a.startZone&&a.endZone?`Z${a.startZone} → Z${a.endZone}`:(a.endZone?`→ Z${a.endZone}`:'Sin dirección');return k===val});if(kind==='attackCombo')return rows.filter(x=>scoutV640LabelTarget(x.target||x.action.attackCombo)===val)}return[]}
+/* VC20713_FN_END:scoutV650DrillRows */
+
+/* VC20713_FN_BEGIN:scoutV670Rallies */
+function scoutV670Rallies(ctx){const {$,scoutArr,scoutV670Matches}=ctx;
+const setNo=Number($('scout-v670-set')?.value)||0;return scoutV670Matches().flatMap(m=>scoutArr(m.sets).flatMap(set=>{if(setNo&&Number(set.number)!==setNo)return[];return scoutArr(set.rallies).map((r,idx)=>({match:m,set:Number(set.number)||1,rallyIndex:idx+1,...r}))}))}
+/* VC20713_FN_END:scoutV670Rallies */
+
+/* VC20713_FN_BEGIN:scoutV670Pair */
+function scoutV670Pair(own,opp,rows=null,ctx){const {scoutArr,scoutV670Eff,scoutV670Pct,scoutV670Rallies}=ctx;
+const rallies=(rows||scoutV670Rallies()).filter(r=>(Number(r.rotationBefore)||1)===own&&(Number(r.opponentRotationBefore)||1)===opp),won=rallies.filter(r=>r.winner==='ours').length,side=rallies.filter(r=>r.servingBefore==='opponent'),brk=rallies.filter(r=>r.servingBefore==='ours'),sideWon=side.filter(r=>r.winner==='ours').length,breakWon=brk.filter(r=>r.winner==='ours').length,ourAtt=rallies.flatMap(r=>scoutArr(r.actions).filter(a=>a.team==='ours'&&a.skill==='A')),oppAtt=rallies.flatMap(r=>scoutArr(r.actions).filter(a=>a.team==='opponent'&&a.skill==='A')),ourKills=ourAtt.filter(a=>a.evaluation==='#').length,oppKills=oppAtt.filter(a=>a.evaluation==='#').length;return {own,opp,rallies,total:rallies.length,won,lost:rallies.length-won,pointPct:scoutV670Pct(won,rallies.length),sideTotal:side.length,sideWon,sidePct:scoutV670Pct(sideWon,side.length),breakTotal:brk.length,breakWon,breakPct:scoutV670Pct(breakWon,brk.length),ourAttacks:ourAtt.length,ourKillPct:scoutV670Pct(ourKills,ourAtt.length),ourEff:ourAtt.length?scoutV670Eff(ourAtt):0,oppAttacks:oppAtt.length,oppKillPct:scoutV670Pct(oppKills,oppAtt.length),oppEff:oppAtt.length?scoutV670Eff(oppAtt):0}}
+/* VC20713_FN_END:scoutV670Pair */
+
+/* VC20713_FN_BEGIN:scoutV670MetricValue */
+function scoutV670MetricValue(p,ctx){const {$}=ctx;
+const metric=$('scout-v670-metric')?.value||'point';if(metric==='sideout')return p.sideTotal?p.sidePct:null;if(metric==='break')return p.breakTotal?p.breakPct:null;return p.total?p.pointPct:null}
+/* VC20713_FN_END:scoutV670MetricValue */
+
+/* VC20713_FN_BEGIN:scoutV670MetricSample */
+function scoutV670MetricSample(p,ctx){const {$}=ctx;
+const metric=$('scout-v670-metric')?.value||'point';return metric==='sideout'?p.sideTotal:metric==='break'?p.breakTotal:p.total}
+/* VC20713_FN_END:scoutV670MetricSample */
+
+/* VC20713_FN_BEGIN:scoutV670CellClass */
+function scoutV670CellClass(p,ctx){const {$,scoutV670MetricSample,scoutV670MetricValue}=ctx;
+const min=Number($('scout-v670-min')?.value)||5,sample=scoutV670MetricSample(p),v=scoutV670MetricValue(p);if(!sample)return'empty';if(sample<min)return'low';if(v>=55)return'good';if(v<=45)return'bad';return'neutral'}
+/* VC20713_FN_END:scoutV670CellClass */
+
+/* VC20713_FN_BEGIN:scoutV670TopAttackPattern */
+function scoutV670TopAttackPattern(pair,team,ctx){const {scoutArr,scoutV640LabelTarget,scoutV670Eff,scoutV670Pct}=ctx;
+const acts=pair.rallies.flatMap(r=>scoutArr(r.actions).filter(a=>a.team===team&&a.skill==='A'));if(!acts.length)return null;const groups=new Map;acts.forEach(a=>{const key=team==='ours'?(scoutV640LabelTarget(a.attackCombo||'')||((a.startZone&&a.endZone)?`Z${a.startZone}→Z${a.endZone}`:'Sin patrón')):((a.startZone&&a.endZone)?`Z${a.startZone}→Z${a.endZone}`:(scoutV640LabelTarget(a.attackCombo||'')||'Sin patrón'));if(!groups.has(key))groups.set(key,[]);groups.get(key).push(a)});const [label,rows]=[...groups.entries()].sort((a,b)=>b[1].length-a[1].length)[0];return {label,total:rows.length,pct:scoutV670Pct(rows.length,acts.length),killPct:scoutV670Pct(rows.filter(a=>a.evaluation==='#').length,rows.length),eff:scoutV670Eff(rows)}}
+/* VC20713_FN_END:scoutV670TopAttackPattern */
+
+/* VC20713_FN_BEGIN:scoutV670ConfidenceCell */
+function scoutV670ConfidenceCell(p,ctx){const {$}=ctx;
+const min=Number($('scout-v670-min')?.value)||5;return p.total>=min?'Muestra suficiente':p.total?`Muestra reducida (${p.total}/${min})`:'Sin muestra'}
+/* VC20713_FN_END:scoutV670ConfidenceCell */
+
+/* VC20713_FN_BEGIN:scoutV670BestWorst */
+function scoutV670BestWorst(matrix,ctx){const {$,scoutV670MetricSample,scoutV670MetricValue}=ctx;
+const min=Number($('scout-v670-min')?.value)||5,candidates=matrix.filter(p=>scoutV670MetricSample(p)>=min&&scoutV670MetricValue(p)!=null).sort((a,b)=>scoutV670MetricValue(b)-scoutV670MetricValue(a)||scoutV670MetricSample(b)-scoutV670MetricSample(a));return {best:candidates[0]||null,worst:candidates.length>1?candidates[candidates.length-1]:null,candidates}}
+/* VC20713_FN_END:scoutV670BestWorst */
+
+/* VC20713_FN_BEGIN:scoutV670OwnSummary */
+function scoutV670OwnSummary(matrix,ctx){const {scoutV670Pct}=ctx;
+return [1,2,3,4,5,6].map(no=>{const cells=matrix.filter(p=>p.own===no&&p.total),rallies=cells.flatMap(p=>p.rallies),won=rallies.filter(r=>r.winner==='ours').length,side=rallies.filter(r=>r.servingBefore==='opponent'),brk=rallies.filter(r=>r.servingBefore==='ours'),best=cells.filter(p=>p.total>=3).sort((a,b)=>b.pointPct-a.pointPct)[0]||null,worst=cells.filter(p=>p.total>=3).sort((a,b)=>a.pointPct-b.pointPct)[0]||null;return {no,total:rallies.length,pointPct:scoutV670Pct(won,rallies.length),sideTotal:side.length,sidePct:scoutV670Pct(side.filter(r=>r.winner==='ours').length,side.length),breakTotal:brk.length,breakPct:scoutV670Pct(brk.filter(r=>r.winner==='ours').length,brk.length),best,worst}})}
+/* VC20713_FN_END:scoutV670OwnSummary */
+
+/* VC20713_FN_BEGIN:scoutV670FormatMetric */
+function scoutV670FormatMetric(p,ctx){const {$,scoutV670MetricValue}=ctx;
+const metric=$('scout-v670-metric')?.value||'point',v=scoutV670MetricValue(p);return v==null?'—':v+'%'}
+/* VC20713_FN_END:scoutV670FormatMetric */
+
+/* VC20713_FN_BEGIN:scoutV670RallyCodes */
+function scoutV670RallyCodes(r,team,ctx){const {scoutArr}=ctx;
+return scoutArr(r.actions).filter(a=>a.team===team).map(a=>a.code).join('  ')||'—'}
+/* VC20713_FN_END:scoutV670RallyCodes */
+
+window.VC_SCOUT_ANALYSIS_QUERY_20713=Object.freeze({VERSION:"20.7.13",readOnly:true,functions:Object.freeze({scoutV640ActionRowsByRally,scoutV640DistributionEvents,scoutV640Candidates,scoutV640FilterDistribution,scoutV640FilterAttacks,scoutV640Group,scoutV640SamplePill,scoutV640DrillRows,scoutV650Groups,scoutV650Attacks,scoutV650CandidateMap,scoutV650FilterSetter,scoutV650FilterAttacker,scoutV650Group,scoutV650RotationData,scoutV650Roster,scoutV650DrillRows,scoutV670Rallies,scoutV670Pair,scoutV670MetricValue,scoutV670MetricSample,scoutV670CellClass,scoutV670TopAttackPattern,scoutV670ConfidenceCell,scoutV670BestWorst,scoutV670OwnSummary,scoutV670FormatMetric,scoutV670RallyCodes})});
+})();
+/* VC20713_ANALYSIS_QUERY_END */
+
 /* VC2078_SCOUT_REPORT_LAYOUT_BEGIN: exact V7.5.7 HTML bodies, read-only. */
 ;(()=>{
 "use strict";

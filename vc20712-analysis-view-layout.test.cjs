@@ -113,9 +113,9 @@ test('the HTML loads the view module before the core and the size reduction is r
  const coreTag=html.indexOf('id="core-scouting-v150-monolithic"');
  assert.ok(pdfTag>0&&coreTag>pdfTag,'presentation functions exist before caller');
  for(const asset of ['011-v5115-pdf-rosters-script','021-core-scouting-v150-monolithic']){
-  assert.match(html,new RegExp(asset+'\\.js\\?v=[^"]+&amp;rev=20\\.7\\.12'));
+  assert.match(html,new RegExp(asset+'\\.js\\?v=[^"]+&amp;rev=20\\.7\\.\\d+'));
  }
- assert.equal(Buffer.byteLength(core),669627);
+ assert.ok(Buffer.byteLength(core)<=669627,'later query extractions cannot expand the core');
  assert.ok(Buffer.byteLength(layout)>67000);
  assert.ok(gzipSync(Buffer.from(core)).length>0);
  assert.equal(Object.keys(functions).length,11);
