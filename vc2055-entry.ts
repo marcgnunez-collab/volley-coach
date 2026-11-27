@@ -36,6 +36,7 @@ import {installHistoricalRestoreLane} from './domain/scout-historical-restore-ru
 import {installRallyCommandLane} from './domain/scout-rally-command-runtime';
 import {installLiveRallyController} from './domain/scout-rally-controller-runtime';
 import {installNativeScoreRules} from './domain/scout-native-score-rules-runtime';
+import {installNativeRallyPlan} from './domain/scout-native-rally-plan-runtime';
 import {installScoutActionMetadataBridge} from './domain/scout-action-metadata-runtime';
 import {installScoutActionNormalizerBridge} from './domain/scout-action-normalizer-runtime';
 import {installScoutTacticalFieldsBridge} from './domain/scout-action-tactical-fields-runtime';
@@ -197,6 +198,9 @@ export {installLiveRallyController} from './domain/scout-rally-controller-runtim
 export {nativeSetTarget,nativeSetHasWinner,nativeCountWonSets,nativeRotateValues}
  from './domain/scout-native-score-rules';
 export {installNativeScoreRules} from './domain/scout-native-score-rules-runtime';
+export {nativeNextRotationNo,planNativePoint,planNativeUndo}
+ from './domain/scout-native-rally-plan';
+export {installNativeRallyPlan} from './domain/scout-native-rally-plan-runtime';
 export {projectDataVolleyFields,readActionVideoTime,normalizeActionVideoTimestamp}
  from './domain/scout-action-metadata';
 export {installScoutActionMetadataBridge};
@@ -240,6 +244,7 @@ if(typeof window!=='undefined'&&window.document){
  installRallyCommandLane(window);
  installLiveRallyController(window);
  installNativeScoreRules(window);
+ installNativeRallyPlan(window);
  installScoutActionMetadataBridge(window);
  installScoutActionNormalizerBridge(window);
  installScoutTacticalFieldsBridge(window);

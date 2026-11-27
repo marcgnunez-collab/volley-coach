@@ -129,9 +129,9 @@ test('incompatible or throwing bridge can only fall back before a native dispatc
 
 test('release retains original scorer and V12.1 saves, with only the adapter as live entry point',()=>{
  const pkg=require('./package.json'),html=read('index.html'),adapter=read('234-vc20512-match-state-adapters.js');
- assert.equal(pkg.version,'20.5.81');
+ assert.equal(pkg.version,'20.6.0');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20555-live-rally-writer.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.5.81'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.0'));
  assert.ok(adapter.includes('getRallyCoordinator()'));
  assert.ok(adapter.includes('awardPoint:captured.point,undoRally:captured.undo'));
  assert.equal(adapter.includes('window.scoutAwardPoint='),false);

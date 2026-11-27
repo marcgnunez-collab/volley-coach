@@ -1096,7 +1096,7 @@ function scoutV20557SelectRecord(kind,source,native){
   vc20557RallyRecords[nativeKey]++;return native;
 }
 window.VC_RALLY_RECORD_DIAGNOSTICS_20557=()=>({...vc20557RallyRecords});
-window.scoutUndoRally=function(){const m=scoutActive(),s=scoutSet(m);if(!m||!s||!s.rallies.length)return;if(s.finished){s.finished=false;s.winner=null;s.endedAt=null;if(m.status==='finished'){m.status='live';m.endedAt=null}}const r=s.rallies.pop();s.scoreUs=Number(r.scoreBefore.us)||0;s.scoreOpponent=Number(r.scoreBefore.opponent)||0;m.servingTeam=r.servingBefore;m.rotationNo=r.rotationBefore;m.opponentRotationNo=r.opponentRotationBefore||1;m.lineup=scoutNormalizeLineup(r.lineupBefore);m.baseLineup=r.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):scoutNormalizeLineup(r.lineupBefore);m.libero=r.liberoBefore?scoutNormalizeLibero(r.liberoBefore):scoutNormalizeLibero(m.libero);m.lineupRoles=r.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):scoutNormalizeRoles(m.lineupRoles);m.liveRally={id:r.id,actions:scoutClone(r.actions),startedAt:r.startedAt,scoutStartMs:Number(r.scoutStartMs)||0,startSnapshot:{servingBefore:r.servingBefore,rotationBefore:r.rotationBefore,opponentRotationBefore:r.opponentRotationBefore||1,lineupBefore:scoutClone(r.lineupBefore),scoreBefore:scoutClone(r.scoreBefore)}};if(typeof scoutV20557SelectRecord==='function'){const nativeLive=m.liveRally;m.liveRally=scoutV20557SelectRecord('restore',{rally:r,actions:nativeLive.actions,lineupBefore:nativeLive.startSnapshot.lineupBefore,scoreBefore:nativeLive.startSnapshot.scoreBefore},nativeLive)}scoutSave()};
+window.scoutUndoRally=function(){const m=scoutActive(),s=scoutSet(m);if(!m||!s||!s.rallies.length)return;if(s.finished){s.finished=false;s.winner=null;s.endedAt=null;if(m.status==='finished'){m.status='live';m.endedAt=null}}const r=s.rallies.pop(),nativeUndoPlan={scoreUs:Number(r.scoreBefore.us)||0,scoreOpponent:Number(r.scoreBefore.opponent)||0,servingTeam:r.servingBefore,rotationNo:r.rotationBefore,opponentRotationNo:r.opponentRotationBefore||1};let restoration=nativeUndoPlan;const undoBridge=window.VC_NATIVE_RALLY_PLAN_2060;if(undoBridge?.VERSION==='20.6.0'&&undoBridge.nativeOnly===true&&undoBridge.singleNativeWriter===true&&typeof undoBridge.undo==='function'){try{const candidate=undoBridge.undo(r);if(candidate&&Object.keys(nativeUndoPlan).every(key=>Object.is(candidate[key],nativeUndoPlan[key])))restoration=candidate}catch(_){}}s.scoreUs=restoration.scoreUs;s.scoreOpponent=restoration.scoreOpponent;m.servingTeam=restoration.servingTeam;m.rotationNo=restoration.rotationNo;m.opponentRotationNo=restoration.opponentRotationNo;m.lineup=scoutNormalizeLineup(r.lineupBefore);m.baseLineup=r.baseLineupBefore?scoutNormalizeLineup(r.baseLineupBefore):scoutNormalizeLineup(r.lineupBefore);m.libero=r.liberoBefore?scoutNormalizeLibero(r.liberoBefore):scoutNormalizeLibero(m.libero);m.lineupRoles=r.lineupRolesBefore?scoutNormalizeRoles(r.lineupRolesBefore):scoutNormalizeRoles(m.lineupRoles);m.liveRally={id:r.id,actions:scoutClone(r.actions),startedAt:r.startedAt,scoutStartMs:Number(r.scoutStartMs)||0,startSnapshot:{servingBefore:r.servingBefore,rotationBefore:r.rotationBefore,opponentRotationBefore:r.opponentRotationBefore||1,lineupBefore:scoutClone(r.lineupBefore),scoreBefore:scoutClone(r.scoreBefore)}};if(typeof scoutV20557SelectRecord==='function'){const nativeLive=m.liveRally;m.liveRally=scoutV20557SelectRecord('restore',{rally:r,actions:nativeLive.actions,lineupBefore:nativeLive.startSnapshot.lineupBefore,scoreBefore:nativeLive.startSnapshot.scoreBefore},nativeLive)}scoutSave()};
 const vcSubRefreshBase=window.scoutRefreshSubstitution;window.scoutRefreshSubstitution=function(){const m=scoutActive();if(m&&($('scout-sub-team')?.value||'ours')==='ours'){vcEnsureProMatch(m);const pos=$('scout-sub-position')?.value||'p1',baseId=Number(m.baseLineup.ours[pos])||null,visibleId=Number(m.lineup.ours[pos])||baseId;if($('scout-sub-out'))$('scout-sub-out').value=visibleId?scoutPlayerName(visibleId):'Sin asignar';const courtIds=new Set(SCOUT_POS.map(p=>Number(m.lineup.ours[p])).filter(Boolean)),candidates=(jugadoresEquipo||[]).filter(p=>!courtIds.has(Number(p.id))&&Number(p.id)!==Number(m.libero.playerId));if($('scout-sub-in-player'))$('scout-sub-in-player').innerHTML=candidates.map(p=>`<option value="${p.id}">${esc((p.number!==''&&p.number!=null?'#'+p.number+' · ':'')+(p.name||'Jugador')+' · '+vcRoleForPlayer(p))}</option>`).join('');$('scout-sub-own-wrap')?.classList.remove('hidden');$('scout-sub-rival-wrap')?.classList.add('hidden');return}vcSubRefreshBase()};
 const vcSubApplyBase=window.scoutApplySubstitution;window.scoutApplySubstitution=function(){const m=scoutActive();if(!m)return;if(($('scout-sub-team')?.value||'ours')!=='ours'){vcSubApplyBase();return}vcEnsureProMatch(m);const set=scoutSet(m),type=$('scout-sub-type')?.value==='libero'?'libero':'substitution',pos=$('scout-sub-position')?.value||'p1',inId=Number($('scout-sub-in-player')?.value)||null;if(!set||!inId){alert('Selecciona el jugador que entra.');return}if(type==='libero'){m.libero.playerId=inId;m.libero.enabled=true;m.libero.auto=false;vcApplyAutoLibero(m,false);scoutCloseSubstitution();scoutSave();return}const outId=Number(m.baseLineup.ours[pos])||null;if(inId===outId){alert('El jugador que entra debe ser distinto al que sale.');return}const occupied=SCOUT_POS.some(p=>p!==pos&&Number(m.baseLineup.ours[p])===inId);if(occupied){alert('Ese jugador ya está en la rotación en otra posición.');return}const event={id:Date.now(),type:'substitution',team:'ours',setNumber:set.number,scoreUs:set.scoreUs,scoreOpponent:set.scoreOpponent,position:pos,outPlayerId:outId,inPlayerId:inId,outLabel:scoutPlayerName(outId),inLabel:scoutPlayerName(inId),createdAt:scoutNow(),scoutMs:scoutElapsed(m)};m.baseLineup.ours[pos]=inId;m.lineupRoles.ours[pos]=vcPlayerRole(inId);m.libero.centralIds=m.libero.centralIds.filter(id=>Number(id)!==outId);if(vcHasRole(scoutPlayer(inId),'Central'))m.libero.centralIds.push(inId);m.libero.centralIds=[...new Set(m.libero.centralIds.map(Number))];m.events=scoutArr(m.events);m.events.push(event);vcApplyAutoLibero(m,false);scoutCloseSubstitution();scoutRefreshActionPlayers();scoutSave()};
 const vcRenderAnalysisBase=window.scoutRenderAnalysis;window.scoutRenderAnalysis=function(){vcRenderAnalysisBase();const box=$('scout-analysis-events'),m=scoutMatchForAnalysis();if(box&&m){const events=scoutArr(m.events).slice().reverse();box.innerHTML=events.length?events.map(e=>`<div class="scout-event"><b>Set ${e.setNumber} · ${e.scoreUs}–${e.scoreOpponent}</b><span>${e.type==='libero_auto'?'Líbero automático':e.type==='libero'?'Líbero manual':'Sustitución'} · ${e.team==='ours'?'Nuestro':'Rival'} · ${String(e.position||'').toUpperCase()}</span><small>${esc(e.outLabel||'—')} → ${esc(e.inLabel||'—')}</small></div>`).join(''):'<div class="match-empty">Sin cambios registrados.</div>'}};
@@ -2567,7 +2567,12 @@ function scoutV6107NextRotation(value,dir=1){
   const r=Math.min(6,Math.max(1,Number(value)||1));
   // dir >= 0 = giro reglamentario de los jugadores (P2→P1, P1→P6).
   // Con la nomenclatura de rotaciones del colocador esto es R1→R6→...→R2→R1.
-  return ((r-1+(dir>=0?-1:1)+6)%6)+1;
+  const native=((r-1+(dir>=0?-1:1)+6)%6)+1;
+  const lane=typeof window==='undefined'?null:window.VC_NATIVE_RALLY_PLAN_2060;
+  if(lane?.VERSION==='20.6.0'&&lane.nativeOnly===true&&lane.singleNativeWriter===true&&typeof lane.nextRotation==='function'){
+    try{const typed=lane.nextRotation(value,dir);if(Object.is(typed,native))return typed}catch(_){}
+  }
+  return native;
 }
 function scoutV6107OpponentHasData(obj){
   return !!obj&&SCOUT_POS.some(p=>String(obj[p]??'').trim());
@@ -2650,7 +2655,27 @@ window.scoutAwardPoint=function(winner){
   vcEnsureProMatch(m);scoutV6107SyncOpponentLineup(m);vcApplyAutoLibero(m,false);scoutEnsureRallyStart(m);
   const before=m.liveRally.startSnapshot||scoutCurrentRallySnapshot(m),
         baseBefore=scoutClone(m.baseLineup),liberoBefore=scoutClone(m.libero),rolesBefore=scoutClone(m.lineupRoles);
-  if(winner==='ours')s.scoreUs++;else s.scoreOpponent++;
+  /* V20.6.0: live writer applies TypeScript plans only after exact parity. */
+  const nativePlan={scoreUs:winner==='ours'?Number(s.scoreUs)+1:s.scoreUs,
+    scoreOpponent:winner==='ours'?s.scoreOpponent:Number(s.scoreOpponent)+1,
+    winner:winner==='opponent'?'opponent':'ours',
+    servingTeam:winner==='ours'?'ours':'opponent',
+    rotateOurs:winner==='ours'&&before.servingBefore==='opponent',
+    rotateOpponent:winner!=='ours'&&before.servingBefore==='ours',
+    rotationNo:winner==='ours'&&before.servingBefore==='opponent'?scoutV6107NextRotation(m.rotationNo,1):m.rotationNo,
+    opponentRotationNo:winner!=='ours'&&before.servingBefore==='ours'?scoutV6107NextRotation(m.opponentRotationNo,1):m.opponentRotationNo};
+  let typedPlan=null;
+  const nativePlanBridge=window.VC_NATIVE_RALLY_PLAN_2060;
+  if(nativePlanBridge?.VERSION==='20.6.0'&&nativePlanBridge.nativeOnly===true&&
+     nativePlanBridge.singleNativeWriter===true&&typeof nativePlanBridge.point==='function'){
+    try{
+      const candidate=nativePlanBridge.point({winner,scoreUs:s.scoreUs,scoreOpponent:s.scoreOpponent,
+        servingBefore:before.servingBefore,rotationNo:m.rotationNo,opponentRotationNo:m.opponentRotationNo});
+      if(candidate&&Object.keys(nativePlan).every(key=>Object.is(candidate[key],nativePlan[key])))typedPlan=candidate;
+    }catch(_){}
+  }
+  if(typedPlan){s.scoreUs=typedPlan.scoreUs;s.scoreOpponent=typedPlan.scoreOpponent}
+  else if(winner==='ours')s.scoreUs++;else s.scoreOpponent++;
   const lineupBefore=scoutClone(before.lineupBefore),scoreBefore=scoutClone(before.scoreBefore),
         actions=scoutClone(m.liveRally.actions),endedAt=scoutNow(),scoutEndMs=scoutElapsed(m);
   const closeSource={live:m.liveRally,before,setNumber:s.number,baseBefore,liberoBefore,rolesBefore,
@@ -2666,18 +2691,18 @@ window.scoutAwardPoint=function(winner){
     scoutV20557SelectRecord('close',closeSource,nativeRally):nativeRally;
   s.rallies.push(rally);
   if(winner==='ours'){
-    if(before.servingBefore==='opponent'){
+    if(typedPlan?typedPlan.rotateOurs:before.servingBefore==='opponent'){
       vcRotateBase(m,1);
-      m.rotationNo=scoutV6107NextRotation(m.rotationNo,1);
+      m.rotationNo=typedPlan?typedPlan.rotationNo:scoutV6107NextRotation(m.rotationNo,1);
     }
-    m.servingTeam='ours';
+    m.servingTeam=typedPlan?typedPlan.servingTeam:'ours';
   }else{
-    if(before.servingBefore==='ours'){
+    if(typedPlan?typedPlan.rotateOpponent:before.servingBefore==='ours'){
       m.lineup=scoutRotateTeamLineup(m.lineup,'opponent',1);
       m.baseLineup.opponent=scoutClone(m.lineup.opponent);
-      m.opponentRotationNo=scoutV6107NextRotation(m.opponentRotationNo,1);
+      m.opponentRotationNo=typedPlan?typedPlan.opponentRotationNo:scoutV6107NextRotation(m.opponentRotationNo,1);
     }
-    m.servingTeam='opponent';
+    m.servingTeam=typedPlan?typedPlan.servingTeam:'opponent';
   }
   const vcIntegrityEventsBefore=scoutArr(m.events).length;
   vcApplyAutoLibero(m,true);
