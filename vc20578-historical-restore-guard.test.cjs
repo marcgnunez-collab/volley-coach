@@ -216,7 +216,7 @@ test('two concurrent restore requests do not silently overwrite each other',asyn
 
 test('V20.5.78 PWA, source guard, old sync journal and compatibility remain wired',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.2');
+ assert.equal(pkg.version,'20.7.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20578-historical-restore-guard.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.7.0'));

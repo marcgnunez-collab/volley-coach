@@ -118,7 +118,7 @@ test('all TypeScript scouting consumers use the single safe match-reader contrac
 
 test('V20.5.12 source, SW, Vite and native script distribution reference the exact external files',()=>{
  const html=read('index.html'),sw=read('service-worker.js'),pkg=require('./package.json');
- assert.equal(pkg.version,'20.7.2');
+ assert.equal(pkg.version,'20.7.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20512-scouting-consolidation.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));

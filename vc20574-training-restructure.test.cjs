@@ -199,7 +199,7 @@ test('locked second tab cannot consume cold marker and cancellation touches mark
 
 test('V20.5.74 release preserves classic writer and exposes only manual read-only cold controls',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.2');
+ assert.equal(pkg.version,'20.7.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20574-training-restructure.test.cjs'));
  assert.ok(html.includes('id="vc20574-prepare-training-cold" disabled'));
  assert.ok(html.includes('id="vc20574-verify-training-cold" disabled'));

@@ -59,7 +59,7 @@ test('V20.7.2 preserves source bytes and order for three read-only tactical engi
   const contents=original(filename);
   assert.equal(crypto.createHash('sha256').update(contents).digest('hex'),expectedHash);
   gzipBefore+=zlib.gzipSync(contents).length;
-  assert.equal(fs.existsSync(path.join(root,filename)),false,`${filename} removed at root`);
+  assert.ok(JSON.parse(read('scripts/retained-legacy-assets.json')).groups.some(group=>group.files.includes(filename)),`${filename} retained until final cleanup`);
  }
  assert.ok(zlib.gzipSync(sourceBundle).length<gzipBefore,'fewer, smaller gzip responses');
  new vm.Script(sourceBundle);
@@ -135,5 +135,5 @@ test('V20.7.2 loads just the one unified tactical script and caches it',()=>{
  assert.match(css,/body\.vc17-shell:not\(\.v158-view-only\) #v11-topbar \.v11-menu-toggle/);
  const deletion=read('ELIMINAR_DE_GITHUB_V20.7.2.txt').split(/\r?\n/).filter(x=>/^\d{3}-.*\.js$/.test(x));
  assert.deepEqual(deletion,originals.map(([file])=>file));
- assert.equal(require('./package.json').version,'20.7.2');
+ assert.equal(require('./package.json').version,'20.7.3');
 });

@@ -51,7 +51,7 @@ test('V20.7.1 preserves all ten historical CSS source texts byte for byte and in
    previous=begin;
    const sha=crypto.createHash('sha256').update(originalSource(bundle,original)).digest('hex');
    assert.equal(sha,expected,`${original}: exact original CSS`);
-   assert.equal(fs.existsSync(path.join(root,original)),false,`${original} retired at root`);
+   assert.ok(JSON.parse(read('scripts/retained-legacy-assets.json')).groups.some(group=>group.files.includes(original)),`${original} retained until final cleanup`);
   }
  }
 });
@@ -92,7 +92,7 @@ test('V20.7.1 GitHub retire instructions enumerate only the ten old CSS files',(
 
 test('V20.7.1 remains the Vite-enabled, asset-audited incremental release',()=>{
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.7.2');
+ assert.equal(pkg.version,'20.7.3');
  assert.ok(pkg.scripts.prebuild.includes('audit:assets'));
  assert.ok(pkg.scripts['test:foundation'].includes('vc2071-css-consolidation.test.cjs'));
  assert.ok(read('index.html').includes('V20.7.1 · ESTILOS UNIFICADOS'));

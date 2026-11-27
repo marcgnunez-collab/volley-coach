@@ -3,11 +3,10 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-/* Run from the repository root like the other archived suites. */
-const root=path.resolve(__dirname,'..');
+const root=__dirname;
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
-const api=require('../230-vc2050-release-health.js');
+const api=require('./230-vc2050-release-health.js');
 const references=[...html.matchAll(/(?:src|href)=["']\.\/([^"'?#]+)(?:\?[^"']*)?["']/g)].map(x=>x[1]);
 const absent=[...new Set(references)].filter(f=>!fs.existsSync(path.join(root,f)));
 
@@ -23,8 +22,8 @@ test('historical uncommitted CSS paths are no longer requested',()=>{
  }
 });
 test('new health module is versioned in HTML and precache',()=>{
- for(const file of ['230-vc2050-release-health.js','vc2050-release-health.css']){
-  assert.ok(html.includes('./'+file+'?v=20.5.0.3'));
+ for(const [file,version] of [['vc2073-diagnostics-unified.js','20.7.3'],['vc2050-release-health.css','20.5.0.3']]){
+  assert.ok(html.includes('./'+file+'?v='+version));
   assert.ok(sw.includes("'./"+file+"'"));
  }
  assert.match(sw,/foundation-20\.5\.0\.3/);

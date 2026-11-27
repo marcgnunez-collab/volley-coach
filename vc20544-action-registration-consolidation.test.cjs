@@ -142,7 +142,7 @@ test('write rejection and missing match preserve native return value and no phan
 
 test('V20.5.44 replaces three scouting preparation wrappers with one, leaving writers intact',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.2');
+ assert.equal(pkg.version,'20.7.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20544-action-registration-consolidation.test.cjs'));
  for(const asset of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',
   'vc2055-domain-core.mjs'])assert.ok(html.includes(asset+'?v=20.7.0'));

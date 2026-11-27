@@ -1,3 +1,7 @@
+AVISO V20.7.3: LISTA HISTORICA. NO BORRAR NINGUN ARCHIVO TODAVIA.
+El usuario ha decidido posponer toda eliminacion hasta terminar la migracion.
+Consulta MIGRACION_PENDIENTES_DE_BORRADO_V20.7.3.md para el inventario actual.
+
 VOLLEY COACH V20.7.0 - ARCHIVOS EXACTOS PARA ELIMINAR DE GITHUB
 
 Eliminar SOLO estos diez archivos de la raiz de tu repositorio DESPUES de subir SOLO_CAMBIOS V20.7.0:

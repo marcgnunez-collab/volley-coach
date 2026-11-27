@@ -33,19 +33,21 @@ test('asset audit rejects broken HTML, duplicated script ids and orphaned files'
  }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 });
 
-test('ten obsolete root artifacts are absent; active runtime and historical tests remain',()=>{
+test('ten legacy assets are now deferred, never loaded by the active UI',()=>{
+ const retired=new Set(JSON.parse(read('scripts/retained-legacy-assets.json')).groups.flatMap(group=>group.files));
+ const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['216-vc20231-dv-layout-refinement.js','vc20231-dv-layout-refinement.css',
   '211-vc2012-multi-device-validation.js',
   'vc-app-192-v1741.png','vc-app-512-v1741.png','vc-app-maskable-v1741.png',
   'v19320-compatibility-final-audit.test.cjs','v2001-sync-engine-reliability.test.cjs',
   'v2011-durable-sync-journal.test.cjs','v2012-multi-device-validation.test.cjs'])
-  assert.equal(fs.existsSync(path.join(root,file)),false,file);
+  {assert.ok(retired.has(file),file);assert.ok(!html.includes(`./${file}`),file);assert.ok(!sw.includes(`'./${file}'`),file);}
  assert.ok(fs.existsSync(path.join(root,'test-audit/fixtures/v2012-legacy-device-validator.js')));
  for(const file of ['v19320-compatibility-final-audit.test.cjs',
   'v2001-sync-engine-reliability.test.cjs','v2011-durable-sync-journal.test.cjs',
   'v2012-multi-device-validation.test.cjs'])
   assert.ok(fs.existsSync(path.join(root,'test-audit',file)),file);
- const html=read('index.html'),manifest=JSON.parse(read('manifest.webmanifest'));
+ const manifest=JSON.parse(read('manifest.webmanifest'));
  assert.ok(html.includes('./216-vc20241-data-volley-layout-refinement.js'));
  assert.ok(html.includes('./vc20241-data-volley-layout-refinement.css'));
  assert.ok(html.includes('href="./icon-192.png"'));
@@ -64,7 +66,7 @@ test('GitHub deletion instructions name exactly ten retired files and never curr
  assert.equal(paths.length,10);
  for(const file of paths){
   assert.match(file,/^[a-zA-Z0-9_.-]+$/,'only root filenames may be deleted');
-  assert.equal(fs.existsSync(path.join(root,file)),false,file);
+  assert.ok(JSON.parse(read('scripts/retained-legacy-assets.json')).groups.some(group=>group.files.includes(file)),file);
  }
  for(const current of ['index.html','service-worker.js','vc2055-domain-core.mjs',
   'icon-192.png','icon-512.png','icon-maskable-512.png',
@@ -139,7 +141,7 @@ test('offline files that were never cached fail closed instead of returning stal
 test('V20.7.0 release scripts audit assets and GitHub CI watches future regressions',()=>{
  const pkg=JSON.parse(read('package.json')),sw=read('service-worker.js'),html=read('index.html');
  const action=read('.github/workflows/volley-coach-recovery.yml');
- assert.equal(pkg.version,'20.7.2');
+ assert.equal(pkg.version,'20.7.3');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2070-asset-architecture.test.cjs'));
  assert.ok(pkg.scripts['audit:assets'].includes('scripts/audit-runtime-assets.mjs'));
  assert.ok(pkg.scripts.prebuild.includes('audit:assets'));

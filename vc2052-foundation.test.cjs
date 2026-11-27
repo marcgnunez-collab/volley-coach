@@ -28,8 +28,8 @@ test('performance report is numeric and avoids resource names',()=>{
  assert.equal(JSON.stringify(metrics).includes('never expose this'),false);
 });
 test('runtime module and cache are versioned, with no business mutation',()=>{
- for(const name of ['232-vc2052-architecture-foundation.js','vc2052-architecture-foundation.css']){
-  assert.ok(html.includes('./'+name+'?v=20.5.2'));
+ for(const [name,version] of [['vc2073-diagnostics-unified.js','20.7.3'],['vc2052-architecture-foundation.css','20.5.2']]){
+  assert.ok(html.includes('./'+name+'?v='+version));
   assert.ok(sw.includes("'./"+name+"'"));
  }
  assert.ok(sw.includes('20.5.2'));
