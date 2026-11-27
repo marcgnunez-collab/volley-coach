@@ -118,11 +118,11 @@ test('missing, invalid, mismatched and throwing TypeScript lexer all revert to c
 
 test('V20.5.37 lexer remains syntax-only and is included in source, tests and Vite release',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20537-scout-lexer-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.0'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.0'));
- assert.ok(html.includes('213-vc2021-scouting-speed-pro.js?v=20.6.0'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.1'));
+ assert.ok(html.includes('213-vc2021-scouting-speed-pro.js?v=20.6.1'));
  assert.ok(sw.includes('scout-lexical-migration-20.5.37'));
  assert.ok(read('src/vc2055-entry.ts').includes('installScoutingLexerBridge(window)'));
  assert.ok(read('021-core-scouting-v150-monolithic.js').includes('const lexical=v6108CheckedLex(raw)'));

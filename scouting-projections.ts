@@ -4,7 +4,7 @@
  */
 import {inspectLiveSetStatistics,type LiveSetStatistics} from './live-statistics';
 import {inspectPlayerBoxscore,type BoxscoreFilters,type PlayerBoxscore} from './player-boxscore';
-import {readCanonicalMatch} from './match-state-contract';
+import {readSharedMatch} from './shared-match-context-runtime';
 import type {ObservableMatchStore,ObservableWindow,ObservableMatchSnapshot,ObservableTopic} from './match-observable';
 import {isRotation,type Team} from '../domain/model';
 
@@ -57,7 +57,7 @@ export function createScoutingProjectionStore(win:ScoutingProjectionWindow,
   getLiveStatistics(){
    if(disposed)throw Error('La vista de scouting está cerrada.');
    if(live){cacheHits++;return live;}
-   live=inspectLiveSetStatistics(readCanonicalMatch(win));calculations++;return live;
+   live=inspectLiveSetStatistics(readSharedMatch(win));calculations++;return live;
   },
   getPlayerBoxscore(filters:BoxscoreFilters){
    if(disposed)throw Error('La vista de scouting está cerrada.');
@@ -67,7 +67,7 @@ export function createScoutingProjectionStore(win:ScoutingProjectionWindow,
    const key=`${team}:${scope}:${rotation??0}`;
    const existing=players.get(key);
    if(existing){cacheHits++;return existing;}
-   const report=inspectPlayerBoxscore(readCanonicalMatch(win),{team,scope,rotation});
+   const report=inspectPlayerBoxscore(readSharedMatch(win),{team,scope,rotation});
    calculations++;
    if(players.size>=MAX_FILTERED_REPORTS){
     const oldest=players.keys().next().value;

@@ -126,11 +126,11 @@ test('video timestamp getters are read only as often as in V20.5.52',async()=>{
 
 test('V20.5.53 removes only the V7.0 rally wrapper, not video mapping or scoring',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20553-rally-video-consolidation.test.cjs'));
  for(const file of ['021-core-scouting-v150-monolithic.js',
   '213-vc2021-scouting-speed-pro.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(file+'?v=20.6.0'),file);
+  assert.ok(html.includes(file+'?v=20.6.1'),file);
  assert.ok(sw.includes('rally-video-20.5.53'));
  assert.ok(!source.includes('const v700NormRallyBase=scoutNormalizeRally'));
  assert.ok(source.includes('v20553RallyVideoReady=true'));

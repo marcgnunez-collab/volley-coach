@@ -162,11 +162,11 @@ test('original createBrowserJournal IndexedDB path survives a simulated window r
 
 test('V20.5.19 is strictly read-only and keeps the original IndexedDB/CAS files',()=>{
  const pkg=require('./package.json'),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20519-journal-recovery.test.cjs'));
  assert.ok(pkg.scripts['test:browser-recovery']);
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.0'));
- assert.ok(html.includes('vc2055-domain.css?v=20.6.0'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.6.1'));
  assert.ok(sw.includes('journal-inspector-20.5.19'));
  assert.ok(!html.includes('inspectJournalRecovery('));
  assert.ok(read('src/vc2055-entry.ts').includes('inspectJournalRecovery'));

@@ -16,8 +16,8 @@ const state={
   compact:false,
   exporting:false
 };
-function active(){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null}catch(_){return null}}
-function setOf(m){try{return window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null}catch(_){return null}}
+function active(){try{const native=window.VC_SCOUT_VIDEO_BRIDGE?.getActive?.()||null,bridge=window.VC_MATCH_CONTEXT_2061;if(bridge?.VERSION==='20.6.1'&&bridge.readOnly===true&&bridge.singleNativeSource===true){try{const typed=bridge.getActive();if(typed===native)return typed}catch(_){}}return native}catch(_){return null}}
+function setOf(m){try{const native=window.VC_SCOUT_VIDEO_BRIDGE?.getCurrentSet?.(m)||null,bridge=window.VC_MATCH_CONTEXT_2061;if(bridge?.VERSION==='20.6.1'&&bridge.readOnly===true&&bridge.singleNativeSource===true){try{const typed=bridge.getSet(m);if(typed===native)return typed}catch(_){}}return native}catch(_){return null}}
 function save(){try{window.VC_SCOUT_VIDEO_BRIDGE?.save?.()}catch(err){console.error('V7.4 save',err)}}
 function playerLabel(a){try{return window.VC_SCOUT_VIDEO_BRIDGE?.playerLabel?.(a)||String(a?.playerLabel||a?.playerNameSnapshot||a?.playerNumberSnapshot||'Jugador')}catch(_){return 'Jugador'}}
 function scoutElapsedSafe(m){

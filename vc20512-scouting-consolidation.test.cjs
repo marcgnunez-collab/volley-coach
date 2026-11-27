@@ -106,9 +106,10 @@ test('readCanonicalMatch centralizes legacy fallbacks without copying or writing
 
 test('all TypeScript scouting consumers use the single safe match-reader contract',()=>{
  for(const file of [
-  'src/domain/runtime.ts','src/domain/committed-runtime.ts',
-  'src/state/live-statistics-runtime.ts','src/state/player-boxscore-runtime.ts'
+  'src/domain/runtime.ts','src/domain/committed-runtime.ts'
  ])assert.ok(read(file).includes('readCanonicalMatch('),file);
+ for(const file of ['src/state/live-statistics-runtime.ts','src/state/player-boxscore-runtime.ts'])
+  assert.ok(read(file).includes('readSharedMatch('),file);
  assert.ok(read('src/state/match-observable.ts').includes('canonicalReaders(win)'));
  const contract=read('src/state/match-state-contract.ts');
  for(const forbidden of ['scoutSave(', 'scoutPushAction(', 'localStorage', 'indexedDB', 'supabase', 'cloudClient.', 'v121AwardPoint=', 'window.MatchState=', 'getSnapshot('])
@@ -117,10 +118,10 @@ test('all TypeScript scouting consumers use the single safe match-reader contrac
 
 test('V20.5.12 source, SW, Vite and native script distribution reference the exact external files',()=>{
  const html=read('index.html'),sw=read('service-worker.js'),pkg=require('./package.json');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20512-scouting-consolidation.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.0'));
- assert.ok(html.includes('vc2055-domain.css?v=20.6.0'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.6.1'));
  assert.ok(sw.includes('scout-core-extraction-20.5.12'));
  assert.ok(sw.includes("'./233-vc20512-match-state-core.js'"));
  assert.ok(sw.includes("'./234-vc20512-match-state-adapters.js'"));

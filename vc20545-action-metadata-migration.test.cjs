@@ -171,11 +171,11 @@ test('missing, corrupt or throwing bridge returns historical fields and timestam
 
 test('V20.5.45 keeps native video, score, source identification and journal writers untouched',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20545-action-metadata-migration.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js',
   '077-v132-scouting-pro-workspace.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(name+'?v=20.6.0'));
+  assert.ok(html.includes(name+'?v=20.6.1'));
  assert.ok(sw.includes('action-video-metadata-20.5.45'));
  assert.ok(code.includes('const pushed=scoutPushAction(parsed.action)'));
  assert.ok(code.includes('const v880PushBase=scoutPushAction'));
@@ -189,6 +189,7 @@ test('V20.5.45 keeps native video, score, source identification and journal writ
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
  assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
+ // V20.6.1 adds a parity-checked read-only accessor; the writer/REC/Delay paths remain native.
  assert.equal(hash('028-v740-live-scout-video-module.js'),
-  '93aa7123e6fd7aa2a9a6da880386bb520fe5d0036704dab0746b66be3dc9e0e3');
+  'c633a21585eba2bb8a602f4bd5ba560271ff522664bc80442e4cb69274d083e5');
 });

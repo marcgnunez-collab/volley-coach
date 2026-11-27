@@ -4,7 +4,7 @@
 import {inspectPlayerBoxscore,type BoxscoreFilters,type PlayerBoxscore} from './player-boxscore';
 import type {Rotation,Team} from '../domain/model';
 import type {ObservableWindow} from './match-observable';
-import {readCanonicalMatch} from './match-state-contract';
+import {readSharedMatch} from './shared-match-context-runtime';
 import type {ScoutingProjectionWindow} from './scouting-projections';
 import {createReadOnlyRenderGate,installRenderMetricsBridge} from './render-performance';
 
@@ -102,7 +102,7 @@ export function mountPlayerBoxscore(win:BoxscoreWindow):Readonly<PlayerBoxscoreA
    rotation:/^[1-6]$/.test(rotation.value)?Number(rotation.value) as Rotation:null};
   const shared=win.VC_SCOUT_PROJECTIONS_20522;
   if(force)shared?.invalidate();
-  const next=shared?shared.getPlayerBoxscore(filters):inspectPlayerBoxscore(readCanonicalMatch(win),filters);report=next;
+  const next=shared?shared.getPlayerBoxscore(filters):inspectPlayerBoxscore(readSharedMatch(win),filters);report=next;
   if(visible())render(next,force);
   return next;
  };

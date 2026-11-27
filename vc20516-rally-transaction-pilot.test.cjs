@@ -151,10 +151,10 @@ test('pilot retains only a bounded, anonymous record of discrepancies',async()=>
 
 test('source release exports the pilot but never mounts a second production writer',()=>{
  const html=read('index.html'),sw=read('service-worker.js'),pkg=require('./package.json');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20516-rally-transaction-pilot.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.0'));
- assert.ok(html.includes('vc2055-domain.css?v=20.6.0'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
+ assert.ok(html.includes('vc2055-domain.css?v=20.6.1'));
  assert.ok(sw.includes('transaction-pilot-20.5.16'));
  const module=read('src/domain/rally-transaction-pilot.ts');
  const entry=read('src/vc2055-entry.ts');

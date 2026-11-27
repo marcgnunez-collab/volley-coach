@@ -3,7 +3,7 @@
  */
 import {inspectLiveSetStatistics,type LiveSetStatistics} from './live-statistics';
 import type {ObservableWindow} from './match-observable';
-import {readCanonicalMatch} from './match-state-contract';
+import {readSharedMatch} from './shared-match-context-runtime';
 import type {ScoutingProjectionWindow} from './scouting-projections';
 import {createReadOnlyRenderGate,installRenderMetricsBridge} from './render-performance';
 
@@ -68,7 +68,7 @@ export function mountLiveStatisticsPanel(win:LiveWindow):Readonly<LiveStatistics
  const readReport=(force=false)=>{
   const shared=win.VC_SCOUT_PROJECTIONS_20522;
   if(force)shared?.invalidate();
-  const next=shared?shared.getLiveStatistics():inspectLiveSetStatistics(readCanonicalMatch(win));report=next;
+  const next=shared?shared.getLiveStatistics():inspectLiveSetStatistics(readSharedMatch(win));report=next;
   if(visible())render(next,force);
   return next;
  };

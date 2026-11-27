@@ -229,10 +229,10 @@ test('third won set still finalizes match and invokes only the old competition w
 
 test('published shell, source bridge and service worker are updated without changing V20.5.80 controller',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.6.0');
+ assert.equal(pkg.version,'20.6.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20581-native-scoring-rules.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.0'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.0'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.1'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.1'));
  assert.ok(read('service-worker.js').includes('native-score-rules-20.5.81'));
  assert.ok(read('src/vc2055-entry.ts').includes('installNativeScoreRules(window)'));
  assert.ok(source.includes('VC_RALLY_CONTROLLER_20580'));
