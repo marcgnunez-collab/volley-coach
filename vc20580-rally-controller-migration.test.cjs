@@ -233,10 +233,10 @@ test('failed controller invocation never triggers fallback native invocation',()
 
 test('versioned shell, build output, old bridge and service worker reference V20.5.80',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.6.4');
+ assert.equal(pkg.version,'20.6.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20580-rally-controller-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.4'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.5'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.5'));
  assert.ok(read('service-worker.js').includes('rally-controller-20.5.80'));
  assert.ok(read('src/vc2055-entry.ts').includes('installLiveRallyController(window)'));
  assert.ok(source.includes('v20580LiveController()'));

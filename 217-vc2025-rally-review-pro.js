@@ -28,22 +28,39 @@
  const state = () => ({open, selected, currentId, filters:{...filters}});
 
  function collect(matchData) {
-  const native=arr(matchData?.sets).flatMap((set, si) => arr(set?.rallies).map((rally, ri) => ({
+  const bridge=win?.VC_RALLY_TIMELINE_2062;
+  if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.review==='function'){
+   try{const typed=bridge.review(matchData);if(Array.isArray(typed)){
+    let index=0,valid=true;const sets=arr(matchData?.sets);
+    outer:for(let si=0;si<sets.length;si++){
+     if(!(si in sets))continue;
+     const set=sets[si],rallies=arr(set?.rallies);
+     for(let ri=0;ri<rallies.length;ri++){
+      if(!(ri in rallies))continue;
+      const rally=rallies[ri],row=typed[index++];
+      if(!row||Object.keys(row).length!==12||
+       !Object.is(row.key,`${si}:${ri}:${str(rally?.id??'')}`)||
+       !Object.is(row.setIndex,si)||!Object.is(row.rallyIndex,ri)||
+       !Object.is(row.setNo,set?.number??si+1)||!Object.is(row.rallyNo,ri+1)||
+       !Object.is(row.id,rally?.id)||!Object.is(row.rally,rally)||
+       !Object.is(row.actions,arr(rally?.actions))||
+       !Object.is(row.winner,rally?.winner||null)||
+       !Object.is(row.rotation,rally?.rotationBefore??null)||
+       !Object.is(row.before,rally?.scoreBefore)||!Object.is(row.after,rally?.scoreAfter)){
+       valid=false;break outer;
+      }
+     }
+    }
+    if(valid&&index===typed.length)return typed;
+   }
+   }catch(_){}
+  }
+  return arr(matchData?.sets).flatMap((set, si) => arr(set?.rallies).map((rally, ri) => ({
    key: `${si}:${ri}:${str(rally?.id ?? '')}`, setIndex: si, rallyIndex: ri,
    setNo: set?.number ?? si + 1, rallyNo: ri + 1, id: rally?.id, rally,
    actions: arr(rally?.actions), winner: rally?.winner || null,
    rotation: rally?.rotationBefore ?? null, before: rally?.scoreBefore, after: rally?.scoreAfter
   })));
-  const bridge=win?.VC_RALLY_TIMELINE_2062;
-  if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.review==='function'){
-   try{const typed=bridge.review(matchData);
-    if(Array.isArray(typed)&&typed.length===native.length&&typed.every((row,i)=>{
-     const source=native[i],keys=Object.keys(source);
-     return row&&Object.keys(row).length===keys.length&&keys.every(key=>Object.is(row[key],source[key]));
-    }))return typed;
-   }catch(_){}
-  }
-  return native;
  }
  function issues(item, parser, matchData) {
   if (!item) return [];

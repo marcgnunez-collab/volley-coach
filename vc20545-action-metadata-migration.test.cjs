@@ -171,11 +171,11 @@ test('missing, corrupt or throwing bridge returns historical fields and timestam
 
 test('V20.5.45 keeps native video, score, source identification and journal writers untouched',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.6.4');
+ assert.equal(pkg.version,'20.6.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20545-action-metadata-migration.test.cjs'));
  for(const name of ['021-core-scouting-v150-monolithic.js',
   '077-v132-scouting-pro-workspace.js','vc2055-domain-core.mjs'])
-  assert.ok(html.includes(name+'?v=20.6.4'));
+  assert.ok(html.includes(name+'?v=20.6.5'));
  assert.ok(sw.includes('action-video-metadata-20.5.45'));
  assert.ok(code.includes('const pushed=scoutPushAction(parsed.action)'));
  assert.ok(code.includes('const v880PushBase=scoutPushAction'));
@@ -189,7 +189,10 @@ test('V20.5.45 keeps native video, score, source identification and journal writ
  const hash=file=>crypto.createHash('sha256').update(read(file).trimEnd()).digest('hex');
  assert.equal(hash('233-vc20512-match-state-core.js'),'a718483a44036e299869bfc46b4bddd02719b40d981245056768c1153bb46afe');
  assert.equal(hash('234-vc20512-match-state-adapters.js'),'683e6387048a402526a4ceabe27f75c09599744e42bd37ccbfee11ace231a4a8');
- // V20.6.2 also shares last-rally traversal; the writer/REC/Delay paths remain native.
- assert.equal(hash('028-v740-live-scout-video-module.js'),
-  '46148aca00ca6f50d583a6ed4717ca327d45faa31bd9bd0fda028a588dd66630');
+ // V20.6.5 optimizes only lastClosedRally. Pin the entire remaining module,
+ // including native REC/Delay and the link/recording writers, byte-for-byte.
+ const videoWithoutRead=read('028-v740-live-scout-video-module.js')
+  .replace(/function lastClosedRally\(m=active\(\)\)\{[\s\S]*?(?=function lastAction\(m=active\(\)\)\{)/,'');
+ assert.equal(crypto.createHash('sha256').update(videoWithoutRead.trimEnd()).digest('hex'),
+  '1ab7af3180f0182e91e41d8133dd8607de9eddce282d21a440d287f99e3297f7');
 });

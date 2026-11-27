@@ -163,10 +163,10 @@ test('boot coordinator neither stores canonical matches nor owns media or sync w
 
 test('V20.6.3 version, cache, Vite bundle and automation remain wired',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.6.4');
+ assert.equal(pkg.version,'20.6.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2063-bootstrap-coordinator.test.cjs'));
  assert.ok(html.includes('V20.6.3 · ARRANQUE ÚNICO'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.5'));
  assert.ok(read('service-worker.js').includes('single-bootstrap-20.6.3'));
  assert.ok(read('src/vc2055-entry.ts').includes('installBootstrapCoordinator(window'));
  assert.ok(read('vc2055-domain-core.mjs').includes('VC_APP_BOOTSTRAP_2063'));

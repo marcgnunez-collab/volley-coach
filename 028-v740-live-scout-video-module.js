@@ -180,12 +180,22 @@ function markAction(a,m){
 }
 function lastClosedRally(m=active()){
   if(!m)return null;
-  const all=arr(m.sets).flatMap(s=>arr(s.rallies).map(r=>({r,set:s})));
-  const native=all.length?all[all.length-1]:null,bridge=window.VC_RALLY_TIMELINE_2062;
+  const bridge=window.VC_RALLY_TIMELINE_2062;
   if(bridge?.VERSION==='20.6.2'&&bridge.readOnly===true&&bridge.canonicalReferences===true&&typeof bridge.last==='function'){
-    try{const typed=bridge.last(m);if((!typed&&!native)||(typed&&native&&typed.rally===native.r&&typed.set===native.set))return typed?{r:typed.rally,set:typed.set}:null}catch(_){}
+    try{
+      const typed=bridge.last(m),sets=arr(m.sets);let actual=null;
+      outer:for(let si=sets.length-1;si>=0;si--){
+        if(!(si in sets))continue;
+        const set=sets[si],rallies=arr(set.rallies);
+        for(let ri=rallies.length-1;ri>=0;ri--){
+          if(ri in rallies){actual={r:rallies[ri],set};break outer}
+        }
+      }
+      if((!typed&&!actual)||(typed&&actual&&typed.rally===actual.r&&typed.set===actual.set))return actual;
+    }catch(_){}
   }
-  return native;
+  const all=arr(m.sets).flatMap(s=>arr(s.rallies).map(r=>({r,set:s})));
+  return all.length?all[all.length-1]:null;
 }
 function lastAction(m=active()){
   if(!m)return null;

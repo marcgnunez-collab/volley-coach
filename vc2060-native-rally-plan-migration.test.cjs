@@ -207,10 +207,10 @@ test('a throwing or absent plan bridge cannot cause any second native dispatch',
 
 test('V20.6.0 source, build and shell wire the plans without replacing sync owners',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.6.4');
+ assert.equal(pkg.version,'20.6.5');
  assert.ok(pkg.scripts['test:foundation'].includes('vc2060-native-rally-plan-migration.test.cjs'));
- assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.4'));
- assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.4'));
+ assert.ok(html.includes('vc2055-domain-core.mjs?v=20.6.5'));
+ assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.6.5'));
  assert.ok(read('service-worker.js').includes('native-rally-plan-20.6.0'));
  assert.ok(read('src/vc2055-entry.ts').includes('installNativeRallyPlan(window)'));
  assert.ok(pointSource.includes('nativePlanBridge.point('));
