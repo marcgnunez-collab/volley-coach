@@ -177,7 +177,7 @@ test('V20.5.11 is bundled, versioned and never writes to the legacy match or clo
  const css=fs.readFileSync(path.join(root,'vc2055-domain.css'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const entry=fs.readFileSync(path.join(root,'src/vc2055-entry.ts'),'utf8');
- assert.equal(pkg.version,'20.7.6');
+ assert.equal(pkg.version,require('./scripts/retained-legacy-assets.json').updatedIn);
  assert.ok(pkg.scripts['test:foundation'].includes('vc20511-player-boxscore.test.cjs'));
  assert.ok(html.includes('id="vc20511-boxscore"'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

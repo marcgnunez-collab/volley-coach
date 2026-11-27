@@ -161,7 +161,7 @@ test('cancelled undo and original opt-in detached pilots preserve their previous
 test('V20.5.56 release wires selection to the one writer without touching CAS or IndexedDB',()=>{
  const pkg=require('./package.json'),adapter=read('234-vc20512-match-state-adapters.js'),
   state=read('233-vc20512-match-state-core.js'),html=read('index.html');
- assert.equal(pkg.version,'20.7.6');
+ assert.equal(pkg.version,require('./scripts/retained-legacy-assets.json').updatedIn);
  assert.ok(pkg.scripts['test:foundation'].includes('vc20556-rally-selection-safety.test.cjs'));
  assert.ok(adapter.includes('prepareMatchSwitch:async()=>'));
  assert.ok(state.includes('releaseSelection=await prepare()'));

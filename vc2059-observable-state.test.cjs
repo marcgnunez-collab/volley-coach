@@ -170,7 +170,7 @@ test('V20.5.9 is versioned, included in Vite/PWA and has no second writer',async
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const entry=fs.readFileSync(path.join(root,'src/vc2055-entry.ts'),'utf8');
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.7.6');
+ assert.equal(pkg.version,require('./scripts/retained-legacy-assets.json').updatedIn);
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));
  assert.ok(sw.includes('observable-state-20.5.9'));

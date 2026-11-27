@@ -231,7 +231,7 @@ test('isolated deletion preserves canonical state, player replica and scouting',
 
 test('V20.5.72 release installs training mirror only after original confirmed save',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.6');
+ assert.equal(pkg.version,require('./scripts/retained-legacy-assets.json').updatedIn);
  assert.ok(pkg.scripts['test:foundation'].includes('vc20572-training-shadow.test.cjs'));
  assert.ok(html.includes('id="vc20572-arm-training" disabled'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

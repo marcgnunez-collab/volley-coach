@@ -171,7 +171,7 @@ test('out-of-order promise completions cannot replace a newer local save receipt
 
 test('HTML and build declarations surface the local receipt while retaining the original writer',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.6');
+ assert.equal(pkg.version,require('./scripts/retained-legacy-assets.json').updatedIn);
  assert.match(source,/id="v121-local-save-status"[^>]*role="status"/);
  assert.match(source,/window\.scoutV902Flush\(\)/);
  assert.match(source,/window\.scoutAwardPoint/);

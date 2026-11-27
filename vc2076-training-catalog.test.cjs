@@ -95,5 +95,5 @@ test('V20.7.6 preserves native storage ownership and the no-delete retirement po
  assert.equal(manifest.groups.flatMap(x=>x.files).length,37);
  assert.ok(core.includes("const APP_STORAGE_KEY='volleyCoachStateV43';"));
  assert.ok(core.includes('window.VC_TRAINING_PLANNING_20574'));
- assert.equal(require('./package.json').version,'20.7.6');
+ assert.equal(require('./package.json').version,require('./scripts/retained-legacy-assets.json').updatedIn);
 });
