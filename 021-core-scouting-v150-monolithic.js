@@ -5181,9 +5181,48 @@ function v20579RunRallyCommand(kind,m,s,before,winner,native){
   }
 }
 
+/* V20.5.80: TypeScript owns the live controller on the primary Vite path.
+ * The V20.5.79 wrapper below remains a reversible fallback before dispatch. */
+let v20580RallyController=null;
+function v20580LiveController(){
+  const lane=window.VC_RALLY_CONTROLLER_20580;
+  if(!lane||lane.VERSION!=='20.5.80'||lane.nativeOnly!==true||
+    lane.singleNativeWriter!==true||typeof lane.create!=='function')return null;
+  if(v20580RallyController)return v20580RallyController;
+  try{
+    const controller=lane.create({
+      selectedMatch:()=>v857SelectedMatch()||scoutActive(),
+      activeMatch:()=>scoutActive(),
+      selectedSet:m=>v857Set(m),
+      activeSet:m=>scoutSet(m),
+      score:s=>v857Score(s),
+      rallies:s=>v857RallyCount(s),
+      nativePoint:w=>v857AwardBase(w),
+      nativeUndo:()=>v857UndoBase(),
+      status:(message,level)=>v857Status(message,level),
+      refresh:()=>v857Refresh(),
+      scheduleUnlock:callback=>setTimeout(callback,120),
+      logError:(...args)=>console.error(...args)
+    });
+    if(controller&&typeof controller.awardPoint==='function'&&
+       typeof controller.undoRally==='function'&&typeof controller.diagnostics==='function'){
+      v20580RallyController=controller;
+      window.VC_RALLY_CONTROLLER_DIAGNOSTICS_20580=()=>controller.diagnostics();
+      return controller;
+    }
+  }catch(error){console.error('V20.5.80 controller installation failed',error)}
+  return null;
+}
+
 /* POINTS: call the mature internal chain exactly once, then verify +1. */
 const v857AwardBase=window.scoutAwardPoint;
 window.scoutAwardPoint=function(winner){
+  const controller=v20580LiveController();
+  if(controller){
+    try{return controller.awardPoint(winner)}catch(error){
+      console.error('V20.5.80 point controller failed',error);return false;
+    }
+  }
   winner=winner==='opponent'?'opponent':'ours';
   if(v857PointBusy)return false;
   v857PointBusy=true;
@@ -5228,6 +5267,12 @@ window.scoutAwardPoint=function(winner){
 /* UNDO: same mature undo chain, once, with verification. */
 const v857UndoBase=window.scoutUndoRally;
 window.scoutUndoRally=function(){
+  const controller=v20580LiveController();
+  if(controller){
+    try{return controller.undoRally()}catch(error){
+      console.error('V20.5.80 undo controller failed',error);return false;
+    }
+  }
   if(v857UndoBusy)return false;
   v857UndoBusy=true;
   try{
