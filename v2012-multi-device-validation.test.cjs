@@ -278,7 +278,7 @@ test('V20.5.21 keeps the historical read-only module for parity, while Vite owns
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  assert.doesNotMatch(html,/<script[^>]+src="\.\/211-vc2012-multi-device-validation\.js/);
  assert.match(html,/vc2055-domain-core\.mjs\?v=20\.7\.0/);
- assert.match(html,/vc2012-multi-device-validation\.css\?v=20\.1\.2/);
+ assert.match(html,/vc2071-device-match-unified\.css\?v=20\.7\.1/);
  assert.match(html,/service-worker\.js\?v=20\.1\.2/);
  assert.match(sw,/two-device-20\.1\.2/);
  assert.doesNotMatch(sw,/\.\/211-vc2012-multi-device-validation\.js/);

@@ -118,7 +118,7 @@ test('missing, invalid, mismatched and throwing TypeScript lexer all revert to c
 
 test('V20.5.37 lexer remains syntax-only and is included in source, tests and Vite release',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20537-scout-lexer-migration.test.cjs'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('021-core-scouting-v150-monolithic.js?v=20.7.0'));

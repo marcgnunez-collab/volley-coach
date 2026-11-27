@@ -1,0 +1,25 @@
+VOLLEY COACH · V20.7.1 · ELIMINACIONES MANUALES EN GITHUB
+
+DESPUÉS de subir SOLO_CAMBIOS V20.7.1 sobre V20.7.0, borra exactamente
+estos DIEZ archivos de la RAÍZ del repositorio:
+
+vc19314-integrated-video.css
+vc19315-scouting-editor.css
+vc1931931-visual-system.css
+vc193194-analysis-workspace.css
+vc193195-tactical-tables.css
+vc193196-match-video-workspace.css
+vc193197-global-ui-optimization.css
+vc19320-compatibility-audit.css
+vc2012-multi-device-validation.css
+vc2020-match-workspace.css
+
+NO borrar los nuevos (incluidos en SOLO_CAMBIOS):
+- vc2071-video-editor-unified.css
+- vc2071-professional-workspaces-unified.css
+- vc2071-global-reliability-unified.css
+- vc2071-device-match-unified.css
+
+Estas diez bajas no son destructivas para la copia V20.7.0: los archivos
+históricos siguen disponibles en el ZIP COMPLETO de aquella versión.
+No subas el ZIP PUBLICACION_VITE aparte si tu flujo es SOLO_CAMBIOS.

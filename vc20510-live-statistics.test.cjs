@@ -138,7 +138,7 @@ test('V20.5.10 assets and Vite entry are versioned without a second writer or cl
  const css=fs.readFileSync(path.join(root,'vc2055-domain.css'),'utf8');
  const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
  const pkg=require('./package.json');
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20510-live-statistics.test.cjs'));
  assert.ok(html.includes('id="vc20510-live-stats"'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

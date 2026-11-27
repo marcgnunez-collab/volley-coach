@@ -1,0 +1,173 @@
+/* V20.7.1 · Consolidated stylesheet, source order preserved. */
+/* VC2071_SOURCE_BEGIN:vc2012-multi-device-validation.css */
+/* Volley Coach V20.1.2: scoped, readable and compact diagnostics. */
+#vc2012-multi-validation{font:inherit;color:#18344f;background:#f7faff;border:1px solid #caddef;border-radius:12px;padding:15px;margin:14px 0;min-width:0;max-width:100%;box-sizing:border-box}
+#vc2012-multi-validation *{box-sizing:border-box}
+#vc2012-multi-validation .vc2012-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
+#vc2012-multi-validation .vc2012-heading small{font-size:11px;color:#2b66a0;font-weight:800;letter-spacing:.04em}
+#vc2012-multi-validation h3{font-size:17px;line-height:1.3;margin:4px 0 10px;color:#143655}
+#vc2012-multi-validation .vc2012-heading span{font-size:11px;background:#e6f1ff;color:#225e91;padding:6px;border-radius:6px;font-weight:700}
+#vc2012-multi-validation p{font-size:12px;line-height:1.55;margin:9px 0;color:#435e75}
+#vc2012-multi-validation .vc2012-versions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#vc2012-multi-validation .vc2012-versions>div{background:#fff;border:1px solid #dce7f2;border-radius:8px;padding:10px;min-width:0}
+#vc2012-multi-validation .vc2012-versions span{display:block;font-size:11px;color:#5c7690;margin-bottom:4px}
+#vc2012-multi-validation .vc2012-versions b{font-size:12px;overflow-wrap:anywhere;color:#163e61;font-family:inherit}
+#vc2012-multi-validation .vc2012-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#vc2012-multi-validation button,#vc2012-multi-validation .vc2012-import{font-family:inherit;font-size:12px;font-weight:750;min-height:38px;padding:9px 12px;border-radius:7px;border:1px solid #bed4e9;background:#fff;color:#174d7a;cursor:pointer;display:inline-flex;align-items:center;max-width:100%}
+#vc2012-multi-validation #vc2012-export{color:#fff;background:#15599a;border-color:#15599a}
+#vc2012-multi-validation .vc2012-import input{display:none}
+#vc2012-multi-validation .vc2012-result{padding:10px;border-radius:8px;background:#eaf3ff;color:#225477;font-weight:700}
+#vc2012-multi-validation .vc2012-result[data-status="review"]{background:#fff2e5;color:#795119}
+#vc2012-multi-validation .vc2012-result[data-status="matched"]{background:#edf7f1;color:#255e40}
+#vc2012-multi-validation .vc2012-privacy{font-size:11px;color:#60768a}
+@media(max-width:680px){#vc2012-multi-validation{padding:10px}#vc2012-multi-validation .vc2012-versions{grid-template-columns:1fr}#vc2012-multi-validation .vc2012-heading{flex-wrap:wrap}#vc2012-multi-validation .vc2012-actions>*{width:100%;justify-content:center}}
+/* VC2071_SOURCE_END:vc2012-multi-device-validation.css */
+/* VC2071_SOURCE_BEGIN:vc2020-match-workspace.css */
+/* Volley Coach V20.2.0 · Professional Match Workspace
+   Scoped to the live scouting page. The score, player, court and recorder
+   are native components; this stylesheet only coordinates their presentation. */
+body.v11-shell #scout-match-mode.vc2020-ready{
+ --vc2020-navy:#102a46;--vc2020-blue:#176ac7;--vc2020-blue-light:#eff6ff;
+ --vc2020-border:#dae5f0;--vc2020-muted:#637d97;--vc2020-bg:#f5f8fc;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #v800-live{min-width:0;max-width:100%;}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-matchbar{
+ box-sizing:border-box;display:grid;gap:0;margin:8px 0 10px;
+ border:1px solid #cddceb;background:#fff;border-radius:13px;
+ box-shadow:0 5px 18px rgba(15,47,81,.055);color:var(--vc2020-navy);
+ max-width:100%;min-width:0;overflow:hidden;font:500 12px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-matchbar *{box-sizing:border-box}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:14px;
+ background:linear-gradient(112deg,#102a46,#17416b);padding:13px 16px;color:#fff;min-width:0;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-identity{display:flex;align-items:center;gap:12px;min-width:0}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-mark{
+ display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;
+ border:1px solid #709cc3;border-radius:10px;background:#1d568e;font-size:16px;font-weight:900;letter-spacing:-.06em;color:#fff;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-identity>div{min-width:0;display:flex;flex-direction:column;gap:2px}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-identity small{font-size:9px!important;letter-spacing:.095em;font-weight:900;color:#9dcef9!important}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-identity strong{
+ font-size:16px!important;line-height:1.22!important;color:#fff!important;font-weight:800;max-width:min(52vw,480px);white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-match-state{font-size:10px!important;color:#c7dcf1!important;font-weight:650}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts{display:flex;align-items:stretch;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts>div{
+ min-width:72px;padding:7px 10px;border:1px solid #476b90;background:#ffffff0b;border-radius:7px;display:grid;gap:3px;text-align:center;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts small{font-size:8px!important;font-weight:800;color:#a6c7e6!important;letter-spacing:.07em}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts strong{font-size:18px!important;font-weight:900;color:#fff!important;line-height:1.1!important;font-variant-numeric:tabular-nums}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;
+ border-bottom:1px solid var(--vc2020-border);padding:8px;background:#f4f8fd;min-width:0;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes button{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+ width:100%!important;min-width:0!important;min-height:43px!important;
+ padding:8px 9px!important;margin:0!important;border-radius:8px!important;
+ border:1px solid transparent!important;background:transparent!important;color:#496a88!important;
+ box-shadow:none!important;text-align:center!important;font:750 11px/1.2 system-ui,'Segoe UI',sans-serif!important;
+ cursor:pointer;white-space:normal!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes button:hover{background:#e5f0fb!important;color:#1c5181!important}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes button[aria-pressed="true"]{
+ border-color:#1771cd!important;background:#176ac7!important;color:#fff!important;
+ box-shadow:0 2px 8px #0c58a333!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-stage{font-size:9px;font-weight:900;opacity:.7;letter-spacing:.025em}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-secondary{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:7px 15px;flex-wrap:wrap;background:#fff;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-safety{font-size:10px!important;color:#6a849b!important;line-height:1.45}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-history{position:relative;z-index:7;min-width:190px}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-history>summary{
+ cursor:pointer;list-style:none;border:1px solid #cadcef;background:#edf5ff;color:#1b5b96;
+ border-radius:7px;padding:7px 10px;font-weight:800;font-size:10px;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-history>summary::-webkit-details-marker{display:none}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-history[open]{flex:0 1 400px;max-width:100%}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-items{max-height:216px;overflow-y:auto;scrollbar-width:thin;padding:7px 0}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-row{
+ display:grid;grid-template-columns:100px minmax(90px,1fr) minmax(90px,1fr);
+ gap:5px;align-items:baseline;padding:7px 3px;border-bottom:1px solid #e4edf6;font-size:10px;color:#294b6c;
+}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-row strong{font-size:10px;color:#193d63}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-row small{color:#67849d;overflow-wrap:anywhere;font-size:10px}
+body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-items p{font-size:11px;color:#6b8299;margin:5px 0}
+body.v11-shell #scout-match-mode.vc2020-ready #vc2020-history button{
+ min-height:32px!important;border:1px solid #b8d5ee!important;border-radius:7px!important;
+ color:#155c9b!important;background:#eef7ff!important;font-size:10px!important;font-weight:800!important;padding:7px 12px!important;width:auto!important;
+}
+/* One prominent workflow row: old tab widgets stay in DOM for their owners
+   but their duplicate visual navigation is replaced by the original router API. */
+body.v11-shell #scout-match-mode.vc2020-ready #vc52-modes,
+body.v11-shell #scout-match-mode.vc2020-ready #vc1640-commandbar .vc1640-tabs{display:none!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc1640-commandbar .vc1640-heading{display:none!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc1640-commandbar{
+ padding:10px 13px!important;margin:7px 0!important;border-color:var(--vc2020-border)!important;
+ box-shadow:none!important;background:#fff!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc1640-commandbar .vc1640-commandrow{justify-content:flex-start!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc1640-commandbar .vc1640-quicktools{width:100%;justify-content:flex-start}
+body.v11-shell #scout-match-mode.vc2020-ready #vc1640-commandbar .vc1640-context{margin-top:7px;padding-top:7px}
+body.v11-shell #scout-match-mode.vc2020-ready #vc196-commandbar{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ border:1px solid var(--vc2020-border)!important;border-radius:10px!important;padding:8px 11px!important;
+ margin:7px 0!important;box-shadow:none!important;background:#fff!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc196-commandbar>.vc196-head{display:none!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc196-commandbar>.vc196-controls{flex:1 1 auto;justify-content:space-between!important}
+body.v11-shell #scout-match-mode.vc2020-ready #vc52-mode-description{font-size:10px!important;color:var(--vc2020-muted)!important}
+body.v11-shell #scout-match-mode.vc2020-ready #v800-live>.v800-scoreboard{
+ border:1px solid var(--vc2020-border)!important;border-radius:12px!important;background:#fff!important;
+ box-shadow:none!important;padding:10px!important;margin:8px 0!important;min-width:0!important;
+}
+/* Two native interactive columns; layout presets remain those of V19.3.19.6.
+   Never move, clone, hide or rebuild the actual video element or scout editor. */
+body.v11-shell #scout-match-mode.vc2020-ready #v800-shell[data-vc52-mode="video"].vc54-cockpit-active
+ #v112-video-drawer:not(.vc1644-theater){
+ background:var(--vc2020-bg)!important;border:1px solid #dae6f1!important;border-radius:12px 12px 0 0!important;
+ gap:10px!important;padding:11px!important;min-width:0!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #v112-video-drawer:not(.vc1644-theater)>.v112-video-card,
+body.v11-shell #scout-match-mode.vc2020-ready #v112-video-drawer:not(.vc1644-theater)>#v113-video-code-panel{
+ border:1px solid #d8e4ee!important;border-radius:11px!important;box-shadow:none!important;min-width:0!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #v112-video-drawer:not(.vc1644-theater) #v800-video-frame{
+ border-radius:8px!important;background:#06182b!important;max-width:100%!important;
+}
+body.v11-shell #scout-match-mode.vc2020-ready #vc54-bottom{background:var(--vc2020-bg)!important;border-color:var(--vc2020-border)!important}
+body.v11-shell #scout-match-mode.vc2020-ready :is(.vc2020-modes button,#vc2020-history summary,#vc2020-history button):focus-visible{
+ outline:3px solid #f2a83d!important;outline-offset:2px;
+}
+@media(max-width:1240px){
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-heading{flex-direction:column;align-items:stretch}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts{justify-content:flex-start}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-identity strong{max-width:80vw}
+}
+@media(max-width:800px){
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-secondary{align-items:stretch}
+ body.v11-shell #scout-match-mode.vc2020-ready #vc196-commandbar>.vc196-controls{flex-direction:column;align-items:stretch}
+}
+@media(max-width:560px){
+ body.v11-shell #scout-match-mode.vc2020-ready #vc2020-matchbar{margin:5px 0 9px}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-heading{padding:11px;gap:10px}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-identity strong{font-size:14px!important;max-width:calc(100vw - 105px)}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts>div{min-width:0;padding:6px 3px}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts strong{font-size:15px!important}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-facts small{font-size:7px!important}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes{grid-template-columns:repeat(2,minmax(0,1fr));padding:5px;gap:4px}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes button{min-height:40px!important;padding:6px!important;font-size:10px!important;gap:5px!important}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-secondary{padding:8px;gap:8px}
+ body.v11-shell #scout-match-mode.vc2020-ready #vc2020-history{width:100%}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-row{grid-template-columns:84px minmax(0,1fr)}
+ body.v11-shell #scout-match-mode.vc2020-ready .vc2020-history-row small{grid-column:1/-1}
+ body.v11-shell #scout-match-mode.vc2020-ready #vc196-commandbar{padding:8px!important}
+}
+@media(prefers-reduced-motion:reduce){body.v11-shell #scout-match-mode.vc2020-ready .vc2020-modes button{transition:none!important}}
+/* VC2071_SOURCE_END:vc2020-match-workspace.css */

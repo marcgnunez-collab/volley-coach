@@ -126,7 +126,7 @@ test('legacy V20.1.2 script stays for regression, but exactly one active UI is l
  const html=read('index.html'),entry=read('src/vc2055-entry.ts'),sw=read('service-worker.js');
  assert.ok(!html.includes('src="./211-vc2012-multi-device-validation.js'));
  assert.ok(!html.includes('id="vc2012-multi-device-validation"'));
- assert.ok(html.includes('vc2012-multi-device-validation.css?v=20.1.2'));
+ assert.ok(html.includes('vc2071-device-match-unified.css?v=20.7.1'));
  assert.ok(entry.includes('installMultiDeviceAPI(window)'));
  assert.ok(entry.includes('mountMultiDevicePanel(window)'));
  assert.ok(read('test-audit/fixtures/v2012-legacy-device-validator.js').includes('VC_SYNC_2012'));

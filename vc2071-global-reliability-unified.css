@@ -1,0 +1,363 @@
+/* V20.7.1 · Consolidated stylesheet, source order preserved. */
+/* VC2071_SOURCE_BEGIN:vc193197-global-ui-optimization.css */
+/* Volley Coach 19.3.19.7 — Global UI & Performance Optimization.
+ * Strictly presentational, opt-in via the existing vc-design-v1 body class.
+ * The existing navigation, scouting controls, video, timeline, match state and sync
+ * retain their original DOM, events, calculations and persistence contracts.
+ * Loaded after every historical stylesheet. To revert, remove this one <link>.
+ */
+body.v11-shell.vc-design-v1 {
+  --vc197-font: var(--vc-ui-font, Inter, ui-sans-serif, system-ui, sans-serif);
+  --vc197-navy: var(--vc-ui-navy, #102a46);
+  --vc197-blue: var(--vc-ui-blue, #146bcb);
+  --vc197-accent: var(--vc-ui-electric, #1682ef);
+  --vc197-ink: var(--vc-ui-ink, #15314d);
+  --vc197-muted: var(--vc-ui-muted, #617b95);
+  --vc197-bg: var(--vc-ui-bg, #f3f6fb);
+  --vc197-card: #ffffff;
+  --vc197-edge: var(--vc-ui-line, #dce6f0);
+  --vc197-edge-strong: #c8d8e8;
+  --vc197-tint: #eef5fc;
+  --vc197-radius: 11px;
+  --vc197-radius-sm: 7px;
+  --vc197-shadow: 0 2px 9px rgba(11, 44, 74, .055);
+  --vc197-space: 12px;
+  font-family: var(--vc197-font) !important;
+  font-variant-numeric: tabular-nums;
+}
+/* Never apply paint/size/position rules to videos, canvas, court SVG, recording
+   overlays, camera controls, drawing tools or in-progress drag targets. */
+body.v11-shell.vc-design-v1 :is(#v11-main,#scout-analysis,#scout-match-mode,#scout-video-hub,#jugadores,#entrenamiento,#planificacion,#vc155-bench) {
+  min-width: 0;
+}
+body.v11-shell.vc-design-v1 #v11-main > .view:not([hidden]) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+body.v11-shell.vc-design-v1 :is(
+  #dashboard,#entrenamiento,#ejercicios,#planificacion,#jugadores,#scout-dashboard,
+  #scout-match-mode,#scout-analysis,#scout-video-hub,#vc155-bench,#v11-reports,#v11-management
+) :is(h1,h2,h3,h4) {
+  font-family: var(--vc197-font) !important;
+  letter-spacing: -.017em !important;
+  text-wrap: pretty;
+}
+body.v11-shell.vc-design-v1 :is(#dashboard,#entrenamiento,#ejercicios,#planificacion,#jugadores,#scout-dashboard,#scout-analysis,#v11-reports) :is(h2,h3) {
+  line-height: 1.23 !important;
+}
+/* Unified application shell: shell positioning and sticky semantics are left alone. */
+body.v11-shell.vc-design-v1 #v11-sidebar {
+  background: linear-gradient(180deg,#081e36,#103458) !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar :is(button.vc17-nav-main,.vc17-subnav button) {
+  font-family: var(--vc197-font) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.3 !important;
+}
+body.v11-shell.vc-design-v1 #v11-sidebar button.vc17-nav-main { min-height: 44px !important; }
+body.v11-shell.vc-design-v1 #v11-sidebar .vc17-nav-group.active>button.vc17-nav-main {
+  background: #176bc4 !important;
+  border-radius: 9px !important;
+}
+body.v11-shell.vc-design-v1 #v11-topbar {
+  background: #fff !important;
+  border-bottom: 1px solid var(--vc197-edge) !important;
+}
+body.v11-shell.vc-design-v1 #v11-topbar :is(button,select) { font-family: var(--vc197-font) !important; }
+body.v11-shell.vc-design-v1 #vc17-context { border-radius: var(--vc197-radius) !important; }
+
+/* Shared design primitives; targeted classes rather than universal .panel/.card,
+   so native video and court interaction layouts are not reflowed. */
+body.v11-shell.vc-design-v1 :is(
+  .vc17-home-panel,.vc17-workspace-card,.vc17-stat,.v11-home-panel,
+  .planning-shell,.players-pro-shell,.vc193192-team-list,.vc193192-main,
+  .vc193191-home,.vc193191-audit,.vc19310-panel,.vc193195-panel,
+  .vc19318-panel,.vc19317-panel,.vc19319-card,.vc155-card,
+  .vc193161-panel,.v780-card,.v118-scout-card
+) {
+  border: 1px solid var(--vc197-edge) !important;
+  border-radius: var(--vc197-radius) !important;
+  box-shadow: var(--vc197-shadow) !important;
+}
+body.v11-shell.vc-design-v1 :is(.vc193191-links,.vc193192-stats,.vc193194-stats,.vc193161-metrics,.vc19311-metrics) > * {
+  min-width: 0;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc19311-metrics>div,.vc193161-metrics>div,.vc193195-metrics>div,
+  .vc193192-overviewstats>div,.vc193192-statgrid>div,.vc19310-kpis>div
+) {
+  border: 1px solid var(--vc197-edge) !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+body.v11-shell.vc-design-v1 :is(.vc19311-metrics,.vc193161-metrics,.vc193195-metrics,.vc19310-kpis) strong {
+  font-family: var(--vc197-font) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.025em !important;
+}
+/* Common section heads; don't override their padding/grid, which can be dynamic. */
+body.v11-shell.vc-design-v1 :is(
+  .vc19310-panelhead,.vc193195-panelhead,.vc19318-panelhead,.vc19317-panelhead,
+  .vc193192-side-head,.vc19319-panelhead
+) {
+  border-bottom-color: var(--vc197-edge) !important;
+  gap: 9px;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc19310-panelhead,.vc193195-panelhead,.vc19318-panelhead,.vc19317-panelhead
+) strong {
+  color: var(--vc197-navy) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+/* Headers: one gradient and one title rhythm for club, stats, reports, video,
+   training and bench, without repainting the underlying video/canvas. */
+body.v11-shell.vc-design-v1 :is(
+  .vc193192-heading,.vc19318-title,.vc19317-hero,.vc19319-head,
+  .vc19310-head,.vc193161-head,.vc155-hero,.v780-hero,.v118-scout-head
+) {
+  background: linear-gradient(110deg,#102a46,#17517f) !important;
+  border-color: #2a5c8b !important;
+  border-radius: 12px !important;
+  box-shadow: 0 3px 14px rgba(8, 36, 65, .075) !important;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc193192-heading,.vc19318-title,.vc19317-hero,.vc19319-head,
+  .vc19310-head,.vc193161-head,.vc155-hero,.v780-hero,.v118-scout-head
+) :is(h1,h2,h3) {
+  color: #fff !important;
+  font-size: clamp(18px,1.6vw,23px) !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc193192-heading,.vc19318-title,.vc19317-hero,.vc19319-head,
+  .vc19310-head,.vc193161-head,.vc155-hero,.v780-hero,.v118-scout-head
+) :is(p,small,span) {
+  line-height: 1.45;
+}
+
+/* Standard inputs: limited to administrative/analytical forms, not the native
+   scoring keypad, recording hardware selectors or video transport inputs. */
+body.v11-shell.vc-design-v1 :is(
+  #jugadores,#entrenamiento,#ejercicios,#planificacion,#scout-analysis,
+  #scout-dashboard,#v11-reports,#v11-management,#vc193191-audit
+) :is(select,textarea,input[type="text"],input[type="search"],input[type="number"],input[type="date"]) {
+  border: 1px solid var(--vc197-edge-strong) !important;
+  border-radius: 8px !important;
+  color: var(--vc197-ink) !important;
+  background-color: #fff !important;
+  font-family: var(--vc197-font) !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+body.v11-shell.vc-design-v1 :is(
+  #jugadores,#entrenamiento,#ejercicios,#planificacion,#scout-analysis,#v11-reports,#v11-management
+) :is(select,textarea,input[type="text"],input[type="search"],input[type="number"],input[type="date"]):focus-visible {
+  border-color: var(--vc197-accent) !important;
+  outline: 2px solid rgba(22,130,239,.5) !important;
+  outline-offset: 1px;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc19311-filterbar,.vc193161-toolbar,.vc193195-controls,
+  .vc19318-filterbar,.vc193194-filters,.vc193192-filters
+) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: 9px !important;
+  gap: 8px;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc19311-filterbar,.vc193161-toolbar,.vc193195-controls,.vc19318-filterbar
+) label {
+  color: #536f89 !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+}
+/* Shared tabs and secondary buttons; no changes to rapid-scoring buttons. */
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis .vc19310-nav,#scout-analysis .vc193194-subnav,
+  #jugadores .vc193192-tabs,#scout-analysis .vc193161-tabs,
+  #scout-analysis .vc19317-tabs,#scout-analysis .vc19318-tabs
+) {
+  border-color: var(--vc197-edge) !important;
+  background: #fff;
+}
+body.v11-shell.vc-design-v1 :is(
+  .vc193194-subnav,.vc193161-tabs,.vc193192-tabs,.vc19317-tabs,.vc19318-tabs
+) button {
+  font-family: var(--vc197-font) !important;
+  font-size: 11.5px !important;
+  font-weight: 750 !important;
+  border-radius: var(--vc197-radius-sm) !important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis .vc19310-nav button {
+  font-family: var(--vc197-font) !important;
+  font-size: 11.5px !important;
+  min-height: 53px !important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis .vc19310-nav button[aria-selected="true"] {
+  border-bottom-color: var(--vc197-blue) !important;
+  background: #eaf3ff !important;
+  color: #124c86 !important;
+}
+/* Tables: readable, compact, consistent; preserve deliberate scrolling and
+   Data Volley style dense matrices. Do not impose min-width or overflow on cells. */
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis,#v11-reports,#jugadores,#entrenamiento,#planificacion,#vc155-bench
+) :is(.vc19310-scroll,.vc193161-table,.vc193195-table-scroll,.vc19318-table-scroll,.vc193192-table-scroll) {
+  max-width: 100%;
+  border-color: var(--vc197-edge) !important;
+  border-radius: var(--vc197-radius-sm) !important;
+  scrollbar-color: #bdd0e3 transparent;
+  scrollbar-width: thin;
+}
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis,#v11-reports,#jugadores,#entrenamiento,#planificacion,#vc155-bench
+) table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  background: #fff;
+}
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis,#v11-reports,#jugadores,#entrenamiento,#planificacion,#vc155-bench
+) table :is(th,td) {
+  border-bottom-color: #e6edf4 !important;
+  font-family: var(--vc197-font) !important;
+  line-height: 1.35 !important;
+}
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis,#v11-reports,#jugadores,#entrenamiento,#planificacion,#vc155-bench
+) table thead th {
+  background: #eaf2fa !important;
+  color: #173c60 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: .015em !important;
+}
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis,#v11-reports,#jugadores,#entrenamiento,#planificacion,#vc155-bench
+) table tbody td {
+  font-size: 11.5px !important;
+  color: var(--vc197-ink);
+}
+body.v11-shell.vc-design-v1 :is(
+  #scout-analysis,#v11-reports,#jugadores,#entrenamiento,#planificacion,#vc155-bench
+) table tbody tr:hover td { background-color: #f3f8fe; }
+/* Dark video overlay/bench table headers must keep their authored background. */
+body.v11-shell.vc-design-v1 :is(
+  .vc19319-dark,.vc19317-timeline,#v800-video-frame,.v135-evidence-modal
+) table thead th { background: revert !important; color: inherit !important; }
+
+/* Club and roster: same visual language as analysis, while leaving team selection
+   connected to the legacy team switcher. */
+body.v11-shell.vc-design-v1 #jugadores #vc193192-club {
+  --vc192-ink: var(--vc197-ink);
+  --vc192-line: var(--vc197-edge);
+  gap: 12px;
+}
+body.v11-shell.vc-design-v1 #jugadores :is(.vc193192-team-list,.vc193192-main,.vc193192-overviewstats>div) {
+  border-radius: var(--vc197-radius) !important;
+}
+body.v11-shell.vc-design-v1 #jugadores #vc193192-club :is(input,select) {
+  font-family: var(--vc197-font) !important;
+}
+/* Trainings and planning: a unified title rhythm and predictable form controls. */
+body.v11-shell.vc-design-v1 :is(#entrenamiento,#ejercicios,#planificacion) :is(.panel,.planning-shell,.training-card,.exercise-card) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: var(--vc197-radius) !important;
+}
+body.v11-shell.vc-design-v1 :is(#entrenamiento,#ejercicios,#planificacion) :is(.planning-view-switch,.library-view-switch) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: var(--vc197-radius-sm) !important;
+}
+/* Match scouting: keep the 3 layouts, native scoreboard and interactive court;
+   only align the framing surfaces and helper text. */
+body.v11-shell.vc-design-v1 #scout-match-mode :is(#vc52-modes,.vc196-toolbar,.vc196-tracking,.v112-video-card,.v113-video-code-panel) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: 10px !important;
+}
+body.v11-shell.vc-design-v1 #scout-match-mode :is(.vc196-toolbar,.vc196-tracking) {
+  font-family: var(--vc197-font) !important;
+}
+/* Video Studio: same panel/header shapes; native frame, source selectors and
+   transport controls remain positioned by the original module. */
+body.v11-shell.vc-design-v1 #scout-video-hub :is(.v780-card,.v780-video-panel,.v780-source-card,.vc181-side) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: 10px !important;
+}
+body.v11-shell.vc-design-v1 #scout-analysis :is(.vc19317-panel,.vc19318-panel) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: 10px !important;
+}
+/* Live bench client: compact reading and reliable numeric alignment. */
+body.v11-shell.vc-design-v1 #vc155-bench #vc19319-root {
+  --vc19-blue: var(--vc197-blue);
+  --vc19-border: var(--vc197-edge);
+  --vc19-bg: var(--vc197-bg);
+  border-color: var(--vc197-edge) !important;
+  border-radius: 11px !important;
+  font-family: var(--vc197-font) !important;
+}
+body.v11-shell.vc-design-v1 #vc155-bench :is(.vc19319-card,.vc19319-panel,.vc19319-kpi) {
+  border-color: var(--vc197-edge) !important;
+  border-radius: 10px !important;
+}
+body.v11-shell.vc-design-v1 :is(#scout-analysis,#vc155-bench,#scout-video-hub) :is(button,select,input):focus-visible {
+  outline: 2px solid #54a6ef !important;
+  outline-offset: 2px;
+}
+body.v11-shell.vc-design-v1 :is(#scout-analysis,#vc155-bench,#scout-video-hub) button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+/* Mobile: no forcing width / position on the original live video or court.
+   All changes concern flow content and scrollable statistical tables only. */
+@media(max-width:1100px) {
+  body.v11-shell.vc-design-v1 :is(.vc193195-root,.vc19318-root,#vc193192-club,.vc19317-shell) { max-width: 100%; min-width: 0; }
+  body.v11-shell.vc-design-v1 #scout-analysis :is(.vc19310-panel,.vc193161-root,.vc193195-root) { min-width: 0; }
+}
+@media(max-width:700px) {
+  body.v11-shell.vc-design-v1 #v11-main { padding-inline: 9px !important; }
+  body.v11-shell.vc-design-v1 :is(.vc193192-heading,.vc19318-title,.vc19317-hero,.vc19319-head) { padding: 12px !important; }
+  body.v11-shell.vc-design-v1 :is(.vc19310-panel,.vc19318-panel,.vc19317-panel,.vc19319-card) { padding: 10px !important; }
+  body.v11-shell.vc-design-v1 :is(#scout-analysis,#jugadores,#vc155-bench) :is(.vc19310-scroll,.vc193161-table,.vc193195-table-scroll,.vc19318-table-scroll) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  body.v11-shell.vc-design-v1 :is(#jugadores,#entrenamiento,#planificacion) :is(input[type="text"],input[type="search"],select) { max-width: 100%; }
+}
+@media(prefers-reduced-motion:reduce) {
+  body.v11-shell.vc-design-v1 :is(.vc17-workspace-card,.vc193192-team-card,.vc19319-card) { transition: none !important; animation: none !important; }
+}
+/* VC2071_SOURCE_END:vc193197-global-ui-optimization.css */
+/* VC2071_SOURCE_BEGIN:vc19320-compatibility-audit.css */
+/* V19.3.20 · isolated Exchange audit; uses existing visual system. */
+#vc19320-compat{--vc20-navy:#173653;--vc20-blue:#1469c4;margin:14px 0 2px;padding:16px;border:1px solid #cdddeb;border-radius:12px;background:#f7fafe;color:var(--vc20-navy);font:13px/1.45 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+#vc19320-compat *{box-sizing:border-box}
+#vc19320-compat .vc19320-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+#vc19320-compat .vc19320-head span{font-size:10px;letter-spacing:.06em;color:#467497;font-weight:800}
+#vc19320-compat h3{font-size:19px;margin:4px 0 3px;color:#173653}
+#vc19320-compat p{font-size:12px;margin:4px 0 10px;color:#486783}
+#vc19320-compat button,#vc19320-compat .vc19320-file{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border:1px solid #bbd1e5;border-radius:7px;background:white;color:#1e507d;padding:8px 12px;cursor:pointer;font:700 12px system-ui,sans-serif}
+#vc19320-compat button:hover,#vc19320-compat .vc19320-file:hover{background:#eaf3fd;border-color:#75a5d0}
+#vc19320-compat button:focus-visible,#vc19320-compat .vc19320-file:focus-within{outline:3px solid #5ba3e5;outline-offset:2px}
+#vc19320-compat .vc19320-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+#vc19320-compat .vc19320-stats span{display:grid;gap:2px;padding:10px 12px;background:#fff;border:1px solid #dce8f3;border-radius:8px;color:#56748e;font-size:11px}
+#vc19320-compat .vc19320-stats b{font-size:22px;color:#133555}
+#vc19320-compat .vc19320-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#vc19320-compat .vc19320-note{border-left:3px solid #db9b47;padding:8px;background:#fff8ee;color:#694c2b}
+#vc19320-compat .vc19320-table{overflow-x:auto;max-width:100%;border:1px solid #d7e3ef;border-radius:7px;background:white}
+#vc19320-compat table{width:100%;min-width:610px;border-collapse:collapse;font-size:12px}
+#vc19320-compat th,#vc19320-compat td{padding:9px 10px;text-align:left;border-bottom:1px solid #e9eff6;vertical-align:top}
+#vc19320-compat th{background:#e8f1fa;color:#1a456c;font-size:11px}
+#vc19320-compat .vc19320-status{white-space:nowrap;font-size:11px;font-weight:750;color:#395f80}
+#vc19320-compat .vc19320-status[data-state="no implementado"]{color:#ad4f30}
+#vc19320-compat .vc19320-status[data-state="parcial"]{color:#966421}
+#vc19320-compat details{margin:12px 0;background:white;border:1px solid #dee9f2;border-radius:8px;padding:11px}
+#vc19320-compat summary{cursor:pointer;font-weight:800}
+#vc19320-compat details code{display:block;overflow-wrap:anywhere;font-size:11px;line-height:1.8}
+#vc19320-compat .vc19320-inspect{margin-top:12px;border:1px solid #c5dcf1;background:#fff;border-radius:8px;padding:12px}
+#vc19320-compat .vc19320-inspect pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font-size:11px;padding:10px;background:#f2f6fb;border-radius:6px}
+#vc19320-compat .vc19320-statusline{min-height:14px;color:#a85031}
+@media(max-width:650px){#vc19320-compat{padding:10px}#vc19320-compat .vc19320-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#vc19320-compat .vc19320-head{flex-wrap:wrap}#vc19320-compat .vc19320-actions>*{flex:1 1 100%}}
+/* VC2071_SOURCE_END:vc19320-compatibility-audit.css */

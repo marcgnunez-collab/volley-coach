@@ -52,12 +52,12 @@ test('Vite production output exists and compiles TypeScript into a fingerprinted
  assert.ok(builtHTML.includes('<script type="module"'));
 });
 
-test('classic scripts and original stylesheet order are identical to the source website',()=>{
+test('classic scripts and consolidated stylesheet order match between source and Vite',()=>{
  const classic=html=>allScripts(html).filter(row=>!row.isModule).map(row=>row.src);
  assert.deepEqual(classic(builtHTML),classic(sourceHTML));
  assert.deepEqual(stylesheetLinks(builtHTML),stylesheetLinks(sourceHTML));
  assert.ok(classic(builtHTML).length>150);
- assert.ok(stylesheetLinks(builtHTML).length>30);
+ assert.ok(stylesheetLinks(builtHTML).length>=25,'V20.7.1 groups ten CSS links into four');
 });
 
 test('dist keeps source names and references for the existing PWA and legacy scripts',()=>{

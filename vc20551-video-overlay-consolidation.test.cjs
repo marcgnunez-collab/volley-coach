@@ -156,7 +156,7 @@ test('accessor-backed video inputs stay native with the same getter access count
 
 test('V20.5.51 removes only the V7.0 match wrapper, preserving V7.0 video and score paths',()=>{
  const pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20551-video-overlay-consolidation.test.cjs'));
  const html=read('index.html'),sw=read('service-worker.js');
  for(const file of ['021-core-scouting-v150-monolithic.js','213-vc2021-scouting-speed-pro.js',

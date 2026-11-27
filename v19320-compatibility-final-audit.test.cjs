@@ -56,11 +56,11 @@ test('auditMatch counts only explicit data, does not fabricate points or mutate 
 });
 test('build references exactly the new module, CSS and versioned service worker',()=>{
  const html=read('index.html'),sw=read('service-worker.js');
- for(const x of ['208-vc19320-compatibility-audit.js?v=20.5.0.3','vc19320-compatibility-audit.css?v=19.3.20'])assert.equal(html.split(x).length-1,1);
+ for(const x of ['208-vc19320-compatibility-audit.js?v=20.5.0.3','vc2071-global-reliability-unified.css?v=20.7.1'])assert.equal(html.split(x).length-1,1);
  assert.match(html,/service-worker\.js\?v=(?:19\.3\.20|20\.1\.0|20\.1\.1|20\.1\.2)/);
  assert.ok(sw.includes('compat-audit-19.3.20'));
  assert.ok(sw.includes('./208-vc19320-compatibility-audit.js'));
- assert.ok(sw.includes('./vc19320-compatibility-audit.css'));
+ assert.ok(sw.includes('./vc2071-global-reliability-unified.css'));
 });
 test('legacy importer preserves safe import and exposes a separate DVW inspection only',()=>{
  const js=read('089-v152-smart-rally-reports-exchange.js');

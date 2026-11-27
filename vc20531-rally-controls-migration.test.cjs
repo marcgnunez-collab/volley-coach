@@ -192,7 +192,7 @@ test('legacy controller remains the fallback if typed binder is absent or fails'
 test('V20.5.31 contains exactly one new search control layer and no native writer',()=>{
  const pkg=JSON.parse(read('package.json')),entry=read('src/vc2055-entry.ts'),
   html=read('index.html'),sw=read('service-worker.js');
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
  assert.ok(html.includes('vc2055-domain.css?v=20.7.0'));
  assert.ok(sw.includes('rally-search-controls-20.5.31'));

@@ -134,7 +134,7 @@ test('LIVE and player UI read the same shared projections without an alternative
 test('V20.5.22 release includes one Vite gateway, no second scoring writer and an updated cache',()=>{
  const entry=read('src/vc2055-entry.ts'),html=read('index.html'),sw=read('service-worker.js'),
   pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(entry.includes('mountScoutingProjectionStore(window)'));
  assert.ok(entry.indexOf('mountScoutingProjectionStore(window)')<entry.indexOf('mountLiveStatisticsPanel(window)'));
  assert.ok(entry.indexOf('mountScoutingProjectionStore(window)')<entry.indexOf('mountPlayerBoxscore(window)'));

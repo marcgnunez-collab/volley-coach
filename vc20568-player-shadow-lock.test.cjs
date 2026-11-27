@@ -105,7 +105,7 @@ test('without native Web Locks the mirror remains disabled but read-only check i
 
 test('release V68 retains all original writers and publishes cross-tab guard',()=>{
  const html=read('index.html'),pkg=JSON.parse(read('package.json'));
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20568-player-shadow-lock.test.cjs'));
  assert.ok(html.includes('V20.5.68 · PROTECCIÓN ENTRE PESTAÑAS'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

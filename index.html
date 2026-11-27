@@ -738,6 +738,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.1 · ESTILOS UNIFICADOS</small><h3>Menos archivos para cargar la interfaz</h3><p>Diez hojas de estilo pasan a cuatro, con seis solicitudes CSS menos y ahorro de transferencia comprimida. Se conserva el orden de todas las reglas y se actualiza la caché offline. Scouting, vídeo, guardados y sincronización mantienen su funcionamiento.</p></div><span>Reestructuración · Consolidación CSS</span></div>
     <div class="vc2052-title"><div><small>V20.7.0 · LIMPIEZA DE ARQUITECTURA</small><h3>Dependencias verificadas y recursos más fiables</h3><p>Se han retirado diez archivos raíz obsoletos o redundantes: una interfaz antigua, tres iconos idénticos, un módulo histórico trasladado a las pruebas y cuatro pruebas duplicadas. La precarga evita referencias inexistentes o duplicadas y puede recuperar CSS y JavaScript de esta versión cuando falle la red. El diagnóstico de Gestión sigue disponible. No se modifican los escritores del partido ni el funcionamiento del vídeo.</p></div><span>Reestructuración · Auditoría integral</span></div>
     <div class="vc2052-title"><div><small>V20.6.5 · LECTURA ÚNICA DE RALLIES</small><h3>Un historial, menos cálculos repetidos</h3><p>Scouting, Match Mode, Vídeo y Rally Review consumen el historial TypeScript tras comprobar los datos originales en un solo recorrido, sin construir otro historial entero para compararlo. Si los resultados no coinciden, se conserva la ruta clásica. Sin cambios en puntos, vídeo, guardado ni sincronización.</p></div><span>Reestructuración · Rendimiento</span></div>
     <div class="vc2052-title"><div><small>V20.6.4 · ESTABILIDAD Y DIAGNÓSTICO</small><h3>Comprobar arranque, Scouting, vídeo y estado real de sincronización</h3><p>La verificación es manual y de solo lectura. Diferencia un módulo instalado de una conexión Realtime efectiva; avisa si los lectores de partido o set divergen, sin tocar datos, vídeo, dispositivo ni nube.</p></div><span>Reestructuración · Verificación</span></div>
@@ -14062,8 +14063,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <link rel="stylesheet" href="./vc19312-video-scoreboard.css?v=19.3.12"><script id="vc19312-video-scoreboard" src="./193-vc19312-video-scoreboard.js?v=19.3.14" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc193131-scout-scoreboard-pro.css?v=19.3.13.1">
 <script id="vc193131-scout-video-score" src="./194-vc193131-scout-video-score-model.js?v=19.3.13.1" defer data-vc-module="true"></script>
-<link rel="stylesheet" href="./vc19314-integrated-video.css?v=19.3.14">
-<link rel="stylesheet" href="./vc19315-scouting-editor.css?v=20.2.4">
+<link rel="stylesheet" href="./vc2071-video-editor-unified.css?v=20.7.1">
 <script id="vc19314-integrated-video" src="./195-vc19314-integrated-video-workspace.js?v=19.3.16" defer data-vc-module="true"></script>
 <script id="vc19315-scouting-editor" src="./196-vc19315-scouting-editor-pro.js?v=20.2.4" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc19316-smart-scouting.css?v=19.3.16">
@@ -14116,25 +14116,16 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 <link rel="stylesheet" href="./vc193192-professional-club.css?v=19.3.19.2">
 <script id="vc193192-domain-adapters" src="./204-vc193192-domain-adapters.js?v=19.3.19.2" defer data-vc-module="true"></script>
 <script id="vc193192-club-desk" src="./205-vc193192-club-desk.js?v=19.3.19.2" defer data-vc-module="true"></script>
-<!-- V19.3.19.3.1 Unified Visual Identity: deliberately loaded after legacy styles. -->
-<link rel="stylesheet" href="./vc1931931-visual-system.css?v=19.3.19.3.1">
-<!-- V19.3.19.4: five analysis workspaces, shared filters and linked rally context. -->
-<link rel="stylesheet" href="./vc193194-analysis-workspace.css?v=19.3.19.4">
-<link rel="stylesheet" href="./vc193195-tactical-tables.css?v=19.3.19.5">
-<!-- V19.3.19.6 · One match/video presentation layer; native players and coding remain untouched. -->
-<link rel="stylesheet" href="./vc193196-match-video-workspace.css?v=19.3.19.6">
+<!-- V20.7.1: four consecutive stylesheets consolidated, original cascade order retained. -->
+<link rel="stylesheet" href="./vc2071-professional-workspaces-unified.css?v=20.7.1">
 <script id="vc193196-match-workspace" src="./207-vc193196-match-video-workspace.js?v=19.3.19.6" defer data-vc-module="true"></script>
-<!-- V19.3.19.7: reversible, globally scoped presentation system; no data changes. -->
-<link rel="stylesheet" href="./vc193197-global-ui-optimization.css?v=19.3.19.7">
-<!-- V19.3.20: non-destructive DVW inspection and format coverage audit. -->
-<link rel="stylesheet" href="./vc19320-compatibility-audit.css?v=19.3.20">
+<!-- V20.7.1: global presentation and compatibility styles in their original order. -->
+<link rel="stylesheet" href="./vc2071-global-reliability-unified.css?v=20.7.1">
 <script id="vc19320-compat-audit" src="./208-vc19320-compatibility-audit.js?v=20.5.0.3" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2001-sync-reliability.css?v=20.1.0">
 <script id="vc2001-sync-reliability" src="./209-vc2001-sync-reliability.js?v=20.1.0" defer data-vc-module="true"></script>
-<!-- V20.5.21: cross-device diagnostic migrated to TypeScript/Vite, original 211 retained only for regression tests. -->
-<link rel="stylesheet" href="./vc2012-multi-device-validation.css?v=20.1.2">
-<!-- V20.2.0: match workspace navigation and read-only live context. Uses original code, scoreboard, video and sync. -->
-<link rel="stylesheet" href="./vc2020-match-workspace.css?v=20.2.0">
+<!-- V20.7.1: cross-device diagnostic and match workspace styling merged; no changes to writers. -->
+<link rel="stylesheet" href="./vc2071-device-match-unified.css?v=20.7.1">
 <script id="vc2020-match-workspace" src="./212-vc2020-match-workspace.js?v=20.7.0" defer data-vc-module="true"></script>
 <!-- V20.2.1: safe draft-only Speed Pro. Keeps native registration, court and Alt+1–8 macros. -->
 <link rel="stylesheet" href="./vc2021-scouting-speed-pro.css?v=20.5.33">

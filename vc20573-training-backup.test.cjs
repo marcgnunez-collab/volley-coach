@@ -210,7 +210,7 @@ test('a competing tab and a main-club change during backup block the download',a
 
 test('V20.5.73 release retains original single writer and publishes export UI',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20573-training-backup.test.cjs'));
  assert.ok(html.includes('id="vc20573-export-training" disabled'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));

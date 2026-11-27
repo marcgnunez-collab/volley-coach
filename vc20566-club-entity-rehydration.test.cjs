@@ -165,7 +165,7 @@ test('Gestión starts with no reads, exposes only dry-run counts and can be disp
 
 test('release V66 exposes manual rehearsal without replacing live state storage',()=>{
  const pkg=JSON.parse(read('package.json')),html=read('index.html');
- assert.equal(pkg.version,'20.7.0');
+ assert.equal(pkg.version,'20.7.1');
  assert.ok(pkg.scripts['test:foundation'].includes('vc20566-club-entity-rehydration.test.cjs'));
  assert.ok(html.includes('id="vc20566-rehearse-recovery" disabled'));
  assert.ok(html.includes('vc2055-domain-core.mjs?v=20.7.0'));
