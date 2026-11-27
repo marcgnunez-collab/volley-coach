@@ -1,0 +1,53 @@
+{
+  "schema": "vc-pending-retirement/1",
+  "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
+  "updatedIn": "20.7.3",
+  "groups": [
+    {
+      "identifiedIn": "20.7.0",
+      "files": [
+        "216-vc20231-dv-layout-refinement.js",
+        "vc20231-dv-layout-refinement.css",
+        "vc-app-192-v1741.png",
+        "vc-app-512-v1741.png",
+        "vc-app-maskable-v1741.png",
+        "211-vc2012-multi-device-validation.js",
+        "v19320-compatibility-final-audit.test.cjs",
+        "v2001-sync-engine-reliability.test.cjs",
+        "v2011-durable-sync-journal.test.cjs",
+        "v2012-multi-device-validation.test.cjs"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.1",
+      "files": [
+        "vc19314-integrated-video.css",
+        "vc19315-scouting-editor.css",
+        "vc1931931-visual-system.css",
+        "vc193194-analysis-workspace.css",
+        "vc193195-tactical-tables.css",
+        "vc193196-match-video-workspace.css",
+        "vc193197-global-ui-optimization.css",
+        "vc19320-compatibility-audit.css",
+        "vc2012-multi-device-validation.css",
+        "vc2020-match-workspace.css"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.2",
+      "files": [
+        "227-vc2041-statistical-integrity.js",
+        "228-vc2042-rival-intelligence.js",
+        "229-vc2043-live-tactical-assistant.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.3",
+      "files": [
+        "230-vc2050-release-health.js",
+        "231-vc2051-scouting-expert.js",
+        "232-vc2052-architecture-foundation.js"
+      ]
+    }
+  ]
+}

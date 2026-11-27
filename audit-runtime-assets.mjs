@@ -12,6 +12,27 @@ const DEPENDENCY_SOURCE=/\.(?:js|mjs|ts|css)$/i;
 const BUILD_CONFIGS=new Set(['vite.config.mjs','vite.domain.config.mjs']);
 const REFERENCE_ATTR=/\b(?:src|href|poster)\s*=\s*["'](\.\/[^"']+)["']/gi;
 const CSS_URL=/\burl\(\s*["']?(\.\/[^"')\s]+)["']?\s*\)/gi;
+const RETIREMENT_MANIFEST='scripts/retained-legacy-assets.json';
+
+function retainedAssets(root,errors){
+ const file=path.join(root,RETIREMENT_MANIFEST);
+ if(!existsSync(file))return new Set();
+ const names=new Set();
+ try{
+  const data=JSON.parse(readFileSync(file,'utf8'));
+  if(data.schema!=='vc-pending-retirement/1'||data.policy!=='KEEP_UNTIL_MIGRATION_FINISHED'||!Array.isArray(data.groups))
+   throw Error('invalid schema or policy');
+  for(const group of data.groups){
+   if(!/^\d+\.\d+\.\d+$/.test(group.identifiedIn)||!Array.isArray(group.files))throw Error('invalid group');
+   for(const name of group.files){
+    if(typeof name!=='string'||name==='.'||name==='..'||name.includes('/')||name.includes('\\')||names.has(name))
+     throw Error(`invalid or duplicated name ${name}`);
+    names.add(name);
+   }
+  }
+ }catch(error){errors.push(`${RETIREMENT_MANIFEST}: ${error.message}`);}
+ return names;
+}
 
 function walk(dir){
  if(!existsSync(dir))return [];
@@ -72,6 +93,9 @@ export function auditRuntimeAssets(root=ROOT){
   }
   precached.add(file);check(file,'service-worker.js',new Set());
  }
+ const retained=retainedAssets(root,errors);
+ for(const name of retained)if(client.has(name)||precached.has('./'+name))
+  errors.push(`${RETIREMENT_MANIFEST}: retained legacy file is still loaded: ${name}`);
  const top=readdirSync(root,{withFileTypes:true})
   .filter(item=>item.isFile()&&ASSET.test(item.name)).map(item=>item.name);
  const sourceFiles=top.filter(name=>DEPENDENCY_SOURCE.test(name)&&!BUILD_CONFIGS.has(name))
@@ -80,12 +104,13 @@ export function auditRuntimeAssets(root=ROOT){
  const sources=sourceFiles.map(file=>[path.relative(root,file),readFileSync(file,'utf8')]);
  const unreferenced=[];
  for(const name of top){
-  if(BUILD_CONFIGS.has(name)||required.includes(name)||client.has(name)||precached.has('./'+name))continue;
+  if(BUILD_CONFIGS.has(name)||required.includes(name)||client.has(name)||precached.has('./'+name)||retained.has(name))continue;
   if(sources.some(([origin,text])=>origin!==name&&text.includes(name)))continue;
   unreferenced.push(name);errors.push(`Unreferenced deployable asset: ${name}`);
  }
  return {errors,client:client.size,precache:precached.size,assets:top.length,
-  unreferenced:unreferenced.sort()};
+  retainedPresent:top.filter(name=>retained.has(name)).length,
+  retainedCandidates:retained.size,unreferenced:unreferenced.sort()};
 }
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
@@ -93,5 +118,5 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  if(result.errors.length){
   for(const error of result.errors)console.error('ASSET AUDIT:',error);
   process.exitCode=1;
- }else console.log(`ASSET AUDIT OK · ${result.assets} root assets · ${result.client} client references · ${result.precache} precached paths · 0 orphaned assets`);
+ }else console.log(`ASSET AUDIT OK · ${result.assets} root assets · ${result.client} client references · ${result.precache} precached paths · ${result.retainedCandidates} deferred-retirement candidates · ${result.retainedPresent} still present · 0 unclassified orphan assets`);
 }

@@ -3,10 +3,11 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const root=__dirname;
+/* Run from the repository root like the other archived suites. */
+const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
-const api=require('./230-vc2050-release-health.js');
+const api=require('../230-vc2050-release-health.js');
 const references=[...html.matchAll(/(?:src|href)=["']\.\/([^"'?#]+)(?:\?[^"']*)?["']/g)].map(x=>x[1]);
 const absent=[...new Set(references)].filter(f=>!fs.existsSync(path.join(root,f)));
 
