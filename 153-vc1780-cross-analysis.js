@@ -1,3 +1,531 @@
+/* V20.7.17 · Source-preserving defer bundle. Original scripts in exact execution order. */
+/* VC20717_SOURCE_BEGIN:149-vc1751-video-production-workspace.js */
+/* Volley Coach V17.5.1 · Video Production Workspace
+ * Presentation/read-only recording-library adapter for the existing Video Review,
+ * Recording Pro, Live/Delay and Clip Studio. No additional media element, Recorder,
+ * database, upload or scouting state. All actions delegate to the original engines.
+ */
+(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  if(root?.document){
+    // Legacy Video Studio mounts on DOMContentLoaded. This deferred V17 script may
+    // execute at readyState=interactive *before* that listener runs. Mount only
+    // after the original workspace is ready to avoid creating a stray grid item.
+    const doc=root.document;
+    if(doc.readyState==='loading'||(doc.readyState==='interactive'&&!doc.getElementById('vc1642-command')))
+      doc.addEventListener('DOMContentLoaded',()=>api.mount(root),{once:true});
+    else api.mount(root);
+  }
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+'use strict';
+const VERSION='17.5.1';
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const validId=x=>String(x??'').trim()&&String(x).trim()!=='0'?String(x).trim():'';
+function readableBytes(bytes){const n=Number(bytes);if(!Number.isFinite(n)||n<0)return '—';return n>=1073741824?(n/1073741824).toFixed(2)+' GB':n>=1048576?(n/1048576).toFixed(1)+' MB':Math.round(n/1024)+' KB'}
+function readableDuration(ms){const n=Number(ms);if(!Number.isFinite(n)||n<0)return '—';const t=Math.floor(n/1000);return String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')}
+function sameMatch(rec,matchId){const recorded=validId(rec?.match?.id),selected=validId(matchId);return !recorded||!!selected&&recorded===selected}
+function recordingRows(items,matchId){return (Array.isArray(items)?items:[]).map(r=>({
+  id:String(r?.id??''),name:String(r?.filename||'Grabación sin nombre'),date:String(r?.startedAt||''),
+  duration:readableDuration(r?.durationMs),size:readableBytes(r?.bytes),completed:!!r?.completed,
+  compatible:!!validId(matchId)&&sameMatch(r,matchId),linkedMatch:validId(r?.match?.id),mode:String(r?.mode||''),error:!!r?.error
+ })).filter(x=>x.id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,50)}
+function readiness(d={},rec={},source='',matchId=''){
+ const selected=validId(matchId||d.match), sourceText=String(source||d.mediaType||'').toUpperCase().trim();
+ const isLive=/\bLIVE\b/.test(sourceText),isDelay=/\bDELAY\b/.test(sourceText);
+ const loaded=!!d.videoLoaded;
+ const videoMatch=validId(d.fileMatchId),mismatch=loaded&&!!selected&&!!videoMatch&&selected!==videoMatch;
+ const sync=Number.isFinite(Number(d.syncOffset))&&d.syncOffset!==null&&d.syncOffset!=='';
+ return {
+  selectedMatch:selected,source:sourceText||'SIN FUENTE',loaded,live:isLive,delay:isDelay,mismatch,
+  linkedVideo:loaded&&!mismatch,videoSync:loaded&&!mismatch&&sync,
+  offset:sync?Number(d.syncOffset):null,recording:!!rec.active,
+  sourceDescription: mismatch?'El archivo cargado corresponde a otro scouting':
+    isLive?'Fuente LIVE seleccionada (no equivale a grabación)':
+    isDelay?'Fuente DELAY seleccionada (no equivale a archivo guardado)':
+    loaded?'Reproductor con fuente disponible':'Selecciona un archivo, grabación o fuente',
+  status: mismatch?'warn':loaded?'ready':isLive||isDelay?'source':'empty'
+ };
+}
+function mount(root){
+ const doc=root.document,$=id=>doc.getElementById(id),hub=$('scout-video-hub'),grid=hub?.querySelector('.v780-hub');
+ if(!hub||!grid||$('vc1751-desk'))return false;
+ const command=$('vc1642-command');if(!command||command.parentElement!==grid)return false;
+ const desk=doc.createElement('section');desk.id='vc1751-desk';desk.className='vc1751-desk';desk.setAttribute('aria-label','Centro de producción de vídeo');
+ desk.innerHTML=`
+  <div class="vc1751-heading"><div><span class="vc1751-kicker">VIDEO STUDIO · V${VERSION}</span><h3>Centro de producción</h3><p>Un partido, una fuente y un reproductor. Revisa el estado antes de grabar o crear clips.</p></div>
+   <button type="button" data-vc1751="library" id="vc1751-library-open" aria-expanded="false">Biblioteca de grabaciones</button></div>
+  <div class="vc1751-readiness" role="status" aria-live="polite">
+    <div><small>Partido de referencia</small><strong id="vc1751-match">Sin seleccionar</strong><span id="vc1751-match-note">Elige un scouting en el selector existente</span></div>
+    <div><small>Fuente de vídeo</small><strong id="vc1751-source">Sin fuente</strong><span id="vc1751-source-note">Ningún archivo o cámara disponible</span></div>
+    <div><small>Marca temporal</small><strong id="vc1751-timecode">Sin sincronizar</strong><span>Sincronización de vídeo, no de nube</span></div>
+    <div><small>Grabación local</small><strong id="vc1751-recording">Sin grabar</strong><span>Los vídeos no se suben a Supabase</span></div>
+  </div>
+  <div class="vc1751-shortcuts" aria-label="Ir a los controles existentes">
+    <button type="button" data-vc1751="source">Fuentes y cámara</button>
+    <button type="button" data-vc1751="record">Control REC</button>
+    <button type="button" data-vc1751="sync">Sincronizar vídeo</button>
+    <button type="button" data-vc1751="review">Revisar rallies</button>
+    <button type="button" data-vc1751="clips">Clips y playlists</button>
+  </div>
+  <section id="vc1751-library" class="vc1751-library" aria-label="Grabaciones almacenadas" hidden>
+    <div class="vc1751-library-head"><div><h4>Grabaciones de este dispositivo</h4><p>Solo se muestran metadatos. Abrir una grabación no la elimina ni inicia una nueva captura.</p></div><div><button type="button" data-vc1751="refresh">Actualizar</button><button type="button" data-vc1751="close">Cerrar</button></div></div>
+    <p id="vc1751-library-state" role="status">Pulsa Actualizar para consultar las sesiones guardadas.</p>
+    <div id="vc1751-recordings" class="vc1751-recordings"></div>
+  </section>
+  <p id="vc1751-feedback" class="vc1751-feedback" aria-live="polite">Selecciona un partido y carga una fuente para comenzar.</p>`;
+ // Preserve original video DOM and controls; add a presentation section only.
+ command.appendChild(desk);
+ let revision=0,reading=false,activeOpen=false,refreshes=0,lastError='';
+ const show=(message,error=false)=>{lastError=error?message:'';const el=$('vc1751-feedback');if(el){el.textContent=message;el.dataset.error=error?'1':'0'}};
+ const mode=kind=>{const set=root.VC_VIDEO_STUDIO_1642?.setMode;return typeof set==='function'&&set(kind)!==false};
+ const scrollTo=id=>{const el=$(id);if(!el)return false;try{el.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(_){el.scrollIntoView?.()}return true};
+ const setText=(id,value)=>{const node=$(id);if(node&&node.textContent!==String(value))node.textContent=String(value)};
+ function diagnostics(){let d={},r={};try{d=root.v780Diagnostics?.()||{}}catch(_){}try{r=root.vcRecordingDiagnostics?.()||{}}catch(_){}return readiness(d,r,$('v117-review-source-label')?.textContent||'', $('v780-match')?.value||'')}
+ function refresh(){const p=diagnostics();refreshes++;
+  const matchOpt=$('v780-match')?.selectedOptions?.[0];
+  setText('vc1751-match',p.selectedMatch?(matchOpt?.textContent?.trim()||('Partido '+p.selectedMatch)):'Sin seleccionar');
+  setText('vc1751-match-note',p.selectedMatch?'Scouting seleccionado en Video Studio':'Selecciona un partido antes de abrir una grabación');
+  setText('vc1751-source',p.source);setText('vc1751-source-note',p.sourceDescription);
+  setText('vc1751-timecode',p.videoSync?'Desfase '+p.offset.toFixed(1)+' s':p.mismatch?'Partido distinto':'Sin marca confirmada');
+  setText('vc1751-recording',p.recording?'REC en curso':'Sin grabación activa');
+  desk.dataset.videoState=p.status;
+  const syncButton=desk.querySelector('[data-vc1751="sync"]');if(syncButton)syncButton.disabled=!p.selectedMatch;
+  return p;
+ }
+ let scheduled=false;
+ function schedule(){if(scheduled)return;scheduled=true;(root.requestAnimationFrame||((f)=>f()))(()=>{scheduled=false;refresh()})}
+ async function openLibrary(){activeOpen=true;const p=$('vc1751-library');p.hidden=false;desk.querySelector('#vc1751-library-open')?.setAttribute('aria-expanded','true');await loadLibrary()}
+ function closeLibrary(){activeOpen=false;revision++;const p=$('vc1751-library');if(p)p.hidden=true;desk.querySelector('#vc1751-library-open')?.setAttribute('aria-expanded','false')}
+ async function loadLibrary(){const el=$('vc1751-recordings'),info=$('vc1751-library-state');
+   if(!el||!info||!activeOpen)return false;
+   if(reading){show('Se está consultando la biblioteca.');return false}
+   const n=++revision;
+   const list=root.VC_RECORDING_PRO?.list;if(typeof list!=='function'){info.textContent='Recording Pro todavía no está disponible.';return false}
+   reading=true;info.textContent='Consultando grabaciones guardadas en este navegador…';
+   try{
+    const data=await list();if(n!==revision||!activeOpen)return false;
+    const selected=$('v780-match')?.value||'';const rows=recordingRows(data,selected);
+    info.textContent=rows.length?`${rows.length} grabaciones locales · ${rows.filter(r=>r.compatible).length} disponibles para el partido seleccionado`:'No hay grabaciones guardadas en este navegador.';
+    el.innerHTML=rows.map(r=>`<article class="vc1751-recording"><div><strong>${esc(r.name)}</strong><small>${esc(r.date?new Date(r.date).toLocaleString('es-ES'):'Fecha no registrada')} · ${r.duration} · ${r.size}</small><span>${r.completed?'Finalizada':'Incompleta'} · ${esc(r.mode||'Local')} ${r.linkedMatch?'· Partido '+esc(r.linkedMatch):'· Sin partido vinculado'}${r.error?' · Incidencia registrada':''}</span></div><button type="button" data-vc1751-open="${esc(r.id)}" ${r.compatible?'':'disabled title="Pertenece a otro partido o no hay partido seleccionado"'}>Abrir</button></article>`).join('')||'<div class="vc1751-empty">Sin grabaciones. Las grabaciones guardadas en otro dispositivo no aparecen aquí automáticamente.</div>';
+    show('Biblioteca consultada. Los archivos de vídeo permanecen en este dispositivo.');return true;
+   }catch(e){if(n===revision){info.textContent='No se ha podido leer la biblioteca local.';show('Error de lectura de grabaciones: '+String(e?.message||e),true)}return false}
+   finally{reading=false}
+ }
+ async function openRecording(id){const btn=Array.from(desk.querySelectorAll('[data-vc1751-open]')).find(x=>x.dataset.vc1751Open===String(id));
+   const list=root.VC_RECORDING_PRO?.list;const open=root.v780OpenRecordingById;
+   if(typeof list!=='function'||typeof open!=='function'){show('No están disponibles las funciones originales de grabación.',true);return false}
+   const match=$('v780-match')?.value||'';if(!validId(match)){show('Selecciona un partido en Video Studio antes de abrir una grabación.',true);return false}
+   try{const all=await list();const rec=all.find(r=>String(r?.id)===String(id));if(!rec||!sameMatch(rec,match)){show('La grabación pertenece a otro partido. Selecciona su scouting antes de abrirla.',true);return false}
+     if(btn)btn.disabled=true;
+     const ok=await open(id);if(ok===false){show('No se ha podido cargar la grabación.',true);return false}
+     closeLibrary();mode('review');show('Grabación cargada desde el motor original. Comprueba su sincronización temporal antes de crear clips.');schedule();return true;
+   }catch(e){show('No se pudo abrir la grabación: '+String(e?.message||e),true);return false}
+   finally{if(btn)btn.disabled=false}
+ }
+ const action=async name=>{
+  if(name==='library'){if(activeOpen)closeLibrary();else await openLibrary();return}
+  if(name==='refresh'){await loadLibrary();return}
+  if(name==='close'){closeLibrary();return}
+  if(name==='source'){if(mode('capture')){scrollTo('v117-review-source-label');show('Selecciona LIVE, DELAY, archivo o YouTube con los controles originales.')}return}
+  if(name==='record'){if(!mode('capture'))return;const ok=scrollTo('vc-rec34-strip')||scrollTo('v117-review-live-tools');show(ok?'Utiliza Iniciar REC y Finalizar y guardar en el panel original.':'El panel de grabación todavía no está disponible.',!ok);return}
+  if(name==='sync'){if(!validId($('v780-match')?.value)){show('Selecciona primero un partido.',true);return}if(!mode('review'))return;
+   const btn=$('vc1611-open');if(btn){btn.click();scrollTo('vc1611-wizard');show('Abierto el asistente original de sincronización temporal de vídeo.')}else{scrollTo('v780-sync-panel');show('Consulta la sincronización temporal del vídeo en el panel original.')}return}
+  if(name==='review'){if(mode('review')){scrollTo('v780-timeline');show('Selecciona una jugada en la línea temporal para reproducirla.')}return}
+  if(name==='clips'){if(mode('clips')){scrollTo('vc-clip33');show('Clip Studio utiliza las marcas de tiempo y el vídeo actual.')}return}
+ };
+ desk.addEventListener('click',event=>{
+   const btn=event.target.closest('button');if(!btn||!desk.contains(btn)||btn.disabled)return;
+   if(btn.dataset.vc1751Open)openRecording(btn.dataset.vc1751Open);
+   else if(btn.dataset.vc1751)action(btn.dataset.vc1751);
+ });
+ for(const id of ['v780-match','v117-review-source-label','v780-video-state','v780-sync-state','vc-rec34-strip-status']){
+  const el=$(id);if(!el)continue;
+  if(id==='v780-match')el.addEventListener('change',()=>{schedule();if(activeOpen)loadLibrary()});
+  else if(root.MutationObserver)new root.MutationObserver(schedule).observe(el,{childList:true,characterData:true,subtree:true});
+ }
+ for(const id of ['v780-player-video']){const video=$(id);for(const ev of ['loadedmetadata','emptied','durationchange','error'])video?.addEventListener(ev,schedule)}
+ refresh();
+ const api={version:VERSION,refresh,diagnostics:()=>({version:VERSION,opened:activeOpen,refreshes,mediaElements:hub.querySelectorAll('#v780-player-video').length,streamElements:hub.querySelectorAll('#v117-review-stream').length,lastError}),openLibrary,closeLibrary,loadLibrary,openRecording};
+ root.VC_VIDEO_PRODUCTION_1751=api;return true;
+}
+return {version:VERSION,mount,readiness,recordingRows,sameMatch,readableBytes,readableDuration};
+});
+
+/* VC20717_SOURCE_END:149-vc1751-video-production-workspace.js */
+
+/* VC20717_SOURCE_BEGIN:150-vc1752-scouting-fast-flow.js */
+/* Volley Coach V17.5.4 · Ruta automática, panel tras la pista y barra legible.
+ * Presentación/draft only: no añade acciones, puntos, rally, nube ni guardado.
+ * Reutiliza el teclado 9×4, los dos campos existentes y el motor de scouting.
+ */
+(function(root,factory){
+ const api=factory();
+ if(typeof module==='object'&&module.exports)module.exports=api;
+ if(root?.document){
+  const doc=root.document;
+  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',()=>api.mount(root),{once:true});
+  else api.mount(root);
+ }
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ 'use strict';
+ const VERSION='17.5.4';
+ const ORIENTATION=Object.freeze(['C','B','D','A']);
+ const safeUndo=(now,snapshot)=>snapshot&&String(now)===String(snapshot.after)?snapshot.before:null;
+ const nextStep=(step,applied)=>!applied?step:step==='origin'?'destination':step==='destination'?'done':'done';
+ function mount(root){
+  const doc=root.document,$=id=>doc.getElementById(id);
+  const panel=$('v113-video-code-panel');if(!panel)return false;
+  let step='origin',originToken='',destinationToken='',lastEdit=null,latest=[],mounted=false;
+  function input(){const video=$('v113-video-code'),direct=$('v800-code');
+   if(video?.getClientRects?.().length)return video;
+   if(direct?.getClientRects?.().length)return direct;
+   return video||direct||null;
+  }
+  function board(){return root.VC_1613_ZONE_BOARD}
+  function status(message){const node=$('vc1752-feedback');if(node&&node.textContent!==message)node.textContent=message}
+  function routeHighlight(){
+   const court=$('vc1613-board');if(!court)return;
+   for(const b of court.querySelectorAll('[data-zone]')){
+    const key=String(b.dataset.zone||'')+String(b.dataset.sub||'');
+    b.classList.toggle('vc1752-origin',!!originToken&&key===originToken);
+    b.classList.toggle('vc1752-destination',!!destinationToken&&key===destinationToken);
+   }
+   const summary=$('vc1752-route');
+   if(summary)summary.textContent=originToken
+    ?'Origen Z'+originToken+(destinationToken?' → Destino Z'+destinationToken:' → toca una casilla diferente para el destino')
+    :step==='off'?'Modo manual · solo destino':'Automático · 1.ª casilla: origen · 2.ª casilla: destino';
+  }
+  function update(){const el=$('vc1752-strip');if(!el)return;
+   el.dataset.step=step;
+   const guided=$('vc1752-guide');if(guided){guided.setAttribute('aria-pressed',String(step==='origin'||step==='destination'));guided.textContent=step==='origin'?'AUTO · 1/2 ORIGEN':step==='destination'?'AUTO · 2/2 DESTINO':'Activar ruta automática'}
+   const undo=$('vc1752-undo');if(undo)undo.disabled=(safeUndo(input()?.value,lastEdit)===null);
+   const recent=$('vc1752-recent');if(recent){recent.replaceChildren();for(const token of latest){
+    const b=doc.createElement('button');b.type='button';b.dataset.vc1752Token=token;b.textContent=token;b.title='Aplicar Z'+token+' al código';b.setAttribute('aria-label','Repetir zona '+token);recent.appendChild(b)
+   }}
+   routeHighlight();
+  }
+  function setStep(value){step=value;
+   if(value==='origin'||value==='destination')board()?.setMode?.(value);
+   update();
+  }
+  function ensure(){
+   const entry=panel.querySelector('.v113-video-code-entry'),zone=$('vc1613-board');
+   if(!entry||!zone)return false;
+   let strip=$('vc1752-strip'),created=false;
+   if(!strip){created=true;
+    strip=doc.createElement('section');strip.id='vc1752-strip';strip.className='vc1752-strip';strip.setAttribute('aria-label','Codificación rápida');
+    strip.innerHTML=`<div class="vc1752-heading"><b>SCOUTING RÁPIDO · V${VERSION}</b><small>Dos casillas: origen y destino · sin guardar automáticamente</small></div>
+     <div class="vc1752-actions"><button type="button" id="vc1752-guide" aria-pressed="true">AUTO · 1/2 ORIGEN</button><button type="button" id="vc1752-dest">Solo destino</button><button type="button" id="vc1752-focus">Foco código</button><button type="button" id="vc1752-undo" disabled>Deshacer código</button></div>
+     <div id="vc1752-route" class="vc1752-route" role="status">Automático · 1.ª casilla: origen · 2.ª casilla: destino</div>
+     <div class="vc1752-bottom"><span>Repetir zona:</span><div id="vc1752-recent" aria-label="Últimas cuatro zonas"></div></div>
+     <p id="vc1752-feedback" role="status" aria-live="polite">Escribe el código y toca dos casillas diferentes: origen y destino. Pulsa Añadir para registrar.</p>`;
+    strip.addEventListener('click',e=>{
+     const b=e.target.closest('button');if(!b)return;
+     if(b.id==='vc1752-guide'){
+      if(step==='origin'||step==='destination'){originToken='';destinationToken='';setStep('off');board()?.setMode?.('destination');status('Ruta automática desactivada: elige solo el destino.')}
+      else{originToken='';destinationToken='';setStep('origin');status('Ruta automática activada: toca la casilla de origen.')} 
+     }else if(b.id==='vc1752-dest'){originToken='';destinationToken='';setStep('off');board()?.setMode?.('destination');status('Modo manual: selecciona únicamente el destino o contacto.')}
+     else if(b.id==='vc1752-focus') {input()?.focus?.({preventScroll:true})}
+     else if(b.id==='vc1752-undo'){
+      const target=input(),value=safeUndo(target?.value,lastEdit);if(!target||value===null)return;
+      const edit=lastEdit;
+      target.value=value;target.dispatchEvent(new Event('input',{bubbles:true}));lastEdit=null;
+      if(edit?.stage==='destination'){originToken=edit.origin;destinationToken='';setStep('destination');board()?.restoreModeContext?.('origin','destination');status('Destino deshecho: marca una casilla distinta del origen.')}
+      else if(edit?.stage==='origin'){originToken='';destinationToken='';setStep('origin');board()?.restoreModeContext?.('destination','origin');status('Origen deshecho: marca una nueva casilla de origen.')}
+      else {setStep('off');board()?.setMode?.('destination');status('Última selección deshecha. No se ha modificado el partido.')}
+     }else if(b.dataset.vc1752Token){const token=b.dataset.vc1752Token;
+      board()?.applyToken?.(token[0],token.slice(1));
+     }
+    });
+   }
+   // Keep the panel UNDER the 9×4 court inside its existing section.
+   // This preserves the court's required sibling order (right before the
+   // video keyboard) and avoids a move/reinsert loop during rerenders.
+   if(strip.parentElement!==zone||zone.lastElementChild!==strip)zone.appendChild(strip);
+   if(created||!mounted){mounted=true;update()}
+   return true;
+  }
+  function onZone(e){
+   const d=e.detail||{};
+   if(!d.zone||!d.before||d.before===d.after)return;
+   const token=String(d.token||'');
+   if(!/^[1-9][ABCD]?$/.test(token))return;
+   const stage=step;
+   // The second cell must differ from the first. Restore only the draft code.
+   if(stage==='destination'&&d.mode==='destination'&&token===originToken){
+    const target=input();
+    if(target&&target.value===d.after){target.value=d.before;target.dispatchEvent(new Event('input',{bubbles:true}))}
+    board()?.restoreModeContext?.('origin','destination');
+    status('Has marcado el mismo origen. Toca una casilla diferente para indicar el destino.');
+    update();return;
+   }
+   lastEdit={before:d.before,after:d.after,stage:stage===d.mode?stage:'manual',origin:originToken};
+   latest=[token,...latest.filter(x=>x!==token)].slice(0,4);
+   if(stage==='origin'&&d.mode==='origin'){
+    originToken=token;destinationToken='';setStep('destination');
+    status('Origen Z'+token+' marcado. Toca otra casilla para el destino.');
+   }else if(stage==='destination'&&d.mode==='destination'){
+    destinationToken=token;setStep('origin');
+    status('Ruta Z'+originToken+' → Z'+token+' completada en el código. Pulsa Añadir/Enter para registrar; próxima ruta: origen.');
+   }else status('Z'+token+' aplicada al código. Revisa antes de registrar.');
+   update();
+  }
+  function onManualMode(e){
+   const mode=e.detail?.mode;
+   if(mode!=='origin'&&mode!=='destination')return;
+   step='off';originToken='';destinationToken='';update();
+   status('Selección manual '+(mode==='origin'?'de origen':'de destino')+'. Pulsa «Activar ruta automática» para volver a dos toques.');
+  }
+  function installStyle(){if($('vc1752-style'))return;
+   const el=doc.createElement('style');el.id='vc1752-style';el.textContent=`
+ /* V17.5.4 · Estado operativo compacto: evita el texto apilado sin estructura */
+ body.v11-shell #scout-match-mode #vc54-operation-bar{
+  display:grid!important;grid-template-columns:minmax(96px,1.05fr) minmax(70px,.6fr) minmax(90px,.8fr) minmax(112px,1fr) minmax(105px,1fr) minmax(130px,1.1fr)!important;
+  align-items:stretch!important;gap:7px!important;max-width:100%!important;margin:10px 0 14px!important;padding:9px!important;
+  background:#f6faff!important;border:1px solid #d2e0ee!important;border-radius:13px!important;
+  box-sizing:border-box!important;color:#183d62!important;overflow:visible!important;
+  font:650 12px/1.35 system-ui,sans-serif!important;
+ }
+ body.v11-shell #scout-match-mode #vc54-operation-bar>div{min-width:0!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;gap:3px!important;padding:8px 11px!important;background:#fff!important;border:1px solid #dfebf5!important;border-radius:9px!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-live-indicator{flex-direction:row!important;align-items:center!important;gap:7px!important;color:#16704a!important;font-size:11px!important;font-weight:850!important;letter-spacing:.025em!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-live-indicator i{display:inline-block!important;flex:0 0 8px!important;width:8px!important;height:8px!important;border-radius:50%!important;background:#17a36f!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation small{display:block!important;color:#617d98!important;font-size:10px!important;font-weight:800!important;line-height:1.2!important;letter-spacing:.045em!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-operation strong{display:block!important;color:#143a60!important;font-size:13px!important;font-weight:800!important;line-height:1.3!important;white-space:normal!important}
+ body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-clock strong{font-variant-numeric:tabular-nums!important}
+ @media(max-width:870px){body.v11-shell #scout-match-mode #vc54-operation-bar{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+ @media(max-width:530px){body.v11-shell #scout-match-mode #vc54-operation-bar{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:6px!important;gap:5px!important;margin:8px 0 11px!important}body.v11-shell #scout-match-mode #vc54-operation-bar>div{padding:8px!important}body.v11-shell #scout-match-mode #vc54-operation-bar .vc54-clock{grid-column:span 2!important}}
+ #scout-match-mode #vc1613-board #vc1752-strip{display:grid;gap:9px;margin:12px 0 0;padding:11px;background:#fff;border:1px solid #b8d1e6;border-radius:10px;min-width:0;font:650 12px/1.45 system-ui,sans-serif;color:#285477}
+ #scout-match-mode .vc1752-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+ #scout-match-mode .vc1752-heading b{font-size:12px;color:#114a7a;letter-spacing:.045em}
+ #scout-match-mode .vc1752-heading small{font-size:11px;color:#658098}
+ #scout-match-mode .vc1752-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;min-width:0}
+ body.v11-shell #scout-match-mode #vc1752-strip button{min-height:35px!important;min-width:0!important;border:1px solid #bfd3e6!important;border-radius:7px!important;background:#f5f9fd!important;color:#24587f!important;padding:6px!important;font:750 11px/1.25 system-ui,sans-serif!important;box-shadow:none!important}
+ body.v11-shell #scout-match-mode #vc1752-guide[aria-pressed="true"]{background:#1e67b2!important;color:white!important;border-color:#1e67b2!important}
+ body.v11-shell #scout-match-mode #vc1752-strip button:disabled{opacity:.45!important;cursor:not-allowed}
+ body.v11-shell #scout-match-mode #vc1752-strip button:focus-visible{outline:3px solid #83b9ea!important;outline-offset:2px}
+ #scout-match-mode .vc1752-route{background:#e5f2fc;border:1px solid #bfd8ec;border-radius:7px;padding:7px 9px;color:#185580;font:750 11px/1.45 system-ui,sans-serif}
+ body.v11-shell #scout-match-mode #vc1613-board [data-zone].vc1752-origin{box-shadow:inset 0 0 0 3px #1594bd!important}
+ body.v11-shell #scout-match-mode #vc1613-board [data-zone].vc1752-destination{box-shadow:inset 0 0 0 3px #e69b37!important}
+ #scout-match-mode .vc1752-bottom{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#69839a;font-size:11px}
+ #scout-match-mode #vc1752-recent{display:flex;gap:4px;flex-wrap:wrap}
+ body.v11-shell #scout-match-mode #vc1752-recent button{min-height:27px!important;min-width:36px!important;font-weight:850!important}
+ #scout-match-mode #vc1752-feedback{margin:0!important;color:#507c9b;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+ #scout-match-mode #vc1613-board .vc1613-quads button{min-height:32px!important;font-size:12px!important}
+ @media(max-width:650px){#scout-match-mode .vc1752-actions{grid-template-columns:repeat(2,minmax(0,1fr))}body.v11-shell #scout-match-mode #vc1752-strip button{min-height:43px!important}#scout-match-mode #vc1613-board .vc1613-quads button{min-height:38px!important}}
+ `;doc.head.appendChild(el)
+  }
+  installStyle();
+  root.addEventListener('vc1752:zone-applied',onZone);
+  root.addEventListener('vc1752:zone-mode-manual',onManualMode);
+  const observer=new MutationObserver(()=>ensure());
+  observer.observe(panel,{childList:true,subtree:true});
+  for(const id of ['v113-video-code','v800-code']){const field=$(id);if(field)field.addEventListener('input',update)}
+  ensure();
+  // The route is active immediately: no extra activation button is needed.
+  board()?.setMode?.('origin');
+  update();
+  return true;
+ }
+ return {version:VERSION,orientation:ORIENTATION,nextStep,safeUndo,mount};
+});
+
+/* VC20717_SOURCE_END:150-vc1752-scouting-fast-flow.js */
+
+/* VC20717_SOURCE_BEGIN:152-vc1770-video-pro.js */
+/* Volley Coach V17.7.0 · Vídeo Pro
+ * Extiende exclusivamente la vista de scouting sobre vídeo existente.
+ * Nunca crea media, cambia la fuente, altera el scouting ni escribe en almacenamiento.
+ */
+(function(root,factory){
+ const api=factory();
+ if(typeof module==='object'&&module.exports)module.exports=api;
+ if(root&&root.document){
+  const ready=()=>api.mount(root);
+  if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',ready,{once:true});
+  else ready();
+ }
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ 'use strict';
+ const VERSION='17.7.0';
+ const ID='vc1770-video-pro';
+ const isEditable=el=>!!el?.closest?.('input,textarea,select,[contenteditable=""],[contenteditable="true"],[role="textbox"]');
+ const isReplaySource=s=>s==='local'||s==='youtube';
+ function mount(root){
+  const doc=root.document,$=id=>doc.getElementById(id);
+  const shell=()=>$('v800-shell'),drawer=()=>$('v112-video-drawer');
+  if(!shell()||!drawer())return false;
+  let layout='balanced', mounted=0, seeks=0, toggles=0, shortcutCount=0;
+  let pending=false;
+  const open=()=>!!shell()?.classList.contains('v112-video-open')&&!!$('scout-match-mode')?.classList.contains('active');
+  const theater=()=>!!drawer()?.classList.contains('vc1644-theater');
+  const selectedSource=()=>{
+   for(const s of ['local','youtube','delay','live']){
+    const tab=$('v802-source-'+s);
+    if(tab?.classList.contains('active')||tab?.getAttribute('aria-selected')==='true')return s;
+   }
+   const label=($('v116-source-label')?.textContent||'').trim().toUpperCase();
+   if(label.includes('YOUTUBE'))return 'youtube';
+   if(label.includes('ARCHIVO')||label.includes('LOCAL'))return 'local';
+   if(label.includes('DELAY'))return 'delay';
+   return 'live';
+  };
+  const ready=()=>{
+   const s=selectedSource();
+   if(s==='local'){
+    const video=$('v802-local-video');
+    return !!video?.getAttribute('src')||!!video?.currentSrc;
+   }
+   if(s==='youtube'){
+    const box=$('v802-youtube-player');
+    return !!box?.querySelector('iframe')||!!box?.getAttribute('data-ready');
+   }
+   return false;
+  };
+  const activeTransport=()=>open()&&isReplaySource(selectedSource())&&ready();
+  const css=`
+/* Mobile and desktop video view: keep one original player and original coding. */
+#scout-match-mode #v112-video-drawer .vc1770-toolbar{display:none!important;min-width:0;gap:7px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 10px;margin:0;background:#0b2640;border:1px solid #365671;border-radius:9px;color:#f2f7ff;}
+#scout-match-mode #v112-video-drawer .vc1770-toolbar button{appearance:none!important;border:1px solid #4e7390!important;background:#24465f!important;border-radius:7px!important;color:#f7fbff!important;font:750 12px/1.2 system-ui,sans-serif!important;min-height:35px!important;padding:7px 10px!important;cursor:pointer!important;white-space:nowrap!important;}
+#scout-match-mode #v112-video-drawer .vc1770-toolbar button[disabled]{opacity:.45!important;cursor:not-allowed!important;}
+#scout-match-mode #v112-video-drawer .vc1770-toolbar button[aria-pressed="true"]{background:#e9f3ff!important;color:#173a65!important;border-color:#c6e4ff!important;}
+#scout-match-mode #v112-video-drawer .vc1770-toolbar button:focus-visible{outline:3px solid #7abaf8!important;outline-offset:2px!important;}
+#scout-match-mode #v112-video-drawer .vc1770-transport,#scout-match-mode #v112-video-drawer .vc1770-layout{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+#scout-match-mode #v112-video-drawer .vc1770-transport{flex:1 1 auto;}
+#scout-match-mode #v112-video-drawer .vc1770-source{font:650 11px/1.3 system-ui,sans-serif;color:#d1e3f4;flex:1 1 100%;min-width:0;}
+#scout-match-mode #v112-video-drawer .vc1770-source strong{color:#fff;}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater.vc1770-video-pro-ready{grid-template-columns:minmax(0,1fr) clamp(305px,28vw,440px)!important;}
+body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater.vc1770-video-pro-ready.vc1770-video-focus{grid-template-columns:minmax(0,1fr) clamp(300px,22vw,335px)!important;}
+body.v11-shell.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.vc1770-toolbar{display:flex!important;order:2!important;grid-column:auto!important;grid-row:auto!important;flex:0 0 auto!important;width:100%!important;max-width:none!important;box-sizing:border-box!important;}
+body.v11-shell.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>#v802-playback{order:3!important;}
+body.v11-shell.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater>.v112-video-card>.v800-video-actions{order:4!important;}
+@media(max-width:820px){
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater.vc1770-video-pro-ready,
+ body.v11-shell.vc54-match-active.vc1644-theater-lock #scout-match-mode #v800-shell.v112-video-open #v112-video-drawer.vc1644-theater.vc1770-video-pro-ready.vc1770-video-focus{display:flex!important;flex-direction:column!important;grid-template-columns:none!important;}
+ #scout-match-mode #v112-video-drawer .vc1770-toolbar{padding:7px!important;}
+ #scout-match-mode #v112-video-drawer .vc1770-toolbar button{min-height:38px!important;}
+}
+@media(max-width:460px){
+ #scout-match-mode #v112-video-drawer .vc1770-transport{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;}
+ #scout-match-mode #v112-video-drawer .vc1770-transport button{min-width:0!important;padding:8px 3px!important;font-size:11px!important;}
+ #scout-match-mode #v112-video-drawer .vc1770-layout{width:100%;justify-content:space-between;}
+}
+@media(prefers-reduced-motion:reduce){#scout-match-mode #v112-video-drawer .vc1770-toolbar button{transition:none!important;}}
+`;
+  function installCss(){if($('vc1770-video-style'))return;
+   const style=doc.createElement('style');style.id='vc1770-video-style';style.textContent=css;doc.head.appendChild(style);
+  }
+  function ensure(){
+   const d=drawer(),card=d?.querySelector(':scope > .v112-video-card');
+   if(!card)return false;
+   let el=$(ID);
+   if(!el){
+    el=doc.createElement('div');el.id=ID;el.className='vc1770-toolbar';
+    el.setAttribute('role','group');el.setAttribute('aria-label','Controles de Vídeo Pro');
+    el.innerHTML=`<div class="vc1770-source" aria-live="polite" id="vc1770-source">Repetición: sin vídeo cargado</div>
+    <div class="vc1770-transport" role="group" aria-label="Repetición de vídeo">
+      <button type="button" data-vc1770="back" title="Retroceder 8 segundos (Shift + flecha izquierda)">−8 s</button>
+      <button type="button" data-vc1770="play" title="Pausar o reproducir (Shift + espacio)">▶ / ❚❚</button>
+      <button type="button" data-vc1770="forward" title="Avanzar 5 segundos (Shift + flecha derecha)">+5 s</button>
+      <button type="button" data-vc1770="focus" title="Ir al campo de código rápido">⌨ Código</button>
+    </div>
+    <div class="vc1770-layout" role="group" aria-label="Distribución de pantalla">
+      <button type="button" data-vc1770="balanced" aria-pressed="true" title="Más espacio para codificar">Equilibrada</button>
+      <button type="button" data-vc1770="big" aria-pressed="false" title="Dar más espacio al vídeo manteniendo el panel de código">Vídeo +</button>
+    </div>`;
+    el.addEventListener('click',click);
+    mounted++;
+   }
+   if(el.parentElement!==card){
+    const playback=$('v802-playback');
+    if(playback?.parentElement===card)card.insertBefore(el,playback);
+    else card.appendChild(el);
+   }
+   d.classList.add('vc1770-video-pro-ready');
+   d.classList.toggle('vc1770-video-focus',layout==='big');
+   update();
+   return true;
+  }
+  function update(){
+   const el=$(ID);if(!el)return;
+   const source=selectedSource(),loaded=ready();
+   const state=$('vc1770-source');
+   if(state){
+    const message=source==='local'?'Archivo':source==='youtube'?'YouTube':source==='delay'?'Delay':'Directo';
+    const tip=isReplaySource(source)?loaded?'Control de repetición disponible':'Abre el vídeo para activar la repetición':'Usa los controles originales de Live / Delay';
+    const label=message+' · '+tip;
+    if(state.textContent!==label)state.textContent=label;
+   }
+   for(const name of ['back','play','forward']){
+    const btn=el.querySelector('[data-vc1770="'+name+'"]');
+    if(btn)btn.disabled=!activeTransport();
+   }
+   for(const name of ['balanced','big']){
+    const btn=el.querySelector('[data-vc1770="'+name+'"]');
+    if(btn)btn.setAttribute('aria-pressed',String(layout===(name==='big'?'big':'balanced')));
+   }
+  }
+  function seek(seconds){
+   if(!activeTransport()||typeof root.v802Jump!=='function')return false;
+   root.v802Jump(seconds);seeks++;return true;
+  }
+  function play(){
+   if(!activeTransport()||typeof root.v802TogglePlay!=='function')return false;
+   root.v802TogglePlay();toggles++;return true;
+  }
+  function setLayout(which){
+   if(!['big','balanced'].includes(which))return false;
+   layout=which;drawer()?.classList.toggle('vc1770-video-focus',layout==='big');update();return true;
+  }
+  function focusCode(){return !!root.VC_SCOUT_VIDEO_UX_1644?.focusCode?.()}
+  function click(e){
+   const button=e.target.closest('button[data-vc1770]');if(!button)return;
+   const action=button.dataset.vc1770;
+   if(action==='back')seek(-8);
+   else if(action==='forward')seek(5);
+   else if(action==='play')play();
+   else if(action==='focus')focusCode();
+   else if(action==='big'||action==='balanced')setLayout(action);
+   update();
+  }
+  function handleKey(event){
+   if(!open()||!theater()||isEditable(event.target))return;
+   if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||!event.shiftKey)return;
+   let success=false;
+   if(event.key==='ArrowLeft')success=seek(-8);
+   if(event.key==='ArrowRight')success=seek(5);
+   if(event.code==='Space')success=play();
+   if(success){event.preventDefault();shortcutCount++;update();}
+  }
+  function schedule(){if(pending)return;
+   pending=true;root.requestAnimationFrame(()=>{pending=false;ensure()});
+  }
+  installCss();ensure();
+  doc.addEventListener('keydown',handleKey,true);
+  const observer=new MutationObserver(schedule);
+  observer.observe(drawer(),{childList:true,subtree:true});
+  const stateObserver=new MutationObserver(schedule);
+  for(const id of ['v800-shell','v112-video-drawer','v802-source-local','v802-source-youtube','v802-source-live','v802-source-delay']){
+   const el=$(id);if(el)stateObserver.observe(el,{attributes:true,attributeFilter:['class','aria-selected']});
+  }
+  for(const id of ['v802-local-video']){
+   const el=$(id);if(!el)continue;
+   ['loadedmetadata','emptied','loadstart'].forEach(name=>el.addEventListener(name,schedule));
+  }
+  // React to the original source selectors; do not replace their handlers.
+  drawer().addEventListener('click',e=>{
+   if(e.target.closest?.('.v116-source-tabs button,.v802-source-tabs button'))schedule();
+  });
+  root.VC_VIDEO_PRO_1770={version:VERSION,setLayout,seek,play,refresh:ensure,
+   diagnostics:()=>({version:VERSION,mounted,layout,theater:theater(),source:selectedSource(),replayEnabled:activeTransport(),seeks,toggles,shortcuts:shortcutCount,videoNodes:drawer()?.querySelectorAll('video').length||0})};
+  return true;
+ }
+ return {VERSION,mount,isReplaySource,isEditable};
+});
+
+/* VC20717_SOURCE_END:152-vc1770-video-pro.js */
+
+/* VC20717_SOURCE_BEGIN:153-vc1780-cross-analysis.js */
 /* Volley Coach V17.8.0 · Cruces Pro (Analysis Pro)
  * READ ONLY. Reuses the current Analyst Studio selectors and the existing
  * VC_ANALYSIS_INTELLIGENCE_1614 extraction/model. Does not mutate scouting,
@@ -221,3 +749,5 @@
  }
  return {VERSION,TYPES,compute,dataForMatch,viewHtml,sheetRows,csvCells,mount};
 });
+
+/* VC20717_SOURCE_END:153-vc1780-cross-analysis.js */

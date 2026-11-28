@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.16",
+  "updatedIn": "20.7.17",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -123,6 +123,26 @@
         "144-vc1703-functional-audit.js",
         "145-vc1710-training-workspace.js",
         "146-vc1720-match-workspace.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.17",
+      "files": [
+        "149-vc1751-video-production-workspace.js",
+        "150-vc1752-scouting-fast-flow.js",
+        "152-vc1770-video-pro.js",
+        "163-vc1845-video-polish.js",
+        "164-vc1850-home-dashboard.js",
+        "165-vc1851-match-center-pro.js",
+        "184-vc1933-analysis-engine.js",
+        "185-vc1934-setter-attack-intelligence.js",
+        "186-vc1935-analysis-workspace.js",
+        "187-vc1936-analysis-three-pane.js",
+        "183-vc1930-tactical-rival-desk.js",
+        "189-vc1938-professional-data-engine.js",
+        "190-vc1939-rally-search-pro.js",
+        "188-vc1937-analysis-main-rebuild.js",
+        "192-vc19311-professional-analysis-screens.js"
       ]
     }
   ]

@@ -739,6 +739,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.17 · PANELES Y ANÁLISIS COMPACTOS</small><h3>18 scripts diferidos agrupados en 3 bundles</h3><p>Los paneles de inicio, planificación, entrenamiento y análisis avanzado cargan con quince solicitudes menos y unos 13,3 KB gzip menos. Los motores de puntos, recuperación local, vídeo y nube mantienen sus funciones. Quedan 59 archivos antiguos presentes, sin borrarlos hasta la verificación final.</p></div><span>Arquitectura · Optimización de carga</span></div>
     <div class="vc2052-title"><div><small>V20.7.16 · INTERFAZ Y ANÁLISIS AGRUPADOS</small><h3>Diez scripts en dos bundles</h3><p>Las estadísticas de vídeo y las áreas profesionales de entrenamiento, partido y análisis conservan su ejecución, pero necesitan ocho peticiones JavaScript menos y unos 6,3 KB gzip menos. Marcador, Deshacer, guardado y sincronización mantienen sus escritores. Los 67 candidatos históricos siguen protegidos hasta verificar la migración final.</p></div><span>Arquitectura · Interfaz</span></div>
     <div class="vc2052-title"><div><small>V20.7.15 · VÍDEO E INFORMES MÁS LIGEROS</small><h3>Once scripts diferidos en dos bundles</h3><p>Los módulos de vídeo, grabación, informes y comparación conservan su orden y código originales, pero requieren nueve peticiones JavaScript menos y unos 10 KB gzip menos. Punto, Deshacer, almacenamiento y nube no cambian. Los 59 candidatos antiguos siguen protegidos hasta el final de la migración.</p></div><span>Arquitectura · Carga diferida</span></div>
     <div class="vc2052-title"><div><small>V20.7.14 · MENOS PETICIONES, MENOS PESO</small><h3>Once scripts reorganizados en dos módulos</h3><p>Unificamos funciones de vídeo, Scouting, hojas y análisis sin alterar su código ni el orden de carga. Ahora hay nueve peticiones JavaScript menos y unos 9 KB gzip menos. Punto, Deshacer, vídeo y nube mantienen sus responsables originales. Los 50 archivos candidatos se conservarán hasta la limpieza final.</p></div><span>Arquitectura · Consolidación de módulos</span></div>
@@ -11888,11 +11889,8 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 @media(max-width:950px){#scout-video-hub .vc1751-readiness{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:570px){#scout-video-hub .vc1751-desk{padding:10px;gap:9px}#scout-video-hub .vc1751-heading{align-items:flex-start}#scout-video-hub #vc1751-library-open{width:100%}#scout-video-hub .vc1751-readiness{gap:5px}#scout-video-hub .vc1751-readiness>div{padding:9px}#scout-video-hub .vc1751-readiness strong{font-size:11px}#scout-video-hub .vc1751-readiness small,#scout-video-hub .vc1751-readiness span{font-size:9px}#scout-video-hub .vc1751-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#scout-video-hub .vc1751-shortcuts button{width:100%;padding:9px 5px!important;font-size:10px!important}#scout-video-hub .vc1751-shortcuts button:last-child{grid-column:1/-1}#scout-video-hub .vc1751-recording{align-items:stretch;flex-direction:column}#scout-video-hub .vc1751-recording button{align-self:flex-start}}
 </style>
-<script id="vc1751-video-production" src="./149-vc1751-video-production-workspace.js?v=17.5.1" defer data-vc-module="true"></script>
-<script id="vc1752-scouting-fast-flow" src="./150-vc1752-scouting-fast-flow.js?v=17.7.0" defer data-vc-module="true"></script>
 
-<script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
-<script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0" defer data-vc-module="true"></script>
+<script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0&amp;rev=20.7.17" defer data-vc-module="true"></script>
 
 <!-- V20.7.15 · The original video modules V17.10–V18.3 remain in runtime order inside the deferred V18.3 bundle below. -->
 
@@ -11908,7 +11906,6 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <link id="vc1843-embedded-video-styles" rel="stylesheet" href="./vc2075-video-styles-extracted.css?v=20.7.5" data-vc-ui="V18.4.3">
 
 <!-- V18.4.5 · Four-workspace visual consolidation (no new media engines). -->
-<script id="vc1845-video-polish" src="./163-vc1845-video-polish.js?v=18.4.5" defer data-vc-module="true"></script>
 <style id="vc1845-video-polish-style" data-vc-ui="18.4.5">
 /* Volley Coach V18.4.5 — four-workspace visual consolidation.
    Scoped to the new workspace; media, recording and cloud engines unchanged. */
@@ -12100,7 +12097,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media(max-width:420px){#vc1850-home .vc1850-match-copy{width:86%}#vc1850-home .vc1850-court{opacity:.25;right:-58px;width:66%;min-width:175px}#vc1850-home .vc1850-welcome-actions button{flex:1 1 100%}#vc1850-home .vc1850-training-feature{padding:18px}}
 @media(prefers-reduced-motion:reduce){#vc1850-home button{transition:none!important}}
 </style>
-<script id="vc1850-home-dashboard-module" src="./164-vc1850-home-dashboard.js?v=18.9.1" defer data-vc-module="true"></script>
 
 <style id="vc1851-match-center-pro-styles">
 /* Volley Coach V18.5.1 · Centro de partidos · estilos de la única vista profesional.
@@ -12198,8 +12194,7 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media(prefers-reduced-motion:reduce){#vc1851-center button{transition:none!important}}
 
 </style>
-<script id="vc1851-match-center-module" src="./165-vc1851-match-center-pro.js?v=18.9.1" defer data-vc-module="true"></script>
-<script id="vc1860-training-planner-module" src="./166-vc1860-training-planner.js?v=19.1.0" defer data-vc-module="true"></script>
+<script id="vc1860-training-planner-module" src="./166-vc1860-training-planner.js?v=19.1.0&amp;rev=20.7.17" defer data-vc-module="true"></script>
 <!-- V19: single workflow navigator, reusing the existing navigation and state. -->
 
 <script id="vc1910-data-reliability" src="./171-vc1910-data-reliability.js?v=20.3.3" defer data-vc-module="true"></script>
@@ -12390,8 +12385,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media(max-width:540px){#vc1930-desk .vc1934-heading{flex-direction:column}#vc1930-desk .vc1934-kpi strong{font-size:19px}}
 
 </style>
-<script id="vc1933-analysis-engine" src="./184-vc1933-analysis-engine.js?v=19.3.3" defer data-vc-module="true"></script>
-<script id="vc1934-setter-attack" src="./185-vc1934-setter-attack-intelligence.js?v=19.3.4" defer data-vc-module="true"></script>
 <style id="vc1935-analysis-style">
 /* Volley Coach V19.3.5 — Professional Analysis Workspace.
    Own visual identity; does not modify the analysis, scouting, cloud or media engines. */
@@ -12460,7 +12453,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media(max-width:850px){#vc1930-desk.vc1935-ready .vc1935-split{grid-template-columns:minmax(0,1fr)!important}#vc1930-desk.vc1935-ready .vc1935-evidence{position:static!important;max-height:360px!important}#vc1930-desk.vc1935-ready .vc1935-evidence-full{max-height:none!important}#vc1930-desk.vc1935-ready .vc1935-kpi-host .vc1930-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:520px){#vc1930-desk.vc1935-ready{padding:7px!important;gap:9px!important}#vc1930-desk.vc1935-ready .vc1930-head{padding:12px 14px!important;min-height:90px!important}#vc1930-desk.vc1935-ready .vc1935-toolbar{padding:11px!important}#vc1930-desk.vc1935-ready .vc1935-kpi-host .vc1930-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}#vc1930-desk.vc1935-ready .vc1935-kpi-host .vc1930-kpis article{padding:9px!important;min-height:70px!important}#vc1930-desk.vc1935-ready .vc1935-kpi-host .vc1930-kpis strong{font-size:19px!important}#vc1930-desk.vc1935-ready .vc1935-evidence{max-height:285px!important}#vc1930-desk.vc1935-ready .vc1935-evidence-full{max-height:none!important}#vc1930-desk.vc1935-ready .vc1930-grid{grid-template-columns:minmax(0,1fr)!important}}
 </style>
-<script id="vc1935-analysis-workspace" src="./186-vc1935-analysis-workspace.js?v=19.3.6" defer data-vc-module="true"></script>
 <style id="vc1936-three-pane-inline">
 /* V19.3.6 · Three-panel analysis. Keep scoped to the tactical rival desk. */
 #vc1930-desk.vc1936-ready{--navy:#102f4c;--blue:#1769bb;--line:#d8e5f0;--muted:#637c93}
@@ -12524,8 +12516,6 @@ body.vc1850-home-active #v11-sidebar{background:#0b2343!important}
 @media (max-width:870px){#vc1930-desk.vc1936-ready .vc1935-split.vc1936-three{grid-template-columns:minmax(0,1fr)!important}#vc1930-desk.vc1936-ready .vc1936-center{position:static!important}#vc1930-desk.vc1936-ready .vc1935-evidence{grid-column:auto!important}#vc1930-desk.vc1936-ready .vc1936-quick{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media (max-width:430px){#vc1930-desk.vc1936-ready .vc1936-quick{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}#vc1930-desk.vc1936-ready .vc1936-zone{min-height:82px!important;padding:4px 2px!important}#vc1930-desk.vc1936-ready .vc1936-court-half{grid-template-rows:repeat(2,minmax(82px,1fr))!important}#vc1930-desk.vc1936-ready .vc1936-subzones span{font-size:8px!important}}
 </style>
-<script id="vc1936-three-pane" src="./187-vc1936-analysis-three-pane.js?v=19.3.6" defer data-vc-module="true"></script>
-<script id="vc1930-tactical-rivals" src="./183-vc1930-tactical-rival-desk.js?v=19.3.6" defer data-vc-module="true"></script>
 
 <style id="vc1937-main-inline">
 /* V19.3.7 · Analysis Pro: primary workspace, not the separate rival desk. */
@@ -12630,7 +12620,6 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 #scout-analysis.vc1937-primary .vc1937-tool-label select{height:34px;min-width:160px;max-width:240px;color:#153957;background:#fff;border:1px solid #bbd3e8;border-radius:6px;font:700 11px system-ui}
 
 </style>
-<script id="vc1938-data-engine" src="./189-vc1938-professional-data-engine.js?v=19.3.8" defer data-vc-module="true"></script>
 <style id="vc1939-rally-search-inline" data-vc-version="19.3.9">
 /* Fallback de estilo en caso de no cargar la hoja CSS de Rally Search Pro. */
 #scout-analysis.vc1937-primary .vc1939-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -12642,8 +12631,6 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 #scout-analysis.vc1937-primary .vc1939-presets{display:flex;gap:5px;flex-wrap:wrap}
 #scout-analysis.vc1937-primary .vc1939-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 </style>
-<script id="vc1939-rally-search" src="./190-vc1939-rally-search-pro.js?v=19.3.9" defer data-vc-module="true"></script>
-<script id="vc1937-analysis-main" src="./188-vc1937-analysis-main-rebuild.js?v=19.3.9" defer data-vc-module="true"></script>
 
 <!-- V19.3.10: Six professional analysis workspaces, original application data and tools -->
 <link rel="stylesheet" href="./vc19311-professional-screens.css?v=19.3.11">
@@ -12755,8 +12742,7 @@ body.v11-shell #scout-analysis.vc1937-primary #vc157-studio .vc157-filterbar sel
 #scout-analysis.vc19310-active .vc19310-presets button{border:1px solid #c8dcea!important;background:#f0f7ff!important;color:#17588e!important;border-radius:4px!important;font:800 11px system-ui!important;min-height:32px!important;padding:6px 10px!important}
 
 </style>
-<script id="vc19311-analysis-screens" src="./192-vc19311-professional-analysis-screens.js?v=19.3.11" defer data-vc-module="true"></script>
-<link rel="stylesheet" href="./vc19312-video-scoreboard.css?v=19.3.12"><script id="vc19312-video-scoreboard" src="./193-vc19312-video-scoreboard.js?v=19.3.14" defer data-vc-module="true"></script>
+<link rel="stylesheet" href="./vc19312-video-scoreboard.css?v=19.3.12"><script id="vc19312-video-scoreboard" src="./193-vc19312-video-scoreboard.js?v=19.3.14&amp;rev=20.7.17" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc193131-scout-scoreboard-pro.css?v=19.3.13.1">
 <script id="vc193131-scout-video-score" src="./194-vc193131-scout-video-score-model.js?v=19.3.13.1" defer data-vc-module="true"></script>
 <link rel="stylesheet" href="./vc2071-video-editor-unified.css?v=20.7.1">
