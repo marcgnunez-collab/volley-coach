@@ -739,6 +739,7 @@ linear-gradient(to bottom,transparent calc(66.667% - 1.25px),rgba(255,255,255,.9
     <div class="vc2052-title"><div><small>V20.5.79 · COMANDOS DE RALLY</small><h3>Punto y Deshacer coordinados desde TypeScript</h3><p>La nueva vía valida el partido y set antes de cada comando, delega una sola vez en el marcador nativo y verifica el resultado. Si el escritor falla después de modificar datos, no reintenta la orden. Se conserva la puntuación, historial, vídeo, REC/Delay y sincronización existentes.</p></div><span>Reestructuración · Fase 6</span></div>
     <div class="vc2052-title"><div><small>V20.5.80 · CONTROLADOR NATIVO MIGRADO</small><h3>Control completo de Punto y Deshacer en TypeScript</h3><p>Las validaciones, bloqueo de pulsaciones repetidas, mensajes de resultado y verificación de ambos comandos ya se ejecutan desde un controlador TypeScript. Las funciones históricas conservan la única escritura de puntos, rallies, rotaciones y datos de vídeo; la vía anterior sigue disponible como respaldo.</p></div><span>Reestructuración · Fase 7</span></div>
     <div class="vc2052-title"><div><small>V20.5.81 · REGLAS DEL MOTOR</small><h3>Reglas de sets y rotaciones migradas con verificación de paridad</h3><p>El motor nativo utiliza cálculos TypeScript para los 25/15 puntos, la diferencia de dos, el recuento de sets y la rotación P1–P6. Cada resultado se compara con el cálculo anterior antes de aplicarlo; si difiere, se usa el original. Solo el escritor histórico altera los datos.</p></div><span>Reestructuración · Fase 8</span></div>
+    <div class="vc2052-title"><div><small>V20.7.15 · VÍDEO E INFORMES MÁS LIGEROS</small><h3>Once scripts diferidos en dos bundles</h3><p>Los módulos de vídeo, grabación, informes y comparación conservan su orden y código originales, pero requieren nueve peticiones JavaScript menos y unos 10 KB gzip menos. Punto, Deshacer, almacenamiento y nube no cambian. Los 59 candidatos antiguos siguen protegidos hasta el final de la migración.</p></div><span>Arquitectura · Carga diferida</span></div>
     <div class="vc2052-title"><div><small>V20.7.14 · MENOS PETICIONES, MENOS PESO</small><h3>Once scripts reorganizados en dos módulos</h3><p>Unificamos funciones de vídeo, Scouting, hojas y análisis sin alterar su código ni el orden de carga. Ahora hay nueve peticiones JavaScript menos y unos 9 KB gzip menos. Punto, Deshacer, vídeo y nube mantienen sus responsables originales. Los 50 archivos candidatos se conservarán hasta la limpieza final.</p></div><span>Arquitectura · Consolidación de módulos</span></div>
     <div class="vc2052-title"><div><small>V20.7.13 · CÁLCULOS TÁCTICOS SEPARADOS</small><h3>28 funciones de análisis fuera del núcleo principal</h3><p>Las agrupaciones, filtros de rivales, distribuciones y cruces tácticos se calculan ahora en el módulo de análisis ya activo. El marcador, el registro de acciones, Deshacer, el vídeo y la sincronización mantienen sus escritores originales. Conservamos intactos los 41 candidatos históricos para la limpieza final.</p></div><span>Arquitectura · Consultas y filtros</span></div>
     <div class="vc2052-title"><div><small>V20.7.12 · VISTAS DE ANÁLISIS MODULARES</small><h3>Once generadores HTML fuera del núcleo de Scouting</h3><p>Las vistas de tendencias del colocador y atacante, el rival y los cruces entre rotaciones pasan al módulo de presentación. El núcleo reduce más de 20 KB sin añadir peticiones, y se conservan el marcador, el vídeo, los guardados y la sincronización originales. Los 41 archivos históricos candidatos seguirán intactos hasta terminar la migración.</p></div><span>Arquitectura · Análisis táctico</span></div>
@@ -11614,9 +11615,7 @@ html:has(body.vc1644-theater-lock),body.vc1644-theater-lock{overflow:hidden!impo
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 </script>
-<script id="vc1657-reports" src="./140-vc1657-professional-reports.js?v=16.5.7" defer data-vc-module="true"></script>
-<script id="vc1656-comparisons" src="./139-vc1656-comparisons.js?v=16.5.6" defer data-vc-module="true"></script>
-<script id="vc1655-tactical-video" src="./138-vc1655-tactical-video.js?v=16.5.5" defer data-vc-module="true"></script>
+<script id="vc1655-tactical-video" src="./138-vc1655-tactical-video.js?v=16.5.5&amp;rev=20.7.15" defer data-vc-module="true"></script>
 <script id="vc16158-reliability-loader">
 /* V16.1.5.8 · Load diagnostics only on a user click; no extra startup work. */
 (()=>{
@@ -11902,21 +11901,15 @@ body.vc17-shell .vc1741-devices-button[data-presence="unknown"] b{color:#617489!
 <script id="vc1770-video-pro" src="./152-vc1770-video-pro.js?v=17.7.0" defer data-vc-module="true"></script>
 <script id="vc1780-cross-analysis" src="./153-vc1780-cross-analysis.js?v=17.8.0" defer data-vc-module="true"></script>
 
-<script id="vc17100-unified-video" src="./155-vc17100-unified-video.js?v=18.4.0" defer data-vc-module="true"></script>
-<script id="vc17110-training-video-pro" src="./156-vc17110-training-video-pro.js?v=17.11.0" defer data-vc-module="true"></script>
-<script id="vc17120-match-recording-pro" src="./157-vc17120-match-recording-pro.js?v=17.12.0" defer data-vc-module="true"></script>
-<script id="vc17121-install-health" src="./158-vc17121-install-health.js?v=17.12.1" defer data-vc-module="true"></script>
-<script id="vc1800-video-evidence" src="./159-vc1800-cross-video-evidence.js?v=18.0.0" defer data-vc-module="true"></script>
+<!-- V20.7.15 · The original video modules V17.10–V18.3 remain in runtime order inside the deferred V18.3 bundle below. -->
 
 <!-- V18.1 · Video Studio Pro: unified presentation over the original media engines. -->
 
-<script id="vc1810-video-studio-layout" src="./160-vc1810-video-studio-layout.js?v=18.4.3" defer data-vc-module="true"></script>
 <!-- V18.2 · Recording and Delay Pro diagnostics, using the existing media engines. -->
 
-<script id="vc1820-video-reliability" src="./161-vc1820-video-reliability.js?v=18.2.0" defer data-vc-module="true"></script>
 <!-- V18.4 · Four separate workspaces: Camera + Delay / Review / Clip Studio / Local video library. -->
 
-<script id="vc1830-video-workspaces" src="./162-vc1830-video-workspaces.js?v=18.4.3" defer data-vc-module="true"></script>
+<script id="vc1830-video-workspaces" src="./162-vc1830-video-workspaces.js?v=18.4.3&amp;rev=20.7.15" defer data-vc-module="true"></script>
 
 
 <link id="vc1843-embedded-video-styles" rel="stylesheet" href="./vc2075-video-styles-extracted.css?v=20.7.5" data-vc-ui="V18.4.3">

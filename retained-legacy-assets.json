@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.14",
+  "updatedIn": "20.7.15",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -96,6 +96,20 @@
         "135-vc1650-custom-worksheets.js",
         "136-vc1651-tactical-laboratory.js",
         "167-vc1880-analysis-pro.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.15",
+      "files": [
+        "140-vc1657-professional-reports.js",
+        "139-vc1656-comparisons.js",
+        "155-vc17100-unified-video.js",
+        "156-vc17110-training-video-pro.js",
+        "157-vc17120-match-recording-pro.js",
+        "158-vc17121-install-health.js",
+        "159-vc1800-cross-video-evidence.js",
+        "160-vc1810-video-studio-layout.js",
+        "161-vc1820-video-reliability.js"
       ]
     }
   ]
