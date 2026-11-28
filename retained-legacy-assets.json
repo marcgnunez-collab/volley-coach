@@ -1,7 +1,7 @@
 {
   "schema": "vc-pending-retirement/1",
   "policy": "KEEP_UNTIL_MIGRATION_FINISHED",
-  "updatedIn": "20.7.15",
+  "updatedIn": "20.7.16",
   "groups": [
     {
       "identifiedIn": "20.7.0",
@@ -110,6 +110,19 @@
         "159-vc1800-cross-video-evidence.js",
         "160-vc1810-video-studio-layout.js",
         "161-vc1820-video-reliability.js"
+      ]
+    },
+    {
+      "identifiedIn": "20.7.16",
+      "files": [
+        "100-vc159-stats-video-runtime.js",
+        "101-vc160-video-health-module.js",
+        "148-vc1750-ui-scheduler.js",
+        "170-vc1900-unified-workflow.js",
+        "143-vc1700-professional-workspace.js",
+        "144-vc1703-functional-audit.js",
+        "145-vc1710-training-workspace.js",
+        "146-vc1720-match-workspace.js"
       ]
     }
   ]

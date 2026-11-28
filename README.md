@@ -211,3 +211,5 @@ Actualización incremental sobre V19.3.15 con asociaciones por secuencia de cont
 
 
 
+> **V20.7.16 · Interfaz y análisis agrupados:** 10 scripts de estadísticas de vídeo e interfaz profesional pasan a **dos bundles** sin modificar el código interno ni su orden. La carga necesita **8 peticiones JavaScript menos** y ahorra unos **6,3 KB gzip** respecto a V20.7.15. Los escritores de puntos, Deshacer, IndexedDB y nube siguen intactos. El inventario incluye **67 candidatos históricos, 44 todavía presentes**: **no borres los restantes todavía**. [Guía V20.7.16](GUIA_V20.7.16_INTERFAZ_BUNDLES.md). Base: **V20.7.15**.
+
